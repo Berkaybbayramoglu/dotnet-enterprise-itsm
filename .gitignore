@@ -1,0 +1,20 @@
+# Visual Studio / .NET
+[Oo]bj/
+[Bb]in/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Environment Files
+.env
+appsettings.Development.json
+appsettings.Local.json
+
+# Logs
+*.log
+
+# OS generated
+.DS_Store
+Thumbs.db

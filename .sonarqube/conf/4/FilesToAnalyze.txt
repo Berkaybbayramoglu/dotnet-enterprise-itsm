@@ -1,0 +1,10 @@
+﻿/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SystemController.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/ItsTool.API.GlobalUsings.g.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/ItsTool.API.AssemblyInfo.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/ItsTool.API.MvcApplicationPartsAssemblyInfo.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/appsettings.Development.json
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/appsettings.json
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/ItsTool.API.http
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Properties/launchSettings.json

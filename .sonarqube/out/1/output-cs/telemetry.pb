@@ -1,0 +1,1 @@
+bRU/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/ItsTool.Domain.csprojòCSharp12

@@ -1,0 +1,1 @@
+\RO/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/ItsTool.Web.csprojòCSharp12

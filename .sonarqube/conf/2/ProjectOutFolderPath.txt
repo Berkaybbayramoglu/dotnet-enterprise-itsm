@@ -1,0 +1,1 @@
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/2

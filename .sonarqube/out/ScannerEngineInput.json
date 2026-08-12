@@ -1,0 +1,220 @@
+{
+  "scannerProperties": [
+    {
+      "key": "sonar.scanner.app",
+      "value": "ScannerMSBuild"
+    },
+    {
+      "key": "sonar.scanner.appVersion",
+      "value": "11.2.1"
+    },
+    {
+      "key": "sonar.scanner.bootstrapStartTime",
+      "value": "1786523939000"
+    },
+    {
+      "key": "sonar.projectKey",
+      "value": "itsm-tool"
+    },
+    {
+      "key": "sonar.working.directory",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar"
+    },
+    {
+      "key": "sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool"
+    },
+    {
+      "key": "sonar.pullrequest.cache.basepath",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool"
+    },
+    {
+      "key": "sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/obj/ItsTool.Application.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/bin/Debug/net8.0/ItsTool.Application.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/run_all.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/generate_files.sh"
+    },
+    {
+      "key": "sonar.tests",
+      "value": ""
+    },
+    {
+      "key": "sonar.modules",
+      "value": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF,7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2,22528CA4-22EA-4283-BFCC-AB8DD95FD4B1,36ED22A6-EF3B-431B-A203-B614D4D1FB4C"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectKey",
+      "value": "itsm-tool:48375DC6-FDCA-48D7-8610-B14C9E0B5EEF"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectName",
+      "value": "ItsTool.Web"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.working.directory",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar/mod0"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.sourceEncoding",
+      "value": "utf-8"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.tests",
+      "value": ""
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/Program.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.GlobalUsings.g.cs,\"/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs\",/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.AssemblyInfo.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/Properties/launchSettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/ItsTool.Web.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.staticwebassets.runtime.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.build.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.development.json"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.analyzer.projectOutPaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/0"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.roslyn.reportFilePaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/0/Issues.json"
+    },
+    {
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.scanner.telemetry",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/0/Telemetry.json"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.projectKey",
+      "value": "itsm-tool:7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.projectName",
+      "value": "ItsTool.Infrastructure"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.working.directory",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar/mod1"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.sourceEncoding",
+      "value": "utf-8"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.tests",
+      "value": ""
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/obj/ItsTool.Infrastructure.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/bin/Debug/net8.0/ItsTool.Infrastructure.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/bin/Debug/net8.0/ItsTool.Infrastructure.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContext.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.Designer.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/ItsToolDbContextModelSnapshot.cs"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.cs.analyzer.projectOutPaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/3"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.cs.roslyn.reportFilePaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/3/Issues.json"
+    },
+    {
+      "key": "7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2.sonar.cs.scanner.telemetry",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/3/Telemetry.json"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectKey",
+      "value": "itsm-tool:22528CA4-22EA-4283-BFCC-AB8DD95FD4B1"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectName",
+      "value": "ItsTool.Domain"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.working.directory",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar/mod2"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.sourceEncoding",
+      "value": "utf-8"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.tests",
+      "value": ""
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/ItsTool.Domain.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/bin/Debug/net8.0/ItsTool.Domain.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/BaseEntity.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/IAuditable.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/GroupRole.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/RolePermission.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserPermissionOverride.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserRole.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/CustomFields.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Notification/NotificationEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Department.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Group.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/GroupMember.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/User.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/Project.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectMember.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/SlaEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Category.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Priority.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Status.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Ticket.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketHistory.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketType.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.analyzer.projectOutPaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/1"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.roslyn.reportFilePaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/1/Issues.json"
+    },
+    {
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.scanner.telemetry",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/1/Telemetry.json"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.projectKey",
+      "value": "itsm-tool:36ED22A6-EF3B-431B-A203-B614D4D1FB4C"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.projectName",
+      "value": "ItsTool.API"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.working.directory",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar/mod3"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.sourceEncoding",
+      "value": "utf-8"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.tests",
+      "value": ""
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Properties/launchSettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/ItsTool.API.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/bin/Debug/net8.0/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/bin/Debug/net8.0/ItsTool.API.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/bin/Debug/net8.0/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/bin/Debug/net8.0/ItsTool.API.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/staticwebassets.build.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SystemController.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/ItsTool.API.GlobalUsings.g.cs,\"/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs\",/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/ItsTool.API.AssemblyInfo.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/obj/Debug/net8.0/ItsTool.API.MvcApplicationPartsAssemblyInfo.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/ItsTool.API.http"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.cs.analyzer.projectOutPaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/4"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.cs.roslyn.reportFilePaths",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/4/Issues.json"
+    },
+    {
+      "key": "36ED22A6-EF3B-431B-A203-B614D4D1FB4C.sonar.cs.scanner.telemetry",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/4/Telemetry.json"
+    },
+    {
+      "key": "sonar.token",
+      "value": "***"
+    },
+    {
+      "key": "sonar.host.url",
+      "value": "http://localhost:9000"
+    },
+    {
+      "key": "sonar.exclusions",
+      "value": "**/Migrations/**,**/bin/**,**/obj/**"
+    },
+    {
+      "key": "sonar.visualstudio.enable",
+      "value": "false"
+    }
+  ]
+}
