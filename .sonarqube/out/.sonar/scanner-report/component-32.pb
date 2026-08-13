@@ -1,0 +1,1 @@
+  2csXhr0src/ItsTool.Domain/Entities/Ticket/TicketType.cs

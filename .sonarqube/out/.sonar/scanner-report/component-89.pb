@@ -1,0 +1,1 @@
+Y 2csXhr2src/ItsTool.Application/Interfaces/IAuthService.cs

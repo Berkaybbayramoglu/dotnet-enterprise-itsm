@@ -22,3 +22,4 @@
 | 018 | Veritabanı | Güvenlik | DB parolalarının repository'e eklenmemesi (appsettings'de placeholder). | Güvenlik ihlalini önlemek. | Yüksek | Düşük | Onay Bekliyor | - |
 | 019 | Veritabanı | Migration | Migration dosyalarının (`Migrations/` klasöründeki .cs dosyaları) version control'de tutulması. | EF Core migration mimarisinin temel mantığıdır. | Yüksek | Düşük | Açık | Faz 2B eklendi |
 | 024 | Kurulum | Seed Data | Sisteme ilk giriş için admin/Admin123! kullanıcısı ve temel ITSM config verileri API endpoint'i üzerinden seed edilecektir. | Login sisteminin test edilmesi ve temel ayarların yapılması. | Yüksek | Düşük | Kabul Edildi | API endpoint ile yapıldı. |
+\n## Faz 4 Sonrası Quality Gate ve Coverage Kararı\nCoverage koşulu bilinçli olarak (şimdilik) kaldırıldı/indirildi; Faz 12'de (sistem ve entegrasyon testleri eklendiğinde) %80 koşulu geri eklenecektir.

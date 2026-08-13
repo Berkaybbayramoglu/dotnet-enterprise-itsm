@@ -169,7 +169,9 @@
   </ServerSettings>
   <LocalSettings>
     <Property Name="sonar.host.url">http://localhost:9000</Property>
-    <Property Name="sonar.exclusions">**/Migrations/**,**/bin/**,**/obj/**</Property>
+    <Property Name="sonar.exclusions">**/Migrations/**,**/bin/**,**/obj/**,**/coverage*.xml</Property>
+    <Property Name="sonar.cs.opencover.reportPaths">/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/coverage.opencover.xml</Property>
+    <Property Name="sonar.verbose">true</Property>
   </LocalSettings>
   <ScannerOptsSettings />
   <AnalyzersSettings>

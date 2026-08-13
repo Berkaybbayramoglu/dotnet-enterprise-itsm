@@ -1,0 +1,41 @@
+Ÿ
+e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WorkflowServiceTests.csItsTool.UnitTests[
+/ItsTool.UnitTests.Services.WorkflowServiceTests(CreateWorkflowAsync_ShouldCreateWorkflowb
+/ItsTool.UnitTests.Services.WorkflowServiceTests/CreateTransitionAsync_ShouldThrowIfFromEqualsTob
+/ItsTool.UnitTests.Services.WorkflowServiceTests/UpdateTransitionAsync_ShouldThrowIfFromEqualsToá
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/UserServiceTests.csItsTool.UnitTestsK
++ItsTool.UnitTests.Services.UserServiceTestsCreateAsync_ShouldCreateUserK
++ItsTool.UnitTests.Services.UserServiceTestsUpdateAsync_ShouldUpdateUserO
++ItsTool.UnitTests.Services.UserServiceTests AssignRoleAsync_ShouldAssignRoleÕ
+b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TokenServiceTests.csItsTool.UnitTests\
+,ItsTool.UnitTests.Services.TokenServiceTests,GenerateToken_ShouldCreateValidJwtWithClaimsí
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/RoleServiceTests.csItsTool.UnitTestsK
++ItsTool.UnitTests.Services.RoleServiceTestsCreateAsync_ShouldCreateRoleK
++ItsTool.UnitTests.Services.RoleServiceTestsUpdateAsync_ShouldUpdateRole[
++ItsTool.UnitTests.Services.RoleServiceTests,AssignPermissionAsync_ShouldAssignPermissionö
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.csItsTool.UnitTestsQ
+.ItsTool.UnitTests.Services.ProjectServiceTestsCreateAsync_ShouldCreateProjectQ
+.ItsTool.UnitTests.Services.ProjectServiceTestsUpdateAsync_ShouldUpdateProjectU
+.ItsTool.UnitTests.Services.ProjectServiceTests#DeleteAsync_ShouldSoftDeleteProjectè
+b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/GroupServiceTests.csItsTool.UnitTestsM
+,ItsTool.UnitTests.Services.GroupServiceTestsCreateAsync_ShouldCreateGroupM
+,ItsTool.UnitTests.Services.GroupServiceTestsUpdateAsync_ShouldUpdateGroupQ
+,ItsTool.UnitTests.Services.GroupServiceTests!DeleteAsync_ShouldSoftDeleteGroup…
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.csItsTool.UnitTests|
+4ItsTool.UnitTests.Services.PermissionCalculatorTestsDCalculateEffectivePermissionsAsync_ShouldReturnUnionOfAllPermissions…
+4ItsTool.UnitTests.Services.PermissionCalculatorTestsMCalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverrides°
+h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DynamicFormServiceTests.csItsTool.UnitTestsj
+2ItsTool.UnitTests.Services.DynamicFormServiceTests4CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUniquef
+2ItsTool.UnitTests.Services.DynamicFormServiceTests0CreatePlacementAsync_ShouldThrowIfDuplicateScope]
+2ItsTool.UnitTests.Services.DynamicFormServiceTests'CreateFieldDefinitionAsync_ShouldCreate¯
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DepartmentServiceTests.csItsTool.UnitTestsW
+1ItsTool.UnitTests.Services.DepartmentServiceTests"CreateAsync_ShouldCreateDepartmentX
+1ItsTool.UnitTests.Services.DepartmentServiceTests#GetByIdAsync_ShouldReturnDepartment‰
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.csItsTool.UnitTestsZ
+.ItsTool.UnitTests.Services.CatalogServiceTests(CreateCategoryAsync_ShouldCreateCategoryZ
+.ItsTool.UnitTests.Services.CatalogServiceTests(GetCategoriesAsync_ShouldFilterByProjectV
+.ItsTool.UnitTests.Services.CatalogServiceTests$DeleteStatusAsync_ShouldThrowIfInUseµ
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AuthServiceTests.csItsTool.UnitTests\
++ItsTool.UnitTests.Services.AuthServiceTests-LoginAsync_ValidCredentials_ShouldReturnTokenp
++ItsTool.UnitTests.Services.AuthServiceTestsALoginAsync_InvalidPassword_ShouldThrowUnauthorizedAccessExceptionm
++ItsTool.UnitTests.Services.AuthServiceTests>LoginAsync_InactiveUser_ShouldThrowUnauthorizedAccessException

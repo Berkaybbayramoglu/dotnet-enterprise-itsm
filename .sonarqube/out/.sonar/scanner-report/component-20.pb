@@ -1,0 +1,2 @@
+ 2csX
+hr6src/ItsTool.Domain/Entities/Organization/Department.cs

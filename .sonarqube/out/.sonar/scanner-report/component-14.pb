@@ -1,0 +1,1 @@
+ 2csX	hr2src/ItsTool.Domain/Entities/Auth/RolePermission.cs

@@ -6,7 +6,9 @@
   <ProjectGuid>d6014c93-22b5-4d0f-9e5d-19c31758bcfe</ProjectGuid>
   <FullPath>/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/ItsTool.Application.csproj</FullPath>
   <IsExcluded>false</IsExcluded>
-  <AnalysisResultFiles />
+  <AnalysisResultFiles>
+    <AnalysisResultFile Id="FilesToAnalyze" Location="/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/conf/2/FilesToAnalyze.txt" />
+  </AnalysisResultFiles>
   <AnalysisSettings>
     <Property Name="sonar.cs.roslyn.reportFilePaths">/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/2/Issues.json</Property>
     <Property Name="sonar.cs.analyzer.projectOutPaths">/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/2</Property>

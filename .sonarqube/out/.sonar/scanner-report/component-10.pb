@@ -1,0 +1,2 @@
+
+ 2csXhr(src/ItsTool.Domain/Common/ISoftDelete.cs

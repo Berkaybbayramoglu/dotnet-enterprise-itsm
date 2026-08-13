@@ -1,0 +1,1 @@
+Z 2csX#hr5src/ItsTool.Application/Interfaces/ICatalogService.cs

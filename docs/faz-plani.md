@@ -92,3 +92,4 @@ Geliştirme süreci, büyük ve karmaşık yapıyı yönetilebilir ve test edile
 **Çıktılar:** Temiz SonarQube raporu, test senaryoları, güvenlik onaylı sürüm, demo akışı ve final agent notları.
 **Kabul Kriterleri:** Kritik bug/yetki açığı olmamalı, README ile uygulama ayağa kalkabilmeli ve demo uçtan uca çalışmalıdır.
 **Dikkat Edilecekler:** Bu aşamada büyük kod/feature eklenmemeli, stabilizasyona ve açıklanabilirliğe odaklanılmalıdır.
+- Coverage koşulu bilinçli kaldırıldı/indirildi; Faz 12'de test olgunlaşınca geri eklenecek.
