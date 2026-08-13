@@ -1,5 +1,4 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Auth;
 using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
@@ -8,55 +7,47 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class UserServiceTests : TestBase
+public class DepartmentServiceTests : TestBase
 {
-    private readonly Repository<User> _repository;
-    private readonly UserService _service;
+    private readonly Repository<Department> _repository;
+    private readonly DepartmentService _service;
 
-    public UserServiceTests()
+    public DepartmentServiceTests() : base()
     {
-        _repository = new Repository<User>(_context);
-        _service = new UserService(_repository, _context);
+        _repository = new Repository<Department>(_context);
+        _service = new DepartmentService(_repository);
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldCreateUser()
+    public async Task CreateAsync_ShouldCreateDepartment()
     {
-        var dto = new CreateUserDto("john", "j@j.com", "John", "Doe", "pass", 1);
+        // Arrange
+        var dto = new CreateDepartmentDto("IT", "IT Dept");
+
+        // Act
         var result = await _service.CreateAsync(dto);
 
+        // Assert
         Assert.NotNull(result);
-        Assert.Equal("john", result.Username);
-        Assert.Equal("j@j.com", result.Email);
+        Assert.Equal("IT", result.Name);
+        var dbDept = await _context.Departments.FirstOrDefaultAsync(d => d.Id == result.Id);
+        Assert.NotNull(dbDept);
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateUser()
+    public async Task GetByIdAsync_ShouldReturnDepartment()
     {
-        var user = new User { Username = "old", Email = "old@j.com", FirstName = "a", LastName = "b", PasswordHash = "c" };
-        _context.Users.Add(user);
+        // Arrange
+        var dept = new Department { Name = "HR" };
+        _context.Departments.Add(dept);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateUserDto("new@j.com", "NewA", "NewB", true, 2);
-        await _service.UpdateAsync(user.Id, dto);
+        // Act
+        var result = await _service.GetByIdAsync(dept.Id);
 
-        var updated = await _context.Users.FindAsync(user.Id);
-        Assert.Equal("new@j.com", updated!.Email);
-        Assert.Equal("NewA", updated.FirstName);
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("HR", result.Name);
     }
 
-    [Fact]
-    public async Task AssignRoleAsync_ShouldAssignRole()
-    {
-        var user = new User { Username = "u", Email = "e", FirstName = "a", LastName = "b", PasswordHash = "c" };
-        var role = new Role { Name = "Admin" };
-        _context.Users.Add(user);
-        _context.Roles.Add(role);
-        await _context.SaveChangesAsync();
-
-        await _service.AssignRoleAsync(user.Id, role.Id);
-
-        var assigned = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.RoleId == role.Id);
-        Assert.NotNull(assigned);
-    }
 }

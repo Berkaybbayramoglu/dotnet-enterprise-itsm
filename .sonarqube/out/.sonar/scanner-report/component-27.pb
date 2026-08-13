@@ -1,1 +1,1 @@
- 2csXhr.src/ItsTool.Domain/Entities/Ticket/Category.cs
+ 2csX&hr.src/ItsTool.Domain/Entities/SLA/SlaEntities.cs

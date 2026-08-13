@@ -1,1 +1,1 @@
-^ 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs
+^ 2csXhr+src/ItsTool.Application/DTOs/CatalogDtos.cs

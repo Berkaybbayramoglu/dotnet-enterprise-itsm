@@ -1,74 +1,55 @@
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class RoleService : IRoleService
+public class DepartmentService : IDepartmentService
 {
-    private readonly IRepository<Role> _repository;
-    private readonly ItsToolDbContext _context;
+    private readonly IRepository<Department> _repository;
 
-    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
+    public DepartmentService(IRepository<Department> repository)
     {
         _repository = repository;
-        _context = context;
     }
 
-    public async Task<IEnumerable<RoleDto>> GetAllAsync()
+    public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
     {
-        var roles = await _repository.GetAllAsync();
-        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
+        var depts = await _repository.GetAllAsync();
+        return depts.Select(d => new DepartmentDto(d.Id, d.Name, d.Description, d.IsActive));
     }
 
-    public async Task<RoleDto?> GetByIdAsync(int id)
+    public async Task<DepartmentDto?> GetByIdAsync(int id)
     {
-        var r = await _repository.GetByIdAsync(id);
-        if (r == null) return null;
-        return new RoleDto(r.Id, r.Name, r.IsActive);
+        var dept = await _repository.GetByIdAsync(id);
+        if (dept == null) return null;
+        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
     }
 
-    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
+    public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
     {
-        var r = new Role { Name = dto.Name };
-        await _repository.AddAsync(r);
-        return new RoleDto(r.Id, r.Name, r.IsActive);
+        var dept = new Department
+        {
+            Name = dto.Name,
+            Description = dto.Description
+        };
+        await _repository.AddAsync(dept);
+        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
     }
 
-    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    public async Task UpdateAsync(int id, UpdateDepartmentDto dto)
     {
-        var r = await _repository.GetByIdAsync(id);
-        if (r == null) throw new KeyNotFoundException("Role not found");
+        var dept = await _repository.GetByIdAsync(id);
+        if (dept == null) throw new KeyNotFoundException("Department not found");
         
-        r.Name = dto.Name;
-        r.IsActive = dto.IsActive;
-        await _repository.UpdateAsync(r);
+        dept.Name = dto.Name;
+        dept.Description = dto.Description;
+        dept.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(dept);
     }
 
     public async Task DeleteAsync(int id)
     {
         await _repository.DeleteAsync(id);
-    }
-
-    public async Task AssignPermissionAsync(int roleId, int permissionId)
-    {
-        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
-        if (!exists)
-        {
-            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task RevokePermissionAsync(int roleId, int permissionId)
-    {
-        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
-        if (rp != null)
-        {
-            _context.RolePermissions.Remove(rp);
-            await _context.SaveChangesAsync();
-        }
     }
 }

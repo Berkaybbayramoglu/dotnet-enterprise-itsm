@@ -1,107 +1,149 @@
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Config;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class UserService : IUserService
+public class DynamicFormService : IDynamicFormService
 {
-    private readonly IRepository<User> _repository;
+    private readonly IRepository<FieldDefinition> _defRepo;
+    private readonly IRepository<FieldOption> _optRepo;
+    private readonly IRepository<FormFieldPlacement> _placementRepo;
     private readonly ItsToolDbContext _context;
 
-    public UserService(IRepository<User> repository, ItsToolDbContext context)
+    public DynamicFormService(
+        IRepository<FieldDefinition> defRepo,
+        IRepository<FieldOption> optRepo,
+        IRepository<FormFieldPlacement> placementRepo,
+        ItsToolDbContext context)
     {
-        _repository = repository;
+        _defRepo = defRepo;
+        _optRepo = optRepo;
+        _placementRepo = placementRepo;
         _context = context;
     }
 
-    public async Task<IEnumerable<UserDto>> GetAllAsync()
+    public async Task<IEnumerable<FieldDefinitionDto>> GetFieldDefinitionsAsync()
     {
-        var users = await _repository.GetAllAsync();
-        return users.Select(u => new UserDto(u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId));
+        var list = await _defRepo.GetAllAsync();
+        return list.Select(f => new FieldDefinitionDto(f.Id, f.Key, f.Label, f.FieldType.ToString(), f.ValidationRegex, f.IsActive));
     }
 
-    public async Task<UserDto?> GetByIdAsync(int id)
+    public async Task<FieldDefinitionDto?> GetFieldDefinitionByIdAsync(int id)
     {
-        var user = await _repository.GetByIdAsync(id);
-        if (user == null) return null;
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId);
+        var f = await _defRepo.GetByIdAsync(id);
+        if (f == null) return null;
+        return new FieldDefinitionDto(f.Id, f.Key, f.Label, f.FieldType.ToString(), f.ValidationRegex, f.IsActive);
     }
 
-    public async Task<UserDto> CreateAsync(CreateUserDto dto)
+    public async Task<FieldDefinitionDto> CreateFieldDefinitionAsync(CreateFieldDefinitionDto dto)
     {
-        var user = new User
-        {
-            Username = dto.Username,
-            Email = dto.Email,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            DepartmentId = dto.DepartmentId
-        };
-        await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId);
+        var exists = await _context.FieldDefinitions.AnyAsync(f => f.Key == dto.Key && !f.IsDeleted);
+        if (exists) throw new InvalidOperationException("Field Definition Key must be unique.");
+
+        if (!Enum.TryParse<FieldType>(dto.FieldType, true, out var fType)) throw new ArgumentException("Invalid FieldType");
+
+        var f = new FieldDefinition { Key = dto.Key, Label = dto.Label, FieldType = fType, ValidationRegex = dto.ValidationRegex };
+        await _defRepo.AddAsync(f);
+        return new FieldDefinitionDto(f.Id, f.Key, f.Label, f.FieldType.ToString(), f.ValidationRegex, f.IsActive);
     }
 
-    public async Task UpdateAsync(int id, UpdateUserDto dto)
+    public async Task UpdateFieldDefinitionAsync(int id, UpdateFieldDefinitionDto dto)
     {
-        var user = await _repository.GetByIdAsync(id);
-        if (user == null) throw new KeyNotFoundException("User not found");
-        
-        user.Email = dto.Email;
-        user.FirstName = dto.FirstName;
-        user.LastName = dto.LastName;
-        user.IsActive = dto.IsActive;
-        user.DepartmentId = dto.DepartmentId;
-        await _repository.UpdateAsync(user);
+        var f = await _defRepo.GetByIdAsync(id);
+        if (f == null) throw new KeyNotFoundException("FieldDefinition not found");
+
+        var exists = await _context.FieldDefinitions.AnyAsync(fd => fd.Key == dto.Key && fd.Id != id && !fd.IsDeleted);
+        if (exists) throw new InvalidOperationException("Field Definition Key must be unique.");
+
+        if (!Enum.TryParse<FieldType>(dto.FieldType, true, out var fType)) throw new ArgumentException("Invalid FieldType");
+
+        f.Key = dto.Key; f.Label = dto.Label; f.FieldType = fType; f.ValidationRegex = dto.ValidationRegex; f.IsActive = dto.IsActive;
+        await _defRepo.UpdateAsync(f);
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteFieldDefinitionAsync(int id) => await _defRepo.DeleteAsync(id);
+
+    public async Task<IEnumerable<FieldOptionDto>> GetFieldOptionsAsync(int fieldDefinitionId)
     {
-        await _repository.DeleteAsync(id);
+        var list = await _optRepo.GetAllAsync(o => o.FieldDefinitionId == fieldDefinitionId);
+        return list.Select(o => new FieldOptionDto(o.Id, o.FieldDefinitionId, o.Value, o.Label, o.SortOrder, o.IsActive));
     }
 
-    public async Task AssignRoleAsync(int userId, int roleId)
+    public async Task<FieldOptionDto?> GetFieldOptionByIdAsync(int id)
     {
-        var exists = await _context.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
-        if (!exists)
-        {
-            _context.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
-            await _context.SaveChangesAsync();
-        }
+        var o = await _optRepo.GetByIdAsync(id);
+        if (o == null) return null;
+        return new FieldOptionDto(o.Id, o.FieldDefinitionId, o.Value, o.Label, o.SortOrder, o.IsActive);
     }
 
-    public async Task RevokeRoleAsync(int userId, int roleId)
+    public async Task<FieldOptionDto> CreateFieldOptionAsync(CreateFieldOptionDto dto)
     {
-        var ur = await _context.UserRoles.FirstOrDefaultAsync(x => x.UserId == userId && x.RoleId == roleId);
-        if (ur != null)
-        {
-            _context.UserRoles.Remove(ur);
-            await _context.SaveChangesAsync();
-        }
+        var o = new FieldOption { FieldDefinitionId = dto.FieldDefinitionId, Value = dto.Value, Label = dto.Label, SortOrder = dto.SortOrder };
+        await _optRepo.AddAsync(o);
+        return new FieldOptionDto(o.Id, o.FieldDefinitionId, o.Value, o.Label, o.SortOrder, o.IsActive);
     }
 
-    public async Task AddPermissionOverrideAsync(int userId, int permissionId, bool isGranted)
+    public async Task UpdateFieldOptionAsync(int id, UpdateFieldOptionDto dto)
     {
-        var over = await _context.UserPermissionOverrides
-            .FirstOrDefaultAsync(o => o.UserId == userId && o.PermissionId == permissionId);
-            
-        if (over != null)
-        {
-            over.IsGranted = isGranted;
-        }
-        else
-        {
-            _context.UserPermissionOverrides.Add(new UserPermissionOverride
-            {
-                UserId = userId,
-                PermissionId = permissionId,
-                IsGranted = isGranted
-            });
-        }
-        await _context.SaveChangesAsync();
+        var o = await _optRepo.GetByIdAsync(id);
+        if (o == null) throw new KeyNotFoundException("FieldOption not found");
+        o.Value = dto.Value; o.Label = dto.Label; o.SortOrder = dto.SortOrder; o.IsActive = dto.IsActive;
+        await _optRepo.UpdateAsync(o);
     }
+
+    public async Task DeleteFieldOptionAsync(int id) => await _optRepo.DeleteAsync(id);
+
+    public async Task<IEnumerable<FormFieldPlacementDto>> GetPlacementsAsync(int? projectId, int? categoryId, int? ticketTypeId)
+    {
+        var list = await _placementRepo.GetAllAsync(p => 
+            p.ProjectId == projectId && p.CategoryId == categoryId && p.TicketTypeId == ticketTypeId);
+        return list.Select(p => new FormFieldPlacementDto(p.Id, p.FieldDefinitionId, p.ProjectId, p.CategoryId, p.TicketTypeId, p.SortOrder, p.IsRequired, p.IsActive));
+    }
+
+    public async Task<FormFieldPlacementDto?> GetPlacementByIdAsync(int id)
+    {
+        var p = await _placementRepo.GetByIdAsync(id);
+        if (p == null) return null;
+        return new FormFieldPlacementDto(p.Id, p.FieldDefinitionId, p.ProjectId, p.CategoryId, p.TicketTypeId, p.SortOrder, p.IsRequired, p.IsActive);
+    }
+
+    public async Task<FormFieldPlacementDto> CreatePlacementAsync(CreateFormFieldPlacementDto dto)
+    {
+        var exists = await _context.FormFieldPlacements.AnyAsync(p => 
+            p.FieldDefinitionId == dto.FieldDefinitionId && 
+            p.ProjectId == dto.ProjectId && 
+            p.CategoryId == dto.CategoryId && 
+            p.TicketTypeId == dto.TicketTypeId && 
+            !p.IsDeleted);
+
+        if (exists) throw new InvalidOperationException("This field is already placed in this scope.");
+
+        var p = new FormFieldPlacement { FieldDefinitionId = dto.FieldDefinitionId, ProjectId = dto.ProjectId, CategoryId = dto.CategoryId, TicketTypeId = dto.TicketTypeId, SortOrder = dto.SortOrder, IsRequired = dto.IsRequired };
+        await _placementRepo.AddAsync(p);
+        return new FormFieldPlacementDto(p.Id, p.FieldDefinitionId, p.ProjectId, p.CategoryId, p.TicketTypeId, p.SortOrder, p.IsRequired, p.IsActive);
+    }
+
+    public async Task UpdatePlacementAsync(int id, UpdateFormFieldPlacementDto dto)
+    {
+        var p = await _placementRepo.GetByIdAsync(id);
+        if (p == null) throw new KeyNotFoundException("FormFieldPlacement not found");
+
+        var exists = await _context.FormFieldPlacements.AnyAsync(fp => 
+            fp.Id != id &&
+            fp.FieldDefinitionId == p.FieldDefinitionId && 
+            fp.ProjectId == dto.ProjectId && 
+            fp.CategoryId == dto.CategoryId && 
+            fp.TicketTypeId == dto.TicketTypeId && 
+            !fp.IsDeleted);
+
+        if (exists) throw new InvalidOperationException("This field is already placed in this scope.");
+
+        p.ProjectId = dto.ProjectId; p.CategoryId = dto.CategoryId; p.TicketTypeId = dto.TicketTypeId; p.SortOrder = dto.SortOrder; p.IsRequired = dto.IsRequired; p.IsActive = dto.IsActive;
+        await _placementRepo.UpdateAsync(p);
+    }
+
+    public async Task DeletePlacementAsync(int id) => await _placementRepo.DeleteAsync(id);
 }

@@ -45,6 +45,10 @@ public class ItsToolDbContext : DbContext
     public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
     public DbSet<Workflow> Workflows => Set<Workflow>();
     public DbSet<WorkflowTransition> WorkflowTransitions => Set<WorkflowTransition>();
+    public DbSet<TicketComment> TicketComments => Set<TicketComment>();
+    public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
+    public DbSet<TicketWatcher> TicketWatchers => Set<TicketWatcher>();
+    public DbSet<ProjectSequence> ProjectSequences => Set<ProjectSequence>();
 
     // Config (EAV)
     public DbSet<FieldDefinition> FieldDefinitions => Set<FieldDefinition>();

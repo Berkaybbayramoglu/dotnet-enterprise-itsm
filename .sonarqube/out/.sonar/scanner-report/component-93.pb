@@ -1,1 +1,1 @@
-] 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
+] 2csXhr(src/ItsTool.Application/DTOs/AuthDtos.cs

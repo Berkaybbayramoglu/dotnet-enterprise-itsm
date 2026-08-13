@@ -1,13 +1,21 @@
-using System.Linq.Expressions;
-using ItsTool.Domain.Common;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.Interfaces;
+// Category
+public record CategoryDto(int Id, string Name, int ProjectId, int? ParentCategoryId, string? Description, int? DefaultAssigneeGroupId, bool IsActive);
+public record CreateCategoryDto(string Name, int ProjectId, int? ParentCategoryId, string? Description, int? DefaultAssigneeGroupId);
+public record UpdateCategoryDto(string Name, int ProjectId, int? ParentCategoryId, string? Description, int? DefaultAssigneeGroupId, bool IsActive);
 
-public interface IRepository<T> where T : BaseEntity
-{
-    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null);
-    Task<T?> GetByIdAsync(int id);
-    Task<T> AddAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task DeleteAsync(int id);
-}
+// TicketType
+public record TicketTypeDto(int Id, string Name, bool IsActive);
+public record CreateTicketTypeDto(string Name);
+public record UpdateTicketTypeDto(string Name, bool IsActive);
+
+// Status
+public record StatusDto(int Id, string Name, string? ColorHex, int SortOrder, bool IsClosedStatus, bool IsSystemDefault, bool IsActive);
+public record CreateStatusDto(string Name, string? ColorHex, int SortOrder, bool IsClosedStatus, bool IsSystemDefault);
+public record UpdateStatusDto(string Name, string? ColorHex, int SortOrder, bool IsClosedStatus, bool IsSystemDefault, bool IsActive);
+
+// Priority
+public record PriorityDto(int Id, string Name, string? ColorHex, int Weight, int SeverityLevel, bool IsActive);
+public record CreatePriorityDto(string Name, string? ColorHex, int Weight, int SeverityLevel);
+public record UpdatePriorityDto(string Name, string? ColorHex, int Weight, int SeverityLevel, bool IsActive);

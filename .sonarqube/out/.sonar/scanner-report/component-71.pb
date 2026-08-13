@@ -1,1 +1,1 @@
-G (2csX?hr7tests/ItsTool.UnitTests/Services/CatalogServiceTests.cs
+G 2csXRhr5src/ItsTool.Infrastructure/Services/ProjectService.cs

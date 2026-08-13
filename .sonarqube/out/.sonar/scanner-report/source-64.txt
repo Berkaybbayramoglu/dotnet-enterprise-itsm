@@ -1,70 +1,87 @@
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class PermissionCalculator : IPermissionCalculator
+public class AuthService : IAuthService
 {
     private readonly ItsToolDbContext _context;
+    private readonly ITokenService _tokenService;
+    private readonly IPermissionCalculator _permissionCalculator;
+    private readonly IConfiguration _configuration;
 
-    public PermissionCalculator(ItsToolDbContext context)
+    public AuthService(
+        ItsToolDbContext context, 
+        ITokenService tokenService, 
+        IPermissionCalculator permissionCalculator,
+        IConfiguration configuration)
     {
         _context = context;
+        _tokenService = tokenService;
+        _permissionCalculator = permissionCalculator;
+        _configuration = configuration;
     }
 
-    public async Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId)
+    public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var permissions = new HashSet<string>();
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive && !u.IsDeleted);
 
-        // 1. Kullanıcının doğrudan rollerinden gelen yetkiler
-        var userRolePerms = await _context.UserRoles
-            .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive)
-            .Join(_context.RolePermissions, 
-                  ur => ur.RoleId, 
-                  rp => rp.RoleId, 
-                  (ur, rp) => rp.Permission)
-            .Where(p => p != null && p.IsActive)
-            .Select(p => p!.Key)
-            .ToListAsync();
-            
-        foreach (var p in userRolePerms)
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
-            permissions.Add(p);
+            throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
-        // 2. Kullanıcının dahil olduğu grupların rollerinden gelen yetkiler
-        var groupRolePerms = await _context.GroupMembers
-            .Where(gm => gm.UserId == userId)
-            .Join(_context.GroupRoles, 
-                  gm => gm.GroupId, 
-                  gr => gr.GroupId, 
-                  (gm, gr) => gr.RoleId)
-            .Join(_context.RolePermissions, 
-                  roleId => roleId, 
-                  rp => rp.RoleId, 
-                  (roleId, rp) => rp.Permission)
-            .Where(p => p != null && p.IsActive)
-            .Select(p => p!.Key)
-            .ToListAsync();
-            
-        foreach (var p in groupRolePerms)
-        {
-            permissions.Add(p);
-        }
-
-        // 3. UserPermissionOverride tablosundaki spesifik yetkiler
-        var overrides = await _context.UserPermissionOverrides
-            .Include(o => o.Permission)
-            .Where(o => o.UserId == userId && o.IsGranted && o.Permission != null && o.Permission.IsActive)
-            .Select(o => o.Permission!.Key)
+        var roles = await _context.UserRoles
+            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
+            .Select(ur => ur.Role!.Name)
             .ToListAsync();
 
-        foreach (var p in overrides)
-        {
-            permissions.Add(p);
-        }
+        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
 
-        return permissions;
+        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+
+        return new AuthResponseDto(
+            Token: token,
+            ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            Username: user.Username,
+            Roles: roles,
+            Permissions: permissions
+        );
+    }
+
+    public async Task<MeResponseDto> GetMeAsync(int userId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && !u.IsDeleted);
+
+        if (user == null)
+            throw new UnauthorizedAccessException("User not found.");
+
+        var roles = await _context.UserRoles
+            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
+            .Select(ur => ur.Role!.Name)
+            .ToListAsync();
+
+        var groups = await _context.GroupMembers
+            .Where(gm => gm.UserId == user.Id && gm.Group != null && gm.Group.IsActive)
+            .Select(gm => gm.Group!.Name)
+            .ToListAsync();
+
+        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+
+        return new MeResponseDto(
+            Id: user.Id,
+            Username: user.Username,
+            Email: user.Email,
+            Groups: groups,
+            Roles: roles,
+            Permissions: permissions
+        );
     }
 }

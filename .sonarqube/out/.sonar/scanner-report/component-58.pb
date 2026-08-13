@@ -1,1 +1,1 @@
-: 2csX5hr3src/ItsTool.Infrastructure/Security/TokenService.cs
+: 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs

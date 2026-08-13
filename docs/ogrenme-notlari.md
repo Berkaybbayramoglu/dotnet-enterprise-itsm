@@ -77,3 +77,33 @@ Bu belge, proje geliştirme süresince karşılaşılan teknik kavramları, kull
 - **Basit Açıklama:** Bir veri silindiğinde onu fiziken yok etmek yerine `IsDeleted = true` yapmak. Özellikle konfigürasyon ayarlarında, bu veri başka tablolar tarafından kullanılıyorsa, "fiziksel" silme işlemi veritabanını bozabilir.
 - **Projede Nerede:** `CatalogService` içerisinde `DeleteStatusAsync` metodu (aktif geçişte kullanılan statü silinemez iş kuralı).
 - **Mentor Sorarsa Cevabın:** "Bir durum (status) bir workflow transition'da kullanılıyorsa veritabanı bütünlüğünü korumak adına hard-delete yapmak yerine hata fırlatıp soft-delete yaklaşımını uyguladım."
+
+## 12. Proje Bazlı Sequence (Ticket Number)
+- **Basit Açıklama:** Otomatik artan (auto-increment) primary key yerine her projenin kendi numaralandırmasını (örn. ITS-1, ITS-2, HR-1) yapması için ayrı bir tabloda (`ProjectSequence`) projeye özel sayaç tutulmasıdır.
+- **Projede Nerede:** `TicketService.cs` içindeki `GenerateTicketNumberAsync` metodunda.
+- **Mentor Sorarsa Cevabın:** "Müşteriler farklı projelerdeki biletlerin karışmamasını ve kendi ön ekleriyle numaralandırılmasını istedikleri için `ProjectSequence` adında ayrı bir sayaç entity'si tasarlayıp proje bazlı sequence yapısı kurdum."
+
+## 13. Event Sourcing Temeli ve Timeline
+- **Basit Açıklama:** Veritabanında sadece verinin son halini değil, verinin geçmişte uğradığı tüm değişiklikleri olay (event) bazlı kayıt altına almaktır (Audit Log).
+- **Projede Nerede:** `TicketHistory`, `TicketComment`, `TicketAttachment` ve bunları birleştiren `GetTimelineAsync` metodu.
+- **Mentor Sorarsa Cevabın:** "Biletlerin tarihçesini kaybetmemek ve kimin ne zaman hangi alanı değiştirdiğini (audit trail) gösterebilmek için TicketHistory tablosunu kullandım. Yorumlar, dosyalar ve geçmişi birleştirerek tek bir kronolojik Timeline endpoint'i oluşturdum."
+
+## 14. İç (Internal) vs Dış (Public) Yorum Ayrımı
+- **Basit Açıklama:** Bilette yazışılan bazı notların sadece destek ekibi tarafından görünmesi, son kullanıcıya (talep edene) gitmemesi kuralıdır.
+- **Projede Nerede:** `TicketComment.IsInternal` property'si ve Controller'daki `HasClaim` bazlı filtreleme.
+- **Mentor Sorarsa Cevabın:** "Ekiplerin kendi aralarında konuşabilmesi için yorumlara `IsInternal` bayrağı ekledim ve bunu okuyabilmek için token içerisindeki `ticket.comment.internal` permission claim'ini kontrol eden bir filtre mekanizması geliştirdim."
+
+## 15. ReDoS (Regular Expression Denial of Service)
+- **Basit Açıklama:** Düzenli ifadeler (Regex) çok karmaşık pattern'lerde, özellikle kullanıcıdan gelen kötü niyetli input'lar ile karşılaştığında aşırı işlemci tüketir ("Catastrophic Backtracking"). Bunu engellemek için regex match işlemine süre sınırı konur.
+- **Projede Nerede:** `TicketService.cs` içindeki `ValidateRegexFormat` metodunda. `TimeSpan.FromSeconds(2)` ile timeout eklendi.
+- **Mentor Sorarsa Cevabın:** "Dinamik alan konfigürasyonlarında Regex'leri admin girdiği için kontrol edemiyoruz. ReDoS saldırılarını engellemek ve işlemcinin kilitlenmesini önlemek adına 2 saniyelik timeout belirledim. Zaman aşımına uğrarsa `RegexMatchTimeoutException` fırlatıp 'geçersiz format' hatası dönüyorum."
+
+## 16. Cognitive Complexity ve Metot Çıkarımı (Single Responsibility)
+- **Basit Açıklama:** Bir metodun içerisinde çok fazla iç içe if/else, döngü veya `try-catch` olması okunabilirliği zorlaştırır (SonarQube S3776). Çözüm, farklı sorumlulukları küçük özel metotlara (helper) bölmektir.
+- **Projede Nerede:** `TicketService.cs` içerisindeki `ValidateDynamicFieldsAsync` metodunu parçalayarak `ValidateRequiredField`, `ValidateRegexFormat`, `ValidateFieldOptionsAsync` metotlarına böldüm.
+- **Mentor Sorarsa Cevabın:** "Dinamik alan validasyonu çok fazla sorumluluk üstlendiği için cognitive complexity 23'e çıkmıştı. Tek sorumluluk prensibini kullanarak (Single Responsibility) metotları parçalara böldüm ve complexity'i ciddi şekilde düşürdüm."
+
+## 17. Magic String Kullanımından Kaçınmak
+- **Basit Açıklama:** Kodun içinde birden fazla yerde "Ticket not found." gibi literal text (string) değerleri yazıldığında (S1192), olası değişiklikte birini gözden kaçırmak kolaydır.
+- **Projede Nerede:** `TicketService.cs` içerisinde sınıfın başında `private const string TicketNotFoundMessage = "Ticket not found.";` tanımlanarak 4 yerde bu sabit kullanıldı.
+- **Mentor Sorarsa Cevabın:** "Tekrarlanan magic string'leri bakım kolaylığı için `private const` sabite dönüştürdüm."

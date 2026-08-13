@@ -1,87 +1,106 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.Ticket;
+using BCrypt.Net;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class AuthService : IAuthService
+public class DataSeeder
 {
     private readonly ItsToolDbContext _context;
-    private readonly ITokenService _tokenService;
-    private readonly IPermissionCalculator _permissionCalculator;
-    private readonly IConfiguration _configuration;
 
-    public AuthService(
-        ItsToolDbContext context, 
-        ITokenService tokenService, 
-        IPermissionCalculator permissionCalculator,
-        IConfiguration configuration)
+    public DataSeeder(ItsToolDbContext context)
     {
         _context = context;
-        _tokenService = tokenService;
-        _permissionCalculator = permissionCalculator;
-        _configuration = configuration;
     }
 
-    public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
+    public async Task SeedAsync()
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive && !u.IsDeleted);
-
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        if (_context.TicketTypes.Any() || _context.Users.Any())
         {
-            throw new UnauthorizedAccessException("Invalid credentials.");
+            return; // Veritabanında veri varsa seed atlama
         }
 
-        var roles = await _context.UserRoles
-            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
-            .Select(ur => ur.Role!.Name)
-            .ToListAsync();
+        // 1. Ticket Types
+        var incident = new TicketType { Name = "Incident" };
+        var serviceRequest = new TicketType { Name = "Service Request" };
+        _context.TicketTypes.AddRange(incident, serviceRequest);
 
-        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+        // 2. Statuses
+        var open = new Status { Name = "Açık", SortOrder = 1, IsSystemDefault = true };
+        var inProgress = new Status { Name = "Devam Ediyor", SortOrder = 2 };
+        var pending = new Status { Name = "Beklemede", SortOrder = 3 };
+        var resolved = new Status { Name = "Çözüldü", SortOrder = 4, IsClosedStatus = true };
+        var closed = new Status { Name = "Kapatıldı", SortOrder = 5, IsClosedStatus = true };
+        _context.Statuses.AddRange(open, inProgress, pending, resolved, closed);
 
-        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+        // 3. Priorities
+        var critical = new Priority { Name = "Kritik", Weight = 100, SeverityLevel = 1 };
+        var high = new Priority { Name = "Yüksek", Weight = 75, SeverityLevel = 2 };
+        var medium = new Priority { Name = "Orta", Weight = 50, SeverityLevel = 3 };
+        var low = new Priority { Name = "Düşük", Weight = 25, SeverityLevel = 4 };
+        _context.Priorities.AddRange(critical, high, medium, low);
 
-        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+        // 4. Departments
+        var itDept = new Department { Name = "Bilgi Teknolojileri" };
+        var hrDept = new Department { Name = "İnsan Kaynakları" };
+        _context.Departments.AddRange(itDept, hrDept);
 
-        return new AuthResponseDto(
-            Token: token,
-            ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
-            Username: user.Username,
-            Roles: roles,
-            Permissions: permissions
-        );
-    }
+        // 5. Groups
+        var helpdesk = new Group { Name = "Helpdesk Ekibi", Department = itDept };
+        var sysNetwork = new Group { Name = "Sistem & Network Ekibi", Department = itDept };
+        _context.Groups.AddRange(helpdesk, sysNetwork);
 
-    public async Task<MeResponseDto> GetMeAsync(int userId)
-    {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && !u.IsDeleted);
+        // 6. Roles & Permissions
+        var superAdminRole = new Role { Name = "SuperAdmin" };
+        _context.Roles.Add(superAdminRole);
+        
+        if (!_context.Permissions.Any())
+        {
+            var permissions = ItsTool.Application.Constants.PermissionConstants.AllPermissions
+                .Select(p => new Permission { Name = p, Key = p })
+                .ToList();
+            _context.Permissions.AddRange(permissions);
 
-        if (user == null)
-            throw new UnauthorizedAccessException("User not found.");
+            // İlişkileri kurmak için SaveChanges yapıp Id'leri almalıyız
+            await _context.SaveChangesAsync();
+            
+            foreach (var p in permissions)
+            {
+                _context.RolePermissions.Add(new RolePermission { RoleId = superAdminRole.Id, PermissionId = p.Id });
+            }
+        }
 
-        var roles = await _context.UserRoles
-            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
-            .Select(ur => ur.Role!.Name)
-            .ToListAsync();
+        // 7. İlk Admin Kullanıcısı
+        var adminUser = new User
+        {
+            Username = "admin",
+            Email = "admin@itsm.local",
+            FirstName = "System",
+            LastName = "Admin",
+            Department = itDept,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!")
+        };
+        _context.Users.Add(adminUser);
 
-        var groups = await _context.GroupMembers
-            .Where(gm => gm.UserId == user.Id && gm.Group != null && gm.Group.IsActive)
-            .Select(gm => gm.Group!.Name)
-            .ToListAsync();
+        // Değişiklikleri kaydet ki Id'ler üretilsin
+        await _context.SaveChangesAsync();
 
-        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+        // 8. Admin Kullanıcısına Rol Atama
+        _context.UserRoles.Add(new UserRole
+        {
+            UserId = adminUser.Id,
+            RoleId = superAdminRole.Id
+        });
 
-        return new MeResponseDto(
-            Id: user.Id,
-            Username: user.Username,
-            Email: user.Email,
-            Groups: groups,
-            Roles: roles,
-            Permissions: permissions
-        );
+        // 9. 5 Adet Default Proje (Doküman Madde 3.3)
+        var p1 = new ItsTool.Domain.Entities.Project.Project { Name = "IT Destek", ProjectKey = "ITS" };
+        var p2 = new ItsTool.Domain.Entities.Project.Project { Name = "İnsan Kaynakları", ProjectKey = "HR" };
+        var p3 = new ItsTool.Domain.Entities.Project.Project { Name = "Yazılım Geliştirme", ProjectKey = "DEV" };
+        var p4 = new ItsTool.Domain.Entities.Project.Project { Name = "DevOps & Altyapı", ProjectKey = "OPS" };
+        var p5 = new ItsTool.Domain.Entities.Project.Project { Name = "Güvenlik Operasyonları", ProjectKey = "SEC" };
+        _context.Projects.AddRange(p1, p2, p3, p4, p5);
+
+        await _context.SaveChangesAsync();
     }
 }

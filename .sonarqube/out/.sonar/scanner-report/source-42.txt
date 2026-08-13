@@ -8,35 +8,35 @@ namespace ItsTool.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = "RequirePermission:admin.manage")]
-public class RolesController : ControllerBase
+public class DepartmentsController : ControllerBase
 {
-    private readonly IRoleService _service;
+    private readonly IDepartmentService _service;
 
-    public RolesController(IRoleService service)
+    public DepartmentsController(IDepartmentService service)
     {
         _service = service;
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<DepartmentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
         return Ok(await _service.GetAllAsync());
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)
     {
-        var role = await _service.GetByIdAsync(id);
-        if (role == null) return NotFound();
-        return Ok(role);
+        var dept = await _service.GetByIdAsync(id);
+        if (dept == null) return NotFound();
+        return Ok(dept);
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(RoleDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> Create([FromBody] CreateRoleDto dto)
+    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> Create([FromBody] CreateDepartmentDto dto)
     {
         var created = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -45,7 +45,7 @@ public class RolesController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateDepartmentDto dto)
     {
         try
         {
@@ -72,21 +72,5 @@ public class RolesController : ControllerBase
         {
             return NotFound();
         }
-    }
-
-    [HttpPost("{id}/permissions/{permissionId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> AssignPermission(int id, int permissionId)
-    {
-        await _service.AssignPermissionAsync(id, permissionId);
-        return NoContent();
-    }
-
-    [HttpDelete("{id}/permissions/{permissionId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> RevokePermission(int id, int permissionId)
-    {
-        await _service.RevokePermissionAsync(id, permissionId);
-        return NoContent();
     }
 }

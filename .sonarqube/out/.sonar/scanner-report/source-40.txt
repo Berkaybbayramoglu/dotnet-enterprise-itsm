@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -7,86 +8,52 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:admin.manage")]
-public class GroupsController : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly IGroupService _service;
+    private readonly IAuthService _authService;
 
-    public GroupsController(IGroupService service)
+    public AuthController(IAuthService authService)
     {
-        _service = service;
+        _authService = authService;
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<GroupDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
-    {
-        return Ok(await _service.GetAllAsync());
-    }
-
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(GroupDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var group = await _service.GetByIdAsync(id);
-        if (group == null) return NotFound();
-        return Ok(group);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(typeof(GroupDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> Create([FromBody] CreateGroupDto dto)
-    {
-        var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateGroupDto dto)
+    [AllowAnonymous]
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         try
         {
-            await _service.UpdateAsync(id, dto);
-            return NoContent();
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
         }
-        catch (KeyNotFoundException)
+        catch (UnauthorizedAccessException)
         {
-            return NotFound();
+            return Unauthorized(new { message = "Invalid credentials." });
         }
     }
 
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(MeResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetMe()
     {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdStr, out int userId))
+        {
+            return Unauthorized();
+        }
+
         try
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            var result = await _authService.GetMeAsync(userId);
+            return Ok(result);
         }
-        catch (KeyNotFoundException)
+        catch (UnauthorizedAccessException)
         {
-            return NotFound();
+            return Unauthorized();
         }
-    }
-
-    [HttpPost("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> AddMember(int id, int userId)
-    {
-        await _service.AddMemberAsync(id, userId);
-        return NoContent();
-    }
-
-    [HttpDelete("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> RemoveMember(int id, int userId)
-    {
-        await _service.RemoveMemberAsync(id, userId);
-        return NoContent();
     }
 }

@@ -1,1 +1,1 @@
- 2csXhr,src/ItsTool.Domain/Entities/Ticket/Ticket.cs
+ 2csXhr,src/ItsTool.Domain/Entities/Ticket/Status.cs

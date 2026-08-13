@@ -1,6 +1,18 @@
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.Application.DTOs;
 
-public interface IPermissionCalculator
-{
-    Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId);
-}
+public record LoginRequestDto(string Username, string Password);
+
+public record AuthResponseDto(
+    string Token, 
+    DateTime ExpiresAt, 
+    string Username, 
+    IEnumerable<string> Roles, 
+    IEnumerable<string> Permissions);
+
+public record MeResponseDto(
+    int Id, 
+    string Username, 
+    string Email, 
+    IEnumerable<string> Groups, 
+    IEnumerable<string> Roles, 
+    IEnumerable<string> Permissions);

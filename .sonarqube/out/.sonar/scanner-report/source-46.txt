@@ -1,109 +1,92 @@
-using ItsTool.Application.Constants;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Services;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Security;
-using ItsTool.API.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace ItsTool.API.Controllers;
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<ItsToolDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<DataSeeder>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPermissionCalculator, PermissionCalculator>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-// Organization Services (Phase 4)
-builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<IGroupService, GroupService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-
-// Catalog & Workflow Services (Phase 5)
-builder.Services.AddScoped<ICatalogService, CatalogService>();
-builder.Services.AddScoped<IWorkflowService, WorkflowService>();
-builder.Services.AddScoped<IDynamicFormService, DynamicFormService>();
-
-// Auth Setup
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? "fallback_secret_for_development_purposes_only"))
-        };
-    });
-
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddAuthorization(options =>
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Policy = "RequirePermission:admin.manage")]
+public class RolesController : ControllerBase
 {
-    foreach (var perm in PermissionConstants.AllPermissions)
+    private readonly IRoleService _service;
+
+    public RolesController(IRoleService service)
     {
-        options.AddPolicy($"RequirePermission:{perm}", policy => 
-            policy.Requirements.Add(new PermissionRequirement(perm)));
+        _service = service;
     }
-});
 
-// Minimal CORS
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-?? Array.Empty<string>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("TrustedOrigins", builder =>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
     {
-        builder.WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+        return Ok(await _service.GetAllAsync());
+    }
 
-});
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var role = await _service.GetByIdAsync(id);
+        if (role == null) return NotFound();
+        return Ok(role);
+    }
 
-var app = builder.Build();
+    [HttpPost]
+    [ProducesResponseType(typeof(RoleDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> Create([FromBody] CreateRoleDto dto)
+    {
+        var created = await _service.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto dto)
+    {
+        try
+        {
+            await _service.UpdateAsync(id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _service.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost("{id}/permissions/{permissionId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> AssignPermission(int id, int permissionId)
+    {
+        await _service.AssignPermissionAsync(id, permissionId);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/permissions/{permissionId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RevokePermission(int id, int permissionId)
+    {
+        await _service.RevokePermissionAsync(id, permissionId);
+        return NoContent();
+    }
 }
-
-app.UseCors("TrustedOrigins");
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapGet("/api/health", () =>
-{
-    return Results.Ok(new
-    {
-        status = "OK",
-        service = "ItsTool.API",
-        timestamp = DateTime.UtcNow
-    });
-});
-
-app.MapControllers();
-
-await app.RunAsync();

@@ -1,34 +1,24 @@
-using ItsTool.Application.DTOs;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.UnitTests;
 
-public interface ICatalogService
+public abstract class TestBase : IDisposable
 {
-    // Category
-    Task<IEnumerable<CategoryDto>> GetCategoriesAsync(int? projectId = null);
-    Task<CategoryDto?> GetCategoryByIdAsync(int id);
-    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
-    Task UpdateCategoryAsync(int id, UpdateCategoryDto dto);
-    Task DeleteCategoryAsync(int id);
+    protected readonly ItsToolDbContext _context;
 
-    // TicketType
-    Task<IEnumerable<TicketTypeDto>> GetTicketTypesAsync();
-    Task<TicketTypeDto?> GetTicketTypeByIdAsync(int id);
-    Task<TicketTypeDto> CreateTicketTypeAsync(CreateTicketTypeDto dto);
-    Task UpdateTicketTypeAsync(int id, UpdateTicketTypeDto dto);
-    Task DeleteTicketTypeAsync(int id);
+    protected TestBase()
+    {
+        var options = new DbContextOptionsBuilder<ItsToolDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        _context = new ItsToolDbContext(options);
+    }
 
-    // Status
-    Task<IEnumerable<StatusDto>> GetStatusesAsync();
-    Task<StatusDto?> GetStatusByIdAsync(int id);
-    Task<StatusDto> CreateStatusAsync(CreateStatusDto dto);
-    Task UpdateStatusAsync(int id, UpdateStatusDto dto);
-    Task DeleteStatusAsync(int id);
-
-    // Priority
-    Task<IEnumerable<PriorityDto>> GetPrioritiesAsync();
-    Task<PriorityDto?> GetPriorityByIdAsync(int id);
-    Task<PriorityDto> CreatePriorityAsync(CreatePriorityDto dto);
-    Task UpdatePriorityAsync(int id, UpdatePriorityDto dto);
-    Task DeletePriorityAsync(int id);
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

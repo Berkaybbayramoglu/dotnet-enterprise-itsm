@@ -1,5 +1,5 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Config;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,44 +7,48 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class WorkflowServiceTests : TestBase
+public class DynamicFormServiceTests : TestBase
 {
-    private readonly Repository<Workflow> _workflowRepo;
-    private readonly Repository<WorkflowTransition> _transitionRepo;
-    private readonly WorkflowService _service;
+    private readonly Repository<FieldDefinition> _defRepo;
+    private readonly Repository<FieldOption> _optRepo;
+    private readonly Repository<FormFieldPlacement> _placementRepo;
+    private readonly DynamicFormService _service;
 
-    public WorkflowServiceTests() : base()
+    public DynamicFormServiceTests() : base()
     {
-        _workflowRepo = new Repository<Workflow>(_context);
-        _transitionRepo = new Repository<WorkflowTransition>(_context);
-        _service = new WorkflowService(_workflowRepo, _transitionRepo);
+        _defRepo = new Repository<FieldDefinition>(_context);
+        _optRepo = new Repository<FieldOption>(_context);
+        _placementRepo = new Repository<FormFieldPlacement>(_context);
+        _service = new DynamicFormService(_defRepo, _optRepo, _placementRepo, _context);
     }
 
     [Fact]
-    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    public async Task CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUnique()
     {
-        var dto = new CreateWorkflowDto("Main", "Desc", null);
-        var result = await _service.CreateWorkflowAsync(dto);
-
-        Assert.NotNull(result);
-        Assert.Equal("Main", result.Name);
-    }
-
-    [Fact]
-    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
-    }
-
-    [Fact]
-    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(t);
+        var f = new FieldDefinition { Key = "test.key", Label = "A", FieldType = FieldType.Text };
+        _context.FieldDefinitions.Add(f);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+        var dto = new CreateFieldDefinitionDto("test.key", "B", "Text", null);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateFieldDefinitionAsync(dto));
+    }
+
+    [Fact]
+    public async Task CreatePlacementAsync_ShouldThrowIfDuplicateScope()
+    {
+        var p = new FormFieldPlacement { FieldDefinitionId = 1, ProjectId = 1 };
+        _context.FormFieldPlacements.Add(p);
+        await _context.SaveChangesAsync();
+
+        var dto = new CreateFormFieldPlacementDto(1, 1, null, null, 1, true);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePlacementAsync(dto));
+    }
+
+    [Fact]
+    public async Task CreateFieldDefinitionAsync_ShouldCreate()
+    {
+        var dto = new CreateFieldDefinitionDto("uniq.key", "N", "Text", null);
+        var res = await _service.CreateFieldDefinitionAsync(dto);
+        Assert.Equal("uniq.key", res.Key);
     }
 }

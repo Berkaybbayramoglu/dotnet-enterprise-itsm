@@ -1,0 +1,160 @@
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace ItsTool.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class TicketController : ControllerBase
+{
+    private readonly ITicketService _service;
+
+    public TicketController(ITicketService service)
+    {
+        _service = service;
+    }
+
+    private int GetCurrentUserId()
+    {
+        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(idClaim, out var id) ? id : 0;
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "RequirePermission:ticket.create")]
+    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketDto dto)
+    {
+        try
+        {
+            var result = await _service.CreateTicketAsync(dto);
+            return CreatedAtAction(nameof(GetTicket), new { id = result.Id }, result);
+        }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpGet("{id}")]
+    [Authorize(Policy = "RequirePermission:ticket.view")]
+    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTicket(int id)
+    {
+        var t = await _service.GetTicketByIdAsync(id);
+        if (t == null) return NotFound();
+        return Ok(t);
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Policy = "RequirePermission:ticket.edit")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateTicket(int id, [FromBody] UpdateTicketDto dto)
+    {
+        try
+        {
+            await _service.UpdateTicketAsync(id, dto, GetCurrentUserId());
+            return NoContent();
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpPost("{id}/status")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangeStatus(int id, [FromBody] int newStatusId)
+    {
+        try
+        {
+            var dto = new ChangeStatusDto(newStatusId, GetCurrentUserId());
+            await _service.ChangeStatusAsync(id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+    }
+
+    [HttpPost("{id}/assign")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> AssignTicket(int id, [FromBody] int userId)
+    {
+        try
+        {
+            var dto = new AssignTicketDto(userId, GetCurrentUserId());
+            await _service.AssignTicketAsync(id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+    }
+
+    [HttpPost("{id}/transfer")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> TransferTicket(int id, [FromBody] TransferTicketDto dto)
+    {
+        try
+        {
+            var transferDto = new TransferTicketDto(dto.ProjectId, dto.GroupId, GetCurrentUserId());
+            await _service.TransferTicketAsync(id, transferDto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+    }
+
+    [HttpPost("{id}/comments")]
+    [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> AddComment(int id, [FromBody] CreateCommentDto dto)
+    {
+        var createDto = new CreateCommentDto(dto.Content, dto.IsInternal, GetCurrentUserId());
+        var result = await _service.AddCommentAsync(id, createDto);
+        return Ok(result);
+    }
+
+    [HttpGet("{id}/comments")]
+    [ProducesResponseType(typeof(IEnumerable<TicketCommentDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetComments(int id)
+    {
+        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal");
+        var result = await _service.GetCommentsAsync(id, hasInternalPerm);
+        return Ok(result);
+    }
+
+    [HttpPost("{id}/attachments")]
+    [ProducesResponseType(typeof(TicketAttachmentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AddAttachment(int id, IFormFile file)
+    {
+        try
+        {
+            var result = await _service.AddAttachmentAsync(id, file, GetCurrentUserId());
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpGet("{id}/attachments")]
+    [ProducesResponseType(typeof(IEnumerable<TicketAttachmentDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAttachments(int id)
+    {
+        return Ok(await _service.GetAttachmentsAsync(id));
+    }
+
+    [HttpGet("{id}/timeline")]
+    [ProducesResponseType(typeof(IEnumerable<TimelineEventDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTimeline(int id)
+    {
+        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal");
+        return Ok(await _service.GetTimelineAsync(id, hasInternalPerm));
+    }
+}
