@@ -1,1 +1,1 @@
-> 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs
+> 2webX7hr"src/ItsTool.Web/wwwroot/login.html

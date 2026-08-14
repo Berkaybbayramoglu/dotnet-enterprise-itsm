@@ -1,5 +1,5 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,44 +7,47 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class WorkflowServiceTests : TestBase
+public class DepartmentServiceTests : TestBase
 {
-    private readonly Repository<Workflow> _workflowRepo;
-    private readonly Repository<WorkflowTransition> _transitionRepo;
-    private readonly WorkflowService _service;
+    private readonly Repository<Department> _repository;
+    private readonly DepartmentService _service;
 
-    public WorkflowServiceTests() : base()
+    public DepartmentServiceTests() : base()
     {
-        _workflowRepo = new Repository<Workflow>(_context);
-        _transitionRepo = new Repository<WorkflowTransition>(_context);
-        _service = new WorkflowService(_workflowRepo, _transitionRepo);
+        _repository = new Repository<Department>(_context);
+        _service = new DepartmentService(_repository);
     }
 
     [Fact]
-    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    public async Task CreateAsync_ShouldCreateDepartment()
     {
-        var dto = new CreateWorkflowDto("Main", "Desc", null);
-        var result = await _service.CreateWorkflowAsync(dto);
+        // Arrange
+        var dto = new CreateDepartmentDto("IT", "IT Dept");
 
+        // Act
+        var result = await _service.CreateAsync(dto);
+
+        // Assert
         Assert.NotNull(result);
-        Assert.Equal("Main", result.Name);
+        Assert.Equal("IT", result.Name);
+        var dbDept = await _context.Departments.FirstOrDefaultAsync(d => d.Id == result.Id);
+        Assert.NotNull(dbDept);
     }
 
     [Fact]
-    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    public async Task GetByIdAsync_ShouldReturnDepartment()
     {
-        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
-    }
-
-    [Fact]
-    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(t);
+        // Arrange
+        var dept = new Department { Name = "HR" };
+        _context.Departments.Add(dept);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+        // Act
+        var result = await _service.GetByIdAsync(dept.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("HR", result.Name);
     }
+
 }

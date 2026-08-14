@@ -1,34 +1,62 @@
 using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.UnitTests.Services;
 
-public interface ICatalogService
+public class UserServiceTests : TestBase
 {
-    // Category
-    Task<IEnumerable<CategoryDto>> GetCategoriesAsync(int? projectId = null);
-    Task<CategoryDto?> GetCategoryByIdAsync(int id);
-    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
-    Task UpdateCategoryAsync(int id, UpdateCategoryDto dto);
-    Task DeleteCategoryAsync(int id);
+    private readonly Repository<User> _repository;
+    private readonly UserService _service;
 
-    // TicketType
-    Task<IEnumerable<TicketTypeDto>> GetTicketTypesAsync();
-    Task<TicketTypeDto?> GetTicketTypeByIdAsync(int id);
-    Task<TicketTypeDto> CreateTicketTypeAsync(CreateTicketTypeDto dto);
-    Task UpdateTicketTypeAsync(int id, UpdateTicketTypeDto dto);
-    Task DeleteTicketTypeAsync(int id);
+    public UserServiceTests()
+    {
+        _repository = new Repository<User>(_context);
+        _service = new UserService(_repository, _context);
+    }
 
-    // Status
-    Task<IEnumerable<StatusDto>> GetStatusesAsync();
-    Task<StatusDto?> GetStatusByIdAsync(int id);
-    Task<StatusDto> CreateStatusAsync(CreateStatusDto dto);
-    Task UpdateStatusAsync(int id, UpdateStatusDto dto);
-    Task DeleteStatusAsync(int id);
+    [Fact]
+    public async Task CreateAsync_ShouldCreateUser()
+    {
+        var dto = new CreateUserDto("john", "j@j.com", "John", "Doe", "pass", 1);
+        var result = await _service.CreateAsync(dto);
 
-    // Priority
-    Task<IEnumerable<PriorityDto>> GetPrioritiesAsync();
-    Task<PriorityDto?> GetPriorityByIdAsync(int id);
-    Task<PriorityDto> CreatePriorityAsync(CreatePriorityDto dto);
-    Task UpdatePriorityAsync(int id, UpdatePriorityDto dto);
-    Task DeletePriorityAsync(int id);
+        Assert.NotNull(result);
+        Assert.Equal("john", result.Username);
+        Assert.Equal("j@j.com", result.Email);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateUser()
+    {
+        var user = new User { Username = "old", Email = "old@j.com", FirstName = "a", LastName = "b", PasswordHash = "c" };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        var dto = new UpdateUserDto("new@j.com", "NewA", "NewB", true, 2);
+        await _service.UpdateAsync(user.Id, dto);
+
+        var updated = await _context.Users.FindAsync(user.Id);
+        Assert.Equal("new@j.com", updated!.Email);
+        Assert.Equal("NewA", updated.FirstName);
+    }
+
+    [Fact]
+    public async Task AssignRoleAsync_ShouldAssignRole()
+    {
+        var user = new User { Username = "u", Email = "e", FirstName = "a", LastName = "b", PasswordHash = "c" };
+        var role = new Role { Name = "Admin" };
+        _context.Users.Add(user);
+        _context.Roles.Add(role);
+        await _context.SaveChangesAsync();
+
+        await _service.AssignRoleAsync(user.Id, role.Id);
+
+        var assigned = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.RoleId == role.Id);
+        Assert.NotNull(assigned);
+    }
 }

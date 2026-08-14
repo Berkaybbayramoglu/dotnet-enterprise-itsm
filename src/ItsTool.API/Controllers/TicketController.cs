@@ -157,4 +157,11 @@ public class TicketController : ControllerBase
         bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal");
         return Ok(await _service.GetTimelineAsync(id, hasInternalPerm));
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] TicketSearchFilterDto filter)
+    {
+        var result = await _service.SearchTicketsAsync(filter, GetCurrentUserId());
+        return Ok(result);
+    }
 }

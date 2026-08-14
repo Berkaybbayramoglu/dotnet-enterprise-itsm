@@ -1,49 +1,62 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+using System.Linq.Expressions;
 using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class NotificationService : INotificationService
+public class Repository<T> : IRepository<T> where T : BaseEntity
 {
-    private readonly ItsToolDbContext _context;
+    protected readonly ItsToolDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public NotificationService(ItsToolDbContext context)
+    public Repository(ItsToolDbContext context)
     {
         _context = context;
+        _dbSet = context.Set<T>();
     }
 
-    public async Task<IEnumerable<NotificationDto>> GetUserNotificationsAsync(int userId)
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
     {
-        var list = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsDeleted)
-            .OrderByDescending(n => n.CreatedAt)
-            .ToListAsync();
-
-        return list.Select(n => new NotificationDto(n.Id, n.UserId, n.Title, n.Message, n.IsRead, n.RelatedEntityId, n.RelatedEntityType, n.CreatedAt));
-    }
-
-    public async Task MarkAsReadAsync(int notificationId, int userId)
-    {
-        var notif = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId && !n.IsDeleted);
-        if (notif != null && !notif.IsRead)
+        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
+        if (predicate != null)
         {
-            notif.IsRead = true;
+            query = query.Where(predicate);
+        }
+        return await query.ToListAsync();
+    }
+
+    public async Task<T?> GetByIdAsync(int id)
+    {
+        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task UpdateAsync(T entity)
+    {
+        entity.UpdatedAt = DateTime.UtcNow;
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            entity.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
-    }
-
-    public async Task MarkAllAsReadAsync(int userId)
-    {
-        var unread = await _context.Notifications.Where(n => n.UserId == userId && !n.IsRead && !n.IsDeleted).ToListAsync();
-        foreach (var n in unread)
+        else
         {
-            n.IsRead = true;
+            throw new KeyNotFoundException($"{typeof(T).Name} not found");
         }
-        await _context.SaveChangesAsync();
     }
 }

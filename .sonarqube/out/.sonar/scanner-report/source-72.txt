@@ -1,79 +1,79 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
 using ItsTool.Domain.Entities.Organization;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.Project;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Domain.Entities.SLA;
+using ItsTool.Domain.Entities.Notification;
+using ItsTool.Domain.Entities.KnowledgeBase;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class GroupService : IGroupService
+public class ItsToolDbContext : DbContext
 {
-    private readonly IRepository<Group> _repository;
-    private readonly ItsToolDbContext _context;
-
-    public GroupService(IRepository<Group> repository, ItsToolDbContext context)
+    public ItsToolDbContext(DbContextOptions<ItsToolDbContext> options) : base(options)
     {
-        _repository = repository;
-        _context = context;
     }
 
-    public async Task<IEnumerable<GroupDto>> GetAllAsync()
-    {
-        var groups = await _repository.GetAllAsync();
-        return groups.Select(g => new GroupDto(g.Id, g.Name, g.IsActive, g.DepartmentId ?? 0));
-    }
+    // Organization
+    public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Group> Groups => Set<Group>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<GroupMember> GroupMembers => Set<GroupMember>();
 
-    public async Task<GroupDto?> GetByIdAsync(int id)
-    {
-        var group = await _repository.GetByIdAsync(id);
-        if (group == null) return null;
-        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
-    }
+    // Auth
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
+    public DbSet<UserPermissionOverride> UserPermissionOverrides => Set<UserPermissionOverride>();
 
-    public async Task<GroupDto> CreateAsync(CreateGroupDto dto)
-    {
-        var group = new Group
-        {
-            Name = dto.Name,
-            DepartmentId = dto.DepartmentId
-        };
-        await _repository.AddAsync(group);
-        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
-    }
+    // Project
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
 
-    public async Task UpdateAsync(int id, UpdateGroupDto dto)
-    {
-        var group = await _repository.GetByIdAsync(id);
-        if (group == null) throw new KeyNotFoundException("Group not found");
-        
-        group.Name = dto.Name;
-        group.IsActive = dto.IsActive;
-        group.DepartmentId = dto.DepartmentId;
-        await _repository.UpdateAsync(group);
-    }
+    // Ticket & Workflow
+    public DbSet<TicketType> TicketTypes => Set<TicketType>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Status> Statuses => Set<Status>();
+    public DbSet<Priority> Priorities => Set<Priority>();
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
+    public DbSet<Workflow> Workflows => Set<Workflow>();
+    public DbSet<WorkflowTransition> WorkflowTransitions => Set<WorkflowTransition>();
+    public DbSet<TicketComment> TicketComments => Set<TicketComment>();
+    public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
+    public DbSet<TicketWatcher> TicketWatchers => Set<TicketWatcher>();
+    public DbSet<ProjectSequence> ProjectSequences => Set<ProjectSequence>();
 
-    public async Task DeleteAsync(int id)
-    {
-        await _repository.DeleteAsync(id);
-    }
+    // Config (EAV)
+    public DbSet<FieldDefinition> FieldDefinitions => Set<FieldDefinition>();
+    public DbSet<FieldOption> FieldOptions => Set<FieldOption>();
+    public DbSet<FormFieldPlacement> FormFieldPlacements => Set<FormFieldPlacement>();
+    public DbSet<TicketFieldValue> TicketFieldValues => Set<TicketFieldValue>();
 
-    public async Task AddMemberAsync(int groupId, int userId)
-    {
-        var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
-        if (!exists)
-        {
-            _context.GroupMembers.Add(new GroupMember { GroupId = groupId, UserId = userId });
-            await _context.SaveChangesAsync();
-        }
-    }
+    // SLA
+    public DbSet<SlaPolicy> SlaPolicies => Set<SlaPolicy>();
+    public DbSet<SlaTarget> SlaTargets => Set<SlaTarget>();
+    public DbSet<BusinessHour> BusinessHours => Set<BusinessHour>();
+    public DbSet<Holiday> Holidays => Set<Holiday>();
+    public DbSet<TicketSla> TicketSlas => Set<TicketSla>();
 
-    public async Task RemoveMemberAsync(int groupId, int userId)
+    // Notification
+    public DbSet<NotificationRule> NotificationRules => Set<NotificationRule>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    // KnowledgeBase
+    public DbSet<KnowledgeCategory> KnowledgeCategories => Set<KnowledgeCategory>();
+    public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
-        if (member != null)
-        {
-            _context.GroupMembers.Remove(member);
-            await _context.SaveChangesAsync();
-        }
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

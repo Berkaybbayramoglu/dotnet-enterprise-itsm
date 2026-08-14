@@ -25,14 +25,20 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/S
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/RoleServiceTests.csItsTool.UnitTestsK
 +ItsTool.UnitTests.Services.RoleServiceTestsCreateAsync_ShouldCreateRoleK
 +ItsTool.UnitTests.Services.RoleServiceTestsUpdateAsync_ShouldUpdateRole[
-+ItsTool.UnitTests.Services.RoleServiceTests,AssignPermissionAsync_ShouldAssignPermissionö
++ItsTool.UnitTests.Services.RoleServiceTests,AssignPermissionAsync_ShouldAssignPermissionà
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ReportServiceTests.csItsTool.UnitTestsf
+-ItsTool.UnitTests.Services.ReportServiceTests5ExportTicketsToCsvAsync_ShouldReturnFilteredCsvStreamö
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.csItsTool.UnitTestsQ
 .ItsTool.UnitTests.Services.ProjectServiceTestsCreateAsync_ShouldCreateProjectQ
 .ItsTool.UnitTests.Services.ProjectServiceTestsUpdateAsync_ShouldUpdateProjectU
 .ItsTool.UnitTests.Services.ProjectServiceTests#DeleteAsync_ShouldSoftDeleteProject…
 j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.csItsTool.UnitTests|
 4ItsTool.UnitTests.Services.PermissionCalculatorTestsDCalculateEffectivePermissionsAsync_ShouldReturnUnionOfAllPermissions…
-4ItsTool.UnitTests.Services.PermissionCalculatorTestsMCalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverrides¹
+4ItsTool.UnitTests.Services.PermissionCalculatorTestsMCalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverridesÊ
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.csItsTool.UnitTestsr
+4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests:SearchArticlesAsync_ShouldHideDraftAndInternal_FromEndUserf
+4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests.SearchArticlesAsync_ShouldShowInternal_ToStaffm
+4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests5GetArticleAsync_ShouldIncrementViewCount_ForPublished¹
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/NotificationServiceTests.csItsTool.UnitTestsr
 3ItsTool.UnitTests.Services.NotificationServiceTests;GetUserNotificationsAsync_ShouldReturnOnlyUserNotificationse
 3ItsTool.UnitTests.Services.NotificationServiceTests.MarkAsReadAsync_ShouldMarkSpecificNotification^
@@ -50,7 +56,11 @@ h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/D
 2ItsTool.UnitTests.Services.DynamicFormServiceTests'CreateFieldDefinitionAsync_ShouldCreate¯
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DepartmentServiceTests.csItsTool.UnitTestsW
 1ItsTool.UnitTests.Services.DepartmentServiceTests"CreateAsync_ShouldCreateDepartmentX
-1ItsTool.UnitTests.Services.DepartmentServiceTests#GetByIdAsync_ShouldReturnDepartment‰
+1ItsTool.UnitTests.Services.DepartmentServiceTests#GetByIdAsync_ShouldReturnDepartmentÀ
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DashboardServiceTests.csItsTool.UnitTestsg
+0ItsTool.UnitTests.Services.DashboardServiceTests3GetOverviewAsync_ShouldReturnCorrectCounts_ForAdmini
+0ItsTool.UnitTests.Services.DashboardServiceTests5GetOverviewAsync_ShouldOnlyCountAgentTickets_ForAgento
+0ItsTool.UnitTests.Services.DashboardServiceTests;GetOverviewAsync_ShouldOnlyCountRequestedTickets_ForEndUser‰
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.csItsTool.UnitTestsZ
 .ItsTool.UnitTests.Services.CatalogServiceTests(CreateCategoryAsync_ShouldCreateCategoryZ
 .ItsTool.UnitTests.Services.CatalogServiceTests(GetCategoriesAsync_ShouldFilterByProjectV

@@ -1,4 +1,4 @@
-ööúöÿ3	itsm-tool(:R
+”ˆÎƒ€4	itsm-tool(:R
 
 kubernetesD
 $4a28d91d-8091-4c23-a308-1bf218e943d6	Sonar way
@@ -54,19 +54,27 @@ $da57cbd4-4108-400b-b914-15562e4d9c15	Sonar way	terraform ÀÿÈèş3:f
 azureresourcemanagerN
 $fb59acdb-a092-4fd0-8b19-75db8a6aee6b	Sonar wayazureresourcemanager ¨‡Éèş3:B
 ts<
-$37f1da57-92d3-426d-a7b3-e4ea72f4f11e	Sonar wayts ¨‡Éèş3B
-iac
-iac¨ŠÉèş3B
+$37f1da57-92d3-426d-a7b3-e4ea72f4f11e	Sonar wayts ¨‡Éèş3B
 csharp
-csharp©ŠÉèş3B
-text
-text«ŠÉèş3B
+csharp©ŠÉèş3B
+web
+webªŠÉèş3B
 cayc
 cayc¦ŠÉèş3B
 xml
-xmlªŠÉèş3j(0ff17044ad2f1991650cf70ce4e6f6969d0d3f28²
-csn²
-xml²
+xmlªŠÉèş3B
+iac
+iac¨ŠÉèş3B
+text
+text«ŠÉèş3B!
+
+javascript
+
+javascript¨ŠÉèş3j(e5f0bc5f74fdc61df6c62ead660e2bd2bd727ac3²
+cs}²
+web²
+xml²
+js²
 jsonº	
 otherº	
 shell

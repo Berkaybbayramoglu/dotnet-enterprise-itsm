@@ -384,4 +384,85 @@ public class TicketService : ITicketService
 
         return events.OrderBy(e => e.Timestamp);
     }
+
+    public async Task<PagedResult<TicketDto>> SearchTicketsAsync(TicketSearchFilterDto filter, int userId)
+    {
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+        
+        var query = _context.Tickets
+            .Include(t => t.TicketSla)
+            .Where(t => !t.IsDeleted);
+
+        // Security Scope filtering
+        if (!perms.Contains("report.view"))
+        {
+            var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
+            if (isAgent)
+            {
+                var userGroupIds = await _context.GroupMembers
+                    .Where(gm => gm.UserId == userId && !gm.IsDeleted)
+                    .Select(gm => gm.GroupId)
+                    .ToListAsync();
+
+                query = query.Where(t => t.AssignedUserId == userId || 
+                                        (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
+                                        t.RequesterUserId == userId);
+            }
+            else
+            {
+                query = query.Where(t => t.RequesterUserId == userId);
+            }
+        }
+
+        if (filter.ProjectId.HasValue) query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
+        if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
+        if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
+        if (filter.StatusId.HasValue) query = query.Where(t => t.StatusId == filter.StatusId.Value);
+        if (filter.PriorityId.HasValue) query = query.Where(t => t.PriorityId == filter.PriorityId.Value);
+        if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.AssignedUserId == filter.AssigneeUserId.Value);
+        if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
+        if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
+        if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
+        
+        if (!string.IsNullOrWhiteSpace(filter.Keyword))
+        {
+            var kw = filter.Keyword.ToLower();
+            query = query.Where(t => 
+                t.TicketNumber.ToLower().Contains(kw) || 
+                t.Title.ToLower().Contains(kw) || 
+                t.Description.ToLower().Contains(kw));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.SlaStatus))
+        {
+            var s = filter.SlaStatus.ToLower();
+            if (s == "breached")
+                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
+            else if (s == "warning")
+                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
+            else if (s == "ontrack")
+                query = query.Where(t => t.TicketSla != null && !t.TicketSla.FirstResponseWarned && !t.TicketSla.ResolutionWarned && !t.TicketSla.FirstResponseBreached && !t.TicketSla.ResolutionBreached);
+        }
+
+        // Sorting
+        query = filter.SortDescending 
+            ? query.OrderByDescending(e => EF.Property<object>(e, filter.SortBy ?? "CreatedAt"))
+            : query.OrderBy(e => EF.Property<object>(e, filter.SortBy ?? "CreatedAt"));
+
+        var totalCount = await query.CountAsync();
+
+        var tickets = await query
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId))
+            .ToListAsync();
+
+        return new PagedResult<TicketDto>
+        {
+            Items = tickets,
+            TotalCount = totalCount,
+            Page = filter.Page,
+            PageSize = filter.PageSize
+        };
+    }
 }

@@ -10,6 +10,7 @@ public class KnowledgeCategory : BaseEntity
 }
 
 public enum ArticleStatus { Draft, Published }
+public enum ArticleVisibility { Internal, Public }
 
 public class KnowledgeArticle : BaseEntity
 {
@@ -18,6 +19,7 @@ public class KnowledgeArticle : BaseEntity
     public string Content { get; set; } = string.Empty;
     public int AuthorUserId { get; set; }
     public ArticleStatus Status { get; set; }
+    public ArticleVisibility Visibility { get; set; }
     public int ViewCount { get; set; }
 
     public virtual KnowledgeCategory? Category { get; set; }

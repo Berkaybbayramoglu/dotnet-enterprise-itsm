@@ -537,6 +537,9 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<int>("ViewCount")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Visibility")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -1256,7 +1259,8 @@ namespace ItsTool.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex("TicketId")
+                        .IsUnique();
 
                     b.ToTable("TicketSlas");
                 });
@@ -2091,8 +2095,8 @@ namespace ItsTool.Infrastructure.Migrations
             modelBuilder.Entity("ItsTool.Domain.Entities.SLA.TicketSla", b =>
                 {
                     b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId")
+                        .WithOne("TicketSla")
+                        .HasForeignKey("ItsTool.Domain.Entities.SLA.TicketSla", "TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2273,6 +2277,11 @@ namespace ItsTool.Infrastructure.Migrations
             modelBuilder.Entity("ItsTool.Domain.Entities.Organization.User", b =>
                 {
                     b.Navigation("GroupMemberships");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.Ticket", b =>
+                {
+                    b.Navigation("TicketSla");
                 });
 #pragma warning restore 612, 618
         }

@@ -107,7 +107,7 @@ Permission= G
 CompletedTask !
 ;! "
 } 
-} Ÿ\
+} ¤f
 G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs
 var 
 builder 
@@ -398,378 +398,453 @@ ISlaEngine.. %
 >..0 1
 (..1 2
 )..2 3
-;..3 4
-builder// 
-.// 
-Services// 
-.// 
-	AddScoped// 
-<//  
-INotificationService// /
-,/// 0
-NotificationService//1 D
->//D E
-(//E F
-)//F G
-;//G H
-builder00 
-.00 
-Services00 
-.00 
-	AddScoped00 
-<00 
-ISlaService00 &
-,00& '
+;..3 4
+builder// 
+.// 
+Services// 
+.// 
+	AddScoped// 
+<//  
+INotificationService// 3
+,//3 4
+NotificationService//5 H
+>//H I
+(//I J
+)//J K
+;//K L
+builder00 
+.00 
+Services00 
+.00 
+	AddScoped00 
+<00 
+ISlaService00 *
+,00* +
 
-SlaService00( 2
->002 3
-(003 4
-)004 5
-;005 6
-builder11 
-.11 
-Services11 
-.11 
-AddHostedService11 !
-<11! "
-SlaCheckerService11" 3
->113 4
-(114 5
-)115 6
-;116 7
-builder44 
-.44 
-Services44 
-.44 
-AddAuthentication44 "
-(44" #
-JwtBearerDefaults44# 4
-.444 5 
-AuthenticationScheme445 I
-)44I J
-.55 
-AddJwtBearer55 
-(55 
-options55 
-=>55 
-{66 
-options77 
-.77 %
-TokenValidationParameters77 )
-=77* +
-new77, /%
-TokenValidationParameters770 I
-{88 	
-ValidateIssuer99 
-=99 
-true99 !
-,99! "
-ValidateAudience:: 
-=:: 
-true:: #
-,::# $
-ValidateLifetime;; 
-=;; 
-true;; #
-,;;# $$
-ValidateIssuerSigningKey<< $
-=<<% &
-true<<' +
-,<<+ ,
-ValidIssuer== 
-=== 
-builder== !
-.==! "
-Configuration==" /
-[==/ 0
-$str==0 <
-]==< =
-,=== >
-ValidAudience>> 
-=>> 
-builder>> #
-.>># $
-Configuration>>$ 1
-[>>1 2
-$str>>2 @
-]>>@ A
-,>>A B
-IssuerSigningKey?? 
-=?? 
-new?? " 
-SymmetricSecurityKey??# 7
-(??7 8
-Encoding??8 @
-.??@ A
-UTF8??A E
-.??E F
-GetBytes??F N
-(??N O
-builder??O V
-.??V W
-Configuration??W d
-[??d e
-$str??e q
-]??q r
-????s u
-$str	??v ¥
+SlaService00, 6
+>006 7
+(007 8
+)008 9
+;009 :
+builder11 
+.11 
+Services11 
+.11 
+AddHostedService11 %
+<11% &
+SlaCheckerService11& 7
+>117 8
+(118 9
+)119 :
+;11: ;
+builder44 
+.44 
+Services44 
+.44 
+	AddScoped44 
+<44 
+IDashboardService44 0
+,440 1
+DashboardService442 B
+>44B C
+(44C D
+)44D E
+;44E F
+builder55 
+.55 
+Services55 
+.55 
+	AddScoped55 
+<55 
+IReportService55 -
+,55- .
+ReportService55/ <
+>55< =
+(55= >
+)55> ?
+;55? @
+builder66 
+.66 
+Services66 
+.66 
+	AddScoped66 
+<66 !
+IKnowledgeBaseService66 4
+,664 5 
+KnowledgeBaseService666 J
+>66J K
+(66K L
+)66L M
+;66M N
+builder99 
+.99 
+Services99 
+.99 
+AddAuthentication99 "
+(99" #
+JwtBearerDefaults99# 4
+.994 5 
+AuthenticationScheme995 I
+)99I J
+.:: 
+AddJwtBearer:: 
+(:: 
+options:: 
+=>:: 
+{;; 
+options<< 
+.<< %
+TokenValidationParameters<< )
+=<<* +
+new<<, /%
+TokenValidationParameters<<0 I
+{== 	
+ValidateIssuer>> 
+=>> 
+true>> !
+,>>! "
+ValidateAudience?? 
+=?? 
+true?? #
+,??# $
+ValidateLifetime@@ 
+=@@ 
+true@@ #
+,@@# $$
+ValidateIssuerSigningKeyAA $
+=AA% &
+trueAA' +
+,AA+ ,
+ValidIssuerBB 
+=BB 
+builderBB !
+.BB! "
+ConfigurationBB" /
+[BB/ 0
+$strBB0 <
+]BB< =
+,BB= >
+ValidAudienceCC 
+=CC 
+builderCC #
+.CC# $
+ConfigurationCC$ 1
+[CC1 2
+$strCC2 @
+]CC@ A
+,CCA B
+IssuerSigningKeyDD 
+=DD 
+newDD " 
+SymmetricSecurityKeyDD# 7
+(DD7 8
+EncodingDD8 @
+.DD@ A
+UTF8DDA E
+.DDE F
+GetBytesDDF N
+(DDN O
+builderDDO V
+.DDV W
+ConfigurationDDW d
+[DDd e
+$strDDe q
+]DDq r
+??DDs u
+$str	DDv ¥
 )
-??¥ ¦
+DD¥ ¦
 )
-??¦ §
-}@@ 	
-;@@	 
+DD¦ §
+}EE 	
+;EE	 
 
-}AA 
-)AA 
-;AA 
-builderCC 
-.CC 
-ServicesCC 
-.CC 
-AddSingletonCC 
-<CC !
-IAuthorizationHandlerCC 3
-,CC3 4*
-PermissionAuthorizationHandlerCC5 S
->CCS T
-(CCT U
-)CCU V
-;CCV W
-builderDD 
-.DD 
-ServicesDD 
-.DD 
-AddAuthorizationDD !
-(DD! "
-optionsDD" )
-=>DD* ,
-{EE 
-foreachFF 
-(FF 
-varFF 
-permFF 
-inFF 
-PermissionConstantsFF ,
-.FF, -
-AllPermissionsFF- ;
-)FF; <
-{GG 
-optionsHH 
-.HH 
-	AddPolicyHH 
-(HH 
-$"HH 
-$strHH .
-{HH. /
-permHH/ 3
-}HH3 4
-"HH4 5
-,HH5 6
-policyHH7 =
-=>HH> @
-policyII 
-.II 
-RequirementsII 
-.II  
-AddII  #
-(II# $
-newII$ '!
-PermissionRequirementII( =
-(II= >
-permII> B
-)IIB C
-)IIC D
-)IID E
-;IIE F
-}JJ 
-}KK 
-)KK 
-;KK 
-varNN 
-allowedOriginsNN 
-=NN 
-builderNN 
-.NN 
-ConfigurationNN *
-.NN* +
+}FF 
+)FF 
+;FF 
+builderHH 
+.HH 
+ServicesHH 
+.HH 
+AddSingletonHH 
+<HH !
+IAuthorizationHandlerHH 3
+,HH3 4*
+PermissionAuthorizationHandlerHH5 S
+>HHS T
+(HHT U
+)HHU V
+;HHV W
+builderII 
+.II 
+ServicesII 
+.II 
+AddAuthorizationII !
+(II! "
+optionsII" )
+=>II* ,
+{JJ 
+foreachKK 
+(KK 
+varKK 
+permKK 
+inKK 
+PermissionConstantsKK ,
+.KK, -
+AllPermissionsKK- ;
+)KK; <
+{LL 
+optionsMM 
+.MM 
+	AddPolicyMM 
+(MM 
+$"MM 
+$strMM .
+{MM. /
+permMM/ 3
+}MM3 4
+"MM4 5
+,MM5 6
+policyMM7 =
+=>MM> @
+policyNN 
+.NN 
+RequirementsNN 
+.NN  
+AddNN  #
+(NN# $
+newNN$ '!
+PermissionRequirementNN( =
+(NN= >
+permNN> B
+)NNB C
+)NNC D
+)NND E
+;NNE F
+}OO 
+optionsPP 
+.PP 
+	AddPolicyPP 
+(PP 
+$strPP '
+,PP' (
+policyPP) /
+=>PP0 2
+policyPP3 9
+.PP9 :
+RequireClaimPP: F
+(PPF G
+$strPPG S
+,PPS T
+$strPPU `
+)PP` a
+)PPa b
+;PPb c
+}QQ 
+)QQ 
+;QQ 
+varTT 
+allowedOriginsTT 
+=TT 
+builderTT 
+.TT 
+ConfigurationTT *
+.TT* +
 
-GetSectionNN+ 5
-(NN5 6
-$strNN6 K
-)NNK L
-.NNL M
-GetNNM P
-<NNP Q
-stringNNQ W
-[NNW X
-]NNX Y
->NNY Z
-(NNZ [
-)NN[ \
-??OO 
-ArrayOO 
-.OO 	
-EmptyOO	 
-<OO 
-stringOO 
->OO 
-(OO 
-)OO 
-;OO 
-builderQQ 
-.QQ 
-ServicesQQ 
-.QQ 
-AddCorsQQ 
-(QQ 
-optionsQQ  
-=>QQ! #
-{RR 
-optionsSS 
-.SS 
-	AddPolicySS 
-(SS 
-$strSS &
-,SS& '
-builderSS( /
-=>SS0 2
-{TT 
-builderUU 
-.UU 
-WithOriginsUU 
-(UU 
-allowedOriginsUU *
-)UU* +
-.VV 
-AllowAnyMethodVV 
-(VV 
-)VV 
-.WW 
-AllowAnyHeaderWW 
-(WW 
-)WW 
-;WW 
-}XX 
-)XX 
-;XX 
-}ZZ 
-)ZZ 
-;ZZ 
-var\\ 
-app\\ 
-=\\ 	
-builder\\
- 
-.\\ 
-Build\\ 
-(\\ 
-)\\ 
-;\\ 
-if__ 
-(__ 
-app__ 
-.__ 
-Environment__ 
-.__ 
-IsDevelopment__ !
-(__! "
-)__" #
-)__# $
-{`` 
-appaa 
-.aa 
-
-UseSwaggeraa 
-(aa 
-)aa 
-;aa 
+GetSectionTT+ 5
+(TT5 6
+$strTT6 K
+)TTK L
+.TTL M
+GetTTM P
+<TTP Q
+stringTTQ W
+[TTW X
+]TTX Y
+>TTY Z
+(TTZ [
+)TT[ \
+??UU 
+ArrayUU 
+.UU 	
+EmptyUU	 
+<UU 
+stringUU 
+>UU 
+(UU 
+)UU 
+;UU 
+builderWW 
+.WW 
+ServicesWW 
+.WW 
+AddCorsWW 
+(WW 
+optionsWW  
+=>WW! #
+{XX 
+optionsYY 
+.YY 
+	AddPolicyYY 
+(YY 
+$strYY &
+,YY& '
+builderYY( /
+=>YY0 2
+{ZZ 
+builder[[ 
+.[[ 
+WithOrigins[[ 
+([[ 
+allowedOrigins[[ *
+)[[* +
+.\\ 
+AllowAnyMethod\\ 
+(\\ 
+)\\ 
+.]] 
+AllowAnyHeader]] 
+(]] 
+)]] 
+;]] 
+}^^ 
+)^^ 
+;^^ 
+}`` 
+)`` 
+;`` 
+varbb 
 appbb 
-.bb 
-UseSwaggerUIbb 
-(bb 
-)bb 
-;bb 
-}cc 
-appee 
-.ee 
-UseCorsee 
-(ee 
-$stree 
-)ee 
-;ee 
-appff 
-.ff 
-UseHttpsRedirectionff 
-(ff 
-)ff 
-;ff 
-apphh 
-.hh 
-UseAuthenticationhh 
-(hh 
-)hh 
-;hh 
-appii 
-.ii 
-UseAuthorizationii 
-(ii 
-)ii 
-;ii 
+=bb 	
+builderbb
+ 
+.bb 
+Buildbb 
+(bb 
+)bb 
+;bb 
+ifee 
+(ee 
+appee 
+.ee 
+Environmentee 
+.ee 
+IsDevelopmentee !
+(ee! "
+)ee" #
+)ee# $
+{ff 
+appgg 
+.gg 
+
+UseSwaggergg 
+(gg 
+)gg 
+;gg 
+apphh 
+.hh 
+UseSwaggerUIhh 
+(hh 
+)hh 
+;hh 
+}ii 
 appkk 
-.kk 
-MapGetkk 
+.kk 
+UseCorskk 
+(kk 
+$strkk 
+)kk 
+;kk 
+appll 
+.ll 
+UseHttpsRedirectionll 
+(ll 
+)ll 
+;ll 
+appnn 
+.nn 
+UseDefaultFilesnn 
+(nn 
+)nn 
+;nn 
+appoo 
+.oo 
+UseStaticFilesoo 
+(oo 
+)oo 
+;oo 
+appqq 
+.qq 
+UseAuthenticationqq 
+(qq 
+)qq 
+;qq 
+apprr 
+.rr 
+UseAuthorizationrr 
+(rr 
+)rr 
+;rr 
+apptt 
+.tt 
+MapGettt 
 
-(kk
+(tt
  
-$strkk 
-,kk 
-(kk 
-)kk 
-=>kk 
-{ll 
-returnmm 
+$strtt 
+,tt 
+(tt 
+)tt 
+=>tt 
+{uu 
+returnvv 
 
-Resultsmm 
-.mm 
-Okmm 
-(mm 
-newmm 
-{nn 
-statusoo 
-=oo 
-$stroo 
-,oo 
-servicepp 
-=pp 
-$strpp 
-,pp  
-	timestampqq 
-=qq 
-DateTimeqq 
-.qq 
-UtcNowqq #
-}rr 
-)rr 
-;rr 
-}ss 
-)ss 
-;ss 
-appuu 
-.uu 
-MapControllersuu 
-(uu 
-)uu 
-;uu 
-awaitww 
-appww 	
-.ww	 
-
-RunAsyncww
- 
-(ww 
-)ww 
-;ww £
+Resultsvv 
+.vv 
+Okvv 
+(vv 
+newvv 
+{ww 
+statusxx 
+=xx 
+$strxx 
+,xx 
+serviceyy 
+=yy 
+$stryy 
+,yy  
+	timestampzz 
+=zz 
+DateTimezz 
+.zz 
+UtcNowzz #
+}{{ 
+){{ 
+;{{ 
+}|| 
+)|| 
+;|| 
+app~~ 
+.~~ 
+MapControllers~~ 
+(~~ 
+)~~ 
+;~~ 
+await€€ 
+app
+€€ 	
+.
+€€	 
+
+RunAsync
+€€
+ 
+(
+€€ 
+)
+€€ 
+;
+€€ £
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
 	namespace		 	
 ItsTool		
@@ -2035,7 +2110,7 @@ RevokeRoleWW% /
 )bb 
 ;bb 
 }cc 
-}dd î›
+}dd Ò¢
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/TicketController.cs
 	namespace 	
 ItsTool
@@ -3376,8 +3451,95 @@ BadRequest
 ;
 žžG H
 }
-ŸŸ 
-}   Ó,
+ŸŸ 
+[
+¡¡ 
+HttpGet
+¡¡ 
+(
+¡¡ 
+$str
+¡¡ 
+)
+¡¡ 
+]
+¡¡ 
+public
+¢¢ 
+
+async
+¢¢ 
+Task
+¢¢ 
+<
+¢¢ 
+IActionResult
+¢¢ #
+>
+¢¢# $
+Search
+¢¢% +
+(
+¢¢+ ,
+[
+¢¢, -
+	FromQuery
+¢¢- 6
+]
+¢¢6 7#
+TicketSearchFilterDto
+¢¢8 M
+filter
+¢¢N T
+)
+¢¢T U
+{
+££ 
+var
+¤¤ 
+result
+¤¤ 
+=
+¤¤ 
+await
+¤¤ 
+_service
+¤¤ #
+.
+¤¤# $ 
+SearchTicketsAsync
+¤¤$ 6
+(
+¤¤6 7
+filter
+¤¤7 =
+,
+¤¤= >
+GetCurrentUserId
+¤¤? O
+(
+¤¤O P
+)
+¤¤P Q
+)
+¤¤Q R
+;
+¤¤R S
+return
+¥¥ 
+Ok
+¥¥ 
+(
+¥¥ 
+result
+¥¥ 
+)
+¥¥ 
+;
+¥¥ 
+}
+¦¦ 
+}§§ Ó,
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SystemController.cs
 	namespace 	
 ItsTool
@@ -4700,7 +4862,150 @@ HttpDeleteUU 
 )ZZ 
 ;ZZ 
 }[[ 
-}\\ Ñ?
+}\\ ß
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ReportsController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[		 
+ApiController		 
+]		 
+[
+
+ 
+Route
+
+ 
+(
+
+ 
+$str
+
+ 
+)
+
+ 
+]
+
+ 
+[ 
+	Authorize 
+
+]
+ 
+public 
+class 
+ReportsController 
+:  
+ControllerBase! /
+{ 
+private 
+readonly 
+IReportService #
+_reportService$ 2
+;2 3
+public 
+
+ReportsController 
+( 
+IReportService +
+reportService, 9
+)9 :
+{ 
+_reportService 
+= 
+reportService &
+;& '
+} 
+private 
+int 
+GetCurrentUserId  
+(  !
+)! "
+=># %
+int& )
+.) *
+Parse* /
+(/ 0
+User0 4
+.4 5
+	FindFirst5 >
+(> ?
+$str? G
+)G H
+?H I
+.I J
+ValueJ O
+??P R
+$strS V
+)V W
+;W X
+[ 
+HttpGet 
+( 
+$str 
+) 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+ExportTicketsCsv% 5
+(5 6
+[6 7
+	FromQuery7 @
+]@ A!
+TicketSearchFilterDtoB W
+filterX ^
+)^ _
+{ 
+var 
+stream 
+= 
+await 
+_reportService )
+.) *#
+ExportTicketsToCsvAsync* A
+(A B
+filterB H
+,H I
+GetCurrentUserIdJ Z
+(Z [
+)[ \
+)\ ]
+;] ^
+return 
+File 
+( 
+stream 
+, 
+$str &
+,& '
+$"( *
+$str* 9
+{9 :
+System: @
+.@ A
+DateTimeA I
+.I J
+UtcNowJ P
+:P Q
+$strQ `
+}` a
+$stra e
+"e f
+)f g
+;g h
+} 
+} Ñ?
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ProjectsController.cs
 	namespace 	
 ItsTool
@@ -5424,7 +5729,513 @@ MarkAsRead((% /
 )55 
 ;55 
 }66 
-}77 À?
+}77 ”B
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/KnowledgeBaseController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[		 
+ApiController		 
+]		 
+[
+
+ 
+Route
+
+ 
+(
+
+ 
+$str
+
+ 
+)
+
+ 
+]
+
+ 
+[ 
+	Authorize 
+
+]
+ 
+public 
+class #
+KnowledgeBaseController $
+:% &
+ControllerBase' 5
+{ 
+private 
+readonly !
+IKnowledgeBaseService *
+
+_kbService+ 5
+;5 6
+public 
+#
+KnowledgeBaseController "
+(" #!
+IKnowledgeBaseService# 8
+	kbService9 B
+)B C
+{ 
+
+_kbService 
+= 
+	kbService 
+; 
+} 
+private 
+int 
+GetCurrentUserId  
+(  !
+)! "
+=># %
+int& )
+.) *
+Parse* /
+(/ 0
+User0 4
+.4 5
+	FindFirst5 >
+(> ?
+$str? G
+)G H
+?H I
+.I J
+ValueJ O
+??P R
+$strS V
+)V W
+;W X
+[ 
+HttpGet 
+( 
+$str 
+) 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+GetCategories% 2
+(2 3
+)3 4
+{ 
+var 
+result 
+= 
+await 
+
+_kbService %
+.% &
+GetCategoriesAsync& 8
+(8 9
+)9 :
+;: ;
+return 
+Ok 
+( 
+result 
+) 
+; 
+} 
+[ 
+HttpPost 
+( 
+$str 
+) 
+] 
+[ 
+	Authorize 
+( 
+Policy 
+= 
+$str )
+)) *
+]* +
+public   
+
+async   
+Task   
+<   
+IActionResult   #
+>  # $
+CreateCategory  % 3
+(  3 4
+CreateKbCategoryDto  4 G
+dto  H K
+)  K L
+{!! 
+var"" 
+result"" 
+="" 
+await"" 
+
+_kbService"" %
+.""% &
+CreateCategoryAsync""& 9
+(""9 :
+dto"": =
+)""= >
+;""> ?
+return## 
+Ok## 
+(## 
+result## 
+)## 
+;## 
+}$$ 
+[&& 
+HttpPut&& 
+(&& 
+$str&& 
+)&& 
+]&&  
+['' 
+	Authorize'' 
+('' 
+Policy'' 
+='' 
+$str'' )
+)'') *
+]''* +
+public(( 
+
+async(( 
+Task(( 
+<(( 
+IActionResult(( #
+>((# $
+UpdateCategory((% 3
+(((3 4
+int((4 7
+id((8 :
+,((: ;
+CreateKbCategoryDto((< O
+dto((P S
+)((S T
+{)) 
+await** 
+
+_kbService** 
+.** 
+UpdateCategoryAsync** ,
+(**, -
+id**- /
+,**/ 0
+dto**1 4
+)**4 5
+;**5 6
+return++ 
+	NoContent++ 
+(++ 
+)++ 
+;++ 
+},, 
+[.. 
+
+HttpDelete.. 
+(.. 
+$str.. !
+)..! "
+].." #
+[// 
+	Authorize// 
+(// 
+Policy// 
+=// 
+$str// )
+)//) *
+]//* +
+public00 
+
+async00 
+Task00 
+<00 
+IActionResult00 #
+>00# $
+DeleteCategory00% 3
+(003 4
+int004 7
+id008 :
+)00: ;
+{11 
+await22 
+
+_kbService22 
+.22 
+DeleteCategoryAsync22 ,
+(22, -
+id22- /
+)22/ 0
+;220 1
+return33 
+	NoContent33 
+(33 
+)33 
+;33 
+}44 
+[66 
+HttpGet66 
+(66 
+$str66 
+)66 
+]66 
+public77 
+
+async77 
+Task77 
+<77 
+IActionResult77 #
+>77# $
+SearchArticles77% 3
+(773 4
+[774 5
+	FromQuery775 >
+]77> ?
+string77@ F
+?77F G
+search77H N
+,77N O
+[77P Q
+	FromQuery77Q Z
+]77Z [
+int77\ _
+?77_ `
+category77a i
+)77i j
+{88 
+var99 
+result99 
+=99 
+await99 
+
+_kbService99 %
+.99% &
+SearchArticlesAsync99& 9
+(999 :
+GetCurrentUserId99: J
+(99J K
+)99K L
+,99L M
+search99N T
+,99T U
+category99V ^
+)99^ _
+;99_ `
+return:: 
+Ok:: 
+(:: 
+result:: 
+):: 
+;:: 
+};; 
+[== 
+HttpGet== 
+(== 
+$str== 
+)== 
+]== 
+public>> 
+
+async>> 
+Task>> 
+<>> 
+IActionResult>> #
+>>># $
+
+GetArticle>>% /
+(>>/ 0
+int>>0 3
+id>>4 6
+)>>6 7
+{?? 
+var@@ 
+result@@ 
+=@@ 
+await@@ 
+
+_kbService@@ %
+.@@% &
+GetArticleAsync@@& 5
+(@@5 6
+id@@6 8
+,@@8 9
+GetCurrentUserId@@: J
+(@@J K
+)@@K L
+)@@L M
+;@@M N
+ifAA 
+
+(AA 
+resultAA 
+==AA 
+nullAA 
+)AA 
+returnAA "
+NotFoundAA# +
+(AA+ ,
+)AA, -
+;AA- .
+returnBB 
+OkBB 
+(BB 
+resultBB 
+)BB 
+;BB 
+}CC 
+[EE 
+HttpPostEE 
+(EE 
+$strEE 
+)EE 
+]EE 
+[FF 
+	AuthorizeFF 
+(FF 
+PolicyFF 
+=FF 
+$strFF )
+)FF) *
+]FF* +
+publicGG 
+
+asyncGG 
+TaskGG 
+<GG 
+IActionResultGG #
+>GG# $
+CreateArticleGG% 2
+(GG2 3
+CreateKbArticleDtoGG3 E
+dtoGGF I
+)GGI J
+{HH 
+varII 
+resultII 
+=II 
+awaitII 
+
+_kbServiceII %
+.II% &
+CreateArticleAsyncII& 8
+(II8 9
+dtoII9 <
+,II< =
+GetCurrentUserIdII> N
+(IIN O
+)IIO P
+)IIP Q
+;IIQ R
+returnJJ 
+OkJJ 
+(JJ 
+resultJJ 
+)JJ 
+;JJ 
+}KK 
+[MM 
+HttpPutMM 
+(MM 
+$strMM 
+)MM 
+]MM 
+[NN 
+	AuthorizeNN 
+(NN 
+PolicyNN 
+=NN 
+$strNN )
+)NN) *
+]NN* +
+publicOO 
+
+asyncOO 
+TaskOO 
+<OO 
+IActionResultOO #
+>OO# $
+UpdateArticleOO% 2
+(OO2 3
+intOO3 6
+idOO7 9
+,OO9 :
+UpdateKbArticleDtoOO; M
+dtoOON Q
+)OOQ R
+{PP 
+awaitQQ 
+
+_kbServiceQQ 
+.QQ 
+UpdateArticleAsyncQQ +
+(QQ+ ,
+idQQ, .
+,QQ. /
+dtoQQ0 3
+)QQ3 4
+;QQ4 5
+returnRR 
+	NoContentRR 
+(RR 
+)RR 
+;RR 
+}SS 
+[UU 
+
+HttpDeleteUU 
+(UU 
+$strUU 
+)UU  
+]UU  !
+[VV 
+	AuthorizeVV 
+(VV 
+PolicyVV 
+=VV 
+$strVV )
+)VV) *
+]VV* +
+publicWW 
+
+asyncWW 
+TaskWW 
+<WW 
+IActionResultWW #
+>WW# $
+DeleteArticleWW% 2
+(WW2 3
+intWW3 6
+idWW7 9
+)WW9 :
+{XX 
+awaitYY 
+
+_kbServiceYY 
+.YY 
+DeleteArticleAsyncYY +
+(YY+ ,
+idYY, .
+)YY. /
+;YY/ 0
+returnZZ 
+	NoContentZZ 
+(ZZ 
+)ZZ 
+;ZZ 
+}[[ 
+}\\ À?
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/GroupsController.cs
 	namespace 	
 ItsTool
@@ -7190,7 +8001,232 @@ HttpDelete== 
 ;II 
 }JJ 	
 }KK 
-}LL Ì‹
+}LL Ž
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DashboardController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[ 
+ApiController 
+] 
+[		 
+Route		 
+(		 
+$str		 
+)		 
+]		 
+[
+
+ 
+	Authorize
+
+ 
+
+]
+
+
+ 
+public 
+class 
+DashboardController  
+:! "
+ControllerBase# 1
+{ 
+private 
+readonly 
+IDashboardService &
+_dashboardService' 8
+;8 9
+public 
+
+DashboardController 
+( 
+IDashboardService 0
+dashboardService1 A
+)A B
+{ 
+_dashboardService 
+= 
+dashboardService ,
+;, -
+} 
+private 
+int 
+GetCurrentUserId  
+(  !
+)! "
+=># %
+int& )
+.) *
+Parse* /
+(/ 0
+User0 4
+.4 5
+	FindFirst5 >
+(> ?
+$str? G
+)G H
+?H I
+.I J
+ValueJ O
+??P R
+$strS V
+)V W
+;W X
+[ 
+HttpGet 
+( 
+$str 
+) 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+GetOverview% 0
+(0 1
+)1 2
+{ 
+var 
+result 
+= 
+await 
+_dashboardService ,
+., -
+GetOverviewAsync- =
+(= >
+GetCurrentUserId> N
+(N O
+)O P
+)P Q
+;Q R
+return 
+Ok 
+( 
+result 
+) 
+; 
+} 
+[ 
+HttpGet 
+( 
+$str 
+) 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+GetDistributions% 5
+(5 6
+)6 7
+{ 
+var   
+result   
+=   
+await   
+_dashboardService   ,
+.  , -!
+GetDistributionsAsync  - B
+(  B C
+GetCurrentUserId  C S
+(  S T
+)  T U
+)  U V
+;  V W
+return!! 
+Ok!! 
+(!! 
+result!! 
+)!! 
+;!! 
+}"" 
+[$$ 
+HttpGet$$ 
+($$ 
+$str$$ 
+)$$ 
+]$$ 
+public%% 
+
+async%% 
+Task%% 
+<%% 
+IActionResult%% #
+>%%# $
+GetAgentWorkload%%% 5
+(%%5 6
+)%%6 7
+{&& 
+var'' 
+result'' 
+='' 
+await'' 
+_dashboardService'' ,
+.'', -!
+GetAgentWorkloadAsync''- B
+(''B C
+GetCurrentUserId''C S
+(''S T
+)''T U
+)''U V
+;''V W
+return(( 
+Ok(( 
+((( 
+result(( 
+)(( 
+;(( 
+})) 
+[++ 
+HttpGet++ 
+(++ 
+$str++ 
+)++ 
+]++ 
+public,, 
+
+async,, 
+Task,, 
+<,, 
+IActionResult,, #
+>,,# $
+GetSlaCompliance,,% 5
+(,,5 6
+),,6 7
+{-- 
+var.. 
+result.. 
+=.. 
+await.. 
+_dashboardService.. ,
+..., -!
+GetSlaComplianceAsync..- B
+(..B C
+GetCurrentUserId..C S
+(..S T
+)..T U
+)..U V
+;..V W
+return// 
+Ok// 
+(// 
+result// 
+)// 
+;// 
+}00 
+}11 Ì‹
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CatalogController.cs
 	namespace 	
 ItsTool

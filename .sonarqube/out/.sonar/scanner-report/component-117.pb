@@ -1,1 +1,1 @@
-u 2csX:hr:src/ItsTool.Application/Interfaces/IOrganizationService.cs
+u 2csXhr(src/ItsTool.Application/DTOs/AuthDtos.cs

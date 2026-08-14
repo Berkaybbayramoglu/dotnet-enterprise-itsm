@@ -7,106 +7,70 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:config.manage")]
-public class DynamicFormController : ControllerBase
+[Authorize(Policy = "RequirePermission:admin.manage")]
+public class DepartmentsController : ControllerBase
 {
-    private readonly IDynamicFormService _service;
+    private readonly IDepartmentService _service;
 
-    public DynamicFormController(IDynamicFormService service)
+    public DepartmentsController(IDepartmentService service)
     {
         _service = service;
     }
 
-    [HttpGet("definitions")]
-    [ProducesResponseType(typeof(IEnumerable<FieldDefinitionDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDefinitions() => Ok(await _service.GetFieldDefinitionsAsync());
-
-    [HttpPost("definitions")]
-    [ProducesResponseType(typeof(FieldDefinitionDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateDefinition([FromBody] CreateFieldDefinitionDto dto)
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<DepartmentDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
     {
-        try { var result = await _service.CreateFieldDefinitionAsync(dto); return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+        return Ok(await _service.GetAllAsync());
     }
 
-    [HttpPut("definitions/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateDefinition(int id, [FromBody] UpdateFieldDefinitionDto dto)
+    public async Task<IActionResult> GetById(int id)
     {
-        try { await _service.UpdateFieldDefinitionAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+        var dept = await _service.GetByIdAsync(id);
+        if (dept == null) return NotFound();
+        return Ok(dept);
     }
 
-    [HttpDelete("definitions/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteDefinition(int id)
+    [HttpPost]
+    [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> Create([FromBody] CreateDepartmentDto dto)
     {
-        await _service.DeleteFieldDefinitionAsync(id); return NoContent();
+        var created = await _service.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    [HttpGet("definitions/{id}/options")]
-    [ProducesResponseType(typeof(IEnumerable<FieldOptionDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetOptions(int id) => Ok(await _service.GetFieldOptionsAsync(id));
-
-    [HttpPost("options")]
-    [ProducesResponseType(typeof(FieldOptionDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateOption([FromBody] CreateFieldOptionDto dto)
-    {
-        var result = await _service.CreateFieldOptionAsync(dto);
-        return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result);
-    }
-
-    [HttpPut("options/{id}")]
+    [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateOption(int id, [FromBody] UpdateFieldOptionDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateDepartmentDto dto)
     {
-        try { await _service.UpdateFieldOptionAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
+        try
+        {
+            await _service.UpdateAsync(id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
-    [HttpDelete("options/{id}")]
+    [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteOption(int id)
-    {
-        await _service.DeleteFieldOptionAsync(id); return NoContent();
-    }
-
-    [HttpGet("placements")]
-    [ProducesResponseType(typeof(IEnumerable<FormFieldPlacementDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPlacements([FromQuery] int? projectId, [FromQuery] int? categoryId, [FromQuery] int? ticketTypeId)
-    {
-        return Ok(await _service.GetPlacementsAsync(projectId, categoryId, ticketTypeId));
-    }
-
-    [HttpPost("placements")]
-    [ProducesResponseType(typeof(FormFieldPlacementDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreatePlacement([FromBody] CreateFormFieldPlacementDto dto)
-    {
-        try { var result = await _service.CreatePlacementAsync(dto); return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpPut("placements/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdatePlacement(int id, [FromBody] UpdateFormFieldPlacementDto dto)
+    public async Task<IActionResult> Delete(int id)
     {
-        try { await _service.UpdatePlacementAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpDelete("placements/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeletePlacement(int id)
-    {
-        await _service.DeletePlacementAsync(id); return NoContent();
+        try
+        {
+            await _service.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

@@ -1,1 +1,1 @@
-w 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs
+w 2csXhr-src/ItsTool.Application/DTOs/DashboardDtos.cs

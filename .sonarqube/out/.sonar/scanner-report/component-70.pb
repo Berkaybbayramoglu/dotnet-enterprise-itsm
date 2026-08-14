@@ -1,1 +1,1 @@
-F 2csX8hr8src/ItsTool.Infrastructure/Services/DepartmentService.cs
+F 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs

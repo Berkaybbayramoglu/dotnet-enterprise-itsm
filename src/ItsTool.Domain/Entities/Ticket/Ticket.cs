@@ -22,4 +22,5 @@ public class Ticket : BaseEntity {
     public virtual User? RequesterUser { get; set; }
     public virtual User? AssignedUser { get; set; }
     public virtual Group? AssignedGroup { get; set; }
+    public virtual SLA.TicketSla? TicketSla { get; set; }
 }

@@ -1,1 +1,1 @@
-D 2csXXhr2src/ItsTool.Infrastructure/Services/AuthService.cs
+D 2csXhrsrc/ItsTool.Web/Program.cs

@@ -1,54 +1,74 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Config;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Auth;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class DynamicFormServiceTests : TestBase
+public class RoleService : IRoleService
 {
-    private readonly Repository<FieldDefinition> _defRepo;
-    private readonly Repository<FieldOption> _optRepo;
-    private readonly Repository<FormFieldPlacement> _placementRepo;
-    private readonly DynamicFormService _service;
+    private readonly IRepository<Role> _repository;
+    private readonly ItsToolDbContext _context;
 
-    public DynamicFormServiceTests() : base()
+    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
     {
-        _defRepo = new Repository<FieldDefinition>(_context);
-        _optRepo = new Repository<FieldOption>(_context);
-        _placementRepo = new Repository<FormFieldPlacement>(_context);
-        _service = new DynamicFormService(_defRepo, _optRepo, _placementRepo, _context);
+        _repository = repository;
+        _context = context;
     }
 
-    [Fact]
-    public async Task CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUnique()
+    public async Task<IEnumerable<RoleDto>> GetAllAsync()
     {
-        var f = new FieldDefinition { Key = "test.key", Label = "A", FieldType = FieldType.Text };
-        _context.FieldDefinitions.Add(f);
-        await _context.SaveChangesAsync();
-
-        var dto = new CreateFieldDefinitionDto("test.key", "B", "Text", null);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateFieldDefinitionAsync(dto));
+        var roles = await _repository.GetAllAsync();
+        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
     }
 
-    [Fact]
-    public async Task CreatePlacementAsync_ShouldThrowIfDuplicateScope()
+    public async Task<RoleDto?> GetByIdAsync(int id)
     {
-        var p = new FormFieldPlacement { FieldDefinitionId = 1, ProjectId = 1 };
-        _context.FormFieldPlacements.Add(p);
-        await _context.SaveChangesAsync();
-
-        var dto = new CreateFormFieldPlacementDto(1, 1, null, null, 1, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePlacementAsync(dto));
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) return null;
+        return new RoleDto(r.Id, r.Name, r.IsActive);
     }
 
-    [Fact]
-    public async Task CreateFieldDefinitionAsync_ShouldCreate()
+    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
     {
-        var dto = new CreateFieldDefinitionDto("uniq.key", "N", "Text", null);
-        var res = await _service.CreateFieldDefinitionAsync(dto);
-        Assert.Equal("uniq.key", res.Key);
+        var r = new Role { Name = dto.Name };
+        await _repository.AddAsync(r);
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
+
+    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) throw new KeyNotFoundException("Role not found");
+        
+        r.Name = dto.Name;
+        r.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(r);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task AssignPermissionAsync(int roleId, int permissionId)
+    {
+        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+        if (!exists)
+        {
+            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task RevokePermissionAsync(int roleId, int permissionId)
+    {
+        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
+        if (rp != null)
+        {
+            _context.RolePermissions.Remove(rp);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -1,1 +1,1 @@
-@ 2csXPhr3src/ItsTool.Infrastructure/Data/ItsToolDbContext.cs
+@ 2webX_hr&src/ItsTool.Web/wwwroot/dashboard.html

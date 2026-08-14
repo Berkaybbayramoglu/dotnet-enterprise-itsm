@@ -1,55 +1,13 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Organization;
-
-namespace ItsTool.Infrastructure.Services;
-
-public class DepartmentService : IDepartmentService
-{
-    private readonly IRepository<Department> _repository;
-
-    public DepartmentService(IRepository<Department> repository)
-    {
-        _repository = repository;
-    }
-
-    public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
-    {
-        var depts = await _repository.GetAllAsync();
-        return depts.Select(d => new DepartmentDto(d.Id, d.Name, d.Description, d.IsActive));
-    }
-
-    public async Task<DepartmentDto?> GetByIdAsync(int id)
-    {
-        var dept = await _repository.GetByIdAsync(id);
-        if (dept == null) return null;
-        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
-    }
-
-    public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
-    {
-        var dept = new Department
-        {
-            Name = dto.Name,
-            Description = dto.Description
-        };
-        await _repository.AddAsync(dept);
-        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
-    }
-
-    public async Task UpdateAsync(int id, UpdateDepartmentDto dto)
-    {
-        var dept = await _repository.GetByIdAsync(id);
-        if (dept == null) throw new KeyNotFoundException("Department not found");
-        
-        dept.Name = dto.Name;
-        dept.Description = dto.Description;
-        dept.IsActive = dto.IsActive;
-        await _repository.UpdateAsync(dept);
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        await _repository.DeleteAsync(id);
+using ItsTool.Domain.Entities.Ticket;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+namespace ItsTool.Infrastructure.Data.Configurations;
+public class TicketConfiguration : IEntityTypeConfiguration<Ticket> {
+    public void Configure(EntityTypeBuilder<Ticket> builder) {
+        builder.HasKey(t => t.Id);
+        builder.Property(t => t.TicketNumber).IsRequired().HasMaxLength(50);
+        builder.HasIndex(t => t.TicketNumber).IsUnique();
+        builder.HasOne(t => t.RequesterUser).WithMany().HasForeignKey(t => t.RequesterUserId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(t => t.AssignedUser).WithMany().HasForeignKey(t => t.AssignedUserId).OnDelete(DeleteBehavior.SetNull);
     }
 }

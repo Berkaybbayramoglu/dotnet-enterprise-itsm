@@ -196,7 +196,35 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/R
 00 22 66- 188] a(
 11 33! %666 :88{ 
 88 99 
-88J L88P R88h jÔ
+88J L88P R88h jã
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ReportServiceTests.cs
+
+ 
+# 1 66 )(
+1 D 5 H 
+
+ K
+" #' ((
+  (00q {11q {,
+!! "" %
+00Œ “
+11Œ “,
+&& **  (
+00¥ ­
+11¥ ­,
+'' ++! %
+00» ¿
+11» ¿,
+(( ,,  (
+00Ñ Ù
+11Ñ Ù,
+)) -- 
+00ð ô
+11ð ô
+44 66B H
+66 77 88, 2
+88 99 %(
+99 << $>>  *??& 0Ô
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.cs
 
 
@@ -240,7 +268,26 @@ j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/P
 QQ SS  %ZZ= BccO T2
 RR SS' ,[[= B^^S XddO T
 cc gg !hh& 1(
-dd jj #kk& 1ll) 4©
+dd jj #kk& 1ll) 4æ
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.cs
+
+ &2
+* 4 !! %00 %>> %<
+1 D 8 K ** 88 
+
+ P
+" #' (
+!! ## $$ !
+
+(( D
+**" #**' (
+00 22 
+
+66 K
+88" #88' ((
+:: ;;' .>>6 =CCC J
+>> @@ AA 
+CC DD !©
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/NotificationServiceTests.cs
 
  %2
@@ -336,7 +383,28 @@ g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/D
 
 && 9
 )) **! %..1 5
-.. 11 22 !à
+.. 11 22 !¶
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DashboardServiceTests.cs
+
+ "2
+& 7 '' ,:: ,LL ,<
+1 D ; N 00 BB 
+
+ I
+" #' ((
+ # -""J T$$J T
+ / ;##J V
+'' )) ** 
+
+.. K
+00" #00' ((
+22 33 (66J T77J T
+:: << 
+
+@@ Q
+BB" #BB' ((
+DD EE (HHJ TIIJ T
+LL NN à
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.cs
 
 

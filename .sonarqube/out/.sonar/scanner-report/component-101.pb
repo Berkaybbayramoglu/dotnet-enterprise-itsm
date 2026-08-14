@@ -1,1 +1,1 @@
-e (2xmlXï•hr.tests/ItsTool.UnitTests/coverage.opencover.xml
+e (2csX=hr5tests/ItsTool.UnitTests/Services/GroupServiceTests.cs

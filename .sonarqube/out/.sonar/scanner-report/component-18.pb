@@ -1,1 +1,1 @@
- 2csXhr7src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs
+ 2csXhr7src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs

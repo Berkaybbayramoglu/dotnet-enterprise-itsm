@@ -1,1 +1,1 @@
-s 2csXhr9src/ItsTool.Application/Interfaces/IFileStorageService.cs
+s (2xmlX«¶hr.tests/ItsTool.UnitTests/coverage.opencover.xml
