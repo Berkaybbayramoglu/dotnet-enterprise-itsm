@@ -34,3 +34,8 @@
 - **Sonraki Adım:** SonarQube baseline tamamen temiz; repository Bitbucket push'a hazır. Bir sonraki aşamada "Faz 3 — Auth ve Esnek Yetkilendirme Altyapısı" kurulacaktır.
 Phase 4 Organization CRUD and Phase 3 Unit Tests completed successfully.
 - Faz 7 refactor sırasında SLA Engine içerisindeki saf metotlar (`ApplyPause`, `EvaluateMetric`) SonarQube uyarısıyla `static` yapıldı, pure function pratikleri uygulandı.
+
+### [Faz 8 - Frontend A11y & Readability Fixes]
+- **Yapılanlar:** `wwwroot` altındaki `tickets.html`, `dashboard.html` ve `kb.html` dosyalarında yer alan ve SonarQube tarafından Accessibility (a11y) bulgusu olarak işaretlenen hatalar giderildi. Aksiyonlar için kullanılan `<a>` etiketleri semantik `<button type="button">` elementleriyle değiştirildi. Input elemanlarına `aria-label` eklendi, `<span onclick="">` gibi klavye gezinimini (keyboard navigation) bozan elemanlar natif elementlere çevrildi. Boş kalan başlık (heading) etiketleri default "Loading..." metinleriyle dolduruldu. JS dosyasındaki `replace(/.../g, ...)` kullanımları okunabilirlik açısından `replaceAll` ile refactor edildi.
+- **Kararlar:** WCAG standartlarına ve ekran okuyucu uyumluluğuna sadık kalındı. Backend kodlarına veya işlevsel akışa dokunulmadan sadece DOM ağacı onarıldı.
+- **Sonraki Adım:** Faz 9 (Gelişmiş Dinamik Yapılandırma) görevlerine başlanabilir.
