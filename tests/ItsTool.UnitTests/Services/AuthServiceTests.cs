@@ -88,5 +88,30 @@ public class AuthServiceTests : TestBase
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
     }
+    [Fact]
+    public async Task LoginAsync_ValidEmail_ShouldReturnToken()
+    {
+        // Arrange
+        var password = "password123";
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
+        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
+            .ReturnsAsync(new HashSet<string> { "test.perm" });
+
+        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+            .Returns("fake_jwt_token");
+
+        var request = new LoginRequestDto("test@test.com", password); // Login with email
+
+        // Act
+        var result = await _authService.LoginAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("fake_jwt_token", result.Token);
+        Assert.Equal("testuser", result.Username);
+    }
 }

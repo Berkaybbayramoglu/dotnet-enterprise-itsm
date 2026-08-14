@@ -27,8 +27,11 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
+        var normalizedInput = request.Username.ToLower();
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive && !u.IsDeleted);
+            .FirstOrDefaultAsync(u => 
+                (u.Username.ToLower() == normalizedInput || u.Email.ToLower() == normalizedInput) && 
+                u.IsActive && !u.IsDeleted);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
