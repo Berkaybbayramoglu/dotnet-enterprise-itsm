@@ -1,2 +1,2 @@
-¼
-²Missing blame information for 27 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href="https://docs.sonarsource.com/sonarqube-community-build/analyzing-source-code/scm-integration/" rel="noopener noreferrer" target="_blank">the documentation</a>.ª²Öƒ€4
+»
+±Missing blame information for 4 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href="https://docs.sonarsource.com/sonarqube-community-build/analyzing-source-code/scm-integration/" rel="noopener noreferrer" target="_blank">the documentation</a>.èž„„€4

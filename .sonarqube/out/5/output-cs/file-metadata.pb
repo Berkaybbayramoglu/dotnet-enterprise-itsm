@@ -12,10 +12,10 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/S
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/RoleServiceTests.csutf-8l
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ReportServiceTests.csutf-8m
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.csutf-8s
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.csutf-8s
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.csutf-8r
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.csutf-8r
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/NotificationServiceTests.csutf-8v
-m/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/LocalFileStorageServiceTests.csutf-8k
+m/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/LocalFileStorageServiceTests.csutf-8s
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.csutf-8k
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/GroupServiceTests.csutf-8q
 h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DynamicFormServiceTests.csutf-8p
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DepartmentServiceTests.csutf-8o

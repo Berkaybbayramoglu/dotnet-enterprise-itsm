@@ -268,26 +268,7 @@ j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/P
 QQ SS  %ZZ= BccO T2
 RR SS' ,[[= B^^S XddO T
 cc gg !hh& 1(
-dd jj #kk& 1ll) 4æ
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.cs
-
- &2
-* 4 !! %00 %>> %<
-1 D 8 K ** 88 
-
- P
-" #' (
-!! ## $$ !
-
-(( D
-**" #**' (
-00 22 
-
-66 K
-88" #88' ((
-:: ;;' .>>6 =CCC J
->> @@ AA 
-CC DD !©
+dd jj #kk& 1ll) 4©
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/NotificationServiceTests.cs
 
  %2
@@ -325,7 +306,26 @@ m/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/L
 $$ **B I(
 && '' (( **X `
 '' '' 
-(( (( Ò
+(( (( æ
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.cs
+
+ &2
+* 4 !! %00 %>> %<
+1 D 8 K ** 88 
+
+ P
+" #' (
+!! ## $$ !
+
+(( D
+**" #**' (
+00 22 
+
+66 K
+88" #88' ((
+:: ;;' .>>6 =CCC J
+>> @@ AA 
+CC DD !Ò
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/GroupServiceTests.cs
 
 

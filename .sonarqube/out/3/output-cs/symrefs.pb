@@ -2089,30 +2089,7 @@ w/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrati
 ðð 
 óó 
 öö 
-ùù ä
-r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs
-
-  
-
- <
-4 ;  		 
-
-  
-  
-  
-		 		 
-
-
- 
-
- 
-
-
-F G
-
-K L
-  
-E FJ KíG
+ùù íG
 r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.cs
 
 
@@ -2934,7 +2911,17 @@ Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Re
 
 00 !
 00& (22( *(
-22 33 55 66 ö
+22 33 55 66 ­
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs
+
+ $
+
+ +
+
+5 9
+
+
+  $ 2ö
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContext.cs
  - =
 ? FO V
@@ -3014,47 +3001,7 @@ Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Re
 HH# 4
 
 JJ +
-JJ9 ELL )MM ­
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs
-
- $
-
- +
-
-5 9
-
-
-  $ 2ƒ
-s/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs
-
- %
-
-
-
- 
-
-
-= D 
-  
-
- *
-
- (
-> E   
- & )4 7
-  !
- !% (
-  !
- !% (
-
-"" ,
-
-$$ 
-$$@ G&& ++ 
-&& && 
-((  (($ &
-++ ++ 
---  --$ &ý
+JJ9 ELL )MM ý
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs
 
 		 €
@@ -3090,4 +3037,57 @@ Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Da
 ee gg/ 1
 ff gg3 5<
 jj kk! 'pp* 0qq* 0rr* 0ss* 0(
-vv vv vv  !zz' (
+vv vv vv  !zz' (ä
+r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs
+
+  
+
+ <
+4 ;  		 
+
+  
+  
+  
+		 		 
+
+
+ 
+
+ 
+
+
+F G
+
+K L
+  
+E FJ Kƒ
+s/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs
+
+ %
+
+
+
+ 
+
+
+= D 
+  
+
+ *
+
+ (
+> E   
+ & )4 7
+  !
+ !% (
+  !
+ !% (
+
+"" ,
+
+$$ 
+$$@ G&& ++ 
+&& && 
+((  (($ &
+++ ++ 
+--  --$ &

@@ -36,14 +36,14 @@
         <div class="nav">
             <a href="/dashboard.html">Dashboard</a>
             <a href="/tickets.html">Tickets</a>
-            <a href="#" onclick="window.api.clearToken(); window.location.reload();">Logout</a>
+            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
         </div>
     </div>
     
     <div class="container">
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search knowledge base...">
-            <button onclick="searchKb()">Search</button>
+            <input type="text" id="searchInput" aria-label="Search knowledge base" placeholder="Search knowledge base...">
+            <button type="button" onclick="searchKb()">Search</button>
         </div>
         
         <div class="articles" id="articleList">
@@ -54,8 +54,8 @@
     <!-- Article Modal -->
     <div id="articleModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle"></h2>
+            <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
+            <h2 id="modalTitle">Loading...</h2>
             <div id="modalBody" class="article-body"></div>
         </div>
     </div>
@@ -72,22 +72,26 @@
                 list.innerHTML = '';
                 
                 articles.forEach(a => {
-                    const div = document.createElement('div');
-                    div.className = 'article-card';
-                    div.onclick = () => openArticle(a.id);
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'article-card';
+                    btn.onclick = () => openArticle(a.id);
+                    btn.style.width = '100%';
+                    btn.style.textAlign = 'left';
+                    btn.style.border = 'none';
                     
                     let badges = '';
                     if (a.visibility === 1) badges += '<span class="badge badge-internal">Internal</span> ';
                     if (a.status === 0) badges += '<span class="badge badge-draft">Draft</span> ';
 
-                    div.innerHTML = `
+                    btn.innerHTML = `
                         <h3>${escapeHtml(a.title)} ${badges}</h3>
                         <div class="meta">
                             <span>Views: ${a.viewCount}</span>
                             <span>Date: ${new Date(a.createdAt).toLocaleDateString()}</span>
                         </div>
                     `;
-                    list.appendChild(div);
+                    list.appendChild(btn);
                 });
             } catch(e) { console.error(e); }
         }
@@ -107,6 +111,8 @@
 
         function closeModal() {
             document.getElementById('articleModal').style.display = 'none';
+            document.getElementById('modalTitle').textContent = 'Loading...';
+            document.getElementById('modalBody').textContent = '';
         }
 
         // Close modal if clicked outside
@@ -119,11 +125,11 @@
 
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
         searchKb();

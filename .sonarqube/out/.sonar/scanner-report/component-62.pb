@@ -1,1 +1,1 @@
-> 2webX7hr"src/ItsTool.Web/wwwroot/login.html
+> 2webX7hr"src/ItsTool.Web/wwwroot/login.html

@@ -1,1 +1,1 @@
-/ 2csX]hr6src/ItsTool.API/Controllers/KnowledgeBaseController.cs
+/ 2csX]hr6src/ItsTool.API/Controllers/KnowledgeBaseController.cs

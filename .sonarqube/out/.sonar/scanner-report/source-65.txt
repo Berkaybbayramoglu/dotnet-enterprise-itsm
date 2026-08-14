@@ -25,15 +25,15 @@
         <div class="nav">
             <a href="/dashboard.html">Dashboard</a>
             <a href="/kb.html">Knowledge Base</a>
-            <a href="#" onclick="window.api.clearToken(); window.location.reload();">Logout</a>
+            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
         </div>
     </div>
     
     <div class="container">
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search by Ticket Number, Title, or Description...">
-            <button onclick="search()">Search</button>
-            <button onclick="exportCsv()" style="background-color: #28a745;">Export CSV</button>
+            <input type="text" id="searchInput" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description...">
+            <button type="button" onclick="search()">Search</button>
+            <button type="button" onclick="exportCsv()" style="background-color: #28a745;">Export CSV</button>
         </div>
         
         <table>
@@ -93,11 +93,11 @@
 
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
         search();

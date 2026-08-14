@@ -25,8 +25,8 @@ Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse;
 text.civendor_buildkite0/
 $dotnetenterprise.s4net.begin.runtimenetcore5
 )javascript.runtime.node-executable-originembedded
-text.civendor_travisci0&
-text.sensor_time_ms_community48571=
+text.civendor_travisci0$
+text.sensor_time_ms_community550=
 2dotnetenterprise.s4net.scannerEngine.bootstrappingEnabled
 text.civendor_jenkins0L
 scanner.git_remote_url2git@bitbucket.org:itsm-project-admin/itsm-tool.git2

@@ -1,1 +1,1 @@
-f (2csXGhr=tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.cs
+f (2csXGhr=tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.cs

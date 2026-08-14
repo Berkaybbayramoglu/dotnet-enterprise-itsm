@@ -1,1 +1,1 @@
-@ 2webX_hr&src/ItsTool.Web/wwwroot/dashboard.html
+@ 2webX_hr&src/ItsTool.Web/wwwroot/dashboard.html

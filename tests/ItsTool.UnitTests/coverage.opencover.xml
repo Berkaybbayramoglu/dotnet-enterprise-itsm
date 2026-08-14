@@ -2,9 +2,9 @@
 <CoverageSession>
   <Summary numSequencePoints="12645" visitedSequencePoints="1030" numBranchPoints="518" visitedBranchPoints="168" sequenceCoverage="8.14" branchCoverage="32.43" maxCyclomaticComplexity="626" minCyclomaticComplexity="114" visitedClasses="147" numClasses="441" visitedMethods="304" numMethods="728" />
   <Modules>
-    <Module hash="C21C1BF5-CF83-4190-B82E-51F074B19082">
+    <Module hash="E588F1D7-B2FC-440B-B55E-81FCFA933E13">
       <ModulePath>ItsTool.Domain.dll</ModulePath>
-      <ModuleTime>2026-08-14T01:19:03</ModuleTime>
+      <ModuleTime>2026-08-14T01:40:07</ModuleTime>
       <ModuleName>ItsTool.Domain</ModuleName>
       <Files>
         <File uid="1" fullPath="/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs" />
@@ -2567,9 +2567,9 @@
         </Class>
       </Classes>
     </Module>
-    <Module hash="2962D339-6F08-4DF5-AC2C-E6FCD3E15C96">
+    <Module hash="57FC232E-30CF-44EC-A7C5-252063929157">
       <ModulePath>ItsTool.Infrastructure.dll</ModulePath>
-      <ModuleTime>2026-08-14T01:19:03</ModuleTime>
+      <ModuleTime>2026-08-14T01:40:07</ModuleTime>
       <ModuleName>ItsTool.Infrastructure</ModuleName>
       <Files>
         <File uid="30" fullPath="/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs" />
@@ -18544,9 +18544,9 @@
         </Class>
       </Classes>
     </Module>
-    <Module hash="3084F837-11BA-4CE1-9667-D5D37B50C637">
+    <Module hash="38A9157D-DFDB-4C46-82B6-83B56BC5CF58">
       <ModulePath>ItsTool.Application.dll</ModulePath>
-      <ModuleTime>2026-08-14T01:19:04</ModuleTime>
+      <ModuleTime>2026-08-14T01:40:07</ModuleTime>
       <ModuleName>ItsTool.Application</ModuleName>
       <Files>
         <File uid="63" fullPath="/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AuthDtos.cs" />
@@ -20293,9 +20293,9 @@
         </Class>
       </Classes>
     </Module>
-    <Module hash="477D370F-C5A0-4B07-A3EC-77626A46BD68">
+    <Module hash="C60E1AEC-92D3-4F8B-ACC8-62F3B52BE5A1">
       <ModulePath>ItsTool.API.dll</ModulePath>
-      <ModuleTime>2026-08-14T01:19:04</ModuleTime>
+      <ModuleTime>2026-08-14T01:40:07</ModuleTime>
       <ModuleName>ItsTool.API</ModuleName>
       <Files>
         <File uid="75" fullPath="/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs" />

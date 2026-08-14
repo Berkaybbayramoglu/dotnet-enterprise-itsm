@@ -466,6 +466,27 @@
           }
         },
         {
+          "ruleId": "S8969",
+          "level": "warning",
+          "message": "Remove this null-forgiving operator; the compiler already knows this expression is not null here.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
+                "region": {
+                  "startLine": 102,
+                  "startColumn": 92,
+                  "endLine": 102,
+                  "endColumn": 93
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
           "ruleId": "CA1862",
           "level": "note",
           "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
@@ -889,102 +910,6 @@
           }
         },
         {
-          "ruleId": "CA1862",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 431,
-                  "startColumn": 17,
-                  "endLine": 431,
-                  "endColumn": 54
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": null
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 432,
-                  "startColumn": 17,
-                  "endLine": 432,
-                  "endColumn": 47
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": null
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 433,
-                  "startColumn": 17,
-                  "endLine": 433,
-                  "endColumn": 53
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": null
-            }
-          }
-        },
-        {
-          "ruleId": "S8969",
-          "level": "warning",
-          "message": "Remove this null-forgiving operator; the compiler already knows this expression is not null here.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
-                "region": {
-                  "startLine": 102,
-                  "startColumn": 92,
-                  "endLine": 102,
-                  "endColumn": 93
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
           "ruleId": "CA1860",
           "level": "note",
           "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
@@ -1081,18 +1006,18 @@
           }
         },
         {
-          "ruleId": "CA1861",
+          "ruleId": "CA1862",
           "level": "note",
-          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
                 "region": {
-                  "startLine": 1029,
-                  "startColumn": 26,
-                  "endLine": 1029,
-                  "endColumn": 67
+                  "startLine": 431,
+                  "startColumn": 17,
+                  "endLine": 431,
+                  "endColumn": 54
                 }
               }
             }
@@ -1100,7 +1025,58 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "paramName": "columns"
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 432,
+                  "startColumn": 17,
+                  "endLine": 432,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 433,
+                  "startColumn": 17,
+                  "endLine": 433,
+                  "endColumn": 53
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
             }
           }
         },
@@ -1198,6 +1174,30 @@
           ],
           "properties": {
             "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.cs",
+                "region": {
+                  "startLine": 1029,
+                  "startColumn": 26,
+                  "endLine": 1029,
+                  "endColumn": 67
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
+            }
           }
         }
       ],
