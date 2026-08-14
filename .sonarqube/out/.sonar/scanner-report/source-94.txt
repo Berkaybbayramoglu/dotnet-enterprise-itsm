@@ -1,21 +1,59 @@
-namespace ItsTool.Application.DTOs;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-// Category
-public record CategoryDto(int Id, string Name, int ProjectId, int? ParentCategoryId, string? Description, int? DefaultAssigneeGroupId, bool IsActive);
-public record CreateCategoryDto(string Name, int ProjectId, int? ParentCategoryId, string? Description, int? DefaultAssigneeGroupId);
-public record UpdateCategoryDto(string Name, int ProjectId, int? ParentCategoryId, string? Description, int? DefaultAssigneeGroupId, bool IsActive);
+namespace ItsTool.UnitTests.Services;
 
-// TicketType
-public record TicketTypeDto(int Id, string Name, bool IsActive);
-public record CreateTicketTypeDto(string Name);
-public record UpdateTicketTypeDto(string Name, bool IsActive);
+public class RoleServiceTests : TestBase
+{
+    private readonly Repository<Role> _repository;
+    private readonly RoleService _service;
 
-// Status
-public record StatusDto(int Id, string Name, string? ColorHex, int SortOrder, bool IsClosedStatus, bool IsSystemDefault, bool IsActive);
-public record CreateStatusDto(string Name, string? ColorHex, int SortOrder, bool IsClosedStatus, bool IsSystemDefault);
-public record UpdateStatusDto(string Name, string? ColorHex, int SortOrder, bool IsClosedStatus, bool IsSystemDefault, bool IsActive);
+    public RoleServiceTests()
+    {
+        _repository = new Repository<Role>(_context);
+        _service = new RoleService(_repository, _context);
+    }
 
-// Priority
-public record PriorityDto(int Id, string Name, string? ColorHex, int Weight, int SeverityLevel, bool IsActive);
-public record CreatePriorityDto(string Name, string? ColorHex, int Weight, int SeverityLevel);
-public record UpdatePriorityDto(string Name, string? ColorHex, int Weight, int SeverityLevel, bool IsActive);
+    [Fact]
+    public async Task CreateAsync_ShouldCreateRole()
+    {
+        var dto = new CreateRoleDto("Manager");
+        var result = await _service.CreateAsync(dto);
+
+        Assert.NotNull(result);
+        Assert.Equal("Manager", result.Name);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateRole()
+    {
+        var role = new Role { Name = "Old" };
+        _context.Roles.Add(role);
+        await _context.SaveChangesAsync();
+
+        var dto = new UpdateRoleDto("New", true);
+        await _service.UpdateAsync(role.Id, dto);
+
+        var updated = await _context.Roles.FindAsync(role.Id);
+        Assert.Equal("New", updated!.Name);
+    }
+
+    [Fact]
+    public async Task AssignPermissionAsync_ShouldAssignPermission()
+    {
+        var role = new Role { Name = "R1" };
+        var perm = new Permission { Name = "P1", Key = "p1" };
+        _context.Roles.Add(role);
+        _context.Permissions.Add(perm);
+        await _context.SaveChangesAsync();
+
+        await _service.AssignPermissionAsync(role.Id, perm.Id);
+
+        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
+        Assert.NotNull(assigned);
+    }
+}

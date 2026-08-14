@@ -17,12 +17,14 @@ public class TicketService : ITicketService
     private readonly ItsToolDbContext _context;
     private readonly IFileStorageService _fileStorage;
     private readonly IPermissionCalculator _permissionCalculator;
+    private readonly ISlaEngine _slaEngine;
 
-    public TicketService(ItsToolDbContext context, IFileStorageService fileStorage, IPermissionCalculator permissionCalculator)
+    public TicketService(ItsToolDbContext context, IFileStorageService fileStorage, IPermissionCalculator permissionCalculator, ISlaEngine slaEngine)
     {
         _context = context;
         _fileStorage = fileStorage;
         _permissionCalculator = permissionCalculator;
+        _slaEngine = slaEngine;
     }
 
     private async Task<string> GenerateTicketNumberAsync(int projectId)
@@ -146,6 +148,8 @@ public class TicketService : ITicketService
             CreatedBy = dto.RequesterUserId.ToString()
         });
         await _context.SaveChangesAsync();
+        
+        await _slaEngine.AttachSlaToTicketAsync(t.Id);
 
         return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId);
     }
@@ -213,6 +217,8 @@ public class TicketService : ITicketService
         });
 
         await _context.SaveChangesAsync();
+        
+        await _slaEngine.ProcessTicketStatusChangeAsync(t.Id, oldStatus, dto.NewStatusId);
     }
 
     public async Task AssignTicketAsync(int ticketId, AssignTicketDto dto)
@@ -287,6 +293,9 @@ public class TicketService : ITicketService
         });
 
         await _context.SaveChangesAsync();
+        
+        await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
+        
         return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt);
     }
 

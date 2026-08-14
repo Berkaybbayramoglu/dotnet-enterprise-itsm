@@ -1,6 +1,25 @@
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+using Microsoft.AspNetCore.Authorization;
 
-app.MapGet("/", () => "Hello World!");
+namespace ItsTool.API.Security;
 
-await app.RunAsync();
+public class PermissionRequirement : IAuthorizationRequirement
+{
+    public string Permission { get; }
+    public PermissionRequirement(string permission) => Permission = permission;
+}
+
+public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+        var hasPermission = context.User.HasClaim(c => 
+            c.Type == "permission" && c.Value == requirement.Permission);
+
+        if (hasPermission)
+        {
+            context.Succeed(requirement);
+        }
+
+        return Task.CompletedTask;
+    }
+}

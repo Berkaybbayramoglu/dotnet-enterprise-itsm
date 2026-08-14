@@ -1,1 +1,0 @@
-; 2csXkhr-src/ItsTool.Infrastructure/Data/DataSeeder.cs

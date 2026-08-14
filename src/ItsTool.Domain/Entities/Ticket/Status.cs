@@ -10,4 +10,5 @@ public class Status : BaseEntity
     public string? ColorHex { get; set; }
     public int SortOrder { get; set; }
     public bool IsSystemDefault { get; set; }
+    public bool PausesSla { get; set; }
 }

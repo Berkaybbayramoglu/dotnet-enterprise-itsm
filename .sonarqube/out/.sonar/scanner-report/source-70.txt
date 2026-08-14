@@ -1,70 +1,55 @@
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class PermissionCalculator : IPermissionCalculator
+public class DepartmentService : IDepartmentService
 {
-    private readonly ItsToolDbContext _context;
+    private readonly IRepository<Department> _repository;
 
-    public PermissionCalculator(ItsToolDbContext context)
+    public DepartmentService(IRepository<Department> repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
-    public async Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId)
+    public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
     {
-        var permissions = new HashSet<string>();
+        var depts = await _repository.GetAllAsync();
+        return depts.Select(d => new DepartmentDto(d.Id, d.Name, d.Description, d.IsActive));
+    }
 
-        // 1. Kullanıcının doğrudan rollerinden gelen yetkiler
-        var userRolePerms = await _context.UserRoles
-            .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive)
-            .Join(_context.RolePermissions, 
-                  ur => ur.RoleId, 
-                  rp => rp.RoleId, 
-                  (ur, rp) => rp.Permission)
-            .Where(p => p != null && p.IsActive)
-            .Select(p => p!.Key)
-            .ToListAsync();
-            
-        foreach (var p in userRolePerms)
+    public async Task<DepartmentDto?> GetByIdAsync(int id)
+    {
+        var dept = await _repository.GetByIdAsync(id);
+        if (dept == null) return null;
+        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
+    }
+
+    public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
+    {
+        var dept = new Department
         {
-            permissions.Add(p);
-        }
+            Name = dto.Name,
+            Description = dto.Description
+        };
+        await _repository.AddAsync(dept);
+        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
+    }
 
-        // 2. Kullanıcının dahil olduğu grupların rollerinden gelen yetkiler
-        var groupRolePerms = await _context.GroupMembers
-            .Where(gm => gm.UserId == userId)
-            .Join(_context.GroupRoles, 
-                  gm => gm.GroupId, 
-                  gr => gr.GroupId, 
-                  (gm, gr) => gr.RoleId)
-            .Join(_context.RolePermissions, 
-                  roleId => roleId, 
-                  rp => rp.RoleId, 
-                  (roleId, rp) => rp.Permission)
-            .Where(p => p != null && p.IsActive)
-            .Select(p => p!.Key)
-            .ToListAsync();
-            
-        foreach (var p in groupRolePerms)
-        {
-            permissions.Add(p);
-        }
+    public async Task UpdateAsync(int id, UpdateDepartmentDto dto)
+    {
+        var dept = await _repository.GetByIdAsync(id);
+        if (dept == null) throw new KeyNotFoundException("Department not found");
+        
+        dept.Name = dto.Name;
+        dept.Description = dto.Description;
+        dept.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(dept);
+    }
 
-        // 3. UserPermissionOverride tablosundaki spesifik yetkiler
-        var overrides = await _context.UserPermissionOverrides
-            .Include(o => o.Permission)
-            .Where(o => o.UserId == userId && o.IsGranted && o.Permission != null && o.Permission.IsActive)
-            .Select(o => o.Permission!.Key)
-            .ToListAsync();
-
-        foreach (var p in overrides)
-        {
-            permissions.Add(p);
-        }
-
-        return permissions;
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
     }
 }

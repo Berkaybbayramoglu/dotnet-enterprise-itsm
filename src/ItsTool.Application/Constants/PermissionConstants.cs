@@ -13,10 +13,11 @@ public static class PermissionConstants
     public const string ReportView = "report.view";
     public const string AdminManage = "admin.manage";
     public const string ConfigManage = "config.manage";
+    public const string SlaManage = "sla.manage";
 
     public static IReadOnlyList<string> AllPermissions => new[]
     {
         TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketCommentInternal, ReportView, AdminManage, ConfigManage
+        TicketResolve, TicketClose, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage
     };
 }

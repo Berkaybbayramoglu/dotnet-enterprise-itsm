@@ -1,25 +1,13 @@
 using ItsTool.Domain.Common;
-using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.Organization;
 
-namespace ItsTool.Domain.Entities.Workflow;
+namespace ItsTool.Domain.Entities.Ticket;
 
-public class Workflow : BaseEntity
+public class TicketWatcher : BaseEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public int? ProjectId { get; set; }
-}
+    public int TicketId { get; set; }
+    public int UserId { get; set; }
 
-public class WorkflowTransition : BaseEntity
-{
-    public int WorkflowId { get; set; }
-    public int FromStatusId { get; set; }
-    public int ToStatusId { get; set; }
-    public string TransitionName { get; set; } = string.Empty;
-    public string? RequiredPermissionKey { get; set; }
-    public int SortOrder { get; set; }
-
-    public virtual Workflow? Workflow { get; set; }
-    public virtual Status? FromStatus { get; set; }
-    public virtual Status? ToStatus { get; set; }
+    public virtual Ticket? Ticket { get; set; }
+    public virtual User? User { get; set; }
 }

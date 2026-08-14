@@ -1,92 +1,74 @@
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Auth;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using Xunit;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class AuthServiceTests : TestBase
+public class RoleService : IRoleService
 {
-    private readonly AuthService _authService;
-    private readonly Mock<ITokenService> _tokenServiceMock;
-    private readonly Mock<IPermissionCalculator> _permissionCalculatorMock;
+    private readonly IRepository<Role> _repository;
+    private readonly ItsToolDbContext _context;
 
-    public AuthServiceTests() : base()
+    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
     {
-        _tokenServiceMock = new Mock<ITokenService>();
-        _permissionCalculatorMock = new Mock<IPermissionCalculator>();
-
-        var inMemorySettings = new Dictionary<string, string> {
-            {"Jwt:ExpiryMinutes", "60"}
-        };
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
-
-        _authService = new AuthService(_context, _tokenServiceMock.Object, _permissionCalculatorMock.Object, configuration);
+        _repository = repository;
+        _context = context;
     }
 
-    [Fact]
-    public async Task LoginAsync_ValidCredentials_ShouldReturnToken()
+    public async Task<IEnumerable<RoleDto>> GetAllAsync()
     {
-        // Arrange
-        var password = "password123";
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
-            .ReturnsAsync(new HashSet<string> { "test.perm" });
-
-        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-            .Returns("fake_jwt_token");
-
-        var request = new LoginRequestDto("testuser", password);
-
-        // Act
-        var result = await _authService.LoginAsync(request);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("fake_jwt_token", result.Token);
-        Assert.Equal("testuser", result.Username);
-        Assert.Contains("test.perm", result.Permissions);
+        var roles = await _repository.GetAllAsync();
+        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
     }
 
-    [Fact]
-    public async Task LoginAsync_InvalidPassword_ShouldThrowUnauthorizedAccessException()
+    public async Task<RoleDto?> GetByIdAsync(int id)
     {
-        // Arrange
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword");
-        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var request = new LoginRequestDto("testuser", "wrongpassword");
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) return null;
+        return new RoleDto(r.Id, r.Name, r.IsActive);
     }
 
-    [Fact]
-    public async Task LoginAsync_InactiveUser_ShouldThrowUnauthorizedAccessException()
+    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
     {
-        // Arrange
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword");
-        var user = new User { Username = "inactiveuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = false };
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var request = new LoginRequestDto("inactiveuser", "correctpassword");
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
+        var r = new Role { Name = dto.Name };
+        await _repository.AddAsync(r);
+        return new RoleDto(r.Id, r.Name, r.IsActive);
     }
 
+    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) throw new KeyNotFoundException("Role not found");
+        
+        r.Name = dto.Name;
+        r.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(r);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task AssignPermissionAsync(int roleId, int permissionId)
+    {
+        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+        if (!exists)
+        {
+            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task RevokePermissionAsync(int roleId, int permissionId)
+    {
+        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
+        if (rp != null)
+        {
+            _context.RolePermissions.Remove(rp);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

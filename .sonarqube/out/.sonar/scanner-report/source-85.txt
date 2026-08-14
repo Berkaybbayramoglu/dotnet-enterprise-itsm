@@ -1,59 +1,92 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Auth;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class RoleServiceTests : TestBase
+public class AuthServiceTests : TestBase
 {
-    private readonly Repository<Role> _repository;
-    private readonly RoleService _service;
+    private readonly AuthService _authService;
+    private readonly Mock<ITokenService> _tokenServiceMock;
+    private readonly Mock<IPermissionCalculator> _permissionCalculatorMock;
 
-    public RoleServiceTests()
+    public AuthServiceTests() : base()
     {
-        _repository = new Repository<Role>(_context);
-        _service = new RoleService(_repository, _context);
+        _tokenServiceMock = new Mock<ITokenService>();
+        _permissionCalculatorMock = new Mock<IPermissionCalculator>();
+
+        var inMemorySettings = new Dictionary<string, string> {
+            {"Jwt:ExpiryMinutes", "60"}
+        };
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings!)
+            .Build();
+
+        _authService = new AuthService(_context, _tokenServiceMock.Object, _permissionCalculatorMock.Object, configuration);
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldCreateRole()
+    public async Task LoginAsync_ValidCredentials_ShouldReturnToken()
     {
-        var dto = new CreateRoleDto("Manager");
-        var result = await _service.CreateAsync(dto);
+        // Arrange
+        var password = "password123";
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
+        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
+            .ReturnsAsync(new HashSet<string> { "test.perm" });
+
+        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+            .Returns("fake_jwt_token");
+
+        var request = new LoginRequestDto("testuser", password);
+
+        // Act
+        var result = await _authService.LoginAsync(request);
+
+        // Assert
         Assert.NotNull(result);
-        Assert.Equal("Manager", result.Name);
+        Assert.Equal("fake_jwt_token", result.Token);
+        Assert.Equal("testuser", result.Username);
+        Assert.Contains("test.perm", result.Permissions);
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateRole()
+    public async Task LoginAsync_InvalidPassword_ShouldThrowUnauthorizedAccessException()
     {
-        var role = new Role { Name = "Old" };
-        _context.Roles.Add(role);
+        // Arrange
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword");
+        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateRoleDto("New", true);
-        await _service.UpdateAsync(role.Id, dto);
+        var request = new LoginRequestDto("testuser", "wrongpassword");
 
-        var updated = await _context.Roles.FindAsync(role.Id);
-        Assert.Equal("New", updated!.Name);
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
     }
 
     [Fact]
-    public async Task AssignPermissionAsync_ShouldAssignPermission()
+    public async Task LoginAsync_InactiveUser_ShouldThrowUnauthorizedAccessException()
     {
-        var role = new Role { Name = "R1" };
-        var perm = new Permission { Name = "P1", Key = "p1" };
-        _context.Roles.Add(role);
-        _context.Permissions.Add(perm);
+        // Arrange
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword");
+        var user = new User { Username = "inactiveuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = false };
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        await _service.AssignPermissionAsync(role.Id, perm.Id);
+        var request = new LoginRequestDto("inactiveuser", "correctpassword");
 
-        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
-        Assert.NotNull(assigned);
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
     }
+
 }

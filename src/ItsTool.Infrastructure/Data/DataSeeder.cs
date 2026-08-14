@@ -1,6 +1,7 @@
 using ItsTool.Domain.Entities.Organization;
 using ItsTool.Domain.Entities.Auth;
 using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.SLA;
 using BCrypt.Net;
 
 namespace ItsTool.Infrastructure.Data;
@@ -29,7 +30,7 @@ public class DataSeeder
         // 2. Statuses
         var open = new Status { Name = "Açık", SortOrder = 1, IsSystemDefault = true };
         var inProgress = new Status { Name = "Devam Ediyor", SortOrder = 2 };
-        var pending = new Status { Name = "Beklemede", SortOrder = 3 };
+        var pending = new Status { Name = "Beklemede", SortOrder = 3, PausesSla = true };
         var resolved = new Status { Name = "Çözüldü", SortOrder = 4, IsClosedStatus = true };
         var closed = new Status { Name = "Kapatıldı", SortOrder = 5, IsClosedStatus = true };
         _context.Statuses.AddRange(open, inProgress, pending, resolved, closed);
@@ -100,6 +101,32 @@ public class DataSeeder
         var p4 = new ItsTool.Domain.Entities.Project.Project { Name = "DevOps & Altyapı", ProjectKey = "OPS" };
         var p5 = new ItsTool.Domain.Entities.Project.Project { Name = "Güvenlik Operasyonları", ProjectKey = "SEC" };
         _context.Projects.AddRange(p1, p2, p3, p4, p5);
+
+        // 10. SLA Seed Data
+        var policy = new SlaPolicy { Name = "Default SLA Policy", Description = "Varsayılan hizmet seviyesi sözleşmesi" };
+        _context.SlaPolicies.Add(policy);
+        
+        await _context.SaveChangesAsync();
+
+        _context.SlaTargets.AddRange(
+            new SlaTarget { SlaPolicyId = policy.Id, PriorityId = critical.Id, FirstResponseMinutes = 30, ResolutionMinutes = 240 },
+            new SlaTarget { SlaPolicyId = policy.Id, PriorityId = high.Id, FirstResponseMinutes = 120, ResolutionMinutes = 1440 },
+            new SlaTarget { SlaPolicyId = policy.Id, PriorityId = medium.Id, FirstResponseMinutes = 480, ResolutionMinutes = 4320 },
+            new SlaTarget { SlaPolicyId = policy.Id, PriorityId = low.Id, FirstResponseMinutes = 1440, ResolutionMinutes = 7200 }
+        );
+
+        for (int i = 1; i <= 5; i++) // Pzt(1) - Cum(5)
+        {
+            _context.BusinessHours.Add(new BusinessHour
+            {
+                DayOfWeek = (DayOfWeek)i,
+                StartTime = new TimeSpan(9, 0, 0),
+                EndTime = new TimeSpan(18, 0, 0),
+                IsWorkingDay = true
+            });
+        }
+        _context.BusinessHours.Add(new BusinessHour { DayOfWeek = DayOfWeek.Saturday, IsWorkingDay = false });
+        _context.BusinessHours.Add(new BusinessHour { DayOfWeek = DayOfWeek.Sunday, IsWorkingDay = false });
 
         await _context.SaveChangesAsync();
     }

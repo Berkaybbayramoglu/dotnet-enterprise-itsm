@@ -1,111 +1,96 @@
-using ItsTool.Application.Constants;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Workflow;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class PermissionCalculatorTests : TestBase
+public class WorkflowService : IWorkflowService
 {
-    private readonly PermissionCalculator _calculator;
+    private readonly IRepository<Workflow> _workflowRepo;
+    private readonly IRepository<WorkflowTransition> _transitionRepo;
 
-    public PermissionCalculatorTests() : base()
+    public WorkflowService(IRepository<Workflow> workflowRepo, IRepository<WorkflowTransition> transitionRepo)
     {
-        _calculator = new PermissionCalculator(_context);
+        _workflowRepo = workflowRepo;
+        _transitionRepo = transitionRepo;
     }
 
-    [Fact]
-    public async Task CalculateEffectivePermissionsAsync_ShouldReturnUnionOfAllPermissions()
+    public async Task<IEnumerable<WorkflowDto>> GetWorkflowsAsync(int? projectId = null)
     {
-        // Arrange
-        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = "hash" };
-        _context.Users.Add(user);
-        
-        var perm1 = new Permission { Name = "Perm1", Key = "perm1" };
-        var perm2 = new Permission { Name = "Perm2", Key = "perm2" };
-        var perm3 = new Permission { Name = "Perm3", Key = "perm3" };
-        _context.Permissions.AddRange(perm1, perm2, perm3);
-        
-        var role = new Role { Name = "Role1" };
-        _context.Roles.Add(role);
-        
-        var group = new Group { Name = "Group1" };
-        _context.Groups.Add(group);
-        
-        await _context.SaveChangesAsync();
-        
-        // 1. Role Perm
-        _context.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role.Id });
-        _context.RolePermissions.Add(new RolePermission { RoleId = role.Id, PermissionId = perm1.Id });
-        
-        // 2. Group Perm
-        _context.GroupMembers.Add(new GroupMember { UserId = user.Id, GroupId = group.Id });
-        var groupRole = new Role { Name = "GroupRole" };
-        _context.Roles.Add(groupRole);
-        await _context.SaveChangesAsync();
-        _context.GroupRoles.Add(new GroupRole { GroupId = group.Id, RoleId = groupRole.Id });
-        _context.RolePermissions.Add(new RolePermission { RoleId = groupRole.Id, PermissionId = perm2.Id });
-        
-        // 3. User Override Perm
-        _context.UserPermissionOverrides.Add(new UserPermissionOverride { UserId = user.Id, PermissionId = perm3.Id, IsGranted = true });
-        
-        await _context.SaveChangesAsync();
-
-        // Act
-        var result = await _calculator.CalculateEffectivePermissionsAsync(user.Id);
-
-        // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Contains("perm1", result);
-        Assert.Contains("perm2", result);
-        Assert.Contains("perm3", result);
+        var list = await _workflowRepo.GetAllAsync(w => projectId == null || w.ProjectId == projectId);
+        return list.Select(w => new WorkflowDto(w.Id, w.Name, w.Description, w.ProjectId, w.IsActive));
     }
 
-    [Fact]
-    public async Task CalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverrides()
+    public async Task<WorkflowDto?> GetWorkflowByIdAsync(int id)
     {
-        // Arrange
-        var group = new Group { Name = "Group1" };
-        _context.Groups.Add(group);
-        
-        var role = new Role { Name = "GroupRole" };
-        _context.Roles.Add(role);
-        
-        var permGroup = new Permission { Name = "GroupPerm", Key = "group.perm" };
-        var permOverride = new Permission { Name = "OverridePerm", Key = "override.perm" };
-        _context.Permissions.AddRange(permGroup, permOverride);
-        
-        var user1 = new User { Username = "user1", Email = "u1@test.com", PasswordHash = "hash" };
-        var user2 = new User { Username = "user2", Email = "u2@test.com", PasswordHash = "hash" };
-        _context.Users.AddRange(user1, user2);
-        
-        await _context.SaveChangesAsync();
-        
-        _context.GroupRoles.Add(new GroupRole { GroupId = group.Id, RoleId = role.Id });
-        _context.RolePermissions.Add(new RolePermission { RoleId = role.Id, PermissionId = permGroup.Id });
-        
-        _context.GroupMembers.Add(new GroupMember { UserId = user1.Id, GroupId = group.Id });
-        _context.GroupMembers.Add(new GroupMember { UserId = user2.Id, GroupId = group.Id });
-        
-        // Only User2 gets the override
-        _context.UserPermissionOverrides.Add(new UserPermissionOverride { UserId = user2.Id, PermissionId = permOverride.Id, IsGranted = true });
-        
-        await _context.SaveChangesAsync();
-
-        // Act
-        var resultUser1 = await _calculator.CalculateEffectivePermissionsAsync(user1.Id);
-        var resultUser2 = await _calculator.CalculateEffectivePermissionsAsync(user2.Id);
-
-        // Assert
-        Assert.Single(resultUser1);
-        Assert.Contains("group.perm", resultUser1);
-        
-        Assert.Equal(2, resultUser2.Count);
-        Assert.Contains("group.perm", resultUser2);
-        Assert.Contains("override.perm", resultUser2);
+        var w = await _workflowRepo.GetByIdAsync(id);
+        if (w == null) return null;
+        return new WorkflowDto(w.Id, w.Name, w.Description, w.ProjectId, w.IsActive);
     }
 
+    public async Task<WorkflowDto> CreateWorkflowAsync(CreateWorkflowDto dto)
+    {
+        var w = new Workflow { Name = dto.Name, Description = dto.Description, ProjectId = dto.ProjectId };
+        await _workflowRepo.AddAsync(w);
+        return new WorkflowDto(w.Id, w.Name, w.Description, w.ProjectId, w.IsActive);
+    }
+
+    public async Task UpdateWorkflowAsync(int id, UpdateWorkflowDto dto)
+    {
+        var w = await _workflowRepo.GetByIdAsync(id);
+        if (w == null) throw new KeyNotFoundException("Workflow not found");
+        w.Name = dto.Name; w.Description = dto.Description; w.ProjectId = dto.ProjectId; w.IsActive = dto.IsActive;
+        await _workflowRepo.UpdateAsync(w);
+    }
+
+    public async Task DeleteWorkflowAsync(int id) => await _workflowRepo.DeleteAsync(id);
+
+    public async Task<IEnumerable<WorkflowTransitionDto>> GetTransitionsByWorkflowIdAsync(int workflowId)
+    {
+        var list = await _transitionRepo.GetAllAsync(t => t.WorkflowId == workflowId);
+        return list.Select(t => new WorkflowTransitionDto(t.Id, t.WorkflowId, t.FromStatusId, t.ToStatusId, t.TransitionName, t.RequiredPermissionKey, t.SortOrder, t.IsActive));
+    }
+
+    public async Task<WorkflowTransitionDto?> GetTransitionByIdAsync(int id)
+    {
+        var t = await _transitionRepo.GetByIdAsync(id);
+        if (t == null) return null;
+        return new WorkflowTransitionDto(t.Id, t.WorkflowId, t.FromStatusId, t.ToStatusId, t.TransitionName, t.RequiredPermissionKey, t.SortOrder, t.IsActive);
+    }
+
+    public async Task<WorkflowTransitionDto> CreateTransitionAsync(CreateWorkflowTransitionDto dto)
+    {
+        if (dto.FromStatusId == dto.ToStatusId) throw new InvalidOperationException("FromStatus and ToStatus cannot be the same.");
+        
+        var t = new WorkflowTransition
+        {
+            WorkflowId = dto.WorkflowId,
+            FromStatusId = dto.FromStatusId,
+            ToStatusId = dto.ToStatusId,
+            TransitionName = dto.TransitionName,
+            RequiredPermissionKey = dto.RequiredPermissionKey,
+            SortOrder = dto.SortOrder
+        };
+        await _transitionRepo.AddAsync(t);
+        return new WorkflowTransitionDto(t.Id, t.WorkflowId, t.FromStatusId, t.ToStatusId, t.TransitionName, t.RequiredPermissionKey, t.SortOrder, t.IsActive);
+    }
+
+    public async Task UpdateTransitionAsync(int id, UpdateWorkflowTransitionDto dto)
+    {
+        if (dto.FromStatusId == dto.ToStatusId) throw new InvalidOperationException("FromStatus and ToStatus cannot be the same.");
+
+        var t = await _transitionRepo.GetByIdAsync(id);
+        if (t == null) throw new KeyNotFoundException("Transition not found");
+        
+        t.FromStatusId = dto.FromStatusId;
+        t.ToStatusId = dto.ToStatusId;
+        t.TransitionName = dto.TransitionName;
+        t.RequiredPermissionKey = dto.RequiredPermissionKey;
+        t.SortOrder = dto.SortOrder;
+        t.IsActive = dto.IsActive;
+        await _transitionRepo.UpdateAsync(t);
+    }
+
+    public async Task DeleteTransitionAsync(int id) => await _transitionRepo.DeleteAsync(id);
 }

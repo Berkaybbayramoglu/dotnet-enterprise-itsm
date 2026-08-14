@@ -17,13 +17,15 @@ public class TicketServiceTests : TestBase
     private readonly TicketService _service;
     private readonly Mock<IFileStorageService> _fileStorageMock;
     private readonly Mock<IPermissionCalculator> _permissionMock;
+    private readonly Mock<ISlaEngine> _slaEngineMock;
 
     public TicketServiceTests() : base()
     {
         _fileStorageMock = new Mock<IFileStorageService>();
         _permissionMock = new Mock<IPermissionCalculator>();
+        _slaEngineMock = new Mock<ISlaEngine>();
 
-        _service = new TicketService(_context, _fileStorageMock.Object, _permissionMock.Object);
+        _service = new TicketService(_context, _fileStorageMock.Object, _permissionMock.Object, _slaEngineMock.Object);
     }
 
     [Fact]

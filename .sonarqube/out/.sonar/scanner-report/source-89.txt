@@ -1,5 +1,5 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,44 +7,54 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class WorkflowServiceTests : TestBase
+public class GroupServiceTests : TestBase
 {
-    private readonly Repository<Workflow> _workflowRepo;
-    private readonly Repository<WorkflowTransition> _transitionRepo;
-    private readonly WorkflowService _service;
+    private readonly Repository<Group> _repository;
+    private readonly GroupService _service;
 
-    public WorkflowServiceTests() : base()
+    public GroupServiceTests()
     {
-        _workflowRepo = new Repository<Workflow>(_context);
-        _transitionRepo = new Repository<WorkflowTransition>(_context);
-        _service = new WorkflowService(_workflowRepo, _transitionRepo);
+        _repository = new Repository<Group>(_context);
+        _service = new GroupService(_repository, _context);
     }
 
     [Fact]
-    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    public async Task CreateAsync_ShouldCreateGroup()
     {
-        var dto = new CreateWorkflowDto("Main", "Desc", null);
-        var result = await _service.CreateWorkflowAsync(dto);
+        var dto = new CreateGroupDto("Helpdesk", 1);
+        var result = await _service.CreateAsync(dto);
 
         Assert.NotNull(result);
-        Assert.Equal("Main", result.Name);
+        Assert.Equal("Helpdesk", result.Name);
+        Assert.Equal(1, result.DepartmentId);
     }
 
     [Fact]
-    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    public async Task UpdateAsync_ShouldUpdateGroup()
     {
-        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
-    }
-
-    [Fact]
-    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(t);
+        var group = new Group { Name = "OldName", DepartmentId = 1 };
+        _context.Groups.Add(group);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+        var dto = new UpdateGroupDto("NewName", true, 2);
+        await _service.UpdateAsync(group.Id, dto);
+
+        var updated = await _context.Groups.FindAsync(group.Id);
+        Assert.Equal("NewName", updated!.Name);
+        Assert.Equal(2, updated.DepartmentId);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldSoftDeleteGroup()
+    {
+        var group = new Group { Name = "ToDelete", DepartmentId = 1 };
+        _context.Groups.Add(group);
+        await _context.SaveChangesAsync();
+
+        await _service.DeleteAsync(group.Id);
+
+        var deleted = await _context.Groups.FindAsync(group.Id);
+        Assert.True(deleted!.IsDeleted);
+        Assert.NotNull(deleted.DeletedAt);
     }
 }

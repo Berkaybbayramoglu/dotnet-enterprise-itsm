@@ -107,3 +107,52 @@ Bu belge, proje geliştirme süresince karşılaşılan teknik kavramları, kull
 - **Basit Açıklama:** Kodun içinde birden fazla yerde "Ticket not found." gibi literal text (string) değerleri yazıldığında (S1192), olası değişiklikte birini gözden kaçırmak kolaydır.
 - **Projede Nerede:** `TicketService.cs` içerisinde sınıfın başında `private const string TicketNotFoundMessage = "Ticket not found.";` tanımlanarak 4 yerde bu sabit kullanıldı.
 - **Mentor Sorarsa Cevabın:** "Tekrarlanan magic string'leri bakım kolaylığı için `private const` sabite dönüştürdüm."
+
+## 18. First Response vs Resolution SLA Ayrımı
+- **Basit Açıklama:** ITSM dünyasında bir talebin kalitesini ölçmek için iki ana zaman hedefi vardır: Müşteriye ne kadar hızlı ilk dönüş yapıldığı (First Response) ve problemin ne kadar sürede çözüldüğü (Resolution).
+- **Projede Nerede:** `TicketSla` entity'sinde `FirstResponseDueAt` ve `ResolutionDueAt` alanları olarak tutuluyor.
+- **Mentor Sorarsa Cevabın:** "SLA'i sadece kapanış süresi üzerinden ölçmek yetersizdir. Müşteri, talebinin alındığını ve ilgilenildiğini bilmek ister. Bu yüzden public bir yorum atıldığında (veya statü değiştiğinde) First Response SLA'ini durduruyor, bilet tamamen kapandığında ise Resolution SLA'ini durduruyorum."
+
+## 19. İş Saati (Business Hours) ve Tatil Matematiği
+- **Basit Açıklama:** Gece 3'te açılan bir talebin SLA sayacı, sabah 9'daki mesai başlayana kadar ilerlememelidir. Sadece çalışma günlerinde ve iş saatleri içerisinde süre düşülür.
+- **Projede Nerede:** `SlaEngine.cs` içindeki `CalculateDueTimeAsync` metodunda.
+- **Mentor Sorarsa Cevabın:** "Bilet açıldığında hedef süreyi düz olarak eklemek yerine, takvim (BusinessHour) ve tatil (Holiday) yapılarını içeren bir döngüyle, kullanıcının belirlediği iş günlerinin içindeki saatlere yayarak gerçek hedef tarihini (Due Date) hesapladım."
+
+## 20. SLA Pause/Resume (Duraklatma) Muhasebesi
+- **Basit Açıklama:** Bir bilet müşteriden bilgi bekliyorsa (örn. "Beklemede" durumu), SLA saati durmalıdır.
+- **Projede Nerede:** `Status` tablosundaki `PausesSla` flag'i ve `SlaEngine.ProcessTicketStatusChangeAsync`.
+- **Mentor Sorarsa Cevabın:** "Müşteriden kaynaklanan gecikmelerin destek ekibine SLA ihlali (breach) olarak yansımaması için `PausesSla = true` olan durumlarda tarihi kaydettim (PausedAt). Bu durumdan çıkıldığında ise bekleme süresini hesaplayıp hedef tarihleri (DueAt) o kadar dakika ileri iterek adil bir SLA sayacı kurdum."
+
+## 21. Background Job (IHostedService) ile Zamanlanmış İşlemler
+- **Basit Açıklama:** Uygulama ayaktayken arka planda kendi kendine (örn. her 5 dakikada bir) tetiklenen periyodik işlemlerdir.
+- **Projede Nerede:** `SlaCheckerService.cs` (BackgroundService)
+- **Mentor Sorarsa Cevabın:** "SLA ihlallerini tespit edip bildirim yollamak için dışarıdan bir API isteği gelmesini bekleyemeyiz. ASP.NET Core'un kendi `IHostedService` altyapısını kullanarak arka planda periyodik (5 dk) çalışan bir checker yazdım. Bu servis DI scope'u açarak SlaEngine'i tüketiyor."
+
+## 22. Idempotency (Bildirim Çoklamasını Engelleme)
+- **Basit Açıklama:** Arka plan servislerinin veya retry mekanizmalarının aynı olay için tekrar tekrar aynı işlemi yapmasını (örn. müşteriye 5 tane "SLA doldu" maili atmasını) engellemektir.
+- **Projede Nerede:** `TicketSla` tablosundaki `FirstResponseBreached`, `ResolutionWarned` vb. bayraklar.
+- **Mentor Sorarsa Cevabın:** "Zamanlanmış görev her 5 dakikada bir çalışıyor. SLA bir kere patladığında (breach), o bileti tekrar yakalayıp 5 dakika sonra yeniden mail atmasın diye TicketSla üzerinde 'Uyarıldı' ve 'İhlal Edildi' flag'lerini kullandım. Böylece checker idempotent (tekrarlanabilir ama zararsız) hale geldi."
+
+## 23. UTC Zaman Kullanımı Kararı
+- **Basit Açıklama:** Veritabanına tarih/saat kaydederken sunucunun yerel saati yerine evrensel zaman (UTC) kullanılması.
+- **Mentor Sorarsa Cevabın:** "Farklı coğrafyalardan, farklı zaman dilimlerinden kullanılabilme ihtimaline karşı ve sunucu timezone'unun gün ışığından yararlanma (DST) değişimlerinden etkilenmemesi için SLA hesaplamalarını tamamen `DateTime.UtcNow` ile yaptım."
+
+## 24. Arayüz Ayrıştırma (Interface Segregation) ve Stub Service
+- **Basit Açıklama:** Gerçek dış bağımlılıkları (örn. SMTP server) koda direkt yazmak yerine, test edilebilecek boş bir implementasyonla (Stub) arayüz tanımlamak.
+- **Projede Nerede:** `IEmailService` ve `StubEmailService`.
+- **Mentor Sorarsa Cevabın:** "Sisteme e-posta gönderimi ekleyeceğim fakat bağımlılık yaratıp testleri zorlaştırmamak adına `IEmailService` diye bir interface tasarladım. Şu anlık sadece konsola (log) yazan `StubEmailService` ile inject ettim. İleride (Faz 11) SMTP kodları sadece bu implementasyonu değiştirecek, SLA Engine hiç etkilenmeyecek."
+
+## 25. Cognitive vs Cyclomatic Complexity ve Pure Functions
+- **Basit Açıklama:** Cyclomatic complexity koddaki if/for/while gibi dallanmaların matematiksel toplamıyken; Cognitive complexity kodun bir *insan tarafından* ne kadar zor anlaşıldığını (okunabilirliğini) ölçer (iç içe if'ler, uzun döngüler puanı çok artırır).
+- **Projede Nerede:** `SlaEngine.cs` refactor işleminde.
+- **Mentor Sorarsa Cevabın:** "SLA hesaplama motorundaki karmaşıklığı azaltmak için kodu 'saf fonksiyonlara' (pure functions - dış dünyayı değiştirmeyen, sadece input alıp output dönen yardımcı metotlar) böldüm. Örn. `IsWorkingDay`, `ConsumeMinutesWithinDay`. Bu sayede ana fonksiyon sadece bu parçaları orkestre eden temiz bir döngüye dönüştü."
+
+## 26. Guard Clause ve Early Return Mantığı
+- **Basit Açıklama:** Şartların sağlanmadığı durumlarda kodu `if-else` bloklarıyla uzatmak yerine, metot başında hemen `return` edip çıkmaktır.
+- **Projede Nerede:** `CheckFirstResponseAsync` ve `CheckResolutionAsync` metotlarında.
+- **Mentor Sorarsa Cevabın:** "SLA ihlal kontrolü yaparken iç içe if'ler (arrow code) oluşuyordu. Bunun yerine 'Eğer SLA zaten karşılanmışsa hemen dön' (Early Return) diyerek ana akışı düz (flat) hale getirdim ve kodu okumayı kolaylaştırdım."
+
+## 27. Static Metotlar ve "Pure Function" İlişkisi (Instance Data'ya Erişmeme)
+- **Basit Açıklama:** Eğer bir metot sınıfın içindeki değişkenleri (`this.X`) kullanmıyorsa, o metot nesneye bağlı değildir, bağımsızdır. Bu yüzden o metodu `static` olarak işaretleyebiliriz.
+- **Projede Nerede:** `SlaEngine.cs` içindeki `ApplyPause` ve `EvaluateMetric` metotlarında.
+- **Mentor Sorarsa Cevabın:** "SonarQube 'bu metotlar instance dataya erişmiyor' diyerek beni uyardı. Bir metodun `static` olması onun saf bir fonksiyon (pure function) olduğunu ve sadece aldığı parametrelere göre çalıştığını gösteren iyi bir niyet belgesidir. Ayrıca sınıfın durumunu (state) değiştirmediği için thread-safe'tir ve test edilmesi çok daha kolaydır."

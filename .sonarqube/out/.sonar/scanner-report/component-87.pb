@@ -1,1 +1,1 @@
-W (2csX?hr5tests/ItsTool.UnitTests/Services/TokenServiceTests.cs
+W (2csX6hr:tests/ItsTool.UnitTests/Services/DepartmentServiceTests.cs

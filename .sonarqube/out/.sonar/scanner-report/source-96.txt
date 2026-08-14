@@ -1,21 +1,131 @@
-namespace ItsTool.Application.DTOs;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.Project;
+using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using Xunit;
+using Microsoft.AspNetCore.Http;
 
-public record DepartmentDto(int Id, string Name, string? Description, bool IsActive);
-public record CreateDepartmentDto(string Name, string? Description);
-public record UpdateDepartmentDto(string Name, string? Description, bool IsActive);
+namespace ItsTool.UnitTests.Services;
 
-public record GroupDto(int Id, string Name, bool IsActive, int DepartmentId);
-public record CreateGroupDto(string Name, int DepartmentId);
-public record UpdateGroupDto(string Name, bool IsActive, int DepartmentId);
+public class TicketServiceTests : TestBase
+{
+    private readonly TicketService _service;
+    private readonly Mock<IFileStorageService> _fileStorageMock;
+    private readonly Mock<IPermissionCalculator> _permissionMock;
+    private readonly Mock<ISlaEngine> _slaEngineMock;
 
-public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId);
-public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId);
-public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId);
+    public TicketServiceTests() : base()
+    {
+        _fileStorageMock = new Mock<IFileStorageService>();
+        _permissionMock = new Mock<IPermissionCalculator>();
+        _slaEngineMock = new Mock<ISlaEngine>();
 
-public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, bool IsActive);
-public record CreateProjectDto(string Name, string ProjectKey, string? Description);
-public record UpdateProjectDto(string Name, string ProjectKey, string? Description, bool IsActive);
+        _service = new TicketService(_context, _fileStorageMock.Object, _permissionMock.Object, _slaEngineMock.Object);
+    }
 
-public record RoleDto(int Id, string Name, bool IsActive);
-public record CreateRoleDto(string Name);
-public record UpdateRoleDto(string Name, bool IsActive);
+    [Fact]
+    public async Task CreateTicketAsync_ShouldGenerateSequenceNumber()
+    {
+        var p = new Project { Name = "Test", ProjectKey = "TEST" };
+        _context.Projects.Add(p);
+        
+        var s = new Status { Name = "Open", IsSystemDefault = true };
+        _context.Statuses.Add(s);
+        await _context.SaveChangesAsync();
+
+        var dto = new CreateTicketDto("T", "D", p.Id, 1, 1, 1, 1, new Dictionary<string, string>());
+        var result = await _service.CreateTicketAsync(dto);
+
+        Assert.Equal("TEST-1", result.TicketNumber);
+        
+        var result2 = await _service.CreateTicketAsync(dto);
+        Assert.Equal("TEST-2", result2.TicketNumber);
+    }
+
+    [Fact]
+    public async Task ChangeStatusAsync_ShouldThrowIfTransitionNotAllowed()
+    {
+        var t = new Ticket { TicketNumber = "1", Title = "1", ProjectId = 1, StatusId = 1 };
+        _context.Tickets.Add(t);
+        var wf = new Workflow { Name = "W", ProjectId = 1 };
+        _context.Workflows.Add(wf);
+        await _context.SaveChangesAsync();
+
+        // No transition defined
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.ChangeStatusAsync(t.Id, new ChangeStatusDto(2, 1)));
+    }
+
+    [Fact]
+    public async Task ChangeStatusAsync_ShouldThrowIfMissingPermission()
+    {
+        var t = new Ticket { TicketNumber = "1", Title = "1", ProjectId = 1, StatusId = 1 };
+        _context.Tickets.Add(t);
+        var wf = new Workflow { Name = "W", ProjectId = 1 };
+        _context.Workflows.Add(wf);
+        
+        var wt = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "x", RequiredPermissionKey = "ticket.resolve", IsActive = true };
+        _context.WorkflowTransitions.Add(wt);
+        await _context.SaveChangesAsync();
+
+        _permissionMock.Setup(p => p.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.view" });
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _service.ChangeStatusAsync(t.Id, new ChangeStatusDto(2, 1)));
+    }
+
+    [Fact]
+    public async Task ValidateDynamicFields_ShouldThrowIfRequiredMissing()
+    {
+        var p = new Project { Name = "P", ProjectKey = "P" };
+        _context.Projects.Add(p);
+        var def = new FieldDefinition { Key = "k1", Label = "L1" };
+        _context.FieldDefinitions.Add(def);
+        await _context.SaveChangesAsync();
+
+        var place = new FormFieldPlacement { FieldDefinitionId = def.Id, ProjectId = p.Id, CategoryId = 1, TicketTypeId = 1, IsRequired = true, IsActive = true };
+        _context.FormFieldPlacements.Add(place);
+        await _context.SaveChangesAsync();
+
+        var dto = new CreateTicketDto("T", "D", p.Id, 1, 1, 1, 1, new Dictionary<string, string>());
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTicketAsync(dto));
+    }
+
+    [Fact]
+    public async Task AddCommentAsync_InternalCommentsShouldBeFiltered()
+    {
+        var t = new Ticket { TicketNumber = "1" };
+        _context.Tickets.Add(t);
+        await _context.SaveChangesAsync();
+
+        await _service.AddCommentAsync(t.Id, new CreateCommentDto("public", false, 1));
+        await _service.AddCommentAsync(t.Id, new CreateCommentDto("internal", true, 1));
+
+        var publicOnly = await _service.GetCommentsAsync(t.Id, false);
+        Assert.Single(publicOnly);
+        Assert.Equal("public", publicOnly.First().Content);
+
+        var all = await _service.GetCommentsAsync(t.Id, true);
+        Assert.Equal(2, all.Count());
+    }
+
+    [Fact]
+    public async Task AssignTicketAsync_ShouldAddHistory()
+    {
+        var t = new Ticket { TicketNumber = "1" };
+        _context.Tickets.Add(t);
+        await _context.SaveChangesAsync();
+
+        _permissionMock.Setup(p => p.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.assign" });
+
+        await _service.AssignTicketAsync(t.Id, new AssignTicketDto(2, 1));
+
+        var history = await _context.TicketHistories.FirstOrDefaultAsync(h => h.TicketId == t.Id && h.Action == "Assigned");
+        Assert.NotNull(history);
+        Assert.Equal("2", history.NewValue);
+    }
+}

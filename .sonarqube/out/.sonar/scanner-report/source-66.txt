@@ -1,55 +1,62 @@
-using ItsTool.Application.DTOs;
+using System.Linq.Expressions;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Common;
+using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class DepartmentService : IDepartmentService
+public class Repository<T> : IRepository<T> where T : BaseEntity
 {
-    private readonly IRepository<Department> _repository;
+    protected readonly ItsToolDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public DepartmentService(IRepository<Department> repository)
+    public Repository(ItsToolDbContext context)
     {
-        _repository = repository;
+        _context = context;
+        _dbSet = context.Set<T>();
     }
 
-    public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
     {
-        var depts = await _repository.GetAllAsync();
-        return depts.Select(d => new DepartmentDto(d.Id, d.Name, d.Description, d.IsActive));
-    }
-
-    public async Task<DepartmentDto?> GetByIdAsync(int id)
-    {
-        var dept = await _repository.GetByIdAsync(id);
-        if (dept == null) return null;
-        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
-    }
-
-    public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
-    {
-        var dept = new Department
+        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
+        if (predicate != null)
         {
-            Name = dto.Name,
-            Description = dto.Description
-        };
-        await _repository.AddAsync(dept);
-        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
+            query = query.Where(predicate);
+        }
+        return await query.ToListAsync();
     }
 
-    public async Task UpdateAsync(int id, UpdateDepartmentDto dto)
+    public async Task<T?> GetByIdAsync(int id)
     {
-        var dept = await _repository.GetByIdAsync(id);
-        if (dept == null) throw new KeyNotFoundException("Department not found");
-        
-        dept.Name = dto.Name;
-        dept.Description = dto.Description;
-        dept.IsActive = dto.IsActive;
-        await _repository.UpdateAsync(dept);
+        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task UpdateAsync(T entity)
+    {
+        entity.UpdatedAt = DateTime.UtcNow;
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
-        await _repository.DeleteAsync(id);
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            entity.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"{typeof(T).Name} not found");
+        }
     }
 }

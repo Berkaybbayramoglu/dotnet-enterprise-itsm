@@ -61,6 +61,7 @@ public class ItsToolDbContext : DbContext
     public DbSet<SlaTarget> SlaTargets => Set<SlaTarget>();
     public DbSet<BusinessHour> BusinessHours => Set<BusinessHour>();
     public DbSet<Holiday> Holidays => Set<Holiday>();
+    public DbSet<TicketSla> TicketSlas => Set<TicketSla>();
 
     // Notification
     public DbSet<NotificationRule> NotificationRules => Set<NotificationRule>();

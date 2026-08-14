@@ -965,6 +965,48 @@ namespace ItsTool.Infrastructure.Migrations
                     b.ToTable("ProjectMembers");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Project.ProjectSequence", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CurrentValue")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectSequences");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.SLA.BusinessHour", b =>
                 {
                     b.Property<int>("Id")
@@ -1150,6 +1192,75 @@ namespace ItsTool.Infrastructure.Migrations
                     b.ToTable("SlaTargets");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.SLA.TicketSla", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("FirstResponseBreached")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("FirstResponseDueAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("FirstResponseMetAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("FirstResponseWarned")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("PausedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("ResolutionBreached")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ResolutionDueAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ResolutionMetAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("ResolutionWarned")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalPausedMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketSlas");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -1289,6 +1400,9 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("PausesSla")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 
@@ -1396,6 +1510,116 @@ namespace ItsTool.Infrastructure.Migrations
                     b.ToTable("Tickets");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UploadedByUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.ToTable("TicketAttachments");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorUserId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketComments");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -1500,6 +1724,50 @@ namespace ItsTool.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TicketTypes");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketWatcher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TicketWatchers");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Workflow.Workflow", b =>
@@ -1798,6 +2066,17 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Project.ProjectSequence", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Project.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.SLA.SlaTarget", b =>
                 {
                     b.HasOne("ItsTool.Domain.Entities.SLA.SlaPolicy", "SlaPolicy")
@@ -1807,6 +2086,17 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("SlaPolicy");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.SLA.TicketSla", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.Ticket", b =>
@@ -1873,6 +2163,44 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Navigation("Type");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketAttachment", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "UploadedByUser")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("UploadedByUser");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketComment", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "AuthorUser")
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AuthorUser");
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketHistory", b =>
                 {
                     b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
@@ -1882,6 +2210,25 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketWatcher", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Workflow.WorkflowTransition", b =>

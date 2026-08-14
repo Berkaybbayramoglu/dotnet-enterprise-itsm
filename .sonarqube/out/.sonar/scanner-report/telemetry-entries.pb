@@ -5,7 +5,7 @@
 jre_provisioning_disabledfalseB
 =dotnetenterprise.s4net.build.override_warnings_as_errors.true6"
 sonar.scanner.appVersion11.2.1 
-text.analyzed_files_count101S
+text.analyzed_files_count117S
 Ndotnetenterprise.s4net.build.target_framework_moniker._netcoreapp_version_v8_06>
 9dotnetenterprise.s4net.build.using_microsoft_net_sdk.true6 
 text.civendor_dockercompose06
@@ -28,7 +28,7 @@ Adotnetenterprise.s4net.build.nuget_project_style.packagereference6%
 $dotnetenterprise.s4net.begin.runtimenetcore
 text.civendor_gitlab0
 text.civendor_travisci0$
-text.sensor_time_ms_community544=
+text.sensor_time_ms_community611=
 2dotnetenterprise.s4net.scannerEngine.bootstrappingEnabled:
 2dotnetenterprise.s4net.build.visual_studio_version17.0;
 2dotnetenterprise.s4net.endstep.coverage_conversionfalse%
@@ -40,7 +40,7 @@ $dotnetenterprise.s4net.begin.runtimenetcore
 -text.secrets.disable_known_fake_secret_filter0=
 8dotnetenterprise.s4net.build.netcore_sdk_version.8_0_1296"
 text.pluginVersion2.47.0.11983(
-!text.all_tracked_text_files_count102/
+!text.all_tracked_text_files_count118/
 #dotnetenterprise.s4net.jre.downloadCacheHit7
 ,dotnetenterprise.s4net.build.msbuild_version17.8.494
 /dotnetenterprise.s4net.build.deterministic.true6!

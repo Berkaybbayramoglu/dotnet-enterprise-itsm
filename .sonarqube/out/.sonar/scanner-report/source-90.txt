@@ -1,24 +1,44 @@
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using ItsTool.Infrastructure.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using Xunit;
 
-namespace ItsTool.UnitTests;
+namespace ItsTool.UnitTests.Services;
 
-public abstract class TestBase : IDisposable
+public class LocalFileStorageServiceTests
 {
-    protected readonly ItsToolDbContext _context;
+    private readonly string _testPath = Path.Combine(Path.GetTempPath(), "ItsmTestUploads");
 
-    protected TestBase()
+    public LocalFileStorageServiceTests()
     {
-        var options = new DbContextOptionsBuilder<ItsToolDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-        _context = new ItsToolDbContext(options);
+        if (Directory.Exists(_testPath)) Directory.Delete(_testPath, true);
     }
 
-    public void Dispose()
+    [Fact]
+    public async Task SaveFileAsync_ShouldRejectInvalidMime()
     {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
-        GC.SuppressFinalize(this);
+        var configMock = new Mock<IConfiguration>();
+        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
+        var service = new LocalFileStorageService(configMock.Object);
+
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+    }
+
+    [Fact]
+    public async Task SaveFileAsync_ShouldRejectLargeFile()
+    {
+        var configMock = new Mock<IConfiguration>();
+        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
+        var service = new LocalFileStorageService(configMock.Object);
+
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.ContentType).Returns("application/pdf");
+        fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
     }
 }

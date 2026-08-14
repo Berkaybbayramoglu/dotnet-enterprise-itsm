@@ -1,10 +1,23 @@
-using Microsoft.AspNetCore.Http;
-using ItsTool.Application.DTOs;
+namespace ItsTool.Application.Constants;
 
-namespace ItsTool.Application.Interfaces;
-
-public interface IFileStorageService
+public static class PermissionConstants
 {
-    Task<string> SaveFileAsync(IFormFile file, int ticketId);
-    Task DeleteFileAsync(string filePath);
+    public const string TicketCreate = "ticket.create";
+    public const string TicketView = "ticket.view";
+    public const string TicketEdit = "ticket.edit";
+    public const string TicketAssign = "ticket.assign";
+    public const string TicketTransfer = "ticket.transfer";
+    public const string TicketResolve = "ticket.resolve";
+    public const string TicketClose = "ticket.close";
+    public const string TicketCommentInternal = "ticket.comment.internal";
+    public const string ReportView = "report.view";
+    public const string AdminManage = "admin.manage";
+    public const string ConfigManage = "config.manage";
+    public const string SlaManage = "sla.manage";
+
+    public static IReadOnlyList<string> AllPermissions => new[]
+    {
+        TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
+        TicketResolve, TicketClose, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage
+    };
 }

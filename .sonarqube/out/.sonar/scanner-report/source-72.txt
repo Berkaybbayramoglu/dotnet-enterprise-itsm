@@ -1,50 +1,55 @@
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class RoleService : IRoleService
+public class GroupService : IGroupService
 {
-    private readonly IRepository<Role> _repository;
+    private readonly IRepository<Group> _repository;
     private readonly ItsToolDbContext _context;
 
-    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
+    public GroupService(IRepository<Group> repository, ItsToolDbContext context)
     {
         _repository = repository;
         _context = context;
     }
 
-    public async Task<IEnumerable<RoleDto>> GetAllAsync()
+    public async Task<IEnumerable<GroupDto>> GetAllAsync()
     {
-        var roles = await _repository.GetAllAsync();
-        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
+        var groups = await _repository.GetAllAsync();
+        return groups.Select(g => new GroupDto(g.Id, g.Name, g.IsActive, g.DepartmentId ?? 0));
     }
 
-    public async Task<RoleDto?> GetByIdAsync(int id)
+    public async Task<GroupDto?> GetByIdAsync(int id)
     {
-        var r = await _repository.GetByIdAsync(id);
-        if (r == null) return null;
-        return new RoleDto(r.Id, r.Name, r.IsActive);
+        var group = await _repository.GetByIdAsync(id);
+        if (group == null) return null;
+        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
     }
 
-    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
+    public async Task<GroupDto> CreateAsync(CreateGroupDto dto)
     {
-        var r = new Role { Name = dto.Name };
-        await _repository.AddAsync(r);
-        return new RoleDto(r.Id, r.Name, r.IsActive);
+        var group = new Group
+        {
+            Name = dto.Name,
+            DepartmentId = dto.DepartmentId
+        };
+        await _repository.AddAsync(group);
+        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
     }
 
-    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    public async Task UpdateAsync(int id, UpdateGroupDto dto)
     {
-        var r = await _repository.GetByIdAsync(id);
-        if (r == null) throw new KeyNotFoundException("Role not found");
+        var group = await _repository.GetByIdAsync(id);
+        if (group == null) throw new KeyNotFoundException("Group not found");
         
-        r.Name = dto.Name;
-        r.IsActive = dto.IsActive;
-        await _repository.UpdateAsync(r);
+        group.Name = dto.Name;
+        group.IsActive = dto.IsActive;
+        group.DepartmentId = dto.DepartmentId;
+        await _repository.UpdateAsync(group);
     }
 
     public async Task DeleteAsync(int id)
@@ -52,22 +57,22 @@ public class RoleService : IRoleService
         await _repository.DeleteAsync(id);
     }
 
-    public async Task AssignPermissionAsync(int roleId, int permissionId)
+    public async Task AddMemberAsync(int groupId, int userId)
     {
-        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+        var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
         if (!exists)
         {
-            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
+            _context.GroupMembers.Add(new GroupMember { GroupId = groupId, UserId = userId });
             await _context.SaveChangesAsync();
         }
     }
 
-    public async Task RevokePermissionAsync(int roleId, int permissionId)
+    public async Task RemoveMemberAsync(int groupId, int userId)
     {
-        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
-        if (rp != null)
+        var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (member != null)
         {
-            _context.RolePermissions.Remove(rp);
+            _context.GroupMembers.Remove(member);
             await _context.SaveChangesAsync();
         }
     }
