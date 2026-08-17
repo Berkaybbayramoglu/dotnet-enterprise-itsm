@@ -102,7 +102,7 @@ public class DashboardService : IDashboardService
         
         var workload = await query
             .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
-            .GroupBy(t => new { t.AssignedUserId, t.AssignedUser!.FirstName, t.AssignedUser!.LastName })
+            .GroupBy(t => new { t.AssignedUserId, t.AssignedUser.FirstName, t.AssignedUser.LastName })
             .Select(g => new AgentWorkloadDto(g.Key.AssignedUserId!.Value, $"{g.Key.FirstName} {g.Key.LastName}", g.Count()))
             .ToListAsync();
 
@@ -127,18 +127,18 @@ public class DashboardService : IDashboardService
             })
             .ToListAsync();
 
-        if (!ticketsWithSla.Any()) return new SlaComplianceDto(100, 100, 0);
+        if (ticketsWithSla.Count == 0) return new SlaComplianceDto(100, 100, 0);
 
         var firstResponseEligible = ticketsWithSla.Where(t => t.FirstResponseDueAt != null).ToList();
         var frCompliant = firstResponseEligible.Count(t => !t.FirstResponseBreached);
-        var frRate = firstResponseEligible.Any() ? (frCompliant / (double)firstResponseEligible.Count) * 100 : 100;
+        var frRate = firstResponseEligible.Count > 0 ? (frCompliant / (double)firstResponseEligible.Count) * 100 : 100;
 
         var resEligible = ticketsWithSla.Where(t => t.ResolutionDueAt != null).ToList();
         var resCompliant = resEligible.Count(t => !t.ResolutionBreached);
-        var resRate = resEligible.Any() ? (resCompliant / (double)resEligible.Count) * 100 : 100;
+        var resRate = resEligible.Count > 0 ? (resCompliant / (double)resEligible.Count) * 100 : 100;
 
         var resolvedTickets = ticketsWithSla.Where(t => t.ResolvedAt != null).ToList();
-        var avgTime = resolvedTickets.Any() ? resolvedTickets.Average(t => (t.ResolvedAt!.Value - t.CreatedAt).TotalMinutes) : 0.0;
+        var avgTime = resolvedTickets.Count > 0 ? resolvedTickets.Average(t => (t.ResolvedAt!.Value - t.CreatedAt).TotalMinutes) : 0.0;
 
         return new SlaComplianceDto(frRate, resRate, avgTime);
     }

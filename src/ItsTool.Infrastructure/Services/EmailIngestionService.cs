@@ -16,12 +16,9 @@ namespace ItsTool.Infrastructure.Services;
 public class EmailIngestionService : IEmailIngestionService
 {
     private readonly ItsToolDbContext _context;
-    private readonly ITicketService _ticketService;
-
-    public EmailIngestionService(ItsToolDbContext context, ITicketService ticketService)
+    public EmailIngestionService(ItsToolDbContext context)
     {
         _context = context;
-        _ticketService = ticketService;
     }
 
     public async Task ProcessIncomingEmailAsync(EmailIngestionDto dto)
@@ -33,7 +30,7 @@ public class EmailIngestionService : IEmailIngestionService
         if (existingTicket != null) return; // Already processed
 
         // 2. Identify or Create User
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.From.ToLower());
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(dto.From, StringComparison.OrdinalIgnoreCase));
         if (user == null)
         {
             user = new User

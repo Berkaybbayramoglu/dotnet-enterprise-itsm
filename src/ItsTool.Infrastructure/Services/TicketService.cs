@@ -456,7 +456,7 @@ public class TicketService : ITicketService
         return query;
     }
 
-    private IQueryable<Ticket> ApplyBasicFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
+    private static IQueryable<Ticket> ApplyBasicFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
     {
         if (filter.ProjectId.HasValue) query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
         if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
@@ -470,7 +470,7 @@ public class TicketService : ITicketService
         return query;
     }
 
-    private IQueryable<Ticket> ApplyKeywordAndSlaFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
+    private static IQueryable<Ticket> ApplyKeywordAndSlaFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
     {
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
         {

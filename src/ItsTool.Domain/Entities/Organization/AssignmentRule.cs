@@ -14,7 +14,7 @@ public class AssignmentRule : BaseEntity
     public int? TargetGroupId { get; set; }
     public int? TargetUserId { get; set; }
     public int SortOrder { get; set; }
-    public bool IsActive { get; set; } = true;
+
 
     // Navigation properties for validation and loading
     public virtual Project.Project? Project { get; set; }
