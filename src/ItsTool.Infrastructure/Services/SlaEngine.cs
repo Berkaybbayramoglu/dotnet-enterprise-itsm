@@ -15,11 +15,13 @@ public class SlaEngine : ISlaEngine
 {
     private readonly ItsToolDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly INotificationDispatcher _notificationDispatcher;
 
-    public SlaEngine(ItsToolDbContext context, IEmailService emailService)
+    public SlaEngine(ItsToolDbContext context, IEmailService emailService, INotificationDispatcher notificationDispatcher)
     {
         _context = context;
         _emailService = emailService;
+        _notificationDispatcher = notificationDispatcher;
     }
 
     private async Task<DateTime> CalculateDueTimeAsync(DateTime startTimeUtc, int minutesToAdd)
@@ -205,7 +207,8 @@ public class SlaEngine : ISlaEngine
         if (breach)
         {
             sla.FirstResponseBreached = true;
-            await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Breached", "First Response SLA breached!");
+            await _notificationDispatcher.DispatchEventAsync("sla.breach", sla.TicketId, null, "First Response SLA breached!");
+            await TryEscalateAsync(sla);
         }
         else if (warn)
         {
@@ -223,12 +226,50 @@ public class SlaEngine : ISlaEngine
         if (breach)
         {
             sla.ResolutionBreached = true;
-            await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Breached", "Resolution SLA breached!");
+            await _notificationDispatcher.DispatchEventAsync("sla.breach", sla.TicketId, null, "Resolution SLA breached!");
+            await TryEscalateAsync(sla);
         }
         else if (warn)
         {
             sla.ResolutionWarned = true;
             await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "Resolution SLA approaching breach.");
+        }
+    }
+
+    private async Task TryEscalateAsync(TicketSla sla)
+    {
+        if (sla.EscalatedAt.HasValue || sla.Ticket == null) return; // Idempotent check
+
+        var target = await _context.SlaTargets.FirstOrDefaultAsync(t => t.PriorityId == sla.Ticket.PriorityId && (t.TicketTypeId == sla.Ticket.TypeId || t.TicketTypeId == null));
+        if (target == null) return;
+
+        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == target.SlaPolicyId);
+        
+        if (policy != null && policy.EscalateOnBreach)
+        {
+            sla.EscalatedAt = DateTime.UtcNow;
+            
+            // Priority Bump
+            var higherPriority = await _context.Priorities
+                .Where(p => p.SeverityLevel > sla.Ticket.Priority!.SeverityLevel)
+                .OrderBy(p => p.SeverityLevel)
+                .FirstOrDefaultAsync();
+
+            if (higherPriority != null)
+            {
+                var oldPriority = sla.Ticket.PriorityId.ToString();
+                sla.Ticket.PriorityId = higherPriority.Id;
+
+                _context.TicketHistories.Add(new Domain.Entities.Ticket.TicketHistory
+                {
+                    TicketId = sla.TicketId,
+                    Action = "Escalated",
+                    FieldName = "PriorityId",
+                    OldValue = oldPriority,
+                    NewValue = higherPriority.Id.ToString(),
+                    CreatedBy = "System"
+                });
+            }
         }
     }
 
@@ -247,7 +288,7 @@ public class SlaEngine : ISlaEngine
 
     private async Task CreateNotificationAsync(int userId, int ticketId, string title, string message)
     {
-        _context.Notifications.Add(new Notification
+        _context.Notifications.Add(new Domain.Entities.Notification.Notification
         {
             UserId = userId,
             Title = title,

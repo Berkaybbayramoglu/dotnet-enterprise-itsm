@@ -64,4 +64,14 @@ public class SystemController : ControllerBase
             return StatusCode(500, new SystemErrorResponse("An error occurred while testing connection.", ex.Message));
         }
     }
+
+    [AllowAnonymous]
+    [HttpPost("ingest-email")]
+    public async Task<IActionResult> IngestEmail(
+        [FromServices] ItsTool.Application.Interfaces.IEmailIngestionService emailService,
+        [FromBody] ItsTool.Application.DTOs.EmailIngestionDto dto)
+    {
+        await emailService.ProcessIncomingEmailAsync(dto);
+        return Ok(new SystemResponse("Email processed"));
+    }
 }

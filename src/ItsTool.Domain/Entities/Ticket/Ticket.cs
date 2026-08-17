@@ -13,6 +13,7 @@ public class Ticket : BaseEntity {
     public int RequesterUserId { get; set; }
     public int? AssignedUserId { get; set; }
     public int? AssignedGroupId { get; set; }
+    public string? ExternalMessageId { get; set; } // Phase 11: Inbound Email Dedupe
 
     public virtual Project.Project? Project { get; set; }
     public virtual Category? Category { get; set; }

@@ -164,4 +164,19 @@ public class TicketController : ControllerBase
         var result = await _service.SearchTicketsAsync(filter, GetCurrentUserId());
         return Ok(result);
     }
+
+    [HttpPost("{id}/survey")]
+    [ProducesResponseType(typeof(TicketSurveyDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SubmitSurvey(int id, [FromBody] SubmitTicketSurveyDto dto)
+    {
+        try
+        {
+            var result = await _service.SubmitSurveyAsync(id, dto, GetCurrentUserId());
+            return CreatedAtAction(nameof(GetTicket), new { id = result.TicketId }, result);
+        }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+        catch (KeyNotFoundException) { return NotFound(); }
+    }
 }

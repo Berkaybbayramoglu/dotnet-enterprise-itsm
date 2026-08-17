@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ItsTool.Application.DTOs;
 
-public record DashboardOverviewDto(int OpenTickets, int CriticalTickets, int SlaBreachedTickets, int SlaRiskTickets, int UnassignedTickets);
+public record DashboardOverviewDto(int OpenTickets, int CriticalTickets, int SlaBreachedTickets, int SlaRiskTickets, int UnassignedTickets, double CsatAverage);
 
 public record TicketDistributionDto(string Key, int Count);
 

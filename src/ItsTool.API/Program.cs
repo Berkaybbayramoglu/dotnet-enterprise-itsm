@@ -42,8 +42,23 @@ builder.Services.AddScoped<IDynamicFormService, DynamicFormService>();
 // Ticket Services (Phase 6)
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
-builder.Services.AddScoped<IEmailService, StubEmailService>();
+    builder.Services.AddScoped<IEmailService>(sp =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var host = config["Smtp:Host"];
+        if (!string.IsNullOrEmpty(host))
+        {
+            var logger = sp.GetRequiredService<ILogger<SmtpEmailService>>();
+            return new SmtpEmailService(config, logger);
+        }
+        return new StubEmailService();
+    });
+    builder.Services.AddScoped<IEmailIngestionService, EmailIngestionService>();
 builder.Services.AddScoped<ISlaEngine, SlaEngine>();
+builder.Services.AddScoped<IAssignmentEngine, AssignmentEngine>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IWebhookDispatcher, WebhookDispatcher>();
+builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
     builder.Services.AddScoped<ISlaService, SlaService>();
     builder.Services.AddHostedService<SlaCheckerService>();

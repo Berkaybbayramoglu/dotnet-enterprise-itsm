@@ -33,7 +33,12 @@
         <div class="search-bar">
             <input type="text" id="searchInput" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description...">
             <button type="button" onclick="search()">Search</button>
+            <button type="button" onclick="saveFilter()">Save Filter</button>
+            <select id="savedFilters" onchange="loadFilter()" aria-label="Saved Filters">
+                <option value="">Load Saved Filter...</option>
+            </select>
             <button type="button" onclick="exportCsv()" style="background-color: #28a745;">Export CSV</button>
+            <a href="/ticket-create.html" class="btn" style="background-color: #17a2b8; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">+ New Ticket</a>
         </div>
         
         <table>
@@ -100,6 +105,44 @@
                 .replaceAll("'", "&#039;");
         }
 
+        let savedFiltersList = [];
+
+        async function loadFiltersDropdown() {
+            try {
+                savedFiltersList = await window.api.getSavedFilters();
+                const sel = document.getElementById('savedFilters');
+                sel.innerHTML = '<option value="">Load Saved Filter...</option>';
+                savedFiltersList.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.id;
+                    opt.textContent = f.name;
+                    sel.appendChild(opt);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveFilter() {
+            const name = prompt("Enter filter name:");
+            if (!name) return;
+            const queryJson = JSON.stringify({ keyword: document.getElementById('searchInput').value });
+            try {
+                await window.api.createSavedFilter({ name, queryJson });
+                loadFiltersDropdown();
+            } catch(e) { alert("Failed to save filter."); }
+        }
+
+        function loadFilter() {
+            const id = document.getElementById('savedFilters').value;
+            if (!id) return;
+            const filter = savedFiltersList.find(f => f.id == id);
+            if (filter) {
+                const q = JSON.parse(filter.queryJson);
+                document.getElementById('searchInput').value = q.keyword || '';
+                search();
+            }
+        }
+
+        loadFiltersDropdown();
         search();
     </script>
 </body>

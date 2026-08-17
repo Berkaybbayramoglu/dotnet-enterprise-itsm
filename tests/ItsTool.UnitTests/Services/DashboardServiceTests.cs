@@ -22,6 +22,21 @@ public class DashboardServiceTests : TestBase
     }
 
     [Fact]
+    public async Task GetOverviewAsync_ShouldReturnZeros_WhenNoTickets()
+    {
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
+
+        var result = await _dashboardService.GetOverviewAsync(1);
+
+        Assert.Equal(0, result.OpenTickets);
+        Assert.Equal(0, result.CriticalTickets);
+        Assert.Equal(0, result.SlaBreachedTickets);
+        Assert.Equal(0, result.SlaRiskTickets);
+        Assert.Equal(0, result.UnassignedTickets);
+    }
+
+
+    [Fact]
     public async Task GetOverviewAsync_ShouldReturnCorrectCounts_ForAdmin()
     {
         _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
@@ -76,5 +91,19 @@ public class DashboardServiceTests : TestBase
         var result = await _dashboardService.GetOverviewAsync(3);
 
         Assert.Equal(1, result.OpenTickets); // Only T1
+    }
+
+    [Fact]
+    public async Task GetOverviewAsync_ShouldCalculateCsatAverage()
+    {
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
+
+        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 1, Rating = 4 });
+        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 2, Rating = 5 });
+        await _context.SaveChangesAsync();
+
+        var result = await _dashboardService.GetOverviewAsync(1);
+        
+        Assert.Equal(4.5, result.CsatAverage);
     }
 }

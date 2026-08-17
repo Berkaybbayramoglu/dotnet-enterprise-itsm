@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Custom Fields Admin</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; max-width: 900px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .btn { background: #28a745; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-danger { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Custom Fields Admin</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/rules.html">Rules</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h3>Field Definitions</h3>
+        <button type="button" class="btn" onclick="openCreateFieldModal()">Create New Field</button>
+        <table id="fieldsTable">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Label</th>
+                    <th>Type</th>
+                    <th>Regex</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
+
+        async function loadFields() {
+            try {
+                const fields = await window.api.getFieldDefinitions();
+                const tbody = document.querySelector('#fieldsTable tbody');
+                tbody.innerHTML = '';
+                
+                const typeNames = ['Text', 'Number', 'Date', 'Dropdown', 'MultiSelect'];
+
+                fields.forEach(f => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${f.key}</td>
+                        <td>${f.label}</td>
+                        <td>${typeNames[f.fieldType]}</td>
+                        <td>${f.validationRegex || ''}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger" onclick="deleteField(${f.id})">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                alert('Error loading fields');
+            }
+        }
+
+        async function deleteField(id) {
+            if (confirm('Delete this field?')) {
+                await window.api.request(`/DynamicForm/definitions/${id}`, { method: 'DELETE' });
+                loadFields();
+            }
+        }
+
+        async function openCreateFieldModal() {
+            const key = prompt('Field Key (e.g. server_name):');
+            if (!key) return;
+            const label = prompt('Field Label:');
+            const typeStr = prompt('Type (0=Text, 1=Number, 2=Date, 3=Dropdown, 4=MultiSelect):', "0");
+            
+            await window.api.request('/DynamicForm/definitions', {
+                method: 'POST',
+                body: JSON.stringify({
+                    key: key,
+                    label: label,
+                    fieldType: parseInt(typeStr) || 0,
+                    validationRegex: null
+                })
+            });
+            loadFields();
+        }
+
+        loadFields();
+    </script>
+</body>
+</html>

@@ -24,6 +24,7 @@
         <div class="nav">
             <a href="/tickets.html">Tickets</a>
             <a href="/kb.html">Knowledge Base</a>
+            <a href="/webhooks.html">Webhooks</a>
             <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
         </div>
     </div>
@@ -53,11 +54,12 @@
                 const dist = await window.api.getDashboardDistributions();
 
                 const cardsHtml = `
-                    <div class="card"><h3>Open Tickets</h3><div class="value">${overview.openTickets}</div></div>
-                    <div class="card"><h3>Critical</h3><div class="value" style="color: #dc3545;">${overview.criticalTickets}</div></div>
-                    <div class="card"><h3>SLA Breached</h3><div class="value" style="color: #dc3545;">${overview.slaBreachedCount}</div></div>
-                    <div class="card"><h3>SLA Risk</h3><div class="value" style="color: #ffc107;">${overview.slaRiskCount}</div></div>
-                    <div class="card"><h3>Unassigned</h3><div class="value" style="color: #6c757d;">${overview.unassignedCount}</div></div>
+                    <div class="card"><h3>Open Tickets</h3><div class="value">${overview.openTickets ?? 0}</div></div>
+                    <div class="card"><h3>Critical</h3><div class="value" style="color: #dc3545;">${overview.criticalTickets ?? 0}</div></div>
+                    <div class="card"><h3>SLA Breached</h3><div class="value" style="color: #dc3545;">${overview.slaBreachedTickets ?? 0}</div></div>
+                    <div class="card"><h3>SLA Risk</h3><div class="value" style="color: #ffc107;">${overview.slaRiskTickets ?? 0}</div></div>
+                    <div class="card"><h3>Unassigned</h3><div class="value" style="color: #6c757d;">${overview.unassignedTickets ?? 0}</div></div>
+                    <div class="card"><h3>CSAT Score</h3><div class="value" style="color: #28a745;">${overview.csatAverage ? overview.csatAverage.toFixed(1) : 0}</div></div>
                 `;
                 document.getElementById('overviewCards').innerHTML = cardsHtml;
 
@@ -65,7 +67,7 @@
                 new Chart(document.getElementById('statusChart'), {
                     type: 'doughnut',
                     data: {
-                        labels: dist.byStatus.map(d => d.name),
+                        labels: dist.byStatus.map(d => d.key),
                         datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#007bff', '#28a745', '#dc3545', '#ffc107'] }]
                     },
                     options: { plugins: { title: { display: true, text: 'Tickets by Status' } } }
@@ -75,7 +77,7 @@
                 new Chart(document.getElementById('priorityChart'), {
                     type: 'bar',
                     data: {
-                        labels: dist.byPriority.map(d => d.name),
+                        labels: dist.byPriority.map(d => d.key),
                         datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#007bff' }]
                     },
                     options: { plugins: { title: { display: true, text: 'Tickets by Priority' } } }

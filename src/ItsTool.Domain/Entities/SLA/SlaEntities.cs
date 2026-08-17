@@ -8,6 +8,7 @@ public class SlaPolicy : BaseEntity
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public int? ProjectId { get; set; }
+    public bool EscalateOnBreach { get; set; } // Phase 11: SLA Auto-Escalation
 }
 
 public class SlaTarget : BaseEntity

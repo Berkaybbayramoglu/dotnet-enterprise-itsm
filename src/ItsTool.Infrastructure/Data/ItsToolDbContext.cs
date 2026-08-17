@@ -67,9 +67,21 @@ public class ItsToolDbContext : DbContext
     public DbSet<NotificationRule> NotificationRules => Set<NotificationRule>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    // Assignment
+    public DbSet<AssignmentRule> AssignmentRules => Set<AssignmentRule>();
+
+    // Filter
+    public DbSet<SavedFilter> SavedFilters => Set<SavedFilter>();
+
     // KnowledgeBase
     public DbSet<KnowledgeCategory> KnowledgeCategories => Set<KnowledgeCategory>();
     public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
+
+    // CSAT
+    public DbSet<TicketSurvey> TicketSurveys => Set<TicketSurvey>();
+
+    // Webhooks
+    public DbSet<WebhookSubscription> WebhookSubscriptions => Set<WebhookSubscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

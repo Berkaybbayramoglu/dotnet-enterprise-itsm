@@ -16,11 +16,13 @@ public class SlaEngineTests : TestBase
 {
     private readonly SlaEngine _slaEngine;
     private readonly Mock<IEmailService> _emailServiceMock;
+    private readonly Mock<INotificationDispatcher> _notificationDispatcherMock;
 
     public SlaEngineTests() : base()
     {
         _emailServiceMock = new Mock<IEmailService>();
-        _slaEngine = new SlaEngine(_context, _emailServiceMock.Object);
+        _notificationDispatcherMock = new Mock<INotificationDispatcher>();
+        _slaEngine = new SlaEngine(_context, _emailServiceMock.Object, _notificationDispatcherMock.Object);
     }
 
     [Fact]
@@ -111,13 +113,11 @@ public class SlaEngineTests : TestBase
         var dbSla = await _context.TicketSlas.FirstAsync();
         Assert.True(dbSla.FirstResponseBreached);
         
-        var notifs = await _context.Notifications.ToListAsync();
-        Assert.Single(notifs);
+        _notificationDispatcherMock.Verify(d => d.DispatchEventAsync("sla.breach", 1, null, It.IsAny<string>()), Times.Once);
 
         // Second run should not create duplicate
         await _slaEngine.CheckBreachesAsync(DateTime.UtcNow);
-        var notifs2 = await _context.Notifications.ToListAsync();
-        Assert.Single(notifs2); // Still 1
+        _notificationDispatcherMock.Verify(d => d.DispatchEventAsync("sla.breach", 1, null, It.IsAny<string>()), Times.Once); // Still 1
     }
 
     [Fact]

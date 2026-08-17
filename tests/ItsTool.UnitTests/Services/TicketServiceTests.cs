@@ -19,13 +19,18 @@ public class TicketServiceTests : TestBase
     private readonly Mock<IPermissionCalculator> _permissionMock;
     private readonly Mock<ISlaEngine> _slaEngineMock;
 
+    private readonly Mock<IAssignmentEngine> _assignmentEngineMock;
+    private readonly Mock<INotificationDispatcher> _notificationDispatcherMock;
+
     public TicketServiceTests() : base()
     {
         _fileStorageMock = new Mock<IFileStorageService>();
         _permissionMock = new Mock<IPermissionCalculator>();
         _slaEngineMock = new Mock<ISlaEngine>();
+        _assignmentEngineMock = new Mock<IAssignmentEngine>();
+        _notificationDispatcherMock = new Mock<INotificationDispatcher>();
 
-        _service = new TicketService(_context, _fileStorageMock.Object, _permissionMock.Object, _slaEngineMock.Object);
+        _service = new TicketService(_context, _fileStorageMock.Object, _permissionMock.Object, _slaEngineMock.Object, _assignmentEngineMock.Object, _notificationDispatcherMock.Object);
     }
 
     [Fact]
@@ -127,5 +132,29 @@ public class TicketServiceTests : TestBase
         var history = await _context.TicketHistories.FirstOrDefaultAsync(h => h.TicketId == t.Id && h.Action == "Assigned");
         Assert.NotNull(history);
         Assert.Equal("2", history.NewValue);
+    }
+
+    [Fact]
+    public async Task SubmitSurveyAsync_ShouldOnlyAllowRequester()
+    {
+        var t = new Ticket { TicketNumber = "1", RequesterUserId = 10, StatusId = 5 }; // Closed
+        _context.Tickets.Add(t);
+        await _context.SaveChangesAsync();
+
+        var dto = new SubmitTicketSurveyDto(5, "Good");
+        // UserId 11 is not requester
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _service.SubmitSurveyAsync(t.Id, dto, 11));
+    }
+
+    [Fact]
+    public async Task SubmitSurveyAsync_ShouldPreventDuplicates()
+    {
+        var t = new Ticket { TicketNumber = "1", RequesterUserId = 10, StatusId = 5 }; // Closed
+        _context.Tickets.Add(t);
+        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 1, Rating = 4 });
+        await _context.SaveChangesAsync();
+
+        var dto = new SubmitTicketSurveyDto(5, "Good");
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.SubmitSurveyAsync(t.Id, dto, 10));
     }
 }

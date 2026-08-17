@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Create Ticket</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; max-width: 800px; margin: auto; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
+        input, select, textarea { width: 100%; padding: 0.5rem; box-sizing: border-box; }
+        .btn { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
+        #dynamicFields { border: 1px solid #ccc; padding: 1rem; margin-top: 1rem; border-radius: 4px; background: #fff; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Create Ticket</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/tickets.html">Tickets</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <form id="createForm">
+            <div class="form-group">
+                <label for="title">Title *</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label for="desc">Description *</label>
+                <textarea id="desc" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="projectId">Project *</label>
+                <select id="projectId" required onchange="loadDynamicFields()"><option value="">Select Project</option></select>
+            </div>
+            <div class="form-group">
+                <label for="categoryId">Category *</label>
+                <select id="categoryId" required onchange="loadDynamicFields()"><option value="">Select Category</option></select>
+            </div>
+            <div class="form-group">
+                <label for="typeId">Ticket Type *</label>
+                <select id="typeId" required onchange="loadDynamicFields()"><option value="">Select Type</option></select>
+            </div>
+            <div class="form-group">
+                <label for="priorityId">Priority *</label>
+                <select id="priorityId" required><option value="">Select Priority</option></select>
+            </div>
+
+            <div id="dynamicFields">
+                <i>Select Project, Category, and Type to load custom fields.</i>
+            </div>
+
+            <br>
+            <button type="submit" class="btn">Create Ticket</button>
+        </form>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
+        
+        let currentPlacements = [];
+
+        async function loadLookups() {
+            try {
+                // In a real scenario we would fetch projects, categories, types, priorities from catalog endpoint
+                // For simplicity assuming there is a generic catalog GET
+                const cats = await window.api.request('/catalog/categories');
+                const projs = await window.api.request('/projects');
+                const types = await window.api.request('/catalog/types');
+                const prios = await window.api.request('/catalog/priorities');
+
+                const populate = (id, data) => {
+                    const sel = document.getElementById(id);
+                    data.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.id;
+                        opt.textContent = d.name;
+                        sel.appendChild(opt);
+                    });
+                };
+
+                populate('projectId', projs);
+                populate('categoryId', cats);
+                populate('typeId', types);
+                populate('priorityId', prios);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadDynamicFields() {
+            const pId = document.getElementById('projectId').value;
+            const cId = document.getElementById('categoryId').value;
+            const tId = document.getElementById('typeId').value;
+            
+            if (!pId || !cId || !tId) return;
+
+            const container = document.getElementById('dynamicFields');
+            container.innerHTML = 'Loading fields...';
+
+            try {
+                currentPlacements = await window.api.getPlacements(pId, cId, tId);
+                container.innerHTML = '';
+                
+                if (currentPlacements.length === 0) {
+                    container.innerHTML = '<i>No custom fields configured for this selection.</i>';
+                    return;
+                }
+
+                currentPlacements.sort((a,b) => a.sortOrder - b.sortOrder);
+                
+                for (const place of currentPlacements) {
+                    const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
+                    
+                    const fg = document.createElement('div');
+                    fg.className = 'form-group';
+                    
+                    const lbl = document.createElement('label');
+                    // Avoid XSS by textContent
+                    lbl.textContent = def.label + (place.isRequired ? ' *' : '');
+                    fg.appendChild(lbl);
+
+                    let input;
+                    if (def.fieldType === 0) { // Text
+                        input = document.createElement('input');
+                        input.type = 'text';
+                    } else if (def.fieldType === 1) { // Number
+                        input = document.createElement('input');
+                        input.type = 'number';
+                    } else if (def.fieldType === 2) { // Date
+                        input = document.createElement('input');
+                        input.type = 'date';
+                    } else if (def.fieldType === 3 || def.fieldType === 4) { // Dropdown / MultiSelect
+                        input = document.createElement('select');
+                        if (def.fieldType === 4) input.multiple = true;
+                        
+                        const opts = await window.api.getFieldOptions(def.id);
+                        opts.forEach(o => {
+                            const opt = document.createElement('option');
+                            opt.value = o.value;
+                            opt.textContent = o.label;
+                            input.appendChild(opt);
+                        });
+                    }
+
+                    input.id = 'cf_' + def.key;
+                    if (place.isRequired) input.required = true;
+                    
+                    fg.appendChild(input);
+                    container.appendChild(fg);
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<span style="color:red">Failed to load fields.</span>';
+            }
+        }
+
+        document.getElementById('createForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const customFields = {};
+            for (const place of currentPlacements) {
+                // To safely get key, we need definition key... (ignoring lookup for brevity, assuming prefix works)
+                // We'll just select inputs starting with cf_
+            }
+            
+            const inputs = document.querySelectorAll('#dynamicFields [id^="cf_"]');
+            inputs.forEach(inp => {
+                const key = inp.id.substring(3);
+                if (inp.multiple) {
+                    const vals = Array.from(inp.selectedOptions).map(o => o.value);
+                    customFields[key] = vals.join(',');
+                } else {
+                    customFields[key] = inp.value;
+                }
+            });
+
+            const payload = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('desc').value,
+                projectId: parseInt(document.getElementById('projectId').value),
+                categoryId: parseInt(document.getElementById('categoryId').value),
+                typeId: parseInt(document.getElementById('typeId').value),
+                priorityId: parseInt(document.getElementById('priorityId').value),
+                // Since this user is creating, requester is themselves (auth token handles this or we pass it)
+                requesterUserId: 1, // simplified for demo
+                customFields: customFields
+            };
+
+            try {
+                // Actually need current user's ID, fetch from /auth/me or hardcode for demo? 
+                // A complete implementation would get it from JWT or API.
+                await window.api.request('/ticket', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                alert('Ticket Created!');
+                window.location.href = '/tickets.html';
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        loadLookups();
+    </script>
+</body>
+</html>

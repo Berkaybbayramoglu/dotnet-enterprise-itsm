@@ -98,6 +98,36 @@ class ApiClient {
         }
         return this.request(`/reports/tickets/csv?${queryParams.toString()}`, { responseType: 'blob' });
     }
+    // Dynamic Form
+    async getFieldDefinitions() { return this.request('/DynamicForm/definitions'); }
+    async getFieldOptions(defId) { return this.request(`/DynamicForm/definitions/${defId}/options`); }
+    async getPlacements(projectId, categoryId, typeId) {
+        const queryParams = new URLSearchParams();
+        if (projectId) queryParams.append('projectId', projectId);
+        if (categoryId) queryParams.append('categoryId', categoryId);
+        if (typeId) queryParams.append('ticketTypeId', typeId);
+        return this.request(`/DynamicForm/placements?${queryParams.toString()}`);
+    }
+
+    // Assignment Rules
+    async getAssignmentRules() { return this.request('/rules/assignment'); }
+    async createAssignmentRule(data) { return this.request('/rules/assignment', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateAssignmentRule(id, data) { return this.request(`/rules/assignment/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteAssignmentRule(id) { return this.request(`/rules/assignment/${id}`, { method: 'DELETE' }); }
+
+    // Saved Filters
+    async getSavedFilters() { return this.request('/saved-filters'); }
+    async createSavedFilter(data) { return this.request('/saved-filters', { method: 'POST', body: JSON.stringify(data) }); }
+    async deleteSavedFilter(id) { return this.request(`/saved-filters/${id}`, { method: 'DELETE' }); }
+
+    // Audit Log
+    async getAuditLogs(filter = {}) {
+        const queryParams = new URLSearchParams();
+        for (const key in filter) {
+            if (filter[key]) queryParams.append(key, filter[key]);
+        }
+        return this.request(`/audit-log?${queryParams.toString()}`);
+    }
 }
 
 window.api = new ApiClient();

@@ -1,0 +1,31 @@
+using System;
+
+namespace ItsTool.Application.DTOs;
+
+public record AuditLogFilterDto(
+    int? UserId,
+    string? Action,
+    int? TicketId,
+    DateTime? FromDate,
+    DateTime? ToDate,
+    int Page = 1,
+    int PageSize = 50
+);
+
+public record AuditLogItemDto(
+    int Id,
+    int TicketId,
+    string Action,
+    string FieldName,
+    string? OldValue,
+    string? NewValue,
+    string CreatedBy,
+    DateTime CreatedAt
+);
+
+public record PaginatedAuditLogDto(
+    System.Collections.Generic.IEnumerable<AuditLogItemDto> Items,
+    int TotalCount,
+    int Page,
+    int PageSize
+);

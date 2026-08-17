@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Assignment Rules</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; max-width: 900px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .btn { background: #28a745; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-danger { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Assignment Rules</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/admin-fields.html">Custom Fields</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <button type="button" class="btn" onclick="openCreateModal()">Create New Rule</button>
+        <table id="rulesTable">
+            <thead>
+                <tr>
+                    <th>Sort Order</th>
+                    <th>Name</th>
+                    <th>Project</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Target Group</th>
+                    <th>Target User</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
+
+        async function loadRules() {
+            try {
+                const rules = await window.api.getAssignmentRules();
+                const tbody = document.querySelector('#rulesTable tbody');
+                tbody.innerHTML = '';
+                
+                rules.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${r.sortOrder}</td>
+                        <td>${r.name}</td>
+                        <td>${r.projectId || '*'}</td>
+                        <td>${r.categoryId || '*'}</td>
+                        <td>${r.ticketTypeId || '*'}</td>
+                        <td>${r.targetGroupId || '-'}</td>
+                        <td>${r.targetUserId || '-'}</td>
+                        <td>${r.isActive ? 'Yes' : 'No'}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger" onclick="deleteRule(${r.id})">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                alert('Error loading rules');
+            }
+        }
+
+        async function deleteRule(id) {
+            if (confirm('Delete this rule?')) {
+                await window.api.deleteAssignmentRule(id);
+                loadRules();
+            }
+        }
+
+        async function openCreateModal() {
+            const name = prompt('Rule Name:');
+            if (!name) return;
+            const sort = prompt('Sort Order:', "10");
+            
+            await window.api.createAssignmentRule({
+                name: name,
+                sortOrder: parseInt(sort) || 10,
+                isActive: true
+                // In a real modal we would prompt for ProjectId, CategoryId, etc.
+            });
+            loadRules();
+        }
+
+        loadRules();
+    </script>
+</body>
+</html>

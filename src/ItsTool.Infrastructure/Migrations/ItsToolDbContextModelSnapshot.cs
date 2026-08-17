@@ -436,6 +436,53 @@ namespace ItsTool.Infrastructure.Migrations
                     b.ToTable("FormFieldPlacements");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Config.SavedFilter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("QueryJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SavedFilters");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Config.TicketFieldValue", b =>
                 {
                     b.Property<int>("Id")
@@ -486,6 +533,52 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("TicketFieldValues");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Config.WebhookSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventsCsv")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WebhookSubscriptions");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticle", b =>
@@ -684,6 +777,77 @@ namespace ItsTool.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("NotificationRules");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Organization.AssignmentRule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("PriorityId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TargetGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TargetUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TicketTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("PriorityId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("TargetGroupId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.HasIndex("TicketTypeId");
+
+                    b.ToTable("AssignmentRules");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Organization.Department", b =>
@@ -1120,6 +1284,9 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<bool>("EscalateOnBreach")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -1210,6 +1377,9 @@ namespace ItsTool.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EscalatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("FirstResponseBreached")
@@ -1454,6 +1624,9 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ExternalMessageId")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -1675,6 +1848,54 @@ namespace ItsTool.Infrastructure.Migrations
                     b.HasIndex("TicketId");
 
                     b.ToTable("TicketHistories");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketSurvey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketSurveys");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketType", b =>
@@ -1975,6 +2196,17 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Navigation("FieldDefinition");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Config.SavedFilter", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Config.TicketFieldValue", b =>
                 {
                     b.HasOne("ItsTool.Domain.Entities.Config.FieldDefinition", "FieldDefinition")
@@ -2012,6 +2244,45 @@ namespace ItsTool.Infrastructure.Migrations
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Organization.AssignmentRule", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Priority", "Priority")
+                        .WithMany()
+                        .HasForeignKey("PriorityId");
+
+                    b.HasOne("ItsTool.Domain.Entities.Project.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId");
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.Group", "TargetGroup")
+                        .WithMany()
+                        .HasForeignKey("TargetGroupId");
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId");
+
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.TicketType", "TicketType")
+                        .WithMany()
+                        .HasForeignKey("TicketTypeId");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Priority");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("TargetGroup");
+
+                    b.Navigation("TargetUser");
+
+                    b.Navigation("TicketType");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Organization.Group", b =>
@@ -2206,6 +2477,17 @@ namespace ItsTool.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketHistory", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketSurvey", b =>
                 {
                     b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
                         .WithMany()

@@ -59,7 +59,10 @@ public class DashboardService : IDashboardService
         var slaRiskCount = await query.CountAsync(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached) && t.Status != null && !t.Status.IsClosedStatus);
         var unassignedCount = await query.CountAsync(t => t.AssignedUserId == null && t.Status != null && !t.Status.IsClosedStatus);
 
-        return new DashboardOverviewDto(openTicketsCount, criticalTicketsCount, slaBreachedCount, slaRiskCount, unassignedCount);
+        var csatQuery = _context.TicketSurveys.AsQueryable();
+        var csatAverage = await csatQuery.AnyAsync() ? await csatQuery.AverageAsync(s => s.Rating) : 0.0;
+
+        return new DashboardOverviewDto(openTicketsCount, criticalTicketsCount, slaBreachedCount, slaRiskCount, unassignedCount, csatAverage);
     }
 
     public async Task<DashboardDistributionsDto> GetDistributionsAsync(int userId)

@@ -20,6 +20,8 @@ public class TicketSla : BaseEntity
     public bool FirstResponseBreached { get; set; }
     public bool ResolutionWarned { get; set; }
     public bool ResolutionBreached { get; set; }
+    
+    public DateTime? EscalatedAt { get; set; } // Phase 11: SLA Escalation idempotency
 
     public virtual Ticket.Ticket? Ticket { get; set; }
 }

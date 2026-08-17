@@ -18,13 +18,17 @@ public class TicketService : ITicketService
     private readonly IFileStorageService _fileStorage;
     private readonly IPermissionCalculator _permissionCalculator;
     private readonly ISlaEngine _slaEngine;
+    private readonly IAssignmentEngine _assignmentEngine;
+    private readonly INotificationDispatcher _notificationDispatcher;
 
-    public TicketService(ItsToolDbContext context, IFileStorageService fileStorage, IPermissionCalculator permissionCalculator, ISlaEngine slaEngine)
+    public TicketService(ItsToolDbContext context, IFileStorageService fileStorage, IPermissionCalculator permissionCalculator, ISlaEngine slaEngine, IAssignmentEngine assignmentEngine, INotificationDispatcher notificationDispatcher)
     {
         _context = context;
         _fileStorage = fileStorage;
         _permissionCalculator = permissionCalculator;
         _slaEngine = slaEngine;
+        _assignmentEngine = assignmentEngine;
+        _notificationDispatcher = notificationDispatcher;
     }
 
     private async Task<string> GenerateTicketNumberAsync(int projectId)
@@ -149,7 +153,12 @@ public class TicketService : ITicketService
         });
         await _context.SaveChangesAsync();
         
+        // Dynamic assignment rules
+        await _assignmentEngine.AssignTicketAsync(t);
+        await _context.SaveChangesAsync();
+
         await _slaEngine.AttachSlaToTicketAsync(t.Id);
+        await _notificationDispatcher.DispatchEventAsync("ticket.created", t.Id, dto.RequesterUserId, "A new ticket has been created.");
 
         return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId);
     }
@@ -219,6 +228,12 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
         
         await _slaEngine.ProcessTicketStatusChangeAsync(t.Id, oldStatus, dto.NewStatusId);
+
+        // Notify for CSAT if status changes to Closed (Assuming 5 is Closed)
+        if (dto.NewStatusId == 5 && oldStatus != 5)
+        {
+            await _notificationDispatcher.DispatchEventAsync("ticket.closed.survey", t.Id, dto.UserId, "Your ticket has been closed. Please fill out the satisfaction survey.");
+        }
     }
 
     public async Task AssignTicketAsync(int ticketId, AssignTicketDto dto)
@@ -243,6 +258,7 @@ public class TicketService : ITicketService
         });
 
         await _context.SaveChangesAsync();
+        await _notificationDispatcher.DispatchEventAsync("ticket.assigned", t.Id, dto.AssignerUserId, $"Ticket assigned to {dto.UserId}");
     }
 
     public async Task TransferTicketAsync(int ticketId, TransferTicketDto dto)
@@ -295,6 +311,7 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
         
         await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
+        await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, "A new comment was added.");
         
         return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt);
     }
@@ -464,5 +481,37 @@ public class TicketService : ITicketService
             Page = filter.Page,
             PageSize = filter.PageSize
         };
+    }
+
+    public async Task<TicketSurveyDto> SubmitSurveyAsync(int ticketId, SubmitTicketSurveyDto dto, int userId)
+    {
+        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+        if (ticket == null) throw new KeyNotFoundException("Ticket not found");
+
+        if (ticket.RequesterUserId != userId)
+            throw new UnauthorizedAccessException("Only the requester can submit a survey for this ticket");
+
+        // Assume Status 5 is closed
+        if (ticket.StatusId != 5)
+            throw new InvalidOperationException("Surveys can only be submitted for closed tickets");
+
+        var existingSurvey = await _context.TicketSurveys.AnyAsync(s => s.TicketId == ticketId);
+        if (existingSurvey)
+            throw new InvalidOperationException("A survey has already been submitted for this ticket");
+
+        if (dto.Rating < 1 || dto.Rating > 5)
+            throw new InvalidOperationException("Rating must be between 1 and 5");
+
+        var survey = new TicketSurvey
+        {
+            TicketId = ticketId,
+            Rating = dto.Rating,
+            Comment = dto.Comment
+        };
+
+        _context.TicketSurveys.Add(survey);
+        await _context.SaveChangesAsync();
+
+        return new TicketSurveyDto(survey.Id, survey.TicketId, survey.Rating, survey.Comment, survey.SubmittedAt);
     }
 }
