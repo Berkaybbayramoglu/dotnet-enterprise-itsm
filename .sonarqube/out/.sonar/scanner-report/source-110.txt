@@ -7,6 +7,7 @@ using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using ItsTool.Domain.Entities.Ticket;
 
 namespace ItsTool.Infrastructure.Services;
 
@@ -36,7 +37,18 @@ public class ReportService : IReportService
             .Include(t => t.TicketSla)
             .Where(t => !t.IsDeleted);
 
-        // Security Scope filtering
+        query = await ApplySecurityScope(query, perms, userId);
+        query = ApplyBasicFilters(query, filter);
+        query = ApplyKeywordAndSlaFilters(query, filter);
+
+        query = query.OrderByDescending(t => t.CreatedAt);
+        var tickets = await query.Take(10000).ToListAsync();
+
+        return await GenerateCsvStreamAsync(tickets);
+    }
+
+    private async Task<IQueryable<Ticket>> ApplySecurityScope(IQueryable<Ticket> query, System.Collections.Generic.HashSet<string> perms, int userId)
+    {
         if (!perms.Contains("report.view"))
         {
             var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
@@ -47,17 +59,17 @@ public class ReportService : IReportService
                     .Select(gm => gm.GroupId)
                     .ToListAsync();
 
-                query = query.Where(t => t.AssignedUserId == userId || 
+                return query.Where(t => t.AssignedUserId == userId || 
                                         (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
                                         t.RequesterUserId == userId);
             }
-            else
-            {
-                query = query.Where(t => t.RequesterUserId == userId);
-            }
+            return query.Where(t => t.RequesterUserId == userId);
         }
+        return query;
+    }
 
-        // Apply filters
+    private static IQueryable<Ticket> ApplyBasicFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
+    {
         if (filter.ProjectId.HasValue) query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
         if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
         if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
@@ -67,14 +79,18 @@ public class ReportService : IReportService
         if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
         if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
         if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
-        
+        return query;
+    }
+
+    private static IQueryable<Ticket> ApplyKeywordAndSlaFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
+    {
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
         {
-            var kw = filter.Keyword.ToLower();
+            var kw = filter.Keyword;
             query = query.Where(t => 
-                t.TicketNumber.ToLower().Contains(kw) || 
-                t.Title.ToLower().Contains(kw) || 
-                t.Description.ToLower().Contains(kw));
+                t.TicketNumber.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
+                t.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
+                t.Description.Contains(kw, StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.SlaStatus))
@@ -87,17 +103,14 @@ public class ReportService : IReportService
             else if (s == "ontrack")
                 query = query.Where(t => t.TicketSla != null && !t.TicketSla.FirstResponseWarned && !t.TicketSla.ResolutionWarned && !t.TicketSla.FirstResponseBreached && !t.TicketSla.ResolutionBreached);
         }
+        return query;
+    }
 
-        // Ordering (Default to CreatedAt Desc)
-        query = query.OrderByDescending(t => t.CreatedAt);
-
-        // Limiting to Max 10.000 for safety
-        var tickets = await query.Take(10000).ToListAsync();
-
+    private static async Task<Stream> GenerateCsvStreamAsync(System.Collections.Generic.List<Domain.Entities.Ticket.Ticket> tickets)
+    {
         var ms = new MemoryStream();
         var sw = new StreamWriter(ms, Encoding.UTF8);
 
-        // Header
         await sw.WriteLineAsync("TicketNumber,Title,Project,Category,Type,Status,Priority,Requester,Assignee,CreatedAt,SLA Status");
 
         foreach (var t in tickets)

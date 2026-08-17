@@ -11,8 +11,8 @@
         .container { padding: 2rem; }
         .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; }
         input[type="text"] { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
+        button { padding: 0.5rem 1rem; background-color: #004085; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #004085; }
         table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; font-weight: 600; color: #333; }
@@ -37,8 +37,8 @@
             <select id="savedFilters" onchange="loadFilter()" aria-label="Saved Filters">
                 <option value="">Load Saved Filter...</option>
             </select>
-            <button type="button" onclick="exportCsv()" style="background-color: #28a745;">Export CSV</button>
-            <a href="/ticket-create.html" class="btn" style="background-color: #17a2b8; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">+ New Ticket</a>
+            <button type="button" onclick="exportCsv()" style="background-color: #155724;">Export CSV</button>
+            <a href="/ticket-create.html" class="btn" style="background-color: #0b515d; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">+ New Ticket</a>
         </div>
         
         <table>
@@ -59,7 +59,9 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
+        import './js/api.js';
+        
         if (!window.api.token) window.location.href = '/login.html';
 
         async function search() {
@@ -148,8 +150,13 @@
             }
         }
 
-        loadFiltersDropdown();
-        search();
+        window.search = search;
+        window.exportCsv = exportCsv;
+        window.saveFilter = saveFilter;
+        window.loadFilter = loadFilter;
+
+        await loadFiltersDropdown();
+        await search();
     </script>
 </body>
 </html>

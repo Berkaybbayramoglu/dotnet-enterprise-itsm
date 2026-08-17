@@ -4,7 +4,7 @@
 statements
 	functions
 
-complexity
+complexity
 comment_lines
 ncloc?
 cognitive_complexity¨

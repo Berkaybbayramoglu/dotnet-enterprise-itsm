@@ -40,11 +40,11 @@ r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrati
 w/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814130918_UpdateKbVisibility.csutf-8ê
 Ñ/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814041907_AddSlaAndNotifications.Designer.csutf-8Ñ
 {/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814041907_AddSlaAndNotifications.csutf-8Ü
-{/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.Designer.csutf-8{
-r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.csutf-8c
-Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Repository.csutf-8p
+{/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.Designer.csutf-8|
+s/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.csutf-8p
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.csutf-8i
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContext.csutf-8c
-Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.csutf-8{
-r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.csutf-8|
-s/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.csutf-8
+Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Repository.csutf-8{
+r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260811202256_InitialCreate.csutf-8{
+r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.csutf-8c
+Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.csutf-8

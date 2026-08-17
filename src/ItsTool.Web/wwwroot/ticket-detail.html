@@ -13,11 +13,11 @@
         h3 { margin-top: 0; }
         .property-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .property-grid div { margin-bottom: 0.5rem; }
-        .property-grid label { font-weight: bold; color: #595959; display: block; font-size: 0.9rem; }
+        .property-grid label { font-weight: bold; color: #4d4d4d; display: block; font-size: 0.9rem; }
         .comment { border-bottom: 1px solid #eee; padding: 1rem 0; }
         .comment:last-child { border-bottom: none; }
-        .comment-meta { font-size: 0.8rem; color: #595959; margin-bottom: 0.5rem; }
-        .btn { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
+        .comment-meta { font-size: 0.8rem; color: #4d4d4d; margin-bottom: 0.5rem; }
+        .btn { background: #004085; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
         textarea, select { width: 100%; padding: 0.5rem; box-sizing: border-box; margin-bottom: 1rem; }
         .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; color: white; }
     </style>
@@ -76,7 +76,7 @@
                 <button type="button" class="btn" id="btnChangeStatus" style="width:100%">Update Status</button>
                 
                 <div id="csatLink" style="display:none; margin-top: 1rem; text-align: center;">
-                    <a href="#" id="surveyBtn" class="btn" style="background: #28a745; text-decoration: none; display: block;">Fill CSAT Survey</a>
+                    <a href="#" id="surveyBtn" class="btn" style="background: #1e7e34; text-decoration: none; display: block;">Fill CSAT Survey</a>
                 </div>
             </div>
         </div>
@@ -128,7 +128,7 @@
                     const div = document.createElement('div');
                     div.className = 'comment';
                     div.innerHTML = `
-                        <div class="comment-meta">User ${c.authorUserId} - ${new Date(c.createdAt).toLocaleString()} ${c.isInternal ? '<span class="badge" style="background:#dc3545">Internal</span>' : ''}</div>
+                        <div class="comment-meta">User ${c.authorUserId} - ${new Date(c.createdAt).toLocaleString()} ${c.isInternal ? '<span class="badge" style="background:#bd2130">Internal</span>' : ''}</div>
                         <div>${escapeHtml(c.content)}</div>
                     `;
                     list.appendChild(div);

@@ -15,12 +15,9 @@ namespace ItsTool.UnitTests.Services;
 public class EmailIngestionServiceTests : TestBase
 {
     private readonly EmailIngestionService _service;
-    private readonly Mock<ITicketService> _ticketServiceMock;
-
     public EmailIngestionServiceTests() : base()
     {
-        _ticketServiceMock = new Mock<ITicketService>();
-        _service = new EmailIngestionService(_context, _ticketServiceMock.Object);
+        _service = new EmailIngestionService(_context);
         SeedBasicData().Wait();
     }
 

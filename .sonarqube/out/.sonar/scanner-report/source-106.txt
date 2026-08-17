@@ -26,13 +26,23 @@ public class NotificationDispatcher : INotificationDispatcher
             .Where(r => r.EventKey == eventKey && r.IsActive && !r.IsDeleted)
             .ToListAsync();
 
-        if (!rules.Any()) return;
+        if (rules.Count == 0) return;
 
-        var ticket = await _context.Tickets
-            .FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
-
+        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
         if (ticket == null) return;
 
+        var targetUserIds = await GetTargetUserIdsAsync(rules, ticket, triggerUserId);
+
+        await ProcessNotificationsAsync(targetUserIds, eventKey, ticket, additionalContext);
+        
+        await _context.SaveChangesAsync();
+        
+        // Dispatch to Webhooks
+        await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
+    }
+
+    private async Task<System.Collections.Generic.HashSet<int>> GetTargetUserIdsAsync(System.Collections.Generic.IEnumerable<NotificationRule> rules, Domain.Entities.Ticket.Ticket ticket, int? triggerUserId)
+    {
         var targetUserIds = new System.Collections.Generic.HashSet<int>();
 
         foreach (var rule in rules)
@@ -58,25 +68,25 @@ public class NotificationDispatcher : INotificationDispatcher
             }
         }
 
-        // Do not notify the person who triggered the event
         if (triggerUserId.HasValue)
         {
             targetUserIds.Remove(triggerUserId.Value);
         }
 
+        return targetUserIds;
+    }
+
+    private async Task ProcessNotificationsAsync(System.Collections.Generic.HashSet<int> targetUserIds, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    {
         foreach (var targetId in targetUserIds)
         {
-            // Duplicate prevention
             var exists = await _context.Notifications.AnyAsync(n => 
                 n.UserId == targetId && 
-                n.RelatedEntityId == ticketId && 
+                n.RelatedEntityId == ticket.Id && 
                 n.RelatedEntityType == "Ticket" && 
                 n.Title == eventKey &&
                 !n.IsDeleted);
 
-            // Wait, for comment.added, we might want to notify them multiple times?
-            // "duplicate bildirim yok (aynı olay+aynı kullanıcı tek bildirim)" -> The prompt says same event + same user = single notification.
-            // If they want exactly one notification per event type per ticket, we do this:
             if (!exists)
             {
                 _context.Notifications.Add(new Notification
@@ -84,24 +94,24 @@ public class NotificationDispatcher : INotificationDispatcher
                     UserId = targetId,
                     Title = eventKey,
                     Message = additionalContext ?? $"Event {eventKey} occurred on Ticket {ticket.TicketNumber}",
-                    RelatedEntityId = ticketId,
+                    RelatedEntityId = ticket.Id,
                     RelatedEntityType = "Ticket"
                 });
 
                 if (eventKey == "ticket.assigned" || eventKey == "sla.breach")
                 {
-                    var u = await _context.Users.FindAsync(targetId);
-                    if (u != null)
-                    {
-                        await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
-                    }
+                    await SendEmailNotificationAsync(targetId, eventKey, ticket, additionalContext);
                 }
             }
         }
+    }
 
-        await _context.SaveChangesAsync();
-        
-        // Dispatch to Webhooks
-        await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
+    private async Task SendEmailNotificationAsync(int targetId, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    {
+        var u = await _context.Users.FindAsync(targetId);
+        if (u != null)
+        {
+            await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
+        }
     }
 }

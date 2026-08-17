@@ -43,5 +43,5 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/Dashbo
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuthController.cs 8r5	
  !"#%&'()*+,-./123456789:;x‚
 !+,.348Í
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuditLogController.cs 8j/r?	 "#$%'()*+-.0134568:;<=>?@ABCDEFGHJKLx‚"$')*-0358:;<=>?@ABCDEFJî
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuditLogController.cs 8j/r?	 "#$%'()*+-.0134568:;<=>?@ABCDEFGHJKLx‚"$')*-0358:;<=>?@ABCDEFJî
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs 8	rS	 "#%&()*+,-./012345679:<=?@BCDEFGIJKLMNOPQSTUWXYZ[\^_`abx‚&"#%./01234569:=?FGIJKLMNOPQST[\^_`

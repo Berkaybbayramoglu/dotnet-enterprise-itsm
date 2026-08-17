@@ -164,59 +164,7 @@ Interfaces (
 payload4 ;
 ); <
 ;< =
-} ø
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSurveyDtos.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-record 
-TicketSurveyDto 
-( 
-int 
-Id 
-
-,
- 
-int 
-TicketId 
-, 
-int 
-Rating 
-, 
-string		 
-
-?		
- 
-Comment		 
-,		 
-DateTime
-
- 
-SubmittedAt
-
- 
-) 
-; 
-public 
-record !
-SubmitTicketSurveyDto #
-(# $
-int 
-Rating 
-, 
-string 
-
-?
- 
-Comment 
-) 
-; ˙ 
+} ˙ 
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ITicketService.cs
 	namespace 	
 ItsTool
@@ -460,7 +408,44 @@ Interfaces (
 userIdY _
 )_ `
 ;` a
-} ü
+} ¯
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+
+Interfaces (
+;( )
+public 
+	interface #
+INotificationDispatcher (
+{ 
+Task 
+DispatchEventAsync	 
+( 
+string "
+eventKey# +
+,+ ,
+int- 0
+ticketId1 9
+,9 :
+int; >
+?> ?
+triggerUserId@ M
+=N O
+nullP T
+,T U
+stringV \
+?\ ]
+additionalContext^ o
+=p q
+nullr v
+)v w
+;w x
+} ü
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaEngine.cs
 	namespace 	
 ItsTool
@@ -641,8 +626,8 @@ Expression% /
 id 
 ) 
 ; 
-} ‰
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaService.cs
+} À
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IReportService.cs
 	namespace 	
 ItsTool
  
@@ -653,113 +638,25 @@ Expression% /
 Interfaces (
 ;( )
 public 
-	interface 
-ISlaService 
+	interface 
+IReportService 
 { 
 Task		 
-<		 	
-IEnumerable			 
-<		 
-SlaPolicyDto		 !
->		! "
->		" #
-GetPoliciesAsync		$ 4
-(		4 5
-int		5 8
-?		8 9
-	projectId		: C
-=		D E
-null		F J
-)		J K
-;		K L
-Task
+<		 	
+Stream			 
+>		 #
+ExportTicketsToCsvAsync		 (
+(		( )!
+TicketSearchFilterDto		) >
+filter		? E
+,		E F
+int		G J
+userId		K Q
+)		Q R
+;		R S
+}
 
- 
-<
-
- 	
-SlaPolicyDto
-
-	 
->
-
- 
-CreatePolicyAsync
-
- (
-(
-
-( )
-CreateSlaPolicyDto
-
-) ;
-dto
-
-< ?
-)
-
-? @
-;
-
-@ A
-Task 
-UpdatePolicyAsync	 
-( 
-int 
-id !
-,! "
-UpdateSlaPolicyDto# 5
-dto6 9
-)9 :
-;: ;
-Task 
-DeletePolicyAsync	 
-( 
-int 
-id !
-)! "
-;" #
-Task 
-< 	
-IEnumerable	 
-< 
-SlaTargetDto !
->! "
->" #
-GetTargetsAsync$ 3
-(3 4
-int4 7
-policyId8 @
-)@ A
-;A B
-Task 
-< 	
-SlaTargetDto	 
-> 
-CreateTargetAsync (
-(( )
-CreateSlaTargetDto) ;
-dto< ?
-)? @
-;@ A
-Task 
-UpdateTargetAsync	 
-( 
-int 
-id !
-,! "
-UpdateSlaTargetDto# 5
-dto6 9
-)9 :
-;: ;
-Task 
-DeleteTargetAsync	 
-( 
-int 
-id !
-)! "
-;" #
-} —
+ —
 h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
 	namespace 	
 ItsTool
@@ -1248,7 +1145,301 @@ Interfaces (
 userId  &
 )& '
 ;' (
-} ¥
+} ‰
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+
+Interfaces (
+;( )
+public 
+	interface 
+ISlaService 
+{ 
+Task		 
+<		 	
+IEnumerable			 
+<		 
+SlaPolicyDto		 !
+>		! "
+>		" #
+GetPoliciesAsync		$ 4
+(		4 5
+int		5 8
+?		8 9
+	projectId		: C
+=		D E
+null		F J
+)		J K
+;		K L
+Task
+
+ 
+<
+
+ 	
+SlaPolicyDto
+
+	 
+>
+
+ 
+CreatePolicyAsync
+
+ (
+(
+
+( )
+CreateSlaPolicyDto
+
+) ;
+dto
+
+< ?
+)
+
+? @
+;
+
+@ A
+Task 
+UpdatePolicyAsync	 
+( 
+int 
+id !
+,! "
+UpdateSlaPolicyDto# 5
+dto6 9
+)9 :
+;: ;
+Task 
+DeletePolicyAsync	 
+( 
+int 
+id !
+)! "
+;" #
+Task 
+< 	
+IEnumerable	 
+< 
+SlaTargetDto !
+>! "
+>" #
+GetTargetsAsync$ 3
+(3 4
+int4 7
+policyId8 @
+)@ A
+;A B
+Task 
+< 	
+SlaTargetDto	 
+> 
+CreateTargetAsync (
+(( )
+CreateSlaTargetDto) ;
+dto< ?
+)? @
+;@ A
+Task 
+UpdateTargetAsync	 
+( 
+int 
+id !
+,! "
+UpdateSlaTargetDto# 5
+dto6 9
+)9 :
+;: ;
+Task 
+DeleteTargetAsync	 
+( 
+int 
+id !
+)! "
+;" #
+} Ù
+h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+
+Interfaces (
+;( )
+public 
+	interface !
+IKnowledgeBaseService &
+{ 
+Task		 
+<		 	
+IEnumerable			 
+<		 
+KbCategoryDto		 "
+>		" #
+>		# $
+GetCategoriesAsync		% 7
+(		7 8
+)		8 9
+;		9 :
+Task
+
+ 
+<
+
+ 	
+KbCategoryDto
+
+	 
+>
+
+ 
+CreateCategoryAsync
+
+ +
+(
+
++ ,
+CreateKbCategoryDto
+
+, ?
+dto
+
+@ C
+)
+
+C D
+;
+
+D E
+Task 
+UpdateCategoryAsync	 
+( 
+int  
+id! #
+,# $
+CreateKbCategoryDto% 8
+dto9 <
+)< =
+;= >
+Task 
+DeleteCategoryAsync	 
+( 
+int  
+id! #
+)# $
+;$ %
+Task 
+< 	
+IEnumerable	 
+< 
+KbArticleSummaryDto (
+>( )
+>) *
+SearchArticlesAsync+ >
+(> ?
+int? B
+userIdC I
+,I J
+stringK Q
+?Q R
+keywordS Z
+,Z [
+int\ _
+?_ `
+
+categoryIda k
+)k l
+;l m
+Task 
+< 	
+KbArticleDto	 
+? 
+> 
+GetArticleAsync '
+(' (
+int( +
+id, .
+,. /
+int0 3
+userId4 :
+): ;
+;; <
+Task 
+< 	
+KbArticleDto	 
+> 
+CreateArticleAsync )
+() *
+CreateKbArticleDto* <
+dto= @
+,@ A
+intB E
+authorIdF N
+)N O
+;O P
+Task 
+UpdateArticleAsync	 
+( 
+int 
+id  "
+," #
+UpdateKbArticleDto$ 6
+dto7 :
+): ;
+;; <
+Task 
+DeleteArticleAsync	 
+( 
+int 
+id  "
+)" #
+;# $
+} ≈
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IFileStorageService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+
+Interfaces (
+;( )
+public 
+	interface 
+IFileStorageService $
+{ 
+Task 
+< 	
+string	 
+> 
+SaveFileAsync 
+( 
+	IFormFile (
+file) -
+,- .
+int/ 2
+ticketId3 ;
+); <
+;< =
+Task		 
+DeleteFileAsync			 
+(		 
+string		 
+filePath		  (
+)		( )
+;		) *
+}
+
+ ¥
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailService.cs
 	namespace 	
 ItsTool
@@ -1276,7 +1467,29 @@ Interfaces (
 body: >
 )> ?
 ;? @
-} ∫
+} 
+i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+
+Interfaces (
+;( )
+public 
+	interface "
+IEmailIngestionService '
+{ 
+Task %
+ProcessIncomingEmailAsync	 "
+(" #
+EmailIngestionDto# 4
+dto5 8
+)8 9
+;9 :
+}		 ∫
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IDynamicFormService.cs
 	namespace 	
 ItsTool
@@ -1472,29 +1685,7 @@ categoryIdU _
 id" $
 )$ %
 ;% &
-} 
-i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-
-Interfaces (
-;( )
-public 
-	interface "
-IEmailIngestionService '
-{ 
-Task %
-ProcessIncomingEmailAsync	 "
-(" #
-EmailIngestionDto# 4
-dto5 8
-)8 9
-;9 :
-}		 õ	
+} õ	
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IDashboardService.cs
 	namespace 	
 ItsTool
@@ -1808,7 +1999,78 @@ Interfaces (
 id!!! #
 )!!# $
 ;!!$ %
-}"" ÷
+}"" ∑	
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAuthService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+
+Interfaces (
+;( )
+public 
+	interface 
+ITokenService 
+{ 
+string 
+
+GenerateToken 
+( 
+int 
+userId #
+,# $
+string% +
+username, 4
+,4 5
+IEnumerable6 A
+<A B
+stringB H
+>H I
+rolesJ O
+,O P
+IEnumerableQ \
+<\ ]
+string] c
+>c d
+permissionse p
+)p q
+;q r
+} 
+public
+
+ 
+	interface
+
+ 
+IAuthService
+
+ 
+{ 
+Task 
+< 	
+AuthResponseDto	 
+> 
+
+LoginAsync $
+($ %
+LoginRequestDto% 4
+request5 <
+)< =
+;= >
+Task 
+< 	
+MeResponseDto	 
+> 
+
+GetMeAsync "
+(" #
+int# &
+userId' -
+)- .
+;. /
+} ÷
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAssignmentEngine.cs
 	namespace 	
 ItsTool
@@ -1830,327 +2092,277 @@ Interfaces (
 ticket" (
 )( )
 ;) *
-}		 À
-a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IReportService.cs
-	namespace 	
-ItsTool
+}		 £
+Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/WorkflowDtos.cs
+	namespace 	
+ItsTool
  
-. 
-Application 
-. 
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+record 
+WorkflowDto 
+( 
+int 
+Id  
+,  !
+string" (
+Name) -
+,- .
+string/ 5
+?5 6
+Description7 B
+,B C
+intD G
+?G H
+	ProjectIdI R
+,R S
+boolT X
+IsActiveY a
+)a b
+;b c
+public 
+record 
+CreateWorkflowDto 
+(  
+string  &
+Name' +
+,+ ,
+string- 3
+?3 4
+Description5 @
+,@ A
+intB E
+?E F
+	ProjectIdG P
+)P Q
+;Q R
+public 
+record 
+UpdateWorkflowDto 
+(  
+string  &
+Name' +
+,+ ,
+string- 3
+?3 4
+Description5 @
+,@ A
+intB E
+?E F
+	ProjectIdG P
+,P Q
+boolR V
+IsActiveW _
+)_ `
+;` a
+public		 
+record		 !
+WorkflowTransitionDto		 #
+(		# $
+int		$ '
+Id		( *
+,		* +
+int		, /
 
-Interfaces (
-;( )
-public 
-	interface 
-IReportService 
-{ 
-Task		 
-<		 	
-Stream			 
->		 #
-ExportTicketsToCsvAsync		 (
-(		( )!
-TicketSearchFilterDto		) >
-filter		? E
-,		E F
-int		G J
-userId		K Q
-)		Q R
-;		R S
-}
-
- í!
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSearchDto.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-class !
-TicketSearchFilterDto "
-{ 
-public 
-
-int 
-? 
-	ProjectId 
-{ 
-get 
-;  
-set! $
-;$ %
-}& '
-public		 
-
-int		 
-?		 
+WorkflowId		0 :
+,		: ;
+int		< ?
+FromStatusId		@ L
+,		L M
+int		N Q
 
-CategoryId		 
-{		 
-get		  
-;		  !
-set		" %
-;		% &
-}		' (
-public
+ToStatusId		R \
+,		\ ]
+string		^ d
+TransitionName		e s
+,		s t
+string		u {
+?		{ |"
+RequiredPermissionKey			} í
+,
+		í ì
+int
+		î ó
+	SortOrder
+		ò °
+,
+		° ¢
+bool
+		£ ß
+IsActive
+		® ∞
+)
+		∞ ±
+;
+		± ≤
+public
 
- 
-
+ 
+record
+
+ '
+CreateWorkflowTransitionDto
+
+ )
+(
+
+) *
 int
 
- 
+* -
+
+WorkflowId
+
+. 8
+,
+
+8 9
+int
+
+: =
+FromStatusId
+
+> J
+,
+
+J K
+int
+
+L O
+
+ToStatusId
+
+P Z
+,
+
+Z [
+string
+
+\ b
+TransitionName
+
+c q
+,
+
+q r
+string
+
+s y
 ?
 
- 
-TypeId
+y z"
+RequiredPermissionKey	
 
- 
-{
+{ ê
+,
+
 
- 
-get
+ê ë
+int
+
 
- 
-;
+í ï
+	SortOrder
+
 
- 
-set
+ñ ü
+)
+
 
- !
-;
+ü †
+;
+
 
-! "
-}
-
-# $
-public 
-
-int 
-? 
-StatusId 
-{ 
-get 
-; 
-set  #
-;# $
-}% &
-public 
-
-int 
-? 
+† °
+public 
+record '
+UpdateWorkflowTransitionDto )
+() *
+int* -
+FromStatusId. :
+,: ;
+int< ?
 
-PriorityId 
-{ 
-get  
-;  !
-set" %
-;% &
-}' (
-public 
-
-int 
-? 
-AssigneeUserId 
-{  
-get! $
-;$ %
-set& )
-;) *
-}+ ,
-public 
-
-int 
-? 
-RequesterUserId 
-{  !
-get" %
-;% &
-set' *
-;* +
-}, -
-public 
-
-DateTime 
-? 
-FromDate 
-{ 
-get  #
-;# $
-set% (
-;( )
-}* +
-public 
-
-DateTime 
-? 
-ToDate 
-{ 
-get !
-;! "
-set# &
-;& '
-}( )
-public 
-
-string 
-? 
-Keyword 
-{ 
-get  
-;  !
-set" %
-;% &
-}' (
-public 
-
-string 
-? 
-	SlaStatus 
-{ 
-get "
-;" #
-set$ '
-;' (
-}) *
-public 
-
-int 
-Page 
-{ 
-get 
-; 
-set 
-; 
-}  !
-=" #
-$num$ %
-;% &
-public 
-
-int 
-PageSize 
-{ 
-get 
-; 
-set "
-;" #
-}$ %
-=& '
-$num( *
-;* +
-public 
-
-string 
-? 
-SortBy 
-{ 
-get 
-;  
-set! $
-;$ %
-}& '
-public 
-
-bool 
-SortDescending 
-{  
-get! $
-;$ %
-set& )
-;) *
-}+ ,
-=- .
-true/ 3
-;3 4
-} 
-public 
-class 
-PagedResult 
-< 
-T 
-> 
-{ 
-public 
-
-IEnumerable 
-< 
-T 
-> 
-Items 
-{  !
-get" %
-;% &
-set' *
-;* +
-}, -
-=. /
-new0 3
-List4 8
-<8 9
-T9 :
->: ;
-(; <
-)< =
-;= >
-public 
-
-int 
-
-TotalCount 
-{ 
-get 
-;  
-set! $
-;$ %
-}& '
-public 
-
-int 
-Page 
-{ 
-get 
-; 
-set 
-; 
-}  !
-public 
-
-int 
-PageSize 
-{ 
-get 
-; 
-set "
-;" #
-}$ %
-public   
-
-int   
-
-TotalPages   
-=>   
-(   
-int   !
-)  ! "
-Math  " &
-.  & '
-Ceiling  ' .
-(  . /
-
-TotalCount  / 9
-/  : ;
-(  < =
-double  = C
-)  C D
-PageSize  D L
-)  L M
-;  M N
-}!! ∏(
+ToStatusId@ J
+,J K
+stringL R
+TransitionNameS a
+,a b
+stringc i
+?i j"
+RequiredPermissionKey	k Ä
+,
+Ä Å
+int
+Ç Ö
+	SortOrder
+Ü è
+,
+è ê
+bool
+ë ï
+IsActive
+ñ û
+)
+û ü
+;
+ü †ø
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSurveyDtos.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+record 
+TicketSurveyDto 
+( 
+int 
+Id 
+
+,
+ 
+int 
+TicketId 
+, 
+int 
+Rating 
+, 
+string		 
+
+?		
+ 
+Comment		 
+,		 
+DateTime
+
+ 
+SubmittedAt
+
+ 
+) 
+; 
+public 
+record !
+SubmitTicketSurveyDto #
+(# $
+int 
+Rating 
+, 
+string 
+
+?
+ 
+Comment 
+) 
+; ∏(
 W/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketDtos.cs
 	namespace 	
 ItsTool
@@ -2468,44 +2680,7 @@ IsInternal		4 >
 int/ 2
 UserId3 9
 )9 :
-;: ;Ë
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SavedFilterDtos.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-record 
-SavedFilterDto 
-( 
-int  
-Id! #
-,# $
-int% (
-UserId) /
-,/ 0
-string1 7
-Name8 <
-,< =
-string> D
-	QueryJsonE N
-)N O
-;O P
-public 
-record  
-CreateSavedFilterDto "
-(" #
-string# )
-Name* .
-,. /
-string0 6
-	QueryJson7 @
-)@ A
-;A Bø
+;: ;ø
 T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SlaDtos.cs
 	namespace 	
 ItsTool
@@ -2706,183 +2881,44 @@ PriorityId% /
 )
 Ç É
 ;
-É Ñ¯
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
-	namespace 	
-ItsTool
+É ÑË
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SavedFilterDtos.cs
+	namespace 	
+ItsTool
  
-. 
-Application 
-. 
-
-Interfaces (
-;( )
-public 
-	interface #
-INotificationDispatcher (
-{ 
-Task 
-DispatchEventAsync	 
-( 
-string "
-eventKey# +
-,+ ,
-int- 0
-ticketId1 9
-,9 :
-int; >
-?> ?
-triggerUserId@ M
-=N O
-nullP T
-,T U
-stringV \
-?\ ]
-additionalContext^ o
-=p q
-nullr v
-)v w
-;w x
-} Ù
-h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-
-Interfaces (
-;( )
-public 
-	interface !
-IKnowledgeBaseService &
-{ 
-Task		 
-<		 	
-IEnumerable			 
-<		 
-KbCategoryDto		 "
->		" #
->		# $
-GetCategoriesAsync		% 7
-(		7 8
-)		8 9
-;		9 :
-Task
-
- 
-<
-
- 	
-KbCategoryDto
-
-	 
->
-
- 
-CreateCategoryAsync
-
- +
-(
-
-+ ,
-CreateKbCategoryDto
-
-, ?
-dto
-
-@ C
-)
-
-C D
-;
-
-D E
-Task 
-UpdateCategoryAsync	 
-( 
-int  
-id! #
-,# $
-CreateKbCategoryDto% 8
-dto9 <
-)< =
-;= >
-Task 
-DeleteCategoryAsync	 
-( 
-int  
-id! #
-)# $
-;$ %
-Task 
-< 	
-IEnumerable	 
-< 
-KbArticleSummaryDto (
->( )
->) *
-SearchArticlesAsync+ >
-(> ?
-int? B
-userIdC I
-,I J
-stringK Q
-?Q R
-keywordS Z
-,Z [
-int\ _
-?_ `
-
-categoryIda k
-)k l
-;l m
-Task 
-< 	
-KbArticleDto	 
-? 
-> 
-GetArticleAsync '
-(' (
-int( +
-id, .
-,. /
-int0 3
-userId4 :
-): ;
-;; <
-Task 
-< 	
-KbArticleDto	 
-> 
-CreateArticleAsync )
-() *
-CreateKbArticleDto* <
-dto= @
-,@ A
-intB E
-authorIdF N
-)N O
-;O P
-Task 
-UpdateArticleAsync	 
-( 
-int 
-id  "
-," #
-UpdateKbArticleDto$ 6
-dto7 :
-): ;
-;; <
-Task 
-DeleteArticleAsync	 
-( 
-int 
-id  "
-)" #
-;# $
-} ≠
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+record 
+SavedFilterDto 
+( 
+int  
+Id! #
+,# $
+int% (
+UserId) /
+,/ 0
+string1 7
+Name8 <
+,< =
+string> D
+	QueryJsonE N
+)N O
+;O P
+public 
+record  
+CreateSavedFilterDto "
+(" #
+string# )
+Name* .
+,. /
+string0 6
+	QueryJson7 @
+)@ A
+;A B≠
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/NotificationDtos.cs
 	namespace 	
 ItsTool
@@ -2927,232 +2963,438 @@ categoryIda k
 )
 † °
 ;
-° ¢Ø
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs
-	namespace 	
-ItsTool
+° ¢∞%
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/OrganizationDtos.cs
+	namespace 	
+ItsTool
  
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-record 
-KbCategoryDto 
-( 
-int 
-Id  "
-," #
-string$ *
-Name+ /
-,/ 0
-int1 4
-?4 5
-ParentId6 >
-)> ?
-;? @
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+record 
+DepartmentDto 
+( 
+int 
+Id  "
+," #
+string$ *
+Name+ /
+,/ 0
+string1 7
+?7 8
+Description9 D
+,D E
+boolF J
+IsActiveK S
+)S T
+;T U
+public 
+record 
+CreateDepartmentDto !
+(! "
+string" (
+Name) -
+,- .
+string/ 5
+?5 6
+Description7 B
+)B C
+;C D
+public 
+record 
+UpdateDepartmentDto !
+(! "
+string" (
+Name) -
+,- .
+string/ 5
+?5 6
+Description7 B
+,B C
+boolD H
+IsActiveI Q
+)Q R
+;R S
 public 
-record 
-CreateKbCategoryDto !
-(! "
-string" (
-Name) -
-,- .
-int/ 2
-?2 3
-ParentId4 <
-)< =
-;= >
+record 
+GroupDto 
+( 
+int 
+Id 
+, 
+string %
+Name& *
+,* +
+bool, 0
+IsActive1 9
+,9 :
+int; >
+DepartmentId? K
+)K L
+;L M
+public 
+record 
+CreateGroupDto 
+( 
+string #
+Name$ (
+,( )
+int* -
+DepartmentId. :
+): ;
+;; <
 public		 
-record		 
-KbArticleDto		 
-(		 
-int		 
-Id		 !
-,		! "
-int		# &
-
-CategoryId		' 1
-,		1 2
-string		3 9
-Title		: ?
-,		? @
-string		A G
-Content		H O
-,		O P
-int		Q T
-AuthorUserId		U a
-,		a b
-ArticleStatus		c p
-Status		q w
-,		w x
-ArticleVisibility			y ä
-
-Visibility
-		ã ï
-,
-		ï ñ
-int
-		ó ö
-	ViewCount
-		õ §
-,
-		§ •
-DateTime
-		¶ Æ
-	CreatedAt
-		Ø ∏
+record		 
+UpdateGroupDto		 
+(		 
+string		 #
+Name		$ (
+,		( )
+bool		* .
+IsActive		/ 7
+,		7 8
+int		9 <
+DepartmentId		= I
+)		I J
+;		J K
+public 
+record 
+UserDto 
+( 
+int 
+Id 
+, 
+string $
+Username% -
+,- .
+string/ 5
+Email6 ;
+,; <
+string= C
+	FirstNameD M
+,M N
+stringO U
+LastNameV ^
+,^ _
+bool` d
+IsActivee m
+,m n
+into r
+?r s
+DepartmentId	t Ä
 )
-		∏ π
+Ä Å
 ;
-		π ∫
-public
-
- 
-record
-
- 
-KbArticleSummaryDto
-
- !
-(
-
-! "
-int
-
-" %
-Id
-
-& (
-,
-
-( )
-int
-
-* -
-
-CategoryId
-
-. 8
-,
-
-8 9
-string
-
-: @
-Title
-
-A F
-,
-
-F G
-int
-
-H K
-AuthorUserId
-
-L X
-,
-
-X Y
-ArticleStatus
-
-Z g
-Status
-
-h n
-,
-
-n o
-ArticleVisibility	
-
-p Å
-
-Visibility
-
-
-Ç å
-,
-
-
-å ç
-int
-
-
-é ë
-	ViewCount
-
-
-í õ
-,
-
-
-õ ú
-DateTime
-
-
-ù •
-	CreatedAt
-
-
-¶ Ø
-)
-
-
-Ø ∞
-;
-
-
-∞ ±
+Å Ç
 public 
-record 
-CreateKbArticleDto  
-(  !
-int! $
-
-CategoryId% /
-,/ 0
-string1 7
-Title8 =
-,= >
-string? E
-ContentF M
-,M N
-ArticleStatusO \
-Status] c
-,c d
-ArticleVisibilitye v
-
-Visibility	w Å
+record 
+CreateUserDto 
+( 
+string "
+Username# +
+,+ ,
+string- 3
+Email4 9
+,9 :
+string; A
+	FirstNameB K
+,K L
+stringM S
+LastNameT \
+,\ ]
+string^ d
+Passworde m
+,m n
+into r
+?r s
+DepartmentId	t Ä
 )
-Å Ç
+Ä Å
 ;
-Ç É
+Å Ç
 public 
-record 
-UpdateKbArticleDto  
-(  !
-int! $
+record 
+UpdateUserDto 
+( 
+string "
+Email# (
+,( )
+string* 0
+	FirstName1 :
+,: ;
+string< B
+LastNameC K
+,K L
+boolM Q
+IsActiveR Z
+,Z [
+int\ _
+?_ `
+DepartmentIda m
+)m n
+;n o
+public 
+record 
 
-CategoryId% /
-,/ 0
-string1 7
-Title8 =
-,= >
-string? E
-ContentF M
-,M N
-ArticleStatusO \
-Status] c
-,c d
-ArticleVisibilitye v
+ProjectDto 
+( 
+int 
+Id 
+,  
+string! '
+Name( ,
+,, -
+string. 4
 
-Visibility	w Å
+ProjectKey5 ?
+,? @
+stringA G
+?G H
+DescriptionI T
+,T U
+boolV Z
+IsActive[ c
+)c d
+;d e
+public 
+record 
+CreateProjectDto 
+( 
+string %
+Name& *
+,* +
+string, 2
+
+ProjectKey3 =
+,= >
+string? E
+?E F
+DescriptionG R
+)R S
+;S T
+public 
+record 
+UpdateProjectDto 
+( 
+string %
+Name& *
+,* +
+string, 2
+
+ProjectKey3 =
+,= >
+string? E
+?E F
+DescriptionG R
+,R S
+boolT X
+IsActiveY a
+)a b
+;b c
+public 
+record 
+RoleDto 
+( 
+int 
+Id 
+, 
+string $
+Name% )
+,) *
+bool+ /
+IsActive0 8
+)8 9
+;9 :
+public 
+record 
+CreateRoleDto 
+( 
+string "
+Name# '
+)' (
+;( )
+public 
+record 
+UpdateRoleDto 
+( 
+string "
+Name# '
+,' (
+bool) -
+IsActive. 6
+)6 7
+;7 8å
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+record 
+AssignmentRuleDto 
+(  
+int  #
+Id$ &
+,& '
+string( .
+Name/ 3
+,3 4
+int5 8
+?8 9
+	ProjectId: C
+,C D
+intE H
+?H I
+
+CategoryIdJ T
+,T U
+intV Y
+?Y Z
+TicketTypeId[ g
+,g h
+inti l
+?l m
+
+PriorityIdn x
+,x y
+intz }
+?} ~
+TargetGroupId	 å
+,
+å ç
+int
+é ë
+?
+ë í
+TargetUserId
+ì ü
+,
+ü †
+int
+° §
+	SortOrder
+• Æ
+,
+Æ Ø
+bool
+∞ ¥
+IsActive
+µ Ω
 )
-Å Ç
+Ω æ
 ;
-Ç É†
+æ ø
+public 
+record #
+CreateAssignmentRuleDto %
+(% &
+string& ,
+Name- 1
+,1 2
+int3 6
+?6 7
+	ProjectId8 A
+,A B
+intC F
+?F G
+
+CategoryIdH R
+,R S
+intT W
+?W X
+TicketTypeIdY e
+,e f
+intg j
+?j k
+
+PriorityIdl v
+,v w
+intx {
+?{ |
+TargetGroupId	} ä
+,
+ä ã
+int
+å è
+?
+è ê
+TargetUserId
+ë ù
+,
+ù û
+int
+ü ¢
+	SortOrder
+£ ¨
+,
+¨ ≠
+bool
+Æ ≤
+IsActive
+≥ ª
+)
+ª º
+;
+º Ω
+public 
+record #
+UpdateAssignmentRuleDto %
+(% &
+string& ,
+Name- 1
+,1 2
+int3 6
+?6 7
+	ProjectId8 A
+,A B
+intC F
+?F G
+
+CategoryIdH R
+,R S
+intT W
+?W X
+TicketTypeIdY e
+,e f
+intg j
+?j k
+
+PriorityIdl v
+,v w
+intx {
+?{ |
+TargetGroupId	} ä
+,
+ä ã
+int
+å è
+?
+è ê
+TargetUserId
+ë ù
+,
+ù û
+int
+ü ¢
+	SortOrder
+£ ¨
+,
+¨ ≠
+bool
+Æ ≤
+IsActive
+≥ ª
+)
+ª º
+;
+º Ω†
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/EmailIngestionDtos.cs
 	namespace 	
 ItsTool
@@ -3182,44 +3424,7 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/Email
 
 Body 
 ) 
-; ≈
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IFileStorageService.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-
-Interfaces (
-;( )
-public 
-	interface 
-IFileStorageService $
-{ 
-Task 
-< 	
-string	 
-> 
-SaveFileAsync 
-( 
-	IFormFile (
-file) -
-,- .
-int/ 2
-ticketId3 ;
-); <
-;< =
-Task		 
-DeleteFileAsync			 
-(		 
-string		 
-filePath		  (
-)		( )
-;		) *
-}
-
- í 
+; í 
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/DynamicFormDtos.cs
 	namespace 	
 ItsTool
@@ -3488,727 +3693,7 @@ IsRequiredr |
 )
 ã å
 ;
-å çå
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-record 
-AssignmentRuleDto 
-(  
-int  #
-Id$ &
-,& '
-string( .
-Name/ 3
-,3 4
-int5 8
-?8 9
-	ProjectId: C
-,C D
-intE H
-?H I
-
-CategoryIdJ T
-,T U
-intV Y
-?Y Z
-TicketTypeId[ g
-,g h
-inti l
-?l m
-
-PriorityIdn x
-,x y
-intz }
-?} ~
-TargetGroupId	 å
-,
-å ç
-int
-é ë
-?
-ë í
-TargetUserId
-ì ü
-,
-ü †
-int
-° §
-	SortOrder
-• Æ
-,
-Æ Ø
-bool
-∞ ¥
-IsActive
-µ Ω
-)
-Ω æ
-;
-æ ø
-public 
-record #
-CreateAssignmentRuleDto %
-(% &
-string& ,
-Name- 1
-,1 2
-int3 6
-?6 7
-	ProjectId8 A
-,A B
-intC F
-?F G
-
-CategoryIdH R
-,R S
-intT W
-?W X
-TicketTypeIdY e
-,e f
-intg j
-?j k
-
-PriorityIdl v
-,v w
-intx {
-?{ |
-TargetGroupId	} ä
-,
-ä ã
-int
-å è
-?
-è ê
-TargetUserId
-ë ù
-,
-ù û
-int
-ü ¢
-	SortOrder
-£ ¨
-,
-¨ ≠
-bool
-Æ ≤
-IsActive
-≥ ª
-)
-ª º
-;
-º Ω
-public 
-record #
-UpdateAssignmentRuleDto %
-(% &
-string& ,
-Name- 1
-,1 2
-int3 6
-?6 7
-	ProjectId8 A
-,A B
-intC F
-?F G
-
-CategoryIdH R
-,R S
-intT W
-?W X
-TicketTypeIdY e
-,e f
-intg j
-?j k
-
-PriorityIdl v
-,v w
-intx {
-?{ |
-TargetGroupId	} ä
-,
-ä ã
-int
-å è
-?
-è ê
-TargetUserId
-ë ù
-,
-ù û
-int
-ü ¢
-	SortOrder
-£ ¨
-,
-¨ ≠
-bool
-Æ ≤
-IsActive
-≥ ª
-)
-ª º
-;
-º Ω∑	
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAuthService.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-
-Interfaces (
-;( )
-public 
-	interface 
-ITokenService 
-{ 
-string 
-
-GenerateToken 
-( 
-int 
-userId #
-,# $
-string% +
-username, 4
-,4 5
-IEnumerable6 A
-<A B
-stringB H
->H I
-rolesJ O
-,O P
-IEnumerableQ \
-<\ ]
-string] c
->c d
-permissionse p
-)p q
-;q r
-} 
-public
-
- 
-	interface
-
- 
-IAuthService
-
- 
-{ 
-Task 
-< 	
-AuthResponseDto	 
-> 
-
-LoginAsync $
-($ %
-LoginRequestDto% 4
-request5 <
-)< =
-;= >
-Task 
-< 	
-MeResponseDto	 
-> 
-
-GetMeAsync "
-(" #
-int# &
-userId' -
-)- .
-;. /
-} £
-Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/WorkflowDtos.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-record 
-WorkflowDto 
-( 
-int 
-Id  
-,  !
-string" (
-Name) -
-,- .
-string/ 5
-?5 6
-Description7 B
-,B C
-intD G
-?G H
-	ProjectIdI R
-,R S
-boolT X
-IsActiveY a
-)a b
-;b c
-public 
-record 
-CreateWorkflowDto 
-(  
-string  &
-Name' +
-,+ ,
-string- 3
-?3 4
-Description5 @
-,@ A
-intB E
-?E F
-	ProjectIdG P
-)P Q
-;Q R
-public 
-record 
-UpdateWorkflowDto 
-(  
-string  &
-Name' +
-,+ ,
-string- 3
-?3 4
-Description5 @
-,@ A
-intB E
-?E F
-	ProjectIdG P
-,P Q
-boolR V
-IsActiveW _
-)_ `
-;` a
-public		 
-record		 !
-WorkflowTransitionDto		 #
-(		# $
-int		$ '
-Id		( *
-,		* +
-int		, /
-
-WorkflowId		0 :
-,		: ;
-int		< ?
-FromStatusId		@ L
-,		L M
-int		N Q
-
-ToStatusId		R \
-,		\ ]
-string		^ d
-TransitionName		e s
-,		s t
-string		u {
-?		{ |"
-RequiredPermissionKey			} í
-,
-		í ì
-int
-		î ó
-	SortOrder
-		ò °
-,
-		° ¢
-bool
-		£ ß
-IsActive
-		® ∞
-)
-		∞ ±
-;
-		± ≤
-public
-
- 
-record
-
- '
-CreateWorkflowTransitionDto
-
- )
-(
-
-) *
-int
-
-* -
-
-WorkflowId
-
-. 8
-,
-
-8 9
-int
-
-: =
-FromStatusId
-
-> J
-,
-
-J K
-int
-
-L O
-
-ToStatusId
-
-P Z
-,
-
-Z [
-string
-
-\ b
-TransitionName
-
-c q
-,
-
-q r
-string
-
-s y
-?
-
-y z"
-RequiredPermissionKey	
-
-{ ê
-,
-
-
-ê ë
-int
-
-
-í ï
-	SortOrder
-
-
-ñ ü
-)
-
-
-ü †
-;
-
-
-† °
-public 
-record '
-UpdateWorkflowTransitionDto )
-() *
-int* -
-FromStatusId. :
-,: ;
-int< ?
-
-ToStatusId@ J
-,J K
-stringL R
-TransitionNameS a
-,a b
-stringc i
-?i j"
-RequiredPermissionKey	k Ä
-,
-Ä Å
-int
-Ç Ö
-	SortOrder
-Ü è
-,
-è ê
-bool
-ë ï
-IsActive
-ñ û
-)
-û ü
-;
-ü †∞%
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/OrganizationDtos.cs
-	namespace 	
-ItsTool
- 
-. 
-Application 
-. 
-DTOs "
-;" #
-public 
-record 
-DepartmentDto 
-( 
-int 
-Id  "
-," #
-string$ *
-Name+ /
-,/ 0
-string1 7
-?7 8
-Description9 D
-,D E
-boolF J
-IsActiveK S
-)S T
-;T U
-public 
-record 
-CreateDepartmentDto !
-(! "
-string" (
-Name) -
-,- .
-string/ 5
-?5 6
-Description7 B
-)B C
-;C D
-public 
-record 
-UpdateDepartmentDto !
-(! "
-string" (
-Name) -
-,- .
-string/ 5
-?5 6
-Description7 B
-,B C
-boolD H
-IsActiveI Q
-)Q R
-;R S
-public 
-record 
-GroupDto 
-( 
-int 
-Id 
-, 
-string %
-Name& *
-,* +
-bool, 0
-IsActive1 9
-,9 :
-int; >
-DepartmentId? K
-)K L
-;L M
-public 
-record 
-CreateGroupDto 
-( 
-string #
-Name$ (
-,( )
-int* -
-DepartmentId. :
-): ;
-;; <
-public		 
-record		 
-UpdateGroupDto		 
-(		 
-string		 #
-Name		$ (
-,		( )
-bool		* .
-IsActive		/ 7
-,		7 8
-int		9 <
-DepartmentId		= I
-)		I J
-;		J K
-public 
-record 
-UserDto 
-( 
-int 
-Id 
-, 
-string $
-Username% -
-,- .
-string/ 5
-Email6 ;
-,; <
-string= C
-	FirstNameD M
-,M N
-stringO U
-LastNameV ^
-,^ _
-bool` d
-IsActivee m
-,m n
-into r
-?r s
-DepartmentId	t Ä
-)
-Ä Å
-;
-Å Ç
-public 
-record 
-CreateUserDto 
-( 
-string "
-Username# +
-,+ ,
-string- 3
-Email4 9
-,9 :
-string; A
-	FirstNameB K
-,K L
-stringM S
-LastNameT \
-,\ ]
-string^ d
-Passworde m
-,m n
-into r
-?r s
-DepartmentId	t Ä
-)
-Ä Å
-;
-Å Ç
-public 
-record 
-UpdateUserDto 
-( 
-string "
-Email# (
-,( )
-string* 0
-	FirstName1 :
-,: ;
-string< B
-LastNameC K
-,K L
-boolM Q
-IsActiveR Z
-,Z [
-int\ _
-?_ `
-DepartmentIda m
-)m n
-;n o
-public 
-record 
-
-ProjectDto 
-( 
-int 
-Id 
-,  
-string! '
-Name( ,
-,, -
-string. 4
-
-ProjectKey5 ?
-,? @
-stringA G
-?G H
-DescriptionI T
-,T U
-boolV Z
-IsActive[ c
-)c d
-;d e
-public 
-record 
-CreateProjectDto 
-( 
-string %
-Name& *
-,* +
-string, 2
-
-ProjectKey3 =
-,= >
-string? E
-?E F
-DescriptionG R
-)R S
-;S T
-public 
-record 
-UpdateProjectDto 
-( 
-string %
-Name& *
-,* +
-string, 2
-
-ProjectKey3 =
-,= >
-string? E
-?E F
-DescriptionG R
-,R S
-boolT X
-IsActiveY a
-)a b
-;b c
-public 
-record 
-RoleDto 
-( 
-int 
-Id 
-, 
-string $
-Name% )
-,) *
-bool+ /
-IsActive0 8
-)8 9
-;9 :
-public 
-record 
-CreateRoleDto 
-( 
-string "
-Name# '
-)' (
-;( )
-public 
-record 
-UpdateRoleDto 
-( 
-string "
-Name# '
-,' (
-bool) -
-IsActive. 6
-)6 7
-;7 8¬
+å ç¬
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/DashboardDtos.cs
 	namespace 	
 ItsTool
@@ -4326,7 +3811,297 @@ ByCategory' 1
 (
 AverageResolutionTimeMinutes '
 ) 
-; ˙%
+; í!
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSearchDto.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+class !
+TicketSearchFilterDto "
+{ 
+public 
+
+int 
+? 
+	ProjectId 
+{ 
+get 
+;  
+set! $
+;$ %
+}& '
+public		 
+
+int		 
+?		 
+
+CategoryId		 
+{		 
+get		  
+;		  !
+set		" %
+;		% &
+}		' (
+public
+
+ 
+
+int
+
+ 
+?
+
+ 
+TypeId
+
+ 
+{
+
+ 
+get
+
+ 
+;
+
+ 
+set
+
+ !
+;
+
+! "
+}
+
+# $
+public 
+
+int 
+? 
+StatusId 
+{ 
+get 
+; 
+set  #
+;# $
+}% &
+public 
+
+int 
+? 
+
+PriorityId 
+{ 
+get  
+;  !
+set" %
+;% &
+}' (
+public 
+
+int 
+? 
+AssigneeUserId 
+{  
+get! $
+;$ %
+set& )
+;) *
+}+ ,
+public 
+
+int 
+? 
+RequesterUserId 
+{  !
+get" %
+;% &
+set' *
+;* +
+}, -
+public 
+
+DateTime 
+? 
+FromDate 
+{ 
+get  #
+;# $
+set% (
+;( )
+}* +
+public 
+
+DateTime 
+? 
+ToDate 
+{ 
+get !
+;! "
+set# &
+;& '
+}( )
+public 
+
+string 
+? 
+Keyword 
+{ 
+get  
+;  !
+set" %
+;% &
+}' (
+public 
+
+string 
+? 
+	SlaStatus 
+{ 
+get "
+;" #
+set$ '
+;' (
+}) *
+public 
+
+int 
+Page 
+{ 
+get 
+; 
+set 
+; 
+}  !
+=" #
+$num$ %
+;% &
+public 
+
+int 
+PageSize 
+{ 
+get 
+; 
+set "
+;" #
+}$ %
+=& '
+$num( *
+;* +
+public 
+
+string 
+? 
+SortBy 
+{ 
+get 
+;  
+set! $
+;$ %
+}& '
+public 
+
+bool 
+SortDescending 
+{  
+get! $
+;$ %
+set& )
+;) *
+}+ ,
+=- .
+true/ 3
+;3 4
+} 
+public 
+class 
+PagedResult 
+< 
+T 
+> 
+{ 
+public 
+
+IEnumerable 
+< 
+T 
+> 
+Items 
+{  !
+get" %
+;% &
+set' *
+;* +
+}, -
+=. /
+new0 3
+List4 8
+<8 9
+T9 :
+>: ;
+(; <
+)< =
+;= >
+public 
+
+int 
+
+TotalCount 
+{ 
+get 
+;  
+set! $
+;$ %
+}& '
+public 
+
+int 
+Page 
+{ 
+get 
+; 
+set 
+; 
+}  !
+public 
+
+int 
+PageSize 
+{ 
+get 
+; 
+set "
+;" #
+}$ %
+public   
+
+int   
+
+TotalPages   
+=>   
+(   
+int   !
+)  ! "
+Math  " &
+.  & '
+Ceiling  ' .
+(  . /
+
+TotalCount  / 9
+/  : ;
+(  < =
+double  = C
+)  C D
+PageSize  D L
+)  L M
+;  M N
+}!! ˙%
 X/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/CatalogDtos.cs
 	namespace 	
 ItsTool
@@ -4834,7 +4609,232 @@ TotalCount 
 int 
 PageSize 
 ) 
-; ¢
+; Ø
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs
+	namespace 	
+ItsTool
+ 
+. 
+Application 
+. 
+DTOs "
+;" #
+public 
+record 
+KbCategoryDto 
+( 
+int 
+Id  "
+," #
+string$ *
+Name+ /
+,/ 0
+int1 4
+?4 5
+ParentId6 >
+)> ?
+;? @
+public 
+record 
+CreateKbCategoryDto !
+(! "
+string" (
+Name) -
+,- .
+int/ 2
+?2 3
+ParentId4 <
+)< =
+;= >
+public		 
+record		 
+KbArticleDto		 
+(		 
+int		 
+Id		 !
+,		! "
+int		# &
+
+CategoryId		' 1
+,		1 2
+string		3 9
+Title		: ?
+,		? @
+string		A G
+Content		H O
+,		O P
+int		Q T
+AuthorUserId		U a
+,		a b
+ArticleStatus		c p
+Status		q w
+,		w x
+ArticleVisibility			y ä
+
+Visibility
+		ã ï
+,
+		ï ñ
+int
+		ó ö
+	ViewCount
+		õ §
+,
+		§ •
+DateTime
+		¶ Æ
+	CreatedAt
+		Ø ∏
+)
+		∏ π
+;
+		π ∫
+public
+
+ 
+record
+
+ 
+KbArticleSummaryDto
+
+ !
+(
+
+! "
+int
+
+" %
+Id
+
+& (
+,
+
+( )
+int
+
+* -
+
+CategoryId
+
+. 8
+,
+
+8 9
+string
+
+: @
+Title
+
+A F
+,
+
+F G
+int
+
+H K
+AuthorUserId
+
+L X
+,
+
+X Y
+ArticleStatus
+
+Z g
+Status
+
+h n
+,
+
+n o
+ArticleVisibility	
+
+p Å
+
+Visibility
+
+
+Ç å
+,
+
+
+å ç
+int
+
+
+é ë
+	ViewCount
+
+
+í õ
+,
+
+
+õ ú
+DateTime
+
+
+ù •
+	CreatedAt
+
+
+¶ Ø
+)
+
+
+Ø ∞
+;
+
+
+∞ ±
+public 
+record 
+CreateKbArticleDto  
+(  !
+int! $
+
+CategoryId% /
+,/ 0
+string1 7
+Title8 =
+,= >
+string? E
+ContentF M
+,M N
+ArticleStatusO \
+Status] c
+,c d
+ArticleVisibilitye v
+
+Visibility	w Å
+)
+Å Ç
+;
+Ç É
+public 
+record 
+UpdateKbArticleDto  
+(  !
+int! $
+
+CategoryId% /
+,/ 0
+string1 7
+Title8 =
+,= >
+string? E
+ContentF M
+,M N
+ArticleStatusO \
+Status] c
+,c d
+ArticleVisibilitye v
+
+Visibility	w Å
+)
+Å Ç
+;
+Ç É¢
 e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Constants/PermissionConstants.cs
 	namespace 	
 ItsTool

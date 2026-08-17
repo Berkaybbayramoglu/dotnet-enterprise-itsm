@@ -66,7 +66,7 @@ public class AuditLogController : ControllerBase
                 h.FieldName,
                 h.OldValue,
                 h.NewValue,
-                h.CreatedBy,
+                h.CreatedBy ?? "system",
                 h.CreatedAt
             ))
             .ToListAsync();

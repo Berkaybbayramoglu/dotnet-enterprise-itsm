@@ -1,1 +1,1 @@
-K 2webXrhr"src/ItsTool.Web/wwwroot/rules.html
+K 2webXrhr"src/ItsTool.Web/wwwroot/rules.html

@@ -2,5 +2,5 @@ projectKey=itsm-tool
 serverUrl=http://localhost:9000
 serverVersion=26.8.0.126808
 dashboardUrl=http://localhost:9000/dashboard?id=itsm-tool
-ceTaskId=410a77d3-4c00-4c80-a61e-255c6cb5feb8
-ceTaskUrl=http://localhost:9000/api/ce/task?id=410a77d3-4c00-4c80-a61e-255c6cb5feb8
+ceTaskId=b04b5868-6ba3-48e9-8107-cd68826bd8c5
+ceTaskUrl=http://localhost:9000/api/ce/task?id=b04b5868-6ba3-48e9-8107-cd68826bd8c5
