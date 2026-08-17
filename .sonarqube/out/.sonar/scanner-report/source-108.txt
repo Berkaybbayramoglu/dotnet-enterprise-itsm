@@ -1,59 +1,70 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Auth;
+using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class RoleServiceTests : TestBase
+public class PermissionCalculator : IPermissionCalculator
 {
-    private readonly Repository<Role> _repository;
-    private readonly RoleService _service;
+    private readonly ItsToolDbContext _context;
 
-    public RoleServiceTests()
+    public PermissionCalculator(ItsToolDbContext context)
     {
-        _repository = new Repository<Role>(_context);
-        _service = new RoleService(_repository, _context);
+        _context = context;
     }
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateRole()
+    public async Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId)
     {
-        var dto = new CreateRoleDto("Manager");
-        var result = await _service.CreateAsync(dto);
+        var permissions = new HashSet<string>();
 
-        Assert.NotNull(result);
-        Assert.Equal("Manager", result.Name);
-    }
+        // 1. Kullanıcının doğrudan rollerinden gelen yetkiler
+        var userRolePerms = await _context.UserRoles
+            .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive)
+            .Join(_context.RolePermissions, 
+                  ur => ur.RoleId, 
+                  rp => rp.RoleId, 
+                  (ur, rp) => rp.Permission)
+            .Where(p => p != null && p.IsActive)
+            .Select(p => p!.Key)
+            .ToListAsync();
+            
+        foreach (var p in userRolePerms)
+        {
+            permissions.Add(p);
+        }
 
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateRole()
-    {
-        var role = new Role { Name = "Old" };
-        _context.Roles.Add(role);
-        await _context.SaveChangesAsync();
+        // 2. Kullanıcının dahil olduğu grupların rollerinden gelen yetkiler
+        var groupRolePerms = await _context.GroupMembers
+            .Where(gm => gm.UserId == userId)
+            .Join(_context.GroupRoles, 
+                  gm => gm.GroupId, 
+                  gr => gr.GroupId, 
+                  (gm, gr) => gr.RoleId)
+            .Join(_context.RolePermissions, 
+                  roleId => roleId, 
+                  rp => rp.RoleId, 
+                  (roleId, rp) => rp.Permission)
+            .Where(p => p != null && p.IsActive)
+            .Select(p => p!.Key)
+            .ToListAsync();
+            
+        foreach (var p in groupRolePerms)
+        {
+            permissions.Add(p);
+        }
 
-        var dto = new UpdateRoleDto("New", true);
-        await _service.UpdateAsync(role.Id, dto);
+        // 3. UserPermissionOverride tablosundaki spesifik yetkiler
+        var overrides = await _context.UserPermissionOverrides
+            .Include(o => o.Permission)
+            .Where(o => o.UserId == userId && o.IsGranted && o.Permission != null && o.Permission.IsActive)
+            .Select(o => o.Permission!.Key)
+            .ToListAsync();
 
-        var updated = await _context.Roles.FindAsync(role.Id);
-        Assert.Equal("New", updated!.Name);
-    }
+        foreach (var p in overrides)
+        {
+            permissions.Add(p);
+        }
 
-    [Fact]
-    public async Task AssignPermissionAsync_ShouldAssignPermission()
-    {
-        var role = new Role { Name = "R1" };
-        var perm = new Permission { Name = "P1", Key = "p1" };
-        _context.Roles.Add(role);
-        _context.Permissions.Add(perm);
-        await _context.SaveChangesAsync();
-
-        await _service.AssignPermissionAsync(role.Id, perm.Id);
-
-        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
-        Assert.NotNull(assigned);
+        return permissions;
     }
 }

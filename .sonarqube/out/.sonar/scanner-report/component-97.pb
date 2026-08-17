@@ -1,1 +1,1 @@
-a (2csX?hr7tests/ItsTool.UnitTests/Services/CatalogServiceTests.cs
+a 2csX[hr2src/ItsTool.Infrastructure/Services/AuthService.cs

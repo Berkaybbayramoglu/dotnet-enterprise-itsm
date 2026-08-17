@@ -1,4 +1,4 @@
-using ItsTool.Application.DTOs;
+using System.Threading.Tasks;
 using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,86 +7,43 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:admin.manage")]
-public class ProjectsController : ControllerBase
+[Authorize]
+public class DashboardController : ControllerBase
 {
-    private readonly IProjectService _service;
+    private readonly IDashboardService _dashboardService;
 
-    public ProjectsController(IProjectService service)
+    public DashboardController(IDashboardService dashboardService)
     {
-        _service = service;
+        _dashboardService = dashboardService;
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<ProjectDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    private int GetCurrentUserId() => int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetOverview()
     {
-        return Ok(await _service.GetAllAsync());
+        var result = await _dashboardService.GetOverviewAsync(GetCurrentUserId());
+        return Ok(result);
     }
 
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ProjectDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("distributions")]
+    public async Task<IActionResult> GetDistributions()
     {
-        var proj = await _service.GetByIdAsync(id);
-        if (proj == null) return NotFound();
-        return Ok(proj);
+        var result = await _dashboardService.GetDistributionsAsync(GetCurrentUserId());
+        return Ok(result);
     }
 
-    [HttpPost]
-    [ProducesResponseType(typeof(ProjectDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> Create([FromBody] CreateProjectDto dto)
+    [HttpGet("agent-workload")]
+    public async Task<IActionResult> GetAgentWorkload()
     {
-        var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var result = await _dashboardService.GetAgentWorkloadAsync(GetCurrentUserId());
+        return Ok(result);
     }
 
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectDto dto)
+    [HttpGet("sla-compliance")]
+    public async Task<IActionResult> GetSlaCompliance()
     {
-        try
-        {
-            await _service.UpdateAsync(id, dto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            await _service.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpPost("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> AddMember(int id, int userId)
-    {
-        await _service.AddMemberAsync(id, userId);
-        return NoContent();
-    }
-
-    [HttpDelete("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> RemoveMember(int id, int userId)
-    {
-        await _service.RemoveMemberAsync(id, userId);
-        return NoContent();
+        var result = await _dashboardService.GetSlaComplianceAsync(GetCurrentUserId());
+        return Ok(result);
     }
 }

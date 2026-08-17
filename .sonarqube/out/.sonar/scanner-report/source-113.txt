@@ -1,50 +1,116 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.SLA;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
+using System;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class WorkflowServiceTests : TestBase
+public class SlaService : ISlaService
 {
-    private readonly Repository<Workflow> _workflowRepo;
-    private readonly Repository<WorkflowTransition> _transitionRepo;
-    private readonly WorkflowService _service;
+    private readonly ItsToolDbContext _context;
+    private const string PolicyNotFound = "SLA Policy not found.";
+    private const string TargetNotFound = "SLA Target not found.";
 
-    public WorkflowServiceTests() : base()
+    public SlaService(ItsToolDbContext context)
     {
-        _workflowRepo = new Repository<Workflow>(_context);
-        _transitionRepo = new Repository<WorkflowTransition>(_context);
-        _service = new WorkflowService(_workflowRepo, _transitionRepo);
+        _context = context;
     }
 
-    [Fact]
-    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    public async Task<IEnumerable<SlaPolicyDto>> GetPoliciesAsync(int? projectId = null)
     {
-        var dto = new CreateWorkflowDto("Main", "Desc", null);
-        var result = await _service.CreateWorkflowAsync(dto);
-
-        Assert.NotNull(result);
-        Assert.Equal("Main", result.Name);
+        var list = await _context.SlaPolicies
+            .Where(p => !p.IsDeleted && (projectId == null || p.ProjectId == projectId))
+            .ToListAsync();
+        
+        return list.Select(p => new SlaPolicyDto(p.Id, p.Name, p.Description, p.ProjectId, p.IsActive));
     }
 
-    [Fact]
-    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    public async Task<SlaPolicyDto> CreatePolicyAsync(CreateSlaPolicyDto dto)
     {
-        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
-    }
-
-    [Fact]
-    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(t);
+        var policy = new SlaPolicy
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            ProjectId = dto.ProjectId
+        };
+        _context.SlaPolicies.Add(policy);
         await _context.SaveChangesAsync();
+        return new SlaPolicyDto(policy.Id, policy.Name, policy.Description, policy.ProjectId, policy.IsActive);
+    }
 
-        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+    public async Task UpdatePolicyAsync(int id, UpdateSlaPolicyDto dto)
+    {
+        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+        if (policy == null) throw new KeyNotFoundException(PolicyNotFound);
+
+        policy.Name = dto.Name;
+        policy.Description = dto.Description;
+        policy.ProjectId = dto.ProjectId;
+        policy.IsActive = dto.IsActive;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeletePolicyAsync(int id)
+    {
+        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+        if (policy != null)
+        {
+            policy.IsDeleted = true;
+            policy.IsActive = false;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId)
+    {
+        var list = await _context.SlaTargets
+            .Where(t => t.SlaPolicyId == policyId && !t.IsDeleted)
+            .ToListAsync();
+        
+        return list.Select(t => new SlaTargetDto(t.Id, t.SlaPolicyId, t.PriorityId, t.TicketTypeId, t.FirstResponseMinutes, t.ResolutionMinutes, t.IsActive));
+    }
+
+    public async Task<SlaTargetDto> CreateTargetAsync(CreateSlaTargetDto dto)
+    {
+        var target = new SlaTarget
+        {
+            SlaPolicyId = dto.SlaPolicyId,
+            PriorityId = dto.PriorityId,
+            TicketTypeId = dto.TicketTypeId,
+            FirstResponseMinutes = dto.FirstResponseMinutes,
+            ResolutionMinutes = dto.ResolutionMinutes
+        };
+        _context.SlaTargets.Add(target);
+        await _context.SaveChangesAsync();
+        return new SlaTargetDto(target.Id, target.SlaPolicyId, target.PriorityId, target.TicketTypeId, target.FirstResponseMinutes, target.ResolutionMinutes, target.IsActive);
+    }
+
+    public async Task UpdateTargetAsync(int id, UpdateSlaTargetDto dto)
+    {
+        var target = await _context.SlaTargets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+        if (target == null) throw new KeyNotFoundException(TargetNotFound);
+
+        target.PriorityId = dto.PriorityId;
+        target.TicketTypeId = dto.TicketTypeId;
+        target.FirstResponseMinutes = dto.FirstResponseMinutes;
+        target.ResolutionMinutes = dto.ResolutionMinutes;
+        target.IsActive = dto.IsActive;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteTargetAsync(int id)
+    {
+        var target = await _context.SlaTargets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+        if (target != null)
+        {
+            target.IsDeleted = true;
+            target.IsActive = false;
+            await _context.SaveChangesAsync();
+        }
     }
 }

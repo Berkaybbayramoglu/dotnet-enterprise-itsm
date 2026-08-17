@@ -1,1 +1,1 @@
-L 2csXXhr2src/ItsTool.Infrastructure/Services/AuthService.cs
+L 2webX®hr*src/ItsTool.Web/wwwroot/ticket-detail.html

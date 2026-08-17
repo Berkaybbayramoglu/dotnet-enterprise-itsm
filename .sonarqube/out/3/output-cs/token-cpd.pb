@@ -845,7 +845,515 @@ ToStatusIdWW %
 id__Y [
 )__[ \
 ;__\ ]
-}`` ·U
+}`` çE
+e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/WebhookDispatcher.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+Services! )
+;) *
+public 
+class 
+WebhookDispatcher 
+:  
+IWebhookDispatcher! 3
+{ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+private 
+readonly 
+
+HttpClient 
+_httpClient  +
+;+ ,
+private 
+readonly 
+ILogger 
+< 
+WebhookDispatcher .
+>. /
+_logger0 7
+;7 8
+public 
+
+WebhookDispatcher 
+( 
+ItsToolDbContext -
+context. 5
+,5 6
+
+HttpClient7 A
+
+httpClientB L
+,L M
+ILoggerN U
+<U V
+WebhookDispatcherV g
+>g h
+loggeri o
+)o p
+{ 
+_context 
+= 
+context 
+; 
+_httpClient 
+= 
+
+httpClient  
+;  !
+_logger 
+= 
+logger 
+; 
+} 
+public 
+
+async 
+Task 
+DispatchEventAsync (
+(( )
+string) /
+eventKey0 8
+,8 9
+object: @
+payloadA H
+)H I
+{ 
+var 
+subscriptions 
+= 
+await !
+_context" *
+.* + 
+WebhookSubscriptions+ ?
+.   
+Where   
+(   
+w   
+=>   
+w   
+.   
+IsActive   "
+&&  # %
+!  & '
+w  ' (
+.  ( )
+	IsDeleted  ) 2
+)  2 3
+.!! 
+ToListAsync!! 
+(!! 
+)!! 
+;!! 
+var## 
+
+activeSubs## 
+=## 
+subscriptions## &
+.##& '
+Where##' ,
+(##, -
+w##- .
+=>##/ 1
+w##2 3
+.##3 4
+	EventsCsv##4 =
+.##= >
+Split##> C
+(##C D
+$char##D G
+)##G H
+.##H I
+Select##I O
+(##O P
+e##P Q
+=>##R T
+e##U V
+.##V W
+Trim##W [
+(##[ \
+)##\ ]
+)##] ^
+.##^ _
+Contains##_ g
+(##g h
+eventKey##h p
+)##p q
+)##q r
+.##r s
+ToList##s y
+(##y z
+)##z {
+;##{ |
+if%% 
+
+(%% 
+!%% 
+
+activeSubs%% 
+.%% 
+Any%% 
+(%% 
+)%% 
+)%% 
+return%% %
+;%%% &
+var'' 
+jsonPayload'' 
+='' 
+JsonSerializer'' (
+.''( )
+	Serialize'') 2
+(''2 3
+new''3 6
+{(( 	
+@event)) 
+=)) 
+eventKey)) 
+,)) 
+	timestamp** 
+=** 
+DateTime**  
+.**  !
+UtcNow**! '
+,**' (
+data++ 
+=++ 
+payload++ 
+},, 	
+),,	 
+
+;,,
+ 
+var.. 
+contentBytes.. 
+=.. 
+Encoding.. #
+...# $
+UTF8..$ (
+...( )
+GetBytes..) 1
+(..1 2
+jsonPayload..2 =
+)..= >
+;..> ?
+_11 	
+=11
+ 
+Task11 
+.11 
+Run11 
+(11 
+async11 
+(11 
+)11 
+=>11  
+{22 	
+foreach33 
+(33 
+var33 
+sub33 
+in33 
+
+activeSubs33  *
+)33* +
+{44 
+await55 
+SendWebhookAsync55 &
+(55& '
+sub55' *
+,55* +
+contentBytes55, 8
+,558 9
+jsonPayload55: E
+)55E F
+;55F G
+}66 
+}77 	
+)77	 
+
+;77
+ 
+}88 
+private:: 
+async:: 
+Task:: 
+SendWebhookAsync:: '
+(::' (
+Domain::( .
+.::. /
+Entities::/ 7
+.::7 8
+Config::8 >
+.::> ?
+WebhookSubscription::? R
+sub::S V
+,::V W
+byte::X \
+[::\ ]
+]::] ^
+contentBytes::_ k
+,::k l
+string::m s
+jsonPayload::t 
+)	:: Ä
+{;; 
+var<< 
+retryPolicy<< 
+=<< 
+Policy<<  
+.== 
+Handle== 
+<==  
+HttpRequestException== (
+>==( )
+(==) *
+)==* +
+.>> 
+Or>> 
+<>> !
+TaskCanceledException>> %
+>>>% &
+(>>& '
+)>>' (
+.?? 
+WaitAndRetryAsync?? 
+(?? 
+$num??  
+,??  !
+retryAttempt??" .
+=>??/ 1
+TimeSpan??2 :
+.??: ;
+FromSeconds??; F
+(??F G
+$num??G H
+)??H I
+,??I J
+(@@ 
+	exception@@ 
+,@@ 
+timeSpan@@  
+,@@  !
+
+retryCount@@" ,
+,@@, -
+context@@. 5
+)@@5 6
+=>@@7 9
+{AA 
+_loggerBB 
+.BB 
+
+LogWarningBB "
+(BB" #
+$strBB# I
+,BBI J
+
+retryCountBBK U
+,BBU V
+subBBW Z
+.BBZ [
+UrlBB[ ^
+)BB^ _
+;BB_ `
+}CC 
+)CC 
+;CC 
+tryEE 
+{FF 	
+awaitGG 
+retryPolicyGG 
+.GG 
+ExecuteAsyncGG *
+(GG* +
+asyncGG+ 0
+(GG1 2
+)GG2 3
+=>GG4 6
+{HH 
+usingII 
+varII 
+requestII !
+=II" #
+newII$ '
+HttpRequestMessageII( :
+(II: ;
+
+HttpMethodII; E
+.IIE F
+PostIIF J
+,IIJ K
+subIIL O
+.IIO P
+UrlIIP S
+)IIS T
+;IIT U
+requestKK 
+.KK 
+ContentKK 
+=KK  !
+newKK" %
+StringContentKK& 3
+(KK3 4
+jsonPayloadKK4 ?
+,KK? @
+EncodingKKA I
+.KKI J
+UTF8KKJ N
+,KKN O
+$strKKP b
+)KKb c
+;KKc d
+usingNN 
+(NN 
+varNN 
+hmacNN 
+=NN  !
+newNN" %
+
+HMACSHA256NN& 0
+(NN0 1
+EncodingNN1 9
+.NN9 :
+UTF8NN: >
+.NN> ?
+GetBytesNN? G
+(NNG H
+subNNH K
+.NNK L
+SecretNNL R
+)NNR S
+)NNS T
+)NNT U
+{OO 
+varPP 
+hashPP 
+=PP 
+hmacPP #
+.PP# $
+ComputeHashPP$ /
+(PP/ 0
+contentBytesPP0 <
+)PP< =
+;PP= >
+varQQ 
+	signatureQQ !
+=QQ" #
+BitConverterQQ$ 0
+.QQ0 1
+ToStringQQ1 9
+(QQ9 :
+hashQQ: >
+)QQ> ?
+.QQ? @
+ReplaceQQ@ G
+(QQG H
+$strQQH K
+,QQK L
+$strQQM O
+)QQO P
+.QQP Q
+ToLowerQQQ X
+(QQX Y
+)QQY Z
+;QQZ [
+requestRR 
+.RR 
+HeadersRR #
+.RR# $
+AddRR$ '
+(RR' (
+$strRR( :
+,RR: ;
+	signatureRR< E
+)RRE F
+;RRF G
+}SS 
+usingVV 
+varVV 
+ctsVV 
+=VV 
+newVV  #
+SystemVV$ *
+.VV* +
+	ThreadingVV+ 4
+.VV4 5#
+CancellationTokenSourceVV5 L
+(VVL M
+TimeSpanVVM U
+.VVU V
+FromSecondsVVV a
+(VVa b
+$numVVb c
+)VVc d
+)VVd e
+;VVe f
+varXX 
+responseXX 
+=XX 
+awaitXX $
+_httpClientXX% 0
+.XX0 1
+	SendAsyncXX1 :
+(XX: ;
+requestXX; B
+,XXB C
+ctsXXD G
+.XXG H
+TokenXXH M
+)XXM N
+;XXN O
+responseYY 
+.YY #
+EnsureSuccessStatusCodeYY 0
+(YY0 1
+)YY1 2
+;YY2 3
+_logger[[ 
+.[[ 
+LogInformation[[ &
+([[& '
+$str[[' K
+,[[K L
+sub[[M P
+.[[P Q
+Url[[Q T
+)[[T U
+;[[U V
+}\\ 
+)\\ 
+;\\ 
+}]] 	
+catch^^ 
+(^^ 
+	Exception^^ 
+ex^^ 
+)^^ 
+{__ 	
+_logger`` 
+.`` 
+LogError`` 
+(`` 
+ex`` 
+,``  
+$str``! I
+,``I J
+sub``K N
+.``N O
+Url``O R
+)``R S
+;``S T
+}aa 	
+}bb 
+}cc ·U
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/UserService.cs
 	namespace 	
 ItsTool
@@ -1484,7 +1992,7 @@ repository  
 )ii( )
 ;ii) *
 }jj 
-}kk ”ü
+}kk «’
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs
 	namespace 	
 ItsTool
@@ -1528,4750 +2036,4551 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Service
 ISlaEngine 
 
 _slaEngine  *
-;* +
-public 
+;* +
+private 
+readonly 
+IAssignmentEngine &
+_assignmentEngine' 8
+;8 9
+private 
+readonly #
+INotificationDispatcher ,#
+_notificationDispatcher- D
+;D E
+public 
 
-TicketService 
-( 
-ItsToolDbContext )
-context* 1
-,1 2
-IFileStorageService3 F
-fileStorageG R
-,R S!
-IPermissionCalculatorT i 
-permissionCalculatorj ~
-,~ 
+TicketService 
+( 
+ItsToolDbContext )
+context* 1
+,1 2
+IFileStorageService3 F
+fileStorageG R
+,R S!
+IPermissionCalculatorT i 
+permissionCalculatorj ~
+,~ 
 
 ISlaEngine
-Ä ä
+Ä ä
 	slaEngine
-ã î
+ã î
+,
+î ï
+IAssignmentEngine
+ñ ß
+assignmentEngine
+® ∏
+,
+∏ π%
+INotificationDispatcher
+∫ —$
+notificationDispatcher
+“ Ë
 )
-î ï
-{ 
-_context 
-= 
-context 
-; 
-_fileStorage 
-= 
-fileStorage "
-;" #!
-_permissionCalculator 
-=  
-permissionCalculator  4
-;4 5
+Ë È
+{ 
+_context 
+= 
+context 
+; 
+_fileStorage 
+= 
+fileStorage "
+;" #!
+_permissionCalculator 
+=  
+permissionCalculator  4
+;4 5
 
-_slaEngine 
-= 
-	slaEngine 
-; 
-} 
-private 
-async 
-Task 
-< 
-string 
-> %
-GenerateTicketNumberAsync 8
-(8 9
-int9 <
-	projectId= F
-)F G
-{ 
-var   
-project   
-=   
-await   
-_context   $
-.  $ %
-Projects  % -
-.  - .
-	FindAsync  . 7
-(  7 8
-	projectId  8 A
-)  A B
-;  B C
-if!! 
+_slaEngine 
+= 
+	slaEngine 
+; 
+_assignmentEngine 
+= 
+assignmentEngine ,
+;, -#
+_notificationDispatcher 
+=  !"
+notificationDispatcher" 8
+;8 9
+}   
+private"" 
+async"" 
+Task"" 
+<"" 
+string"" 
+>"" %
+GenerateTicketNumberAsync"" 8
+(""8 9
+int""9 <
+	projectId""= F
+)""F G
+{## 
+var$$ 
+project$$ 
+=$$ 
+await$$ 
+_context$$ $
+.$$$ %
+Projects$$% -
+.$$- .
+	FindAsync$$. 7
+($$7 8
+	projectId$$8 A
+)$$A B
+;$$B C
+if%% 
 
-(!! 
-project!! 
-==!! 
-null!! 
-)!! 
-throw!! "
-new!!# & 
-KeyNotFoundException!!' ;
-(!!; <
-$str!!< P
-)!!P Q
-;!!Q R
-var## 
-sequence## 
-=## 
-await## 
-_context## %
-.##% &
-ProjectSequences##& 6
-.##6 7
-FirstOrDefaultAsync##7 J
-(##J K
-ps##K M
-=>##N P
-ps##Q S
-.##S T
-	ProjectId##T ]
-==##^ `
-	projectId##a j
-)##j k
-;##k l
-if$$ 
+(%% 
+project%% 
+==%% 
+null%% 
+)%% 
+throw%% "
+new%%# & 
+KeyNotFoundException%%' ;
+(%%; <
+$str%%< P
+)%%P Q
+;%%Q R
+var'' 
+sequence'' 
+='' 
+await'' 
+_context'' %
+.''% &
+ProjectSequences''& 6
+.''6 7
+FirstOrDefaultAsync''7 J
+(''J K
+ps''K M
+=>''N P
+ps''Q S
+.''S T
+	ProjectId''T ]
+==''^ `
+	projectId''a j
+)''j k
+;''k l
+if(( 
 
-($$ 
-sequence$$ 
-==$$ 
-null$$ 
-)$$ 
-{%% 	
-sequence&& 
-=&& 
-new&& 
-ProjectSequence&& *
-{&&+ ,
-	ProjectId&&- 6
-=&&7 8
-	projectId&&9 B
-,&&B C
-CurrentValue&&D P
-=&&Q R
-$num&&S T
-}&&U V
-;&&V W
-_context'' 
-.'' 
-ProjectSequences'' %
-.''% &
-Add''& )
-('') *
-sequence''* 2
-)''2 3
-;''3 4
-}(( 	
-else)) 
-{** 	
-sequence++ 
-.++ 
-CurrentValue++ !
-++++! #
-;++# $
-},, 	
-await.. 
-_context.. 
-... 
-SaveChangesAsync.. '
-(..' (
-)..( )
-;..) *
-return// 
-$"// 
-{// 
-project// 
-.// 
+((( 
+sequence(( 
+==(( 
+null(( 
+)(( 
+{)) 	
+sequence** 
+=** 
+new** 
+ProjectSequence** *
+{**+ ,
+	ProjectId**- 6
+=**7 8
+	projectId**9 B
+,**B C
+CurrentValue**D P
+=**Q R
+$num**S T
+}**U V
+;**V W
+_context++ 
+.++ 
+ProjectSequences++ %
+.++% &
+Add++& )
+(++) *
+sequence++* 2
+)++2 3
+;++3 4
+},, 	
+else-- 
+{.. 	
+sequence// 
+.// 
+CurrentValue// !
+++//! #
+;//# $
+}00 	
+await22 
+_context22 
+.22 
+SaveChangesAsync22 '
+(22' (
+)22( )
+;22) *
+return33 
+$"33 
+{33 
+project33 
+.33 
 
-ProjectKey// $
-}//$ %
-$str//% &
-{//& '
-sequence//' /
-./// 0
-CurrentValue//0 <
-}//< =
-"//= >
-;//> ?
-}00 
-private22 
-async22 
-Task22 &
-ValidateDynamicFieldsAsync22 1
-(221 2
-int222 5
-	projectId226 ?
-,22? @
-int22A D
+ProjectKey33 $
+}33$ %
+$str33% &
+{33& '
+sequence33' /
+.33/ 0
+CurrentValue330 <
+}33< =
+"33= >
+;33> ?
+}44 
+private66 
+async66 
+Task66 &
+ValidateDynamicFieldsAsync66 1
+(661 2
+int662 5
+	projectId666 ?
+,66? @
+int66A D
 
-categoryId22E O
-,22O P
-int22Q T
-typeId22U [
-,22[ \
+categoryId66E O
+,66O P
+int66Q T
+typeId66U [
+,66[ \
 
-Dictionary22] g
-<22g h
-string22h n
-,22n o
-string22p v
->22v w
-customFields	22x Ñ
+Dictionary66] g
+<66g h
+string66h n
+,66n o
+string66p v
+>66v w
+customFields	66x Ñ
 )
-22Ñ Ö
-{33 
-var44 
+66Ñ Ö
+{77 
+var88 
 
-placements44 
-=44 
-await44 
-_context44 '
-.44' (
-FormFieldPlacements44( ;
-.55 
-Include55 
-(55 
-p55 
-=>55 
-p55 
-.55 
-FieldDefinition55 +
-)55+ ,
-.66 
-Where66 
-(66 
-p66 
-=>66 
-!66 
-p66 
-.66 
-	IsDeleted66 $
-&&66% '
-p66( )
-.66) *
-IsActive66* 2
-&&663 5
-p666 7
-.667 8
-	ProjectId668 A
-==66B D
-	projectId66E N
-&&66O Q
-p66R S
-.66S T
-
-CategoryId66T ^
-==66_ a
-
-categoryId66b l
-&&66m o
-p66p q
-.66q r
-TicketTypeId66r ~
-==	66 Å
-typeId
-66Ç à
-)
-66à â
-.77 
-ToListAsync77 
-(77 
-)77 
-;77 
-foreach99 
-(99 
-var99 
+placements88 
+=88 
+await88 
+_context88 '
+.88' (
+FormFieldPlacements88( ;
+.99 
+Include99 
+(99 
 p99 
-in99 
+=>99 
+p99 
+.99 
+FieldDefinition99 +
+)99+ ,
+.:: 
+Where:: 
+(:: 
+p:: 
+=>:: 
+!:: 
+p:: 
+.:: 
+	IsDeleted:: $
+&&::% '
+p::( )
+.::) *
+IsActive::* 2
+&&::3 5
+p::6 7
+.::7 8
+	ProjectId::8 A
+==::B D
+	projectId::E N
+&&::O Q
+p::R S
+.::S T
 
-placements99 $
-)99$ %
-{:: 	
-var;; 
-def;; 
-=;; 
-p;; 
-.;; 
-FieldDefinition;; '
-!;;' (
-;;;( )
-customFields<< 
-.<< 
-TryGetValue<< $
-(<<$ %
-def<<% (
-.<<( )
-Key<<) ,
-,<<, -
-out<<. 1
-var<<2 5
-val<<6 9
-)<<9 :
-;<<: ;!
-ValidateRequiredField>> !
-(>>! "
-p>>" #
-,>># $
-def>>% (
-,>>( )
-val>>* -
-)>>- .
-;>>. /
-if@@ 
-(@@ 
-!@@ 
-string@@ 
-.@@ 
-IsNullOrWhiteSpace@@ *
-(@@* +
-val@@+ .
-)@@. /
-)@@/ 0
-{AA 
-ValidateRegexFormatBB #
-(BB# $
-defBB$ '
-,BB' (
-valBB) ,
-)BB, -
-;BB- .
-awaitCC %
-ValidateFieldOptionsAsyncCC /
-(CC/ 0
-defCC0 3
-,CC3 4
-valCC5 8
-)CC8 9
-;CC9 :
-}DD 
-}EE 	
-}FF 
-privateHH 
-staticHH 
-voidHH !
-ValidateRequiredFieldHH -
-(HH- .
-FormFieldPlacementHH. @
-	placementHHA J
-,HHJ K
-FieldDefinitionHHL [
-defHH\ _
-,HH_ `
-stringHHa g
-?HHg h
-valHHi l
-)HHl m
-{II 
-ifJJ 
-
-(JJ 
-	placementJJ 
-.JJ 
+CategoryId::T ^
+==::_ a
 
-IsRequiredJJ  
-&&JJ! #
-stringJJ$ *
-.JJ* +
-IsNullOrWhiteSpaceJJ+ =
-(JJ= >
-valJJ> A
-)JJA B
-)JJB C
-throwKK 
-newKK %
-InvalidOperationExceptionKK /
-(KK/ 0
-$"KK0 2
-$strKK2 8
-{KK8 9
-defKK9 <
-.KK< =
-LabelKK= B
-}KKB C
-$strKKC P
-"KKP Q
-)KKQ R
-;KKR S
-}LL 
-privateNN 
-staticNN 
-voidNN 
-ValidateRegexFormatNN +
-(NN+ ,
-FieldDefinitionNN, ;
-defNN< ?
-,NN? @
-stringNNA G
-valNNH K
-)NNK L
-{OO 
-ifPP 
-
-(PP 
-!PP 
-stringPP 
-.PP 
-IsNullOrWhiteSpacePP &
-(PP& '
-defPP' *
-.PP* +
-ValidationRegexPP+ :
-)PP: ;
-)PP; <
-{QQ 	
-tryRR 
-{SS 
-ifTT 
-(TT 
-!TT 
-RegexTT 
-.TT 
-IsMatchTT "
-(TT" #
-valTT# &
-,TT& '
-defTT( +
-.TT+ ,
-ValidationRegexTT, ;
-,TT; <
-RegexOptionsTT= I
-.TTI J
-NoneTTJ N
-,TTN O
-TimeSpanTTP X
-.TTX Y
-FromSecondsTTY d
-(TTd e
-$numTTe f
-)TTf g
-)TTg h
-)TTh i
-throwUU 
-newUU %
-InvalidOperationExceptionUU 7
-(UU7 8
-$"UU8 :
-$strUU: @
-{UU@ A
-defUUA D
-.UUD E
-LabelUUE J
-}UUJ K
-$strUUK ^
-"UU^ _
-)UU_ `
-;UU` a
-}VV 
-catchWW 
-(WW &
-RegexMatchTimeoutExceptionWW -
-)WW- .
-{XX 
-throwYY 
-newYY %
-InvalidOperationExceptionYY 3
-(YY3 4
-$"YY4 6
-$strYY6 <
-{YY< =
-defYY= @
-.YY@ A
-LabelYYA F
-}YYF G
-$strYYG Z
-"YYZ [
-)YY[ \
-;YY\ ]
-}ZZ 
-}[[ 	
-}\\ 
-private^^ 
-async^^ 
-Task^^ %
-ValidateFieldOptionsAsync^^ 0
-(^^0 1
-FieldDefinition^^1 @
-def^^A D
-,^^D E
-string^^F L
-val^^M P
-)^^P Q
-{__ 
-if`` 
-
-(`` 
-def`` 
-.`` 
-	FieldType`` 
-==`` 
-	FieldType`` &
-.``& '
-Dropdown``' /
-||``0 2
-def``3 6
-.``6 7
-	FieldType``7 @
-==``A C
-	FieldType``D M
-.``M N
-MultiSelect``N Y
-)``Y Z
-{aa 	
-varbb 
-optionsbb 
-=bb 
-awaitbb 
-_contextbb  (
-.bb( )
-FieldOptionsbb) 5
-.bb5 6
-Wherebb6 ;
-(bb; <
-obb< =
-=>bb> @
-obbA B
-.bbB C
-FieldDefinitionIdbbC T
-==bbU W
-defbbX [
-.bb[ \
-Idbb\ ^
-&&bb_ a
-!bbb c
-obbc d
-.bbd e
-	IsDeletedbbe n
-)bbn o
-.bbo p
-Selectbbp v
-(bbv w
-obbw x
-=>bby {
-obb| }
-.bb} ~
-Value	bb~ É
+categoryId::b l
+&&::m o
+p::p q
+.::q r
+TicketTypeId::r ~
+==	:: Å
+typeId
+::Ç à
 )
-bbÉ Ñ
+::à â
+.;; 
+ToListAsync;; 
+(;; 
+);; 
+;;; 
+foreach== 
+(== 
+var== 
+p== 
+in== 
+
+placements== $
+)==$ %
+{>> 	
+var?? 
+def?? 
+=?? 
+p?? 
+.?? 
+FieldDefinition?? '
+!??' (
+;??( )
+customFields@@ 
+.@@ 
+TryGetValue@@ $
+(@@$ %
+def@@% (
+.@@( )
+Key@@) ,
+,@@, -
+out@@. 1
+var@@2 5
+val@@6 9
+)@@9 :
+;@@: ;!
+ValidateRequiredFieldBB !
+(BB! "
+pBB" #
+,BB# $
+defBB% (
+,BB( )
+valBB* -
+)BB- .
+;BB. /
+ifDD 
+(DD 
+!DD 
+stringDD 
+.DD 
+IsNullOrWhiteSpaceDD *
+(DD* +
+valDD+ .
+)DD. /
+)DD/ 0
+{EE 
+ValidateRegexFormatFF #
+(FF# $
+defFF$ '
+,FF' (
+valFF) ,
+)FF, -
+;FF- .
+awaitGG %
+ValidateFieldOptionsAsyncGG /
+(GG/ 0
+defGG0 3
+,GG3 4
+valGG5 8
+)GG8 9
+;GG9 :
+}HH 
+}II 	
+}JJ 
+privateLL 
+staticLL 
+voidLL !
+ValidateRequiredFieldLL -
+(LL- .
+FormFieldPlacementLL. @
+	placementLLA J
+,LLJ K
+FieldDefinitionLLL [
+defLL\ _
+,LL_ `
+stringLLa g
+?LLg h
+valLLi l
+)LLl m
+{MM 
+ifNN 
+
+(NN 
+	placementNN 
+.NN 
+
+IsRequiredNN  
+&&NN! #
+stringNN$ *
+.NN* +
+IsNullOrWhiteSpaceNN+ =
+(NN= >
+valNN> A
+)NNA B
+)NNB C
+throwOO 
+newOO %
+InvalidOperationExceptionOO /
+(OO/ 0
+$"OO0 2
+$strOO2 8
+{OO8 9
+defOO9 <
+.OO< =
+LabelOO= B
+}OOB C
+$strOOC P
+"OOP Q
+)OOQ R
+;OOR S
+}PP 
+privateRR 
+staticRR 
+voidRR 
+ValidateRegexFormatRR +
+(RR+ ,
+FieldDefinitionRR, ;
+defRR< ?
+,RR? @
+stringRRA G
+valRRH K
+)RRK L
+{SS 
+ifTT 
+
+(TT 
+!TT 
+stringTT 
+.TT 
+IsNullOrWhiteSpaceTT &
+(TT& '
+defTT' *
+.TT* +
+ValidationRegexTT+ :
+)TT: ;
+)TT; <
+{UU 	
+tryVV 
+{WW 
+ifXX 
+(XX 
+!XX 
+RegexXX 
+.XX 
+IsMatchXX "
+(XX" #
+valXX# &
+,XX& '
+defXX( +
+.XX+ ,
+ValidationRegexXX, ;
+,XX; <
+RegexOptionsXX= I
+.XXI J
+NoneXXJ N
+,XXN O
+TimeSpanXXP X
+.XXX Y
+FromSecondsXXY d
+(XXd e
+$numXXe f
+)XXf g
+)XXg h
+)XXh i
+throwYY 
+newYY %
+InvalidOperationExceptionYY 7
+(YY7 8
+$"YY8 :
+$strYY: @
+{YY@ A
+defYYA D
+.YYD E
+LabelYYE J
+}YYJ K
+$strYYK ^
+"YY^ _
+)YY_ `
+;YY` a
+}ZZ 
+catch[[ 
+([[ &
+RegexMatchTimeoutException[[ -
+)[[- .
+{\\ 
+throw]] 
+new]] %
+InvalidOperationException]] 3
+(]]3 4
+$"]]4 6
+$str]]6 <
+{]]< =
+def]]= @
+.]]@ A
+Label]]A F
+}]]F G
+$str]]G Z
+"]]Z [
+)]][ \
+;]]\ ]
+}^^ 
+}__ 	
+}`` 
+privatebb 
+asyncbb 
+Taskbb %
+ValidateFieldOptionsAsyncbb 0
+(bb0 1
+FieldDefinitionbb1 @
+defbbA D
+,bbD E
+stringbbF L
+valbbM P
+)bbP Q
+{cc 
+ifdd 
+
+(dd 
+defdd 
+.dd 
+	FieldTypedd 
+==dd 
+	FieldTypedd &
+.dd& '
+Dropdowndd' /
+||dd0 2
+defdd3 6
+.dd6 7
+	FieldTypedd7 @
+==ddA C
+	FieldTypeddD M
+.ddM N
+MultiSelectddN Y
+)ddY Z
+{ee 	
+varff 
+optionsff 
+=ff 
+awaitff 
+_contextff  (
+.ff( )
+FieldOptionsff) 5
+.ff5 6
+Whereff6 ;
+(ff; <
+off< =
+=>ff> @
+offA B
+.ffB C
+FieldDefinitionIdffC T
+==ffU W
+defffX [
+.ff[ \
+Idff\ ^
+&&ff_ a
+!ffb c
+offc d
+.ffd e
+	IsDeletedffe n
+)ffn o
+.ffo p
+Selectffp v
+(ffv w
+offw x
+=>ffy {
+off| }
+.ff} ~
+Value	ff~ É
+)
+ffÉ Ñ
 .
-bbÑ Ö
+ffÑ Ö
 ToListAsync
-bbÖ ê
+ffÖ ê
 (
-bbê ë
+ffê ë
 )
-bbë í
+ffë í
 ;
-bbí ì
-ifcc 
-(cc 
-!cc 
-optionscc 
-.cc 
-Containscc !
-(cc! "
-valcc" %
-)cc% &
-)cc& '
-throwdd 
-newdd %
-InvalidOperationExceptiondd 3
-(dd3 4
-$"dd4 6
-$strdd6 <
-{dd< =
-defdd= @
-.dd@ A
-LabelddA F
-}ddF G
-$strddG `
-"dd` a
-)dda b
-;ddb c
-}ee 	
-}ff 
-publichh 
+ffí ì
+ifgg 
+(gg 
+!gg 
+optionsgg 
+.gg 
+Containsgg !
+(gg! "
+valgg" %
+)gg% &
+)gg& '
+throwhh 
+newhh %
+InvalidOperationExceptionhh 3
+(hh3 4
+$"hh4 6
+$strhh6 <
+{hh< =
+defhh= @
+.hh@ A
+LabelhhA F
+}hhF G
+$strhhG `
+"hh` a
+)hha b
+;hhb c
+}ii 	
+}jj 
+publicll 
 
-asynchh 
-Taskhh 
-<hh 
-	TicketDtohh 
->hh  
-CreateTicketAsynchh! 2
-(hh2 3
-CreateTicketDtohh3 B
-dtohhC F
-)hhF G
-{ii 
-varjj 
-numberjj 
-=jj 
-awaitjj %
-GenerateTicketNumberAsyncjj 4
-(jj4 5
-dtojj5 8
-.jj8 9
-	ProjectIdjj9 B
-)jjB C
-;jjC D
-awaitkk &
-ValidateDynamicFieldsAsynckk (
-(kk( )
-dtokk) ,
-.kk, -
-	ProjectIdkk- 6
-,kk6 7
-dtokk8 ;
-.kk; <
+asyncll 
+Taskll 
+<ll 
+	TicketDtoll 
+>ll  
+CreateTicketAsyncll! 2
+(ll2 3
+CreateTicketDtoll3 B
+dtollC F
+)llF G
+{mm 
+varnn 
+numbernn 
+=nn 
+awaitnn %
+GenerateTicketNumberAsyncnn 4
+(nn4 5
+dtonn5 8
+.nn8 9
+	ProjectIdnn9 B
+)nnB C
+;nnC D
+awaitoo &
+ValidateDynamicFieldsAsyncoo (
+(oo( )
+dtooo) ,
+.oo, -
+	ProjectIdoo- 6
+,oo6 7
+dtooo8 ;
+.oo; <
 
-CategoryIdkk< F
-,kkF G
-dtokkH K
-.kkK L
-TypeIdkkL R
-,kkR S
-dtokkT W
-.kkW X
-CustomFieldskkX d
-)kkd e
-;kke f
-varnn 
-defaultStatusnn 
-=nn 
-awaitnn !
-_contextnn" *
-.nn* +
-Statusesnn+ 3
-.nn3 4
-FirstOrDefaultAsyncnn4 G
-(nnG H
-snnH I
-=>nnJ L
-snnM N
-.nnN O
-IsSystemDefaultnnO ^
-&&nn_ a
-!nnb c
-snnc d
-.nnd e
-	IsDeletednne n
-)nnn o
-;nno p
-ifoo 
+CategoryIdoo< F
+,ooF G
+dtoooH K
+.ooK L
+TypeIdooL R
+,ooR S
+dtoooT W
+.ooW X
+CustomFieldsooX d
+)ood e
+;ooe f
+varrr 
+defaultStatusrr 
+=rr 
+awaitrr !
+_contextrr" *
+.rr* +
+Statusesrr+ 3
+.rr3 4
+FirstOrDefaultAsyncrr4 G
+(rrG H
+srrH I
+=>rrJ L
+srrM N
+.rrN O
+IsSystemDefaultrrO ^
+&&rr_ a
+!rrb c
+srrc d
+.rrd e
+	IsDeletedrre n
+)rrn o
+;rro p
+ifss 
 
-(oo 
-defaultStatusoo 
-==oo 
-nulloo !
-)oo! "
-throwoo# (
-newoo) ,%
-InvalidOperationExceptionoo- F
-(ooF G
-$strooG i
-)ooi j
-;ooj k
-varqq 
-tqq 
-=qq 
-newqq 
-Ticketqq 
-{rr 	
-TicketNumberss 
-=ss 
-numberss !
-,ss! "
-Titlett 
-=tt 
-dtott 
-.tt 
-Titlett 
-,tt 
-Descriptionuu 
-=uu 
-dtouu 
-.uu 
-Descriptionuu )
-,uu) *
-	ProjectIdvv 
-=vv 
-dtovv 
-.vv 
-	ProjectIdvv %
-,vv% &
+(ss 
+defaultStatusss 
+==ss 
+nullss !
+)ss! "
+throwss# (
+newss) ,%
+InvalidOperationExceptionss- F
+(ssF G
+$strssG i
+)ssi j
+;ssj k
+varuu 
+tuu 
+=uu 
+newuu 
+Ticketuu 
+{vv 	
+TicketNumberww 
+=ww 
+numberww !
+,ww! "
+Titlexx 
+=xx 
+dtoxx 
+.xx 
+Titlexx 
+,xx 
+Descriptionyy 
+=yy 
+dtoyy 
+.yy 
+Descriptionyy )
+,yy) *
+	ProjectIdzz 
+=zz 
+dtozz 
+.zz 
+	ProjectIdzz %
+,zz% &
 
-CategoryIdww 
-=ww 
-dtoww 
-.ww 
+CategoryId{{ 
+={{ 
+dto{{ 
+.{{ 
 
-CategoryIdww '
-,ww' (
-TypeIdxx 
-=xx 
-dtoxx 
-.xx 
-TypeIdxx 
-,xx  
+CategoryId{{ '
+,{{' (
+TypeId|| 
+=|| 
+dto|| 
+.|| 
+TypeId|| 
+,||  
 
-PriorityIdyy 
-=yy 
-dtoyy 
-.yy 
+PriorityId}} 
+=}} 
+dto}} 
+.}} 
 
-PriorityIdyy '
-,yy' (
-RequesterUserIdzz 
-=zz 
-dtozz !
-.zz! "
-RequesterUserIdzz" 1
-,zz1 2
-StatusId{{ 
-={{ 
-defaultStatus{{ $
-.{{$ %
-Id{{% '
-}|| 	
-;||	 
-
-_context}} 
-.}} 
-Tickets}} 
-.}} 
-Add}} 
-(}} 
-t}} 
-)}} 
-;}}  
-await~~ 
-_context~~ 
-.~~ 
-SaveChangesAsync~~ '
-(~~' (
-)~~( )
-;~~) *
-foreach
-ÄÄ 
-(
-ÄÄ 
-var
-ÄÄ 
-kvp
-ÄÄ 
-in
-ÄÄ 
-dto
-ÄÄ 
+PriorityId}} '
+,}}' (
+RequesterUserId~~ 
+=~~ 
+dto~~ !
+.~~! "
+RequesterUserId~~" 1
+,~~1 2
+StatusId 
+= 
+defaultStatus $
+.$ %
+Id% '
+}
+ÄÄ 	
+;
+ÄÄ	 
+
+_context
+ÅÅ 
 .
-ÄÄ  
-CustomFields
-ÄÄ  ,
+ÅÅ 
+Tickets
+ÅÅ 
+.
+ÅÅ 
+Add
+ÅÅ 
+(
+ÅÅ 
+t
+ÅÅ 
 )
-ÄÄ, -
-{
-ÅÅ 	
-var
-ÇÇ 
-def
-ÇÇ 
-=
-ÇÇ 
+ÅÅ 
+;
+ÅÅ  
 await
-ÇÇ 
+ÇÇ 
 _context
-ÇÇ $
+ÇÇ 
 .
-ÇÇ$ %
-FieldDefinitions
-ÇÇ% 5
-.
-ÇÇ5 6!
-FirstOrDefaultAsync
-ÇÇ6 I
+ÇÇ 
+SaveChangesAsync
+ÇÇ '
 (
-ÇÇI J
-fd
-ÇÇJ L
-=>
-ÇÇM O
-fd
-ÇÇP R
-.
-ÇÇR S
-Key
-ÇÇS V
-==
-ÇÇW Y
-kvp
-ÇÇZ ]
-.
-ÇÇ] ^
-Key
-ÇÇ^ a
+ÇÇ' (
 )
-ÇÇa b
+ÇÇ( )
 ;
-ÇÇb c
-if
-ÉÉ 
+ÇÇ) *
+foreach
+ÑÑ 
 (
-ÉÉ 
-def
-ÉÉ 
-!=
-ÉÉ 
-null
-ÉÉ 
-)
-ÉÉ 
-{
-ÑÑ 
-_context
-ÖÖ 
-.
-ÖÖ 
-TicketFieldValues
-ÖÖ *
-.
-ÖÖ* +
-Add
-ÖÖ+ .
-(
-ÖÖ. /
-new
-ÖÖ/ 2
-TicketFieldValue
-ÖÖ3 C
-{
-ÜÜ 
-TicketId
-áá 
-=
-áá 
-t
-áá  
-.
-áá  !
-Id
-áá! #
-,
-áá# $
-FieldDefinitionId
-àà %
-=
-àà& '
-def
-àà( +
-.
-àà+ ,
-Id
-àà, .
-,
-àà. /
-ValueString
-ââ 
-=
-ââ  !
+ÑÑ 
+var
+ÑÑ 
 kvp
-ââ" %
-.
-ââ% &
-Value
-ââ& +
-}
-ää 
-)
-ää 
-;
-ää 
-}
-ãã 
-}
-åå 	
-_context
-éé 
-.
-éé 
-TicketHistories
-éé  
-.
-éé  !
-Add
-éé! $
-(
-éé$ %
-new
-éé% (
-TicketHistory
-éé) 6
-{
-èè 	
-TicketId
-êê 
-=
-êê 
-t
-êê 
-.
-êê 
-Id
-êê 
-,
-êê 
-Action
-ëë 
-=
-ëë 
-$str
-ëë 
-,
-ëë 
-	FieldName
-íí 
-=
-íí 
-$str
-íí  
-,
-íí  !
-NewValue
-ìì 
-=
-ìì 
-t
-ìì 
-.
-ìì 
-TicketNumber
-ìì %
-,
-ìì% &
-	CreatedBy
-îî 
-=
-îî 
+ÑÑ 
+in
+ÑÑ 
 dto
-îî 
+ÑÑ 
 .
-îî 
-RequesterUserId
-îî +
+ÑÑ  
+CustomFields
+ÑÑ  ,
+)
+ÑÑ, -
+{
+ÖÖ 	
+var
+ÜÜ 
+def
+ÜÜ 
+=
+ÜÜ 
+await
+ÜÜ 
+_context
+ÜÜ $
 .
-îî+ ,
-ToString
-îî, 4
+ÜÜ$ %
+FieldDefinitions
+ÜÜ% 5
+.
+ÜÜ5 6!
+FirstOrDefaultAsync
+ÜÜ6 I
 (
-îî4 5
+ÜÜI J
+fd
+ÜÜJ L
+=>
+ÜÜM O
+fd
+ÜÜP R
+.
+ÜÜR S
+Key
+ÜÜS V
+==
+ÜÜW Y
+kvp
+ÜÜZ ]
+.
+ÜÜ] ^
+Key
+ÜÜ^ a
 )
-îî5 6
+ÜÜa b
+;
+ÜÜb c
+if
+áá 
+(
+áá 
+def
+áá 
+!=
+áá 
+null
+áá 
+)
+áá 
+{
+àà 
+_context
+ââ 
+.
+ââ 
+TicketFieldValues
+ââ *
+.
+ââ* +
+Add
+ââ+ .
+(
+ââ. /
+new
+ââ/ 2
+TicketFieldValue
+ââ3 C
+{
+ää 
+TicketId
+ãã 
+=
+ãã 
+t
+ãã  
+.
+ãã  !
+Id
+ãã! #
+,
+ãã# $
+FieldDefinitionId
+åå %
+=
+åå& '
+def
+åå( +
+.
+åå+ ,
+Id
+åå, .
+,
+åå. /
+ValueString
+çç 
+=
+çç  !
+kvp
+çç" %
+.
+çç% &
+Value
+çç& +
 }
-ïï 	
+éé 
 )
-ïï	 
+éé 
+;
+éé 
+}
+èè 
+}
+êê 	
+_context
+íí 
+.
+íí 
+TicketHistories
+íí  
+.
+íí  !
+Add
+íí! $
+(
+íí$ %
+new
+íí% (
+TicketHistory
+íí) 6
+{
+ìì 	
+TicketId
+îî 
+=
+îî 
+t
+îî 
+.
+îî 
+Id
+îî 
+,
+îî 
+Action
+ïï 
+=
+ïï 
+$str
+ïï 
+,
+ïï 
+	FieldName
+ññ 
+=
+ññ 
+$str
+ññ  
+,
+ññ  !
+NewValue
+óó 
+=
+óó 
+t
+óó 
+.
+óó 
+TicketNumber
+óó %
+,
+óó% &
+	CreatedBy
+òò 
+=
+òò 
+dto
+òò 
+.
+òò 
+RequesterUserId
+òò +
+.
+òò+ ,
+ToString
+òò, 4
+(
+òò4 5
+)
+òò5 6
+}
+ôô 	
+)
+ôô	 
 
 ;
-ïï
+ôô
  
 await
-ññ 
+öö 
 _context
-ññ 
+öö 
 .
-ññ 
+öö 
 SaveChangesAsync
-ññ '
+öö '
 (
-ññ' (
+öö' (
 )
-ññ( )
+öö( )
 ;
-ññ) *
+öö) *
 await
-òò 
+ùù 
+_assignmentEngine
+ùù 
+.
+ùù  
+AssignTicketAsync
+ùù  1
+(
+ùù1 2
+t
+ùù2 3
+)
+ùù3 4
+;
+ùù4 5
+await
+ûû 
+_context
+ûû 
+.
+ûû 
+SaveChangesAsync
+ûû '
+(
+ûû' (
+)
+ûû( )
+;
+ûû) *
+await
+†† 
 
 _slaEngine
-òò 
+†† 
 .
-òò $
+†† $
 AttachSlaToTicketAsync
-òò /
+†† /
 (
-òò/ 0
+††/ 0
 t
-òò0 1
+††0 1
 .
-òò1 2
+††1 2
 Id
-òò2 4
+††2 4
 )
-òò4 5
+††4 5
 ;
-òò5 6
-return
-öö 
-new
-öö 
-	TicketDto
-öö 
-(
-öö 
-t
-öö 
-.
-öö 
-Id
-öö !
-,
-öö! "
-t
-öö# $
-.
-öö$ %
-TicketNumber
-öö% 1
-,
-öö1 2
-t
-öö3 4
-.
-öö4 5
-Title
-öö5 :
-,
-öö: ;
-t
-öö< =
-.
-öö= >
-Description
-öö> I
-,
-ööI J
-t
-ööK L
-.
-ööL M
-	ProjectId
-ööM V
-,
-ööV W
-t
-ööX Y
-.
-ööY Z
-
-CategoryId
-ööZ d
-,
-ööd e
-t
-ööf g
-.
-öög h
-TypeId
-ööh n
-,
-öön o
-t
-ööp q
-.
-ööq r
-StatusId
-öör z
-,
-ööz {
-t
-öö| }
-.
-öö} ~
-
-PriorityIdöö~ à
-,ööà â
-tööä ã
-.ööã å
-RequesterUserIdööå õ
-,ööõ ú
-tööù û
-.ööû ü
-AssignedUserIdööü ≠
-,öö≠ Æ
-tööØ ∞
-.öö∞ ±
-AssignedGroupIdöö± ¿
-)öö¿ ¡
-;öö¡ ¬
-}
-õõ 
-public
-ùù 
-
-async
-ùù 
-Task
-ùù 
-<
-ùù 
-	TicketDto
-ùù 
-?
-ùù  
->
-ùù  ! 
-GetTicketByIdAsync
-ùù" 4
-(
-ùù4 5
-int
-ùù5 8
-id
-ùù9 ;
-)
-ùù; <
-{
-ûû 
-var
-üü 
-t
-üü 
-=
-üü 
+††5 6
 await
-üü 
-_context
-üü 
+°° %
+_notificationDispatcher
+°° %
 .
-üü 
-Tickets
-üü &
-.
-üü& '!
-FirstOrDefaultAsync
-üü' :
+°°% & 
+DispatchEventAsync
+°°& 8
 (
-üü: ;
-x
-üü; <
-=>
-üü= ?
-x
-üü@ A
-.
-üüA B
-Id
-üüB D
-==
-üüE G
-id
-üüH J
-&&
-üüK M
-!
-üüN O
-x
-üüO P
-.
-üüP Q
-	IsDeleted
-üüQ Z
-)
-üüZ [
-;
-üü[ \
-if
-†† 
-
-(
-†† 
-t
-†† 
-==
-†† 
-null
-†† 
-)
-†† 
-return
-†† 
-null
-†† "
-;
-††" #
-return
-°° 
-new
-°° 
-	TicketDto
-°° 
-(
-°° 
-t
-°° 
-.
-°° 
-Id
-°° !
-,
-°°! "
-t
-°°# $
-.
-°°$ %
-TicketNumber
-°°% 1
-,
-°°1 2
-t
-°°3 4
-.
-°°4 5
-Title
-°°5 :
-,
-°°: ;
-t
-°°< =
-.
-°°= >
-Description
-°°> I
+°°8 9
+$str
+°°9 I
 ,
 °°I J
 t
 °°K L
 .
-°°L M
-	ProjectId
-°°M V
+°°L M
+Id
+°°M O
 ,
-°°V W
-t
-°°X Y
+°°O P
+dto
+°°Q T
 .
-°°Y Z
+°°T U
+RequesterUserId
+°°U d
+,
+°°d e
+$str°°f Ü
+)°°Ü á
+;°°á à
+return
+££ 
+new
+££ 
+	TicketDto
+££ 
+(
+££ 
+t
+££ 
+.
+££ 
+Id
+££ !
+,
+££! "
+t
+££# $
+.
+££$ %
+TicketNumber
+££% 1
+,
+££1 2
+t
+££3 4
+.
+££4 5
+Title
+££5 :
+,
+££: ;
+t
+££< =
+.
+££= >
+Description
+££> I
+,
+££I J
+t
+££K L
+.
+££L M
+	ProjectId
+££M V
+,
+££V W
+t
+££X Y
+.
+££Y Z
 
 CategoryId
-°°Z d
+££Z d
 ,
-°°d e
+££d e
 t
-°°f g
+££f g
 .
-°°g h
+££g h
 TypeId
-°°h n
+££h n
 ,
-°°n o
+££n o
 t
-°°p q
+££p q
 .
-°°q r
+££q r
 StatusId
-°°r z
+££r z
 ,
-°°z {
+££z {
 t
-°°| }
+££| }
 .
-°°} ~
+££} ~
 
-PriorityId°°~ à
-,°°à â
-t°°ä ã
-.°°ã å
-RequesterUserId°°å õ
-,°°õ ú
-t°°ù û
-.°°û ü
-AssignedUserId°°ü ≠
-,°°≠ Æ
-t°°Ø ∞
-.°°∞ ±
-AssignedGroupId°°± ¿
-)°°¿ ¡
-;°°¡ ¬
+PriorityId££~ à
+,££à â
+t££ä ã
+.££ã å
+RequesterUserId££å õ
+,££õ ú
+t££ù û
+.££û ü
+AssignedUserId££ü ≠
+,££≠ Æ
+t££Ø ∞
+.££∞ ±
+AssignedGroupId££± ¿
+)££¿ ¡
+;££¡ ¬
 }
-¢¢ 
+§§ 
 public
-§§ 
+¶¶ 
 
 async
-§§ 
+¶¶ 
 Task
-§§ 
-UpdateTicketAsync
-§§ '
+¶¶ 
+<
+¶¶ 
+	TicketDto
+¶¶ 
+?
+¶¶  
+>
+¶¶  ! 
+GetTicketByIdAsync
+¶¶" 4
 (
-§§' (
+¶¶4 5
 int
-§§( +
+¶¶5 8
 id
-§§, .
-,
-§§. /
-UpdateTicketDto
-§§0 ?
-dto
-§§@ C
-,
-§§C D
-int
-§§E H
-currentUserId
-§§I V
+¶¶9 ;
 )
-§§V W
+¶¶; <
 {
-•• 
+ßß 
 var
-¶¶ 
+®® 
 t
-¶¶ 
+®® 
 =
-¶¶ 
+®® 
 await
-¶¶ 
+®® 
 _context
-¶¶ 
+®® 
 .
-¶¶ 
+®® 
 Tickets
-¶¶ &
+®® &
 .
-¶¶& '!
+®®& '!
 FirstOrDefaultAsync
-¶¶' :
+®®' :
 (
-¶¶: ;
+®®: ;
 x
-¶¶; <
+®®; <
 =>
-¶¶= ?
+®®= ?
 x
-¶¶@ A
+®®@ A
 .
-¶¶A B
+®®A B
 Id
-¶¶B D
+®®B D
 ==
-¶¶E G
+®®E G
 id
-¶¶H J
+®®H J
 &&
-¶¶K M
+®®K M
 !
-¶¶N O
+®®N O
 x
-¶¶O P
+®®O P
 .
-¶¶P Q
+®®P Q
 	IsDeleted
-¶¶Q Z
+®®Q Z
 )
-¶¶Z [
+®®Z [
 ;
-¶¶[ \
+®®[ \
 if
-ßß 
+©© 
 
 (
-ßß 
+©© 
 t
-ßß 
+©© 
 ==
-ßß 
+©© 
 null
-ßß 
+©© 
 )
-ßß 
-throw
-ßß 
-new
-ßß  "
-KeyNotFoundException
-ßß! 5
-(
-ßß5 6#
-TicketNotFoundMessage
-ßß6 K
-)
-ßßK L
+©© 
+return
+©© 
+null
+©© "
 ;
-ßßL M
-await
-©© (
-ValidateDynamicFieldsAsync
-©© (
+©©" #
+return
+™™ 
+new
+™™ 
+	TicketDto
+™™ 
 (
-©©( )
+™™ 
 t
-©©) *
+™™ 
 .
-©©* +
-	ProjectId
-©©+ 4
+™™ 
+Id
+™™ !
 ,
-©©4 5
-dto
-©©6 9
+™™! "
+t
+™™# $
 .
-©©9 :
+™™$ %
+TicketNumber
+™™% 1
+,
+™™1 2
+t
+™™3 4
+.
+™™4 5
+Title
+™™5 :
+,
+™™: ;
+t
+™™< =
+.
+™™= >
+Description
+™™> I
+,
+™™I J
+t
+™™K L
+.
+™™L M
+	ProjectId
+™™M V
+,
+™™V W
+t
+™™X Y
+.
+™™Y Z
 
 CategoryId
-©©: D
+™™Z d
 ,
-©©D E
+™™d e
 t
-©©F G
+™™f g
 .
-©©G H
+™™g h
 TypeId
-©©H N
+™™h n
 ,
-©©N O
-dto
-©©P S
-.
-©©S T
-CustomFields
-©©T `
-)
-©©` a
-;
-©©a b
+™™n o
 t
-´´ 	
+™™p q
 .
-´´	 
+™™q r
+StatusId
+™™r z
+,
+™™z {
+t
+™™| }
+.
+™™} ~
+
+PriorityId™™~ à
+,™™à â
+t™™ä ã
+.™™ã å
+RequesterUserId™™å õ
+,™™õ ú
+t™™ù û
+.™™û ü
+AssignedUserId™™ü ≠
+,™™≠ Æ
+t™™Ø ∞
+.™™∞ ±
+AssignedGroupId™™± ¿
+)™™¿ ¡
+;™™¡ ¬
+}
+´´ 
+public
+≠≠ 
+
+async
+≠≠ 
+Task
+≠≠ 
+UpdateTicketAsync
+≠≠ '
+(
+≠≠' (
+int
+≠≠( +
+id
+≠≠, .
+,
+≠≠. /
+UpdateTicketDto
+≠≠0 ?
+dto
+≠≠@ C
+,
+≠≠C D
+int
+≠≠E H
+currentUserId
+≠≠I V
+)
+≠≠V W
+{
+ÆÆ 
+var
+ØØ 
+t
+ØØ 
+=
+ØØ 
+await
+ØØ 
+_context
+ØØ 
+.
+ØØ 
+Tickets
+ØØ &
+.
+ØØ& '!
+FirstOrDefaultAsync
+ØØ' :
+(
+ØØ: ;
+x
+ØØ; <
+=>
+ØØ= ?
+x
+ØØ@ A
+.
+ØØA B
+Id
+ØØB D
+==
+ØØE G
+id
+ØØH J
+&&
+ØØK M
+!
+ØØN O
+x
+ØØO P
+.
+ØØP Q
+	IsDeleted
+ØØQ Z
+)
+ØØZ [
+;
+ØØ[ \
+if
+∞∞ 
+
+(
+∞∞ 
+t
+∞∞ 
+==
+∞∞ 
+null
+∞∞ 
+)
+∞∞ 
+throw
+∞∞ 
+new
+∞∞  "
+KeyNotFoundException
+∞∞! 5
+(
+∞∞5 6#
+TicketNotFoundMessage
+∞∞6 K
+)
+∞∞K L
+;
+∞∞L M
+await
+≤≤ (
+ValidateDynamicFieldsAsync
+≤≤ (
+(
+≤≤( )
+t
+≤≤) *
+.
+≤≤* +
+	ProjectId
+≤≤+ 4
+,
+≤≤4 5
+dto
+≤≤6 9
+.
+≤≤9 :
+
+CategoryId
+≤≤: D
+,
+≤≤D E
+t
+≤≤F G
+.
+≤≤G H
+TypeId
+≤≤H N
+,
+≤≤N O
+dto
+≤≤P S
+.
+≤≤S T
+CustomFields
+≤≤T `
+)
+≤≤` a
+;
+≤≤a b
+t
+¥¥ 	
+.
+¥¥	 
 
 Title
-´´
+¥¥
  
 =
-´´ 
+¥¥ 
 dto
-´´ 
+¥¥ 
 .
-´´ 
+¥¥ 
 Title
-´´ 
+¥¥ 
 ;
-´´ 
+¥¥ 
 t
-¨¨ 	
+µµ 	
 .
-¨¨	 
+µµ	 
 
 Description
-¨¨
+µµ
  
 =
-¨¨ 
+µµ 
 dto
-¨¨ 
+µµ 
 .
-¨¨ 
+µµ 
 Description
-¨¨ '
+µµ '
 ;
-¨¨' (
+µµ' (
 t
-≠≠ 	
+∂∂ 	
 .
-≠≠	 
+∂∂	 
 
 
 CategoryId
-≠≠
+∂∂
  
 =
-≠≠ 
+∂∂ 
 dto
-≠≠ 
+∂∂ 
 .
-≠≠ 
+∂∂ 
 
 CategoryId
-≠≠ %
+∂∂ %
 ;
-≠≠% &
+∂∂% &
 t
-ÆÆ 	
+∑∑ 	
 .
-ÆÆ	 
+∑∑	 
 
 
 PriorityId
-ÆÆ
+∑∑
  
 =
-ÆÆ 
+∑∑ 
 dto
-ÆÆ 
+∑∑ 
 .
-ÆÆ 
+∑∑ 
 
 PriorityId
-ÆÆ %
+∑∑ %
 ;
-ÆÆ% &
+∑∑% &
 await
-≥≥ 
+ºº 
 _context
-≥≥ 
+ºº 
 .
-≥≥ 
+ºº 
 SaveChangesAsync
-≥≥ '
+ºº '
 (
-≥≥' (
+ºº' (
 )
-≥≥( )
+ºº( )
 ;
-≥≥) *
+ºº) *
 }
-¥¥ 
+ΩΩ 
 public
-∂∂ 
+øø 
 
 async
-∂∂ 
+øø 
 Task
-∂∂ 
+øø 
 ChangeStatusAsync
-∂∂ '
+øø '
 (
-∂∂' (
+øø' (
 int
-∂∂( +
+øø( +
 ticketId
-∂∂, 4
+øø, 4
 ,
-∂∂4 5
+øø4 5
 ChangeStatusDto
-∂∂6 E
+øø6 E
 dto
-∂∂F I
+øøF I
 )
-∂∂I J
+øøI J
 {
-∑∑ 
+¿¿ 
 var
-∏∏ 
+¡¡ 
 t
-∏∏ 
+¡¡ 
 =
-∏∏ 
+¡¡ 
 await
-∏∏ 
+¡¡ 
 _context
-∏∏ 
+¡¡ 
 .
-∏∏ 
+¡¡ 
 Tickets
-∏∏ &
+¡¡ &
 .
-∏∏& '!
+¡¡& '!
 FirstOrDefaultAsync
-∏∏' :
+¡¡' :
 (
-∏∏: ;
+¡¡: ;
 x
-∏∏; <
+¡¡; <
 =>
-∏∏= ?
+¡¡= ?
 x
-∏∏@ A
+¡¡@ A
 .
-∏∏A B
+¡¡A B
 Id
-∏∏B D
+¡¡B D
 ==
-∏∏E G
+¡¡E G
 ticketId
-∏∏H P
+¡¡H P
 &&
-∏∏Q S
+¡¡Q S
 !
-∏∏T U
+¡¡T U
 x
-∏∏U V
+¡¡U V
 .
-∏∏V W
+¡¡V W
 	IsDeleted
-∏∏W `
+¡¡W `
 )
-∏∏` a
+¡¡` a
 ;
-∏∏a b
+¡¡a b
 if
-ππ 
+¬¬ 
 
 (
-ππ 
+¬¬ 
 t
-ππ 
+¬¬ 
 ==
-ππ 
+¬¬ 
 null
-ππ 
+¬¬ 
 )
-ππ 
+¬¬ 
 throw
-ππ 
+¬¬ 
 new
-ππ  "
+¬¬  "
 KeyNotFoundException
-ππ! 5
+¬¬! 5
 (
-ππ5 6#
+¬¬5 6#
 TicketNotFoundMessage
-ππ6 K
+¬¬6 K
 )
-ππK L
+¬¬K L
 ;
-ππL M
-if
-ªª 
-
-(
-ªª 
-t
-ªª 
-.
-ªª 
-StatusId
-ªª 
-==
-ªª 
-dto
-ªª 
-.
-ªª 
-NewStatusId
-ªª )
-)
-ªª) *
-return
-ªª+ 1
-;
-ªª1 2
-var
-ææ 
-wf
-ææ 
-=
-ææ 
-await
-ææ 
-_context
-ææ 
-.
-ææ  
-	Workflows
-ææ  )
-.
-ææ) *!
-FirstOrDefaultAsync
-ææ* =
-(
-ææ= >
-w
-ææ> ?
-=>
-ææ@ B
-(
-ææC D
-w
-ææD E
-.
-ææE F
-	ProjectId
-ææF O
-==
-ææP R
-t
-ææS T
-.
-ææT U
-	ProjectId
-ææU ^
-||
-ææ_ a
-w
-ææb c
-.
-ææc d
-	ProjectId
-ææd m
-==
-ææn p
-null
-ææq u
-)
-ææu v
-&&
-ææw y
-!
-ææz {
-w
-ææ{ |
-.
-ææ| }
-	IsDeletedææ} Ü
-)ææÜ á
-;ææá à
-if
-øø 
-
-(
-øø 
-wf
-øø 
-==
-øø 
-null
-øø 
-)
-øø 
-throw
-øø 
-new
-øø !'
-InvalidOperationException
-øø" ;
-(
-øø; <
-$str
-øø< \
-)
-øø\ ]
-;
-øø] ^
-var
-¡¡ 
-
-transition
-¡¡ 
-=
-¡¡ 
-await
-¡¡ 
-_context
-¡¡ '
-.
-¡¡' (!
-WorkflowTransitions
-¡¡( ;
-.
-¡¡; <!
-FirstOrDefaultAsync
-¡¡< O
-(
-¡¡O P
-wt
-¡¡P R
-=>
-¡¡S U
-wt
-¬¬ 
-.
-¬¬ 
-
-WorkflowId
-¬¬ 
-==
-¬¬ 
-wf
-¬¬ 
-.
-¬¬  
-Id
-¬¬  "
-&&
-¬¬# %
-wt
-¬¬& (
-.
-¬¬( )
-FromStatusId
-¬¬) 5
-==
-¬¬6 8
-t
-¬¬9 :
-.
-¬¬: ;
-StatusId
-¬¬; C
-&&
-¬¬D F
-wt
-¬¬G I
-.
-¬¬I J
-
-ToStatusId
-¬¬J T
-==
-¬¬U W
-dto
-¬¬X [
-.
-¬¬[ \
-NewStatusId
-¬¬\ g
-&&
-¬¬h j
-!
-¬¬k l
-wt
-¬¬l n
-.
-¬¬n o
-	IsDeleted
-¬¬o x
-&&
-¬¬y {
-wt
-¬¬| ~
-.
-¬¬~ 
-IsActive¬¬ á
-)¬¬á à
-;¬¬à â
+¬¬L M
 if
 ƒƒ 
 
 (
-ƒƒ 
-
-transition
-ƒƒ 
+ƒƒ 
+t
+ƒƒ 
+.
+ƒƒ 
+StatusId
+ƒƒ 
 ==
-ƒƒ 
-null
-ƒƒ 
+ƒƒ 
+dto
+ƒƒ 
+.
+ƒƒ 
+NewStatusId
+ƒƒ )
 )
-ƒƒ 
-throw
-≈≈ 
-new
-≈≈ '
-InvalidOperationException
-≈≈ /
-(
-≈≈/ 0
-$str
-≈≈0 L
-)
-≈≈L M
+ƒƒ) *
+return
+ƒƒ+ 1
 ;
-≈≈M N
+ƒƒ1 2
+var
+«« 
+wf
+«« 
+=
+«« 
+await
+«« 
+_context
+«« 
+.
+««  
+	Workflows
+««  )
+.
+««) *!
+FirstOrDefaultAsync
+««* =
+(
+««= >
+w
+««> ?
+=>
+««@ B
+(
+««C D
+w
+««D E
+.
+««E F
+	ProjectId
+««F O
+==
+««P R
+t
+««S T
+.
+««T U
+	ProjectId
+««U ^
+||
+««_ a
+w
+««b c
+.
+««c d
+	ProjectId
+««d m
+==
+««n p
+null
+««q u
+)
+««u v
+&&
+««w y
+!
+««z {
+w
+««{ |
+.
+««| }
+	IsDeleted««} Ü
+)««Ü á
+;««á à
 if
-«« 
+»» 
 
 (
-«« 
-!
-«« 
-string
-«« 
-.
-«« 
-IsNullOrEmpty
-«« !
-(
-««! "
-
-transition
-««" ,
-.
-««, -#
-RequiredPermissionKey
-««- B
+»» 
+wf
+»» 
+==
+»» 
+null
+»» 
 )
-««B C
-)
-««C D
-{
-»» 	
-var
-…… 
-perms
-…… 
-=
-…… 
-await
-…… #
-_permissionCalculator
-…… 3
-.
-……3 40
-"CalculateEffectivePermissionsAsync
-……4 V
-(
-……V W
-dto
-……W Z
-.
-……Z [
-UserId
-……[ a
-)
-……a b
-;
-……b c
-if
-   
-(
-   
-!
-   
-perms
-   
-.
-   
-Contains
-   
-(
-    
-
-transition
-    *
-.
-  * +#
-RequiredPermissionKey
-  + @
-)
-  @ A
-)
-  A B
+»» 
 throw
-ÀÀ 
+»» 
 new
-ÀÀ )
-UnauthorizedAccessException
-ÀÀ 5
+»» !'
+InvalidOperationException
+»»" ;
 (
-ÀÀ5 6
-$"
-ÀÀ6 8
+»»; <
 $str
-ÀÀ8 U
-{
-ÀÀU V
+»»< \
+)
+»»\ ]
+;
+»»] ^
+var
+   
 
 transition
-ÀÀV `
-.
-ÀÀ` a#
-RequiredPermissionKey
-ÀÀa v
-}
-ÀÀv w
-"
-ÀÀw x
-)
-ÀÀx y
-;
-ÀÀy z
-}
-ÃÃ 	
-var
-ŒŒ 
-	oldStatus
-ŒŒ 
+   
 =
-ŒŒ 
-t
-ŒŒ 
+   
+await
+   
+_context
+   '
 .
-ŒŒ 
+  ' (!
+WorkflowTransitions
+  ( ;
+.
+  ; <!
+FirstOrDefaultAsync
+  < O
+(
+  O P
+wt
+  P R
+=>
+  S U
+wt
+ÀÀ 
+.
+ÀÀ 
+
+WorkflowId
+ÀÀ 
+==
+ÀÀ 
+wf
+ÀÀ 
+.
+ÀÀ  
+Id
+ÀÀ  "
+&&
+ÀÀ# %
+wt
+ÀÀ& (
+.
+ÀÀ( )
+FromStatusId
+ÀÀ) 5
+==
+ÀÀ6 8
+t
+ÀÀ9 :
+.
+ÀÀ: ;
 StatusId
-ŒŒ "
-;
-ŒŒ" #
-t
-œœ 	
+ÀÀ; C
+&&
+ÀÀD F
+wt
+ÀÀG I
 .
-œœ	 
+ÀÀI J
+
+ToStatusId
+ÀÀJ T
+==
+ÀÀU W
+dto
+ÀÀX [
+.
+ÀÀ[ \
+NewStatusId
+ÀÀ\ g
+&&
+ÀÀh j
+!
+ÀÀk l
+wt
+ÀÀl n
+.
+ÀÀn o
+	IsDeleted
+ÀÀo x
+&&
+ÀÀy {
+wt
+ÀÀ| ~
+.
+ÀÀ~ 
+IsActiveÀÀ á
+)ÀÀá à
+;ÀÀà â
+if
+ÕÕ 
+
+(
+ÕÕ 
+
+transition
+ÕÕ 
+==
+ÕÕ 
+null
+ÕÕ 
+)
+ÕÕ 
+throw
+ŒŒ 
+new
+ŒŒ '
+InvalidOperationException
+ŒŒ /
+(
+ŒŒ/ 0
+$str
+ŒŒ0 L
+)
+ŒŒL M
+;
+ŒŒM N
+if
+–– 
+
+(
+–– 
+!
+–– 
+string
+–– 
+.
+–– 
+IsNullOrEmpty
+–– !
+(
+––! "
+
+transition
+––" ,
+.
+––, -#
+RequiredPermissionKey
+––- B
+)
+––B C
+)
+––C D
+{
+—— 	
+var
+““ 
+perms
+““ 
+=
+““ 
+await
+““ #
+_permissionCalculator
+““ 3
+.
+““3 40
+"CalculateEffectivePermissionsAsync
+““4 V
+(
+““V W
+dto
+““W Z
+.
+““Z [
+UserId
+““[ a
+)
+““a b
+;
+““b c
+if
+”” 
+(
+”” 
+!
+”” 
+perms
+”” 
+.
+”” 
+Contains
+”” 
+(
+””  
+
+transition
+””  *
+.
+””* +#
+RequiredPermissionKey
+””+ @
+)
+””@ A
+)
+””A B
+throw
+‘‘ 
+new
+‘‘ )
+UnauthorizedAccessException
+‘‘ 5
+(
+‘‘5 6
+$"
+‘‘6 8
+$str
+‘‘8 U
+{
+‘‘U V
+
+transition
+‘‘V `
+.
+‘‘` a#
+RequiredPermissionKey
+‘‘a v
+}
+‘‘v w
+"
+‘‘w x
+)
+‘‘x y
+;
+‘‘y z
+}
+’’ 	
+var
+◊◊ 
+	oldStatus
+◊◊ 
+=
+◊◊ 
+t
+◊◊ 
+.
+◊◊ 
+StatusId
+◊◊ "
+;
+◊◊" #
+t
+ÿÿ 	
+.
+ÿÿ	 
 
 StatusId
-œœ
+ÿÿ
  
 =
-œœ 
+ÿÿ 
 dto
-œœ 
+ÿÿ 
 .
-œœ 
+ÿÿ 
 NewStatusId
-œœ $
+ÿÿ $
 ;
-œœ$ %
+ÿÿ$ %
 _context
-—— 
+⁄⁄ 
 .
-—— 
+⁄⁄ 
 TicketHistories
-——  
+⁄⁄  
 .
-——  !
+⁄⁄  !
 Add
-——! $
+⁄⁄! $
 (
-——$ %
+⁄⁄$ %
 new
-——% (
+⁄⁄% (
 TicketHistory
-——) 6
+⁄⁄) 6
 {
-““ 	
+€€ 	
 TicketId
-”” 
+‹‹ 
 =
-”” 
+‹‹ 
 t
-”” 
+‹‹ 
 .
-”” 
+‹‹ 
 Id
-”” 
+‹‹ 
 ,
-”” 
+‹‹ 
 Action
-‘‘ 
+›› 
 =
-‘‘ 
+›› 
 $str
-‘‘ $
+›› $
 ,
-‘‘$ %
+››$ %
 	FieldName
-’’ 
+ﬁﬁ 
 =
-’’ 
+ﬁﬁ 
 $str
-’’ "
+ﬁﬁ "
 ,
-’’" #
+ﬁﬁ" #
 OldValue
-÷÷ 
+ﬂﬂ 
 =
-÷÷ 
+ﬂﬂ 
 	oldStatus
-÷÷  
+ﬂﬂ  
 .
-÷÷  !
+ﬂﬂ  !
 ToString
-÷÷! )
+ﬂﬂ! )
 (
-÷÷) *
+ﬂﬂ) *
 )
-÷÷* +
+ﬂﬂ* +
 ,
-÷÷+ ,
+ﬂﬂ+ ,
 NewValue
-◊◊ 
+‡‡ 
 =
-◊◊ 
+‡‡ 
 dto
-◊◊ 
+‡‡ 
 .
-◊◊ 
+‡‡ 
 NewStatusId
-◊◊ &
+‡‡ &
 .
-◊◊& '
+‡‡& '
 ToString
-◊◊' /
+‡‡' /
 (
-◊◊/ 0
+‡‡/ 0
 )
-◊◊0 1
+‡‡0 1
 ,
-◊◊1 2
+‡‡1 2
 	CreatedBy
-ÿÿ 
+·· 
 =
-ÿÿ 
+·· 
 dto
-ÿÿ 
+·· 
 .
-ÿÿ 
+·· 
 UserId
-ÿÿ "
+·· "
 .
-ÿÿ" #
+··" #
 ToString
-ÿÿ# +
+··# +
 (
-ÿÿ+ ,
+··+ ,
 )
-ÿÿ, -
+··, -
 }
-ŸŸ 	
+‚‚ 	
 )
-ŸŸ	 
+‚‚	 
 
 ;
-ŸŸ
+‚‚
  
 await
-€€ 
+‰‰ 
 _context
-€€ 
+‰‰ 
 .
-€€ 
+‰‰ 
 SaveChangesAsync
-€€ '
+‰‰ '
 (
-€€' (
+‰‰' (
 )
-€€( )
+‰‰( )
 ;
-€€) *
+‰‰) *
 await
-›› 
+ÊÊ 
 
 _slaEngine
-›› 
+ÊÊ 
 .
-›› ,
+ÊÊ ,
 ProcessTicketStatusChangeAsync
-›› 7
+ÊÊ 7
 (
-››7 8
+ÊÊ7 8
 t
-››8 9
+ÊÊ8 9
 .
-››9 :
+ÊÊ9 :
 Id
-››: <
+ÊÊ: <
 ,
-››< =
+ÊÊ< =
 	oldStatus
-››> G
+ÊÊ> G
 ,
-››G H
+ÊÊG H
 dto
-››I L
+ÊÊI L
 .
-››L M
+ÊÊL M
 NewStatusId
-››M X
+ÊÊM X
 )
-››X Y
+ÊÊX Y
 ;
-››Y Z
+ÊÊY Z
+if
+ÈÈ 
+
+(
+ÈÈ 
+dto
+ÈÈ 
+.
+ÈÈ 
+NewStatusId
+ÈÈ 
+==
+ÈÈ 
+$num
+ÈÈ  
+&&
+ÈÈ! #
+	oldStatus
+ÈÈ$ -
+!=
+ÈÈ. 0
+$num
+ÈÈ1 2
+)
+ÈÈ2 3
+{
+ÍÍ 	
+await
+ÎÎ %
+_notificationDispatcher
+ÎÎ )
+.
+ÎÎ) * 
+DispatchEventAsync
+ÎÎ* <
+(
+ÎÎ< =
+$str
+ÎÎ= S
+,
+ÎÎS T
+t
+ÎÎU V
+.
+ÎÎV W
+Id
+ÎÎW Y
+,
+ÎÎY Z
+dto
+ÎÎ[ ^
+.
+ÎÎ^ _
+UserId
+ÎÎ_ e
+,
+ÎÎe f
+$strÎÎg Æ
+)ÎÎÆ Ø
+;ÎÎØ ∞
 }
-ﬁﬁ 
+ÏÏ 	
+}
+ÌÌ 
 public
-‡‡ 
+ÔÔ 
 
 async
-‡‡ 
+ÔÔ 
 Task
-‡‡ 
+ÔÔ 
 AssignTicketAsync
-‡‡ '
+ÔÔ '
 (
-‡‡' (
+ÔÔ' (
 int
-‡‡( +
+ÔÔ( +
 ticketId
-‡‡, 4
+ÔÔ, 4
 ,
-‡‡4 5
+ÔÔ4 5
 AssignTicketDto
-‡‡6 E
+ÔÔ6 E
 dto
-‡‡F I
+ÔÔF I
 )
-‡‡I J
+ÔÔI J
 {
-·· 
+ 
 var
-‚‚ 
+ÒÒ 
 t
-‚‚ 
+ÒÒ 
 =
-‚‚ 
+ÒÒ 
 await
-‚‚ 
+ÒÒ 
 _context
-‚‚ 
+ÒÒ 
 .
-‚‚ 
+ÒÒ 
 Tickets
-‚‚ &
+ÒÒ &
 .
-‚‚& '!
+ÒÒ& '!
 FirstOrDefaultAsync
-‚‚' :
+ÒÒ' :
 (
-‚‚: ;
+ÒÒ: ;
 x
-‚‚; <
+ÒÒ; <
 =>
-‚‚= ?
+ÒÒ= ?
 x
-‚‚@ A
+ÒÒ@ A
 .
-‚‚A B
+ÒÒA B
 Id
-‚‚B D
+ÒÒB D
 ==
-‚‚E G
+ÒÒE G
 ticketId
-‚‚H P
+ÒÒH P
 &&
-‚‚Q S
+ÒÒQ S
 !
-‚‚T U
+ÒÒT U
 x
-‚‚U V
+ÒÒU V
 .
-‚‚V W
+ÒÒV W
 	IsDeleted
-‚‚W `
+ÒÒW `
 )
-‚‚` a
+ÒÒ` a
 ;
-‚‚a b
+ÒÒa b
 if
-„„ 
+ÚÚ 
 
 (
-„„ 
+ÚÚ 
 t
-„„ 
+ÚÚ 
 ==
-„„ 
+ÚÚ 
 null
-„„ 
+ÚÚ 
 )
-„„ 
+ÚÚ 
 throw
-„„ 
+ÚÚ 
 new
-„„  "
+ÚÚ  "
 KeyNotFoundException
-„„! 5
+ÚÚ! 5
 (
-„„5 6#
+ÚÚ5 6#
 TicketNotFoundMessage
-„„6 K
+ÚÚ6 K
 )
-„„K L
+ÚÚK L
 ;
-„„L M
+ÚÚL M
 var
-ÂÂ 
+ÙÙ 
 perms
-ÂÂ 
+ÙÙ 
 =
-ÂÂ 
+ÙÙ 
 await
-ÂÂ #
+ÙÙ #
 _permissionCalculator
-ÂÂ /
+ÙÙ /
 .
-ÂÂ/ 00
+ÙÙ/ 00
 "CalculateEffectivePermissionsAsync
-ÂÂ0 R
+ÙÙ0 R
 (
-ÂÂR S
+ÙÙR S
 dto
-ÂÂS V
+ÙÙS V
 .
-ÂÂV W
+ÙÙV W
 AssignerUserId
-ÂÂW e
+ÙÙW e
 )
-ÂÂe f
+ÙÙe f
 ;
-ÂÂf g
+ÙÙf g
 if
-ÊÊ 
+ıı 
 
 (
-ÊÊ 
+ıı 
 !
-ÊÊ 
+ıı 
 perms
-ÊÊ 
+ıı 
 .
-ÊÊ 
+ıı 
 Contains
-ÊÊ 
+ıı 
 (
-ÊÊ 
+ıı 
 $str
-ÊÊ +
+ıı +
 )
-ÊÊ+ ,
+ıı+ ,
 )
-ÊÊ, -
+ıı, -
 throw
-ÊÊ. 3
+ıı. 3
 new
-ÊÊ4 7)
+ıı4 7)
 UnauthorizedAccessException
-ÊÊ8 S
+ıı8 S
 (
-ÊÊS T
+ııS T
 $str
-ÊÊT w
+ııT w
 )
-ÊÊw x
+ııw x
 ;
-ÊÊx y
+ııx y
 var
-ËË 
+˜˜ 
 oldAssignee
-ËË 
+˜˜ 
 =
-ËË 
+˜˜ 
 t
-ËË 
+˜˜ 
 .
-ËË 
+˜˜ 
 AssignedUserId
-ËË *
+˜˜ *
 ;
-ËË* +
+˜˜* +
 t
-ÈÈ 	
+¯¯ 	
 .
-ÈÈ	 
+¯¯	 
 
 AssignedUserId
-ÈÈ
+¯¯
  
 =
-ÈÈ 
+¯¯ 
 dto
-ÈÈ 
+¯¯ 
 .
-ÈÈ 
+¯¯ 
 UserId
-ÈÈ %
+¯¯ %
 ;
-ÈÈ% &
+¯¯% &
 _context
-ÎÎ 
+˙˙ 
 .
-ÎÎ 
+˙˙ 
 TicketHistories
-ÎÎ  
+˙˙  
 .
-ÎÎ  !
+˙˙  !
 Add
-ÎÎ! $
+˙˙! $
 (
-ÎÎ$ %
+˙˙$ %
 new
-ÎÎ% (
+˙˙% (
 TicketHistory
-ÎÎ) 6
+˙˙) 6
 {
-ÏÏ 	
+˚˚ 	
 TicketId
-ÌÌ 
+¸¸ 
 =
-ÌÌ 
+¸¸ 
 t
-ÌÌ 
+¸¸ 
 .
-ÌÌ 
+¸¸ 
 Id
-ÌÌ 
+¸¸ 
 ,
-ÌÌ 
+¸¸ 
 Action
-ÓÓ 
+˝˝ 
 =
-ÓÓ 
+˝˝ 
 $str
-ÓÓ 
+˝˝ 
 ,
-ÓÓ  
+˝˝  
 	FieldName
-ÔÔ 
+˛˛ 
 =
-ÔÔ 
+˛˛ 
 $str
-ÔÔ (
+˛˛ (
 ,
-ÔÔ( )
+˛˛( )
 OldValue
- 
+ˇˇ 
 =
- 
+ˇˇ 
 oldAssignee
- "
+ˇˇ "
 ?
-" #
+ˇˇ" #
 .
-# $
+ˇˇ# $
 ToString
-$ ,
+ˇˇ$ ,
 (
-, -
+ˇˇ, -
 )
-- .
+ˇˇ- .
 ,
-. /
+ˇˇ. /
 NewValue
-ÒÒ 
+ÄÄ 
 =
-ÒÒ 
+ÄÄ 
 dto
-ÒÒ 
+ÄÄ 
 .
-ÒÒ 
+ÄÄ 
 UserId
-ÒÒ !
+ÄÄ !
 .
-ÒÒ! "
+ÄÄ! "
 ToString
-ÒÒ" *
+ÄÄ" *
 (
-ÒÒ* +
+ÄÄ* +
 )
-ÒÒ+ ,
+ÄÄ+ ,
 ,
-ÒÒ, -
+ÄÄ, -
 	CreatedBy
-ÚÚ 
+ÅÅ 
 =
-ÚÚ 
+ÅÅ 
 dto
-ÚÚ 
+ÅÅ 
 .
-ÚÚ 
+ÅÅ 
 AssignerUserId
-ÚÚ *
+ÅÅ *
 .
-ÚÚ* +
+ÅÅ* +
 ToString
-ÚÚ+ 3
+ÅÅ+ 3
 (
-ÚÚ3 4
+ÅÅ3 4
 )
-ÚÚ4 5
+ÅÅ4 5
 }
-ÛÛ 	
+ÇÇ 	
 )
-ÛÛ	 
+ÇÇ	 
 
 ;
-ÛÛ
+ÇÇ
  
 await
-ıı 
+ÑÑ 
 _context
-ıı 
+ÑÑ 
 .
-ıı 
+ÑÑ 
 SaveChangesAsync
-ıı '
+ÑÑ '
 (
-ıı' (
+ÑÑ' (
 )
-ıı( )
+ÑÑ( )
 ;
-ıı) *
+ÑÑ) *
+await
+ÖÖ %
+_notificationDispatcher
+ÖÖ %
+.
+ÖÖ% & 
+DispatchEventAsync
+ÖÖ& 8
+(
+ÖÖ8 9
+$str
+ÖÖ9 J
+,
+ÖÖJ K
+t
+ÖÖL M
+.
+ÖÖM N
+Id
+ÖÖN P
+,
+ÖÖP Q
+dto
+ÖÖR U
+.
+ÖÖU V
+AssignerUserId
+ÖÖV d
+,
+ÖÖd e
+$"
+ÖÖf h
+$str
+ÖÖh {
+{
+ÖÖ{ |
+dto
+ÖÖ| 
+.ÖÖ Ä
+UserIdÖÖÄ Ü
+}ÖÖÜ á
+"ÖÖá à
+)ÖÖà â
+;ÖÖâ ä
 }
-ˆˆ 
+ÜÜ 
 public
-¯¯ 
+àà 
 
 async
-¯¯ 
+àà 
 Task
-¯¯ !
+àà !
 TransferTicketAsync
-¯¯ )
+àà )
 (
-¯¯) *
+àà) *
 int
-¯¯* -
+àà* -
 ticketId
-¯¯. 6
+àà. 6
 ,
-¯¯6 7
+àà6 7
 TransferTicketDto
-¯¯8 I
+àà8 I
 dto
-¯¯J M
+ààJ M
 )
-¯¯M N
+ààM N
 {
-˘˘ 
+ââ 
 var
-˙˙ 
+ää 
 t
-˙˙ 
+ää 
 =
-˙˙ 
+ää 
 await
-˙˙ 
+ää 
 _context
-˙˙ 
+ää 
 .
-˙˙ 
+ää 
 Tickets
-˙˙ &
+ää &
 .
-˙˙& '!
+ää& '!
 FirstOrDefaultAsync
-˙˙' :
+ää' :
 (
-˙˙: ;
+ää: ;
 x
-˙˙; <
+ää; <
 =>
-˙˙= ?
+ää= ?
 x
-˙˙@ A
+ää@ A
 .
-˙˙A B
+ääA B
 Id
-˙˙B D
+ääB D
 ==
-˙˙E G
+ääE G
 ticketId
-˙˙H P
+ääH P
 &&
-˙˙Q S
+ääQ S
 !
-˙˙T U
+ääT U
 x
-˙˙U V
+ääU V
 .
-˙˙V W
+ääV W
 	IsDeleted
-˙˙W `
+ääW `
 )
-˙˙` a
+ää` a
 ;
-˙˙a b
+ääa b
 if
-˚˚ 
+ãã 
 
 (
-˚˚ 
+ãã 
 t
-˚˚ 
+ãã 
 ==
-˚˚ 
+ãã 
 null
-˚˚ 
+ãã 
 )
-˚˚ 
+ãã 
 throw
-˚˚ 
+ãã 
 new
-˚˚  "
+ãã  "
 KeyNotFoundException
-˚˚! 5
+ãã! 5
 (
-˚˚5 6#
+ãã5 6#
 TicketNotFoundMessage
-˚˚6 K
+ãã6 K
 )
-˚˚K L
+ããK L
 ;
-˚˚L M
+ããL M
 var
-˝˝ 
+çç 
 perms
-˝˝ 
+çç 
 =
-˝˝ 
+çç 
 await
-˝˝ #
+çç #
 _permissionCalculator
-˝˝ /
+çç /
 .
-˝˝/ 00
+çç/ 00
 "CalculateEffectivePermissionsAsync
-˝˝0 R
+çç0 R
 (
-˝˝R S
+ççR S
 dto
-˝˝S V
+ççS V
 .
-˝˝V W
+ççV W
 TransferrerUserId
-˝˝W h
+ççW h
 )
-˝˝h i
+ççh i
 ;
-˝˝i j
+ççi j
 if
-˛˛ 
+éé 
 
 (
-˛˛ 
+éé 
 !
-˛˛ 
+éé 
 perms
-˛˛ 
+éé 
 .
-˛˛ 
+éé 
 Contains
-˛˛ 
+éé 
 (
-˛˛ 
+éé 
 $str
-˛˛ -
+éé -
 )
-˛˛- .
+éé- .
 )
-˛˛. /
+éé. /
 throw
-˛˛0 5
+éé0 5
 new
-˛˛6 9)
+éé6 9)
 UnauthorizedAccessException
-˛˛: U
+éé: U
 (
-˛˛U V
+ééU V
 $str
-˛˛V {
+ééV {
 )
-˛˛{ |
+éé{ |
 ;
-˛˛| }
+éé| }
 var
-ÄÄ 
+êê 
 oldProj
-ÄÄ 
+êê 
 =
-ÄÄ 
+êê 
 t
-ÄÄ 
+êê 
 .
-ÄÄ 
+êê 
 	ProjectId
-ÄÄ !
+êê !
 ;
-ÄÄ! "
+êê! "
 var
-ÅÅ 
+ëë 
 oldGroup
-ÅÅ 
+ëë 
 =
-ÅÅ 
+ëë 
 t
-ÅÅ 
+ëë 
 .
-ÅÅ 
+ëë 
 AssignedGroupId
-ÅÅ (
+ëë (
 ;
-ÅÅ( )
+ëë( )
 if
-ÉÉ 
+ìì 
 
 (
-ÉÉ 
+ìì 
 dto
-ÉÉ 
+ìì 
 .
-ÉÉ 
+ìì 
 	ProjectId
-ÉÉ 
+ìì 
 .
-ÉÉ 
+ìì 
 HasValue
-ÉÉ "
+ìì "
 )
-ÉÉ" #
+ìì" #
 t
-ÉÉ$ %
+ìì$ %
 .
-ÉÉ% &
+ìì% &
 	ProjectId
-ÉÉ& /
+ìì& /
 =
-ÉÉ0 1
+ìì0 1
 dto
-ÉÉ2 5
+ìì2 5
 .
-ÉÉ5 6
+ìì5 6
 	ProjectId
-ÉÉ6 ?
+ìì6 ?
 .
-ÉÉ? @
+ìì? @
 Value
-ÉÉ@ E
+ìì@ E
 ;
-ÉÉE F
+ììE F
 if
-ÑÑ 
+îî 
 
 (
-ÑÑ 
+îî 
 dto
-ÑÑ 
+îî 
 .
-ÑÑ 
+îî 
 GroupId
-ÑÑ 
+îî 
 .
-ÑÑ 
+îî 
 HasValue
-ÑÑ  
+îî  
 )
-ÑÑ  !
+îî  !
 t
-ÑÑ" #
+îî" #
 .
-ÑÑ# $
+îî# $
 AssignedGroupId
-ÑÑ$ 3
+îî$ 3
 =
-ÑÑ4 5
+îî4 5
 dto
-ÑÑ6 9
+îî6 9
 .
-ÑÑ9 :
+îî9 :
 GroupId
-ÑÑ: A
+îî: A
 .
-ÑÑA B
+îîA B
 Value
-ÑÑB G
+îîB G
 ;
-ÑÑG H
+îîG H
 _context
-ÜÜ 
+ññ 
 .
-ÜÜ 
+ññ 
 TicketHistories
-ÜÜ  
+ññ  
 .
-ÜÜ  !
+ññ  !
 Add
-ÜÜ! $
+ññ! $
 (
-ÜÜ$ %
+ññ$ %
 new
-ÜÜ% (
+ññ% (
 TicketHistory
-ÜÜ) 6
+ññ) 6
 {
-áá 	
+óó 	
 TicketId
-àà 
+òò 
 =
-àà 
+òò 
 t
-àà 
+òò 
 .
-àà 
+òò 
 Id
-àà 
+òò 
 ,
-àà 
+òò 
 Action
-ââ 
+ôô 
 =
-ââ 
+ôô 
 $str
-ââ "
+ôô "
 ,
-ââ" #
+ôô" #
 	FieldName
-ää 
+öö 
 =
-ää 
+öö 
 $str
-ää "
+öö "
 ,
-ää" #
+öö" #
 OldValue
-ãã 
+õõ 
 =
-ãã 
+õõ 
 $"
-ãã 
+õõ 
 $str
-ãã 
+õõ 
 {
-ãã 
+õõ 
 oldProj
-ãã &
+õõ &
 }
-ãã& '
+õõ& '
 $str
-ãã' ,
+õõ' ,
 {
-ãã, -
+õõ, -
 oldGroup
-ãã- 5
+õõ- 5
 }
-ãã5 6
+õõ5 6
 "
-ãã6 7
+õõ6 7
 ,
-ãã7 8
+õõ7 8
 NewValue
-åå 
+úú 
 =
-åå 
+úú 
 $"
-åå 
+úú 
 $str
-åå 
+úú 
 {
-åå 
+úú 
 t
-åå  
+úú  
 .
-åå  !
+úú  !
 	ProjectId
-åå! *
+úú! *
 }
-åå* +
+úú* +
 $str
-åå+ 0
+úú+ 0
 {
-åå0 1
+úú0 1
 t
-åå1 2
+úú1 2
 .
-åå2 3
+úú2 3
 AssignedGroupId
-åå3 B
+úú3 B
 }
-ååB C
+úúB C
 "
-ååC D
+úúC D
 ,
-ååD E
+úúD E
 	CreatedBy
-çç 
+ùù 
 =
-çç 
+ùù 
 dto
-çç 
+ùù 
 .
-çç 
+ùù 
 TransferrerUserId
-çç -
+ùù -
 .
-çç- .
+ùù- .
 ToString
-çç. 6
+ùù. 6
 (
-çç6 7
+ùù6 7
 )
-çç7 8
+ùù7 8
 }
-éé 	
+ûû 	
 )
-éé	 
+ûû	 
 
 ;
-éé
+ûû
  
 await
-êê 
+†† 
 _context
-êê 
+†† 
 .
-êê 
+†† 
 SaveChangesAsync
-êê '
+†† '
 (
-êê' (
+††' (
 )
-êê( )
+††( )
 ;
-êê) *
+††) *
 }
-ëë 
+°° 
 public
-ìì 
+££ 
 
 async
-ìì 
+££ 
 Task
-ìì 
+££ 
 <
-ìì 
+££ 
 TicketCommentDto
-ìì &
+££ &
 >
-ìì& '
+££& '
 AddCommentAsync
-ìì( 7
+££( 7
 (
-ìì7 8
+££7 8
 int
-ìì8 ;
+££8 ;
 ticketId
-ìì< D
+££< D
 ,
-ììD E
+££D E
 CreateCommentDto
-ììF V
+££F V
 dto
-ììW Z
+££W Z
 )
-ììZ [
+££Z [
 {
-îî 
+§§ 
 var
-ïï 
+•• 
 c
-ïï 
+•• 
 =
-ïï 
+•• 
 new
-ïï 
+•• 
 TicketComment
-ïï !
+•• !
 {
-ññ 	
+¶¶ 	
 TicketId
-óó 
+ßß 
 =
-óó 
+ßß 
 ticketId
-óó 
+ßß 
 ,
-óó  
+ßß  
 Content
-òò 
+®® 
 =
-òò 
+®® 
 dto
-òò 
+®® 
 .
-òò 
+®® 
 Content
-òò !
+®® !
 ,
-òò! "
+®®! "
 
 IsInternal
-ôô 
+©© 
 =
-ôô 
+©© 
 dto
-ôô 
+©© 
 .
-ôô 
+©© 
 
 IsInternal
-ôô '
+©© '
 ,
-ôô' (
+©©' (
 AuthorUserId
-öö 
+™™ 
 =
-öö 
+™™ 
 dto
-öö 
+™™ 
 .
-öö 
+™™ 
 AuthorUserId
-öö +
+™™ +
 }
-õõ 	
+´´ 	
 ;
-õõ	 
+´´	 
 
 _context
-úú 
+¨¨ 
 .
-úú 
+¨¨ 
 TicketComments
-úú 
+¨¨ 
 .
-úú  
+¨¨  
 Add
-úú  #
+¨¨  #
 (
-úú# $
+¨¨# $
 c
-úú$ %
+¨¨$ %
 )
-úú% &
+¨¨% &
 ;
-úú& '
+¨¨& '
 _context
-ûû 
+ÆÆ 
 .
-ûû 
+ÆÆ 
 TicketHistories
-ûû  
+ÆÆ  
 .
-ûû  !
+ÆÆ  !
 Add
-ûû! $
+ÆÆ! $
 (
-ûû$ %
+ÆÆ$ %
 new
-ûû% (
+ÆÆ% (
 TicketHistory
-ûû) 6
+ÆÆ) 6
 {
-üü 	
+ØØ 	
 TicketId
-†† 
+∞∞ 
 =
-†† 
+∞∞ 
 ticketId
-†† 
+∞∞ 
 ,
-††  
+∞∞  
 Action
-°° 
+±± 
 =
-°° 
+±± 
 $str
-°° #
+±± #
 ,
-°°# $
+±±# $
 	FieldName
-¢¢ 
+≤≤ 
 =
-¢¢ 
+≤≤ 
 $str
-¢¢ !
+≤≤ !
 ,
-¢¢! "
+≤≤! "
 NewValue
-££ 
+≥≥ 
 =
-££ 
+≥≥ 
 c
-££ 
+≥≥ 
 .
-££ 
+≥≥ 
 Id
-££ 
+≥≥ 
 .
-££ 
+≥≥ 
 ToString
-££ $
+≥≥ $
 (
-££$ %
+≥≥$ %
 )
-££% &
+≥≥% &
 ,
-££& '
+≥≥& '
 	CreatedBy
-§§ 
+¥¥ 
 =
-§§ 
+¥¥ 
 dto
-§§ 
+¥¥ 
 .
-§§ 
+¥¥ 
 AuthorUserId
-§§ (
+¥¥ (
 .
-§§( )
+¥¥( )
 ToString
-§§) 1
+¥¥) 1
 (
-§§1 2
+¥¥1 2
 )
-§§2 3
+¥¥2 3
 }
-•• 	
+µµ 	
 )
-••	 
+µµ	 
 
 ;
-••
+µµ
  
 await
-ßß 
+∑∑ 
 _context
-ßß 
+∑∑ 
 .
-ßß 
+∑∑ 
 SaveChangesAsync
-ßß '
+∑∑ '
 (
-ßß' (
+∑∑' (
 )
-ßß( )
+∑∑( )
 ;
-ßß) *
+∑∑) *
 await
-©© 
+ππ 
 
 _slaEngine
-©© 
+ππ 
 .
-©© '
+ππ '
 ProcessTicketCommentAsync
-©© 2
+ππ 2
 (
-©©2 3
+ππ2 3
 ticketId
-©©3 ;
+ππ3 ;
 ,
-©©; <
+ππ; <
 dto
-©©= @
+ππ= @
 .
-©©@ A
+ππ@ A
 
 IsInternal
-©©A K
+ππA K
 )
-©©K L
+ππK L
 ;
-©©L M
-return
-´´ 
-new
-´´ 
-TicketCommentDto
-´´ #
+ππL M
+await
+∫∫ %
+_notificationDispatcher
+∫∫ %
+.
+∫∫% & 
+DispatchEventAsync
+∫∫& 8
 (
-´´# $
-c
-´´$ %
-.
-´´% &
-Id
-´´& (
+∫∫8 9
+$str
+∫∫9 O
 ,
-´´( )
-c
-´´* +
-.
-´´+ ,
-TicketId
-´´, 4
+∫∫O P
+ticketId
+∫∫Q Y
 ,
-´´4 5
-c
-´´6 7
+∫∫Y Z
+dto
+∫∫[ ^
 .
-´´7 8
+∫∫^ _
 AuthorUserId
-´´8 D
+∫∫_ k
 ,
-´´D E
+∫∫k l
+$str∫∫m á
+)∫∫á à
+;∫∫à â
+return
+ºº 
+new
+ºº 
+TicketCommentDto
+ºº #
+(
+ºº# $
 c
-´´F G
+ºº$ %
 .
-´´G H
+ºº% &
+Id
+ºº& (
+,
+ºº( )
+c
+ºº* +
+.
+ºº+ ,
+TicketId
+ºº, 4
+,
+ºº4 5
+c
+ºº6 7
+.
+ºº7 8
+AuthorUserId
+ºº8 D
+,
+ººD E
+c
+ººF G
+.
+ººG H
 Content
-´´H O
+ººH O
 ,
-´´O P
+ººO P
 c
-´´Q R
+ººQ R
 .
-´´R S
+ººR S
 
 IsInternal
-´´S ]
+ººS ]
 ,
-´´] ^
+ºº] ^
 c
-´´_ `
+ºº_ `
 .
-´´` a
+ºº` a
 	CreatedAt
-´´a j
+ººa j
 )
-´´j k
+ººj k
 ;
-´´k l
+ººk l
 }
-¨¨ 
+ΩΩ 
 public
-ÆÆ 
+øø 
 
 async
-ÆÆ 
+øø 
 Task
-ÆÆ 
+øø 
 <
-ÆÆ 
+øø 
 IEnumerable
-ÆÆ !
+øø !
 <
-ÆÆ! "
+øø! "
 TicketCommentDto
-ÆÆ" 2
+øø" 2
 >
-ÆÆ2 3
+øø2 3
 >
-ÆÆ3 4
+øø3 4
 GetCommentsAsync
-ÆÆ5 E
+øø5 E
 (
-ÆÆE F
+øøE F
 int
-ÆÆF I
+øøF I
 ticketId
-ÆÆJ R
+øøJ R
 ,
-ÆÆR S
+øøR S
 bool
-ÆÆT X
+øøT X
 includeInternal
-ÆÆY h
+øøY h
 )
-ÆÆh i
+øøh i
 {
-ØØ 
+¿¿ 
 var
-∞∞ 
+¡¡ 
 q
-∞∞ 
+¡¡ 
 =
-∞∞ 
+¡¡ 
 _context
-∞∞ 
+¡¡ 
 .
-∞∞ 
+¡¡ 
 TicketComments
-∞∞ '
+¡¡ '
 .
-∞∞' (
+¡¡' (
 Where
-∞∞( -
+¡¡( -
 (
-∞∞- .
+¡¡- .
 c
-∞∞. /
+¡¡. /
 =>
-∞∞0 2
+¡¡0 2
 c
-∞∞3 4
+¡¡3 4
 .
-∞∞4 5
+¡¡4 5
 TicketId
-∞∞5 =
+¡¡5 =
 ==
-∞∞> @
+¡¡> @
 ticketId
-∞∞A I
+¡¡A I
 &&
-∞∞J L
+¡¡J L
 !
-∞∞M N
+¡¡M N
 c
-∞∞N O
+¡¡N O
 .
-∞∞O P
+¡¡O P
 	IsDeleted
-∞∞P Y
+¡¡P Y
 )
-∞∞Y Z
+¡¡Y Z
 ;
-∞∞Z [
+¡¡Z [
 if
-±± 
+¬¬ 
 
 (
-±± 
+¬¬ 
 !
-±± 
+¬¬ 
 includeInternal
-±± 
+¬¬ 
 )
-±± 
+¬¬ 
 q
-±± 
+¬¬ 
 =
-±±  !
+¬¬  !
 q
-±±" #
+¬¬" #
 .
-±±# $
+¬¬# $
 Where
-±±$ )
+¬¬$ )
 (
-±±) *
+¬¬) *
 c
-±±* +
+¬¬* +
 =>
-±±, .
+¬¬, .
 !
-±±/ 0
+¬¬/ 0
 c
-±±0 1
+¬¬0 1
 .
-±±1 2
+¬¬1 2
 
 IsInternal
-±±2 <
+¬¬2 <
 )
-±±< =
+¬¬< =
 ;
-±±= >
+¬¬= >
 var
-≥≥ 
+ƒƒ 
 list
-≥≥ 
+ƒƒ 
 =
-≥≥ 
+ƒƒ 
 await
-≥≥ 
+ƒƒ 
 q
-≥≥ 
+ƒƒ 
 .
-≥≥ 
+ƒƒ 
 OrderBy
-≥≥ "
+ƒƒ "
 (
-≥≥" #
+ƒƒ" #
 c
-≥≥# $
+ƒƒ# $
 =>
-≥≥% '
+ƒƒ% '
 c
-≥≥( )
+ƒƒ( )
 .
-≥≥) *
+ƒƒ) *
 	CreatedAt
-≥≥* 3
+ƒƒ* 3
 )
-≥≥3 4
+ƒƒ3 4
 .
-≥≥4 5
+ƒƒ4 5
 ToListAsync
-≥≥5 @
+ƒƒ5 @
 (
-≥≥@ A
+ƒƒ@ A
 )
-≥≥A B
+ƒƒA B
 ;
-≥≥B C
+ƒƒB C
 return
-¥¥ 
+≈≈ 
 list
-¥¥ 
+≈≈ 
 .
-¥¥ 
+≈≈ 
 Select
-¥¥ 
+≈≈ 
 (
-¥¥ 
+≈≈ 
 c
-¥¥ 
+≈≈ 
 =>
-¥¥ 
+≈≈ 
 new
-¥¥  #
+≈≈  #
 TicketCommentDto
-¥¥$ 4
+≈≈$ 4
 (
-¥¥4 5
+≈≈4 5
 c
-¥¥5 6
+≈≈5 6
 .
-¥¥6 7
+≈≈6 7
 Id
-¥¥7 9
+≈≈7 9
 ,
-¥¥9 :
+≈≈9 :
 c
-¥¥; <
+≈≈; <
 .
-¥¥< =
+≈≈< =
 TicketId
-¥¥= E
+≈≈= E
 ,
-¥¥E F
+≈≈E F
 c
-¥¥G H
+≈≈G H
 .
-¥¥H I
+≈≈H I
 AuthorUserId
-¥¥I U
+≈≈I U
 ,
-¥¥U V
+≈≈U V
 c
-¥¥W X
+≈≈W X
 .
-¥¥X Y
+≈≈X Y
 Content
-¥¥Y `
+≈≈Y `
 ,
-¥¥` a
+≈≈` a
 c
-¥¥b c
+≈≈b c
 .
-¥¥c d
+≈≈c d
 
 IsInternal
-¥¥d n
+≈≈d n
 ,
-¥¥n o
+≈≈n o
 c
-¥¥p q
+≈≈p q
 .
-¥¥q r
+≈≈q r
 	CreatedAt
-¥¥r {
+≈≈r {
 )
-¥¥{ |
+≈≈{ |
 )
-¥¥| }
+≈≈| }
 ;
-¥¥} ~
+≈≈} ~
 }
-µµ 
+∆∆ 
 public
-∑∑ 
+»» 
 
 async
-∑∑ 
+»» 
 Task
-∑∑ 
+»» 
 <
-∑∑ !
+»» !
 TicketAttachmentDto
-∑∑ )
+»» )
 >
-∑∑) * 
+»») * 
 AddAttachmentAsync
-∑∑+ =
+»»+ =
 (
-∑∑= >
+»»= >
 int
-∑∑> A
+»»> A
 ticketId
-∑∑B J
+»»B J
 ,
-∑∑J K
+»»J K
 	IFormFile
-∑∑L U
+»»L U
 file
-∑∑V Z
+»»V Z
 ,
-∑∑Z [
+»»Z [
 int
-∑∑\ _
+»»\ _
 userId
-∑∑` f
+»»` f
 )
-∑∑f g
+»»f g
 {
-∏∏ 
+…… 
 var
-ππ 
+   
 path
-ππ 
+   
 =
-ππ 
+   
 await
-ππ 
+   
 _fileStorage
-ππ %
+   %
 .
-ππ% &
+  % &
 SaveFileAsync
-ππ& 3
+  & 3
 (
-ππ3 4
+  3 4
 file
-ππ4 8
+  4 8
 ,
-ππ8 9
+  8 9
 ticketId
-ππ: B
+  : B
 )
-ππB C
+  B C
 ;
-ππC D
+  C D
 var
-ªª 
+ÃÃ 
 a
-ªª 
+ÃÃ 
 =
-ªª 
+ÃÃ 
 new
-ªª 
+ÃÃ 
 TicketAttachment
-ªª $
+ÃÃ $
 {
-ºº 	
+ÕÕ 	
 TicketId
-ΩΩ 
+ŒŒ 
 =
-ΩΩ 
+ŒŒ 
 ticketId
-ΩΩ 
+ŒŒ 
 ,
-ΩΩ  
+ŒŒ  
 FileName
-ææ 
+œœ 
 =
-ææ 
+œœ 
 file
-ææ 
+œœ 
 .
-ææ 
+œœ 
 FileName
-ææ $
+œœ $
 ,
-ææ$ %
+œœ$ %
 FilePath
-øø 
+–– 
 =
-øø 
+–– 
 path
-øø 
+–– 
 ,
-øø 
+–– 
 FileSize
-¿¿ 
+—— 
 =
-¿¿ 
+—— 
 file
-¿¿ 
+—— 
 .
-¿¿ 
+—— 
 Length
-¿¿ "
+—— "
 ,
-¿¿" #
+——" #
 ContentType
-¡¡ 
+““ 
 =
-¡¡ 
+““ 
 file
-¡¡ 
+““ 
 .
-¡¡ 
+““ 
 ContentType
-¡¡ *
+““ *
 ,
-¡¡* +
+““* +
 UploadedByUserId
-¬¬ 
+”” 
 =
-¬¬ 
+”” 
 userId
-¬¬ %
+”” %
 }
-√√ 	
+‘‘ 	
 ;
-√√	 
+‘‘	 
 
 _context
-ƒƒ 
+’’ 
 .
-ƒƒ 
+’’ 
 TicketAttachments
-ƒƒ "
+’’ "
 .
-ƒƒ" #
+’’" #
 Add
-ƒƒ# &
+’’# &
 (
-ƒƒ& '
+’’& '
 a
-ƒƒ' (
+’’' (
 )
-ƒƒ( )
+’’( )
 ;
-ƒƒ) *
+’’) *
 _context
-∆∆ 
+◊◊ 
 .
-∆∆ 
+◊◊ 
 TicketHistories
-∆∆  
+◊◊  
 .
-∆∆  !
+◊◊  !
 Add
-∆∆! $
+◊◊! $
 (
-∆∆$ %
+◊◊$ %
 new
-∆∆% (
+◊◊% (
 TicketHistory
-∆∆) 6
+◊◊) 6
 {
-«« 	
+ÿÿ 	
 TicketId
-»» 
+ŸŸ 
 =
-»» 
+ŸŸ 
 ticketId
-»» 
+ŸŸ 
 ,
-»»  
+ŸŸ  
 Action
-…… 
+⁄⁄ 
 =
-…… 
+⁄⁄ 
 $str
-…… &
+⁄⁄ &
 ,
-……& '
+⁄⁄& '
 	FieldName
-   
+€€ 
 =
-   
+€€ 
 $str
-   $
+€€ $
 ,
-  $ %
+€€$ %
 NewValue
-ÀÀ 
+‹‹ 
 =
-ÀÀ 
+‹‹ 
 a
-ÀÀ 
+‹‹ 
 .
-ÀÀ 
+‹‹ 
 FileName
-ÀÀ !
+‹‹ !
 ,
-ÀÀ! "
+‹‹! "
 	CreatedBy
-ÃÃ 
+›› 
 =
-ÃÃ 
+›› 
 userId
-ÃÃ 
+›› 
 .
-ÃÃ 
+›› 
 ToString
-ÃÃ '
+›› '
 (
-ÃÃ' (
+››' (
 )
-ÃÃ( )
+››( )
 }
-ÕÕ 	
+ﬁﬁ 	
 )
-ÕÕ	 
+ﬁﬁ	 
 
 ;
-ÕÕ
+ﬁﬁ
  
 await
-œœ 
+‡‡ 
 _context
-œœ 
+‡‡ 
 .
-œœ 
+‡‡ 
 SaveChangesAsync
-œœ '
+‡‡ '
 (
-œœ' (
+‡‡' (
 )
-œœ( )
+‡‡( )
 ;
-œœ) *
+‡‡) *
 return
-–– 
+·· 
 new
-–– !
+·· !
 TicketAttachmentDto
-–– &
+·· &
 (
-––& '
+··& '
 a
-––' (
+··' (
 .
-––( )
+··( )
 Id
-––) +
+··) +
 ,
-––+ ,
+··+ ,
 a
-––- .
+··- .
 .
-––. /
+··. /
 TicketId
-––/ 7
+··/ 7
 ,
-––7 8
+··7 8
 a
-––9 :
+··9 :
 .
-––: ;
+··: ;
 FileName
-––; C
+··; C
 ,
-––C D
+··C D
 a
-––E F
+··E F
 .
-––F G
+··F G
 FilePath
-––G O
+··G O
 ,
-––O P
+··O P
 a
-––Q R
+··Q R
 .
-––R S
+··R S
 FileSize
-––S [
+··S [
 ,
-––[ \
+··[ \
 a
-––] ^
+··] ^
 .
-––^ _
+··^ _
 ContentType
-––_ j
+··_ j
 ,
-––j k
+··j k
 a
-––l m
+··l m
 .
-––m n
+··m n
 UploadedByUserId
-––n ~
+··n ~
 ,
-––~ 
-a––Ä Å
-.––Å Ç
-	CreatedAt––Ç ã
-)––ã å
-;––å ç
+··~ 
+a··Ä Å
+.··Å Ç
+	CreatedAt··Ç ã
+)··ã å
+;··å ç
 }
-—— 
+‚‚ 
 public
-”” 
+‰‰ 
 
 async
-”” 
+‰‰ 
 Task
-”” 
+‰‰ 
 <
-”” 
+‰‰ 
 IEnumerable
-”” !
+‰‰ !
 <
-””! "!
+‰‰! "!
 TicketAttachmentDto
-””" 5
+‰‰" 5
 >
-””5 6
+‰‰5 6
 >
-””6 7!
+‰‰6 7!
 GetAttachmentsAsync
-””8 K
+‰‰8 K
 (
-””K L
+‰‰K L
 int
-””L O
+‰‰L O
 ticketId
-””P X
+‰‰P X
 )
-””X Y
+‰‰X Y
 {
-‘‘ 
+ÂÂ 
 var
-’’ 
+ÊÊ 
 list
-’’ 
+ÊÊ 
 =
-’’ 
+ÊÊ 
 await
-’’ 
+ÊÊ 
 _context
-’’ !
+ÊÊ !
 .
-’’! "
+ÊÊ! "
 TicketAttachments
-’’" 3
+ÊÊ" 3
 .
-’’3 4
+ÊÊ3 4
 Where
-’’4 9
+ÊÊ4 9
 (
-’’9 :
+ÊÊ9 :
 a
-’’: ;
+ÊÊ: ;
 =>
-’’< >
+ÊÊ< >
 a
-’’? @
+ÊÊ? @
 .
-’’@ A
+ÊÊ@ A
 TicketId
-’’A I
+ÊÊA I
 ==
-’’J L
+ÊÊJ L
 ticketId
-’’M U
+ÊÊM U
 &&
-’’V X
+ÊÊV X
 !
-’’Y Z
+ÊÊY Z
 a
-’’Z [
+ÊÊZ [
 .
-’’[ \
+ÊÊ[ \
 	IsDeleted
-’’\ e
+ÊÊ\ e
 )
-’’e f
+ÊÊe f
 .
-’’f g
+ÊÊf g
 ToListAsync
-’’g r
+ÊÊg r
 (
-’’r s
+ÊÊr s
 )
-’’s t
+ÊÊs t
 ;
-’’t u
+ÊÊt u
 return
-÷÷ 
+ÁÁ 
 list
-÷÷ 
+ÁÁ 
 .
-÷÷ 
+ÁÁ 
 Select
-÷÷ 
+ÁÁ 
 (
-÷÷ 
+ÁÁ 
 a
-÷÷ 
+ÁÁ 
 =>
-÷÷ 
+ÁÁ 
 new
-÷÷  #!
+ÁÁ  #!
 TicketAttachmentDto
-÷÷$ 7
+ÁÁ$ 7
 (
-÷÷7 8
+ÁÁ7 8
 a
-÷÷8 9
+ÁÁ8 9
 .
-÷÷9 :
+ÁÁ9 :
 Id
-÷÷: <
+ÁÁ: <
 ,
-÷÷< =
+ÁÁ< =
 a
-÷÷> ?
+ÁÁ> ?
 .
-÷÷? @
+ÁÁ? @
 TicketId
-÷÷@ H
+ÁÁ@ H
 ,
-÷÷H I
+ÁÁH I
 a
-÷÷J K
+ÁÁJ K
 .
-÷÷K L
+ÁÁK L
 FileName
-÷÷L T
+ÁÁL T
 ,
-÷÷T U
+ÁÁT U
 a
-÷÷V W
+ÁÁV W
 .
-÷÷W X
+ÁÁW X
 FilePath
-÷÷X `
+ÁÁX `
 ,
-÷÷` a
+ÁÁ` a
 a
-÷÷b c
+ÁÁb c
 .
-÷÷c d
+ÁÁc d
 FileSize
-÷÷d l
+ÁÁd l
 ,
-÷÷l m
+ÁÁl m
 a
-÷÷n o
+ÁÁn o
 .
-÷÷o p
+ÁÁo p
 ContentType
-÷÷p {
+ÁÁp {
 ,
-÷÷{ |
+ÁÁ{ |
 a
-÷÷} ~
+ÁÁ} ~
 .
-÷÷~ 
-UploadedByUserId÷÷ è
-,÷÷è ê
-a÷÷ë í
-.÷÷í ì
-	CreatedAt÷÷ì ú
-)÷÷ú ù
-)÷÷ù û
-;÷÷û ü
+ÁÁ~ 
+UploadedByUserIdÁÁ è
+,ÁÁè ê
+aÁÁë í
+.ÁÁí ì
+	CreatedAtÁÁì ú
+)ÁÁú ù
+)ÁÁù û
+;ÁÁû ü
 }
-◊◊ 
+ËË 
 public
-ŸŸ 
+ÍÍ 
 
 async
-ŸŸ 
+ÍÍ 
 Task
-ŸŸ 
+ÍÍ 
 AddWatcherAsync
-ŸŸ %
+ÍÍ %
 (
-ŸŸ% &
+ÍÍ% &
 int
-ŸŸ& )
+ÍÍ& )
 ticketId
-ŸŸ* 2
+ÍÍ* 2
 ,
-ŸŸ2 3
+ÍÍ2 3
 int
-ŸŸ4 7
+ÍÍ4 7
 userId
-ŸŸ8 >
+ÍÍ8 >
 )
-ŸŸ> ?
+ÍÍ> ?
 {
-⁄⁄ 
+ÎÎ 
 var
-€€ 
+ÏÏ 
 exists
-€€ 
+ÏÏ 
 =
-€€ 
+ÏÏ 
 await
-€€ 
+ÏÏ 
 _context
-€€ #
+ÏÏ #
 .
-€€# $
+ÏÏ# $
 TicketWatchers
-€€$ 2
+ÏÏ$ 2
 .
-€€2 3
+ÏÏ2 3
 AnyAsync
-€€3 ;
+ÏÏ3 ;
 (
-€€; <
+ÏÏ; <
 w
-€€< =
+ÏÏ< =
 =>
-€€> @
+ÏÏ> @
 w
-€€A B
+ÏÏA B
 .
-€€B C
+ÏÏB C
 TicketId
-€€C K
+ÏÏC K
 ==
-€€L N
+ÏÏL N
 ticketId
-€€O W
+ÏÏO W
 &&
-€€X Z
+ÏÏX Z
 w
-€€[ \
+ÏÏ[ \
 .
-€€\ ]
+ÏÏ\ ]
 UserId
-€€] c
+ÏÏ] c
 ==
-€€d f
+ÏÏd f
 userId
-€€g m
+ÏÏg m
 &&
-€€n p
+ÏÏn p
 !
-€€q r
+ÏÏq r
 w
-€€r s
+ÏÏr s
 .
-€€s t
+ÏÏs t
 	IsDeleted
-€€t }
+ÏÏt }
 )
-€€} ~
+ÏÏ} ~
 ;
-€€~ 
+ÏÏ~ 
 if
-‹‹ 
+ÌÌ 
 
 (
-‹‹ 
+ÌÌ 
 !
-‹‹ 
+ÌÌ 
 exists
-‹‹ 
+ÌÌ 
 )
-‹‹ 
+ÌÌ 
 {
-›› 	
+ÓÓ 	
 _context
-ﬁﬁ 
+ÔÔ 
 .
-ﬁﬁ 
+ÔÔ 
 TicketWatchers
-ﬁﬁ #
+ÔÔ #
 .
-ﬁﬁ# $
+ÔÔ# $
 Add
-ﬁﬁ$ '
+ÔÔ$ '
 (
-ﬁﬁ' (
+ÔÔ' (
 new
-ﬁﬁ( +
+ÔÔ( +
 TicketWatcher
-ﬁﬁ, 9
+ÔÔ, 9
 {
-ﬁﬁ: ;
+ÔÔ: ;
 TicketId
-ﬁﬁ< D
+ÔÔ< D
 =
-ﬁﬁE F
+ÔÔE F
 ticketId
-ﬁﬁG O
+ÔÔG O
 ,
-ﬁﬁO P
+ÔÔO P
 UserId
-ﬁﬁQ W
+ÔÔQ W
 =
-ﬁﬁX Y
+ÔÔX Y
 userId
-ﬁﬁZ `
+ÔÔZ `
 }
-ﬁﬁa b
-)
-ﬁﬁb c
-;
-ﬁﬁc d
-await
-ﬂﬂ 
-_context
-ﬂﬂ 
-.
-ﬂﬂ 
-SaveChangesAsync
-ﬂﬂ +
-(
-ﬂﬂ+ ,
-)
-ﬂﬂ, -
-;
-ﬂﬂ- .
-}
-‡‡ 	
-}
-·· 
-public
-„„ 
-
-async
-„„ 
-Task
-„„  
-RemoveWatcherAsync
-„„ (
-(
-„„( )
-int
-„„) ,
-ticketId
-„„- 5
-,
-„„5 6
-int
-„„7 :
-userId
-„„; A
-)
-„„A B
-{
-‰‰ 
-var
-ÂÂ 
-w
-ÂÂ 
-=
-ÂÂ 
-await
-ÂÂ 
-_context
-ÂÂ 
-.
-ÂÂ 
-TicketWatchers
-ÂÂ -
-.
-ÂÂ- .!
-FirstOrDefaultAsync
-ÂÂ. A
-(
-ÂÂA B
-x
-ÂÂB C
-=>
-ÂÂD F
-x
-ÂÂG H
-.
-ÂÂH I
-TicketId
-ÂÂI Q
-==
-ÂÂR T
-ticketId
-ÂÂU ]
-&&
-ÂÂ^ `
-x
-ÂÂa b
-.
-ÂÂb c
-UserId
-ÂÂc i
-==
-ÂÂj l
-userId
-ÂÂm s
-&&
-ÂÂt v
-!
-ÂÂw x
-x
-ÂÂx y
-.
-ÂÂy z
-	IsDeletedÂÂz É
-)ÂÂÉ Ñ
-;ÂÂÑ Ö
-if
-ÊÊ 
-
-(
-ÊÊ 
-w
-ÊÊ 
-!=
-ÊÊ 
-null
-ÊÊ 
-)
-ÊÊ 
-{
-ÁÁ 	
-_context
-ËË 
-.
-ËË 
-TicketWatchers
-ËË #
-.
-ËË# $
-Remove
-ËË$ *
-(
-ËË* +
-w
-ËË+ ,
-)
-ËË, -
-;
-ËË- .
-await
-ÈÈ 
-_context
-ÈÈ 
-.
-ÈÈ 
-SaveChangesAsync
-ÈÈ +
-(
-ÈÈ+ ,
-)
-ÈÈ, -
-;
-ÈÈ- .
-}
-ÍÍ 	
-}
-ÎÎ 
-public
-ÌÌ 
-
-async
-ÌÌ 
-Task
-ÌÌ 
-<
-ÌÌ 
-IEnumerable
-ÌÌ !
-<
-ÌÌ! "
-TicketWatcherDto
-ÌÌ" 2
->
-ÌÌ2 3
->
-ÌÌ3 4
-GetWatchersAsync
-ÌÌ5 E
-(
-ÌÌE F
-int
-ÌÌF I
-ticketId
-ÌÌJ R
-)
-ÌÌR S
-{
-ÓÓ 
-var
-ÔÔ 
-list
-ÔÔ 
-=
-ÔÔ 
-await
-ÔÔ 
-_context
-ÔÔ !
-.
-ÔÔ! "
-TicketWatchers
-ÔÔ" 0
-.
-ÔÔ0 1
-Where
-ÔÔ1 6
-(
-ÔÔ6 7
-w
-ÔÔ7 8
-=>
-ÔÔ9 ;
-w
-ÔÔ< =
-.
-ÔÔ= >
-TicketId
-ÔÔ> F
-==
-ÔÔG I
-ticketId
-ÔÔJ R
-&&
-ÔÔS U
-!
-ÔÔV W
-w
-ÔÔW X
-.
-ÔÔX Y
-	IsDeleted
-ÔÔY b
+ÔÔa b
 )
 ÔÔb c
-.
-ÔÔc d
-ToListAsync
-ÔÔd o
-(
-ÔÔo p
-)
-ÔÔp q
 ;
-ÔÔq r
-return
- 
-list
- 
+ÔÔc d
+await
+ 
+_context
+ 
 .
- 
-Select
- 
+ 
+SaveChangesAsync
+ +
 (
- 
-w
- 
-=>
- 
-new
-  #
-TicketWatcherDto
-$ 4
-(
-4 5
-w
-5 6
-.
-6 7
-TicketId
-7 ?
-,
-? @
-w
-A B
-.
-B C
-UserId
-C I
++ ,
 )
-I J
-)
-J K
+, -
 ;
-K L
+- .
 }
-ÒÒ 
+ÒÒ 	
+}
+ÚÚ 
 public
-ÛÛ 
+ÙÙ 
 
 async
-ÛÛ 
+ÙÙ 
 Task
-ÛÛ 
-<
-ÛÛ 
-IEnumerable
-ÛÛ !
-<
-ÛÛ! "
-TimelineEventDto
-ÛÛ" 2
->
-ÛÛ2 3
->
-ÛÛ3 4
-GetTimelineAsync
-ÛÛ5 E
+ÙÙ  
+RemoveWatcherAsync
+ÙÙ (
 (
-ÛÛE F
+ÙÙ( )
 int
-ÛÛF I
+ÙÙ) ,
 ticketId
-ÛÛJ R
+ÙÙ- 5
 ,
-ÛÛR S
-bool
-ÛÛT X
-includeInternal
-ÛÛY h
+ÙÙ5 6
+int
+ÙÙ7 :
+userId
+ÙÙ; A
 )
-ÛÛh i
+ÙÙA B
 {
-ÙÙ 
+ıı 
 var
-ıı 
-events
-ıı 
+ˆˆ 
+w
+ˆˆ 
 =
-ıı 
-new
-ıı 
-List
-ıı 
-<
-ıı 
-TimelineEventDto
-ıı .
->
-ıı. /
-(
-ıı/ 0
-)
-ıı0 1
-;
-ıı1 2
-var
-˜˜ 
-	histories
-˜˜ 
-=
-˜˜ 
+ˆˆ 
 await
-˜˜ 
+ˆˆ 
 _context
-˜˜ &
+ˆˆ 
 .
-˜˜& '
-TicketHistories
-˜˜' 6
+ˆˆ 
+TicketWatchers
+ˆˆ -
 .
-˜˜6 7
-Where
-˜˜7 <
+ˆˆ- .!
+FirstOrDefaultAsync
+ˆˆ. A
 (
-˜˜< =
-h
-˜˜= >
+ˆˆA B
+x
+ˆˆB C
 =>
-˜˜? A
-h
-˜˜B C
+ˆˆD F
+x
+ˆˆG H
 .
-˜˜C D
+ˆˆH I
 TicketId
-˜˜D L
+ˆˆI Q
 ==
-˜˜M O
+ˆˆR T
 ticketId
-˜˜P X
+ˆˆU ]
 &&
-˜˜Y [
-!
-˜˜\ ]
-h
-˜˜] ^
+ˆˆ^ `
+x
+ˆˆa b
 .
-˜˜^ _
-	IsDeleted
-˜˜_ h
-)
-˜˜h i
-.
-˜˜i j
-ToListAsync
-˜˜j u
-(
-˜˜u v
-)
-˜˜v w
-;
-˜˜w x
-events
-¯¯ 
-.
-¯¯ 
-AddRange
-¯¯ 
-(
-¯¯ 
-	histories
-¯¯ !
-.
-¯¯! "
-Select
-¯¯" (
-(
-¯¯( )
-h
-¯¯) *
-=>
-¯¯+ -
-new
-¯¯. 1
-TimelineEventDto
-¯¯2 B
-(
-¯¯B C
-$str
-¯¯C L
-,
-¯¯L M
-h
-¯¯N O
-.
-¯¯O P
-	CreatedAt
-¯¯P Y
-,
-¯¯Y Z
-h
-¯¯[ \
-)
-¯¯\ ]
-)
-¯¯] ^
-)
-¯¯^ _
-;
-¯¯_ `
-var
-˙˙ 
-comments
-˙˙ 
-=
-˙˙ 
-await
-˙˙ 
-_context
-˙˙ %
-.
-˙˙% &
-TicketComments
-˙˙& 4
-.
-˙˙4 5
-Where
-˙˙5 :
-(
-˙˙: ;
-c
-˙˙; <
-=>
-˙˙= ?
-c
-˙˙@ A
-.
-˙˙A B
-TicketId
-˙˙B J
+ˆˆb c
+UserId
+ˆˆc i
 ==
-˙˙K M
-ticketId
-˙˙N V
+ˆˆj l
+userId
+ˆˆm s
 &&
-˙˙W Y
+ˆˆt v
 !
-˙˙Z [
-c
-˙˙[ \
+ˆˆw x
+x
+ˆˆx y
 .
-˙˙\ ]
-	IsDeleted
-˙˙] f
-)
-˙˙f g
-.
-˙˙g h
-ToListAsync
-˙˙h s
-(
-˙˙s t
-)
-˙˙t u
-;
-˙˙u v
+ˆˆy z
+	IsDeletedˆˆz É
+)ˆˆÉ Ñ
+;ˆˆÑ Ö
 if
-˚˚ 
+˜˜ 
 
 (
-˚˚ 
-!
-˚˚ 
-includeInternal
-˚˚ 
+˜˜ 
+w
+˜˜ 
+!=
+˜˜ 
+null
+˜˜ 
 )
-˚˚ 
-comments
-˚˚ &
-=
-˚˚' (
-comments
-˚˚) 1
-.
-˚˚1 2
-Where
-˚˚2 7
-(
-˚˚7 8
-c
-˚˚8 9
-=>
-˚˚: <
-!
-˚˚= >
-c
-˚˚> ?
-.
-˚˚? @
-
-IsInternal
-˚˚@ J
-)
-˚˚J K
-.
-˚˚K L
-ToList
-˚˚L R
-(
-˚˚R S
-)
-˚˚S T
-;
-˚˚T U
-events
-¸¸ 
-.
-¸¸ 
-AddRange
-¸¸ 
-(
-¸¸ 
-comments
-¸¸  
-.
-¸¸  !
-Select
-¸¸! '
-(
-¸¸' (
-c
-¸¸( )
-=>
-¸¸* ,
-new
-¸¸- 0
-TimelineEventDto
-¸¸1 A
-(
-¸¸A B
-$str
-¸¸B K
-,
-¸¸K L
-c
-¸¸M N
-.
-¸¸N O
-	CreatedAt
-¸¸O X
-,
-¸¸X Y
-c
-¸¸Z [
-)
-¸¸[ \
-)
-¸¸\ ]
-)
-¸¸] ^
-;
-¸¸^ _
-var
-˛˛ 
-attachments
-˛˛ 
-=
-˛˛ 
-await
-˛˛ 
+˜˜ 
+{
+¯¯ 	
 _context
-˛˛  (
+˘˘ 
 .
-˛˛( )
-TicketAttachments
-˛˛) :
+˘˘ 
+TicketWatchers
+˘˘ #
 .
-˛˛: ;
-Where
-˛˛; @
+˘˘# $
+Remove
+˘˘$ *
 (
-˛˛@ A
-a
-˛˛A B
-=>
-˛˛C E
-a
-˛˛F G
+˘˘* +
+w
+˘˘+ ,
+)
+˘˘, -
+;
+˘˘- .
+await
+˙˙ 
+_context
+˙˙ 
 .
-˛˛G H
-TicketId
-˛˛H P
-==
-˛˛Q S
+˙˙ 
+SaveChangesAsync
+˙˙ +
+(
+˙˙+ ,
+)
+˙˙, -
+;
+˙˙- .
+}
+˚˚ 	
+}
+¸¸ 
+public
+˛˛ 
+
+async
+˛˛ 
+Task
+˛˛ 
+<
+˛˛ 
+IEnumerable
+˛˛ !
+<
+˛˛! "
+TicketWatcherDto
+˛˛" 2
+>
+˛˛2 3
+>
+˛˛3 4
+GetWatchersAsync
+˛˛5 E
+(
+˛˛E F
+int
+˛˛F I
 ticketId
-˛˛T \
+˛˛J R
+)
+˛˛R S
+{
+ˇˇ 
+var
+ÄÄ 
+list
+ÄÄ 
+=
+ÄÄ 
+await
+ÄÄ 
+_context
+ÄÄ !
+.
+ÄÄ! "
+TicketWatchers
+ÄÄ" 0
+.
+ÄÄ0 1
+Where
+ÄÄ1 6
+(
+ÄÄ6 7
+w
+ÄÄ7 8
+=>
+ÄÄ9 ;
+w
+ÄÄ< =
+.
+ÄÄ= >
+TicketId
+ÄÄ> F
+==
+ÄÄG I
+ticketId
+ÄÄJ R
 &&
-˛˛] _
+ÄÄS U
 !
-˛˛` a
-a
-˛˛a b
+ÄÄV W
+w
+ÄÄW X
 .
-˛˛b c
+ÄÄX Y
 	IsDeleted
-˛˛c l
+ÄÄY b
 )
-˛˛l m
+ÄÄb c
 .
-˛˛m n
+ÄÄc d
 ToListAsync
-˛˛n y
+ÄÄd o
 (
-˛˛y z
+ÄÄo p
 )
-˛˛z {
+ÄÄp q
 ;
-˛˛{ |
-events
-ˇˇ 
-.
-ˇˇ 
-AddRange
-ˇˇ 
-(
-ˇˇ 
-attachments
-ˇˇ #
-.
-ˇˇ# $
-Select
-ˇˇ$ *
-(
-ˇˇ* +
-a
-ˇˇ+ ,
-=>
-ˇˇ- /
-new
-ˇˇ0 3
-TimelineEventDto
-ˇˇ4 D
-(
-ˇˇD E
-$str
-ˇˇE Q
-,
-ˇˇQ R
-a
-ˇˇS T
-.
-ˇˇT U
-	CreatedAt
-ˇˇU ^
-,
-ˇˇ^ _
-a
-ˇˇ` a
-)
-ˇˇa b
-)
-ˇˇb c
-)
-ˇˇc d
-;
-ˇˇd e
+ÄÄq r
 return
-ÅÅ 
-events
-ÅÅ 
+ÅÅ 
+list
+ÅÅ 
 .
-ÅÅ 
-OrderBy
-ÅÅ 
+ÅÅ 
+Select
+ÅÅ 
 (
-ÅÅ 
-e
-ÅÅ 
+ÅÅ 
+w
+ÅÅ 
 =>
-ÅÅ  "
-e
-ÅÅ# $
+ÅÅ 
+new
+ÅÅ  #
+TicketWatcherDto
+ÅÅ$ 4
+(
+ÅÅ4 5
+w
+ÅÅ5 6
 .
-ÅÅ$ %
-	Timestamp
-ÅÅ% .
+ÅÅ6 7
+TicketId
+ÅÅ7 ?
+,
+ÅÅ? @
+w
+ÅÅA B
+.
+ÅÅB C
+UserId
+ÅÅC I
 )
-ÅÅ. /
+ÅÅI J
+)
+ÅÅJ K
 ;
-ÅÅ/ 0
+ÅÅK L
 }
 ÇÇ 
 public
@@ -6283,1649 +6592,2503 @@ IsInternal
 ÑÑ 
 <
 ÑÑ 
-PagedResult
+IEnumerable
 ÑÑ !
 <
-ÑÑ! "
-	TicketDto
-ÑÑ" +
+ÑÑ! "
+TimelineEventDto
+ÑÑ" 2
 >
-ÑÑ+ ,
+ÑÑ2 3
 >
-ÑÑ, - 
-SearchTicketsAsync
-ÑÑ. @
+ÑÑ3 4
+GetTimelineAsync
+ÑÑ5 E
 (
-ÑÑ@ A#
-TicketSearchFilterDto
-ÑÑA V
-filter
-ÑÑW ]
-,
-ÑÑ] ^
+ÑÑE F
 int
-ÑÑ_ b
-userId
-ÑÑc i
+ÑÑF I
+ticketId
+ÑÑJ R
+,
+ÑÑR S
+bool
+ÑÑT X
+includeInternal
+ÑÑY h
 )
-ÑÑi j
+ÑÑh i
 {
 ÖÖ 
 var
-ÜÜ 
-perms
-ÜÜ 
+ÜÜ 
+events
+ÜÜ 
 =
-ÜÜ 
-await
-ÜÜ #
-_permissionCalculator
-ÜÜ /
-.
-ÜÜ/ 00
-"CalculateEffectivePermissionsAsync
-ÜÜ0 R
+ÜÜ 
+new
+ÜÜ 
+List
+ÜÜ 
+<
+ÜÜ 
+TimelineEventDto
+ÜÜ .
+>
+ÜÜ. /
 (
-ÜÜR S
-userId
-ÜÜS Y
+ÜÜ/ 0
 )
-ÜÜY Z
+ÜÜ0 1
 ;
-ÜÜZ [
+ÜÜ1 2
 var
-àà 
-query
-àà 
+àà 
+	histories
+àà 
 =
-àà 
+àà 
+await
+àà 
 _context
-àà 
+àà &
 .
-àà 
-Tickets
-àà $
+àà& '
+TicketHistories
+àà' 6
 .
-ââ 
-Include
-ââ 
-(
-ââ 
-t
-ââ 
-=>
-ââ 
-t
-ââ 
-.
-ââ 
-	TicketSla
-ââ %
-)
-ââ% &
-.
-ää 
+àà6 7
 Where
-ää 
+àà7 <
 (
-ää 
-t
-ää 
+àà< =
+h
+àà= >
 =>
-ää 
-!
-ää 
-t
-ää 
+àà? A
+h
+ààB C
 .
-ää 
+ààC D
+TicketId
+ààD L
+==
+ààM O
+ticketId
+ààP X
+&&
+ààY [
+!
+àà\ ]
+h
+àà] ^
+.
+àà^ _
 	IsDeleted
-ää $
+àà_ h
 )
-ää$ %
+ààh i
+.
+àài j
+ToListAsync
+ààj u
+(
+ààu v
+)
+ààv w
 ;
-ää% &
+ààw x
+events
+ââ 
+.
+ââ 
+AddRange
+ââ 
+(
+ââ 
+	histories
+ââ !
+.
+ââ! "
+Select
+ââ" (
+(
+ââ( )
+h
+ââ) *
+=>
+ââ+ -
+new
+ââ. 1
+TimelineEventDto
+ââ2 B
+(
+ââB C
+$str
+ââC L
+,
+ââL M
+h
+ââN O
+.
+ââO P
+	CreatedAt
+ââP Y
+,
+ââY Z
+h
+ââ[ \
+)
+ââ\ ]
+)
+ââ] ^
+)
+ââ^ _
+;
+ââ_ `
+var
+ãã 
+comments
+ãã 
+=
+ãã 
+await
+ãã 
+_context
+ãã %
+.
+ãã% &
+TicketComments
+ãã& 4
+.
+ãã4 5
+Where
+ãã5 :
+(
+ãã: ;
+c
+ãã; <
+=>
+ãã= ?
+c
+ãã@ A
+.
+ããA B
+TicketId
+ããB J
+==
+ããK M
+ticketId
+ããN V
+&&
+ããW Y
+!
+ããZ [
+c
+ãã[ \
+.
+ãã\ ]
+	IsDeleted
+ãã] f
+)
+ããf g
+.
+ããg h
+ToListAsync
+ããh s
+(
+ããs t
+)
+ããt u
+;
+ããu v
 if
-çç 
+åå 
 
 (
-çç 
+åå 
 !
-çç 
-perms
-çç 
+åå 
+includeInternal
+åå 
+)
+åå 
+comments
+åå &
+=
+åå' (
+comments
+åå) 1
 .
-çç 
-Contains
-çç 
+åå1 2
+Where
+åå2 7
 (
-çç 
+åå7 8
+c
+åå8 9
+=>
+åå: <
+!
+åå= >
+c
+åå> ?
+.
+åå? @
+
+IsInternal
+åå@ J
+)
+ååJ K
+.
+ååK L
+ToList
+ååL R
+(
+ååR S
+)
+ååS T
+;
+ååT U
+events
+çç 
+.
+çç 
+AddRange
+çç 
+(
+çç 
+comments
+çç  
+.
+çç  !
+Select
+çç! '
+(
+çç' (
+c
+çç( )
+=>
+çç* ,
+new
+çç- 0
+TimelineEventDto
+çç1 A
+(
+ççA B
 $str
-çç )
+ççB K
+,
+ççK L
+c
+ççM N
+.
+ççN O
+	CreatedAt
+ççO X
+,
+ççX Y
+c
+ççZ [
 )
-çç) *
+çç[ \
 )
-çç* +
-{
-éé 	
+çç\ ]
+)
+çç] ^
+;
+çç^ _
 var
-èè 
-isAgent
-èè 
+èè 
+attachments
+èè 
 =
 èè 
-perms
-èè 
-.
-èè  
-Contains
-èè  (
-(
-èè( )
-$str
-èè) 8
-)
-èè8 9
-||
-èè: <
-perms
-èè= B
-.
-èèB C
-Contains
-èèC K
-(
-èèK L
-$str
-èèL [
-)
-èè[ \
-;
-èè\ ]
-if
-êê 
-(
-êê 
-isAgent
-êê 
-)
-êê 
-{
-ëë 
-var
-íí 
-userGroupIds
-íí  
-=
-íí! "
 await
-íí# (
+èè 
 _context
-íí) 1
+èè  (
 .
-íí1 2
-GroupMembers
-íí2 >
+èè( )
+TicketAttachments
+èè) :
 .
-ìì 
+èè: ;
 Where
-ìì 
+èè; @
 (
-ìì 
-gm
-ìì 
+èè@ A
+a
+èèA B
 =>
-ìì  
-gm
-ìì! #
+èèC E
+a
+èèF G
 .
-ìì# $
-UserId
-ìì$ *
+èèG H
+TicketId
+èèH P
 ==
-ìì+ -
-userId
-ìì. 4
+èèQ S
+ticketId
+èèT \
 &&
-ìì5 7
+èè] _
 !
-ìì8 9
-gm
-ìì9 ;
+èè` a
+a
+èèa b
 .
-ìì; <
+èèb c
 	IsDeleted
-ìì< E
+èèc l
 )
-ììE F
+èèl m
 .
-îî 
-Select
-îî 
-(
-îî 
-gm
-îî 
-=>
-îî !
-gm
-îî" $
-.
-îî$ %
-GroupId
-îî% ,
-)
-îî, -
-.
-ïï 
+èèm n
 ToListAsync
-ïï  
+èèn y
 (
-ïï  !
+èèy z
 )
-ïï! "
+èèz {
 ;
-ïï" #
-query
-óó 
-=
-óó 
-query
-óó 
+èè{ |
+events
+êê 
 .
-óó 
-Where
-óó #
+êê 
+AddRange
+êê 
 (
-óó# $
-t
-óó$ %
+êê 
+attachments
+êê #
+.
+êê# $
+Select
+êê$ *
+(
+êê* +
+a
+êê+ ,
 =>
-óó& (
-t
-óó) *
-.
-óó* +
-AssignedUserId
-óó+ 9
-==
-óó: <
-userId
-óó= C
-||
-óóD F
+êê- /
+new
+êê0 3
+TimelineEventDto
+êê4 D
 (
-òò( )
-t
-òò) *
+êêD E
+$str
+êêE Q
+,
+êêQ R
+a
+êêS T
 .
-òò* +
-AssignedGroupId
-òò+ :
-.
-òò: ;
-HasValue
-òò; C
-&&
-òòD F
-userGroupIds
-òòG S
-.
-òòS T
-Contains
-òòT \
-(
-òò\ ]
-t
-òò] ^
-.
-òò^ _
-AssignedGroupId
-òò_ n
-.
-òòn o
-Value
-òòo t
-)
-òòt u
-)
-òòu v
-||
-òòw y
-t
-ôô( )
-.
-ôô) *
-RequesterUserId
-ôô* 9
-==
-ôô: <
-userId
-ôô= C
-)
-ôôC D
-;
-ôôD E
-}
-öö 
-else
-õõ 
-{
-úú 
-query
-ùù 
-=
-ùù 
-query
-ùù 
-.
-ùù 
-Where
-ùù #
-(
-ùù# $
-t
-ùù$ %
-=>
-ùù& (
-t
-ùù) *
-.
-ùù* +
-RequesterUserId
-ùù+ :
-==
-ùù; =
-userId
-ùù> D
-)
-ùùD E
-;
-ùùE F
-}
-ûû 
-}
-üü 	
-if
-°° 
-
-(
-°° 
-filter
-°° 
-.
-°° 
-	ProjectId
-°° 
-.
-°° 
-HasValue
-°° %
-)
-°°% &
-query
-°°' ,
-=
-°°- .
-query
-°°/ 4
-.
-°°4 5
-Where
-°°5 :
-(
-°°: ;
-t
-°°; <
-=>
-°°= ?
-t
-°°@ A
-.
-°°A B
-	ProjectId
-°°B K
-==
-°°L N
-filter
-°°O U
-.
-°°U V
-	ProjectId
-°°V _
-.
-°°_ `
-Value
-°°` e
-)
-°°e f
-;
-°°f g
-if
-¢¢ 
-
-(
-¢¢ 
-filter
-¢¢ 
-.
-¢¢ 
-
-CategoryId
-¢¢ 
-.
-¢¢ 
-HasValue
-¢¢ &
-)
-¢¢& '
-query
-¢¢( -
-=
-¢¢. /
-query
-¢¢0 5
-.
-¢¢5 6
-Where
-¢¢6 ;
-(
-¢¢; <
-t
-¢¢< =
-=>
-¢¢> @
-t
-¢¢A B
-.
-¢¢B C
-
-CategoryId
-¢¢C M
-==
-¢¢N P
-filter
-¢¢Q W
-.
-¢¢W X
-
-CategoryId
-¢¢X b
-.
-¢¢b c
-Value
-¢¢c h
-)
-¢¢h i
-;
-¢¢i j
-if
-££ 
-
-(
-££ 
-filter
-££ 
-.
-££ 
-TypeId
-££ 
-.
-££ 
-HasValue
-££ "
-)
-££" #
-query
-££$ )
-=
-££* +
-query
-££, 1
-.
-££1 2
-Where
-££2 7
-(
-££7 8
-t
-££8 9
-=>
-££: <
-t
-££= >
-.
-££> ?
-TypeId
-££? E
-==
-££F H
-filter
-££I O
-.
-££O P
-TypeId
-££P V
-.
-££V W
-Value
-££W \
-)
-££\ ]
-;
-££] ^
-if
-§§ 
-
-(
-§§ 
-filter
-§§ 
-.
-§§ 
-StatusId
-§§ 
-.
-§§ 
-HasValue
-§§ $
-)
-§§$ %
-query
-§§& +
-=
-§§, -
-query
-§§. 3
-.
-§§3 4
-Where
-§§4 9
-(
-§§9 :
-t
-§§: ;
-=>
-§§< >
-t
-§§? @
-.
-§§@ A
-StatusId
-§§A I
-==
-§§J L
-filter
-§§M S
-.
-§§S T
-StatusId
-§§T \
-.
-§§\ ]
-Value
-§§] b
-)
-§§b c
-;
-§§c d
-if
-•• 
-
-(
-•• 
-filter
-•• 
-.
-•• 
-
-PriorityId
-•• 
-.
-•• 
-HasValue
-•• &
-)
-••& '
-query
-••( -
-=
-••. /
-query
-••0 5
-.
-••5 6
-Where
-••6 ;
-(
-••; <
-t
-••< =
-=>
-••> @
-t
-••A B
-.
-••B C
-
-PriorityId
-••C M
-==
-••N P
-filter
-••Q W
-.
-••W X
-
-PriorityId
-••X b
-.
-••b c
-Value
-••c h
-)
-••h i
-;
-••i j
-if
-¶¶ 
-
-(
-¶¶ 
-filter
-¶¶ 
-.
-¶¶ 
-AssigneeUserId
-¶¶ !
-.
-¶¶! "
-HasValue
-¶¶" *
-)
-¶¶* +
-query
-¶¶, 1
-=
-¶¶2 3
-query
-¶¶4 9
-.
-¶¶9 :
-Where
-¶¶: ?
-(
-¶¶? @
-t
-¶¶@ A
-=>
-¶¶B D
-t
-¶¶E F
-.
-¶¶F G
-AssignedUserId
-¶¶G U
-==
-¶¶V X
-filter
-¶¶Y _
-.
-¶¶_ `
-AssigneeUserId
-¶¶` n
-.
-¶¶n o
-Value
-¶¶o t
-)
-¶¶t u
-;
-¶¶u v
-if
-ßß 
-
-(
-ßß 
-filter
-ßß 
-.
-ßß 
-RequesterUserId
-ßß "
-.
-ßß" #
-HasValue
-ßß# +
-)
-ßß+ ,
-query
-ßß- 2
-=
-ßß3 4
-query
-ßß5 :
-.
-ßß: ;
-Where
-ßß; @
-(
-ßß@ A
-t
-ßßA B
-=>
-ßßC E
-t
-ßßF G
-.
-ßßG H
-RequesterUserId
-ßßH W
-==
-ßßX Z
-filter
-ßß[ a
-.
-ßßa b
-RequesterUserId
-ßßb q
-.
-ßßq r
-Value
-ßßr w
-)
-ßßw x
-;
-ßßx y
-if
-®® 
-
-(
-®® 
-filter
-®® 
-.
-®® 
-FromDate
-®® 
-.
-®® 
-HasValue
-®® $
-)
-®®$ %
-query
-®®& +
-=
-®®, -
-query
-®®. 3
-.
-®®3 4
-Where
-®®4 9
-(
-®®9 :
-t
-®®: ;
-=>
-®®< >
-t
-®®? @
-.
-®®@ A
+êêT U
 	CreatedAt
-®®A J
->=
-®®K M
-filter
-®®N T
-.
-®®T U
-FromDate
-®®U ]
-.
-®®] ^
-Value
-®®^ c
+êêU ^
+,
+êê^ _
+a
+êê` a
 )
-®®c d
+êêa b
+)
+êêb c
+)
+êêc d
 ;
-®®d e
-if
-©© 
-
+êêd e
+return
+íí 
+events
+íí 
+.
+íí 
+OrderBy
+íí 
 (
-©© 
-filter
-©© 
-.
-©© 
-ToDate
-©© 
-.
-©© 
-HasValue
-©© "
-)
-©©" #
-query
-©©$ )
-=
-©©* +
-query
-©©, 1
-.
-©©1 2
-Where
-©©2 7
-(
-©©7 8
-t
-©©8 9
+íí 
+e
+íí 
 =>
-©©: <
-t
-©©= >
+íí  "
+e
+íí# $
 .
-©©> ?
-	CreatedAt
-©©? H
-<=
-©©I K
-filter
-©©L R
-.
-©©R S
-ToDate
-©©S Y
-.
-©©Y Z
-Value
-©©Z _
+íí$ %
+	Timestamp
+íí% .
 )
-©©_ `
+íí. /
 ;
-©©` a
-if
-´´ 
-
+íí/ 0
+}
+ìì 
+public
+ïï 
+
+async
+ïï 
+Task
+ïï 
+<
+ïï 
+PagedResult
+ïï !
+<
+ïï! "
+	TicketDto
+ïï" +
+>
+ïï+ ,
+>
+ïï, - 
+SearchTicketsAsync
+ïï. @
 (
-´´ 
-!
-´´ 
-string
-´´ 
-.
-´´  
-IsNullOrWhiteSpace
-´´ &
-(
-´´& '
+ïï@ A#
+TicketSearchFilterDto
+ïïA V
 filter
-´´' -
-.
-´´- .
-Keyword
-´´. 5
+ïïW ]
+,
+ïï] ^
+int
+ïï_ b
+userId
+ïïc i
 )
-´´5 6
-)
-´´6 7
+ïïi j
 {
-¨¨ 	
+ññ 
 var
-≠≠ 
-kw
-≠≠ 
+óó 
+perms
+óó 
 =
-≠≠ 
-filter
-≠≠ 
+óó 
+await
+óó #
+_permissionCalculator
+óó /
 .
-≠≠ 
-Keyword
-≠≠ #
-.
-≠≠# $
-ToLower
-≠≠$ +
+óó/ 00
+"CalculateEffectivePermissionsAsync
+óó0 R
 (
-≠≠+ ,
+óóR S
+userId
+óóS Y
 )
-≠≠, -
+óóY Z
 ;
-≠≠- .
+óóZ [
+var
+ôô 
 query
-ÆÆ 
+ôô 
 =
-ÆÆ 
-query
-ÆÆ 
+ôô 
+_context
+ôô 
 .
-ÆÆ 
-Where
-ÆÆ 
+ôô 
+Tickets
+ôô $
+.
+öö 
+Include
+öö 
 (
-ÆÆ  
+öö 
 t
-ÆÆ  !
+öö 
 =>
-ÆÆ" $
+öö 
 t
-ØØ 
+öö 
 .
-ØØ 
-TicketNumber
-ØØ 
-.
-ØØ 
-ToLower
-ØØ &
-(
-ØØ& '
+öö 
+	TicketSla
+öö %
 )
-ØØ' (
+öö% &
 .
-ØØ( )
-Contains
-ØØ) 1
+õõ 
+Where
+õõ 
 (
-ØØ1 2
-kw
-ØØ2 4
-)
-ØØ4 5
-||
-ØØ6 8
+õõ 
 t
-∞∞ 
-.
-∞∞ 
-Title
-∞∞ 
-.
-∞∞ 
-ToLower
-∞∞ 
-(
-∞∞  
-)
-∞∞  !
-.
-∞∞! "
-Contains
-∞∞" *
-(
-∞∞* +
-kw
-∞∞+ -
-)
-∞∞- .
-||
-∞∞/ 1
+õõ 
+=>
+õõ 
+!
+õõ 
 t
-±± 
+õõ 
 .
-±± 
-Description
-±± 
-.
-±± 
-ToLower
-±± %
-(
-±±% &
+õõ 
+	IsDeleted
+õõ $
 )
-±±& '
-.
-±±' (
-Contains
-±±( 0
-(
-±±0 1
-kw
-±±1 3
-)
-±±3 4
-)
-±±4 5
+õõ$ %
 ;
-±±5 6
+õõ% &
+if
+ûû 
+
+(
+ûû 
+!
+ûû 
+perms
+ûû 
+.
+ûû 
+Contains
+ûû 
+(
+ûû 
+$str
+ûû )
+)
+ûû) *
+)
+ûû* +
+{
+üü 	
+var
+†† 
+isAgent
+†† 
+=
+†† 
+perms
+†† 
+.
+††  
+Contains
+††  (
+(
+††( )
+$str
+††) 8
+)
+††8 9
+||
+††: <
+perms
+††= B
+.
+††B C
+Contains
+††C K
+(
+††K L
+$str
+††L [
+)
+††[ \
+;
+††\ ]
+if
+°° 
+(
+°° 
+isAgent
+°° 
+)
+°° 
+{
+¢¢ 
+var
+££ 
+userGroupIds
+££  
+=
+££! "
+await
+££# (
+_context
+££) 1
+.
+££1 2
+GroupMembers
+££2 >
+.
+§§ 
+Where
+§§ 
+(
+§§ 
+gm
+§§ 
+=>
+§§  
+gm
+§§! #
+.
+§§# $
+UserId
+§§$ *
+==
+§§+ -
+userId
+§§. 4
+&&
+§§5 7
+!
+§§8 9
+gm
+§§9 ;
+.
+§§; <
+	IsDeleted
+§§< E
+)
+§§E F
+.
+•• 
+Select
+•• 
+(
+•• 
+gm
+•• 
+=>
+•• !
+gm
+••" $
+.
+••$ %
+GroupId
+••% ,
+)
+••, -
+.
+¶¶ 
+ToListAsync
+¶¶  
+(
+¶¶  !
+)
+¶¶! "
+;
+¶¶" #
+query
+®® 
+=
+®® 
+query
+®® 
+.
+®® 
+Where
+®® #
+(
+®®# $
+t
+®®$ %
+=>
+®®& (
+t
+®®) *
+.
+®®* +
+AssignedUserId
+®®+ 9
+==
+®®: <
+userId
+®®= C
+||
+®®D F
+(
+©©( )
+t
+©©) *
+.
+©©* +
+AssignedGroupId
+©©+ :
+.
+©©: ;
+HasValue
+©©; C
+&&
+©©D F
+userGroupIds
+©©G S
+.
+©©S T
+Contains
+©©T \
+(
+©©\ ]
+t
+©©] ^
+.
+©©^ _
+AssignedGroupId
+©©_ n
+.
+©©n o
+Value
+©©o t
+)
+©©t u
+)
+©©u v
+||
+©©w y
+t
+™™( )
+.
+™™) *
+RequesterUserId
+™™* 9
+==
+™™: <
+userId
+™™= C
+)
+™™C D
+;
+™™D E
 }
-≤≤ 	
+´´ 
+else
+¨¨ 
+{
+≠≠ 
+query
+ÆÆ 
+=
+ÆÆ 
+query
+ÆÆ 
+.
+ÆÆ 
+Where
+ÆÆ #
+(
+ÆÆ# $
+t
+ÆÆ$ %
+=>
+ÆÆ& (
+t
+ÆÆ) *
+.
+ÆÆ* +
+RequesterUserId
+ÆÆ+ :
+==
+ÆÆ; =
+userId
+ÆÆ> D
+)
+ÆÆD E
+;
+ÆÆE F
+}
+ØØ 
+}
+∞∞ 	
+if
+≤≤ 
+
+(
+≤≤ 
+filter
+≤≤ 
+.
+≤≤ 
+	ProjectId
+≤≤ 
+.
+≤≤ 
+HasValue
+≤≤ %
+)
+≤≤% &
+query
+≤≤' ,
+=
+≤≤- .
+query
+≤≤/ 4
+.
+≤≤4 5
+Where
+≤≤5 :
+(
+≤≤: ;
+t
+≤≤; <
+=>
+≤≤= ?
+t
+≤≤@ A
+.
+≤≤A B
+	ProjectId
+≤≤B K
+==
+≤≤L N
+filter
+≤≤O U
+.
+≤≤U V
+	ProjectId
+≤≤V _
+.
+≤≤_ `
+Value
+≤≤` e
+)
+≤≤e f
+;
+≤≤f g
+if
+≥≥ 
+
+(
+≥≥ 
+filter
+≥≥ 
+.
+≥≥ 
+
+CategoryId
+≥≥ 
+.
+≥≥ 
+HasValue
+≥≥ &
+)
+≥≥& '
+query
+≥≥( -
+=
+≥≥. /
+query
+≥≥0 5
+.
+≥≥5 6
+Where
+≥≥6 ;
+(
+≥≥; <
+t
+≥≥< =
+=>
+≥≥> @
+t
+≥≥A B
+.
+≥≥B C
+
+CategoryId
+≥≥C M
+==
+≥≥N P
+filter
+≥≥Q W
+.
+≥≥W X
+
+CategoryId
+≥≥X b
+.
+≥≥b c
+Value
+≥≥c h
+)
+≥≥h i
+;
+≥≥i j
 if
 ¥¥ 
 
 (
-¥¥ 
-!
-¥¥ 
-string
-¥¥ 
-.
-¥¥  
-IsNullOrWhiteSpace
-¥¥ &
-(
-¥¥& '
+¥¥ 
 filter
-¥¥' -
+¥¥ 
 .
-¥¥- .
-	SlaStatus
-¥¥. 7
-)
-¥¥7 8
-)
-¥¥8 9
-{
-µµ 	
-var
-∂∂ 
-s
-∂∂ 
-=
-∂∂ 
-filter
-∂∂ 
+¥¥ 
+TypeId
+¥¥ 
 .
-∂∂ 
-	SlaStatus
-∂∂ $
-.
-∂∂$ %
-ToLower
-∂∂% ,
-(
-∂∂, -
+¥¥ 
+HasValue
+¥¥ "
 )
-∂∂- .
-;
-∂∂. /
-if
-∑∑ 
-(
-∑∑ 
-s
-∑∑ 
-==
-∑∑ 
-$str
-∑∑ 
-)
-∑∑  
+¥¥" #
 query
-∏∏ 
+¥¥$ )
 =
-∏∏ 
+¥¥* +
 query
-∏∏ 
+¥¥, 1
 .
-∏∏ 
+¥¥1 2
 Where
-∏∏ #
+¥¥2 7
 (
-∏∏# $
+¥¥7 8
 t
-∏∏$ %
+¥¥8 9
 =>
-∏∏& (
+¥¥: <
 t
-∏∏) *
+¥¥= >
 .
-∏∏* +
-	TicketSla
-∏∏+ 4
-!=
-∏∏5 7
-null
-∏∏8 <
-&&
-∏∏= ?
+¥¥> ?
+TypeId
+¥¥? E
+==
+¥¥F H
+filter
+¥¥I O
+.
+¥¥O P
+TypeId
+¥¥P V
+.
+¥¥V W
+Value
+¥¥W \
+)
+¥¥\ ]
+;
+¥¥] ^
+if
+µµ 
+
+(
+µµ 
+filter
+µµ 
+.
+µµ 
+StatusId
+µµ 
+.
+µµ 
+HasValue
+µµ $
+)
+µµ$ %
+query
+µµ& +
+=
+µµ, -
+query
+µµ. 3
+.
+µµ3 4
+Where
+µµ4 9
+(
+µµ9 :
+t
+µµ: ;
+=>
+µµ< >
+t
+µµ? @
+.
+µµ@ A
+StatusId
+µµA I
+==
+µµJ L
+filter
+µµM S
+.
+µµS T
+StatusId
+µµT \
+.
+µµ\ ]
+Value
+µµ] b
+)
+µµb c
+;
+µµc d
+if
+∂∂ 
+
+(
+∂∂ 
+filter
+∂∂ 
+.
+∂∂ 
+
+PriorityId
+∂∂ 
+.
+∂∂ 
+HasValue
+∂∂ &
+)
+∂∂& '
+query
+∂∂( -
+=
+∂∂. /
+query
+∂∂0 5
+.
+∂∂5 6
+Where
+∂∂6 ;
+(
+∂∂; <
+t
+∂∂< =
+=>
+∂∂> @
+t
+∂∂A B
+.
+∂∂B C
+
+PriorityId
+∂∂C M
+==
+∂∂N P
+filter
+∂∂Q W
+.
+∂∂W X
+
+PriorityId
+∂∂X b
+.
+∂∂b c
+Value
+∂∂c h
+)
+∂∂h i
+;
+∂∂i j
+if
+∑∑ 
+
+(
+∑∑ 
+filter
+∑∑ 
+.
+∑∑ 
+AssigneeUserId
+∑∑ !
+.
+∑∑! "
+HasValue
+∑∑" *
+)
+∑∑* +
+query
+∑∑, 1
+=
+∑∑2 3
+query
+∑∑4 9
+.
+∑∑9 :
+Where
+∑∑: ?
+(
+∑∑? @
+t
+∑∑@ A
+=>
+∑∑B D
+t
+∑∑E F
+.
+∑∑F G
+AssignedUserId
+∑∑G U
+==
+∑∑V X
+filter
+∑∑Y _
+.
+∑∑_ `
+AssigneeUserId
+∑∑` n
+.
+∑∑n o
+Value
+∑∑o t
+)
+∑∑t u
+;
+∑∑u v
+if
+∏∏ 
+
+(
+∏∏ 
+filter
+∏∏ 
+.
+∏∏ 
+RequesterUserId
+∏∏ "
+.
+∏∏" #
+HasValue
+∏∏# +
+)
+∏∏+ ,
+query
+∏∏- 2
+=
+∏∏3 4
+query
+∏∏5 :
+.
+∏∏: ;
+Where
+∏∏; @
 (
 ∏∏@ A
 t
-∏∏A B
-.
-∏∏B C
-	TicketSla
-∏∏C L
-.
-∏∏L M#
-FirstResponseBreached
-∏∏M b
-||
-∏∏c e
-t
-∏∏f g
-.
-∏∏g h
-	TicketSla
-∏∏h q
-.
-∏∏q r!
-ResolutionBreached∏∏r Ñ
-)∏∏Ñ Ö
-)∏∏Ö Ü
-;∏∏Ü á
-else
-ππ 
-if
-ππ 
-(
-ππ 
-s
-ππ 
-==
-ππ 
-$str
-ππ #
-)
-ππ# $
-query
-∫∫ 
-=
-∫∫ 
-query
-∫∫ 
-.
-∫∫ 
-Where
-∫∫ #
-(
-∫∫# $
-t
-∫∫$ %
+∏∏A B
 =>
-∫∫& (
+∏∏C E
 t
-∫∫) *
+∏∏F G
 .
-∫∫* +
-	TicketSla
-∫∫+ 4
-!=
-∫∫5 7
-null
-∫∫8 <
-&&
-∫∫= ?
-(
-∫∫@ A
-t
-∫∫A B
-.
-∫∫B C
-	TicketSla
-∫∫C L
-.
-∫∫L M!
-FirstResponseWarned
-∫∫M `
-||
-∫∫a c
-t
-∫∫d e
-.
-∫∫e f
-	TicketSla
-∫∫f o
-.
-∫∫o p
-ResolutionWarned∫∫p Ä
-)∫∫Ä Å
-&&∫∫Ç Ñ
-!∫∫Ö Ü
-(∫∫Ü á
-t∫∫á à
-.∫∫à â
-	TicketSla∫∫â í
-.∫∫í ì%
-FirstResponseBreached∫∫ì ®
-||∫∫© ´
-t∫∫¨ ≠
-.∫∫≠ Æ
-	TicketSla∫∫Æ ∑
-.∫∫∑ ∏"
-ResolutionBreached∫∫∏  
-)∫∫  À
-)∫∫À Ã
-;∫∫Ã Õ
-else
-ªª 
-if
-ªª 
-(
-ªª 
-s
-ªª 
+∏∏G H
+RequesterUserId
+∏∏H W
 ==
-ªª 
-$str
-ªª #
-)
-ªª# $
-query
-ºº 
-=
-ºº 
-query
-ºº 
-.
-ºº 
-Where
-ºº #
-(
-ºº# $
-t
-ºº$ %
-=>
-ºº& (
-t
-ºº) *
-.
-ºº* +
-	TicketSla
-ºº+ 4
-!=
-ºº5 7
-null
-ºº8 <
-&&
-ºº= ?
-!
-ºº@ A
-t
-ººA B
-.
-ººB C
-	TicketSla
-ººC L
-.
-ººL M!
-FirstResponseWarned
-ººM `
-&&
-ººa c
-!
-ººd e
-t
-ººe f
-.
-ººf g
-	TicketSla
-ººg p
-.
-ººp q
-ResolutionWarnedººq Å
-&&ººÇ Ñ
-!ººÖ Ü
-tººÜ á
-.ººá à
-	TicketSlaººà ë
-.ººë í%
-FirstResponseBreachedººí ß
-&&ºº® ™
-!ºº´ ¨
-tºº¨ ≠
-.ºº≠ Æ
-	TicketSlaººÆ ∑
-.ºº∑ ∏"
-ResolutionBreachedºº∏  
-)ºº  À
-;ººÀ Ã
-}
-ΩΩ 	
-query
-¿¿ 
-=
-¿¿ 
+∏∏X Z
 filter
-¿¿ 
+∏∏[ a
 .
-¿¿ 
-SortDescending
-¿¿ %
-?
-¡¡ 
-query
-¡¡ 
+∏∏a b
+RequesterUserId
+∏∏b q
 .
-¡¡ 
-OrderByDescending
-¡¡ %
+∏∏q r
+Value
+∏∏r w
+)
+∏∏w x
+;
+∏∏x y
+if
+ππ 
+
 (
-¡¡% &
-e
-¡¡& '
+ππ 
+filter
+ππ 
+.
+ππ 
+FromDate
+ππ 
+.
+ππ 
+HasValue
+ππ $
+)
+ππ$ %
+query
+ππ& +
+=
+ππ, -
+query
+ππ. 3
+.
+ππ3 4
+Where
+ππ4 9
+(
+ππ9 :
+t
+ππ: ;
 =>
-¡¡( *
-EF
+ππ< >
+t
+ππ? @
+.
+ππ@ A
+	CreatedAt
+ππA J
+>=
+ππK M
+filter
+ππN T
+.
+ππT U
+FromDate
+ππU ]
+.
+ππ] ^
+Value
+ππ^ c
+)
+ππc d
+;
+ππd e
+if
+∫∫ 
+
+(
+∫∫ 
+filter
+∫∫ 
+.
+∫∫ 
+ToDate
+∫∫ 
+.
+∫∫ 
+HasValue
+∫∫ "
+)
+∫∫" #
+query
+∫∫$ )
+=
+∫∫* +
+query
+∫∫, 1
+.
+∫∫1 2
+Where
+∫∫2 7
+(
+∫∫7 8
+t
+∫∫8 9
+=>
+∫∫: <
+t
+∫∫= >
+.
+∫∫> ?
+	CreatedAt
+∫∫? H
+<=
+∫∫I K
+filter
+∫∫L R
+.
+∫∫R S
+ToDate
+∫∫S Y
+.
+∫∫Y Z
+Value
+∫∫Z _
+)
+∫∫_ `
+;
+∫∫` a
+if
+ºº 
+
+(
+ºº 
+!
+ºº 
+string
+ºº 
+.
+ºº  
+IsNullOrWhiteSpace
+ºº &
+(
+ºº& '
+filter
+ºº' -
+.
+ºº- .
+Keyword
+ºº. 5
+)
+ºº5 6
+)
+ºº6 7
+{
+ΩΩ 	
+var
+ææ 
+kw
+ææ 
+=
+ææ 
+filter
+ææ 
+.
+ææ 
+Keyword
+ææ #
+.
+ææ# $
+ToLower
+ææ$ +
+(
+ææ+ ,
+)
+ææ, -
+;
+ææ- .
+query
+øø 
+=
+øø 
+query
+øø 
+.
+øø 
+Where
+øø 
+(
+øø  
+t
+øø  !
+=>
+øø" $
+t
+¿¿ 
+.
+¿¿ 
+TicketNumber
+¿¿ 
+.
+¿¿ 
+ToLower
+¿¿ &
+(
+¿¿& '
+)
+¿¿' (
+.
+¿¿( )
+Contains
+¿¿) 1
+(
+¿¿1 2
+kw
+¿¿2 4
+)
+¿¿4 5
+||
+¿¿6 8
+t
+¡¡ 
+.
+¡¡ 
+Title
+¡¡ 
+.
+¡¡ 
+ToLower
+¡¡ 
+(
+¡¡  
+)
+¡¡  !
+.
+¡¡! "
+Contains
+¡¡" *
+(
+¡¡* +
+kw
 ¡¡+ -
-.
-¡¡- .
-Property
-¡¡. 6
-<
-¡¡6 7
-object
-¡¡7 =
->
-¡¡= >
-(
-¡¡> ?
-e
-¡¡? @
-,
-¡¡@ A
-filter
-¡¡B H
-.
-¡¡H I
-SortBy
-¡¡I O
-??
-¡¡P R
-$str
-¡¡S ^
 )
-¡¡^ _
-)
-¡¡_ `
-:
-¬¬ 
-query
-¬¬ 
+¡¡- .
+||
+¡¡/ 1
+t
+¬¬ 
 .
-¬¬ 
-OrderBy
-¬¬ 
+¬¬ 
+Description
+¬¬ 
+.
+¬¬ 
+ToLower
+¬¬ %
 (
-¬¬ 
-e
-¬¬ 
-=>
-¬¬  
-EF
-¬¬! #
+¬¬% &
+)
+¬¬& '
 .
-¬¬# $
-Property
-¬¬$ ,
-<
-¬¬, -
-object
-¬¬- 3
->
+¬¬' (
+Contains
+¬¬( 0
+(
+¬¬0 1
+kw
+¬¬1 3
+)
 ¬¬3 4
-(
+)
 ¬¬4 5
-e
+;
 ¬¬5 6
-,
-¬¬6 7
+}
+√√ 	
+if
+≈≈ 
+
+(
+≈≈ 
+!
+≈≈ 
+string
+≈≈ 
+.
+≈≈  
+IsNullOrWhiteSpace
+≈≈ &
+(
+≈≈& '
 filter
-¬¬8 >
+≈≈' -
 .
-¬¬> ?
-SortBy
-¬¬? E
-??
-¬¬F H
-$str
-¬¬I T
+≈≈- .
+	SlaStatus
+≈≈. 7
 )
-¬¬T U
+≈≈7 8
 )
-¬¬U V
-;
-¬¬V W
+≈≈8 9
+{
+∆∆ 	
 var
-ƒƒ 
-
-totalCount
-ƒƒ 
+«« 
+s
+«« 
 =
-ƒƒ 
-await
-ƒƒ 
-query
-ƒƒ $
-.
-ƒƒ$ %
-
-CountAsync
-ƒƒ% /
-(
-ƒƒ/ 0
-)
-ƒƒ0 1
-;
-ƒƒ1 2
-var
-∆∆ 
-tickets
-∆∆ 
-=
-∆∆ 
-await
-∆∆ 
-query
-∆∆ !
-.
-«« 
-Skip
-«« 
-(
-«« 
-(
 «« 
 filter
-«« 
+«« 
 .
-«« 
-Page
-«« 
--
-««  
-$num
-««! "
-)
-««" #
-*
-««$ %
-filter
-««& ,
+«« 
+	SlaStatus
+«« $
 .
-««, -
-PageSize
-««- 5
-)
-««5 6
-.
-»» 
-Take
-»» 
+««$ %
+ToLower
+««% ,
 (
-»» 
-filter
-»» 
-.
-»» 
-PageSize
-»» !
+««, -
 )
-»»! "
-.
-…… 
-Select
-…… 
-(
-…… 
-t
-…… 
-=>
-…… 
-new
-…… 
-	TicketDto
-…… &
-(
-……& '
-t
-……' (
-.
-……( )
-Id
-……) +
-,
-……+ ,
-t
-……- .
-.
-……. /
-TicketNumber
-……/ ;
-,
-……; <
-t
-……= >
-.
-……> ?
-Title
-……? D
-,
-……D E
-t
-……F G
-.
-……G H
-Description
-……H S
-,
-……S T
-t
-……U V
-.
-……V W
-	ProjectId
-……W `
-,
-……` a
-t
-……b c
-.
-……c d
-
-CategoryId
-……d n
-,
-……n o
-t
-……p q
-.
-……q r
-TypeId
-……r x
-,
-……x y
-t
-……z {
-.
-……{ |
-StatusId……| Ñ
-,……Ñ Ö
-t……Ü á
-.……á à
-
-PriorityId……à í
-,……í ì
-t……î ï
-.……ï ñ
-RequesterUserId……ñ •
-,……• ¶
-t……ß ®
-.……® ©
-AssignedUserId……© ∑
-,……∑ ∏
-t……π ∫
-.……∫ ª
-AssignedGroupId……ª  
-)……  À
-)……À Ã
-.
-   
-ToListAsync
-   
-(
-   
-)
-   
+««- .
 ;
-   
-return
-ÃÃ 
-new
-ÃÃ 
-PagedResult
-ÃÃ 
+««. /
+if
+»» 
+(
+»» 
+s
+»» 
+==
+»» 
+$str
+»» 
+)
+»»  
+query
+…… 
+=
+…… 
+query
+…… 
+.
+…… 
+Where
+…… #
+(
+……# $
+t
+……$ %
+=>
+……& (
+t
+……) *
+.
+……* +
+	TicketSla
+……+ 4
+!=
+……5 7
+null
+……8 <
+&&
+……= ?
+(
+……@ A
+t
+……A B
+.
+……B C
+	TicketSla
+……C L
+.
+……L M#
+FirstResponseBreached
+……M b
+||
+……c e
+t
+……f g
+.
+……g h
+	TicketSla
+……h q
+.
+……q r!
+ResolutionBreached……r Ñ
+)……Ñ Ö
+)……Ö Ü
+;……Ü á
+else
+   
+if
+   
+(
+   
+s
+   
+==
+   
+$str
+   #
+)
+  # $
+query
+ÀÀ 
+=
+ÀÀ 
+query
+ÀÀ 
+.
+ÀÀ 
+Where
+ÀÀ #
+(
+ÀÀ# $
+t
+ÀÀ$ %
+=>
+ÀÀ& (
+t
+ÀÀ) *
+.
+ÀÀ* +
+	TicketSla
+ÀÀ+ 4
+!=
+ÀÀ5 7
+null
+ÀÀ8 <
+&&
+ÀÀ= ?
+(
+ÀÀ@ A
+t
+ÀÀA B
+.
+ÀÀB C
+	TicketSla
+ÀÀC L
+.
+ÀÀL M!
+FirstResponseWarned
+ÀÀM `
+||
+ÀÀa c
+t
+ÀÀd e
+.
+ÀÀe f
+	TicketSla
+ÀÀf o
+.
+ÀÀo p
+ResolutionWarnedÀÀp Ä
+)ÀÀÄ Å
+&&ÀÀÇ Ñ
+!ÀÀÖ Ü
+(ÀÀÜ á
+tÀÀá à
+.ÀÀà â
+	TicketSlaÀÀâ í
+.ÀÀí ì%
+FirstResponseBreachedÀÀì ®
+||ÀÀ© ´
+tÀÀ¨ ≠
+.ÀÀ≠ Æ
+	TicketSlaÀÀÆ ∑
+.ÀÀ∑ ∏"
+ResolutionBreachedÀÀ∏  
+)ÀÀ  À
+)ÀÀÀ Ã
+;ÀÀÃ Õ
+else
+ÃÃ 
+if
+ÃÃ 
+(
+ÃÃ 
+s
+ÃÃ 
+==
+ÃÃ 
+$str
+ÃÃ #
+)
+ÃÃ# $
+query
+ÕÕ 
+=
+ÕÕ 
+query
+ÕÕ 
+.
+ÕÕ 
+Where
+ÕÕ #
+(
+ÕÕ# $
+t
+ÕÕ$ %
+=>
+ÕÕ& (
+t
+ÕÕ) *
+.
+ÕÕ* +
+	TicketSla
+ÕÕ+ 4
+!=
+ÕÕ5 7
+null
+ÕÕ8 <
+&&
+ÕÕ= ?
+!
+ÕÕ@ A
+t
+ÕÕA B
+.
+ÕÕB C
+	TicketSla
+ÕÕC L
+.
+ÕÕL M!
+FirstResponseWarned
+ÕÕM `
+&&
+ÕÕa c
+!
+ÕÕd e
+t
+ÕÕe f
+.
+ÕÕf g
+	TicketSla
+ÕÕg p
+.
+ÕÕp q
+ResolutionWarnedÕÕq Å
+&&ÕÕÇ Ñ
+!ÕÕÖ Ü
+tÕÕÜ á
+.ÕÕá à
+	TicketSlaÕÕà ë
+.ÕÕë í%
+FirstResponseBreachedÕÕí ß
+&&ÕÕ® ™
+!ÕÕ´ ¨
+tÕÕ¨ ≠
+.ÕÕ≠ Æ
+	TicketSlaÕÕÆ ∑
+.ÕÕ∑ ∏"
+ResolutionBreachedÕÕ∏  
+)ÕÕ  À
+;ÕÕÀ Ã
+}
+ŒŒ 	
+query
+—— 
+=
+—— 
+filter
+—— 
+.
+—— 
+SortDescending
+—— %
+?
+““ 
+query
+““ 
+.
+““ 
+OrderByDescending
+““ %
+(
+““% &
+e
+““& '
+=>
+““( *
+EF
+““+ -
+.
+““- .
+Property
+““. 6
 <
-ÃÃ 
-	TicketDto
-ÃÃ (
+““6 7
+object
+““7 =
 >
-ÃÃ( )
-{
-ÕÕ 	
-Items
-ŒŒ 
-=
-ŒŒ 
-tickets
-ŒŒ 
+““= >
+(
+““> ?
+e
+““? @
 ,
-ŒŒ 
-
-TotalCount
-œœ 
-=
-œœ 
+““@ A
+filter
+““B H
+.
+““H I
+SortBy
+““I O
+??
+““P R
+$str
+““S ^
+)
+““^ _
+)
+““_ `
+:
+”” 
+query
+”” 
+.
+”” 
+OrderBy
+”” 
+(
+”” 
+e
+”” 
+=>
+””  
+EF
+””! #
+.
+””# $
+Property
+””$ ,
+<
+””, -
+object
+””- 3
+>
+””3 4
+(
+””4 5
+e
+””5 6
+,
+””6 7
+filter
+””8 >
+.
+””> ?
+SortBy
+””? E
+??
+””F H
+$str
+””I T
+)
+””T U
+)
+””U V
+;
+””V W
+var
+’’ 
 
 totalCount
-œœ #
-,
-œœ# $
-Page
-–– 
+’’ 
 =
-–– 
-filter
-–– 
+’’ 
+await
+’’ 
+query
+’’ $
 .
-–– 
-Page
-–– 
-,
-–– 
-PageSize
-—— 
-=
-—— 
-filter
-—— 
-.
-—— 
-PageSize
-—— &
-}
-““ 	
+’’$ %
+
+CountAsync
+’’% /
+(
+’’/ 0
+)
+’’0 1
 ;
-““	 
+’’1 2
+var
+◊◊ 
+tickets
+◊◊ 
+=
+◊◊ 
+await
+◊◊ 
+query
+◊◊ !
+.
+ÿÿ 
+Skip
+ÿÿ 
+(
+ÿÿ 
+(
+ÿÿ 
+filter
+ÿÿ 
+.
+ÿÿ 
+Page
+ÿÿ 
+-
+ÿÿ  
+$num
+ÿÿ! "
+)
+ÿÿ" #
+*
+ÿÿ$ %
+filter
+ÿÿ& ,
+.
+ÿÿ, -
+PageSize
+ÿÿ- 5
+)
+ÿÿ5 6
+.
+ŸŸ 
+Take
+ŸŸ 
+(
+ŸŸ 
+filter
+ŸŸ 
+.
+ŸŸ 
+PageSize
+ŸŸ !
+)
+ŸŸ! "
+.
+⁄⁄ 
+Select
+⁄⁄ 
+(
+⁄⁄ 
+t
+⁄⁄ 
+=>
+⁄⁄ 
+new
+⁄⁄ 
+	TicketDto
+⁄⁄ &
+(
+⁄⁄& '
+t
+⁄⁄' (
+.
+⁄⁄( )
+Id
+⁄⁄) +
+,
+⁄⁄+ ,
+t
+⁄⁄- .
+.
+⁄⁄. /
+TicketNumber
+⁄⁄/ ;
+,
+⁄⁄; <
+t
+⁄⁄= >
+.
+⁄⁄> ?
+Title
+⁄⁄? D
+,
+⁄⁄D E
+t
+⁄⁄F G
+.
+⁄⁄G H
+Description
+⁄⁄H S
+,
+⁄⁄S T
+t
+⁄⁄U V
+.
+⁄⁄V W
+	ProjectId
+⁄⁄W `
+,
+⁄⁄` a
+t
+⁄⁄b c
+.
+⁄⁄c d
+
+CategoryId
+⁄⁄d n
+,
+⁄⁄n o
+t
+⁄⁄p q
+.
+⁄⁄q r
+TypeId
+⁄⁄r x
+,
+⁄⁄x y
+t
+⁄⁄z {
+.
+⁄⁄{ |
+StatusId⁄⁄| Ñ
+,⁄⁄Ñ Ö
+t⁄⁄Ü á
+.⁄⁄á à
+
+PriorityId⁄⁄à í
+,⁄⁄í ì
+t⁄⁄î ï
+.⁄⁄ï ñ
+RequesterUserId⁄⁄ñ •
+,⁄⁄• ¶
+t⁄⁄ß ®
+.⁄⁄® ©
+AssignedUserId⁄⁄© ∑
+,⁄⁄∑ ∏
+t⁄⁄π ∫
+.⁄⁄∫ ª
+AssignedGroupId⁄⁄ª  
+)⁄⁄  À
+)⁄⁄À Ã
+.
+€€ 
+ToListAsync
+€€ 
+(
+€€ 
+)
+€€ 
+;
+€€ 
+return
+›› 
+new
+›› 
+PagedResult
+›› 
+<
+›› 
+	TicketDto
+›› (
+>
+››( )
+{
+ﬁﬁ 	
+Items
+ﬂﬂ 
+=
+ﬂﬂ 
+tickets
+ﬂﬂ 
+,
+ﬂﬂ 
+
+TotalCount
+‡‡ 
+=
+‡‡ 
+
+totalCount
+‡‡ #
+,
+‡‡# $
+Page
+·· 
+=
+·· 
+filter
+·· 
+.
+·· 
+Page
+·· 
+,
+·· 
+PageSize
+‚‚ 
+=
+‚‚ 
+filter
+‚‚ 
+.
+‚‚ 
+PageSize
+‚‚ &
+}
+„„ 	
+;
+„„	 
 
 }
-”” 
-}‘‘ π	
+‰‰ 
+public
+ÊÊ 
+
+async
+ÊÊ 
+Task
+ÊÊ 
+<
+ÊÊ 
+TicketSurveyDto
+ÊÊ %
+>
+ÊÊ% &
+SubmitSurveyAsync
+ÊÊ' 8
+(
+ÊÊ8 9
+int
+ÊÊ9 <
+ticketId
+ÊÊ= E
+,
+ÊÊE F#
+SubmitTicketSurveyDto
+ÊÊG \
+dto
+ÊÊ] `
+,
+ÊÊ` a
+int
+ÊÊb e
+userId
+ÊÊf l
+)
+ÊÊl m
+{
+ÁÁ 
+var
+ËË 
+ticket
+ËË 
+=
+ËË 
+await
+ËË 
+_context
+ËË #
+.
+ËË# $
+Tickets
+ËË$ +
+.
+ËË+ ,!
+FirstOrDefaultAsync
+ËË, ?
+(
+ËË? @
+t
+ËË@ A
+=>
+ËËB D
+t
+ËËE F
+.
+ËËF G
+Id
+ËËG I
+==
+ËËJ L
+ticketId
+ËËM U
+&&
+ËËV X
+!
+ËËY Z
+t
+ËËZ [
+.
+ËË[ \
+	IsDeleted
+ËË\ e
+)
+ËËe f
+;
+ËËf g
+if
+ÈÈ 
+
+(
+ÈÈ 
+ticket
+ÈÈ 
+==
+ÈÈ 
+null
+ÈÈ 
+)
+ÈÈ 
+throw
+ÈÈ !
+new
+ÈÈ" %"
+KeyNotFoundException
+ÈÈ& :
+(
+ÈÈ: ;
+$str
+ÈÈ; M
+)
+ÈÈM N
+;
+ÈÈN O
+if
+ÎÎ 
+
+(
+ÎÎ 
+ticket
+ÎÎ 
+.
+ÎÎ 
+RequesterUserId
+ÎÎ "
+!=
+ÎÎ# %
+userId
+ÎÎ& ,
+)
+ÎÎ, -
+throw
+ÏÏ 
+new
+ÏÏ )
+UnauthorizedAccessException
+ÏÏ 1
+(
+ÏÏ1 2
+$str
+ÏÏ2 j
+)
+ÏÏj k
+;
+ÏÏk l
+if
+ÔÔ 
+
+(
+ÔÔ 
+ticket
+ÔÔ 
+.
+ÔÔ 
+StatusId
+ÔÔ 
+!=
+ÔÔ 
+$num
+ÔÔ  
+)
+ÔÔ  !
+throw
+ 
+new
+ '
+InvalidOperationException
+ /
+(
+/ 0
+$str
+0 b
+)
+b c
+;
+c d
+var
+ÚÚ 
+existingSurvey
+ÚÚ 
+=
+ÚÚ 
+await
+ÚÚ "
+_context
+ÚÚ# +
+.
+ÚÚ+ ,
+TicketSurveys
+ÚÚ, 9
+.
+ÚÚ9 :
+AnyAsync
+ÚÚ: B
+(
+ÚÚB C
+s
+ÚÚC D
+=>
+ÚÚE G
+s
+ÚÚH I
+.
+ÚÚI J
+TicketId
+ÚÚJ R
+==
+ÚÚS U
+ticketId
+ÚÚV ^
+)
+ÚÚ^ _
+;
+ÚÚ_ `
+if
+ÛÛ 
+
+(
+ÛÛ 
+existingSurvey
+ÛÛ 
+)
+ÛÛ 
+throw
+ÙÙ 
+new
+ÙÙ '
+InvalidOperationException
+ÙÙ /
+(
+ÙÙ/ 0
+$str
+ÙÙ0 e
+)
+ÙÙe f
+;
+ÙÙf g
+if
+ˆˆ 
+
+(
+ˆˆ 
+dto
+ˆˆ 
+.
+ˆˆ 
+Rating
+ˆˆ 
+<
+ˆˆ 
+$num
+ˆˆ 
+||
+ˆˆ 
+dto
+ˆˆ !
+.
+ˆˆ! "
+Rating
+ˆˆ" (
+>
+ˆˆ) *
+$num
+ˆˆ+ ,
+)
+ˆˆ, -
+throw
+˜˜ 
+new
+˜˜ '
+InvalidOperationException
+˜˜ /
+(
+˜˜/ 0
+$str
+˜˜0 P
+)
+˜˜P Q
+;
+˜˜Q R
+var
+˘˘ 
+survey
+˘˘ 
+=
+˘˘ 
+new
+˘˘ 
+TicketSurvey
+˘˘ %
+{
+˙˙ 	
+TicketId
+˚˚ 
+=
+˚˚ 
+ticketId
+˚˚ 
+,
+˚˚  
+Rating
+¸¸ 
+=
+¸¸ 
+dto
+¸¸ 
+.
+¸¸ 
+Rating
+¸¸ 
+,
+¸¸  
+Comment
+˝˝ 
+=
+˝˝ 
+dto
+˝˝ 
+.
+˝˝ 
+Comment
+˝˝ !
+}
+˛˛ 	
+;
+˛˛	 
+
+_context
+ÄÄ 
+.
+ÄÄ 
+TicketSurveys
+ÄÄ 
+.
+ÄÄ 
+Add
+ÄÄ "
+(
+ÄÄ" #
+survey
+ÄÄ# )
+)
+ÄÄ) *
+;
+ÄÄ* +
+await
+ÅÅ 
+_context
+ÅÅ 
+.
+ÅÅ 
+SaveChangesAsync
+ÅÅ '
+(
+ÅÅ' (
+)
+ÅÅ( )
+;
+ÅÅ) *
+return
+ÉÉ 
+new
+ÉÉ 
+TicketSurveyDto
+ÉÉ "
+(
+ÉÉ" #
+survey
+ÉÉ# )
+.
+ÉÉ) *
+Id
+ÉÉ* ,
+,
+ÉÉ, -
+survey
+ÉÉ. 4
+.
+ÉÉ4 5
+TicketId
+ÉÉ5 =
+,
+ÉÉ= >
+survey
+ÉÉ? E
+.
+ÉÉE F
+Rating
+ÉÉF L
+,
+ÉÉL M
+survey
+ÉÉN T
+.
+ÉÉT U
+Comment
+ÉÉU \
+,
+ÉÉ\ ]
+survey
+ÉÉ^ d
+.
+ÉÉd e
+SubmittedAt
+ÉÉe p
+)
+ÉÉp q
+;
+ÉÉq r
+}
+ÑÑ 
+}ÖÖ π	
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/StubEmailService.cs
 	namespace 	
 ItsTool
@@ -7992,7 +9155,311 @@ d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Service
 CompletedTask !
 ;! "
 } 
-} âd
+} Ô)
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/SmtpEmailService.cs
+	namespace		 	
+ItsTool		
+ 
+.		 
+Infrastructure		  
+.		  !
+Services		! )
+;		) *
+public 
+class 
+SmtpEmailService 
+: 
+IEmailService  -
+{ 
+private 
+readonly 
+IConfiguration #
+_config$ +
+;+ ,
+private 
+readonly 
+ILogger 
+< 
+SmtpEmailService -
+>- .
+_logger/ 6
+;6 7
+public 
+
+SmtpEmailService 
+( 
+IConfiguration *
+config+ 1
+,1 2
+ILogger3 :
+<: ;
+SmtpEmailService; K
+>K L
+loggerM S
+)S T
+{ 
+_config 
+= 
+config 
+; 
+_logger 
+= 
+logger 
+; 
+} 
+public 
+
+async 
+Task 
+SendEmailAsync $
+($ %
+string% +
+to, .
+,. /
+string0 6
+subject7 >
+,> ?
+string@ F
+bodyG K
+)K L
+{ 
+var 
+host 
+= 
+_config 
+[ 
+$str &
+]& '
+;' (
+var 
+portStr 
+= 
+_config 
+[ 
+$str )
+]) *
+;* +
+var 
+user 
+= 
+_config 
+[ 
+$str *
+]* +
+;+ ,
+var 
+pass 
+= 
+_config 
+[ 
+$str *
+]* +
+;+ ,
+if 
+
+( 
+string 
+. 
+IsNullOrEmpty  
+(  !
+host! %
+)% &
+||' )
+string* 0
+.0 1
+IsNullOrEmpty1 >
+(> ?
+portStr? F
+)F G
+)G H
+{ 	
+_logger 
+. 
+
+LogWarning 
+( 
+$str S
+,S T
+toU W
+)W X
+;X Y
+return   
+;   
+}!! 	
+try## 
+{$$ 	
+var%% 
+message%% 
+=%% 
+new%% 
+MimeMessage%% )
+(%%) *
+)%%* +
+;%%+ ,
+message&& 
+.&& 
+From&& 
+.&& 
+Add&& 
+(&& 
+new&&  
+MailboxAddress&&! /
+(&&/ 0
+$str&&0 ;
+,&&; <
+user&&= A
+??&&B D
+$str&&E Y
+)&&Y Z
+)&&Z [
+;&&[ \
+message'' 
+.'' 
+To'' 
+.'' 
+Add'' 
+('' 
+new'' 
+MailboxAddress'' -
+(''- .
+$str''. 0
+,''0 1
+to''2 4
+)''4 5
+)''5 6
+;''6 7
+message(( 
+.(( 
+Subject(( 
+=(( 
+subject(( %
+;((% &
+message** 
+.** 
+Body** 
+=** 
+new** 
+TextPart** '
+(**' (
+$str**( .
+)**. /
+{++ 
+Text,, 
+=,, 
+body,, 
+}-- 
+;-- 
+using// 
+var// 
+client// 
+=// 
+new// "
+
+SmtpClient//# -
+(//- .
+)//. /
+;/// 0
+await00 
+client00 
+.00 
+ConnectAsync00 %
+(00% &
+host00& *
+,00* +
+int00, /
+.00/ 0
+Parse000 5
+(005 6
+portStr006 =
+)00= >
+,00> ?
+MailKit00@ G
+.00G H
+Security00H P
+.00P Q
+SecureSocketOptions00Q d
+.00d e
+Auto00e i
+)00i j
+;00j k
+if22 
+(22 
+!22 
+string22 
+.22 
+IsNullOrEmpty22 %
+(22% &
+user22& *
+)22* +
+&&22, .
+!22/ 0
+string220 6
+.226 7
+IsNullOrEmpty227 D
+(22D E
+pass22E I
+)22I J
+)22J K
+{33 
+await44 
+client44 
+.44 
+AuthenticateAsync44 .
+(44. /
+user44/ 3
+,443 4
+pass445 9
+)449 :
+;44: ;
+}55 
+await77 
+client77 
+.77 
+	SendAsync77 "
+(77" #
+message77# *
+)77* +
+;77+ ,
+await88 
+client88 
+.88 
+DisconnectAsync88 (
+(88( )
+true88) -
+)88- .
+;88. /
+_logger99 
+.99 
+LogInformation99 "
+(99" #
+$str99# N
+,99N O
+to99P R
+,99R S
+subject99T [
+)99[ \
+;99\ ]
+}:: 	
+catch;; 
+(;; 
+	Exception;; 
+ex;; 
+);; 
+{<< 	
+_logger== 
+.== 
+LogError== 
+(== 
+ex== 
+,==  
+$str==! ?
+,==? @
+to==A C
+)==C D
+;==D E
+}>> 	
+}?? 
+}@@ âd
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/SlaService.cs
 	namespace 	
 ItsTool
@@ -8738,7 +10205,7 @@ SlaTargetsll$ .
 ;qq- .
 }rr 	
 }ss 
-}tt ˝‚
+}tt êé
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/SlaEngine.cs
 	namespace 	
 ItsTool
@@ -8764,2337 +10231,2882 @@ ISlaEngine #
 readonly 
 IEmailService "
 _emailService# 0
-;0 1
-public 
+;0 1
+private 
+readonly #
+INotificationDispatcher ,#
+_notificationDispatcher- D
+;D E
+public 
 
-	SlaEngine 
-( 
-ItsToolDbContext %
-context& -
-,- .
-IEmailService/ <
-emailService= I
-)I J
-{ 
-_context 
-= 
-context 
-; 
-_emailService 
-= 
-emailService $
-;$ %
-} 
-private 
-async 
-Task 
-< 
-DateTime 
->  !
-CalculateDueTimeAsync! 6
-(6 7
-DateTime7 ?
-startTimeUtc@ L
-,L M
-intN Q
-minutesToAddR ^
-)^ _
-{ 
-var 
-holidays 
-= 
-await 
-_context %
-.% &
-Holidays& .
-.. /
-ToListAsync/ :
-(: ;
-); <
-;< =
-var 
-businessHours 
-= 
-await !
-_context" *
-.* +
-BusinessHours+ 8
-.8 9
-ToListAsync9 D
-(D E
-)E F
-;F G
-var 
-currentTime 
-= 
-startTimeUtc &
-;& '
-var 
-minutesRemaining 
-= 
-minutesToAdd +
-;+ ,
-while!! 
-(!! 
-minutesRemaining!! 
->!!  !
-$num!!" #
-)!!# $
-{"" 	
-if## 
-(## 
-!## 
-IsWorkingDay## 
-(## 
-currentTime## )
-,##) *
-holidays##+ 3
-,##3 4
-businessHours##5 B
-)##B C
-)##C D
-{$$ 
-currentTime%% 
-=%% 
+	SlaEngine 
+( 
+ItsToolDbContext %
+context& -
+,- .
+IEmailService/ <
+emailService= I
+,I J#
+INotificationDispatcherK b"
+notificationDispatcherc y
+)y z
+{ 
+_context 
+= 
+context 
+; 
+_emailService 
+= 
+emailService $
+;$ %#
+_notificationDispatcher 
+=  !"
+notificationDispatcher" 8
+;8 9
+} 
+private 
+async 
+Task 
+< 
+DateTime 
+>  !
+CalculateDueTimeAsync! 6
+(6 7
+DateTime7 ?
+startTimeUtc@ L
+,L M
+intN Q
+minutesToAddR ^
+)^ _
+{ 
+var 
+holidays 
+= 
+await 
+_context %
+.% &
+Holidays& .
+.. /
+ToListAsync/ :
+(: ;
+); <
+;< =
+var 
+businessHours 
+= 
+await !
+_context" *
+.* +
+BusinessHours+ 8
+.8 9
+ToListAsync9 D
+(D E
+)E F
+;F G
+var   
+currentTime   
+=   
+startTimeUtc   &
+;  & '
+var!! 
+minutesRemaining!! 
+=!! 
+minutesToAdd!! +
+;!!+ ,
+while## 
+(## 
+minutesRemaining## 
+>##  !
+$num##" #
+)### $
+{$$ 	
+if%% 
+(%% 
+!%% 
+IsWorkingDay%% 
+(%% 
 currentTime%% )
-.%%) *
-Date%%* .
-.%%. /
-AddDays%%/ 6
-(%%6 7
-$num%%7 8
-)%%8 9
-;%%9 :
-continue&& 
-;&& 
-}'' 
-var)) 
-bh)) 
-=)) 
-GetWorkingWindow)) %
-())% &
-currentTime))& 1
-,))1 2
-businessHours))3 @
-)))@ A
-;))A B
-var** 
-(** 
-newTime** 
-,** 
-	remaining** #
-)**# $
-=**% &#
-ConsumeMinutesWithinDay**' >
-(**> ?
-currentTime**? J
-,**J K
-minutesRemaining**L \
-,**\ ]
-bh**^ `
-.**` a
-	StartTime**a j
-,**j k
-bh**l n
-.**n o
-EndTime**o v
-)**v w
-;**w x
-currentTime,, 
-=,, 
-newTime,, !
-;,,! "
-minutesRemaining-- 
-=-- 
-	remaining-- (
-;--( )
-}.. 	
-return00 
-currentTime00 
-;00 
-}11 
-public33 
+,%%) *
+holidays%%+ 3
+,%%3 4
+businessHours%%5 B
+)%%B C
+)%%C D
+{&& 
+currentTime'' 
+='' 
+currentTime'' )
+.'') *
+Date''* .
+.''. /
+AddDays''/ 6
+(''6 7
+$num''7 8
+)''8 9
+;''9 :
+continue(( 
+;(( 
+})) 
+var++ 
+bh++ 
+=++ 
+GetWorkingWindow++ %
+(++% &
+currentTime++& 1
+,++1 2
+businessHours++3 @
+)++@ A
+;++A B
+var,, 
+(,, 
+newTime,, 
+,,, 
+	remaining,, #
+),,# $
+=,,% &#
+ConsumeMinutesWithinDay,,' >
+(,,> ?
+currentTime,,? J
+,,,J K
+minutesRemaining,,L \
+,,,\ ]
+bh,,^ `
+.,,` a
+	StartTime,,a j
+,,,j k
+bh,,l n
+.,,n o
+EndTime,,o v
+),,v w
+;,,w x
+currentTime.. 
+=.. 
+newTime.. !
+;..! "
+minutesRemaining// 
+=// 
+	remaining// (
+;//( )
+}00 	
+return22 
+currentTime22 
+;22 
+}33 
+public55 
 
-static33 
-bool33 
-IsWorkingDay33 #
-(33# $
-DateTime33$ ,
-date33- 1
-,331 2
-List333 7
-<337 8
-Holiday338 ?
->33? @
-holidays33A I
-,33I J
-List33K O
-<33O P
-BusinessHour33P \
->33\ ]
-businessHours33^ k
-)33k l
-{44 
-if55 
-
-(55 
-holidays55 
-.55 
-Any55 
-(55 
-h55 
-=>55 
-h55 
-.55  
-Date55  $
-.55$ %
-Date55% )
-==55* ,
+static55 
+bool55 
+IsWorkingDay55 #
+(55# $
+DateTime55$ ,
 date55- 1
-.551 2
-Date552 6
-)556 7
-)557 8
-return559 ?
-false55@ E
-;55E F
-var66 
-bh66 
-=66 
-businessHours66 
-.66 
-FirstOrDefault66 -
-(66- .
-b66. /
-=>660 2
-b663 4
-.664 5
-	DayOfWeek665 >
-==66? A
-date66B F
-.66F G
-	DayOfWeek66G P
-)66P Q
-;66Q R
-return77 
-bh77 
-!=77 
-null77 
-&&77 
-bh77 
-.77  
-IsWorkingDay77  ,
-;77, -
-}88 
-public:: 
+,551 2
+List553 7
+<557 8
+Holiday558 ?
+>55? @
+holidays55A I
+,55I J
+List55K O
+<55O P
+BusinessHour55P \
+>55\ ]
+businessHours55^ k
+)55k l
+{66 
+if77 
+
+(77 
+holidays77 
+.77 
+Any77 
+(77 
+h77 
+=>77 
+h77 
+.77  
+Date77  $
+.77$ %
+Date77% )
+==77* ,
+date77- 1
+.771 2
+Date772 6
+)776 7
+)777 8
+return779 ?
+false77@ E
+;77E F
+var88 
+bh88 
+=88 
+businessHours88 
+.88 
+FirstOrDefault88 -
+(88- .
+b88. /
+=>880 2
+b883 4
+.884 5
+	DayOfWeek885 >
+==88? A
+date88B F
+.88F G
+	DayOfWeek88G P
+)88P Q
+;88Q R
+return99 
+bh99 
+!=99 
+null99 
+&&99 
+bh99 
+.99  
+IsWorkingDay99  ,
+;99, -
+}:: 
+public<< 
 
-static:: 
-BusinessHour:: 
-GetWorkingWindow:: /
-(::/ 0
-DateTime::0 8
-date::9 =
-,::= >
-List::? C
-<::C D
-BusinessHour::D P
->::P Q
-businessHours::R _
-)::_ `
-{;; 
-return<< 
-businessHours<< 
-.<< 
-First<< "
-(<<" #
-b<<# $
-=><<% '
-b<<( )
-.<<) *
-	DayOfWeek<<* 3
-==<<4 6
-date<<7 ;
-.<<; <
-	DayOfWeek<<< E
-)<<E F
-;<<F G
-}== 
-public?? 
+static<< 
+BusinessHour<< 
+GetWorkingWindow<< /
+(<</ 0
+DateTime<<0 8
+date<<9 =
+,<<= >
+List<<? C
+<<<C D
+BusinessHour<<D P
+><<P Q
+businessHours<<R _
+)<<_ `
+{== 
+return>> 
+businessHours>> 
+.>> 
+First>> "
+(>>" #
+b>># $
+=>>>% '
+b>>( )
+.>>) *
+	DayOfWeek>>* 3
+==>>4 6
+date>>7 ;
+.>>; <
+	DayOfWeek>>< E
+)>>E F
+;>>F G
+}?? 
+publicAA 
 
-static?? 
-(?? 
-DateTime?? 
-newTime?? #
-,??# $
-int??% (
-minutesRemaining??) 9
-)??9 :#
-ConsumeMinutesWithinDay??; R
-(??R S
-DateTime??S [
-currentTime??\ g
-,??g h
-int??i l
-minutesRemaining??m }
-,??} ~
-TimeSpan	?? á
+staticAA 
+(AA 
+DateTimeAA 
+newTimeAA #
+,AA# $
+intAA% (
+minutesRemainingAA) 9
+)AA9 :#
+ConsumeMinutesWithinDayAA; R
+(AAR S
+DateTimeAAS [
+currentTimeAA\ g
+,AAg h
+intAAi l
+minutesRemainingAAm }
+,AA} ~
+TimeSpan	AA á
 	startTime
-??à ë
+AAà ë
 ,
-??ë í
+AAë í
 TimeSpan
-??ì õ
+AAì õ
 endTime
-??ú £
+AAú £
 )
-??£ §
-{@@ 
-varAA 
-currentDayTimeAA 
-=AA 
-currentTimeAA (
-.AA( )
-	TimeOfDayAA) 2
-;AA2 3
-ifCC 
-
-(CC 
+AA£ §
+{BB 
+varCC 
 currentDayTimeCC 
-<CC 
-	startTimeCC &
-)CC& '
-{DD 	
-returnEE 
-(EE 
-currentTimeEE 
-.EE  
-DateEE  $
-.EE$ %
-AddEE% (
-(EE( )
-	startTimeEE) 2
-)EE2 3
-,EE3 4
-minutesRemainingEE5 E
-)EEE F
-;EEF G
-}FF 	
-ifHH 
+=CC 
+currentTimeCC (
+.CC( )
+	TimeOfDayCC) 2
+;CC2 3
+ifEE 
 
-(HH 
-currentDayTimeHH 
->=HH 
-endTimeHH %
-)HH% &
-{II 	
-returnJJ 
-(JJ 
-currentTimeJJ 
-.JJ  
-DateJJ  $
-.JJ$ %
-AddDaysJJ% ,
-(JJ, -
-$numJJ- .
-)JJ. /
-,JJ/ 0
-minutesRemainingJJ1 A
-)JJA B
-;JJB C
-}KK 	
-varMM 
-minutesToEoDMM 
-=MM 
-(MM 
-intMM 
-)MM  
-(MM  !
-endTimeMM! (
--MM) *
-currentDayTimeMM+ 9
-)MM9 :
-.MM: ;
-TotalMinutesMM; G
-;MMG H
-ifOO 
+(EE 
+currentDayTimeEE 
+<EE 
+	startTimeEE &
+)EE& '
+{FF 	
+returnGG 
+(GG 
+currentTimeGG 
+.GG  
+DateGG  $
+.GG$ %
+AddGG% (
+(GG( )
+	startTimeGG) 2
+)GG2 3
+,GG3 4
+minutesRemainingGG5 E
+)GGE F
+;GGF G
+}HH 	
+ifJJ 
 
-(OO 
-minutesRemainingOO 
-<=OO 
-minutesToEoDOO  ,
-)OO, -
-{PP 	
-returnQQ 
-(QQ 
-currentTimeQQ 
-.QQ  
+(JJ 
+currentDayTimeJJ 
+>=JJ 
+endTimeJJ %
+)JJ% &
+{KK 	
+returnLL 
+(LL 
+currentTimeLL 
+.LL  
+DateLL  $
+.LL$ %
+AddDaysLL% ,
+(LL, -
+$numLL- .
+)LL. /
+,LL/ 0
+minutesRemainingLL1 A
+)LLA B
+;LLB C
+}MM 	
+varOO 
+minutesToEoDOO 
+=OO 
+(OO 
+intOO 
+)OO  
+(OO  !
+endTimeOO! (
+-OO) *
+currentDayTimeOO+ 9
+)OO9 :
+.OO: ;
+TotalMinutesOO; G
+;OOG H
+ifQQ 
+
+(QQ 
+minutesRemainingQQ 
+<=QQ 
+minutesToEoDQQ  ,
+)QQ, -
+{RR 	
+returnSS 
+(SS 
+currentTimeSS 
+.SS  
 
-AddMinutesQQ  *
-(QQ* +
-minutesRemainingQQ+ ;
-)QQ; <
-,QQ< =
-$numQQ> ?
-)QQ? @
-;QQ@ A
-}RR 	
-returnTT 
-(TT 
-currentTimeTT 
-.TT 
-DateTT  
-.TT  !
-AddDaysTT! (
-(TT( )
-$numTT) *
-)TT* +
-.TT+ ,
-AddTT, /
-(TT/ 0
-	startTimeTT0 9
-)TT9 :
-,TT: ;
-minutesRemainingTT< L
--TTM N
-minutesToEoDTTO [
-)TT[ \
-;TT\ ]
-}UU 
-publicWW 
+AddMinutesSS  *
+(SS* +
+minutesRemainingSS+ ;
+)SS; <
+,SS< =
+$numSS> ?
+)SS? @
+;SS@ A
+}TT 	
+returnVV 
+(VV 
+currentTimeVV 
+.VV 
+DateVV  
+.VV  !
+AddDaysVV! (
+(VV( )
+$numVV) *
+)VV* +
+.VV+ ,
+AddVV, /
+(VV/ 0
+	startTimeVV0 9
+)VV9 :
+,VV: ;
+minutesRemainingVV< L
+-VVM N
+minutesToEoDVVO [
+)VV[ \
+;VV\ ]
+}WW 
+publicYY 
 
-asyncWW 
-TaskWW "
-AttachSlaToTicketAsyncWW ,
-(WW, -
-intWW- 0
-ticketIdWW1 9
-)WW9 :
-{XX 
-varYY 
-ticketYY 
-=YY 
-awaitYY 
-_contextYY #
-.YY# $
-TicketsYY$ +
-.YY+ ,
-	FindAsyncYY, 5
-(YY5 6
-ticketIdYY6 >
-)YY> ?
-;YY? @
-ifZZ 
+asyncYY 
+TaskYY "
+AttachSlaToTicketAsyncYY ,
+(YY, -
+intYY- 0
+ticketIdYY1 9
+)YY9 :
+{ZZ 
+var[[ 
+ticket[[ 
+=[[ 
+await[[ 
+_context[[ #
+.[[# $
+Tickets[[$ +
+.[[+ ,
+	FindAsync[[, 5
+([[5 6
+ticketId[[6 >
+)[[> ?
+;[[? @
+if\\ 
 
-(ZZ 
-ticketZZ 
-==ZZ 
-nullZZ 
-)ZZ 
-returnZZ "
-;ZZ" #
-var\\ 
-policy\\ 
-=\\ 
-await\\ 
-_context\\ #
-.\\# $
-SlaPolicies\\$ /
-.]] 
-FirstOrDefaultAsync]]  
-(]]  !
-p]]! "
-=>]]# %
-p]]& '
-.]]' (
-IsActive]]( 0
-&&]]1 3
-(]]4 5
-p]]5 6
-.]]6 7
-	ProjectId]]7 @
-==]]A C
-ticket]]D J
-.]]J K
-	ProjectId]]K T
-||]]U W
-p]]X Y
-.]]Y Z
-	ProjectId]]Z c
-==]]d f
-null]]g k
-)]]k l
-)]]l m
-;]]m n
-if__ 
+(\\ 
+ticket\\ 
+==\\ 
+null\\ 
+)\\ 
+return\\ "
+;\\" #
+var^^ 
+policy^^ 
+=^^ 
+await^^ 
+_context^^ #
+.^^# $
+SlaPolicies^^$ /
+.__ 
+FirstOrDefaultAsync__  
+(__  !
+p__! "
+=>__# %
+p__& '
+.__' (
+IsActive__( 0
+&&__1 3
+(__4 5
+p__5 6
+.__6 7
+	ProjectId__7 @
+==__A C
+ticket__D J
+.__J K
+	ProjectId__K T
+||__U W
+p__X Y
+.__Y Z
+	ProjectId__Z c
+==__d f
+null__g k
+)__k l
+)__l m
+;__m n
+ifaa 
 
-(__ 
-policy__ 
-==__ 
-null__ 
-)__ 
-return__ "
-;__" #
-varaa 
-targetaa 
-=aa 
-awaitaa 
-_contextaa #
-.aa# $
+(aa 
+policyaa 
+==aa 
+nullaa 
+)aa 
+returnaa "
+;aa" #
+varcc 
+targetcc 
+=cc 
+awaitcc 
+_contextcc #
+.cc# $
 
-SlaTargetsaa$ .
-.bb 
-FirstOrDefaultAsyncbb  
-(bb  !
-tbb! "
-=>bb# %
-tbb& '
-.bb' (
-SlaPolicyIdbb( 3
-==bb4 6
-policybb7 =
-.bb= >
-Idbb> @
-&&bbA C
-tbbD E
-.bbE F
+SlaTargetscc$ .
+.dd 
+FirstOrDefaultAsyncdd  
+(dd  !
+tdd! "
+=>dd# %
+tdd& '
+.dd' (
+SlaPolicyIddd( 3
+==dd4 6
+policydd7 =
+.dd= >
+Iddd> @
+&&ddA C
+tddD E
+.ddE F
 
-PriorityIdbbF P
-==bbQ S
-ticketbbT Z
-.bbZ [
+PriorityIdddF P
+==ddQ S
+ticketddT Z
+.ddZ [
 
-PriorityIdbb[ e
-&&bbf h
-(cc& '
-tcc' (
-.cc( )
-TicketTypeIdcc) 5
-==cc6 8
-ticketcc9 ?
-.cc? @
-TypeIdcc@ F
-||ccG I
-tccJ K
-.ccK L
-TicketTypeIdccL X
-==ccY [
-nullcc\ `
-)cc` a
-)cca b
-;ccb c
-ifee 
+PriorityIddd[ e
+&&ddf h
+(ee& '
+tee' (
+.ee( )
+TicketTypeIdee) 5
+==ee6 8
+ticketee9 ?
+.ee? @
+TypeIdee@ F
+||eeG I
+teeJ K
+.eeK L
+TicketTypeIdeeL X
+==eeY [
+nullee\ `
+)ee` a
+)eea b
+;eeb c
+ifgg 
 
-(ee 
-targetee 
-==ee 
-nullee 
-)ee 
-returnee "
-;ee" #
-vargg 
-nowgg 
-=gg 
-DateTimegg 
-.gg 
-UtcNowgg !
-;gg! "
-varhh 
-firstResponseDuehh 
-=hh 
-awaithh $!
-CalculateDueTimeAsynchh% :
-(hh: ;
-nowhh; >
-,hh> ?
-targethh@ F
-.hhF G 
-FirstResponseMinuteshhG [
-)hh[ \
-;hh\ ]
-varii 
-resolutionDueii 
-=ii 
-awaitii !!
-CalculateDueTimeAsyncii" 7
-(ii7 8
-nowii8 ;
-,ii; <
-targetii= C
-.iiC D
-ResolutionMinutesiiD U
-)iiU V
-;iiV W
-varkk 
-slakk 
-=kk 
-newkk 
-	TicketSlakk 
-{ll 	
-TicketIdmm 
-=mm 
-ticketmm 
-.mm 
-Idmm  
-,mm  !
-FirstResponseDueAtnn 
-=nn  
-firstResponseDuenn! 1
-,nn1 2
-ResolutionDueAtoo 
-=oo 
-resolutionDueoo +
-}pp 	
-;pp	 
+(gg 
+targetgg 
+==gg 
+nullgg 
+)gg 
+returngg "
+;gg" #
+varii 
+nowii 
+=ii 
+DateTimeii 
+.ii 
+UtcNowii !
+;ii! "
+varjj 
+firstResponseDuejj 
+=jj 
+awaitjj $!
+CalculateDueTimeAsyncjj% :
+(jj: ;
+nowjj; >
+,jj> ?
+targetjj@ F
+.jjF G 
+FirstResponseMinutesjjG [
+)jj[ \
+;jj\ ]
+varkk 
+resolutionDuekk 
+=kk 
+awaitkk !!
+CalculateDueTimeAsynckk" 7
+(kk7 8
+nowkk8 ;
+,kk; <
+targetkk= C
+.kkC D
+ResolutionMinuteskkD U
+)kkU V
+;kkV W
+varmm 
+slamm 
+=mm 
+newmm 
+	TicketSlamm 
+{nn 	
+TicketIdoo 
+=oo 
+ticketoo 
+.oo 
+Idoo  
+,oo  !
+FirstResponseDueAtpp 
+=pp  
+firstResponseDuepp! 1
+,pp1 2
+ResolutionDueAtqq 
+=qq 
+resolutionDueqq +
+}rr 	
+;rr	 
 
-_contextrr 
-.rr 
+_contexttt 
+.tt 
 
-TicketSlasrr 
-.rr 
-Addrr 
-(rr  
-slarr  #
-)rr# $
-;rr$ %
-awaitss 
-_contextss 
-.ss 
-SaveChangesAsyncss '
-(ss' (
-)ss( )
-;ss) *
-}tt 
-publicvv 
+TicketSlastt 
+.tt 
+Addtt 
+(tt  
+slatt  #
+)tt# $
+;tt$ %
+awaituu 
+_contextuu 
+.uu 
+SaveChangesAsyncuu '
+(uu' (
+)uu( )
+;uu) *
+}vv 
+publicxx 
 
-asyncvv 
-Taskvv *
-ProcessTicketStatusChangeAsyncvv 4
-(vv4 5
-intvv5 8
-ticketIdvv9 A
-,vvA B
-intvvC F
-oldStatusIdvvG R
-,vvR S
-intvvT W
-newStatusIdvvX c
-)vvc d
-{ww 
-varxx 
-slaxx 
-=xx 
-awaitxx 
-_contextxx  
-.xx  !
+asyncxx 
+Taskxx *
+ProcessTicketStatusChangeAsyncxx 4
+(xx4 5
+intxx5 8
+ticketIdxx9 A
+,xxA B
+intxxC F
+oldStatusIdxxG R
+,xxR S
+intxxT W
+newStatusIdxxX c
+)xxc d
+{yy 
+varzz 
+slazz 
+=zz 
+awaitzz 
+_contextzz  
+.zz  !
 
-TicketSlasxx! +
-.xx+ ,
-FirstOrDefaultAsyncxx, ?
-(xx? @
-sxx@ A
-=>xxB D
-sxxE F
-.xxF G
-TicketIdxxG O
-==xxP R
-ticketIdxxS [
-)xx[ \
-;xx\ ]
-ifyy 
-
-(yy 
-slayy 
-==yy 
-nullyy 
-)yy 
-returnyy 
-;yy  
+TicketSlaszz! +
+.zz+ ,
+FirstOrDefaultAsynczz, ?
+(zz? @
+szz@ A
+=>zzB D
+szzE F
+.zzF G
+TicketIdzzG O
+==zzP R
+ticketIdzzS [
+)zz[ \
+;zz\ ]
 if{{ 
 
 ({{ 
-sla{{ 
-.{{ 
-FirstResponseMetAt{{ "
-=={{# %
-null{{& *
-){{* +
-sla|| 
-.|| 
-FirstResponseMetAt|| "
-=||# $
-DateTime||% -
-.||- .
-UtcNow||. 4
-;||4 5
-var~~ 
-	oldStatus~~ 
-=~~ 
-await~~ 
-_context~~ &
-.~~& '
-Statuses~~' /
-.~~/ 0
-	FindAsync~~0 9
-(~~9 :
-oldStatusId~~: E
-)~~E F
-;~~F G
-var 
-	newStatus 
-= 
-await 
-_context &
-.& '
-Statuses' /
-./ 0
-	FindAsync0 9
-(9 :
-newStatusId: E
-)E F
-;F G
-if
-ÄÄ 
-
-(
-ÄÄ 
-	oldStatus
-ÄÄ 
-==
-ÄÄ 
-null
-ÄÄ 
-||
-ÄÄ  
-	newStatus
-ÄÄ! *
-==
-ÄÄ+ -
-null
-ÄÄ. 2
-)
-ÄÄ2 3
-return
-ÄÄ4 :
-;
-ÄÄ: ;
+sla{{ 
+=={{ 
+null{{ 
+){{ 
+return{{ 
+;{{  
+if}} 
+
+(}} 
+sla}} 
+.}} 
+FirstResponseMetAt}} "
+==}}# %
+null}}& *
+)}}* +
+sla~~ 
+.~~ 
+FirstResponseMetAt~~ "
+=~~# $
+DateTime~~% -
+.~~- .
+UtcNow~~. 4
+;~~4 5
 var
-ÇÇ 
-now
-ÇÇ 
-=
-ÇÇ 
-DateTime
-ÇÇ 
-.
-ÇÇ 
-UtcNow
-ÇÇ !
-;
-ÇÇ! "
-if
-ÑÑ 
-
-(
-ÑÑ 
-!
-ÑÑ 
+ÄÄ 
 	oldStatus
-ÑÑ 
-.
-ÑÑ 
-	PausesSla
-ÑÑ  
-&&
-ÑÑ! #
-	newStatus
-ÑÑ$ -
-.
-ÑÑ- .
-	PausesSla
-ÑÑ. 7
-)
-ÑÑ7 8
-{
-ÖÖ 	
-
-ApplyPause
-ÜÜ 
-(
-ÜÜ 
-sla
-ÜÜ 
-,
-ÜÜ 
-now
-ÜÜ 
-)
-ÜÜ  
-;
-ÜÜ  !
-}
-áá 	
-else
-àà 
-if
-àà 
-(
-àà 
-	oldStatus
-àà 
-.
-àà 
-	PausesSla
-àà $
-&&
-àà% '
-!
-àà( )
-	newStatus
-àà) 2
-.
-àà2 3
-	PausesSla
-àà3 <
-&&
-àà= ?
-sla
-àà@ C
-.
-ààC D
-PausedAt
-ààD L
-.
-ààL M
-HasValue
-ààM U
-)
-ààU V
-{
-ââ 	
-await
-ää 
-ApplyResumeAsync
-ää "
-(
-ää" #
-sla
-ää# &
-,
-ää& '
-now
-ää( +
-)
-ää+ ,
-;
-ää, -
-}
-ãã 	
-if
-çç 
-
-(
-çç 
-	newStatus
-çç 
-.
-çç 
-IsClosedStatus
-çç $
-&&
-çç% '
-sla
-çç( +
-.
-çç+ ,
-ResolutionMetAt
-çç, ;
-==
-çç< >
-null
-çç? C
-)
-ççC D
-sla
-éé 
-.
-éé 
-ResolutionMetAt
-éé 
+ÄÄ 
 =
-éé  !
-now
-éé" %
-;
-éé% &
+ÄÄ 
 await
-êê 
+ÄÄ 
 _context
-êê 
+ÄÄ &
 .
-êê 
-SaveChangesAsync
-êê '
+ÄÄ& '
+Statuses
+ÄÄ' /
+.
+ÄÄ/ 0
+	FindAsync
+ÄÄ0 9
 (
-êê' (
+ÄÄ9 :
+oldStatusId
+ÄÄ: E
 )
-êê( )
+ÄÄE F
 ;
-êê) *
-}
-ëë 
-private
-ìì 
-static
-ìì 
-void
-ìì 
+ÄÄF G
+var
+ÅÅ 
+	newStatus
+ÅÅ 
+=
+ÅÅ 
+await
+ÅÅ 
+_context
+ÅÅ &
+.
+ÅÅ& '
+Statuses
+ÅÅ' /
+.
+ÅÅ/ 0
+	FindAsync
+ÅÅ0 9
+(
+ÅÅ9 :
+newStatusId
+ÅÅ: E
+)
+ÅÅE F
+;
+ÅÅF G
+if
+ÇÇ 
+
+(
+ÇÇ 
+	oldStatus
+ÇÇ 
+==
+ÇÇ 
+null
+ÇÇ 
+||
+ÇÇ  
+	newStatus
+ÇÇ! *
+==
+ÇÇ+ -
+null
+ÇÇ. 2
+)
+ÇÇ2 3
+return
+ÇÇ4 :
+;
+ÇÇ: ;
+var
+ÑÑ 
+now
+ÑÑ 
+=
+ÑÑ 
+DateTime
+ÑÑ 
+.
+ÑÑ 
+UtcNow
+ÑÑ !
+;
+ÑÑ! "
+if
+ÜÜ 
+
+(
+ÜÜ 
+!
+ÜÜ 
+	oldStatus
+ÜÜ 
+.
+ÜÜ 
+	PausesSla
+ÜÜ  
+&&
+ÜÜ! #
+	newStatus
+ÜÜ$ -
+.
+ÜÜ- .
+	PausesSla
+ÜÜ. 7
+)
+ÜÜ7 8
+{
+áá 	
 
 ApplyPause
-ìì "
+àà 
 (
-ìì" #
-	TicketSla
-ìì# ,
+àà 
 sla
-ìì- 0
+àà 
 ,
-ìì0 1
-DateTime
-ìì2 :
+àà 
 now
-ìì; >
+àà 
 )
-ìì> ?
-{
-îî 
-sla
-ïï 
-.
-ïï 
-PausedAt
-ïï 
-=
-ïï 
-now
-ïï 
+àà  
 ;
-ïï 
+àà  !
 }
-ññ 
-private
-òò 
-async
-òò 
-Task
-òò 
-ApplyResumeAsync
-òò '
-(
-òò' (
-	TicketSla
-òò( 1
-sla
-òò2 5
-,
-òò5 6
-DateTime
-òò7 ?
-now
-òò@ C
-)
-òòC D
-{
-ôô 
+ââ 	
+else
+ää 
 if
-öö 
-
+ää 
 (
-öö 
+ää 
+	oldStatus
+ää 
+.
+ää 
+	PausesSla
+ää $
+&&
+ää% '
 !
-öö 
-sla
-öö 
+ää( )
+	newStatus
+ää) 2
 .
-öö 
+ää2 3
+	PausesSla
+ää3 <
+&&
+ää= ?
+sla
+ää@ C
+.
+ääC D
 PausedAt
-öö 
+ääD L
 .
-öö 
+ääL M
 HasValue
-öö "
+ääM U
 )
-öö" #
-return
-öö$ *
-;
-öö* +
-var
-úú 
-pausedDuration
-úú 
-=
-úú 
-now
-úú  
--
-úú! "
-sla
-úú# &
-.
-úú& '
-PausedAt
-úú' /
-.
-úú/ 0
-Value
-úú0 5
-;
-úú5 6
-sla
-ùù 
-.
-ùù  
-TotalPausedMinutes
-ùù 
-+=
-ùù !
-(
-ùù" #
-int
-ùù# &
-)
-ùù& '
-pausedDuration
-ùù' 5
-.
-ùù5 6
-TotalMinutes
-ùù6 B
-;
-ùùB C
-if
-üü 
-
-(
-üü 
-sla
-üü 
-.
-üü  
-FirstResponseDueAt
-üü "
-.
-üü" #
-HasValue
-üü# +
-)
-üü+ ,
-sla
-†† 
-.
-††  
-FirstResponseDueAt
-†† "
-=
-††# $
+ääU V
+{
+ãã 	
 await
-††% *#
-CalculateDueTimeAsync
-††+ @
+åå 
+ApplyResumeAsync
+åå "
 (
-††@ A
-now
-††A D
+åå" #
+sla
+åå# &
 ,
-††D E
-(
-††F G
-int
-††G J
+åå& '
+now
+åå( +
 )
-††J K
-(
-††K L
-sla
-††L O
-.
-††O P 
-FirstResponseDueAt
-††P b
-.
-††b c
-Value
-††c h
--
-††i j
-sla
-††k n
-.
-††n o
-PausedAt
-††o w
-.
-††w x
-Value
-††x }
-)
-††} ~
-.
-††~ 
-TotalMinutes†† ã
-)††ã å
-;††å ç
+åå+ ,
+;
+åå, -
+}
+çç 	
 if
-¢¢ 
+èè 
 
 (
-¢¢ 
+èè 
+	newStatus
+èè 
+.
+èè 
+IsClosedStatus
+èè $
+&&
+èè% '
+sla
+èè( +
+.
+èè+ ,
+ResolutionMetAt
+èè, ;
+==
+èè< >
+null
+èè? C
+)
+èèC D
+sla
+êê 
+.
+êê 
+ResolutionMetAt
+êê 
+=
+êê  !
+now
+êê" %
+;
+êê% &
+await
+íí 
+_context
+íí 
+.
+íí 
+SaveChangesAsync
+íí '
+(
+íí' (
+)
+íí( )
+;
+íí) *
+}
+ìì 
+private
+ïï 
+static
+ïï 
+void
+ïï 
+
+ApplyPause
+ïï "
+(
+ïï" #
+	TicketSla
+ïï# ,
+sla
+ïï- 0
+,
+ïï0 1
+DateTime
+ïï2 :
+now
+ïï; >
+)
+ïï> ?
+{
+ññ 
+sla
+óó 
+.
+óó 
+PausedAt
+óó 
+=
+óó 
+now
+óó 
+;
+óó 
+}
+òò 
+private
+öö 
+async
+öö 
+Task
+öö 
+ApplyResumeAsync
+öö '
+(
+öö' (
+	TicketSla
+öö( 1
+sla
+öö2 5
+,
+öö5 6
+DateTime
+öö7 ?
+now
+öö@ C
+)
+ööC D
+{
+õõ 
+if
+úú 
+
+(
+úú 
+!
+úú 
+sla
+úú 
+.
+úú 
+PausedAt
+úú 
+.
+úú 
+HasValue
+úú "
+)
+úú" #
+return
+úú$ *
+;
+úú* +
+var
+ûû 
+pausedDuration
+ûû 
+=
+ûû 
+now
+ûû  
+-
+ûû! "
+sla
+ûû# &
+.
+ûû& '
+PausedAt
+ûû' /
+.
+ûû/ 0
+Value
+ûû0 5
+;
+ûû5 6
+sla
+üü 
+.
+üü  
+TotalPausedMinutes
+üü 
++=
+üü !
+(
+üü" #
+int
+üü# &
+)
+üü& '
+pausedDuration
+üü' 5
+.
+üü5 6
+TotalMinutes
+üü6 B
+;
+üüB C
+if
+°° 
+
+(
+°° 
+sla
+°° 
+.
+°°  
+FirstResponseDueAt
+°° "
+.
+°°" #
+HasValue
+°°# +
+)
+°°+ ,
 sla
 ¢¢ 
 .
-¢¢ 
-ResolutionDueAt
-¢¢ 
-.
-¢¢  
-HasValue
-¢¢  (
-)
-¢¢( )
-sla
-££ 
-.
-££ 
-ResolutionDueAt
-££ 
+¢¢  
+FirstResponseDueAt
+¢¢ "
 =
-££  !
+¢¢# $
 await
-££" '#
+¢¢% *#
 CalculateDueTimeAsync
-££( =
+¢¢+ @
 (
-££= >
+¢¢@ A
 now
-££> A
+¢¢A D
 ,
-££A B
+¢¢D E
 (
-££C D
+¢¢F G
 int
-££D G
+¢¢G J
 )
-££G H
+¢¢J K
 (
-££H I
+¢¢K L
 sla
-££I L
+¢¢L O
 .
-££L M
-ResolutionDueAt
-££M \
+¢¢O P 
+FirstResponseDueAt
+¢¢P b
 .
-££\ ]
+¢¢b c
 Value
-££] b
+¢¢c h
 -
-££c d
+¢¢i j
 sla
-££e h
+¢¢k n
 .
-££h i
+¢¢n o
 PausedAt
-££i q
+¢¢o w
 .
-££q r
+¢¢w x
 Value
-££r w
+¢¢x }
 )
-££w x
+¢¢} ~
 .
-££x y
-TotalMinutes££y Ö
-)££Ö Ü
-;££Ü á
+¢¢~ 
+TotalMinutes¢¢ ã
+)¢¢ã å
+;¢¢å ç
+if
+§§ 
+
+(
+§§ 
 sla
-•• 
+§§ 
 .
-•• 
-PausedAt
-•• 
+§§ 
+ResolutionDueAt
+§§ 
+.
+§§  
+HasValue
+§§  (
+)
+§§( )
+sla
+•• 
+.
+•• 
+ResolutionDueAt
+•• 
 =
-•• 
+••  !
+await
+••" '#
+CalculateDueTimeAsync
+••( =
+(
+••= >
+now
+••> A
+,
+••A B
+(
+••C D
+int
+••D G
+)
+••G H
+(
+••H I
+sla
+••I L
+.
+••L M
+ResolutionDueAt
+••M \
+.
+••\ ]
+Value
+••] b
+-
+••c d
+sla
+••e h
+.
+••h i
+PausedAt
+••i q
+.
+••q r
+Value
+••r w
+)
+••w x
+.
+••x y
+TotalMinutes••y Ö
+)••Ö Ü
+;••Ü á
+sla
+ßß 
+.
+ßß 
+PausedAt
+ßß 
+=
+ßß 
 null
-•• 
+ßß 
 ;
-•• 
+ßß 
 }
-¶¶ 
+®® 
 public
-®® 
+™™ 
 
 async
-®® 
+™™ 
 Task
-®® '
+™™ '
 ProcessTicketCommentAsync
-®® /
+™™ /
 (
-®®/ 0
+™™/ 0
 int
-®®0 3
+™™0 3
 ticketId
-®®4 <
+™™4 <
 ,
-®®< =
+™™< =
 bool
-®®> B
+™™> B
 
 isInternal
-®®C M
+™™C M
 )
-®®M N
+™™M N
 {
-©© 
+´´ 
 if
-™™ 
+¨¨ 
 
 (
-™™ 
+¨¨ 
 
 isInternal
-™™ 
+¨¨ 
 )
-™™ 
+¨¨ 
 return
-™™ 
+¨¨ 
 ;
-™™ 
+¨¨ 
 var
-¨¨ 
+ÆÆ 
 sla
-¨¨ 
+ÆÆ 
 =
-¨¨ 
+ÆÆ 
 await
-¨¨ 
+ÆÆ 
 _context
-¨¨  
+ÆÆ  
 .
-¨¨  !
+ÆÆ  !
 
 TicketSlas
-¨¨! +
+ÆÆ! +
 .
-¨¨+ ,!
+ÆÆ+ ,!
 FirstOrDefaultAsync
-¨¨, ?
+ÆÆ, ?
 (
-¨¨? @
+ÆÆ? @
 s
-¨¨@ A
+ÆÆ@ A
 =>
-¨¨B D
+ÆÆB D
 s
-¨¨E F
+ÆÆE F
 .
-¨¨F G
+ÆÆF G
 TicketId
-¨¨G O
+ÆÆG O
 ==
-¨¨P R
+ÆÆP R
 ticketId
-¨¨S [
+ÆÆS [
 )
-¨¨[ \
+ÆÆ[ \
 ;
-¨¨\ ]
+ÆÆ\ ]
 if
-≠≠ 
+ØØ 
 
 (
-≠≠ 
+ØØ 
 sla
-≠≠ 
+ØØ 
 !=
-≠≠ 
+ØØ 
 null
-≠≠ 
+ØØ 
 &&
-≠≠ 
+ØØ 
 sla
-≠≠ 
+ØØ 
 .
-≠≠  
+ØØ  
 FirstResponseMetAt
-≠≠ 1
+ØØ 1
 ==
-≠≠2 4
+ØØ2 4
 null
-≠≠5 9
+ØØ5 9
 )
-≠≠9 :
+ØØ9 :
 {
-ÆÆ 	
+∞∞ 	
 sla
-ØØ 
+±± 
 .
-ØØ  
+±±  
 FirstResponseMetAt
-ØØ "
+±± "
 =
-ØØ# $
+±±# $
 DateTime
-ØØ% -
+±±% -
 .
-ØØ- .
+±±- .
 UtcNow
-ØØ. 4
+±±. 4
 ;
-ØØ4 5
+±±4 5
 await
-∞∞ 
+≤≤ 
 _context
-∞∞ 
+≤≤ 
 .
-∞∞ 
+≤≤ 
 SaveChangesAsync
-∞∞ +
+≤≤ +
 (
-∞∞+ ,
+≤≤+ ,
 )
-∞∞, -
+≤≤, -
 ;
-∞∞- .
+≤≤- .
 }
-±± 	
+≥≥ 	
 }
-≤≤ 
+¥¥ 
 public
-¥¥ 
+∂∂ 
 
 async
-¥¥ 
+∂∂ 
 Task
-¥¥  
+∂∂  
 CheckBreachesAsync
-¥¥ (
+∂∂ (
 (
-¥¥( )
+∂∂( )
 DateTime
-¥¥) 1
+∂∂) 1
 nowUtc
-¥¥2 8
+∂∂2 8
 )
-¥¥8 9
+∂∂8 9
 {
-µµ 
+∑∑ 
 var
-∂∂ 
+∏∏ 
 
 activeSlas
-∂∂ 
+∏∏ 
 =
-∂∂ 
+∏∏ 
 await
-∂∂ 
+∏∏ 
 _context
-∂∂ '
+∏∏ '
 .
-∂∂' (
+∏∏' (
 
 TicketSlas
-∂∂( 2
+∏∏( 2
 .
-∑∑ 
+ππ 
 Include
-∑∑ 
+ππ 
 (
-∑∑ 
+ππ 
 s
-∑∑ 
+ππ 
 =>
-∑∑ 
+ππ 
 s
-∑∑ 
+ππ 
 .
-∑∑ 
+ππ 
 Ticket
-∑∑ "
+ππ "
 )
-∑∑" #
+ππ" #
 .
-∏∏ 
+∫∫ 
 Where
-∏∏ 
+∫∫ 
 (
-∏∏ 
+∫∫ 
 s
-∏∏ 
+∫∫ 
 =>
-∏∏ 
+∫∫ 
 s
-∏∏ 
+∫∫ 
 .
-∏∏ 
+∫∫ 
 PausedAt
-∏∏ "
+∫∫ "
 ==
-∏∏# %
+∫∫# %
 null
-∏∏& *
+∫∫& *
 &&
-∏∏+ -
+∫∫+ -
 (
-∏∏. /
+∫∫. /
 !
-∏∏/ 0
+∫∫/ 0
 s
-∏∏0 1
+∫∫0 1
 .
-∏∏1 2
+∫∫1 2
 ResolutionMetAt
-∏∏2 A
+∫∫2 A
 .
-∏∏A B
+∫∫A B
 HasValue
-∏∏B J
+∫∫B J
 ||
-∏∏K M
+∫∫K M
 !
-∏∏N O
+∫∫N O
 s
-∏∏O P
+∫∫O P
 .
-∏∏P Q 
+∫∫P Q 
 FirstResponseMetAt
-∏∏Q c
+∫∫Q c
 .
-∏∏c d
+∫∫c d
 HasValue
-∏∏d l
+∫∫d l
 )
-∏∏l m
+∫∫l m
 )
-∏∏m n
+∫∫m n
 .
-ππ 
+ªª 
 ToListAsync
-ππ 
+ªª 
 (
-ππ 
+ªª 
 )
-ππ 
+ªª 
 ;
-ππ 
+ªª 
 foreach
-ªª 
+ΩΩ 
 (
-ªª 
+ΩΩ 
 var
-ªª 
+ΩΩ 
 sla
-ªª 
+ΩΩ 
 in
-ªª 
+ΩΩ 
 
 activeSlas
-ªª &
+ΩΩ &
 )
-ªª& '
+ΩΩ& '
 {
-ºº 	
+ææ 	
 if
-ΩΩ 
+øø 
 (
-ΩΩ 
+øø 
 sla
-ΩΩ 
+øø 
 .
-ΩΩ 
+øø 
 Ticket
-ΩΩ 
+øø 
 ==
-ΩΩ 
+øø 
 null
-ΩΩ "
+øø "
 )
-ΩΩ" #
+øø" #
 continue
-ΩΩ$ ,
+øø$ ,
 ;
-ΩΩ, -
+øø, -
 var
-ææ 
+¿¿ 
 targetUserId
-ææ 
+¿¿ 
 =
-ææ 
+¿¿ 
 sla
-ææ "
+¿¿ "
 .
-ææ" #
+¿¿" #
 Ticket
-ææ# )
+¿¿# )
 .
-ææ) *
+¿¿) *
 AssignedUserId
-ææ* 8
+¿¿* 8
 ??
-ææ9 ;
+¿¿9 ;
 sla
-ææ< ?
+¿¿< ?
 .
-ææ? @
+¿¿? @
 Ticket
-ææ@ F
+¿¿@ F
 .
-ææF G
+¿¿F G
 RequesterUserId
-ææG V
+¿¿G V
 ;
-ææV W
+¿¿V W
 await
-¿¿ %
+¬¬ %
 CheckFirstResponseAsync
-¿¿ )
+¬¬ )
 (
-¿¿) *
+¬¬) *
 sla
-¿¿* -
+¬¬* -
 ,
-¿¿- .
+¬¬- .
 targetUserId
-¿¿/ ;
+¬¬/ ;
 ,
-¿¿; <
+¬¬; <
 nowUtc
-¿¿= C
+¬¬= C
 )
-¿¿C D
+¬¬C D
 ;
-¿¿D E
+¬¬D E
 await
-¡¡ "
+√√ "
 CheckResolutionAsync
-¡¡ &
+√√ &
 (
-¡¡& '
+√√& '
 sla
-¡¡' *
+√√' *
 ,
-¡¡* +
+√√* +
 targetUserId
-¡¡, 8
+√√, 8
 ,
-¡¡8 9
+√√8 9
 nowUtc
-¡¡: @
+√√: @
 )
-¡¡@ A
+√√@ A
 ;
-¡¡A B
+√√A B
 }
-¬¬ 	
+ƒƒ 	
 await
-ƒƒ 
+∆∆ 
 _context
-ƒƒ 
+∆∆ 
 .
-ƒƒ 
+∆∆ 
 SaveChangesAsync
-ƒƒ '
+∆∆ '
 (
-ƒƒ' (
+∆∆' (
 )
-ƒƒ( )
+∆∆( )
 ;
-ƒƒ) *
+∆∆) *
 }
-≈≈ 
+«« 
 private
-«« 
+…… 
 async
-«« 
+…… 
 Task
-«« %
+…… %
 CheckFirstResponseAsync
-«« .
+…… .
 (
-««. /
+……. /
 	TicketSla
-««/ 8
+……/ 8
 sla
-««9 <
+……9 <
 ,
-««< =
+……< =
 int
-««> A
+……> A
 targetUserId
-««B N
+……B N
 ,
-««N O
+……N O
 DateTime
-««P X
+……P X
 nowUtc
-««Y _
+……Y _
 )
-««_ `
+……_ `
 {
-»» 
+   
 if
-…… 
+ÀÀ 
 
 (
-…… 
+ÀÀ 
 sla
-…… 
+ÀÀ 
 .
-……  
+ÀÀ  
 FirstResponseMetAt
-…… "
+ÀÀ "
 .
-……" #
+ÀÀ" #
 HasValue
-……# +
+ÀÀ# +
 ||
-……, .
+ÀÀ, .
 !
-……/ 0
+ÀÀ/ 0
 sla
-……0 3
+ÀÀ0 3
 .
-……3 4 
+ÀÀ3 4 
 FirstResponseDueAt
-……4 F
+ÀÀ4 F
 .
-……F G
+ÀÀF G
 HasValue
-……G O
+ÀÀG O
 )
-……O P
+ÀÀO P
 return
-……Q W
+ÀÀQ W
 ;
-……W X
+ÀÀW X
 var
-ÀÀ 
+ÕÕ 
 (
-ÀÀ 
+ÕÕ 
 warn
-ÀÀ 
+ÕÕ 
 ,
-ÀÀ 
+ÕÕ 
 breach
-ÀÀ 
+ÕÕ 
 )
-ÀÀ 
+ÕÕ 
 =
-ÀÀ 
+ÕÕ 
 EvaluateMetric
-ÀÀ +
+ÕÕ +
 (
-ÀÀ+ ,
+ÕÕ+ ,
 sla
-ÀÀ, /
+ÕÕ, /
 .
-ÀÀ/ 0 
+ÕÕ/ 0 
 FirstResponseDueAt
-ÀÀ0 B
+ÕÕ0 B
 .
-ÀÀB C
+ÕÕB C
 Value
-ÀÀC H
+ÕÕC H
 ,
-ÀÀH I
+ÕÕH I
 sla
-ÀÀJ M
+ÕÕJ M
 .
-ÀÀM N!
+ÕÕM N!
 FirstResponseWarned
-ÀÀN a
+ÕÕN a
 ,
-ÀÀa b
+ÕÕa b
 sla
-ÀÀc f
+ÕÕc f
 .
-ÀÀf g#
+ÕÕf g#
 FirstResponseBreached
-ÀÀg |
+ÕÕg |
 ,
-ÀÀ| }
-nowUtcÀÀ~ Ñ
-)ÀÀÑ Ö
-;ÀÀÖ Ü
+ÕÕ| }
+nowUtcÕÕ~ Ñ
+)ÕÕÑ Ö
+;ÕÕÖ Ü
 if
-ÕÕ 
+œœ 
 
 (
-ÕÕ 
+œœ 
 breach
-ÕÕ 
+œœ 
 )
-ÕÕ 
+œœ 
 {
-ŒŒ 	
+–– 	
 sla
-œœ 
+—— 
 .
-œœ #
+—— #
 FirstResponseBreached
-œœ %
+—— %
 =
-œœ& '
+——& '
 true
-œœ( ,
+——( ,
 ;
-œœ, -
+——, -
 await
-–– %
-CreateNotificationAsync
-–– )
-(
-––) *
-targetUserId
-––* 6
-,
-––6 7
-sla
-––8 ;
+““ %
+_notificationDispatcher
+““ )
 .
-––; <
+““) * 
+DispatchEventAsync
+““* <
+(
+““< =
+$str
+““= I
+,
+““I J
+sla
+““K N
+.
+““N O
 TicketId
-––< D
+““O W
 ,
-––D E
-$str
-––F T
+““W X
+null
+““Y ]
 ,
-––T U
+““] ^
 $str
-––V t
+““_ }
 )
-––t u
+““} ~
 ;
-––u v
+““~ 
+await
+”” 
+TryEscalateAsync
+”” "
+(
+””" #
+sla
+””# &
+)
+””& '
+;
+””' (
 }
-—— 	
+‘‘ 	
 else
-““ 
+’’ 
 if
-““ 
+’’ 
 (
-““ 
+’’ 
 warn
-““ 
+’’ 
 )
-““ 
+’’ 
 {
-”” 	
+÷÷ 	
 sla
-‘‘ 
+◊◊ 
 .
-‘‘ !
+◊◊ !
 FirstResponseWarned
-‘‘ #
+◊◊ #
 =
-‘‘$ %
+◊◊$ %
 true
-‘‘& *
+◊◊& *
 ;
-‘‘* +
+◊◊* +
 await
-’’ %
+ÿÿ %
 CreateNotificationAsync
-’’ )
+ÿÿ )
 (
-’’) *
+ÿÿ) *
 targetUserId
-’’* 6
+ÿÿ* 6
 ,
-’’6 7
+ÿÿ6 7
 sla
-’’8 ;
+ÿÿ8 ;
 .
-’’; <
+ÿÿ; <
 TicketId
-’’< D
+ÿÿ< D
 ,
-’’D E
+ÿÿD E
 $str
-’’F S
+ÿÿF S
 ,
-’’S T
+ÿÿS T
 $str
-’’U }
+ÿÿU }
 )
-’’} ~
+ÿÿ} ~
 ;
-’’~ 
+ÿÿ~ 
 }
-÷÷ 	
+ŸŸ 	
 }
-◊◊ 
+⁄⁄ 
 private
-ŸŸ 
+‹‹ 
 async
-ŸŸ 
+‹‹ 
 Task
-ŸŸ "
+‹‹ "
 CheckResolutionAsync
-ŸŸ +
+‹‹ +
 (
-ŸŸ+ ,
+‹‹+ ,
 	TicketSla
-ŸŸ, 5
+‹‹, 5
 sla
-ŸŸ6 9
+‹‹6 9
 ,
-ŸŸ9 :
+‹‹9 :
 int
-ŸŸ; >
+‹‹; >
 targetUserId
-ŸŸ? K
+‹‹? K
 ,
-ŸŸK L
+‹‹K L
 DateTime
-ŸŸM U
+‹‹M U
 nowUtc
-ŸŸV \
+‹‹V \
 )
-ŸŸ\ ]
+‹‹\ ]
 {
-⁄⁄ 
+›› 
 if
-€€ 
+ﬁﬁ 
 
 (
-€€ 
+ﬁﬁ 
 sla
-€€ 
+ﬁﬁ 
 .
-€€ 
+ﬁﬁ 
 ResolutionMetAt
-€€ 
+ﬁﬁ 
 .
-€€  
+ﬁﬁ  
 HasValue
-€€  (
+ﬁﬁ  (
 ||
-€€) +
+ﬁﬁ) +
 !
-€€, -
+ﬁﬁ, -
 sla
-€€- 0
+ﬁﬁ- 0
 .
-€€0 1
+ﬁﬁ0 1
 ResolutionDueAt
-€€1 @
+ﬁﬁ1 @
 .
-€€@ A
+ﬁﬁ@ A
 HasValue
-€€A I
+ﬁﬁA I
 )
-€€I J
+ﬁﬁI J
 return
-€€K Q
+ﬁﬁK Q
 ;
-€€Q R
+ﬁﬁQ R
 var
-›› 
+‡‡ 
 (
-›› 
+‡‡ 
 warn
-›› 
+‡‡ 
 ,
-›› 
+‡‡ 
 breach
-›› 
+‡‡ 
 )
-›› 
+‡‡ 
 =
-›› 
+‡‡ 
 EvaluateMetric
-›› +
+‡‡ +
 (
-››+ ,
+‡‡+ ,
 sla
-››, /
+‡‡, /
 .
-››/ 0
+‡‡/ 0
 ResolutionDueAt
-››0 ?
+‡‡0 ?
 .
-››? @
+‡‡? @
 Value
-››@ E
+‡‡@ E
 ,
-››E F
+‡‡E F
 sla
-››G J
+‡‡G J
 .
-››J K
+‡‡J K
 ResolutionWarned
-››K [
+‡‡K [
 ,
-››[ \
+‡‡[ \
 sla
-››] `
+‡‡] `
 .
-››` a 
+‡‡` a 
 ResolutionBreached
-››a s
+‡‡a s
 ,
-››s t
+‡‡s t
 nowUtc
-››u {
+‡‡u {
 )
-››{ |
+‡‡{ |
 ;
-››| }
+‡‡| }
 if
-ﬂﬂ 
+‚‚ 
 
 (
-ﬂﬂ 
+‚‚ 
 breach
-ﬂﬂ 
+‚‚ 
 )
-ﬂﬂ 
+‚‚ 
 {
-‡‡ 	
+„„ 	
 sla
-·· 
+‰‰ 
 .
-··  
+‰‰  
 ResolutionBreached
-·· "
+‰‰ "
 =
-··# $
+‰‰# $
 true
-··% )
+‰‰% )
 ;
-··) *
+‰‰) *
 await
-‚‚ %
-CreateNotificationAsync
-‚‚ )
-(
-‚‚) *
-targetUserId
-‚‚* 6
-,
-‚‚6 7
-sla
-‚‚8 ;
+ÂÂ %
+_notificationDispatcher
+ÂÂ )
 .
-‚‚; <
+ÂÂ) * 
+DispatchEventAsync
+ÂÂ* <
+(
+ÂÂ< =
+$str
+ÂÂ= I
+,
+ÂÂI J
+sla
+ÂÂK N
+.
+ÂÂN O
 TicketId
-‚‚< D
+ÂÂO W
 ,
-‚‚D E
-$str
-‚‚F T
+ÂÂW X
+null
+ÂÂY ]
 ,
-‚‚T U
+ÂÂ] ^
 $str
-‚‚V p
+ÂÂ_ y
 )
-‚‚p q
+ÂÂy z
 ;
-‚‚q r
+ÂÂz {
+await
+ÊÊ 
+TryEscalateAsync
+ÊÊ "
+(
+ÊÊ" #
+sla
+ÊÊ# &
+)
+ÊÊ& '
+;
+ÊÊ' (
 }
-„„ 	
+ÁÁ 	
 else
-‰‰ 
+ËË 
 if
-‰‰ 
+ËË 
 (
-‰‰ 
+ËË 
 warn
-‰‰ 
+ËË 
 )
-‰‰ 
+ËË 
 {
-ÂÂ 	
+ÈÈ 	
 sla
-ÊÊ 
+ÍÍ 
 .
-ÊÊ 
+ÍÍ 
 ResolutionWarned
-ÊÊ  
+ÍÍ  
 =
-ÊÊ! "
+ÍÍ! "
 true
-ÊÊ# '
+ÍÍ# '
 ;
-ÊÊ' (
+ÍÍ' (
 await
-ÁÁ %
+ÎÎ %
 CreateNotificationAsync
-ÁÁ )
+ÎÎ )
 (
-ÁÁ) *
+ÎÎ) *
 targetUserId
-ÁÁ* 6
+ÎÎ* 6
 ,
-ÁÁ6 7
+ÎÎ6 7
 sla
-ÁÁ8 ;
+ÎÎ8 ;
 .
-ÁÁ; <
+ÎÎ; <
 TicketId
-ÁÁ< D
+ÎÎ< D
 ,
-ÁÁD E
+ÎÎD E
 $str
-ÁÁF S
+ÎÎF S
 ,
-ÁÁS T
+ÎÎS T
 $str
-ÁÁU y
+ÎÎU y
 )
-ÁÁy z
+ÎÎy z
 ;
-ÁÁz {
+ÎÎz {
 }
-ËË 	
+ÏÏ 	
 }
-ÈÈ 
+ÌÌ 
 private
-ÎÎ 
-static
-ÎÎ 
-(
-ÎÎ 
-bool
-ÎÎ 
-warn
-ÎÎ 
-,
-ÎÎ 
-bool
-ÎÎ #
-breach
-ÎÎ$ *
-)
-ÎÎ* +
-EvaluateMetric
-ÎÎ, :
-(
-ÎÎ: ;
-DateTime
-ÎÎ; C
-dueAt
-ÎÎD I
-,
-ÎÎI J
-bool
-ÎÎK O
-warned
-ÎÎP V
-,
-ÎÎV W
-bool
-ÎÎX \
-breached
-ÎÎ] e
-,
-ÎÎe f
-DateTime
-ÎÎg o
-now
-ÎÎp s
-)
-ÎÎs t
-{
-ÏÏ 
-var
-ÌÌ 
-timeRemaining
-ÌÌ 
-=
-ÌÌ 
-(
-ÌÌ 
-dueAt
-ÌÌ "
--
-ÌÌ# $
-now
-ÌÌ% (
-)
-ÌÌ( )
-.
-ÌÌ) *
-TotalMinutes
-ÌÌ* 6
-;
-ÌÌ6 7
-if
-ÔÔ 
-
-(
-ÔÔ 
-timeRemaining
-ÔÔ 
-<=
-ÔÔ 
-$num
-ÔÔ 
-&&
-ÔÔ !
-!
-ÔÔ" #
-breached
-ÔÔ# +
-)
-ÔÔ+ ,
-return
- 
-(
- 
-false
- 
-,
- 
-true
- 
-)
-  
-;
-  !
-if
-ÚÚ 
-
-(
-ÚÚ 
-timeRemaining
-ÚÚ 
->
-ÚÚ 
-$num
-ÚÚ 
-&&
-ÚÚ  
-timeRemaining
-ÚÚ! .
-<=
-ÚÚ/ 1
-$num
-ÚÚ2 5
-&&
-ÚÚ6 8
-!
-ÚÚ9 :
-warned
-ÚÚ: @
-)
-ÚÚ@ A
-return
-ÛÛ 
-(
-ÛÛ 
-true
-ÛÛ 
-,
-ÛÛ 
-false
-ÛÛ 
-)
-ÛÛ  
-;
-ÛÛ  !
-return
-ıı 
-(
-ıı 
-false
-ıı 
-,
-ıı 
-false
-ıı 
-)
-ıı 
-;
-ıı 
-}
-ˆˆ 
-private
-¯¯ 
+ÔÔ 
 async
-¯¯ 
+ÔÔ 
 Task
-¯¯ %
-CreateNotificationAsync
-¯¯ .
+ÔÔ 
+TryEscalateAsync
+ÔÔ '
 (
-¯¯. /
-int
-¯¯/ 2
-userId
-¯¯3 9
-,
-¯¯9 :
-int
-¯¯; >
-ticketId
-¯¯? G
-,
-¯¯G H
-string
-¯¯I O
-title
-¯¯P U
-,
-¯¯U V
-string
-¯¯W ]
-message
-¯¯^ e
+ÔÔ' (
+	TicketSla
+ÔÔ( 1
+sla
+ÔÔ2 5
 )
-¯¯e f
+ÔÔ5 6
 {
-˘˘ 
+ 
+if
+ÒÒ 
+
+(
+ÒÒ 
+sla
+ÒÒ 
+.
+ÒÒ 
+EscalatedAt
+ÒÒ 
+.
+ÒÒ 
+HasValue
+ÒÒ $
+||
+ÒÒ% '
+sla
+ÒÒ( +
+.
+ÒÒ+ ,
+Ticket
+ÒÒ, 2
+==
+ÒÒ3 5
+null
+ÒÒ6 :
+)
+ÒÒ: ;
+return
+ÒÒ< B
+;
+ÒÒB C
+var
+ÛÛ 
+target
+ÛÛ 
+=
+ÛÛ 
+await
+ÛÛ 
 _context
-˙˙ 
+ÛÛ #
 .
-˙˙ 
-Notifications
-˙˙ 
+ÛÛ# $
+
+SlaTargets
+ÛÛ$ .
 .
-˙˙ 
-Add
-˙˙ "
+ÛÛ. /!
+FirstOrDefaultAsync
+ÛÛ/ B
 (
-˙˙" #
-new
-˙˙# &
-Notification
-˙˙' 3
-{
-˚˚ 	
-UserId
-¸¸ 
-=
-¸¸ 
-userId
-¸¸ 
-,
-¸¸ 
-Title
-˝˝ 
-=
-˝˝ 
-title
-˝˝ 
-,
-˝˝ 
-Message
-˛˛ 
-=
-˛˛ 
-message
-˛˛ 
-,
-˛˛ 
-RelatedEntityId
-ˇˇ 
-=
-ˇˇ 
-ticketId
-ˇˇ &
-,
-ˇˇ& '
-RelatedEntityType
-ÄÄ 
-=
-ÄÄ 
-$str
-ÄÄ  (
-}
-ÅÅ 	
+ÛÛB C
+t
+ÛÛC D
+=>
+ÛÛE G
+t
+ÛÛH I
+.
+ÛÛI J
+
+PriorityId
+ÛÛJ T
+==
+ÛÛU W
+sla
+ÛÛX [
+.
+ÛÛ[ \
+Ticket
+ÛÛ\ b
+.
+ÛÛb c
+
+PriorityId
+ÛÛc m
+&&
+ÛÛn p
+(
+ÛÛq r
+t
+ÛÛr s
+.
+ÛÛs t
+TicketTypeIdÛÛt Ä
+==ÛÛÅ É
+slaÛÛÑ á
+.ÛÛá à
+TicketÛÛà é
+.ÛÛé è
+TypeIdÛÛè ï
+||ÛÛñ ò
+tÛÛô ö
+.ÛÛö õ
+TicketTypeIdÛÛõ ß
+==ÛÛ® ™
+nullÛÛ´ Ø
+)ÛÛØ ∞
+)ÛÛ∞ ±
+;ÛÛ± ≤
+if
+ÙÙ 
+
+(
+ÙÙ 
+target
+ÙÙ 
+==
+ÙÙ 
+null
+ÙÙ 
 )
-ÅÅ	 
+ÙÙ 
+return
+ÙÙ "
+;
+ÙÙ" #
+var
+ˆˆ 
+policy
+ˆˆ 
+=
+ˆˆ 
+await
+ˆˆ 
+_context
+ˆˆ #
+.
+ˆˆ# $
+SlaPolicies
+ˆˆ$ /
+.
+ˆˆ/ 0!
+FirstOrDefaultAsync
+ˆˆ0 C
+(
+ˆˆC D
+p
+ˆˆD E
+=>
+ˆˆF H
+p
+ˆˆI J
+.
+ˆˆJ K
+Id
+ˆˆK M
+==
+ˆˆN P
+target
+ˆˆQ W
+.
+ˆˆW X
+SlaPolicyId
+ˆˆX c
+)
+ˆˆc d
+;
+ˆˆd e
+if
+¯¯ 
+
+(
+¯¯ 
+policy
+¯¯ 
+!=
+¯¯ 
+null
+¯¯ 
+&&
+¯¯ 
+policy
+¯¯ $
+.
+¯¯$ %
+EscalateOnBreach
+¯¯% 5
+)
+¯¯5 6
+{
+˘˘ 	
+sla
+˙˙ 
+.
+˙˙ 
+EscalatedAt
+˙˙ 
+=
+˙˙ 
+DateTime
+˙˙ &
+.
+˙˙& '
+UtcNow
+˙˙' -
+;
+˙˙- .
+var
+˝˝ 
+higherPriority
+˝˝ 
+=
+˝˝  
+await
+˝˝! &
+_context
+˝˝' /
+.
+˝˝/ 0
+
+Priorities
+˝˝0 :
+.
+˛˛ 
+Where
+˛˛ 
+(
+˛˛ 
+p
+˛˛ 
+=>
+˛˛ 
+p
+˛˛ 
+.
+˛˛ 
+SeverityLevel
+˛˛ +
+>
+˛˛, -
+sla
+˛˛. 1
+.
+˛˛1 2
+Ticket
+˛˛2 8
+.
+˛˛8 9
+Priority
+˛˛9 A
+!
+˛˛A B
+.
+˛˛B C
+SeverityLevel
+˛˛C P
+)
+˛˛P Q
+.
+ˇˇ 
+OrderBy
+ˇˇ 
+(
+ˇˇ 
+p
+ˇˇ 
+=>
+ˇˇ 
+p
+ˇˇ 
+.
+ˇˇ  
+SeverityLevel
+ˇˇ  -
+)
+ˇˇ- .
+.
+ÄÄ !
+FirstOrDefaultAsync
+ÄÄ $
+(
+ÄÄ$ %
+)
+ÄÄ% &
+;
+ÄÄ& '
+if
+ÇÇ 
+(
+ÇÇ 
+higherPriority
+ÇÇ 
+!=
+ÇÇ !
+null
+ÇÇ" &
+)
+ÇÇ& '
+{
+ÉÉ 
+var
+ÑÑ 
+oldPriority
+ÑÑ 
+=
+ÑÑ  !
+sla
+ÑÑ" %
+.
+ÑÑ% &
+Ticket
+ÑÑ& ,
+.
+ÑÑ, -
+
+PriorityId
+ÑÑ- 7
+.
+ÑÑ7 8
+ToString
+ÑÑ8 @
+(
+ÑÑ@ A
+)
+ÑÑA B
+;
+ÑÑB C
+sla
+ÖÖ 
+.
+ÖÖ 
+Ticket
+ÖÖ 
+.
+ÖÖ 
+
+PriorityId
+ÖÖ %
+=
+ÖÖ& '
+higherPriority
+ÖÖ( 6
+.
+ÖÖ6 7
+Id
+ÖÖ7 9
+;
+ÖÖ9 :
+_context
+áá 
+.
+áá 
+TicketHistories
+áá (
+.
+áá( )
+Add
+áá) ,
+(
+áá, -
+new
+áá- 0
+Domain
+áá1 7
+.
+áá7 8
+Entities
+áá8 @
+.
+áá@ A
+Ticket
+ááA G
+.
+ááG H
+TicketHistory
+ááH U
+{
+àà 
+TicketId
+ââ 
+=
+ââ 
+sla
+ââ "
+.
+ââ" #
+TicketId
+ââ# +
+,
+ââ+ ,
+Action
+ää 
+=
+ää 
+$str
+ää (
+,
+ää( )
+	FieldName
+ãã 
+=
+ãã 
+$str
+ãã  ,
+,
+ãã, -
+OldValue
+åå 
+=
+åå 
+oldPriority
+åå *
+,
+åå* +
+NewValue
+çç 
+=
+çç 
+higherPriority
+çç -
+.
+çç- .
+Id
+çç. 0
+.
+çç0 1
+ToString
+çç1 9
+(
+çç9 :
+)
+çç: ;
+,
+çç; <
+	CreatedBy
+éé 
+=
+éé 
+$str
+éé  (
+}
+èè 
+)
+èè 
+;
+èè 
+}
+êê 
+}
+ëë 	
+}
+íí 
+private
+îî 
+static
+îî 
+(
+îî 
+bool
+îî 
+warn
+îî 
+,
+îî 
+bool
+îî #
+breach
+îî$ *
+)
+îî* +
+EvaluateMetric
+îî, :
+(
+îî: ;
+DateTime
+îî; C
+dueAt
+îîD I
+,
+îîI J
+bool
+îîK O
+warned
+îîP V
+,
+îîV W
+bool
+îîX \
+breached
+îî] e
+,
+îîe f
+DateTime
+îîg o
+now
+îîp s
+)
+îîs t
+{
+ïï 
+var
+ññ 
+timeRemaining
+ññ 
+=
+ññ 
+(
+ññ 
+dueAt
+ññ "
+-
+ññ# $
+now
+ññ% (
+)
+ññ( )
+.
+ññ) *
+TotalMinutes
+ññ* 6
+;
+ññ6 7
+if
+òò 
+
+(
+òò 
+timeRemaining
+òò 
+<=
+òò 
+$num
+òò 
+&&
+òò !
+!
+òò" #
+breached
+òò# +
+)
+òò+ ,
+return
+ôô 
+(
+ôô 
+false
+ôô 
+,
+ôô 
+true
+ôô 
+)
+ôô  
+;
+ôô  !
+if
+õõ 
+
+(
+õõ 
+timeRemaining
+õõ 
+>
+õõ 
+$num
+õõ 
+&&
+õõ  
+timeRemaining
+õõ! .
+<=
+õõ/ 1
+$num
+õõ2 5
+&&
+õõ6 8
+!
+õõ9 :
+warned
+õõ: @
+)
+õõ@ A
+return
+úú 
+(
+úú 
+true
+úú 
+,
+úú 
+false
+úú 
+)
+úú  
+;
+úú  !
+return
+ûû 
+(
+ûû 
+false
+ûû 
+,
+ûû 
+false
+ûû 
+)
+ûû 
+;
+ûû 
+}
+üü 
+private
+°° 
+async
+°° 
+Task
+°° %
+CreateNotificationAsync
+°° .
+(
+°°. /
+int
+°°/ 2
+userId
+°°3 9
+,
+°°9 :
+int
+°°; >
+ticketId
+°°? G
+,
+°°G H
+string
+°°I O
+title
+°°P U
+,
+°°U V
+string
+°°W ]
+message
+°°^ e
+)
+°°e f
+{
+¢¢ 
+_context
+££ 
+.
+££ 
+Notifications
+££ 
+.
+££ 
+Add
+££ "
+(
+££" #
+new
+££# &
+Domain
+££' -
+.
+££- .
+Entities
+££. 6
+.
+££6 7
+Notification
+££7 C
+.
+££C D
+Notification
+££D P
+{
+§§ 	
+UserId
+•• 
+=
+•• 
+userId
+•• 
+,
+•• 
+Title
+¶¶ 
+=
+¶¶ 
+title
+¶¶ 
+,
+¶¶ 
+Message
+ßß 
+=
+ßß 
+message
+ßß 
+,
+ßß 
+RelatedEntityId
+®® 
+=
+®® 
+ticketId
+®® &
+,
+®®& '
+RelatedEntityType
+©© 
+=
+©© 
+$str
+©©  (
+}
+™™ 	
+)
+™™	 
 
 ;
-ÅÅ
+™™
  
 var
-ÑÑ 
+≠≠ 
 user
-ÑÑ 
+≠≠ 
 =
-ÑÑ 
+≠≠ 
 await
-ÑÑ 
+≠≠ 
 _context
-ÑÑ !
+≠≠ !
 .
-ÑÑ! "
+≠≠! "
 Users
-ÑÑ" '
+≠≠" '
 .
-ÑÑ' (
+≠≠' (
 	FindAsync
-ÑÑ( 1
+≠≠( 1
 (
-ÑÑ1 2
+≠≠1 2
 userId
-ÑÑ2 8
+≠≠2 8
 )
-ÑÑ8 9
+≠≠8 9
 ;
-ÑÑ9 :
+≠≠9 :
 if
-ÖÖ 
+ÆÆ 
 
 (
-ÖÖ 
+ÆÆ 
 user
-ÖÖ 
+ÆÆ 
 !=
-ÖÖ 
+ÆÆ 
 null
-ÖÖ 
+ÆÆ 
 )
-ÖÖ 
+ÆÆ 
 {
-ÜÜ 	
+ØØ 	
 await
-áá 
+∞∞ 
 _emailService
-áá 
+∞∞ 
 .
-áá  
+∞∞  
 SendEmailAsync
-áá  .
+∞∞  .
 (
-áá. /
+∞∞. /
 user
-áá/ 3
+∞∞/ 3
 .
-áá3 4
+∞∞3 4
 Email
-áá4 9
+∞∞4 9
 ,
-áá9 :
+∞∞9 :
 title
-áá; @
+∞∞; @
 ,
-áá@ A
+∞∞@ A
 message
-ááB I
+∞∞B I
 )
-ááI J
+∞∞I J
 ;
-ááJ K
+∞∞J K
 }
-àà 	
+±± 	
 }
-ââ 
-}ää Î9
+≤≤ 
+}≥≥ Î9
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/RoleService.cs
 	namespace 	
 ItsTool
@@ -13922,7 +15934,541 @@ g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Service
 )//( )
 ;//) *
 }00 
-}11 Ç$
+}11 ˜G
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+Services! )
+;) *
+public
+
+ 
+class
+
+ "
+NotificationDispatcher
+
+ #
+:
+
+$ %#
+INotificationDispatcher
+
+& =
+{ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+private 
+readonly 
+IEmailService "
+_emailService# 0
+;0 1
+private 
+readonly 
+IWebhookDispatcher '
+_webhookDispatcher( :
+;: ;
+public 
+"
+NotificationDispatcher !
+(! "
+ItsToolDbContext" 2
+context3 :
+,: ;
+IEmailService< I
+emailServiceJ V
+,V W
+IWebhookDispatcherX j
+webhookDispatcherk |
+)| }
+{ 
+_context 
+= 
+context 
+; 
+_emailService 
+= 
+emailService $
+;$ %
+_webhookDispatcher 
+= 
+webhookDispatcher .
+;. /
+} 
+public 
+
+async 
+Task 
+DispatchEventAsync (
+(( )
+string) /
+eventKey0 8
+,8 9
+int: =
+ticketId> F
+,F G
+intH K
+?K L
+triggerUserIdM Z
+=[ \
+null] a
+,a b
+stringc i
+?i j
+additionalContextk |
+=} ~
+null	 É
+)
+É Ñ
+{ 
+var 
+rules 
+= 
+await 
+_context "
+." #
+NotificationRules# 4
+. 
+Where 
+( 
+r 
+=> 
+r 
+. 
+EventKey "
+==# %
+eventKey& .
+&&/ 1
+r2 3
+.3 4
+IsActive4 <
+&&= ?
+!@ A
+rA B
+.B C
+	IsDeletedC L
+)L M
+. 
+ToListAsync 
+( 
+) 
+; 
+if 
+
+( 
+! 
+rules 
+. 
+Any 
+( 
+) 
+) 
+return  
+;  !
+var 
+ticket 
+= 
+await 
+_context #
+.# $
+Tickets$ +
+.   
+FirstOrDefaultAsync    
+(    !
+t  ! "
+=>  # %
+t  & '
+.  ' (
+Id  ( *
+==  + -
+ticketId  . 6
+&&  7 9
+!  : ;
+t  ; <
+.  < =
+	IsDeleted  = F
+)  F G
+;  G H
+if"" 
+
+("" 
+ticket"" 
+=="" 
+null"" 
+)"" 
+return"" "
+;""" #
+var$$ 
+targetUserIds$$ 
+=$$ 
+new$$ 
+System$$  &
+.$$& '
+Collections$$' 2
+.$$2 3
+Generic$$3 :
+.$$: ;
+HashSet$$; B
+<$$B C
+int$$C F
+>$$F G
+($$G H
+)$$H I
+;$$I J
+foreach&& 
+(&& 
+var&& 
+rule&& 
+in&& 
+rules&& "
+)&&" #
+{'' 	
+switch(( 
+((( 
+rule(( 
+.(( 
+
+TargetRole(( #
+.((# $
+ToLower(($ +
+(((+ ,
+)((, -
+)((- .
+{)) 
+case** 
+$str**  
+:**  !
+targetUserIds++ !
+.++! "
+Add++" %
+(++% &
+ticket++& ,
+.++, -
+RequesterUserId++- <
+)++< =
+;++= >
+break,, 
+;,, 
+case-- 
+$str-- 
+:--  
+if.. 
+(.. 
+ticket.. 
+... 
+AssignedUserId.. -
+...- .
+HasValue... 6
+)..6 7
+targetUserIds// %
+.//% &
+Add//& )
+(//) *
+ticket//* 0
+.//0 1
+AssignedUserId//1 ?
+.//? @
+Value//@ E
+)//E F
+;//F G
+break00 
+;00 
+case11 
+$str11 %
+:11% &
+var22 
+members22 
+=22  !
+await22" '
+_context22( 0
+.220 1
+ProjectMembers221 ?
+.33 
+Where33 
+(33 
+pm33 !
+=>33" $
+pm33% '
+.33' (
+	ProjectId33( 1
+==332 4
+ticket335 ;
+.33; <
+	ProjectId33< E
+&&33F H
+!33I J
+pm33J L
+.33L M
+	IsDeleted33M V
+)33V W
+.44 
+ToListAsync44 $
+(44$ %
+)44% &
+;44& '
+foreach55 
+(55 
+var55  
+m55! "
+in55# %
+members55& -
+)55- .
+{66 
+targetUserIds77 %
+.77% &
+Add77& )
+(77) *
+m77* +
+.77+ ,
+UserId77, 2
+)772 3
+;773 4
+}88 
+break99 
+;99 
+}:: 
+};; 	
+if>> 
+
+(>> 
+triggerUserId>> 
+.>> 
+HasValue>> "
+)>>" #
+{?? 	
+targetUserIds@@ 
+.@@ 
+Remove@@  
+(@@  !
+triggerUserId@@! .
+.@@. /
+Value@@/ 4
+)@@4 5
+;@@5 6
+}AA 	
+foreachCC 
+(CC 
+varCC 
+targetIdCC 
+inCC  
+targetUserIdsCC! .
+)CC. /
+{DD 	
+varFF 
+existsFF 
+=FF 
+awaitFF 
+_contextFF '
+.FF' (
+NotificationsFF( 5
+.FF5 6
+AnyAsyncFF6 >
+(FF> ?
+nFF? @
+=>FFA C
+nGG 
+.GG 
+UserIdGG 
+==GG 
+targetIdGG $
+&&GG% '
+nHH 
+.HH 
+RelatedEntityIdHH !
+==HH" $
+ticketIdHH% -
+&&HH. 0
+nII 
+.II 
+RelatedEntityTypeII #
+==II$ &
+$strII' /
+&&II0 2
+nJJ 
+.JJ 
+TitleJJ 
+==JJ 
+eventKeyJJ #
+&&JJ$ &
+!KK 
+nKK 
+.KK 
+	IsDeletedKK 
+)KK 
+;KK 
+ifPP 
+(PP 
+!PP 
+existsPP 
+)PP 
+{QQ 
+_contextRR 
+.RR 
+NotificationsRR &
+.RR& '
+AddRR' *
+(RR* +
+newRR+ .
+NotificationRR/ ;
+{SS 
+UserIdTT 
+=TT 
+targetIdTT %
+,TT% &
+TitleUU 
+=UU 
+eventKeyUU $
+,UU$ %
+MessageVV 
+=VV 
+additionalContextVV /
+??VV0 2
+$"VV3 5
+$strVV5 ;
+{VV; <
+eventKeyVV< D
+}VVD E
+$strVVE Y
+{VVY Z
+ticketVVZ `
+.VV` a
+TicketNumberVVa m
+}VVm n
+"VVn o
+,VVo p
+RelatedEntityIdWW #
+=WW$ %
+ticketIdWW& .
+,WW. /
+RelatedEntityTypeXX %
+=XX& '
+$strXX( 0
+}YY 
+)YY 
+;YY 
+if[[ 
+([[ 
+eventKey[[ 
+==[[ 
+$str[[  1
+||[[2 4
+eventKey[[5 =
+==[[> @
+$str[[A M
+)[[M N
+{\\ 
+var]] 
+u]] 
+=]] 
+await]] !
+_context]]" *
+.]]* +
+Users]]+ 0
+.]]0 1
+	FindAsync]]1 :
+(]]: ;
+targetId]]; C
+)]]C D
+;]]D E
+if^^ 
+(^^ 
+u^^ 
+!=^^ 
+null^^ !
+)^^! "
+{__ 
+await`` 
+_emailService`` +
+.``+ ,
+SendEmailAsync``, :
+(``: ;
+u``; <
+.``< =
+Email``= B
+,``B C
+$"``D F
+$str``F Y
+{``Y Z
+eventKey``Z b
+}``b c
+"``c d
+,``d e
+additionalContext``f w
+??``x z
+$"``{ }
+$str	``} É
+{
+``É Ñ
+eventKey
+``Ñ å
+}
+``å ç
+$str
+``ç ë
+{
+``ë í
+ticket
+``í ò
+.
+``ò ô
+TicketNumber
+``ô •
+}
+``• ¶
+"
+``¶ ß
+)
+``ß ®
+;
+``® ©
+}aa 
+}bb 
+}cc 
+}dd 	
+awaitff 
+_contextff 
+.ff 
+SaveChangesAsyncff '
+(ff' (
+)ff( )
+;ff) *
+awaitii 
+_webhookDispatcherii  
+.ii  !
+DispatchEventAsyncii! 3
+(ii3 4
+eventKeyii4 <
+,ii< =
+newii> A
+{iiB C
+ticketIdiiD L
+=iiM N
+ticketIdiiO W
+,iiW X
+triggerUserIdiiY f
+=iig h
+triggerUserIdiii v
+,iiv w
+contextiix 
+=
+iiÄ Å
+additionalContext
+iiÇ ì
+}
+iiî ï
+)
+iiï ñ
+;
+iiñ ó
+}jj 
+}kk Ç$
 k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/LocalFileStorageService.cs
 	namespace 	
 ItsTool
@@ -15917,7 +18463,630 @@ repository  
 ;LL- .
 }MM 	
 }NN 
-}OO ∫¬
+}OO ÈU
+i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/EmailIngestionService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+Services! )
+;) *
+public 
+class !
+EmailIngestionService "
+:# $"
+IEmailIngestionService% ;
+{ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+private 
+readonly 
+ITicketService #
+_ticketService$ 2
+;2 3
+public 
+!
+EmailIngestionService  
+(  !
+ItsToolDbContext! 1
+context2 9
+,9 :
+ITicketService; I
+ticketServiceJ W
+)W X
+{ 
+_context 
+= 
+context 
+; 
+_ticketService 
+= 
+ticketService &
+;& '
+} 
+public 
+
+async 
+Task %
+ProcessIncomingEmailAsync /
+(/ 0
+EmailIngestionDto0 A
+dtoB E
+)E F
+{ 
+if 
+
+( 
+string 
+. 
+IsNullOrEmpty  
+(  !
+dto! $
+.$ %
+	MessageId% .
+). /
+)/ 0
+return1 7
+;7 8
+var   
+existingTicket   
+=   
+await   "
+_context  # +
+.  + ,
+Tickets  , 3
+.  3 4
+FirstOrDefaultAsync  4 G
+(  G H
+t  H I
+=>  J L
+t  M N
+.  N O
+ExternalMessageId  O `
+==  a c
+dto  d g
+.  g h
+	MessageId  h q
+)  q r
+;  r s
+if!! 
+
+(!! 
+existingTicket!! 
+!=!! 
+null!! "
+)!!" #
+return!!$ *
+;!!* +
+var$$ 
+user$$ 
+=$$ 
+await$$ 
+_context$$ !
+.$$! "
+Users$$" '
+.$$' (
+FirstOrDefaultAsync$$( ;
+($$; <
+u$$< =
+=>$$> @
+u$$A B
+.$$B C
+Email$$C H
+.$$H I
+ToLower$$I P
+($$P Q
+)$$Q R
+==$$S U
+dto$$V Y
+.$$Y Z
+From$$Z ^
+.$$^ _
+ToLower$$_ f
+($$f g
+)$$g h
+)$$h i
+;$$i j
+if%% 
+
+(%% 
+user%% 
+==%% 
+null%% 
+)%% 
+{&& 	
+user'' 
+='' 
+new'' 
+User'' 
+{(( 
+Username)) 
+=)) 
+dto)) 
+.)) 
+From)) #
+,))# $
+Email** 
+=** 
+dto** 
+.** 
+From**  
+,**  !
+	FirstName++ 
+=++ 
+$str++ &
+,++& '
+LastName,, 
+=,, 
+$str,, !
+,,,! "
+PasswordHash-- 
+=-- 
+BCrypt-- %
+.--% &
+Net--& )
+.--) *
+BCrypt--* 0
+.--0 1
+HashPassword--1 =
+(--= >
+Guid--> B
+.--B C
+NewGuid--C J
+(--J K
+)--K L
+.--L M
+ToString--M U
+(--U V
+)--V W
+)--W X
+}.. 
+;.. 
+_context// 
+.// 
+Users// 
+.// 
+Add// 
+(// 
+user// #
+)//# $
+;//$ %
+await00 
+_context00 
+.00 
+SaveChangesAsync00 +
+(00+ ,
+)00, -
+;00- .
+}11 	
+int44 
+	projectId44 
+=44 
+$num44 
+;44 
+try55 
+{66 	
+var77 
+match77 
+=77 
+Regex77 
+.77 
+Match77 #
+(77# $
+dto77$ '
+.77' (
+Subject77( /
+,77/ 0
+$str771 =
+,77= >
+RegexOptions77? K
+.77K L
+None77L P
+,77P Q
+TimeSpan77R Z
+.77Z [
+FromSeconds77[ f
+(77f g
+$num77g h
+)77h i
+)77i j
+;77j k
+if88 
+(88 
+match88 
+.88 
+Success88 
+)88 
+{99 
+var:: 
+pKey:: 
+=:: 
+match::  
+.::  !
+Groups::! '
+[::' (
+$num::( )
+]::) *
+.::* +
+Value::+ 0
+.::0 1
+ToUpper::1 8
+(::8 9
+)::9 :
+;::: ;
+var;; 
+project;; 
+=;; 
+await;; #
+_context;;$ ,
+.;;, -
+Projects;;- 5
+.;;5 6
+FirstOrDefaultAsync;;6 I
+(;;I J
+p;;J K
+=>;;L N
+p;;O P
+.;;P Q
+
+ProjectKey;;Q [
+==;;\ ^
+pKey;;_ c
+);;c d
+;;;d e
+if<< 
+(<< 
+project<< 
+!=<< 
+null<< #
+)<<# $
+{== 
+	projectId>> 
+=>> 
+project>>  '
+.>>' (
+Id>>( *
+;>>* +
+}?? 
+}@@ 
+}AA 	
+catchBB 
+(BB &
+RegexMatchTimeoutExceptionBB )
+)BB) *
+{CC 	
+}EE 	
+varHH 
+projHH 
+=HH 
+awaitHH 
+_contextHH !
+.HH! "
+ProjectsHH" *
+.HH* +
+	FindAsyncHH+ 4
+(HH4 5
+	projectIdHH5 >
+)HH> ?
+;HH? @
+varII 
+seqII 
+=II 
+awaitII 
+_contextII  
+.II  !
+ProjectSequencesII! 1
+.II1 2
+FirstOrDefaultAsyncII2 E
+(IIE F
+sIIF G
+=>IIH J
+sIIK L
+.IIL M
+	ProjectIdIIM V
+==IIW Y
+	projectIdIIZ c
+)IIc d
+;IId e
+ifJJ 
+
+(JJ 
+seqJJ 
+==JJ 
+nullJJ 
+)JJ 
+{JJ 
+seqKK 
+=KK 
+newKK 
+ItsToolKK 
+.KK 
+DomainKK $
+.KK$ %
+EntitiesKK% -
+.KK- .
+ProjectKK. 5
+.KK5 6
+ProjectSequenceKK6 E
+{KKF G
+	ProjectIdKKH Q
+=KKR S
+	projectIdKKT ]
+,KK] ^
+CurrentValueKK_ k
+=KKl m
+$numKKn o
+}KKp q
+;KKq r
+_contextLL 
+.LL 
+ProjectSequencesLL %
+.LL% &
+AddLL& )
+(LL) *
+seqLL* -
+)LL- .
+;LL. /
+}MM 	
+seqNN 
+.NN 
+CurrentValueNN 
+++NN 
+;NN 
+varOO 
+tNumberOO 
+=OO 
+$"OO 
+{OO 
+projOO 
+?OO 
+.OO 
+
+ProjectKeyOO )
+??OO* ,
+$strOO- 0
+}OO0 1
+$strOO1 2
+{OO2 3
+seqOO3 6
+.OO6 7
+CurrentValueOO7 C
+}OOC D
+"OOD E
+;OOE F
+varRR 
+categoryRR 
+=RR 
+awaitRR 
+_contextRR %
+.RR% &
+
+CategoriesRR& 0
+.RR0 1
+FirstOrDefaultAsyncRR1 D
+(RRD E
+)RRE F
+;RRF G
+varSS 
+typeSS 
+=SS 
+awaitSS 
+_contextSS !
+.SS! "
+TicketTypesSS" -
+.SS- .
+FirstOrDefaultAsyncSS. A
+(SSA B
+)SSB C
+;SSC D
+varTT 
+priorityTT 
+=TT 
+awaitTT 
+_contextTT %
+.TT% &
+
+PrioritiesTT& 0
+.TT0 1
+FirstOrDefaultAsyncTT1 D
+(TTD E
+)TTE F
+;TTF G
+varUU 
+statusUU 
+=UU 
+awaitUU 
+_contextUU #
+.UU# $
+StatusesUU$ ,
+.UU, -
+FirstOrDefaultAsyncUU- @
+(UU@ A
+sUUA B
+=>UUC E
+sUUF G
+.UUG H
+IsSystemDefaultUUH W
+)UUW X
+;UUX Y
+ifWW 
+
+(WW 
+categoryWW 
+==WW 
+nullWW 
+||WW 
+typeWW  $
+==WW% '
+nullWW( ,
+||WW- /
+priorityWW0 8
+==WW9 ;
+nullWW< @
+||WWA C
+statusWWD J
+==WWK M
+nullWWN R
+)WWR S
+{XX 	
+throwYY 
+newYY %
+InvalidOperationExceptionYY /
+(YY/ 0
+$strYY0 i
+)YYi j
+;YYj k
+}ZZ 	
+var]] 
+ticket]] 
+=]] 
+new]] 
+Ticket]] 
+{^^ 	
+TicketNumber__ 
+=__ 
+tNumber__ "
+,__" #
+Title`` 
+=`` 
+string`` 
+.`` 
+IsNullOrWhiteSpace`` -
+(``- .
+dto``. 1
+.``1 2
+Subject``2 9
+)``9 :
+?``; <
+$str``= K
+:``L M
+dto``N Q
+.``Q R
+Subject``R Y
+,``Y Z
+Descriptionaa 
+=aa 
+dtoaa 
+.aa 
+Bodyaa "
+,aa" #
+	ProjectIdbb 
+=bb 
+	projectIdbb !
+,bb! "
+
+CategoryIdcc 
+=cc 
+categorycc !
+.cc! "
+Idcc" $
+,cc$ %
+TypeIddd 
+=dd 
+typedd 
+.dd 
+Iddd 
+,dd 
+
+PriorityIdee 
+=ee 
+priorityee !
+.ee! "
+Idee" $
+,ee$ %
+StatusIdff 
+=ff 
+statusff 
+.ff 
+Idff  
+,ff  !
+RequesterUserIdgg 
+=gg 
+usergg "
+.gg" #
+Idgg# %
+,gg% &
+ExternalMessageIdhh 
+=hh 
+dtohh  #
+.hh# $
+	MessageIdhh$ -
+}ii 	
+;ii	 
+
+_contextkk 
+.kk 
+Ticketskk 
+.kk 
+Addkk 
+(kk 
+ticketkk #
+)kk# $
+;kk$ %
+awaitll 
+_contextll 
+.ll 
+SaveChangesAsyncll '
+(ll' (
+)ll( )
+;ll) *
+_contextnn 
+.nn 
+TicketHistoriesnn  
+.nn  !
+Addnn! $
+(nn$ %
+newnn% (
+TicketHistorynn) 6
+{oo 	
+TicketIdpp 
+=pp 
+ticketpp 
+.pp 
+Idpp  
+,pp  !
+Actionqq 
+=qq 
+$strqq &
+,qq& '
+	FieldNamerr 
+=rr 
+$strrr  
+,rr  !
+NewValuess 
+=ss 
+dtoss 
+.ss 
+	MessageIdss $
+,ss$ %
+	CreatedBytt 
+=tt 
+usertt 
+.tt 
+Idtt 
+.tt  
+ToStringtt  (
+(tt( )
+)tt) *
+}uu 	
+)uu	 
+
+;uu
+ 
+awaitww 
+_contextww 
+.ww 
+SaveChangesAsyncww '
+(ww' (
+)ww( )
+;ww) *
+}{{ 
+}|| ∫¬
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DynamicFormService.cs
 	namespace 	
 ItsTool
@@ -17850,7 +21019,7 @@ Department !
 )55( )
 ;55) *
 }66 
-}77 ±ß
+}77 Ç≠
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs
 	namespace
 
@@ -18375,928 +21544,992 @@ CountAsync<<* 4
 )
 <<Ç É
 ;
-<<É Ñ
-return>> 
-new>>  
-DashboardOverviewDto>> '
-(>>' (
-openTicketsCount>>( 8
-,>>8 9 
-criticalTicketsCount>>: N
-,>>N O
-slaBreachedCount>>P `
-,>>` a
-slaRiskCount>>b n
-,>>n o
-unassignedCount>>p 
-)	>> Ä
+<<É Ñ
+var>> 
+	csatQuery>> 
+=>> 
+_context>>  
+.>>  !
+TicketSurveys>>! .
+.>>. /
+AsQueryable>>/ :
+(>>: ;
+)>>; <
+;>>< =
+var?? 
+csatAverage?? 
+=?? 
+await?? 
+	csatQuery??  )
+.??) *
+AnyAsync??* 2
+(??2 3
+)??3 4
+???5 6
+await??7 <
+	csatQuery??= F
+.??F G
+AverageAsync??G S
+(??S T
+s??T U
+=>??V X
+s??Y Z
+.??Z [
+Rating??[ a
+)??a b
+:??c d
+$num??e h
+;??h i
+returnAA 
+newAA  
+DashboardOverviewDtoAA '
+(AA' (
+openTicketsCountAA( 8
+,AA8 9 
+criticalTicketsCountAA: N
+,AAN O
+slaBreachedCountAAP `
+,AA` a
+slaRiskCountAAb n
+,AAn o
+unassignedCountAAp 
+,	AA Ä
+csatAverage
+AAÅ å
+)
+AAå ç
 ;
->>Ä Å
-}?? 
-publicAA 
+AAç é
+}BB 
+publicDD 
 
-asyncAA 
-TaskAA 
-<AA %
-DashboardDistributionsDtoAA /
->AA/ 0!
-GetDistributionsAsyncAA1 F
-(AAF G
-intAAG J
-userIdAAK Q
-)AAQ R
-{BB 
-varCC 
-queryCC 
-=CC 
-awaitCC &
-GetScopedTicketsQueryAsyncCC 4
-(CC4 5
-userIdCC5 ;
-)CC; <
-;CC< =
-varEE 
-byStatusEE 
-=EE 
-awaitEE 
-queryEE "
-.FF 
-WhereFF 
-(FF 
-tFF 
-=>FF 
-tFF 
-.FF 
-StatusFF  
-!=FF! #
-nullFF$ (
-)FF( )
-.GG 
-GroupByGG 
-(GG 
-tGG 
-=>GG 
-tGG 
-.GG 
-StatusGG "
-!GG" #
-.GG# $
-NameGG$ (
-)GG( )
-.HH 
-SelectHH 
-(HH 
-gHH 
-=>HH 
-newHH !
-TicketDistributionDtoHH 2
-(HH2 3
-gHH3 4
-.HH4 5
-KeyHH5 8
-,HH8 9
-gHH: ;
-.HH; <
-CountHH< A
-(HHA B
-)HHB C
-)HHC D
-)HHD E
-.II 
-ToListAsyncII 
-(II 
-)II 
-;II 
-varKK 
+asyncDD 
+TaskDD 
+<DD %
+DashboardDistributionsDtoDD /
+>DD/ 0!
+GetDistributionsAsyncDD1 F
+(DDF G
+intDDG J
+userIdDDK Q
+)DDQ R
+{EE 
+varFF 
+queryFF 
+=FF 
+awaitFF &
+GetScopedTicketsQueryAsyncFF 4
+(FF4 5
+userIdFF5 ;
+)FF; <
+;FF< =
+varHH 
+byStatusHH 
+=HH 
+awaitHH 
+queryHH "
+.II 
+WhereII 
+(II 
+tII 
+=>II 
+tII 
+.II 
+StatusII  
+!=II! #
+nullII$ (
+)II( )
+.JJ 
+GroupByJJ 
+(JJ 
+tJJ 
+=>JJ 
+tJJ 
+.JJ 
+StatusJJ "
+!JJ" #
+.JJ# $
+NameJJ$ (
+)JJ( )
+.KK 
+SelectKK 
+(KK 
+gKK 
+=>KK 
+newKK !
+TicketDistributionDtoKK 2
+(KK2 3
+gKK3 4
+.KK4 5
+KeyKK5 8
+,KK8 9
+gKK: ;
+.KK; <
+CountKK< A
+(KKA B
+)KKB C
+)KKC D
+)KKD E
+.LL 
+ToListAsyncLL 
+(LL 
+)LL 
+;LL 
+varNN 
 
-byPriorityKK 
-=KK 
-awaitKK 
-queryKK $
-.LL 
-WhereLL 
-(LL 
-tLL 
-=>LL 
-tLL 
-.LL 
-PriorityLL "
-!=LL# %
-nullLL& *
-)LL* +
-.MM 
-GroupByMM 
-(MM 
-tMM 
-=>MM 
-tMM 
-.MM 
-PriorityMM $
-!MM$ %
-.MM% &
-NameMM& *
-)MM* +
-.NN 
-SelectNN 
-(NN 
-gNN 
-=>NN 
-newNN !
-TicketDistributionDtoNN 2
-(NN2 3
-gNN3 4
-.NN4 5
-KeyNN5 8
-,NN8 9
-gNN: ;
-.NN; <
-CountNN< A
-(NNA B
-)NNB C
-)NNC D
-)NND E
-.OO 
-ToListAsyncOO 
-(OO 
-)OO 
-;OO 
-varQQ 
-	byProjectQQ 
-=QQ 
-awaitQQ 
-queryQQ #
-.RR 
-WhereRR 
-(RR 
-tRR 
-=>RR 
-tRR 
-.RR 
-ProjectRR !
-!=RR" $
-nullRR% )
-)RR) *
-.SS 
-GroupBySS 
-(SS 
-tSS 
-=>SS 
-tSS 
-.SS 
-ProjectSS #
-!SS# $
-.SS$ %
-NameSS% )
-)SS) *
-.TT 
-SelectTT 
-(TT 
-gTT 
-=>TT 
-newTT !
-TicketDistributionDtoTT 2
-(TT2 3
-gTT3 4
-.TT4 5
-KeyTT5 8
-,TT8 9
-gTT: ;
-.TT; <
-CountTT< A
-(TTA B
-)TTB C
-)TTC D
-)TTD E
-.UU 
-ToListAsyncUU 
-(UU 
-)UU 
-;UU 
-varWW 
+byPriorityNN 
+=NN 
+awaitNN 
+queryNN $
+.OO 
+WhereOO 
+(OO 
+tOO 
+=>OO 
+tOO 
+.OO 
+PriorityOO "
+!=OO# %
+nullOO& *
+)OO* +
+.PP 
+GroupByPP 
+(PP 
+tPP 
+=>PP 
+tPP 
+.PP 
+PriorityPP $
+!PP$ %
+.PP% &
+NamePP& *
+)PP* +
+.QQ 
+SelectQQ 
+(QQ 
+gQQ 
+=>QQ 
+newQQ !
+TicketDistributionDtoQQ 2
+(QQ2 3
+gQQ3 4
+.QQ4 5
+KeyQQ5 8
+,QQ8 9
+gQQ: ;
+.QQ; <
+CountQQ< A
+(QQA B
+)QQB C
+)QQC D
+)QQD E
+.RR 
+ToListAsyncRR 
+(RR 
+)RR 
+;RR 
+varTT 
+	byProjectTT 
+=TT 
+awaitTT 
+queryTT #
+.UU 
+WhereUU 
+(UU 
+tUU 
+=>UU 
+tUU 
+.UU 
+ProjectUU !
+!=UU" $
+nullUU% )
+)UU) *
+.VV 
+GroupByVV 
+(VV 
+tVV 
+=>VV 
+tVV 
+.VV 
+ProjectVV #
+!VV# $
+.VV$ %
+NameVV% )
+)VV) *
+.WW 
+SelectWW 
+(WW 
+gWW 
+=>WW 
+newWW !
+TicketDistributionDtoWW 2
+(WW2 3
+gWW3 4
+.WW4 5
+KeyWW5 8
+,WW8 9
+gWW: ;
+.WW; <
+CountWW< A
+(WWA B
+)WWB C
+)WWC D
+)WWD E
+.XX 
+ToListAsyncXX 
+(XX 
+)XX 
+;XX 
+varZZ 
 
-byCategoryWW 
-=WW 
-awaitWW 
-queryWW $
-.XX 
-WhereXX 
-(XX 
-tXX 
-=>XX 
-tXX 
-.XX 
-CategoryXX "
-!=XX# %
-nullXX& *
-)XX* +
-.YY 
-GroupByYY 
-(YY 
-tYY 
-=>YY 
-tYY 
-.YY 
-CategoryYY $
-!YY$ %
-.YY% &
-NameYY& *
-)YY* +
-.ZZ 
-SelectZZ 
-(ZZ 
-gZZ 
-=>ZZ 
-newZZ !
-TicketDistributionDtoZZ 2
-(ZZ2 3
-gZZ3 4
-.ZZ4 5
-KeyZZ5 8
-,ZZ8 9
-gZZ: ;
-.ZZ; <
-CountZZ< A
-(ZZA B
-)ZZB C
-)ZZC D
-)ZZD E
-.[[ 
-ToListAsync[[ 
-([[ 
-)[[ 
-;[[ 
-return]] 
-new]] %
-DashboardDistributionsDto]] ,
-(]], -
-byStatus]]- 5
-,]]5 6
+byCategoryZZ 
+=ZZ 
+awaitZZ 
+queryZZ $
+.[[ 
+Where[[ 
+([[ 
+t[[ 
+=>[[ 
+t[[ 
+.[[ 
+Category[[ "
+!=[[# %
+null[[& *
+)[[* +
+.\\ 
+GroupBy\\ 
+(\\ 
+t\\ 
+=>\\ 
+t\\ 
+.\\ 
+Category\\ $
+!\\$ %
+.\\% &
+Name\\& *
+)\\* +
+.]] 
+Select]] 
+(]] 
+g]] 
+=>]] 
+new]] !
+TicketDistributionDto]] 2
+(]]2 3
+g]]3 4
+.]]4 5
+Key]]5 8
+,]]8 9
+g]]: ;
+.]]; <
+Count]]< A
+(]]A B
+)]]B C
+)]]C D
+)]]D E
+.^^ 
+ToListAsync^^ 
+(^^ 
+)^^ 
+;^^ 
+return`` 
+new`` %
+DashboardDistributionsDto`` ,
+(``, -
+byStatus``- 5
+,``5 6
 
-byPriority]]7 A
-,]]A B
-	byProject]]C L
-,]]L M
+byPriority``7 A
+,``A B
+	byProject``C L
+,``L M
 
-byCategory]]N X
-)]]X Y
-;]]Y Z
-}^^ 
-public`` 
+byCategory``N X
+)``X Y
+;``Y Z
+}aa 
+publiccc 
 
-async`` 
-Task`` 
-<`` 
-IEnumerable`` !
-<``! "
-AgentWorkloadDto``" 2
->``2 3
->``3 4!
-GetAgentWorkloadAsync``5 J
-(``J K
-int``K N
-userId``O U
-)``U V
-{aa 
-varbb 
-querybb 
-=bb 
-awaitbb &
-GetScopedTicketsQueryAsyncbb 4
-(bb4 5
-userIdbb5 ;
-)bb; <
-;bb< =
-vardd 
-workloaddd 
-=dd 
-awaitdd 
-querydd "
-.ee 
-Whereee 
-(ee 
-tee 
-=>ee 
-tee 
-.ee 
-AssignedUserIdee (
-!=ee) +
-nullee, 0
-&&ee1 3
-tee4 5
-.ee5 6
-Statusee6 <
-!=ee= ?
-nullee@ D
-&&eeE G
-!eeH I
-teeI J
-.eeJ K
-StatuseeK Q
-.eeQ R
-IsClosedStatuseeR `
-)ee` a
-.ff 
-GroupByff 
-(ff 
-tff 
-=>ff 
-newff 
-{ff 
-tff  !
-.ff! "
-AssignedUserIdff" 0
-,ff0 1
-tff2 3
-.ff3 4
-AssignedUserff4 @
-!ff@ A
-.ffA B
-	FirstNameffB K
-,ffK L
-tffM N
-.ffN O
-AssignedUserffO [
-!ff[ \
-.ff\ ]
-LastNameff] e
-}fff g
-)ffg h
-.gg 
-Selectgg 
-(gg 
-ggg 
-=>gg 
-newgg 
-AgentWorkloadDtogg -
-(gg- .
-ggg. /
-.gg/ 0
-Keygg0 3
-.gg3 4
-AssignedUserIdgg4 B
-!ggB C
-.ggC D
-ValueggD I
-,ggI J
-$"ggK M
-{ggM N
-gggN O
-.ggO P
-KeyggP S
-.ggS T
-	FirstNameggT ]
-}gg] ^
-$strgg^ _
-{gg_ `
-ggg` a
-.gga b
-Keyggb e
-.gge f
-LastNameggf n
-}ggn o
-"ggo p
-,ggp q
-gggr s
-.ggs t
-Countggt y
-(ggy z
-)ggz {
-)gg{ |
-)gg| }
-.hh 
-ToListAsynchh 
-(hh 
-)hh 
-;hh 
-returnjj 
-workloadjj 
-.jj 
-OrderByDescendingjj )
-(jj) *
-wjj* +
-=>jj, .
-wjj/ 0
-.jj0 1
-OpenTicketCountjj1 @
-)jj@ A
-;jjA B
-}kk 
-publicmm 
+asynccc 
+Taskcc 
+<cc 
+IEnumerablecc !
+<cc! "
+AgentWorkloadDtocc" 2
+>cc2 3
+>cc3 4!
+GetAgentWorkloadAsynccc5 J
+(ccJ K
+intccK N
+userIdccO U
+)ccU V
+{dd 
+varee 
+queryee 
+=ee 
+awaitee &
+GetScopedTicketsQueryAsyncee 4
+(ee4 5
+userIdee5 ;
+)ee; <
+;ee< =
+vargg 
+workloadgg 
+=gg 
+awaitgg 
+querygg "
+.hh 
+Wherehh 
+(hh 
+thh 
+=>hh 
+thh 
+.hh 
+AssignedUserIdhh (
+!=hh) +
+nullhh, 0
+&&hh1 3
+thh4 5
+.hh5 6
+Statushh6 <
+!=hh= ?
+nullhh@ D
+&&hhE G
+!hhH I
+thhI J
+.hhJ K
+StatushhK Q
+.hhQ R
+IsClosedStatushhR `
+)hh` a
+.ii 
+GroupByii 
+(ii 
+tii 
+=>ii 
+newii 
+{ii 
+tii  !
+.ii! "
+AssignedUserIdii" 0
+,ii0 1
+tii2 3
+.ii3 4
+AssignedUserii4 @
+!ii@ A
+.iiA B
+	FirstNameiiB K
+,iiK L
+tiiM N
+.iiN O
+AssignedUseriiO [
+!ii[ \
+.ii\ ]
+LastNameii] e
+}iif g
+)iig h
+.jj 
+Selectjj 
+(jj 
+gjj 
+=>jj 
+newjj 
+AgentWorkloadDtojj -
+(jj- .
+gjj. /
+.jj/ 0
+Keyjj0 3
+.jj3 4
+AssignedUserIdjj4 B
+!jjB C
+.jjC D
+ValuejjD I
+,jjI J
+$"jjK M
+{jjM N
+gjjN O
+.jjO P
+KeyjjP S
+.jjS T
+	FirstNamejjT ]
+}jj] ^
+$strjj^ _
+{jj_ `
+gjj` a
+.jja b
+Keyjjb e
+.jje f
+LastNamejjf n
+}jjn o
+"jjo p
+,jjp q
+gjjr s
+.jjs t
+Countjjt y
+(jjy z
+)jjz {
+)jj{ |
+)jj| }
+.kk 
+ToListAsynckk 
+(kk 
+)kk 
+;kk 
+returnmm 
+workloadmm 
+.mm 
+OrderByDescendingmm )
+(mm) *
+wmm* +
+=>mm, .
+wmm/ 0
+.mm0 1
+OpenTicketCountmm1 @
+)mm@ A
+;mmA B
+}nn 
+publicpp 
 
-asyncmm 
-Taskmm 
-<mm 
-SlaComplianceDtomm &
->mm& '!
-GetSlaComplianceAsyncmm( =
-(mm= >
-intmm> A
-userIdmmB H
-)mmH I
-{nn 
-varoo 
-queryoo 
-=oo 
-awaitoo &
-GetScopedTicketsQueryAsyncoo 4
-(oo4 5
-userIdoo5 ;
-)oo; <
-;oo< =
-varqq 
-ticketsWithSlaqq 
-=qq 
-awaitqq "
-queryqq# (
-.rr 
-Whererr 
-(rr 
-trr 
-=>rr 
-trr 
-.rr 
-	TicketSlarr #
-!=rr$ &
-nullrr' +
-)rr+ ,
-.ss 
-Selectss 
-(ss 
-tss 
-=>ss 
-newss 
-{ss 
-ttt 
-.tt 
-	TicketSlatt 
-!tt 
-.tt 
-FirstResponseDueAttt /
-,tt/ 0
-tuu 
-.uu 
-	TicketSlauu 
-.uu 
-FirstResponseMetAtuu .
-,uu. /
-tvv 
-.vv 
-	TicketSlavv 
-.vv 
-ResolutionDueAtvv +
-,vv+ ,
+asyncpp 
+Taskpp 
+<pp 
+SlaComplianceDtopp &
+>pp& '!
+GetSlaComplianceAsyncpp( =
+(pp= >
+intpp> A
+userIdppB H
+)ppH I
+{qq 
+varrr 
+queryrr 
+=rr 
+awaitrr &
+GetScopedTicketsQueryAsyncrr 4
+(rr4 5
+userIdrr5 ;
+)rr; <
+;rr< =
+vartt 
+ticketsWithSlatt 
+=tt 
+awaittt "
+querytt# (
+.uu 
+Whereuu 
+(uu 
+tuu 
+=>uu 
+tuu 
+.uu 
+	TicketSlauu #
+!=uu$ &
+nulluu' +
+)uu+ ,
+.vv 
+Selectvv 
+(vv 
+tvv 
+=>vv 
+newvv 
+{vv 
 tww 
 .ww 
 	TicketSlaww 
-.ww 
-ResolutionMetAtww +
-,ww+ ,
+!ww 
+.ww 
+FirstResponseDueAtww /
+,ww/ 0
 txx 
 .xx 
 	TicketSlaxx 
-.xx !
-FirstResponseBreachedxx 1
-,xx1 2
+.xx 
+FirstResponseMetAtxx .
+,xx. /
 tyy 
 .yy 
 	TicketSlayy 
-.yy 
-ResolutionBreachedyy .
-,yy. /
-	CreatedAtzz 
-=zz 
-tzz 
-.zz 
-	CreatedAtzz '
-,zz' (
+.yy 
+ResolutionDueAtyy +
+,yy+ ,
+tzz 
+.zz 
+	TicketSlazz 
+.zz 
+ResolutionMetAtzz +
+,zz+ ,
+t{{ 
+.{{ 
+	TicketSla{{ 
+.{{ !
+FirstResponseBreached{{ 1
+,{{1 2
+t|| 
+.|| 
+	TicketSla|| 
+.|| 
+ResolutionBreached|| .
+,||. /
+	CreatedAt}} 
+=}} 
+t}} 
+.}} 
+	CreatedAt}} '
+,}}' (
 
-ResolvedAt{{ 
-={{ 
-t{{ 
-.{{ 
-Status{{ %
-!={{& (
-null{{) -
-&&{{. 0
-t{{1 2
-.{{2 3
-Status{{3 9
-.{{9 :
-IsClosedStatus{{: H
-?{{I J
-t{{K L
-.{{L M
-	TicketSla{{M V
-.{{V W
-ResolutionMetAt{{W f
-??{{g i
-DateTime{{j r
-.{{r s
-UtcNow{{s y
-:{{z {
-({{| }
-DateTime	{{} Ö
+ResolvedAt~~ 
+=~~ 
+t~~ 
+.~~ 
+Status~~ %
+!=~~& (
+null~~) -
+&&~~. 0
+t~~1 2
+.~~2 3
+Status~~3 9
+.~~9 :
+IsClosedStatus~~: H
+?~~I J
+t~~K L
+.~~L M
+	TicketSla~~M V
+.~~V W
+ResolutionMetAt~~W f
+??~~g i
+DateTime~~j r
+.~~r s
+UtcNow~~s y
+:~~z {
+(~~| }
+DateTime	~~} Ö
 ?
-{{Ö Ü
+~~Ö Ü
 )
-{{Ü á
+~~Ü á
 null
-{{á ã
-}|| 
-)|| 
-.}} 
-ToListAsync}} 
-(}} 
-)}} 
-;}} 
-if 
-
-( 
-! 
-ticketsWithSla 
-. 
-Any 
-(  
-)  !
-)! "
-return# )
-new* -
-SlaComplianceDto. >
-(> ?
-$num? B
-,B C
-$numD G
-,G H
-$numI J
-)J K
-;K L
-var
-ÅÅ #
-firstResponseEligible
-ÅÅ !
-=
-ÅÅ" #
-ticketsWithSla
-ÅÅ$ 2
+~~á ã
+} 
+) 
 .
-ÅÅ2 3
-Where
-ÅÅ3 8
+ÄÄ 
+ToListAsync
+ÄÄ 
 (
-ÅÅ8 9
-t
-ÅÅ9 :
-=>
-ÅÅ; =
-t
-ÅÅ> ?
-.
-ÅÅ? @ 
-FirstResponseDueAt
-ÅÅ@ R
-!=
-ÅÅS U
-null
-ÅÅV Z
+ÄÄ 
 )
-ÅÅZ [
-.
-ÅÅ[ \
-ToList
-ÅÅ\ b
-(
-ÅÅb c
-)
-ÅÅc d
+ÄÄ 
 ;
-ÅÅd e
-var
-ÇÇ 
-frCompliant
-ÇÇ 
-=
-ÇÇ #
-firstResponseEligible
-ÇÇ /
-.
-ÇÇ/ 0
-Count
-ÇÇ0 5
+ÄÄ 
+if
+ÇÇ 
+
 (
-ÇÇ5 6
-t
-ÇÇ6 7
-=>
-ÇÇ8 :
+ÇÇ 
 !
-ÇÇ; <
-t
-ÇÇ< =
+ÇÇ 
+ticketsWithSla
+ÇÇ 
 .
-ÇÇ= >#
-FirstResponseBreached
-ÇÇ> S
-)
-ÇÇS T
-;
-ÇÇT U
-var
-ÉÉ 
-frRate
-ÉÉ 
-=
-ÉÉ #
-firstResponseEligible
-ÉÉ *
-.
-ÉÉ* +
+ÇÇ 
 Any
-ÉÉ+ .
+ÇÇ 
 (
-ÉÉ. /
+ÇÇ  
 )
-ÉÉ/ 0
-?
-ÉÉ1 2
+ÇÇ  !
+)
+ÇÇ! "
+return
+ÇÇ# )
+new
+ÇÇ* -
+SlaComplianceDto
+ÇÇ. >
 (
-ÉÉ3 4
-frCompliant
-ÉÉ4 ?
-/
-ÉÉ@ A
-(
-ÉÉB C
-double
-ÉÉC I
-)
-ÉÉI J#
-firstResponseEligible
-ÉÉJ _
-.
-ÉÉ_ `
-Count
-ÉÉ` e
-)
-ÉÉe f
-*
-ÉÉg h
+ÇÇ> ?
 $num
-ÉÉi l
-:
-ÉÉm n
+ÇÇ? B
+,
+ÇÇB C
 $num
-ÉÉo r
+ÇÇD G
+,
+ÇÇG H
+$num
+ÇÇI J
+)
+ÇÇJ K
 ;
-ÉÉr s
+ÇÇK L
+var
+ÑÑ #
+firstResponseEligible
+ÑÑ !
+=
+ÑÑ" #
+ticketsWithSla
+ÑÑ$ 2
+.
+ÑÑ2 3
+Where
+ÑÑ3 8
+(
+ÑÑ8 9
+t
+ÑÑ9 :
+=>
+ÑÑ; =
+t
+ÑÑ> ?
+.
+ÑÑ? @ 
+FirstResponseDueAt
+ÑÑ@ R
+!=
+ÑÑS U
+null
+ÑÑV Z
+)
+ÑÑZ [
+.
+ÑÑ[ \
+ToList
+ÑÑ\ b
+(
+ÑÑb c
+)
+ÑÑc d
+;
+ÑÑd e
 var
 ÖÖ 
-resEligible
+frCompliant
 ÖÖ 
 =
-ÖÖ 
-ticketsWithSla
-ÖÖ (
+ÖÖ #
+firstResponseEligible
+ÖÖ /
 .
-ÖÖ( )
-Where
-ÖÖ) .
-(
-ÖÖ. /
-t
-ÖÖ/ 0
-=>
-ÖÖ1 3
-t
-ÖÖ4 5
-.
-ÖÖ5 6
-ResolutionDueAt
-ÖÖ6 E
-!=
-ÖÖF H
-null
-ÖÖI M
-)
-ÖÖM N
-.
-ÖÖN O
-ToList
-ÖÖO U
-(
-ÖÖU V
-)
-ÖÖV W
-;
-ÖÖW X
-var
-ÜÜ 
-resCompliant
-ÜÜ 
-=
-ÜÜ 
-resEligible
-ÜÜ &
-.
-ÜÜ& '
+ÖÖ/ 0
 Count
-ÜÜ' ,
+ÖÖ0 5
 (
-ÜÜ, -
+ÖÖ5 6
 t
-ÜÜ- .
+ÖÖ6 7
 =>
-ÜÜ/ 1
+ÖÖ8 :
 !
-ÜÜ2 3
+ÖÖ; <
 t
-ÜÜ3 4
+ÖÖ< =
 .
-ÜÜ4 5 
-ResolutionBreached
-ÜÜ5 G
+ÖÖ= >#
+FirstResponseBreached
+ÖÖ> S
 )
-ÜÜG H
+ÖÖS T
 ;
-ÜÜH I
+ÖÖT U
 var
-áá 
-resRate
-áá 
+ÜÜ 
+frRate
+ÜÜ 
 =
-áá 
-resEligible
-áá !
+ÜÜ #
+firstResponseEligible
+ÜÜ *
 .
-áá! "
+ÜÜ* +
 Any
-áá" %
+ÜÜ+ .
 (
-áá% &
+ÜÜ. /
 )
-áá& '
+ÜÜ/ 0
 ?
-áá( )
+ÜÜ1 2
 (
-áá* +
-resCompliant
-áá+ 7
+ÜÜ3 4
+frCompliant
+ÜÜ4 ?
 /
-áá8 9
+ÜÜ@ A
 (
-áá: ;
+ÜÜB C
 double
-áá; A
+ÜÜC I
 )
-ááA B
-resEligible
-ááB M
+ÜÜI J#
+firstResponseEligible
+ÜÜJ _
 .
-ááM N
+ÜÜ_ `
 Count
-ááN S
+ÜÜ` e
 )
-ááS T
+ÜÜe f
 *
-ááU V
+ÜÜg h
 $num
-ááW Z
+ÜÜi l
 :
-áá[ \
+ÜÜm n
 $num
-áá] `
+ÜÜo r
 ;
-áá` a
+ÜÜr s
 var
-ââ 
-resolvedTickets
-ââ 
+àà 
+resEligible
+àà 
 =
-ââ 
+àà 
 ticketsWithSla
-ââ ,
+àà (
 .
-ââ, -
+àà( )
 Where
-ââ- 2
+àà) .
 (
+àà. /
+t
+àà/ 0
+=>
+àà1 3
+t
+àà4 5
+.
+àà5 6
+ResolutionDueAt
+àà6 E
+!=
+ààF H
+null
+ààI M
+)
+ààM N
+.
+ààN O
+ToList
+ààO U
+(
+ààU V
+)
+ààV W
+;
+ààW X
+var
+ââ 
+resCompliant
+ââ 
+=
+ââ 
+resEligible
+ââ &
+.
+ââ& '
+Count
+ââ' ,
+(
+ââ, -
+t
+ââ- .
+=>
+ââ/ 1
+!
 ââ2 3
 t
-ââ3 4
-=>
-ââ5 7
-t
-ââ8 9
+ââ3 4
 .
-ââ9 :
-
-ResolvedAt
-ââ: D
-!=
-ââE G
-null
-ââH L
+ââ4 5 
+ResolutionBreached
+ââ5 G
 )
-ââL M
-.
-ââM N
-ToList
-ââN T
-(
-ââT U
-)
-ââU V
+ââG H
 ;
-ââV W
+ââH I
 var
 ää 
-avgTime
+resRate
 ää 
 =
-ää 
-resolvedTickets
-ää %
+ää 
+resEligible
+ää !
 .
-ää% &
+ää! "
 Any
-ää& )
+ää" %
 (
-ää) *
+ää% &
 )
-ää* +
+ää& '
 ?
-ää, -
+ää( )
+(
+ää* +
+resCompliant
+ää+ 7
+/
+ää8 9
+(
+ää: ;
+double
+ää; A
+)
+ääA B
+resEligible
+ääB M
+.
+ääM N
+Count
+ääN S
+)
+ääS T
+*
+ääU V
+$num
+ääW Z
+:
+ää[ \
+$num
+ää] `
+;
+ää` a
+var
+åå 
 resolvedTickets
-ää. =
+åå 
+=
+åå 
+ticketsWithSla
+åå ,
 .
-ää= >
-Average
-ää> E
+åå, -
+Where
+åå- 2
 (
-ääE F
+åå2 3
 t
-ääF G
+åå3 4
 =>
-ääH J
-(
-ääK L
+åå5 7
 t
-ääL M
+åå8 9
 .
-ääM N
+åå9 :
 
 ResolvedAt
-ääN X
-!
-ääX Y
-.
-ääY Z
-Value
-ääZ _
--
-ää` a
-t
-ääb c
-.
-ääc d
-	CreatedAt
-ääd m
+åå: D
+!=
+ååE G
+null
+ååH L
 )
-ääm n
+ååL M
 .
-ään o
-TotalMinutes
-ääo {
-)
-ää{ |
-:
-ää} ~
-$numää Ç
-;ääÇ É
-return
-åå 
-new
-åå 
-SlaComplianceDto
-åå #
+ååM N
+ToList
+ååN T
 (
-åå# $
-frRate
-åå$ *
-,
-åå* +
-resRate
-åå, 3
-,
-åå3 4
-avgTime
-åå5 <
+ååT U
 )
-åå< =
+ååU V
 ;
-åå= >
+ååV W
+var
+çç 
+avgTime
+çç 
+=
+çç 
+resolvedTickets
+çç %
+.
+çç% &
+Any
+çç& )
+(
+çç) *
+)
+çç* +
+?
+çç, -
+resolvedTickets
+çç. =
+.
+çç= >
+Average
+çç> E
+(
+ççE F
+t
+ççF G
+=>
+ççH J
+(
+ççK L
+t
+ççL M
+.
+ççM N
+
+ResolvedAt
+ççN X
+!
+ççX Y
+.
+ççY Z
+Value
+ççZ _
+-
+çç` a
+t
+ççb c
+.
+ççc d
+	CreatedAt
+ççd m
+)
+ççm n
+.
+ççn o
+TotalMinutes
+çço {
+)
+çç{ |
+:
+çç} ~
+$numçç Ç
+;ççÇ É
+return
+èè 
+new
+èè 
+SlaComplianceDto
+èè #
+(
+èè# $
+frRate
+èè$ *
+,
+èè* +
+resRate
+èè, 3
+,
+èè3 4
+avgTime
+èè5 <
+)
+èè< =
+;
+èè= >
 }
-çç 
-}éé ´≈
+êê 
+}ëë ´≈
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/CatalogService.cs
 	namespace 	
 ItsTool
@@ -21089,7 +24322,7 @@ ToStatusId||t ~
 §§W X
 ;
 §§X Y
-}•• †D
+}•• €G
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs
 	namespace 	
 ItsTool
@@ -21175,409 +24408,637 @@ LoginAsync' 1
 requestB I
 )I J
 { 
-var 
-user 
-= 
-await 
-_context !
-.! "
-Users" '
-. 
-FirstOrDefaultAsync  
-(  !
-u! "
-=># %
-u& '
-.' (
-Username( 0
-==1 3
-request4 ;
-.; <
-Username< D
-&&E G
-uH I
-.I J
-IsActiveJ R
-&&S U
-!V W
-uW X
-.X Y
-	IsDeletedY b
-)b c
-;c d
-if!! 
+var 
+normalizedInput 
+= 
+request %
+.% &
+Username& .
+.. /
+ToLower/ 6
+(6 7
+)7 8
+;8 9
+var 
+user 
+= 
+await 
+_context !
+.! "
+Users" '
+.   
+FirstOrDefaultAsync    
+(    !
+u  ! "
+=>  # %
+(!! 
+u!! 
+.!! 
+Username!! 
+.!! 
+ToLower!! #
+(!!# $
+)!!$ %
+==!!& (
+normalizedInput!!) 8
+||!!9 ;
+u!!< =
+.!!= >
+Email!!> C
+.!!C D
+ToLower!!D K
+(!!K L
+)!!L M
+==!!N P
+normalizedInput!!Q `
+)!!` a
+&&!!b d
+u"" 
+."" 
+IsActive"" 
+&&"" 
+!"" 
+u""  
+.""  !
+	IsDeleted""! *
+)""* +
+;""+ ,
+if$$ 
 
-(!! 
-user!! 
-==!! 
-null!! 
-||!! 
-!!! 
-BCrypt!! #
-.!!# $
-Net!!$ '
-.!!' (
-BCrypt!!( .
-.!!. /
-Verify!!/ 5
-(!!5 6
-request!!6 =
-.!!= >
-Password!!> F
-,!!F G
-user!!H L
-.!!L M
-PasswordHash!!M Y
-)!!Y Z
-)!!Z [
-{"" 	
-throw## 
-new## '
-UnauthorizedAccessException## 1
-(##1 2
-$str##2 H
-)##H I
-;##I J
-}$$ 	
-var&& 
-roles&& 
-=&& 
-await&& 
-_context&& "
-.&&" #
-	UserRoles&&# ,
-.'' 
-Where'' 
-('' 
-ur'' 
-=>'' 
-ur'' 
-.'' 
-UserId'' "
-==''# %
-user''& *
-.''* +
-Id''+ -
-&&''. 0
-ur''1 3
-.''3 4
-Role''4 8
-!=''9 ;
-null''< @
-&&''A C
-ur''D F
-.''F G
-Role''G K
-.''K L
-IsActive''L T
-)''T U
-.(( 
-Select(( 
-((( 
-ur(( 
-=>(( 
-ur(( 
-.(( 
-Role(( !
-!((! "
-.((" #
-Name((# '
-)((' (
-.)) 
-ToListAsync)) 
-()) 
-))) 
-;)) 
-var++ 
-permissions++ 
-=++ 
-await++ !
-_permissionCalculator++  5
-.++5 6.
-"CalculateEffectivePermissionsAsync++6 X
-(++X Y
-user++Y ]
-.++] ^
-Id++^ `
-)++` a
-;++a b
-var-- 
-token-- 
-=-- 
-_tokenService-- !
-.--! "
-GenerateToken--" /
-(--/ 0
-user--0 4
-.--4 5
-Id--5 7
-,--7 8
-user--9 =
-.--= >
-Username--> F
-,--F G
-roles--H M
-,--M N
-permissions--O Z
-)--Z [
-;--[ \
-var// 
-expiryMinutes// 
-=// 
-double// "
-.//" #
-Parse//# (
-(//( )
-_configuration//) 7
-[//7 8
-$str//8 K
-]//K L
-??//M O
-$str//P U
-)//U V
-;//V W
-return11 
-new11 
-AuthResponseDto11 "
-(11" #
-Token22 
-:22 
-token22 
-,22 
-	ExpiresAt33 
-:33 
-DateTime33 
-.33  
-UtcNow33  &
-.33& '
-
-AddMinutes33' 1
-(331 2
-expiryMinutes332 ?
-)33? @
-,33@ A
-Username44 
-:44 
-user44 
-.44 
-Username44 #
-,44# $
-Roles55 
+($$ 
+user$$ 
+==$$ 
+null$$ 
+||$$ 
+!$$ 
+BCrypt$$ #
+.$$# $
+Net$$$ '
+.$$' (
+BCrypt$$( .
+.$$. /
+Verify$$/ 5
+($$5 6
+request$$6 =
+.$$= >
+Password$$> F
+,$$F G
+user$$H L
+.$$L M
+PasswordHash$$M Y
+)$$Y Z
+)$$Z [
+{%% 	
+throw&& 
+new&& '
+UnauthorizedAccessException&& 1
+(&&1 2
+$str&&2 H
+)&&H I
+;&&I J
+}'' 	
+var)) 
+roles)) 
+=)) 
+await)) 
+_context)) "
+.))" #
+	UserRoles))# ,
+.** 
+Where** 
+(** 
+ur** 
+=>** 
+ur** 
+.** 
+UserId** "
+==**# %
+user**& *
+.*** +
+Id**+ -
+&&**. 0
+ur**1 3
+.**3 4
+Role**4 8
+!=**9 ;
+null**< @
+&&**A C
+ur**D F
+.**F G
+Role**G K
+.**K L
+IsActive**L T
+)**T U
+.++ 
+Select++ 
+(++ 
+ur++ 
+=>++ 
+ur++ 
+.++ 
+Role++ !
+!++! "
+.++" #
+Name++# '
+)++' (
+.,, 
+ToListAsync,, 
+(,, 
+),, 
+;,, 
+var.. 
+permissions.. 
+=.. 
+await.. !
+_permissionCalculator..  5
+...5 6.
+"CalculateEffectivePermissionsAsync..6 X
+(..X Y
+user..Y ]
+...] ^
+Id..^ `
+)..` a
+;..a b
+var00 
+token00 
+=00 
+_tokenService00 !
+.00! "
+GenerateToken00" /
+(00/ 0
+user000 4
+.004 5
+Id005 7
+,007 8
+user009 =
+.00= >
+Username00> F
+,00F G
+roles00H M
+,00M N
+permissions00O Z
+)00Z [
+;00[ \
+var22 
+expiryMinutes22 
+=22 
+double22 "
+.22" #
+Parse22# (
+(22( )
+_configuration22) 7
+[227 8
+$str228 K
+]22K L
+??22M O
+$str22P U
+)22U V
+;22V W
+return44 
+new44 
+AuthResponseDto44 "
+(44" #
+Token55 
 :55 
-roles55 
-,55 
-Permissions66 
-:66 
-permissions66 $
-)77 	
-;77	 
-
-}88 
-public:: 
-
-async:: 
-Task:: 
-<:: 
-MeResponseDto:: #
->::# $
+token55 
+,55 
+	ExpiresAt66 
+:66 
+DateTime66 
+.66  
+UtcNow66  &
+.66& '
 
-GetMeAsync::% /
-(::/ 0
-int::0 3
-userId::4 :
-)::: ;
-{;; 
-var<< 
-user<< 
-=<< 
-await<< 
-_context<< !
-.<<! "
-Users<<" '
-.== 
-FirstOrDefaultAsync==  
-(==  !
-u==! "
-=>==# %
-u==& '
-.==' (
-Id==( *
-====+ -
-userId==. 4
-&&==5 7
-u==8 9
-.==9 :
-IsActive==: B
-&&==C E
-!==F G
-u==G H
-.==H I
-	IsDeleted==I R
-)==R S
-;==S T
-if?? 
+AddMinutes66' 1
+(661 2
+expiryMinutes662 ?
+)66? @
+,66@ A
+Username77 
+:77 
+user77 
+.77 
+Username77 #
+,77# $
+Roles88 
+:88 
+roles88 
+,88 
+Permissions99 
+:99 
+permissions99 $
+):: 	
+;::	 
 
-(?? 
-user?? 
-==?? 
-null?? 
-)?? 
-throw@@ 
-new@@ '
-UnauthorizedAccessException@@ 1
-(@@1 2
-$str@@2 C
-)@@C D
-;@@D E
-varBB 
-rolesBB 
-=BB 
-awaitBB 
-_contextBB "
-.BB" #
-	UserRolesBB# ,
-.CC 
-WhereCC 
-(CC 
-urCC 
-=>CC 
-urCC 
-.CC 
-UserIdCC "
-==CC# %
-userCC& *
-.CC* +
-IdCC+ -
-&&CC. 0
-urCC1 3
-.CC3 4
-RoleCC4 8
-!=CC9 ;
-nullCC< @
-&&CCA C
-urCCD F
-.CCF G
-RoleCCG K
-.CCK L
-IsActiveCCL T
-)CCT U
-.DD 
-SelectDD 
-(DD 
-urDD 
-=>DD 
-urDD 
-.DD 
-RoleDD !
-!DD! "
-.DD" #
-NameDD# '
-)DD' (
-.EE 
-ToListAsyncEE 
-(EE 
-)EE 
-;EE 
-varGG 
-groupsGG 
-=GG 
-awaitGG 
-_contextGG #
-.GG# $
-GroupMembersGG$ 0
-.HH 
-WhereHH 
-(HH 
-gmHH 
-=>HH 
-gmHH 
-.HH 
-UserIdHH "
-==HH# %
-userHH& *
-.HH* +
-IdHH+ -
-&&HH. 0
-gmHH1 3
-.HH3 4
-GroupHH4 9
-!=HH: <
-nullHH= A
-&&HHB D
-gmHHE G
-.HHG H
-GroupHHH M
-.HHM N
-IsActiveHHN V
-)HHV W
-.II 
-SelectII 
-(II 
-gmII 
-=>II 
-gmII 
-.II 
-GroupII "
-!II" #
-.II# $
-NameII$ (
-)II( )
-.JJ 
-ToListAsyncJJ 
-(JJ 
-)JJ 
-;JJ 
-varLL 
-permissionsLL 
-=LL 
-awaitLL !
-_permissionCalculatorLL  5
-.LL5 6.
-"CalculateEffectivePermissionsAsyncLL6 X
-(LLX Y
-userLLY ]
-.LL] ^
-IdLL^ `
-)LL` a
-;LLa b
-returnNN 
-newNN 
-MeResponseDtoNN  
-(NN  !
-IdOO 
-:OO 
-userOO 
-.OO 
-IdOO 
-,OO 
-UsernamePP 
-:PP 
-userPP 
-.PP 
-UsernamePP #
-,PP# $
-EmailQQ 
-:QQ 
-userQQ 
-.QQ 
-EmailQQ 
-,QQ 
-GroupsRR 
-:RR 
-groupsRR 
-,RR 
-RolesSS 
-:SS 
-rolesSS 
-,SS 
-PermissionsTT 
-:TT 
-permissionsTT $
-)UU 	
-;UU	 
+};; 
+public== 
+
+async== 
+Task== 
+<== 
+MeResponseDto== #
+>==# $
+
+GetMeAsync==% /
+(==/ 0
+int==0 3
+userId==4 :
+)==: ;
+{>> 
+var?? 
+user?? 
+=?? 
+await?? 
+_context?? !
+.??! "
+Users??" '
+.@@ 
+FirstOrDefaultAsync@@  
+(@@  !
+u@@! "
+=>@@# %
+u@@& '
+.@@' (
+Id@@( *
+==@@+ -
+userId@@. 4
+&&@@5 7
+u@@8 9
+.@@9 :
+IsActive@@: B
+&&@@C E
+!@@F G
+u@@G H
+.@@H I
+	IsDeleted@@I R
+)@@R S
+;@@S T
+ifBB 
 
-}VV 
-}WW Ö"
+(BB 
+userBB 
+==BB 
+nullBB 
+)BB 
+throwCC 
+newCC '
+UnauthorizedAccessExceptionCC 1
+(CC1 2
+$strCC2 C
+)CCC D
+;CCD E
+varEE 
+rolesEE 
+=EE 
+awaitEE 
+_contextEE "
+.EE" #
+	UserRolesEE# ,
+.FF 
+WhereFF 
+(FF 
+urFF 
+=>FF 
+urFF 
+.FF 
+UserIdFF "
+==FF# %
+userFF& *
+.FF* +
+IdFF+ -
+&&FF. 0
+urFF1 3
+.FF3 4
+RoleFF4 8
+!=FF9 ;
+nullFF< @
+&&FFA C
+urFFD F
+.FFF G
+RoleFFG K
+.FFK L
+IsActiveFFL T
+)FFT U
+.GG 
+SelectGG 
+(GG 
+urGG 
+=>GG 
+urGG 
+.GG 
+RoleGG !
+!GG! "
+.GG" #
+NameGG# '
+)GG' (
+.HH 
+ToListAsyncHH 
+(HH 
+)HH 
+;HH 
+varJJ 
+groupsJJ 
+=JJ 
+awaitJJ 
+_contextJJ #
+.JJ# $
+GroupMembersJJ$ 0
+.KK 
+WhereKK 
+(KK 
+gmKK 
+=>KK 
+gmKK 
+.KK 
+UserIdKK "
+==KK# %
+userKK& *
+.KK* +
+IdKK+ -
+&&KK. 0
+gmKK1 3
+.KK3 4
+GroupKK4 9
+!=KK: <
+nullKK= A
+&&KKB D
+gmKKE G
+.KKG H
+GroupKKH M
+.KKM N
+IsActiveKKN V
+)KKV W
+.LL 
+SelectLL 
+(LL 
+gmLL 
+=>LL 
+gmLL 
+.LL 
+GroupLL "
+!LL" #
+.LL# $
+NameLL$ (
+)LL( )
+.MM 
+ToListAsyncMM 
+(MM 
+)MM 
+;MM 
+varOO 
+permissionsOO 
+=OO 
+awaitOO !
+_permissionCalculatorOO  5
+.OO5 6.
+"CalculateEffectivePermissionsAsyncOO6 X
+(OOX Y
+userOOY ]
+.OO] ^
+IdOO^ `
+)OO` a
+;OOa b
+returnQQ 
+newQQ 
+MeResponseDtoQQ  
+(QQ  !
+IdRR 
+:RR 
+userRR 
+.RR 
+IdRR 
+,RR 
+UsernameSS 
+:SS 
+userSS 
+.SS 
+UsernameSS #
+,SS# $
+EmailTT 
+:TT 
+userTT 
+.TT 
+EmailTT 
+,TT 
+GroupsUU 
+:UU 
+groupsUU 
+,UU 
+RolesVV 
+:VV 
+rolesVV 
+,VV 
+PermissionsWW 
+:WW 
+permissionsWW $
+)XX 	
+;XX	 
+
+}YY 
+}ZZ Ì
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AssignmentEngine.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+Services! )
+;) *
+public
+
+ 
+class
+
+ 
+AssignmentEngine
+
+ 
+:
+
+ 
+IAssignmentEngine
+
+  1
+{ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+public 
+
+AssignmentEngine 
+( 
+ItsToolDbContext ,
+context- 4
+)4 5
+{ 
+_context 
+= 
+context 
+; 
+} 
+public 
+
+async 
+Task 
+AssignTicketAsync '
+(' (
+Ticket( .
+ticket/ 5
+)5 6
+{ 
+var 
+rules 
+= 
+await 
+_context "
+." #
+AssignmentRules# 2
+. 
+Where 
+( 
+r 
+=> 
+r 
+. 
+IsActive "
+&&# %
+!& '
+r' (
+.( )
+	IsDeleted) 2
+)2 3
+. 
+OrderBy 
+( 
+r 
+=> 
+r 
+. 
+	SortOrder %
+)% &
+. 
+ToListAsync 
+( 
+) 
+; 
+foreach 
+( 
+var 
+rule 
+in 
+rules "
+)" #
+{ 	
+if 
+( 
+rule 
+. 
+	ProjectId 
+. 
+HasValue '
+&&( *
+rule+ /
+./ 0
+	ProjectId0 9
+.9 :
+Value: ?
+!=@ B
+ticketC I
+.I J
+	ProjectIdJ S
+)S T
+continueU ]
+;] ^
+if 
+( 
+rule 
+. 
+
+CategoryId 
+.  
+HasValue  (
+&&) +
+rule, 0
+.0 1
+
+CategoryId1 ;
+.; <
+Value< A
+!=B D
+ticketE K
+.K L
+
+CategoryIdL V
+)V W
+continueX `
+;` a
+if 
+( 
+rule 
+. 
+TicketTypeId !
+.! "
+HasValue" *
+&&+ -
+rule. 2
+.2 3
+TicketTypeId3 ?
+.? @
+Value@ E
+!=F H
+ticketI O
+.O P
+TypeIdP V
+)V W
+continueX `
+;` a
+if 
+( 
+rule 
+. 
+
+PriorityId 
+.  
+HasValue  (
+&&) +
+rule, 0
+.0 1
+
+PriorityId1 ;
+.; <
+Value< A
+!=B D
+ticketE K
+.K L
+
+PriorityIdL V
+)V W
+continueX `
+;` a
+ticket"" 
+."" 
+AssignedGroupId"" "
+=""# $
+rule""% )
+."") *
+TargetGroupId""* 7
+;""7 8
+ticket## 
+.## 
+AssignedUserId## !
+=##" #
+rule##$ (
+.##( )
+TargetUserId##) 5
+;##5 6
+return&& 
+;&& 
+}'' 	
+}(( 
+})) Ö"
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Security/TokenService.cs
 	namespace 	
 ItsTool
@@ -21832,7 +25293,1857 @@ WriteToken22- 7
 )22= >
 ;22> ?
 }33 
-}44 ¸
+}44 ©8
+w/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260817064219_AddPhase11Entities.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+
+Migrations! +
+{ 
+public
+
+ 
+
+partial
+
+ 
+class
+
+ 
+AddPhase11Entities
+
+ +
+:
+
+, -
+	Migration
+
+. 7
+{ 
+	protected 
+override 
+void 
+Up  "
+(" #
+MigrationBuilder# 3
+migrationBuilder4 D
+)D E
+{ 	
+migrationBuilder 
+. 
+	AddColumn &
+<& '
+DateTime' /
+>/ 0
+(0 1
+name 
+: 
+$str #
+,# $
+table 
+: 
+$str #
+,# $
+type 
+: 
+$str 0
+,0 1
+nullable 
+: 
+true 
+) 
+;  
+migrationBuilder 
+. 
+	AddColumn &
+<& '
+string' -
+>- .
+(. /
+name 
+: 
+$str )
+,) *
+table 
+: 
+$str  
+,  !
+type 
+: 
+$str 
+, 
+nullable 
+: 
+true 
+) 
+;  
+migrationBuilder 
+. 
+	AddColumn &
+<& '
+bool' +
+>+ ,
+(, -
+name 
+: 
+$str (
+,( )
+table 
+: 
+$str $
+,$ %
+type 
+: 
+$str 
+,  
+nullable 
+: 
+false 
+,  
+defaultValue   
+:   
+false   #
+)  # $
+;  $ %
+migrationBuilder"" 
+."" 
+CreateTable"" (
+(""( )
+name## 
+:## 
+$str## ,
+,##, -
+columns$$ 
+:$$ 
+table$$ 
+=>$$ !
+new$$" %
+{%% 
+Id&& 
+=&& 
+table&& 
+.&& 
+Column&& %
+<&&% &
+int&&& )
+>&&) *
+(&&* +
+type&&+ /
+:&&/ 0
+$str&&1 :
+,&&: ;
+nullable&&< D
+:&&D E
+false&&F K
+)&&K L
+.'' 
+
+Annotation'' #
+(''# $
+$str''$ D
+,''D E)
+NpgsqlValueGenerationStrategy''F c
+.''c d#
+IdentityByDefaultColumn''d {
+)''{ |
+,''| }
+Url(( 
+=(( 
+table(( 
+.((  
+Column((  &
+<((& '
+string((' -
+>((- .
+(((. /
+type((/ 3
+:((3 4
+$str((5 ;
+,((; <
+nullable((= E
+:((E F
+false((G L
+)((L M
+,((M N
+	EventsCsv)) 
+=)) 
+table))  %
+.))% &
+Column))& ,
+<)), -
+string))- 3
+>))3 4
+())4 5
+type))5 9
+:))9 :
+$str)); A
+,))A B
+nullable))C K
+:))K L
+false))M R
+)))R S
+,))S T
+Secret** 
+=** 
+table** "
+.**" #
+Column**# )
+<**) *
+string*** 0
+>**0 1
+(**1 2
+type**2 6
+:**6 7
+$str**8 >
+,**> ?
+nullable**@ H
+:**H I
+false**J O
+)**O P
+,**P Q
+IsActive++ 
+=++ 
+table++ $
+.++$ %
+Column++% +
+<+++ ,
+bool++, 0
+>++0 1
+(++1 2
+type++2 6
+:++6 7
+$str++8 A
+,++A B
+nullable++C K
+:++K L
+false++M R
+)++R S
+,++S T
+	CreatedAt,, 
+=,, 
+table,,  %
+.,,% &
+Column,,& ,
+<,,, -
+DateTime,,- 5
+>,,5 6
+(,,6 7
+type,,7 ;
+:,,; <
+$str,,= W
+,,,W X
+nullable,,Y a
+:,,a b
+false,,c h
+),,h i
+,,,i j
+	CreatedBy-- 
+=-- 
+table--  %
+.--% &
+Column--& ,
+<--, -
+string--- 3
+>--3 4
+(--4 5
+type--5 9
+:--9 :
+$str--; A
+,--A B
+nullable--C K
+:--K L
+true--M Q
+)--Q R
+,--R S
+	UpdatedAt.. 
+=.. 
+table..  %
+...% &
+Column..& ,
+<.., -
+DateTime..- 5
+>..5 6
+(..6 7
+type..7 ;
+:..; <
+$str..= W
+,..W X
+nullable..Y a
+:..a b
+true..c g
+)..g h
+,..h i
+	UpdatedBy// 
+=// 
+table//  %
+.//% &
+Column//& ,
+<//, -
+string//- 3
+>//3 4
+(//4 5
+type//5 9
+://9 :
+$str//; A
+,//A B
+nullable//C K
+://K L
+true//M Q
+)//Q R
+,//R S
+	IsDeleted00 
+=00 
+table00  %
+.00% &
+Column00& ,
+<00, -
+bool00- 1
+>001 2
+(002 3
+type003 7
+:007 8
+$str009 B
+,00B C
+nullable00D L
+:00L M
+false00N S
+)00S T
+,00T U
+	DeletedAt11 
+=11 
+table11  %
+.11% &
+Column11& ,
+<11, -
+DateTime11- 5
+>115 6
+(116 7
+type117 ;
+:11; <
+$str11= W
+,11W X
+nullable11Y a
+:11a b
+true11c g
+)11g h
+}22 
+,22 
+constraints33 
+:33 
+table33 "
+=>33# %
+{44 
+table55 
+.55 
+
+PrimaryKey55 $
+(55$ %
+$str55% >
+,55> ?
+x55@ A
+=>55B D
+x55E F
+.55F G
+Id55G I
+)55I J
+;55J K
+}66 
+)66 
+;66 
+}77 	
+	protected:: 
+override:: 
+void:: 
+Down::  $
+(::$ %
+MigrationBuilder::% 5
+migrationBuilder::6 F
+)::F G
+{;; 	
+migrationBuilder<< 
+.<< 
+	DropTable<< &
+(<<& '
+name== 
+:== 
+$str== ,
+)==, -
+;==- .
+migrationBuilder?? 
+.?? 
+
+DropColumn?? '
+(??' (
+name@@ 
+:@@ 
+$str@@ #
+,@@# $
+tableAA 
+:AA 
+$strAA #
+)AA# $
+;AA$ %
+migrationBuilderCC 
+.CC 
+
+DropColumnCC '
+(CC' (
+nameDD 
+:DD 
+$strDD )
+,DD) *
+tableEE 
+:EE 
+$strEE  
+)EE  !
+;EE! "
+migrationBuilderGG 
+.GG 
+
+DropColumnGG '
+(GG' (
+nameHH 
+:HH 
+$strHH (
+,HH( )
+tableII 
+:II 
+$strII $
+)II$ %
+;II% &
+}JJ 	
+}KK 
+}LL Õ1
+t/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260817062033_AddTicketSurvey.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+
+Migrations! +
+{ 
+public
+
+ 
+
+partial
+
+ 
+class
+
+ 
+AddTicketSurvey
+
+ (
+:
+
+) *
+	Migration
+
++ 4
+{ 
+	protected 
+override 
+void 
+Up  "
+(" #
+MigrationBuilder# 3
+migrationBuilder4 D
+)D E
+{ 	
+migrationBuilder 
+. 
+CreateTable (
+(( )
+name 
+: 
+$str %
+,% &
+columns 
+: 
+table 
+=> !
+new" %
+{ 
+Id 
+= 
+table 
+. 
+Column %
+<% &
+int& )
+>) *
+(* +
+type+ /
+:/ 0
+$str1 :
+,: ;
+nullable< D
+:D E
+falseF K
+)K L
+. 
+
+Annotation #
+(# $
+$str$ D
+,D E)
+NpgsqlValueGenerationStrategyF c
+.c d#
+IdentityByDefaultColumnd {
+){ |
+,| }
+TicketId 
+= 
+table $
+.$ %
+Column% +
+<+ ,
+int, /
+>/ 0
+(0 1
+type1 5
+:5 6
+$str7 @
+,@ A
+nullableB J
+:J K
+falseL Q
+)Q R
+,R S
+Rating 
+= 
+table "
+." #
+Column# )
+<) *
+int* -
+>- .
+(. /
+type/ 3
+:3 4
+$str5 >
+,> ?
+nullable@ H
+:H I
+falseJ O
+)O P
+,P Q
+Comment 
+= 
+table #
+.# $
+Column$ *
+<* +
+string+ 1
+>1 2
+(2 3
+type3 7
+:7 8
+$str9 ?
+,? @
+nullableA I
+:I J
+trueK O
+)O P
+,P Q
+SubmittedAt 
+=  !
+table" '
+.' (
+Column( .
+<. /
+DateTime/ 7
+>7 8
+(8 9
+type9 =
+:= >
+$str? Y
+,Y Z
+nullable[ c
+:c d
+falsee j
+)j k
+,k l
+	CreatedAt 
+= 
+table  %
+.% &
+Column& ,
+<, -
+DateTime- 5
+>5 6
+(6 7
+type7 ;
+:; <
+$str= W
+,W X
+nullableY a
+:a b
+falsec h
+)h i
+,i j
+	CreatedBy 
+= 
+table  %
+.% &
+Column& ,
+<, -
+string- 3
+>3 4
+(4 5
+type5 9
+:9 :
+$str; A
+,A B
+nullableC K
+:K L
+trueM Q
+)Q R
+,R S
+	UpdatedAt 
+= 
+table  %
+.% &
+Column& ,
+<, -
+DateTime- 5
+>5 6
+(6 7
+type7 ;
+:; <
+$str= W
+,W X
+nullableY a
+:a b
+truec g
+)g h
+,h i
+	UpdatedBy 
+= 
+table  %
+.% &
+Column& ,
+<, -
+string- 3
+>3 4
+(4 5
+type5 9
+:9 :
+$str; A
+,A B
+nullableC K
+:K L
+trueM Q
+)Q R
+,R S
+IsActive 
+= 
+table $
+.$ %
+Column% +
+<+ ,
+bool, 0
+>0 1
+(1 2
+type2 6
+:6 7
+$str8 A
+,A B
+nullableC K
+:K L
+falseM R
+)R S
+,S T
+	IsDeleted 
+= 
+table  %
+.% &
+Column& ,
+<, -
+bool- 1
+>1 2
+(2 3
+type3 7
+:7 8
+$str9 B
+,B C
+nullableD L
+:L M
+falseN S
+)S T
+,T U
+	DeletedAt 
+= 
+table  %
+.% &
+Column& ,
+<, -
+DateTime- 5
+>5 6
+(6 7
+type7 ;
+:; <
+$str= W
+,W X
+nullableY a
+:a b
+truec g
+)g h
+}   
+,   
+constraints!! 
+:!! 
+table!! "
+=>!!# %
+{"" 
+table## 
+.## 
+
+PrimaryKey## $
+(##$ %
+$str##% 7
+,##7 8
+x##9 :
+=>##; =
+x##> ?
+.##? @
+Id##@ B
+)##B C
+;##C D
+table$$ 
+.$$ 
+
+ForeignKey$$ $
+($$$ %
+name%% 
+:%% 
+$str%% A
+,%%A B
+column&& 
+:&& 
+x&&  !
+=>&&" $
+x&&% &
+.&&& '
+TicketId&&' /
+,&&/ 0
+principalTable'' &
+:''& '
+$str''( 1
+,''1 2
+principalColumn(( '
+:((' (
+$str(() -
+,((- .
+onDelete))  
+:))  !
+ReferentialAction))" 3
+.))3 4
+Cascade))4 ;
+))); <
+;))< =
+}** 
+)** 
+;** 
+migrationBuilder,, 
+.,, 
+CreateIndex,, (
+(,,( )
+name-- 
+:-- 
+$str-- 1
+,--1 2
+table.. 
+:.. 
+$str.. &
+,..& '
+column// 
+:// 
+$str// "
+)//" #
+;//# $
+}00 	
+	protected33 
+override33 
+void33 
+Down33  $
+(33$ %
+MigrationBuilder33% 5
+migrationBuilder336 F
+)33F G
+{44 	
+migrationBuilder55 
+.55 
+	DropTable55 &
+(55& '
+name66 
+:66 
+$str66 %
+)66% &
+;66& '
+}77 	
+}88 
+}99 ÛÄ
+v/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260817055743_AddPhase9Entities.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+
+Migrations! +
+{ 
+public
+
+ 
+
+partial
+
+ 
+class
+
+ 
+AddPhase9Entities
+
+ *
+:
+
++ ,
+	Migration
+
+- 6
+{ 
+	protected 
+override 
+void 
+Up  "
+(" #
+MigrationBuilder# 3
+migrationBuilder4 D
+)D E
+{ 	
+migrationBuilder 
+. 
+CreateTable (
+(( )
+name 
+: 
+$str '
+,' (
+columns 
+: 
+table 
+=> !
+new" %
+{ 
+Id 
+= 
+table 
+. 
+Column %
+<% &
+int& )
+>) *
+(* +
+type+ /
+:/ 0
+$str1 :
+,: ;
+nullable< D
+:D E
+falseF K
+)K L
+. 
+
+Annotation #
+(# $
+$str$ D
+,D E)
+NpgsqlValueGenerationStrategyF c
+.c d#
+IdentityByDefaultColumnd {
+){ |
+,| }
+Name 
+= 
+table  
+.  !
+Column! '
+<' (
+string( .
+>. /
+(/ 0
+type0 4
+:4 5
+$str6 <
+,< =
+nullable> F
+:F G
+falseH M
+)M N
+,N O
+	ProjectId 
+= 
+table  %
+.% &
+Column& ,
+<, -
+int- 0
+>0 1
+(1 2
+type2 6
+:6 7
+$str8 A
+,A B
+nullableC K
+:K L
+trueM Q
+)Q R
+,R S
+
+CategoryId 
+=  
+table! &
+.& '
+Column' -
+<- .
+int. 1
+>1 2
+(2 3
+type3 7
+:7 8
+$str9 B
+,B C
+nullableD L
+:L M
+trueN R
+)R S
+,S T
+TicketTypeId  
+=! "
+table# (
+.( )
+Column) /
+</ 0
+int0 3
+>3 4
+(4 5
+type5 9
+:9 :
+$str; D
+,D E
+nullableF N
+:N O
+trueP T
+)T U
+,U V
+
+PriorityId 
+=  
+table! &
+.& '
+Column' -
+<- .
+int. 1
+>1 2
+(2 3
+type3 7
+:7 8
+$str9 B
+,B C
+nullableD L
+:L M
+trueN R
+)R S
+,S T
+TargetGroupId !
+=" #
+table$ )
+.) *
+Column* 0
+<0 1
+int1 4
+>4 5
+(5 6
+type6 :
+:: ;
+$str< E
+,E F
+nullableG O
+:O P
+trueQ U
+)U V
+,V W
+TargetUserId  
+=! "
+table# (
+.( )
+Column) /
+</ 0
+int0 3
+>3 4
+(4 5
+type5 9
+:9 :
+$str; D
+,D E
+nullableF N
+:N O
+trueP T
+)T U
+,U V
+	SortOrder 
+= 
+table  %
+.% &
+Column& ,
+<, -
+int- 0
+>0 1
+(1 2
+type2 6
+:6 7
+$str8 A
+,A B
+nullableC K
+:K L
+falseM R
+)R S
+,S T
+IsActive 
+= 
+table $
+.$ %
+Column% +
+<+ ,
+bool, 0
+>0 1
+(1 2
+type2 6
+:6 7
+$str8 A
+,A B
+nullableC K
+:K L
+falseM R
+)R S
+,S T
+	CreatedAt 
+= 
+table  %
+.% &
+Column& ,
+<, -
+DateTime- 5
+>5 6
+(6 7
+type7 ;
+:; <
+$str= W
+,W X
+nullableY a
+:a b
+falsec h
+)h i
+,i j
+	CreatedBy 
+= 
+table  %
+.% &
+Column& ,
+<, -
+string- 3
+>3 4
+(4 5
+type5 9
+:9 :
+$str; A
+,A B
+nullableC K
+:K L
+trueM Q
+)Q R
+,R S
+	UpdatedAt   
+=   
+table    %
+.  % &
+Column  & ,
+<  , -
+DateTime  - 5
+>  5 6
+(  6 7
+type  7 ;
+:  ; <
+$str  = W
+,  W X
+nullable  Y a
+:  a b
+true  c g
+)  g h
+,  h i
+	UpdatedBy!! 
+=!! 
+table!!  %
+.!!% &
+Column!!& ,
+<!!, -
+string!!- 3
+>!!3 4
+(!!4 5
+type!!5 9
+:!!9 :
+$str!!; A
+,!!A B
+nullable!!C K
+:!!K L
+true!!M Q
+)!!Q R
+,!!R S
+	IsDeleted"" 
+="" 
+table""  %
+.""% &
+Column""& ,
+<"", -
+bool""- 1
+>""1 2
+(""2 3
+type""3 7
+:""7 8
+$str""9 B
+,""B C
+nullable""D L
+:""L M
+false""N S
+)""S T
+,""T U
+	DeletedAt## 
+=## 
+table##  %
+.##% &
+Column##& ,
+<##, -
+DateTime##- 5
+>##5 6
+(##6 7
+type##7 ;
+:##; <
+$str##= W
+,##W X
+nullable##Y a
+:##a b
+true##c g
+)##g h
+}$$ 
+,$$ 
+constraints%% 
+:%% 
+table%% "
+=>%%# %
+{&& 
+table'' 
+.'' 
+
+PrimaryKey'' $
+(''$ %
+$str''% 9
+,''9 :
+x''; <
+=>''= ?
+x''@ A
+.''A B
+Id''B D
+)''D E
+;''E F
+table(( 
+.(( 
+
+ForeignKey(( $
+((($ %
+name)) 
+:)) 
+$str)) H
+,))H I
+column** 
+:** 
+x**  !
+=>**" $
+x**% &
+.**& '
+
+CategoryId**' 1
+,**1 2
+principalTable++ &
+:++& '
+$str++( 4
+,++4 5
+principalColumn,, '
+:,,' (
+$str,,) -
+),,- .
+;,,. /
+table-- 
+.-- 
+
+ForeignKey-- $
+(--$ %
+name.. 
+:.. 
+$str.. G
+,..G H
+column// 
+:// 
+x//  !
+=>//" $
+x//% &
+.//& '
+TargetGroupId//' 4
+,//4 5
+principalTable00 &
+:00& '
+$str00( 0
+,000 1
+principalColumn11 '
+:11' (
+$str11) -
+)11- .
+;11. /
+table22 
+.22 
+
+ForeignKey22 $
+(22$ %
+name33 
+:33 
+$str33 H
+,33H I
+column44 
+:44 
+x44  !
+=>44" $
+x44% &
+.44& '
+
+PriorityId44' 1
+,441 2
+principalTable55 &
+:55& '
+$str55( 4
+,554 5
+principalColumn66 '
+:66' (
+$str66) -
+)66- .
+;66. /
+table77 
+.77 
+
+ForeignKey77 $
+(77$ %
+name88 
+:88 
+$str88 E
+,88E F
+column99 
+:99 
+x99  !
+=>99" $
+x99% &
+.99& '
+	ProjectId99' 0
+,990 1
+principalTable:: &
+:::& '
+$str::( 2
+,::2 3
+principalColumn;; '
+:;;' (
+$str;;) -
+);;- .
+;;;. /
+table<< 
+.<< 
+
+ForeignKey<< $
+(<<$ %
+name== 
+:== 
+$str== K
+,==K L
+column>> 
+:>> 
+x>>  !
+=>>>" $
+x>>% &
+.>>& '
+TicketTypeId>>' 3
+,>>3 4
+principalTable?? &
+:??& '
+$str??( 5
+,??5 6
+principalColumn@@ '
+:@@' (
+$str@@) -
+)@@- .
+;@@. /
+tableAA 
+.AA 
+
+ForeignKeyAA $
+(AA$ %
+nameBB 
+:BB 
+$strBB E
+,BBE F
+columnCC 
+:CC 
+xCC  !
+=>CC" $
+xCC% &
+.CC& '
+TargetUserIdCC' 3
+,CC3 4
+principalTableDD &
+:DD& '
+$strDD( /
+,DD/ 0
+principalColumnEE '
+:EE' (
+$strEE) -
+)EE- .
+;EE. /
+}FF 
+)FF 
+;FF 
+migrationBuilderHH 
+.HH 
+CreateTableHH (
+(HH( )
+nameII 
+:II 
+$strII $
+,II$ %
+columnsJJ 
+:JJ 
+tableJJ 
+=>JJ !
+newJJ" %
+{KK 
+IdLL 
+=LL 
+tableLL 
+.LL 
+ColumnLL %
+<LL% &
+intLL& )
+>LL) *
+(LL* +
+typeLL+ /
+:LL/ 0
+$strLL1 :
+,LL: ;
+nullableLL< D
+:LLD E
+falseLLF K
+)LLK L
+.MM 
+
+AnnotationMM #
+(MM# $
+$strMM$ D
+,MMD E)
+NpgsqlValueGenerationStrategyMMF c
+.MMc d#
+IdentityByDefaultColumnMMd {
+)MM{ |
+,MM| }
+UserIdNN 
+=NN 
+tableNN "
+.NN" #
+ColumnNN# )
+<NN) *
+intNN* -
+>NN- .
+(NN. /
+typeNN/ 3
+:NN3 4
+$strNN5 >
+,NN> ?
+nullableNN@ H
+:NNH I
+falseNNJ O
+)NNO P
+,NNP Q
+NameOO 
+=OO 
+tableOO  
+.OO  !
+ColumnOO! '
+<OO' (
+stringOO( .
+>OO. /
+(OO/ 0
+typeOO0 4
+:OO4 5
+$strOO6 <
+,OO< =
+nullableOO> F
+:OOF G
+falseOOH M
+)OOM N
+,OON O
+	QueryJsonPP 
+=PP 
+tablePP  %
+.PP% &
+ColumnPP& ,
+<PP, -
+stringPP- 3
+>PP3 4
+(PP4 5
+typePP5 9
+:PP9 :
+$strPP; A
+,PPA B
+nullablePPC K
+:PPK L
+falsePPM R
+)PPR S
+,PPS T
+	CreatedAtQQ 
+=QQ 
+tableQQ  %
+.QQ% &
+ColumnQQ& ,
+<QQ, -
+DateTimeQQ- 5
+>QQ5 6
+(QQ6 7
+typeQQ7 ;
+:QQ; <
+$strQQ= W
+,QQW X
+nullableQQY a
+:QQa b
+falseQQc h
+)QQh i
+,QQi j
+	CreatedByRR 
+=RR 
+tableRR  %
+.RR% &
+ColumnRR& ,
+<RR, -
+stringRR- 3
+>RR3 4
+(RR4 5
+typeRR5 9
+:RR9 :
+$strRR; A
+,RRA B
+nullableRRC K
+:RRK L
+trueRRM Q
+)RRQ R
+,RRR S
+	UpdatedAtSS 
+=SS 
+tableSS  %
+.SS% &
+ColumnSS& ,
+<SS, -
+DateTimeSS- 5
+>SS5 6
+(SS6 7
+typeSS7 ;
+:SS; <
+$strSS= W
+,SSW X
+nullableSSY a
+:SSa b
+trueSSc g
+)SSg h
+,SSh i
+	UpdatedByTT 
+=TT 
+tableTT  %
+.TT% &
+ColumnTT& ,
+<TT, -
+stringTT- 3
+>TT3 4
+(TT4 5
+typeTT5 9
+:TT9 :
+$strTT; A
+,TTA B
+nullableTTC K
+:TTK L
+trueTTM Q
+)TTQ R
+,TTR S
+IsActiveUU 
+=UU 
+tableUU $
+.UU$ %
+ColumnUU% +
+<UU+ ,
+boolUU, 0
+>UU0 1
+(UU1 2
+typeUU2 6
+:UU6 7
+$strUU8 A
+,UUA B
+nullableUUC K
+:UUK L
+falseUUM R
+)UUR S
+,UUS T
+	IsDeletedVV 
+=VV 
+tableVV  %
+.VV% &
+ColumnVV& ,
+<VV, -
+boolVV- 1
+>VV1 2
+(VV2 3
+typeVV3 7
+:VV7 8
+$strVV9 B
+,VVB C
+nullableVVD L
+:VVL M
+falseVVN S
+)VVS T
+,VVT U
+	DeletedAtWW 
+=WW 
+tableWW  %
+.WW% &
+ColumnWW& ,
+<WW, -
+DateTimeWW- 5
+>WW5 6
+(WW6 7
+typeWW7 ;
+:WW; <
+$strWW= W
+,WWW X
+nullableWWY a
+:WWa b
+trueWWc g
+)WWg h
+}XX 
+,XX 
+constraintsYY 
+:YY 
+tableYY "
+=>YY# %
+{ZZ 
+table[[ 
+.[[ 
+
+PrimaryKey[[ $
+([[$ %
+$str[[% 6
+,[[6 7
+x[[8 9
+=>[[: <
+x[[= >
+.[[> ?
+Id[[? A
+)[[A B
+;[[B C
+table\\ 
+.\\ 
+
+ForeignKey\\ $
+(\\$ %
+name]] 
+:]] 
+$str]] <
+,]]< =
+column^^ 
+:^^ 
+x^^  !
+=>^^" $
+x^^% &
+.^^& '
+UserId^^' -
+,^^- .
+principalTable__ &
+:__& '
+$str__( /
+,__/ 0
+principalColumn`` '
+:``' (
+$str``) -
+,``- .
+onDeleteaa  
+:aa  !
+ReferentialActionaa" 3
+.aa3 4
+Cascadeaa4 ;
+)aa; <
+;aa< =
+}bb 
+)bb 
+;bb 
+migrationBuilderdd 
+.dd 
+CreateIndexdd (
+(dd( )
+nameee 
+:ee 
+$stree 5
+,ee5 6
+tableff 
+:ff 
+$strff (
+,ff( )
+columngg 
+:gg 
+$strgg $
+)gg$ %
+;gg% &
+migrationBuilderii 
+.ii 
+CreateIndexii (
+(ii( )
+namejj 
+:jj 
+$strjj 5
+,jj5 6
+tablekk 
+:kk 
+$strkk (
+,kk( )
+columnll 
+:ll 
+$strll $
+)ll$ %
+;ll% &
+migrationBuildernn 
+.nn 
+CreateIndexnn (
+(nn( )
+nameoo 
+:oo 
+$stroo 4
+,oo4 5
+tablepp 
+:pp 
+$strpp (
+,pp( )
+columnqq 
+:qq 
+$strqq #
+)qq# $
+;qq$ %
+migrationBuilderss 
+.ss 
+CreateIndexss (
+(ss( )
+namett 
+:tt 
+$strtt 8
+,tt8 9
+tableuu 
+:uu 
+$struu (
+,uu( )
+columnvv 
+:vv 
+$strvv '
+)vv' (
+;vv( )
+migrationBuilderxx 
+.xx 
+CreateIndexxx (
+(xx( )
+nameyy 
+:yy 
+$stryy 7
+,yy7 8
+tablezz 
+:zz 
+$strzz (
+,zz( )
+column{{ 
+:{{ 
+$str{{ &
+){{& '
+;{{' (
+migrationBuilder}} 
+.}} 
+CreateIndex}} (
+(}}( )
+name~~ 
+:~~ 
+$str~~ 7
+,~~7 8
+table 
+: 
+$str (
+,( )
+column
+ÄÄ 
+:
+ÄÄ 
+$str
+ÄÄ &
+)
+ÄÄ& '
+;
+ÄÄ' (
+migrationBuilder
+ÇÇ 
+.
+ÇÇ 
+CreateIndex
+ÇÇ (
+(
+ÇÇ( )
+name
+ÉÉ 
+:
+ÉÉ 
+$str
+ÉÉ .
+,
+ÉÉ. /
+table
+ÑÑ 
+:
+ÑÑ 
+$str
+ÑÑ %
+,
+ÑÑ% &
+column
+ÖÖ 
+:
+ÖÖ 
+$str
+ÖÖ  
+)
+ÖÖ  !
+;
+ÖÖ! "
+}
+ÜÜ 	
+	protected
+ââ 
+override
+ââ 
+void
+ââ 
+Down
+ââ  $
+(
+ââ$ %
+MigrationBuilder
+ââ% 5
+migrationBuilder
+ââ6 F
+)
+ââF G
+{
+ää 	
+migrationBuilder
+ãã 
+.
+ãã 
+	DropTable
+ãã &
+(
+ãã& '
+name
+åå 
+:
+åå 
+$str
+åå '
+)
+åå' (
+;
+åå( )
+migrationBuilder
+éé 
+.
+éé 
+	DropTable
+éé &
+(
+éé& '
+name
+èè 
+:
+èè 
+$str
+èè $
+)
+èè$ %
+;
+èè% &
+}
+êê 	
+}
+ëë 
+}íí µ
+r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814143005_AddTicketSlas.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+
+Migrations! +
+{ 
+public 
+
+partial 
+class 
+AddTicketSlas &
+:' (
+	Migration) 2
+{		 
+	protected 
+override 
+void 
+Up  "
+(" #
+MigrationBuilder# 3
+migrationBuilder4 D
+)D E
+{ 	
+} 	
+	protected 
+override 
+void 
+Down  $
+($ %
+MigrationBuilder% 5
+migrationBuilder6 F
+)F G
+{ 	
+} 	
+} 
+} ¸
 w/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814130918_UpdateKbVisibility.cs
 	namespace 	
 ItsTool
@@ -44507,87 +49818,217 @@ IQueryable 
 ;;;I J
 }<< 	
 }== 
-}>> °	
+}>> õ
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs
-	namespace 	
-ItsTool
+	namespace 	
+ItsTool
  
-. 
-Infrastructure  
-.  !
-Data! %
-;% &
-public 
-class #
-ItsToolDbContextFactory $
-:% &'
-IDesignTimeDbContextFactory' B
-<B C
-ItsToolDbContextC S
->S T
-{ 
-public 
+. 
+Infrastructure  
+.  !
+Data! %
+;% &
+public 
+class #
+ItsToolDbContextFactory $
+:% &'
+IDesignTimeDbContextFactory' B
+<B C
+ItsToolDbContextC S
+>S T
+{		 
+public
+
+ 
 
-ItsToolDbContext 
-CreateDbContext +
-(+ ,
-string, 2
-[2 3
-]3 4
-args5 9
-)9 :
-{		 
-var
-
- 
-optionsBuilder
-
- 
-=
-
- 
-new
-
-  #
-DbContextOptionsBuilder
-
-! 8
-<
-
-8 9
 ItsToolDbContext
 
-9 I
->
+ 
+CreateDbContext
 
-I J
+ +
 (
 
-J K
++ ,
+string
+
+, 2
+[
+
+2 3
+]
+
+3 4
+args
+
+5 9
 )
 
-K L
-;
-
-L M
-optionsBuilder 
-. 
-	UseNpgsql  
-(  !
-$str! m
-)m n
-;n o
-return 
-new 
-ItsToolDbContext #
-(# $
-optionsBuilder$ 2
-.2 3
-Options3 :
-): ;
-;; <
-} 
-} åS
+9 :
+{ 
+var 
+environment 
+= 
+Environment %
+.% &"
+GetEnvironmentVariable& <
+(< =
+$str= U
+)U V
+??W Y
+$strZ g
+;g h
+var 
+basePath 
+= 
+Path 
+. 
+Combine #
+(# $
+	Directory$ -
+.- .
+GetCurrentDirectory. A
+(A B
+)B C
+,C D
+$strE U
+)U V
+;V W
+if 
+
+( 
+! 
+	Directory 
+. 
+Exists 
+( 
+basePath &
+)& '
+)' (
+{ 	
+basePath 
+= 
+Path 
+. 
+Combine #
+(# $
+	Directory$ -
+.- .
+GetCurrentDirectory. A
+(A B
+)B C
+,C D
+$strE V
+)V W
+;W X
+} 	
+var 
+configuration 
+= 
+new  
+ConfigurationBuilder  4
+(4 5
+)5 6
+. 
+SetBasePath 
+( 
+basePath !
+)! "
+. 
+AddJsonFile 
+( 
+$str +
+,+ ,
+optional- 5
+:5 6
+false7 <
+,< =
+reloadOnChange> L
+:L M
+trueN R
+)R S
+. 
+AddJsonFile 
+( 
+$" 
+$str '
+{' (
+environment( 3
+}3 4
+$str4 9
+"9 :
+,: ;
+optional< D
+:D E
+trueF J
+)J K
+. #
+AddEnvironmentVariables $
+($ %
+)% &
+. 
+Build 
+( 
+) 
+; 
+var 
+optionsBuilder 
+= 
+new  #
+DbContextOptionsBuilder! 8
+<8 9
+ItsToolDbContext9 I
+>I J
+(J K
+)K L
+;L M
+var!! 
+connectionString!! 
+=!! 
+configuration!! ,
+.!!, -
+GetConnectionString!!- @
+(!!@ A
+$str!!A T
+)!!T U
+;!!U V
+if"" 
+
+("" 
+string"" 
+."" 
+IsNullOrEmpty""  
+(""  !
+connectionString""! 1
+)""1 2
+)""2 3
+{## 	
+throw$$ 
+new$$ %
+InvalidOperationException$$ /
+($$/ 0
+$str$$0 b
+)$$b c
+;$$c d
+}%% 	
+optionsBuilder'' 
+.'' 
+	UseNpgsql''  
+(''  !
+connectionString''! 1
+)''1 2
+;''2 3
+return)) 
+new)) 
+ItsToolDbContext)) #
+())# $
+optionsBuilder))$ 2
+.))2 3
+Options))3 :
+))): ;
+;)); <
+}** 
+}++ §[
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContext.cs
 	namespace 	
 ItsTool
@@ -45159,62 +50600,122 @@ TicketSlas@@ &
 publicGG 
 
 DbSetGG 
-<GG 
-KnowledgeCategoryGG "
->GG" #
-KnowledgeCategoriesGG$ 7
-=>GG8 :
-SetGG; >
-<GG> ?
-KnowledgeCategoryGG? P
->GGP Q
-(GGQ R
-)GGR S
-;GGS T
-publicHH 
+<GG 
+AssignmentRuleGG 
+>GG  
+AssignmentRulesGG! 0
+=>GG1 3
+SetGG4 7
+<GG7 8
+AssignmentRuleGG8 F
+>GGF G
+(GGG H
+)GGH I
+;GGI J
+publicJJ 
 
-DbSetHH 
-<HH 
-KnowledgeArticleHH !
->HH! "
-KnowledgeArticlesHH# 4
-=>HH5 7
-SetHH8 ;
-<HH; <
-KnowledgeArticleHH< L
->HHL M
-(HHM N
-)HHN O
-;HHO P
-	protectedJJ 
-overrideJJ 
-voidJJ 
-OnModelCreatingJJ +
-(JJ+ ,
-ModelBuilderJJ, 8
-modelBuilderJJ9 E
-)JJE F
-{KK 
-baseLL 
-.LL 
-OnModelCreatingLL 
-(LL 
-modelBuilderLL )
-)LL) *
-;LL* +
-modelBuilderMM 
-.MM +
-ApplyConfigurationsFromAssemblyMM 4
-(MM4 5
-AssemblyMM5 =
-.MM= > 
-GetExecutingAssemblyMM> R
-(MMR S
-)MMS T
-)MMT U
-;MMU V
-}NN 
-}OO ÚÇ
+DbSetJJ 
+<JJ 
+SavedFilterJJ 
+>JJ 
+SavedFiltersJJ *
+=>JJ+ -
+SetJJ. 1
+<JJ1 2
+SavedFilterJJ2 =
+>JJ= >
+(JJ> ?
+)JJ? @
+;JJ@ A
+publicMM 
+
+DbSetMM 
+<MM 
+KnowledgeCategoryMM "
+>MM" #
+KnowledgeCategoriesMM$ 7
+=>MM8 :
+SetMM; >
+<MM> ?
+KnowledgeCategoryMM? P
+>MMP Q
+(MMQ R
+)MMR S
+;MMS T
+publicNN 
+
+DbSetNN 
+<NN 
+KnowledgeArticleNN !
+>NN! "
+KnowledgeArticlesNN# 4
+=>NN5 7
+SetNN8 ;
+<NN; <
+KnowledgeArticleNN< L
+>NNL M
+(NNM N
+)NNN O
+;NNO P
+publicQQ 
+
+DbSetQQ 
+<QQ 
+TicketSurveyQQ 
+>QQ 
+TicketSurveysQQ ,
+=>QQ- /
+SetQQ0 3
+<QQ3 4
+TicketSurveyQQ4 @
+>QQ@ A
+(QQA B
+)QQB C
+;QQC D
+publicTT 
+
+DbSetTT 
+<TT 
+WebhookSubscriptionTT $
+>TT$ % 
+WebhookSubscriptionsTT& :
+=>TT; =
+SetTT> A
+<TTA B
+WebhookSubscriptionTTB U
+>TTU V
+(TTV W
+)TTW X
+;TTX Y
+	protectedVV 
+overrideVV 
+voidVV 
+OnModelCreatingVV +
+(VV+ ,
+ModelBuilderVV, 8
+modelBuilderVV9 E
+)VVE F
+{WW 
+baseXX 
+.XX 
+OnModelCreatingXX 
+(XX 
+modelBuilderXX )
+)XX) *
+;XX* +
+modelBuilderYY 
+.YY +
+ApplyConfigurationsFromAssemblyYY 4
+(YY4 5
+AssemblyYY5 =
+.YY= > 
+GetExecutingAssemblyYY> R
+(YYR S
+)YYS T
+)YYT U
+;YYU V
+}ZZ 
+}[[ ÚÇ
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs
 	namespace 	
 ItsTool

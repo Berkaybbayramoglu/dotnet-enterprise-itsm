@@ -1,1 +1,1 @@
-# 2csXhr3src/ItsTool.Domain/Entities/Ticket/TicketHistory.cs
+# 2csXhr,src/ItsTool.Domain/Entities/Ticket/Ticket.cs

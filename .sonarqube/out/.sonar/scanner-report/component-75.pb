@@ -1,1 +1,1 @@
-K 2csX5hr3src/ItsTool.Infrastructure/Security/TokenService.cs
+K 2webXihr"src/ItsTool.Web/wwwroot/rules.html

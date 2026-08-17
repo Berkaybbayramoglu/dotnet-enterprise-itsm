@@ -1,1 +1,1 @@
-M 2csX¦hr5src/ItsTool.Infrastructure/Services/CatalogService.cs
+M 2webXhr"src/ItsTool.Web/wwwroot/index.html

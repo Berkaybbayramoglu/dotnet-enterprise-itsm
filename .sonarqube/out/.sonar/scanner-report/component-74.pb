@@ -1,1 +1,1 @@
-J 2csX?hr-src/ItsTool.Infrastructure/Data/Repository.cs
+J 2webX¦hr#src/ItsTool.Web/wwwroot/kanban.html

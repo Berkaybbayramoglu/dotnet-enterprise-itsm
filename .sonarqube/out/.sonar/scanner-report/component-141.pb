@@ -1,1 +1,1 @@
-ç 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs
+ç (2csX°hr6tests/ItsTool.UnitTests/Services/TicketServiceTests.cs

@@ -90,7 +90,7 @@
                 body: JSON.stringify({
                     key: key,
                     label: label,
-                    fieldType: parseInt(typeStr) || 0,
+                    fieldType: Number.parseInt(typeStr) || 0,
                     validationRegex: null
                 })
             });

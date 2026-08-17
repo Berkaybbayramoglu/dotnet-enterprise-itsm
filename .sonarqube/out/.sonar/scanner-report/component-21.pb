@@ -1,2 +1,1 @@
- 2csX
-hr1src/ItsTool.Domain/Entities/Organization/Group.cs
+ 2csXhr@src/ItsTool.Domain/Entities/Notification/NotificationEntities.cs

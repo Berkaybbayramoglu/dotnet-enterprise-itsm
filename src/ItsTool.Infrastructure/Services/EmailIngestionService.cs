@@ -50,15 +50,22 @@ public class EmailIngestionService : IEmailIngestionService
 
         // 3. Routing (Project selection by [PROJECTKEY])
         int projectId = 1; // Default
-        var match = Regex.Match(dto.Subject, @"\[(.*?)\]");
-        if (match.Success)
+        try
         {
-            var pKey = match.Groups[1].Value.ToUpper();
-            var project = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectKey == pKey);
-            if (project != null)
+            var match = Regex.Match(dto.Subject, @"\[(.*?)\]", RegexOptions.None, TimeSpan.FromSeconds(2));
+            if (match.Success)
             {
-                projectId = project.Id;
+                var pKey = match.Groups[1].Value.ToUpper();
+                var project = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectKey == pKey);
+                if (project != null)
+                {
+                    projectId = project.Id;
+                }
             }
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            // Ignore if timeout occurs, fallback to default project
         }
 
         // Generate TicketNumber (borrow logic from CreateTicketAsync)

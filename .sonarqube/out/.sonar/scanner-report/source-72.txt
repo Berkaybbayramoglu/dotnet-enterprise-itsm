@@ -1,79 +1,138 @@
-using ItsTool.Domain.Entities.Organization;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Domain.Entities.Project;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Domain.Entities.Workflow;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Domain.Entities.SLA;
-using ItsTool.Domain.Entities.Notification;
-using ItsTool.Domain.Entities.KnowledgeBase;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Knowledge Base</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        input[type="text"] { flex: 1; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        button { padding: 0.75rem 1.5rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .articles { display: grid; gap: 1.5rem; }
+        .article-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
+        .article-card:hover { transform: translateY(-2px); }
+        .article-card h3 { margin: 0 0 0.5rem 0; color: #007bff; }
+        .meta { font-size: 0.85rem; color: #666; display: flex; gap: 1rem; }
+        .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .badge-internal { background: #dc3545; color: white; }
+        .badge-draft { background: #ffc107; color: #333; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fff; margin: 5% auto; padding: 2rem; border-radius: 8px; width: 80%; max-width: 800px; position: relative; }
+        .close { position: absolute; right: 1.5rem; top: 1rem; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        .article-body { margin-top: 1.5rem; line-height: 1.6; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>ITSM Knowledge Base</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/tickets.html">Tickets</a>
+            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" aria-label="Search knowledge base" placeholder="Search knowledge base...">
+            <button type="button" onclick="searchKb()">Search</button>
+        </div>
+        
+        <div class="articles" id="articleList">
+            <!-- Populated by JS -->
+        </div>
+    </div>
 
-namespace ItsTool.Infrastructure.Data;
+    <!-- Article Modal -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
+            <h2 id="modalTitle">Loading...</h2>
+            <div id="modalBody" class="article-body"></div>
+        </div>
+    </div>
 
-public class ItsToolDbContext : DbContext
-{
-    public ItsToolDbContext(DbContextOptions<ItsToolDbContext> options) : base(options)
-    {
-    }
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
 
-    // Organization
-    public DbSet<Department> Departments => Set<Department>();
-    public DbSet<Group> Groups => Set<Group>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<GroupMember> GroupMembers => Set<GroupMember>();
+        async function searchKb() {
+            const keyword = document.getElementById('searchInput').value;
+            try {
+                const articles = await window.api.getKbArticles(keyword);
+                const list = document.getElementById('articleList');
+                list.innerHTML = '';
+                
+                articles.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'article-card';
+                    btn.onclick = () => openArticle(a.id);
+                    btn.style.width = '100%';
+                    btn.style.textAlign = 'left';
+                    btn.style.border = 'none';
+                    
+                    let badges = '';
+                    if (a.visibility === 1) badges += '<span class="badge badge-internal">Internal</span> ';
+                    if (a.status === 0) badges += '<span class="badge badge-draft">Draft</span> ';
 
-    // Auth
-    public DbSet<Role> Roles => Set<Role>();
-    public DbSet<Permission> Permissions => Set<Permission>();
-    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
-    public DbSet<UserPermissionOverride> UserPermissionOverrides => Set<UserPermissionOverride>();
+                    btn.innerHTML = `
+                        <h3>${escapeHtml(a.title)} ${badges}</h3>
+                        <div class="meta">
+                            <span>Views: ${a.viewCount}</span>
+                            <span>Date: ${new Date(a.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    `;
+                    list.appendChild(btn);
+                });
+            } catch(e) { console.error(e); }
+        }
 
-    // Project
-    public DbSet<Project> Projects => Set<Project>();
-    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+        async function openArticle(id) {
+            try {
+                // Fetch full article content from API
+                const res = await window.api.request(`/kb/articles/${id}`);
+                document.getElementById('modalTitle').textContent = res.title;
+                // Using textContent to prevent XSS. In a real app with markdown, we'd use a safe markdown parser here.
+                document.getElementById('modalBody').textContent = res.content;
+                document.getElementById('articleModal').style.display = 'block';
+            } catch(e) {
+                alert('Error loading article');
+            }
+        }
 
-    // Ticket & Workflow
-    public DbSet<TicketType> TicketTypes => Set<TicketType>();
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Status> Statuses => Set<Status>();
-    public DbSet<Priority> Priorities => Set<Priority>();
-    public DbSet<Ticket> Tickets => Set<Ticket>();
-    public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
-    public DbSet<Workflow> Workflows => Set<Workflow>();
-    public DbSet<WorkflowTransition> WorkflowTransitions => Set<WorkflowTransition>();
-    public DbSet<TicketComment> TicketComments => Set<TicketComment>();
-    public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
-    public DbSet<TicketWatcher> TicketWatchers => Set<TicketWatcher>();
-    public DbSet<ProjectSequence> ProjectSequences => Set<ProjectSequence>();
+        function closeModal() {
+            document.getElementById('articleModal').style.display = 'none';
+            document.getElementById('modalTitle').textContent = 'Loading...';
+            document.getElementById('modalBody').textContent = '';
+        }
 
-    // Config (EAV)
-    public DbSet<FieldDefinition> FieldDefinitions => Set<FieldDefinition>();
-    public DbSet<FieldOption> FieldOptions => Set<FieldOption>();
-    public DbSet<FormFieldPlacement> FormFieldPlacements => Set<FormFieldPlacement>();
-    public DbSet<TicketFieldValue> TicketFieldValues => Set<TicketFieldValue>();
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('articleModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
 
-    // SLA
-    public DbSet<SlaPolicy> SlaPolicies => Set<SlaPolicy>();
-    public DbSet<SlaTarget> SlaTargets => Set<SlaTarget>();
-    public DbSet<BusinessHour> BusinessHours => Set<BusinessHour>();
-    public DbSet<Holiday> Holidays => Set<Holiday>();
-    public DbSet<TicketSla> TicketSlas => Set<TicketSla>();
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
 
-    // Notification
-    public DbSet<NotificationRule> NotificationRules => Set<NotificationRule>();
-    public DbSet<Notification> Notifications => Set<Notification>();
-
-    // KnowledgeBase
-    public DbSet<KnowledgeCategory> KnowledgeCategories => Set<KnowledgeCategory>();
-    public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-    }
-}
+        searchKb();
+    </script>
+</body>
+</html>

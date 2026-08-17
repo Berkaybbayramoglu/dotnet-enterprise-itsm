@@ -1,13 +1,48 @@
-using System;
-using ItsTool.Domain.Entities.KnowledgeBase;
+using System.Threading.Tasks;
+using ItsTool.API.Controllers;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Config;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Xunit;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
-namespace ItsTool.Application.DTOs;
+namespace ItsTool.UnitTests.Controllers;
 
-public record KbCategoryDto(int Id, string Name, int? ParentId);
-public record CreateKbCategoryDto(string Name, int? ParentId);
+public class SavedFilterControllerTests : TestBase
+{
+    private readonly SavedFilterController _controller;
 
-public record KbArticleDto(int Id, int CategoryId, string Title, string Content, int AuthorUserId, ArticleStatus Status, ArticleVisibility Visibility, int ViewCount, DateTime CreatedAt);
-public record KbArticleSummaryDto(int Id, int CategoryId, string Title, int AuthorUserId, ArticleStatus Status, ArticleVisibility Visibility, int ViewCount, DateTime CreatedAt);
+    public SavedFilterControllerTests() : base()
+    {
+        _controller = new SavedFilterController(_context);
+        
+        // Mock User Claims
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "mock"));
 
-public record CreateKbArticleDto(int CategoryId, string Title, string Content, ArticleStatus Status, ArticleVisibility Visibility);
-public record UpdateKbArticleDto(int CategoryId, string Title, string Content, ArticleStatus Status, ArticleVisibility Visibility);
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+    }
+
+    [Fact]
+    public async Task GetMyFilters_ShouldReturnOnlyUserFilters()
+    {
+        _context.SavedFilters.Add(new SavedFilter { UserId = 1, Name = "F1", QueryJson = "{}" });
+        _context.SavedFilters.Add(new SavedFilter { UserId = 2, Name = "F2", QueryJson = "{}" });
+        await _context.SaveChangesAsync();
+
+        var result = await _controller.GetMyFilters();
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var dtos = Assert.IsAssignableFrom<System.Collections.Generic.IEnumerable<SavedFilterDto>>(okResult.Value);
+
+        Assert.Single(dtos);
+        Assert.Equal("F1", dtos.First().Name);
+    }
+}

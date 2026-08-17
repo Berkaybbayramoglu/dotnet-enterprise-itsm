@@ -1,2 +1,1 @@
- 2csX
-hr6src/ItsTool.Domain/Entities/Organization/Department.cs
+ 2csXhr7src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs

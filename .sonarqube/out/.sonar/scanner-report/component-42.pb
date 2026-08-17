@@ -1,1 +1,1 @@
-* 2csX‰hr0src/ItsTool.API/Controllers/CatalogController.cs
+* 2csXhr8src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs

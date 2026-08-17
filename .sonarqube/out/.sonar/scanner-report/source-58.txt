@@ -1,128 +1,76 @@
-using ItsTool.Application.Constants;
-using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Config;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Security;
-using ItsTool.API.HostedServices;
-using ItsTool.API.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using System.Security.Claims;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace ItsTool.API.Controllers;
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<ItsToolDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<DataSeeder>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPermissionCalculator, PermissionCalculator>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-// Organization Services (Phase 4)
-builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<IGroupService, GroupService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-
-// Catalog & Workflow Services (Phase 5)
-builder.Services.AddScoped<ICatalogService, CatalogService>();
-builder.Services.AddScoped<IWorkflowService, WorkflowService>();
-builder.Services.AddScoped<IDynamicFormService, DynamicFormService>();
-
-// Ticket Services (Phase 6)
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
-builder.Services.AddScoped<ITicketService, TicketService>();
-builder.Services.AddScoped<IEmailService, StubEmailService>();
-builder.Services.AddScoped<ISlaEngine, SlaEngine>();
-    builder.Services.AddScoped<INotificationService, NotificationService>();
-    builder.Services.AddScoped<ISlaService, SlaService>();
-    builder.Services.AddHostedService<SlaCheckerService>();
-
-    // Dashboard, Reporting & KB (Phase 8)
-    builder.Services.AddScoped<IDashboardService, DashboardService>();
-    builder.Services.AddScoped<IReportService, ReportService>();
-    builder.Services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
-
-// Auth Setup
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? "fallback_secret_for_development_purposes_only"))
-        };
-    });
-
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddAuthorization(options =>
+[ApiController]
+[Route("api/saved-filters")]
+[Authorize]
+public class SavedFilterController : ControllerBase
 {
-    foreach (var perm in PermissionConstants.AllPermissions)
+    private readonly ItsToolDbContext _context;
+
+    public SavedFilterController(ItsToolDbContext context)
     {
-        options.AddPolicy($"RequirePermission:{perm}", policy => 
-            policy.Requirements.Add(new PermissionRequirement(perm)));
+        _context = context;
     }
-    options.AddPolicy("RequireKbManage", policy => policy.RequireClaim("Permission", "kb.manage"));
-});
 
-// Minimal CORS
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-?? Array.Empty<string>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("TrustedOrigins", builder =>
+    private int GetCurrentUserId()
     {
-        builder.WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.Parse(idClaim ?? "0");
+    }
 
-});
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<SavedFilterDto>), 200)]
+    public async Task<IActionResult> GetMyFilters()
+    {
+        var userId = GetCurrentUserId();
+        var filters = await _context.SavedFilters
+            .Where(f => f.UserId == userId && !f.IsDeleted)
+            .ToListAsync();
+            
+        return Ok(filters.Select(f => new SavedFilterDto(f.Id, f.UserId, f.Name, f.QueryJson)));
+    }
 
-var app = builder.Build();
+    [HttpPost]
+    [ProducesResponseType(typeof(SavedFilterDto), 201)]
+    public async Task<IActionResult> CreateFilter([FromBody] CreateSavedFilterDto dto)
+    {
+        var userId = GetCurrentUserId();
+        var filter = new SavedFilter
+        {
+            UserId = userId,
+            Name = dto.Name,
+            QueryJson = dto.QueryJson
+        };
+        
+        _context.SavedFilters.Add(filter);
+        await _context.SaveChangesAsync();
+        
+        return CreatedAtAction(nameof(GetMyFilters), new { id = filter.Id }, new SavedFilterDto(filter.Id, filter.UserId, filter.Name, filter.QueryJson));
+    }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> DeleteFilter(int id)
+    {
+        var userId = GetCurrentUserId();
+        var filter = await _context.SavedFilters.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId && !f.IsDeleted);
+        
+        if (filter == null) return NotFound();
+        
+        filter.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        
+        return NoContent();
+    }
 }
-
-app.UseCors("TrustedOrigins");
-app.UseHttpsRedirection();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapGet("/api/health", () =>
-{
-    return Results.Ok(new
-    {
-        status = "OK",
-        service = "ItsTool.API",
-        timestamp = DateTime.UtcNow
-    });
-});
-
-app.MapControllers();
-
-await app.RunAsync();

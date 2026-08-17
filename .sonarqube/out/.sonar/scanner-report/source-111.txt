@@ -1,62 +1,74 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ItsTool.Infrastructure.Security;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using Xunit;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class TokenServiceTests
+public class RoleService : IRoleService
 {
-    [Fact]
-    public void GenerateToken_ShouldCreateValidJwtWithClaims()
+    private readonly IRepository<Role> _repository;
+    private readonly ItsToolDbContext _context;
+
+    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
     {
-        // Arrange
-        var inMemorySettings = new Dictionary<string, string> {
-            {"Jwt:Issuer", "TestIssuer"},
-            {"Jwt:Audience", "TestAudience"},
-            {"Jwt:Secret", "SUPER_SECRET_LONG_KEY_MUST_BE_AT_LEAST_16_CHARS"},
-            {"Jwt:ExpiryMinutes", "60"}
-        };
+        _repository = repository;
+        _context = context;
+    }
 
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
+    public async Task<IEnumerable<RoleDto>> GetAllAsync()
+    {
+        var roles = await _repository.GetAllAsync();
+        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
+    }
 
-        var tokenService = new TokenService(configuration);
-        var roles = new List<string> { "Admin", "User" };
-        var permissions = new List<string> { "ticket.create", "ticket.view" };
+    public async Task<RoleDto?> GetByIdAsync(int id)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) return null;
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
 
-        // Act
-        var tokenString = tokenService.GenerateToken(1, "testuser", roles, permissions);
+    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
+    {
+        var r = new Role { Name = dto.Name };
+        await _repository.AddAsync(r);
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
 
-        // Assert
-        Assert.False(string.IsNullOrEmpty(tokenString));
-
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(tokenString);
-
-        Assert.Equal("TestIssuer", token.Issuer);
-        Assert.Equal("TestAudience", token.Audiences.First());
+    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) throw new KeyNotFoundException("Role not found");
         
-        // Assert Claims
-        var subClaim = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
-        Assert.NotNull(subClaim);
-        Assert.Equal("1", subClaim.Value);
-        
-        var nameClaim = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
-        Assert.NotNull(nameClaim);
-        Assert.Equal("testuser", nameClaim.Value);
+        r.Name = dto.Name;
+        r.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(r);
+    }
 
-        var roleClaims = token.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-        Assert.Equal(2, roleClaims.Count);
-        Assert.Contains("Admin", roleClaims);
-        Assert.Contains("User", roleClaims);
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+    }
 
-        var permClaims = token.Claims.Where(c => c.Type == "permission").Select(c => c.Value).ToList();
-        Assert.Equal(2, permClaims.Count);
-        Assert.Contains("ticket.create", permClaims);
-        Assert.Contains("ticket.view", permClaims);
+    public async Task AssignPermissionAsync(int roleId, int permissionId)
+    {
+        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+        if (!exists)
+        {
+            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task RevokePermissionAsync(int roleId, int permissionId)
+    {
+        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
+        if (rp != null)
+        {
+            _context.RolePermissions.Remove(rp);
+            await _context.SaveChangesAsync();
+        }
     }
 }

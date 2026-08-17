@@ -1,131 +1,126 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Domain.Entities.Project;
-using ItsTool.Domain.Entities.Workflow;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Infrastructure.Services;
+using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Moq;
-using Xunit;
-using Microsoft.AspNetCore.Http;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class TicketServiceTests : TestBase
+public class ReportService : IReportService
 {
-    private readonly TicketService _service;
-    private readonly Mock<IFileStorageService> _fileStorageMock;
-    private readonly Mock<IPermissionCalculator> _permissionMock;
-    private readonly Mock<ISlaEngine> _slaEngineMock;
+    private readonly ItsToolDbContext _context;
+    private readonly IPermissionCalculator _permissionCalculator;
 
-    public TicketServiceTests() : base()
+    public ReportService(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
     {
-        _fileStorageMock = new Mock<IFileStorageService>();
-        _permissionMock = new Mock<IPermissionCalculator>();
-        _slaEngineMock = new Mock<ISlaEngine>();
-
-        _service = new TicketService(_context, _fileStorageMock.Object, _permissionMock.Object, _slaEngineMock.Object);
+        _context = context;
+        _permissionCalculator = permissionCalculator;
     }
 
-    [Fact]
-    public async Task CreateTicketAsync_ShouldGenerateSequenceNumber()
+    public async Task<Stream> ExportTicketsToCsvAsync(TicketSearchFilterDto filter, int userId)
     {
-        var p = new Project { Name = "Test", ProjectKey = "TEST" };
-        _context.Projects.Add(p);
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
         
-        var s = new Status { Name = "Open", IsSystemDefault = true };
-        _context.Statuses.Add(s);
-        await _context.SaveChangesAsync();
+        var query = _context.Tickets
+            .Include(t => t.Project)
+            .Include(t => t.Category)
+            .Include(t => t.Type)
+            .Include(t => t.Status)
+            .Include(t => t.Priority)
+            .Include(t => t.RequesterUser)
+            .Include(t => t.AssignedUser)
+            .Include(t => t.TicketSla)
+            .Where(t => !t.IsDeleted);
 
-        var dto = new CreateTicketDto("T", "D", p.Id, 1, 1, 1, 1, new Dictionary<string, string>());
-        var result = await _service.CreateTicketAsync(dto);
+        // Security Scope filtering
+        if (!perms.Contains("report.view"))
+        {
+            var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
+            if (isAgent)
+            {
+                var userGroupIds = await _context.GroupMembers
+                    .Where(gm => gm.UserId == userId && !gm.IsDeleted)
+                    .Select(gm => gm.GroupId)
+                    .ToListAsync();
 
-        Assert.Equal("TEST-1", result.TicketNumber);
+                query = query.Where(t => t.AssignedUserId == userId || 
+                                        (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
+                                        t.RequesterUserId == userId);
+            }
+            else
+            {
+                query = query.Where(t => t.RequesterUserId == userId);
+            }
+        }
+
+        // Apply filters
+        if (filter.ProjectId.HasValue) query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
+        if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
+        if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
+        if (filter.StatusId.HasValue) query = query.Where(t => t.StatusId == filter.StatusId.Value);
+        if (filter.PriorityId.HasValue) query = query.Where(t => t.PriorityId == filter.PriorityId.Value);
+        if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.AssignedUserId == filter.AssigneeUserId.Value);
+        if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
+        if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
+        if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
         
-        var result2 = await _service.CreateTicketAsync(dto);
-        Assert.Equal("TEST-2", result2.TicketNumber);
+        if (!string.IsNullOrWhiteSpace(filter.Keyword))
+        {
+            var kw = filter.Keyword.ToLower();
+            query = query.Where(t => 
+                t.TicketNumber.ToLower().Contains(kw) || 
+                t.Title.ToLower().Contains(kw) || 
+                t.Description.ToLower().Contains(kw));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.SlaStatus))
+        {
+            var s = filter.SlaStatus.ToLower();
+            if (s == "breached")
+                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
+            else if (s == "warning")
+                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
+            else if (s == "ontrack")
+                query = query.Where(t => t.TicketSla != null && !t.TicketSla.FirstResponseWarned && !t.TicketSla.ResolutionWarned && !t.TicketSla.FirstResponseBreached && !t.TicketSla.ResolutionBreached);
+        }
+
+        // Ordering (Default to CreatedAt Desc)
+        query = query.OrderByDescending(t => t.CreatedAt);
+
+        // Limiting to Max 10.000 for safety
+        var tickets = await query.Take(10000).ToListAsync();
+
+        var ms = new MemoryStream();
+        var sw = new StreamWriter(ms, Encoding.UTF8);
+
+        // Header
+        await sw.WriteLineAsync("TicketNumber,Title,Project,Category,Type,Status,Priority,Requester,Assignee,CreatedAt,SLA Status");
+
+        foreach (var t in tickets)
+        {
+            var slaStatus = "On Track";
+            if (t.TicketSla != null)
+            {
+                if (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached) slaStatus = "Breached";
+                else if (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) slaStatus = "Warning";
+            }
+
+            var line = $"\"{EscapeCsv(t.TicketNumber)}\",\"{EscapeCsv(t.Title)}\",\"{EscapeCsv(t.Project?.Name)}\",\"{EscapeCsv(t.Category?.Name)}\",\"{EscapeCsv(t.Type?.Name)}\",\"{EscapeCsv(t.Status?.Name)}\",\"{EscapeCsv(t.Priority?.Name)}\",\"{EscapeCsv(t.RequesterUser?.FirstName + " " + t.RequesterUser?.LastName)}\",\"{EscapeCsv(t.AssignedUser?.FirstName + " " + t.AssignedUser?.LastName)}\",\"{t.CreatedAt:yyyy-MM-dd HH:mm:ss}\",\"{slaStatus}\"";
+            await sw.WriteLineAsync(line);
+        }
+
+        await sw.FlushAsync();
+        ms.Position = 0;
+        return ms;
     }
 
-    [Fact]
-    public async Task ChangeStatusAsync_ShouldThrowIfTransitionNotAllowed()
+    private string EscapeCsv(string? field)
     {
-        var t = new Ticket { TicketNumber = "1", Title = "1", ProjectId = 1, StatusId = 1 };
-        _context.Tickets.Add(t);
-        var wf = new Workflow { Name = "W", ProjectId = 1 };
-        _context.Workflows.Add(wf);
-        await _context.SaveChangesAsync();
-
-        // No transition defined
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.ChangeStatusAsync(t.Id, new ChangeStatusDto(2, 1)));
-    }
-
-    [Fact]
-    public async Task ChangeStatusAsync_ShouldThrowIfMissingPermission()
-    {
-        var t = new Ticket { TicketNumber = "1", Title = "1", ProjectId = 1, StatusId = 1 };
-        _context.Tickets.Add(t);
-        var wf = new Workflow { Name = "W", ProjectId = 1 };
-        _context.Workflows.Add(wf);
-        
-        var wt = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "x", RequiredPermissionKey = "ticket.resolve", IsActive = true };
-        _context.WorkflowTransitions.Add(wt);
-        await _context.SaveChangesAsync();
-
-        _permissionMock.Setup(p => p.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.view" });
-
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _service.ChangeStatusAsync(t.Id, new ChangeStatusDto(2, 1)));
-    }
-
-    [Fact]
-    public async Task ValidateDynamicFields_ShouldThrowIfRequiredMissing()
-    {
-        var p = new Project { Name = "P", ProjectKey = "P" };
-        _context.Projects.Add(p);
-        var def = new FieldDefinition { Key = "k1", Label = "L1" };
-        _context.FieldDefinitions.Add(def);
-        await _context.SaveChangesAsync();
-
-        var place = new FormFieldPlacement { FieldDefinitionId = def.Id, ProjectId = p.Id, CategoryId = 1, TicketTypeId = 1, IsRequired = true, IsActive = true };
-        _context.FormFieldPlacements.Add(place);
-        await _context.SaveChangesAsync();
-
-        var dto = new CreateTicketDto("T", "D", p.Id, 1, 1, 1, 1, new Dictionary<string, string>());
-        
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTicketAsync(dto));
-    }
-
-    [Fact]
-    public async Task AddCommentAsync_InternalCommentsShouldBeFiltered()
-    {
-        var t = new Ticket { TicketNumber = "1" };
-        _context.Tickets.Add(t);
-        await _context.SaveChangesAsync();
-
-        await _service.AddCommentAsync(t.Id, new CreateCommentDto("public", false, 1));
-        await _service.AddCommentAsync(t.Id, new CreateCommentDto("internal", true, 1));
-
-        var publicOnly = await _service.GetCommentsAsync(t.Id, false);
-        Assert.Single(publicOnly);
-        Assert.Equal("public", publicOnly.First().Content);
-
-        var all = await _service.GetCommentsAsync(t.Id, true);
-        Assert.Equal(2, all.Count());
-    }
-
-    [Fact]
-    public async Task AssignTicketAsync_ShouldAddHistory()
-    {
-        var t = new Ticket { TicketNumber = "1" };
-        _context.Tickets.Add(t);
-        await _context.SaveChangesAsync();
-
-        _permissionMock.Setup(p => p.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.assign" });
-
-        await _service.AssignTicketAsync(t.Id, new AssignTicketDto(2, 1));
-
-        var history = await _context.TicketHistories.FirstOrDefaultAsync(h => h.TicketId == t.Id && h.Action == "Assigned");
-        Assert.NotNull(history);
-        Assert.Equal("2", history.NewValue);
+        if (string.IsNullOrEmpty(field)) return "";
+        return field.Replace("\"", "\"\"");
     }
 }

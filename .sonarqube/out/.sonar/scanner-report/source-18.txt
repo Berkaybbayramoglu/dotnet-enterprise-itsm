@@ -1,26 +1,13 @@
 using ItsTool.Domain.Common;
+using ItsTool.Domain.Entities.Organization;
 
-namespace ItsTool.Domain.Entities.KnowledgeBase;
+namespace ItsTool.Domain.Entities.Config;
 
-public class KnowledgeCategory : BaseEntity
+public class SavedFilter : BaseEntity
 {
+    public int UserId { get; set; }
     public string Name { get; set; } = string.Empty;
-    public int? ParentId { get; set; }
-    public virtual KnowledgeCategory? Parent { get; set; }
-}
+    public string QueryJson { get; set; } = string.Empty;
 
-public enum ArticleStatus { Draft, Published }
-public enum ArticleVisibility { Internal, Public }
-
-public class KnowledgeArticle : BaseEntity
-{
-    public int CategoryId { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public int AuthorUserId { get; set; }
-    public ArticleStatus Status { get; set; }
-    public ArticleVisibility Visibility { get; set; }
-    public int ViewCount { get; set; }
-
-    public virtual KnowledgeCategory? Category { get; set; }
+    public virtual User? User { get; set; }
 }

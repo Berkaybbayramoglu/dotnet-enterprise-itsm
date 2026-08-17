@@ -1,54 +1,55 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Organization;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class DynamicFormServiceTests : TestBase
+public class DepartmentService : IDepartmentService
 {
-    private readonly Repository<FieldDefinition> _defRepo;
-    private readonly Repository<FieldOption> _optRepo;
-    private readonly Repository<FormFieldPlacement> _placementRepo;
-    private readonly DynamicFormService _service;
+    private readonly IRepository<Department> _repository;
 
-    public DynamicFormServiceTests() : base()
+    public DepartmentService(IRepository<Department> repository)
     {
-        _defRepo = new Repository<FieldDefinition>(_context);
-        _optRepo = new Repository<FieldOption>(_context);
-        _placementRepo = new Repository<FormFieldPlacement>(_context);
-        _service = new DynamicFormService(_defRepo, _optRepo, _placementRepo, _context);
+        _repository = repository;
     }
 
-    [Fact]
-    public async Task CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUnique()
+    public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
     {
-        var f = new FieldDefinition { Key = "test.key", Label = "A", FieldType = FieldType.Text };
-        _context.FieldDefinitions.Add(f);
-        await _context.SaveChangesAsync();
-
-        var dto = new CreateFieldDefinitionDto("test.key", "B", "Text", null);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateFieldDefinitionAsync(dto));
+        var depts = await _repository.GetAllAsync();
+        return depts.Select(d => new DepartmentDto(d.Id, d.Name, d.Description, d.IsActive));
     }
 
-    [Fact]
-    public async Task CreatePlacementAsync_ShouldThrowIfDuplicateScope()
+    public async Task<DepartmentDto?> GetByIdAsync(int id)
     {
-        var p = new FormFieldPlacement { FieldDefinitionId = 1, ProjectId = 1 };
-        _context.FormFieldPlacements.Add(p);
-        await _context.SaveChangesAsync();
-
-        var dto = new CreateFormFieldPlacementDto(1, 1, null, null, 1, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePlacementAsync(dto));
+        var dept = await _repository.GetByIdAsync(id);
+        if (dept == null) return null;
+        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
     }
 
-    [Fact]
-    public async Task CreateFieldDefinitionAsync_ShouldCreate()
+    public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
     {
-        var dto = new CreateFieldDefinitionDto("uniq.key", "N", "Text", null);
-        var res = await _service.CreateFieldDefinitionAsync(dto);
-        Assert.Equal("uniq.key", res.Key);
+        var dept = new Department
+        {
+            Name = dto.Name,
+            Description = dto.Description
+        };
+        await _repository.AddAsync(dept);
+        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
+    }
+
+    public async Task UpdateAsync(int id, UpdateDepartmentDto dto)
+    {
+        var dept = await _repository.GetByIdAsync(id);
+        if (dept == null) throw new KeyNotFoundException("Department not found");
+        
+        dept.Name = dto.Name;
+        dept.Description = dto.Description;
+        dept.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(dept);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
     }
 }

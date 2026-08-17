@@ -1,87 +1,173 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Ticket Detail</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; max-width: 1000px; margin: auto; display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+        .card { background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        h3 { margin-top: 0; }
+        .property-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .property-grid div { margin-bottom: 0.5rem; }
+        .property-grid label { font-weight: bold; color: #666; display: block; font-size: 0.9rem; }
+        .comment { border-bottom: 1px solid #eee; padding: 1rem 0; }
+        .comment:last-child { border-bottom: none; }
+        .comment-meta { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; }
+        .btn { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
+        textarea, select { width: 100%; padding: 0.5rem; box-sizing: border-box; margin-bottom: 1rem; }
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Ticket Details</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/tickets.html">List</a>
+            <a href="/kanban.html">Kanban</a>
+        </div>
+    </div>
+    
+    <div class="container" id="content" style="display:none;">
+        <div class="main-column">
+            <div class="card">
+                <h3><span id="tNumber"></span> - <span id="tTitle"></span></h3>
+                <p id="tDesc"></p>
+            </div>
 
-namespace ItsTool.Infrastructure.Services;
+            <div class="card">
+                <h3>Comments</h3>
+                <div id="commentsList"></div>
+                
+                <h4 style="margin-top: 2rem;">Add a Comment</h4>
+                <form id="commentForm">
+                    <textarea id="commentText" rows="4" required placeholder="Type your comment..." aria-label="Comment"></textarea>
+                    <button type="submit" class="btn">Post Comment</button>
+                </form>
+            </div>
+        </div>
 
-public class AuthService : IAuthService
-{
-    private readonly ItsToolDbContext _context;
-    private readonly ITokenService _tokenService;
-    private readonly IPermissionCalculator _permissionCalculator;
-    private readonly IConfiguration _configuration;
+        <div class="side-column">
+            <div class="card">
+                <h3>Properties</h3>
+                <div class="property-grid">
+                    <div><strong>Status</strong> <span id="tStatus"></span></div>
+                    <div><strong>Priority</strong> <span id="tPriority"></span></div>
+                    <div><strong>Project</strong> <span id="tProject"></span></div>
+                    <div><strong>Category</strong> <span id="tCategory"></span></div>
+                    <div><strong>Requester</strong> <span id="tReq"></span></div>
+                    <div><strong>Assignee</strong> <span id="tAssigned"></span></div>
+                </div>
 
-    public AuthService(
-        ItsToolDbContext context, 
-        ITokenService tokenService, 
-        IPermissionCalculator permissionCalculator,
-        IConfiguration configuration)
-    {
-        _context = context;
-        _tokenService = tokenService;
-        _permissionCalculator = permissionCalculator;
-        _configuration = configuration;
-    }
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+                
+                <h4>Change Status</h4>
+                <select id="statusSelect" aria-label="Status">
+                    <option value="1">Açık</option>
+                    <option value="2">Devam Ediyor</option>
+                    <option value="3">Beklemede</option>
+                    <option value="4">Çözüldü</option>
+                    <option value="5">Kapatıldı</option>
+                </select>
+                <button type="button" class="btn" onclick="changeStatus()" style="width:100%">Update Status</button>
+                
+                <div id="csatLink" style="display:none; margin-top: 1rem; text-align: center;">
+                    <a href="#" id="surveyBtn" class="btn" style="background: #28a745; text-decoration: none; display: block;">Fill CSAT Survey</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
-    {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive && !u.IsDeleted);
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-        {
-            throw new UnauthorizedAccessException("Invalid credentials.");
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('id');
+
+        async function loadTicket() {
+            if (!ticketId) return;
+            try {
+                const t = await window.api.request(`/Ticket/${ticketId}`);
+                document.getElementById('tNumber').textContent = t.ticketNumber;
+                document.getElementById('tTitle').textContent = t.title;
+                document.getElementById('tDesc').textContent = t.description;
+                document.getElementById('tStatus').textContent = `Status ${t.statusId}`;
+                document.getElementById('tPriority').textContent = `Priority ${t.priorityId}`;
+                document.getElementById('tProject').textContent = `Project ${t.projectId}`;
+                document.getElementById('tCategory').textContent = `Category ${t.categoryId}`;
+                document.getElementById('tReq').textContent = `User ${t.requesterUserId}`;
+                document.getElementById('tAssigned').textContent = t.assignedUserId ? `User ${t.assignedUserId}` : 'Unassigned';
+
+                document.getElementById('statusSelect').value = t.statusId;
+
+                if (t.statusId === 5) {
+                    document.getElementById('csatLink').style.display = 'block';
+                    document.getElementById('surveyBtn').href = `/survey.html?id=${t.id}`;
+                }
+
+                document.getElementById('content').style.display = 'grid';
+
+                loadComments();
+            } catch(e) { alert('Error loading ticket'); }
         }
 
-        var roles = await _context.UserRoles
-            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
-            .Select(ur => ur.Role!.Name)
-            .ToListAsync();
+        async function loadComments() {
+            try {
+                const comments = await window.api.request(`/Ticket/${ticketId}/comments`);
+                const list = document.getElementById('commentsList');
+                list.innerHTML = '';
+                comments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.innerHTML = `
+                        <div class="comment-meta">User ${c.authorUserId} - ${new Date(c.createdAt).toLocaleString()} ${c.isInternal ? '<span class="badge" style="background:#dc3545">Internal</span>' : ''}</div>
+                        <div>${escapeHtml(c.content)}</div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(e) { console.error(e); }
+        }
 
-        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+        document.getElementById('commentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('commentText').value;
+            try {
+                await window.api.request(`/Ticket/${ticketId}/comments`, {
+                    method: 'POST',
+                    body: JSON.stringify({ content: content, isInternal: false })
+                });
+                document.getElementById('commentText').value = '';
+                loadComments();
+            } catch(e) { alert('Error adding comment'); }
+        };
 
-        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+        async function changeStatus() {
+            const newStatus = Number.parseInt(document.getElementById('statusSelect').value);
+            try {
+                await window.api.request(`/Ticket/${ticketId}/status`, {
+                    method: 'POST',
+                    body: JSON.stringify(newStatus)
+                });
+                alert('Status updated');
+                loadTicket();
+            } catch(e) { alert('Failed: ' + e.message); }
+        }
 
-        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
 
-        return new AuthResponseDto(
-            Token: token,
-            ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
-            Username: user.Username,
-            Roles: roles,
-            Permissions: permissions
-        );
-    }
-
-    public async Task<MeResponseDto> GetMeAsync(int userId)
-    {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && !u.IsDeleted);
-
-        if (user == null)
-            throw new UnauthorizedAccessException("User not found.");
-
-        var roles = await _context.UserRoles
-            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
-            .Select(ur => ur.Role!.Name)
-            .ToListAsync();
-
-        var groups = await _context.GroupMembers
-            .Where(gm => gm.UserId == user.Id && gm.Group != null && gm.Group.IsActive)
-            .Select(gm => gm.Group!.Name)
-            .ToListAsync();
-
-        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
-
-        return new MeResponseDto(
-            Id: user.Id,
-            Username: user.Username,
-            Email: user.Email,
-            Groups: groups,
-            Roles: roles,
-            Permissions: permissions
-        );
-    }
-}
+        loadTicket();
+    </script>
+</body>
+</html>

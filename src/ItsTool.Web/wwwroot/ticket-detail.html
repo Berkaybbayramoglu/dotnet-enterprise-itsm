@@ -45,7 +45,7 @@
                 
                 <h4 style="margin-top: 2rem;">Add a Comment</h4>
                 <form id="commentForm">
-                    <textarea id="commentText" rows="4" required placeholder="Type your comment..."></textarea>
+                    <textarea id="commentText" rows="4" required placeholder="Type your comment..." aria-label="Comment"></textarea>
                     <button type="submit" class="btn">Post Comment</button>
                 </form>
             </div>
@@ -55,18 +55,18 @@
             <div class="card">
                 <h3>Properties</h3>
                 <div class="property-grid">
-                    <div><label>Status</label><span id="tStatus"></span></div>
-                    <div><label>Priority</label><span id="tPriority"></span></div>
-                    <div><label>Project</label><span id="tProject"></span></div>
-                    <div><label>Category</label><span id="tCategory"></span></div>
-                    <div><label>Requester</label><span id="tReq"></span></div>
-                    <div><label>Assignee</label><span id="tAssigned"></span></div>
+                    <div><strong>Status</strong> <span id="tStatus"></span></div>
+                    <div><strong>Priority</strong> <span id="tPriority"></span></div>
+                    <div><strong>Project</strong> <span id="tProject"></span></div>
+                    <div><strong>Category</strong> <span id="tCategory"></span></div>
+                    <div><strong>Requester</strong> <span id="tReq"></span></div>
+                    <div><strong>Assignee</strong> <span id="tAssigned"></span></div>
                 </div>
 
                 <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
                 
                 <h4>Change Status</h4>
-                <select id="statusSelect">
+                <select id="statusSelect" aria-label="Status">
                     <option value="1">Açık</option>
                     <option value="2">Devam Ediyor</option>
                     <option value="3">Beklemede</option>
@@ -147,7 +147,7 @@
         };
 
         async function changeStatus() {
-            const newStatus = parseInt(document.getElementById('statusSelect').value);
+            const newStatus = Number.parseInt(document.getElementById('statusSelect').value);
             try {
                 await window.api.request(`/Ticket/${ticketId}/status`, {
                     method: 'POST',

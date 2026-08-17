@@ -1,15 +1,110 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Audit Log</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; }
+        .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        input[type="text"], input[type="date"], input[type="number"] { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        tr:hover { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Audit Log</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/tickets.html">Tickets</a>
+            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="search-bar">
+            <input type="number" id="filterTicketId" placeholder="Ticket ID" aria-label="Ticket ID">
+            <input type="number" id="filterUserId" placeholder="User ID" aria-label="User ID">
+            <input type="text" id="filterAction" placeholder="Action (e.g. Created)" aria-label="Action">
+            <input type="date" id="filterFrom" aria-label="From Date">
+            <input type="date" id="filterTo" aria-label="To Date">
+            <button type="button" onclick="loadAuditLogs()">Search</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Ticket ID</th>
+                    <th>User ID</th>
+                    <th>Action</th>
+                    <th>Field</th>
+                    <th>Old Value</th>
+                    <th>New Value</th>
+                </tr>
+            </thead>
+            <tbody id="auditList">
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
 
-namespace ItsTool.Infrastructure.Data;
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
 
-public class ItsToolDbContextFactory : IDesignTimeDbContextFactory<ItsToolDbContext>
-{
-    public ItsToolDbContext CreateDbContext(string[] args)
-    {
-        var optionsBuilder = new DbContextOptionsBuilder<ItsToolDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=itsm_tool;Username=postgres;Password=fake_password");
+        async function loadAuditLogs() {
+            const ticketId = document.getElementById('filterTicketId').value;
+            const userId = document.getElementById('filterUserId').value;
+            const action = document.getElementById('filterAction').value;
+            const fromDate = document.getElementById('filterFrom').value;
+            const toDate = document.getElementById('filterTo').value;
 
-        return new ItsToolDbContext(optionsBuilder.Options);
-    }
-}
+            try {
+                const res = await window.api.getAuditLogs({
+                    ticketId, userId, action, fromDate, toDate, page: 1, pageSize: 100
+                });
+                
+                const tbody = document.getElementById('auditList');
+                tbody.innerHTML = '';
+                
+                res.items.forEach(a => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(a.createdAt).toLocaleString()}</td>
+                        <td>${a.ticketId}</td>
+                        <td>${escapeHtml(a.createdBy)}</td>
+                        <td>${escapeHtml(a.action)}</td>
+                        <td>${escapeHtml(a.fieldName)}</td>
+                        <td>${escapeHtml(a.oldValue)}</td>
+                        <td>${escapeHtml(a.newValue)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(e) { 
+                console.error(e);
+                alert('Failed to load audit logs. You might not have the required permissions.');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        loadAuditLogs();
+    </script>
+</body>
+</html>

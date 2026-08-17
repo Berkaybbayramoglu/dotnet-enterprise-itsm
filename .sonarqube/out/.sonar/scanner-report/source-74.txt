@@ -1,62 +1,165 @@
-using System.Linq.Expressions;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Common;
-using Microsoft.EntityFrameworkCore;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Kanban</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .kanban-board { display: flex; gap: 1rem; padding: 2rem; overflow-x: auto; height: calc(100vh - 100px); }
+        .column { background: #e9ecef; border-radius: 4px; min-width: 300px; max-width: 300px; display: flex; flex-direction: column; }
+        .column-header { padding: 1rem; font-weight: bold; background: #dee2e6; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+        .column-body { padding: 1rem; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; min-height: 200px; }
+        .card { background: white; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: grab; display: flex; flex-direction: column; gap: 0.5rem; border-left: 4px solid #ccc; }
+        .card:active { cursor: grabbing; }
+        .card-title { font-weight: bold; }
+        .card-number { font-size: 0.8rem; color: #666; }
+        .card-assignee { font-size: 0.8rem; text-align: right; color: #007bff; }
+        
+        .priority-100 { border-left-color: #dc3545; } /* Critical */
+        .priority-75 { border-left-color: #fd7e14; } /* High */
+        .priority-50 { border-left-color: #ffc107; } /* Medium */
+        .priority-25 { border-left-color: #28a745; } /* Low */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Kanban Board</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/tickets.html">List View</a>
+            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+        </div>
+    </div>
+    
+    <div class="kanban-board" id="board">
+        <!-- Columns will be injected here -->
+    </div>
 
-namespace ItsTool.Infrastructure.Data;
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
 
-public class Repository<T> : IRepository<T> where T : BaseEntity
-{
-    protected readonly ItsToolDbContext _context;
-    protected readonly DbSet<T> _dbSet;
+        let statuses = [];
+        let tickets = [];
 
-    public Repository(ItsToolDbContext context)
-    {
-        _context = context;
-        _dbSet = context.Set<T>();
-    }
+        async function initKanban() {
+            try {
+                // In a real app we'd fetch statuses from a catalog endpoint
+                // Assuming statuses are 1: Açık, 2: Devam Ediyor, 3: Beklemede, 4: Çözüldü, 5: Kapatıldı
+                statuses = [
+                    { id: 1, name: 'Açık' },
+                    { id: 2, name: 'Devam Ediyor' },
+                    { id: 3, name: 'Beklemede' },
+                    { id: 4, name: 'Çözüldü' },
+                    { id: 5, name: 'Kapatıldı' }
+                ];
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
-    {
-        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
-        if (predicate != null)
-        {
-            query = query.Where(predicate);
+                const board = document.getElementById('board');
+                statuses.forEach(s => {
+                    const col = document.createElement('div');
+                    col.className = 'column';
+                    col.innerHTML = `
+                        <div class="column-header">${s.name}</div>
+                        <div class="column-body" data-status-id="${s.id}" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+                    `;
+                    board.appendChild(col);
+                });
+
+                // Fetch active tickets (or all for demo)
+                const res = await window.api.searchTickets({ pageSize: 100 });
+                tickets = res.items;
+
+                renderTickets();
+            } catch(e) { console.error(e); }
         }
-        return await query.ToListAsync();
-    }
 
-    public async Task<T?> GetByIdAsync(int id)
-    {
-        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
-    }
+        function renderTickets() {
+            // clear columns
+            document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
 
-    public async Task<T> AddAsync(T entity)
-    {
-        _dbSet.Add(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task UpdateAsync(T entity)
-    {
-        entity.UpdatedAt = DateTime.UtcNow;
-        _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var entity = await GetByIdAsync(id);
-        if (entity != null)
-        {
-            entity.IsDeleted = true;
-            entity.DeletedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            tickets.forEach(t => {
+                const colBody = document.querySelector(`.column-body[data-status-id="${t.statusId}"]`);
+                if (colBody) {
+                    const card = document.createElement('div');
+                    card.className = `card priority-${getPriorityWeight(t.priorityId)}`;
+                    card.draggable = true;
+                    card.id = `ticket-${t.id}`;
+                    card.ondragstart = drag;
+                    
+                    card.innerHTML = `
+                        <div class="card-number"><a href="/ticket-detail.html?id=${t.id}" target="_blank">${escapeHtml(t.ticketNumber)}</a></div>
+                        <div class="card-title">${escapeHtml(t.title)}</div>
+                        <div class="card-assignee">${t.assignedUserId ? 'User ' + t.assignedUserId : 'Unassigned'}</div>
+                    `;
+                    colBody.appendChild(card);
+                }
+            });
         }
-        else
-        {
-            throw new KeyNotFoundException($"{typeof(T).Name} not found");
+
+        function getPriorityWeight(priorityId) {
+            // Mock mapping
+            if (priorityId === 1) return 100;
+            if (priorityId === 2) return 75;
+            if (priorityId === 3) return 50;
+            if (priorityId === 4) return 25;
+            return 50;
         }
-    }
-}
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        async function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const card = document.getElementById(data);
+            
+            // Find the closest column-body
+            let target = ev.target;
+            while(target && !target.classList.contains('column-body')) {
+                target = target.parentElement;
+            }
+
+            if (target && card) {
+                const newStatusId = Number.parseInt(target.getAttribute('data-status-id'));
+                const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
+
+                try {
+                    // Update via API
+                    await window.api.request(`/Ticket/${ticketId}/status`, {
+                        method: 'POST',
+                        body: JSON.stringify(newStatusId)
+                    });
+                    
+                    target.appendChild(card);
+                    
+                    // Trigger CSAT evaluation if closed (Status 5)
+                    if (newStatusId === 5) {
+                        alert("Ticket closed. Sending CSAT survey notification...");
+                    }
+                } catch(e) {
+                    alert('Status change failed: ' + e.message);
+                }
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        initKanban();
+    </script>
+</body>
+</html>

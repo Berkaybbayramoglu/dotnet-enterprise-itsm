@@ -1,57 +1,60 @@
 using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Project;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.UnitTests.Services;
 
-public interface IDepartmentService
+public class ProjectServiceTests : TestBase
 {
-    Task<IEnumerable<DepartmentDto>> GetAllAsync();
-    Task<DepartmentDto?> GetByIdAsync(int id);
-    Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto);
-    Task UpdateAsync(int id, UpdateDepartmentDto dto);
-    Task DeleteAsync(int id);
-}
+    private readonly Repository<Project> _repository;
+    private readonly ProjectService _service;
 
-public interface IGroupService
-{
-    Task<IEnumerable<GroupDto>> GetAllAsync();
-    Task<GroupDto?> GetByIdAsync(int id);
-    Task<GroupDto> CreateAsync(CreateGroupDto dto);
-    Task UpdateAsync(int id, UpdateGroupDto dto);
-    Task DeleteAsync(int id);
-    Task AddMemberAsync(int groupId, int userId);
-    Task RemoveMemberAsync(int groupId, int userId);
-}
+    public ProjectServiceTests()
+    {
+        _repository = new Repository<Project>(_context);
+        _service = new ProjectService(_repository, _context);
+    }
 
-public interface IUserService
-{
-    Task<IEnumerable<UserDto>> GetAllAsync();
-    Task<UserDto?> GetByIdAsync(int id);
-    Task<UserDto> CreateAsync(CreateUserDto dto);
-    Task UpdateAsync(int id, UpdateUserDto dto);
-    Task DeleteAsync(int id);
-    Task AssignRoleAsync(int userId, int roleId);
-    Task RevokeRoleAsync(int userId, int roleId);
-    Task AddPermissionOverrideAsync(int userId, int permissionId, bool isGranted);
-}
+    [Fact]
+    public async Task CreateAsync_ShouldCreateProject()
+    {
+        var dto = new CreateProjectDto("App", "APP", null);
+        var result = await _service.CreateAsync(dto);
 
-public interface IProjectService
-{
-    Task<IEnumerable<ProjectDto>> GetAllAsync();
-    Task<ProjectDto?> GetByIdAsync(int id);
-    Task<ProjectDto> CreateAsync(CreateProjectDto dto);
-    Task UpdateAsync(int id, UpdateProjectDto dto);
-    Task DeleteAsync(int id);
-    Task AddMemberAsync(int projectId, int userId);
-    Task RemoveMemberAsync(int projectId, int userId);
-}
+        Assert.NotNull(result);
+        Assert.Equal("App", result.Name);
+        Assert.Equal("APP", result.ProjectKey);
+    }
 
-public interface IRoleService
-{
-    Task<IEnumerable<RoleDto>> GetAllAsync();
-    Task<RoleDto?> GetByIdAsync(int id);
-    Task<RoleDto> CreateAsync(CreateRoleDto dto);
-    Task UpdateAsync(int id, UpdateRoleDto dto);
-    Task DeleteAsync(int id);
-    Task AssignPermissionAsync(int roleId, int permissionId);
-    Task RevokePermissionAsync(int roleId, int permissionId);
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateProject()
+    {
+        var proj = new Project { Name = "Old", ProjectKey = "OLD" };
+        _context.Projects.Add(proj);
+        await _context.SaveChangesAsync();
+
+        var dto = new UpdateProjectDto("New", "NEW", null, true);
+        await _service.UpdateAsync(proj.Id, dto);
+
+        var updated = await _context.Projects.FindAsync(proj.Id);
+        Assert.Equal("New", updated!.Name);
+        Assert.Equal("NEW", updated.ProjectKey);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldSoftDeleteProject()
+    {
+        var proj = new Project { Name = "ToDelete", ProjectKey = "TD" };
+        _context.Projects.Add(proj);
+        await _context.SaveChangesAsync();
+
+        await _service.DeleteAsync(proj.Id);
+
+        var deleted = await _context.Projects.FindAsync(proj.Id);
+        Assert.True(deleted!.IsDeleted);
+        Assert.NotNull(deleted.DeletedAt);
+    }
 }

@@ -1,1 +1,1 @@
-! 2csXhr6src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs
+! 2csXhr.src/ItsTool.Domain/Entities/Ticket/Priority.cs

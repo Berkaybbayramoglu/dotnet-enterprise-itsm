@@ -1,1 +1,1 @@
-G 2csX†hr-src/ItsTool.Infrastructure/Data/DataSeeder.cs
+G 2webX7hr"src/ItsTool.Web/wwwroot/login.html

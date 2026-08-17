@@ -1,79 +1,149 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Organization;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-
-namespace ItsTool.Infrastructure.Services;
-
-public class GroupService : IGroupService
-{
-    private readonly IRepository<Group> _repository;
-    private readonly ItsToolDbContext _context;
-
-    public GroupService(IRepository<Group> repository, ItsToolDbContext context)
-    {
-        _repository = repository;
-        _context = context;
-    }
-
-    public async Task<IEnumerable<GroupDto>> GetAllAsync()
-    {
-        var groups = await _repository.GetAllAsync();
-        return groups.Select(g => new GroupDto(g.Id, g.Name, g.IsActive, g.DepartmentId ?? 0));
-    }
-
-    public async Task<GroupDto?> GetByIdAsync(int id)
-    {
-        var group = await _repository.GetByIdAsync(id);
-        if (group == null) return null;
-        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
-    }
-
-    public async Task<GroupDto> CreateAsync(CreateGroupDto dto)
-    {
-        var group = new Group
-        {
-            Name = dto.Name,
-            DepartmentId = dto.DepartmentId
-        };
-        await _repository.AddAsync(group);
-        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
-    }
-
-    public async Task UpdateAsync(int id, UpdateGroupDto dto)
-    {
-        var group = await _repository.GetByIdAsync(id);
-        if (group == null) throw new KeyNotFoundException("Group not found");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Tickets</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
+        .container { padding: 2rem; }
+        .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        input[type="text"] { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        tr:hover { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>ITSM Tickets</h2>
+        <div class="nav">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/kb.html">Knowledge Base</a>
+            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description...">
+            <button type="button" onclick="search()">Search</button>
+            <button type="button" onclick="saveFilter()">Save Filter</button>
+            <select id="savedFilters" onchange="loadFilter()" aria-label="Saved Filters">
+                <option value="">Load Saved Filter...</option>
+            </select>
+            <button type="button" onclick="exportCsv()" style="background-color: #28a745;">Export CSV</button>
+            <a href="/ticket-create.html" class="btn" style="background-color: #17a2b8; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">+ New Ticket</a>
+        </div>
         
-        group.Name = dto.Name;
-        group.IsActive = dto.IsActive;
-        group.DepartmentId = dto.DepartmentId;
-        await _repository.UpdateAsync(group);
-    }
+        <table>
+            <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Requester</th>
+                    <th>Assignee</th>
+                </tr>
+            </thead>
+            <tbody id="ticketList">
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
 
-    public async Task DeleteAsync(int id)
-    {
-        await _repository.DeleteAsync(id);
-    }
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
 
-    public async Task AddMemberAsync(int groupId, int userId)
-    {
-        var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
-        if (!exists)
-        {
-            _context.GroupMembers.Add(new GroupMember { GroupId = groupId, UserId = userId });
-            await _context.SaveChangesAsync();
+        async function search() {
+            const keyword = document.getElementById('searchInput').value;
+            try {
+                const res = await window.api.searchTickets({ keyword, pageSize: 50 });
+                const tbody = document.getElementById('ticketList');
+                tbody.innerHTML = '';
+                
+                res.items.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${escapeHtml(t.ticketNumber)}</td>
+                        <td>${escapeHtml(t.title)}</td>
+                        <td>${t.statusId}</td>
+                        <td>${t.priorityId}</td>
+                        <td>${t.requesterUserId}</td>
+                        <td>${t.assignedUserId || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(e) { console.error(e); }
         }
-    }
 
-    public async Task RemoveMemberAsync(int groupId, int userId)
-    {
-        var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
-        if (member != null)
-        {
-            _context.GroupMembers.Remove(member);
-            await _context.SaveChangesAsync();
+        async function exportCsv() {
+            const keyword = document.getElementById('searchInput').value;
+            try {
+                const blob = await window.api.exportTickets({ keyword });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tickets.csv';
+                a.click();
+            } catch(e) { alert('Export failed'); }
         }
-    }
-}
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        let savedFiltersList = [];
+
+        async function loadFiltersDropdown() {
+            try {
+                savedFiltersList = await window.api.getSavedFilters();
+                const sel = document.getElementById('savedFilters');
+                sel.innerHTML = '<option value="">Load Saved Filter...</option>';
+                savedFiltersList.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.id;
+                    opt.textContent = f.name;
+                    sel.appendChild(opt);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveFilter() {
+            const name = prompt("Enter filter name:");
+            if (!name) return;
+            const queryJson = JSON.stringify({ keyword: document.getElementById('searchInput').value });
+            try {
+                await window.api.createSavedFilter({ name, queryJson });
+                loadFiltersDropdown();
+            } catch(e) { alert("Failed to save filter."); }
+        }
+
+        function loadFilter() {
+            const id = document.getElementById('savedFilters').value;
+            if (!id) return;
+            const filter = savedFiltersList.find(f => f.id == id);
+            if (filter) {
+                const q = JSON.parse(filter.queryJson);
+                document.getElementById('searchInput').value = q.keyword || '';
+                search();
+            }
+        }
+
+        loadFiltersDropdown();
+        search();
+    </script>
+</body>
+</html>

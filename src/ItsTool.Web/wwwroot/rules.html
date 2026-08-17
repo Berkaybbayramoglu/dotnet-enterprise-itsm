@@ -91,7 +91,7 @@
             
             await window.api.createAssignmentRule({
                 name: name,
-                sortOrder: parseInt(sort) || 10,
+                sortOrder: Number.parseInt(sort) || 10,
                 isActive: true
                 // In a real modal we would prompt for ProjectId, CategoryId, etc.
             });

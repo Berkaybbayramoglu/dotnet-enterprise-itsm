@@ -1,106 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Tickets</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { padding: 2rem; }
-        .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; }
-        input[type="text"] { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; color: #333; }
-        tr:hover { background: #f8f9fa; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h2>ITSM Tickets</h2>
-        <div class="nav">
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/kb.html">Knowledge Base</a>
-            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
-        </div>
-    </div>
-    
-    <div class="container">
-        <div class="search-bar">
-            <input type="text" id="searchInput" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description...">
-            <button type="button" onclick="search()">Search</button>
-            <button type="button" onclick="exportCsv()" style="background-color: #28a745;">Export CSV</button>
-        </div>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Number</th>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Requester</th>
-                    <th>Assignee</th>
-                </tr>
-            </thead>
-            <tbody id="ticketList">
-                <!-- Populated by JS -->
-            </tbody>
-        </table>
-    </div>
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using ItsTool.Application.Interfaces;
+using Microsoft.Extensions.Logging;
 
-    <script src="js/api.js"></script>
-    <script>
-        if (!window.api.token) window.location.href = '/login.html';
+namespace ItsTool.API.HostedServices;
 
-        async function search() {
-            const keyword = document.getElementById('searchInput').value;
-            try {
-                const res = await window.api.searchTickets({ keyword, pageSize: 50 });
-                const tbody = document.getElementById('ticketList');
-                tbody.innerHTML = '';
-                
-                res.items.forEach(t => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${escapeHtml(t.ticketNumber)}</td>
-                        <td>${escapeHtml(t.title)}</td>
-                        <td>${t.statusId}</td>
-                        <td>${t.priorityId}</td>
-                        <td>${t.requesterUserId}</td>
-                        <td>${t.assignedUserId || '-'}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch(e) { console.error(e); }
+public class SlaCheckerService : BackgroundService
+{
+    private readonly IServiceProvider _services;
+    private readonly ILogger<SlaCheckerService> _logger;
+
+    public SlaCheckerService(IServiceProvider services, ILogger<SlaCheckerService> logger)
+    {
+        _services = services;
+        _logger = logger;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("SLA Checker Service running.");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                using (var scope = _services.CreateScope())
+                {
+                    var engine = scope.ServiceProvider.GetRequiredService<ISlaEngine>();
+                    await engine.CheckBreachesAsync(DateTime.UtcNow);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred executing SLA check.");
+            }
+
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Check every 5 minutes
         }
-
-        async function exportCsv() {
-            const keyword = document.getElementById('searchInput').value;
-            try {
-                const blob = await window.api.exportTickets({ keyword });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'tickets.csv';
-                a.click();
-            } catch(e) { alert('Export failed'); }
-        }
-
-        function escapeHtml(unsafe) {
-            return (unsafe || '').toString()
-                .replaceAll('&', "&amp;")
-                .replaceAll('<', "&lt;")
-                .replaceAll('>', "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        search();
-    </script>
-</body>
-</html>
+    }
+}

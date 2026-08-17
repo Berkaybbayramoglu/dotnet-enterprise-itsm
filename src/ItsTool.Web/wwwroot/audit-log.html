@@ -31,11 +31,11 @@
     
     <div class="container">
         <div class="search-bar">
-            <input type="number" id="filterTicketId" placeholder="Ticket ID">
-            <input type="number" id="filterUserId" placeholder="User ID">
-            <input type="text" id="filterAction" placeholder="Action (e.g. Created)">
-            <input type="date" id="filterFrom">
-            <input type="date" id="filterTo">
+            <input type="number" id="filterTicketId" placeholder="Ticket ID" aria-label="Ticket ID">
+            <input type="number" id="filterUserId" placeholder="User ID" aria-label="User ID">
+            <input type="text" id="filterAction" placeholder="Action (e.g. Created)" aria-label="Action">
+            <input type="date" id="filterFrom" aria-label="From Date">
+            <input type="date" id="filterTo" aria-label="To Date">
             <button type="button" onclick="loadAuditLogs()">Search</button>
         </div>
         

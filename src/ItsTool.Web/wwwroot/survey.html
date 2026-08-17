@@ -37,7 +37,7 @@
                 <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="Terrible">★</label>
             </div>
             
-            <textarea id="comment" placeholder="Additional comments (optional)"></textarea>
+            <textarea id="comment" placeholder="Additional comments (optional)" aria-label="Additional comments"></textarea>
             
             <button type="submit" class="btn">Submit Feedback</button>
         </form>
@@ -65,7 +65,7 @@
                 return;
             }
 
-            const rating = parseInt(ratingInput.value);
+            const rating = Number.parseInt(ratingInput.value);
             const comment = document.getElementById('comment').value;
 
             try {

@@ -1,9 +1,19 @@
 using ItsTool.Domain.Common;
-using System.Collections.Generic;
-namespace ItsTool.Domain.Entities.Organization;
-public class Group : BaseEntity {
-    public string Name { get; set; } = string.Empty;
-    public int? DepartmentId { get; set; }
-    public virtual Department? Department { get; set; }
-    public virtual ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();
+
+namespace ItsTool.Domain.Entities.Notification;
+
+public class NotificationRule : BaseEntity
+{
+    public string EventKey { get; set; } = string.Empty;
+    public string TargetRole { get; set; } = string.Empty;
+}
+
+public class Notification : BaseEntity
+{
+    public int UserId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public bool IsRead { get; set; }
+    public int? RelatedEntityId { get; set; }
+    public string? RelatedEntityType { get; set; }
 }

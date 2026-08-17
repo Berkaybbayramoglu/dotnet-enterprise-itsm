@@ -1,67 +1,92 @@
-using ItsTool.Infrastructure.Data;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class SystemController : ControllerBase
+[Route("api/kb")]
+[Authorize]
+public class KnowledgeBaseController : ControllerBase
 {
-    private readonly DataSeeder _dataSeeder;
-    private readonly ItsToolDbContext _context;
+    private readonly IKnowledgeBaseService _kbService;
 
-    public SystemController(DataSeeder dataSeeder, ItsToolDbContext context)
+    public KnowledgeBaseController(IKnowledgeBaseService kbService)
     {
-        _dataSeeder = dataSeeder;
-        _context = context;
+        _kbService = kbService;
     }
 
-    public record SystemResponse(string Message);
-    public record SystemErrorResponse(string Message, string Error);
+    private int GetCurrentUserId() => int.Parse(User.FindFirst("UserId")?.Value ?? "0");
 
-    [AllowAnonymous]
-    [HttpPost("seed")]
-    [ProducesResponseType(typeof(SystemResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(SystemErrorResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SeedDatabase()
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
     {
-        try
-        {
-            if (_context.Users.Any())
-            {
-                return Ok(new SystemResponse("Database already seeded."));
-            }
-
-            await _dataSeeder.SeedAsync();
-            return Ok(new SystemResponse("Seed data applied successfully."));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new SystemErrorResponse("An error occurred while seeding.", ex.Message));
-        }
+        var result = await _kbService.GetCategoriesAsync();
+        return Ok(result);
     }
 
-    [AllowAnonymous]
-    [HttpGet("db-test")]
-    [ProducesResponseType(typeof(SystemResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(SystemErrorResponse), StatusCodes.Status500InternalServerError)]
-    public IActionResult TestDatabaseConnection()
+    [HttpPost("categories")]
+    [Authorize(Policy = "RequireKbManage")]
+    public async Task<IActionResult> CreateCategory(CreateKbCategoryDto dto)
     {
-        try
-        {
-            bool canConnect = _context.Database.CanConnect();
-            if (canConnect)
-            {
-                int userCount = _context.Users.Count();
-                return Ok(new SystemResponse($"Connection OK, Table Count (Users): {userCount}"));
-            }
-            
-            return StatusCode(500, new SystemResponse("Cannot connect to the database."));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new SystemErrorResponse("An error occurred while testing connection.", ex.Message));
-        }
+        var result = await _kbService.CreateCategoryAsync(dto);
+        return Ok(result);
+    }
+
+    [HttpPut("categories/{id}")]
+    [Authorize(Policy = "RequireKbManage")]
+    public async Task<IActionResult> UpdateCategory(int id, CreateKbCategoryDto dto)
+    {
+        await _kbService.UpdateCategoryAsync(id, dto);
+        return NoContent();
+    }
+
+    [HttpDelete("categories/{id}")]
+    [Authorize(Policy = "RequireKbManage")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        await _kbService.DeleteCategoryAsync(id);
+        return NoContent();
+    }
+
+    [HttpGet("articles")]
+    public async Task<IActionResult> SearchArticles([FromQuery] string? search, [FromQuery] int? category)
+    {
+        var result = await _kbService.SearchArticlesAsync(GetCurrentUserId(), search, category);
+        return Ok(result);
+    }
+
+    [HttpGet("articles/{id}")]
+    public async Task<IActionResult> GetArticle(int id)
+    {
+        var result = await _kbService.GetArticleAsync(id, GetCurrentUserId());
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpPost("articles")]
+    [Authorize(Policy = "RequireKbManage")]
+    public async Task<IActionResult> CreateArticle(CreateKbArticleDto dto)
+    {
+        var result = await _kbService.CreateArticleAsync(dto, GetCurrentUserId());
+        return Ok(result);
+    }
+
+    [HttpPut("articles/{id}")]
+    [Authorize(Policy = "RequireKbManage")]
+    public async Task<IActionResult> UpdateArticle(int id, UpdateKbArticleDto dto)
+    {
+        await _kbService.UpdateArticleAsync(id, dto);
+        return NoContent();
+    }
+
+    [HttpDelete("articles/{id}")]
+    [Authorize(Policy = "RequireKbManage")]
+    public async Task<IActionResult> DeleteArticle(int id)
+    {
+        await _kbService.DeleteArticleAsync(id);
+        return NoContent();
     }
 }

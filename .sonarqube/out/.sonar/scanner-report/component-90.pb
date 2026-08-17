@@ -1,1 +1,1 @@
-Z 2csXuhr1src/ItsTool.Infrastructure/Services/SlaService.cs
+Z 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs

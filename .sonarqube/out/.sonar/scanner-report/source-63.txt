@@ -1,138 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Knowledge Base</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
-        .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; }
-        input[type="text"] { flex: 1; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
-        button { padding: 0.75rem 1.5rem; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .articles { display: grid; gap: 1.5rem; }
-        .article-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
-        .article-card:hover { transform: translateY(-2px); }
-        .article-card h3 { margin: 0 0 0.5rem 0; color: #007bff; }
-        .meta { font-size: 0.85rem; color: #666; display: flex; gap: 1rem; }
-        .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
-        .badge-internal { background: #dc3545; color: white; }
-        .badge-draft { background: #ffc107; color: #333; }
-        
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 2rem; border-radius: 8px; width: 80%; max-width: 800px; position: relative; }
-        .close { position: absolute; right: 1.5rem; top: 1rem; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close:hover { color: #000; }
-        .article-body { margin-top: 1.5rem; line-height: 1.6; color: #333; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h2>ITSM Knowledge Base</h2>
-        <div class="nav">
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/tickets.html">Tickets</a>
-            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
-        </div>
-    </div>
-    
-    <div class="container">
-        <div class="search-bar">
-            <input type="text" id="searchInput" aria-label="Search knowledge base" placeholder="Search knowledge base...">
-            <button type="button" onclick="searchKb()">Search</button>
-        </div>
-        
-        <div class="articles" id="articleList">
-            <!-- Populated by JS -->
-        </div>
-    </div>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-    <!-- Article Modal -->
-    <div id="articleModal" class="modal">
-        <div class="modal-content">
-            <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
-            <h2 id="modalTitle">Loading...</h2>
-            <div id="modalBody" class="article-body"></div>
-        </div>
-    </div>
+namespace ItsTool.API.Controllers;
 
-    <script src="js/api.js"></script>
-    <script>
-        if (!window.api.token) window.location.href = '/login.html';
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Policy = "RequirePermission:config.manage")]
+public class WebhookController : ControllerBase
+{
+    private readonly ItsToolDbContext _context;
 
-        async function searchKb() {
-            const keyword = document.getElementById('searchInput').value;
-            try {
-                const articles = await window.api.getKbArticles(keyword);
-                const list = document.getElementById('articleList');
-                list.innerHTML = '';
-                
-                articles.forEach(a => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'article-card';
-                    btn.onclick = () => openArticle(a.id);
-                    btn.style.width = '100%';
-                    btn.style.textAlign = 'left';
-                    btn.style.border = 'none';
-                    
-                    let badges = '';
-                    if (a.visibility === 1) badges += '<span class="badge badge-internal">Internal</span> ';
-                    if (a.status === 0) badges += '<span class="badge badge-draft">Draft</span> ';
+    public WebhookController(ItsToolDbContext context)
+    {
+        _context = context;
+    }
 
-                    btn.innerHTML = `
-                        <h3>${escapeHtml(a.title)} ${badges}</h3>
-                        <div class="meta">
-                            <span>Views: ${a.viewCount}</span>
-                            <span>Date: ${new Date(a.createdAt).toLocaleDateString()}</span>
-                        </div>
-                    `;
-                    list.appendChild(btn);
-                });
-            } catch(e) { console.error(e); }
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetWebhooks()
+    {
+        var subs = await _context.WebhookSubscriptions.Where(w => !w.IsDeleted).ToListAsync();
+        return Ok(subs);
+    }
 
-        async function openArticle(id) {
-            try {
-                // Fetch full article content from API
-                const res = await window.api.request(`/kb/articles/${id}`);
-                document.getElementById('modalTitle').textContent = res.title;
-                // Using textContent to prevent XSS. In a real app with markdown, we'd use a safe markdown parser here.
-                document.getElementById('modalBody').textContent = res.content;
-                document.getElementById('articleModal').style.display = 'block';
-            } catch(e) {
-                alert('Error loading article');
-            }
-        }
+    [HttpPost]
+    public async Task<IActionResult> CreateWebhook([FromBody] WebhookSubscription sub)
+    {
+        _context.WebhookSubscriptions.Add(sub);
+        await _context.SaveChangesAsync();
+        return Ok(sub);
+    }
 
-        function closeModal() {
-            document.getElementById('articleModal').style.display = 'none';
-            document.getElementById('modalTitle').textContent = 'Loading...';
-            document.getElementById('modalBody').textContent = '';
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateWebhook(int id, [FromBody] WebhookSubscription sub)
+    {
+        var existing = await _context.WebhookSubscriptions.FindAsync(id);
+        if (existing == null) return NotFound();
 
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('articleModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
+        existing.Url = sub.Url;
+        existing.EventsCsv = sub.EventsCsv;
+        existing.Secret = sub.Secret;
+        existing.IsActive = sub.IsActive;
 
-        function escapeHtml(unsafe) {
-            return (unsafe || '').toString()
-                .replaceAll('&', "&amp;")
-                .replaceAll('<', "&lt;")
-                .replaceAll('>', "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
+        await _context.SaveChangesAsync();
+        return Ok(existing);
+    }
 
-        searchKb();
-    </script>
-</body>
-</html>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteWebhook(int id)
+    {
+        var existing = await _context.WebhookSubscriptions.FindAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+}

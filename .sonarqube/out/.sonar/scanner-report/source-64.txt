@@ -1,94 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { padding: 2rem; }
-        .overview-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
-        .card h3 { margin: 0; color: #666; font-size: 1rem; }
-        .card .value { font-size: 2.5rem; font-weight: bold; color: #007bff; margin-top: 0.5rem; }
-        .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
-        .chart-container { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h2>ITSM Dashboard</h2>
-        <div class="nav">
-            <a href="/tickets.html">Tickets</a>
-            <a href="/kb.html">Knowledge Base</a>
-            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
-        </div>
-    </div>
-    
-    <div class="container">
-        <div class="overview-cards" id="overviewCards">
-            <!-- Populated by JS -->
-        </div>
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-        <div class="charts-row">
-            <div class="chart-container">
-                <canvas id="statusChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="priorityChart"></canvas>
-            </div>
-        </div>
-    </div>
+namespace ItsTool.API.Controllers;
 
-    <script src="js/api.js"></script>
-    <script>
-        if (!window.api.token) window.location.href = '/login.html';
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Policy = "RequirePermission:config.manage")]
+public class WorkflowController : ControllerBase
+{
+    private readonly IWorkflowService _service;
 
-        async function loadDashboard() {
-            try {
-                const overview = await window.api.getDashboardOverview();
-                const dist = await window.api.getDashboardDistributions();
+    public WorkflowController(IWorkflowService service)
+    {
+        _service = service;
+    }
 
-                const cardsHtml = `
-                    <div class="card"><h3>Open Tickets</h3><div class="value">${overview.openTickets}</div></div>
-                    <div class="card"><h3>Critical</h3><div class="value" style="color: #dc3545;">${overview.criticalTickets}</div></div>
-                    <div class="card"><h3>SLA Breached</h3><div class="value" style="color: #dc3545;">${overview.slaBreachedCount}</div></div>
-                    <div class="card"><h3>SLA Risk</h3><div class="value" style="color: #ffc107;">${overview.slaRiskCount}</div></div>
-                    <div class="card"><h3>Unassigned</h3><div class="value" style="color: #6c757d;">${overview.unassignedCount}</div></div>
-                `;
-                document.getElementById('overviewCards').innerHTML = cardsHtml;
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<WorkflowDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetWorkflows([FromQuery] int? projectId)
+    {
+        return Ok(await _service.GetWorkflowsAsync(projectId));
+    }
 
-                // Status Chart
-                new Chart(document.getElementById('statusChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: dist.byStatus.map(d => d.name),
-                        datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#007bff', '#28a745', '#dc3545', '#ffc107'] }]
-                    },
-                    options: { plugins: { title: { display: true, text: 'Tickets by Status' } } }
-                });
+    [HttpPost]
+    [ProducesResponseType(typeof(WorkflowDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateWorkflow([FromBody] CreateWorkflowDto dto)
+    {
+        var result = await _service.CreateWorkflowAsync(dto);
+        return CreatedAtAction(nameof(GetWorkflows), new { id = result.Id }, result);
+    }
 
-                // Priority Chart
-                new Chart(document.getElementById('priorityChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: dist.byPriority.map(d => d.name),
-                        datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#007bff' }]
-                    },
-                    options: { plugins: { title: { display: true, text: 'Tickets by Priority' } } }
-                });
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateWorkflow(int id, [FromBody] UpdateWorkflowDto dto)
+    {
+        try { await _service.UpdateWorkflowAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+    }
 
-            } catch (err) {
-                console.error(err);
-                if(err.message === 'Unauthorized') return;
-                alert('Error loading dashboard');
-            }
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteWorkflow(int id)
+    {
+        await _service.DeleteWorkflowAsync(id); return NoContent();
+    }
+
+    [HttpGet("{workflowId}/transitions")]
+    [ProducesResponseType(typeof(IEnumerable<WorkflowTransitionDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTransitions(int workflowId)
+    {
+        return Ok(await _service.GetTransitionsByWorkflowIdAsync(workflowId));
+    }
+
+    [HttpPost("transitions")]
+    [ProducesResponseType(typeof(WorkflowTransitionDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateTransition([FromBody] CreateWorkflowTransitionDto dto)
+    {
+        try
+        {
+            var result = await _service.CreateTransitionAsync(dto);
+            return CreatedAtAction(nameof(GetWorkflows), new { id = result.Id }, result);
         }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
 
-        loadDashboard();
-    </script>
-</body>
-</html>
+    [HttpPut("transitions/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTransition(int id, [FromBody] UpdateWorkflowTransitionDto dto)
+    {
+        try { await _service.UpdateTransitionAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpDelete("transitions/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteTransition(int id)
+    {
+        await _service.DeleteTransitionAsync(id); return NoContent();
+    }
+}

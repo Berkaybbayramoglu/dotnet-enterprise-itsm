@@ -1,1 +1,1 @@
-‰ 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
+‰ (2csXBhr6tests/ItsTool.UnitTests/Services/ReportServiceTests.cs

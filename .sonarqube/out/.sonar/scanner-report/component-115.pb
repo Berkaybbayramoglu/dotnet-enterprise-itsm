@@ -1,1 +1,1 @@
-s (2xmlX«¶hr.tests/ItsTool.UnitTests/coverage.opencover.xml
+s 2csXhr7src/ItsTool.Infrastructure/Services/StubEmailService.cs

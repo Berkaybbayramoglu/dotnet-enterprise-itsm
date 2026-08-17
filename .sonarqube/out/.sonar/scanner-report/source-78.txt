@@ -1,142 +1,83 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-
-namespace ItsTool.Infrastructure.Services;
-
-public class DashboardService : IDashboardService
-{
-    private readonly ItsToolDbContext _context;
-    private readonly IPermissionCalculator _permissionCalculator;
-
-    public DashboardService(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
-    {
-        _context = context;
-        _permissionCalculator = permissionCalculator;
-    }
-
-    private async Task<IQueryable<Ticket>> GetScopedTicketsQueryAsync(int userId)
-    {
-        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - CSAT Survey</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .header { background: #333; color: white; padding: 1rem; text-align: center; }
+        .container { padding: 2rem; max-width: 600px; margin: 2rem auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .rating { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-direction: row-reverse; }
         
-        var query = _context.Tickets.Include(t => t.TicketSla).Where(t => !t.IsDeleted);
+        .rating input { display: none; }
+        .rating label { font-size: 2rem; color: #ccc; cursor: pointer; transition: color 0.2s; }
+        .rating input:checked ~ label { color: #ffc107; }
+        .rating label:hover, .rating label:hover ~ label { color: #ffc107; }
 
-        if (perms.Contains("report.view"))
-        {
-            // Admin / Report Viewer: All tickets
-            return query;
+        textarea { width: 100%; height: 100px; margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; resize: vertical; }
+        .btn { background: #007bff; color: white; padding: 0.75rem 1.5rem; border: none; cursor: pointer; border-radius: 4px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Customer Satisfaction Survey</h2>
+    </div>
+    
+    <div class="container">
+        <h3>How would you rate the resolution of your ticket?</h3>
+        <p id="ticketInfo"></p>
+
+        <form id="surveyForm">
+            <div class="rating">
+                <input type="radio" id="star5" name="rating" value="5" required /><label for="star5" title="Excellent">★</label>
+                <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="Good">★</label>
+                <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="Average">★</label>
+                <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="Poor">★</label>
+                <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="Terrible">★</label>
+            </div>
+            
+            <textarea id="comment" placeholder="Additional comments (optional)" aria-label="Additional comments"></textarea>
+            
+            <button type="submit" class="btn">Submit Feedback</button>
+        </form>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        if (!window.api.token) window.location.href = '/login.html';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('id');
+
+        if (!ticketId) {
+            document.querySelector('.container').innerHTML = '<p>No ticket specified.</p>';
+        } else {
+            document.getElementById('ticketInfo').textContent = `Ticket ID: ${ticketId}`;
         }
 
-        var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
-        if (isAgent)
-        {
-            var userGroupIds = await _context.GroupMembers
-                .Where(gm => gm.UserId == userId && !gm.IsDeleted)
-                .Select(gm => gm.GroupId)
-                .ToListAsync();
+        document.getElementById('surveyForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            if (!ratingInput) {
+                alert("Please select a rating.");
+                return;
+            }
 
-            return query.Where(t => t.AssignedUserId == userId || 
-                                    (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
-                                    t.RequesterUserId == userId);
-        }
+            const rating = Number.parseInt(ratingInput.value);
+            const comment = document.getElementById('comment').value;
 
-        // End user
-        return query.Where(t => t.RequesterUserId == userId);
-    }
-
-    public async Task<DashboardOverviewDto> GetOverviewAsync(int userId)
-    {
-        var query = await GetScopedTicketsQueryAsync(userId);
-
-        var openTicketsCount = await query.CountAsync(t => t.Status != null && !t.Status.IsClosedStatus);
-        var criticalTicketsCount = await query.CountAsync(t => t.Priority != null && t.Priority.SeverityLevel == 1 && t.Status != null && !t.Status.IsClosedStatus);
-        var slaBreachedCount = await query.CountAsync(t => t.TicketSla != null && (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached) && t.Status != null && !t.Status.IsClosedStatus);
-        var slaRiskCount = await query.CountAsync(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached) && t.Status != null && !t.Status.IsClosedStatus);
-        var unassignedCount = await query.CountAsync(t => t.AssignedUserId == null && t.Status != null && !t.Status.IsClosedStatus);
-
-        return new DashboardOverviewDto(openTicketsCount, criticalTicketsCount, slaBreachedCount, slaRiskCount, unassignedCount);
-    }
-
-    public async Task<DashboardDistributionsDto> GetDistributionsAsync(int userId)
-    {
-        var query = await GetScopedTicketsQueryAsync(userId);
-
-        var byStatus = await query
-            .Where(t => t.Status != null)
-            .GroupBy(t => t.Status!.Name)
-            .Select(g => new TicketDistributionDto(g.Key, g.Count()))
-            .ToListAsync();
-
-        var byPriority = await query
-            .Where(t => t.Priority != null)
-            .GroupBy(t => t.Priority!.Name)
-            .Select(g => new TicketDistributionDto(g.Key, g.Count()))
-            .ToListAsync();
-
-        var byProject = await query
-            .Where(t => t.Project != null)
-            .GroupBy(t => t.Project!.Name)
-            .Select(g => new TicketDistributionDto(g.Key, g.Count()))
-            .ToListAsync();
-
-        var byCategory = await query
-            .Where(t => t.Category != null)
-            .GroupBy(t => t.Category!.Name)
-            .Select(g => new TicketDistributionDto(g.Key, g.Count()))
-            .ToListAsync();
-
-        return new DashboardDistributionsDto(byStatus, byPriority, byProject, byCategory);
-    }
-
-    public async Task<IEnumerable<AgentWorkloadDto>> GetAgentWorkloadAsync(int userId)
-    {
-        var query = await GetScopedTicketsQueryAsync(userId);
-        
-        var workload = await query
-            .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
-            .GroupBy(t => new { t.AssignedUserId, t.AssignedUser!.FirstName, t.AssignedUser!.LastName })
-            .Select(g => new AgentWorkloadDto(g.Key.AssignedUserId!.Value, $"{g.Key.FirstName} {g.Key.LastName}", g.Count()))
-            .ToListAsync();
-
-        return workload.OrderByDescending(w => w.OpenTicketCount);
-    }
-
-    public async Task<SlaComplianceDto> GetSlaComplianceAsync(int userId)
-    {
-        var query = await GetScopedTicketsQueryAsync(userId);
-        
-        var ticketsWithSla = await query
-            .Where(t => t.TicketSla != null)
-            .Select(t => new { 
-                t.TicketSla!.FirstResponseDueAt, 
-                t.TicketSla.FirstResponseMetAt,
-                t.TicketSla.ResolutionDueAt,
-                t.TicketSla.ResolutionMetAt,
-                t.TicketSla.FirstResponseBreached,
-                t.TicketSla.ResolutionBreached,
-                CreatedAt = t.CreatedAt,
-                ResolvedAt = t.Status != null && t.Status.IsClosedStatus ? t.TicketSla.ResolutionMetAt ?? DateTime.UtcNow : (DateTime?)null
-            })
-            .ToListAsync();
-
-        if (!ticketsWithSla.Any()) return new SlaComplianceDto(100, 100, 0);
-
-        var firstResponseEligible = ticketsWithSla.Where(t => t.FirstResponseDueAt != null).ToList();
-        var frCompliant = firstResponseEligible.Count(t => !t.FirstResponseBreached);
-        var frRate = firstResponseEligible.Any() ? (frCompliant / (double)firstResponseEligible.Count) * 100 : 100;
-
-        var resEligible = ticketsWithSla.Where(t => t.ResolutionDueAt != null).ToList();
-        var resCompliant = resEligible.Count(t => !t.ResolutionBreached);
-        var resRate = resEligible.Any() ? (resCompliant / (double)resEligible.Count) * 100 : 100;
-
-        var resolvedTickets = ticketsWithSla.Where(t => t.ResolvedAt != null).ToList();
-        var avgTime = resolvedTickets.Any() ? resolvedTickets.Average(t => (t.ResolvedAt!.Value - t.CreatedAt).TotalMinutes) : 0.0;
-
-        return new SlaComplianceDto(frRate, resRate, avgTime);
-    }
-}
+            try {
+                await window.api.request(`/Ticket/${ticketId}/survey`, {
+                    method: 'POST',
+                    body: JSON.stringify({ rating, comment })
+                });
+                document.querySelector('.container').innerHTML = '<h3>Thank you!</h3><p>Your feedback has been recorded.</p><a href="/tickets.html">Back to Tickets</a>';
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+    </script>
+</body>
+</html>

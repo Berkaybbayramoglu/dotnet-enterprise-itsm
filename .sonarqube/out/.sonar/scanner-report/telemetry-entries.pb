@@ -26,7 +26,7 @@ Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse;
 $dotnetenterprise.s4net.begin.runtimenetcore5
 )javascript.runtime.node-executable-originembedded
 text.civendor_travisci0$
-text.sensor_time_ms_community550=
+text.sensor_time_ms_community419=
 2dotnetenterprise.s4net.scannerEngine.bootstrappingEnabled
 text.civendor_jenkins0L
 scanner.git_remote_url2git@bitbucket.org:itsm-project-admin/itsm-tool.git2
@@ -34,7 +34,7 @@ $dotnetenterprise.s4net.begin.runtimenetcore5
 8dotnetenterprise.s4net.build.netcore_sdk_version.8_0_1296"
 text.pluginVersion2.47.0.11983@
 8javascript.telemetry.typescript.compiler-options.allowJstrue(
-!text.all_tracked_text_files_count138/
+!text.all_tracked_text_files_count179/
 #dotnetenterprise.s4net.jre.downloadCacheHit7
 ,dotnetenterprise.s4net.build.msbuild_version17.8.49?
 :javascript.telemetry.typescript.program-creation.attempted14
@@ -49,7 +49,7 @@ Kjavascript.telemetry.typescript.compiler-options.useUnknownInCatchVariablesfa
 Djavascript.telemetry.typescript.compiler-options.strictFunctionTypesfalse?
 :javascript.telemetry.generated-sources.resolved-file-count0"
 sonar.scanner.appVersion11.2.1 
-text.analyzed_files_count137>
+text.analyzed_files_count178>
 9dotnetenterprise.s4net.build.using_microsoft_net_sdk.true6<
 5dotnetenterprise.s4net.params.sonar_exclusions.sourceCLI
 text.civendor_appveyor0-

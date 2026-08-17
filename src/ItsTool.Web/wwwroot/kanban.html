@@ -128,8 +128,8 @@
             }
 
             if (target && card) {
-                const newStatusId = parseInt(target.getAttribute('data-status-id'));
-                const ticketId = parseInt(card.id.replace('ticket-', ''));
+                const newStatusId = Number.parseInt(target.getAttribute('data-status-id'));
+                const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
 
                 try {
                     // Update via API

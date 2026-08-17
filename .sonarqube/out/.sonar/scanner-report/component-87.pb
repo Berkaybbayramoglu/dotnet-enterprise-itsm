@@ -1,1 +1,1 @@
-W 2csXhr4src/ItsTool.Infrastructure/Services/ReportService.cs
+W 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js

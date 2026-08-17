@@ -185,10 +185,10 @@
             const payload = {
                 title: document.getElementById('title').value,
                 description: document.getElementById('desc').value,
-                projectId: parseInt(document.getElementById('projectId').value),
-                categoryId: parseInt(document.getElementById('categoryId').value),
-                typeId: parseInt(document.getElementById('typeId').value),
-                priorityId: parseInt(document.getElementById('priorityId').value),
+                projectId: Number.parseInt(document.getElementById('projectId').value),
+                categoryId: Number.parseInt(document.getElementById('categoryId').value),
+                typeId: Number.parseInt(document.getElementById('typeId').value),
+                priorityId: Number.parseInt(document.getElementById('priorityId').value),
                 // Since this user is creating, requester is themselves (auth token handles this or we pass it)
                 requesterUserId: 1, // simplified for demo
                 customFields: customFields

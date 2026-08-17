@@ -1,19 +1,12 @@
+using System;
 using ItsTool.Domain.Common;
 
-namespace ItsTool.Domain.Entities.Notification;
+namespace ItsTool.Domain.Entities.Config;
 
-public class NotificationRule : BaseEntity
+public class WebhookSubscription : BaseEntity
 {
-    public string EventKey { get; set; } = string.Empty;
-    public string TargetRole { get; set; } = string.Empty;
-}
-
-public class Notification : BaseEntity
-{
-    public int UserId { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Message { get; set; } = string.Empty;
-    public bool IsRead { get; set; }
-    public int? RelatedEntityId { get; set; }
-    public string? RelatedEntityType { get; set; }
+    public string Url { get; set; } = string.Empty;
+    public string EventsCsv { get; set; } = string.Empty; // Comma separated events
+    public string Secret { get; set; } = string.Empty; // For HMAC-SHA256
+    public bool IsActive { get; set; } = true;
 }

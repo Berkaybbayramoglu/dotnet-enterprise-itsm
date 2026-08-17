@@ -1,112 +1,98 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/rules/assignment")]
 [Authorize(Policy = "RequirePermission:config.manage")]
-public class DynamicFormController : ControllerBase
+public class AssignmentRuleController : ControllerBase
 {
-    private readonly IDynamicFormService _service;
+    private readonly ItsToolDbContext _context;
 
-    public DynamicFormController(IDynamicFormService service)
+    public AssignmentRuleController(ItsToolDbContext context)
     {
-        _service = service;
+        _context = context;
     }
 
-    [HttpGet("definitions")]
-    [ProducesResponseType(typeof(IEnumerable<FieldDefinitionDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDefinitions() => Ok(await _service.GetFieldDefinitionsAsync());
-
-    [HttpPost("definitions")]
-    [ProducesResponseType(typeof(FieldDefinitionDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateDefinition([FromBody] CreateFieldDefinitionDto dto)
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<AssignmentRuleDto>), 200)]
+    public async Task<IActionResult> GetRules()
     {
-        try { var result = await _service.CreateFieldDefinitionAsync(dto); return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+        var rules = await _context.AssignmentRules
+            .Where(r => !r.IsDeleted)
+            .OrderBy(r => r.SortOrder)
+            .ToListAsync();
+            
+        var dtos = rules.Select(r => new AssignmentRuleDto(
+            r.Id, r.Name, r.ProjectId, r.CategoryId, r.TicketTypeId, r.PriorityId, r.TargetGroupId, r.TargetUserId, r.SortOrder, r.IsActive));
+            
+        return Ok(dtos);
     }
 
-    [HttpPut("definitions/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateDefinition(int id, [FromBody] UpdateFieldDefinitionDto dto)
+    [HttpPost]
+    [ProducesResponseType(typeof(AssignmentRuleDto), 201)]
+    public async Task<IActionResult> CreateRule([FromBody] CreateAssignmentRuleDto dto)
     {
-        try { await _service.UpdateFieldDefinitionAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+        var rule = new AssignmentRule
+        {
+            Name = dto.Name,
+            ProjectId = dto.ProjectId,
+            CategoryId = dto.CategoryId,
+            TicketTypeId = dto.TicketTypeId,
+            PriorityId = dto.PriorityId,
+            TargetGroupId = dto.TargetGroupId,
+            TargetUserId = dto.TargetUserId,
+            SortOrder = dto.SortOrder,
+            IsActive = dto.IsActive
+        };
+        
+        _context.AssignmentRules.Add(rule);
+        await _context.SaveChangesAsync();
+        
+        var responseDto = new AssignmentRuleDto(
+            rule.Id, rule.Name, rule.ProjectId, rule.CategoryId, rule.TicketTypeId, rule.PriorityId, rule.TargetGroupId, rule.TargetUserId, rule.SortOrder, rule.IsActive);
+            
+        return CreatedAtAction(nameof(GetRules), new { id = rule.Id }, responseDto);
     }
 
-    [HttpDelete("definitions/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteDefinition(int id)
+    [HttpPut("{id}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> UpdateRule(int id, [FromBody] UpdateAssignmentRuleDto dto)
     {
-        await _service.DeleteFieldDefinitionAsync(id); return NoContent();
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+        
+        rule.Name = dto.Name;
+        rule.ProjectId = dto.ProjectId;
+        rule.CategoryId = dto.CategoryId;
+        rule.TicketTypeId = dto.TicketTypeId;
+        rule.PriorityId = dto.PriorityId;
+        rule.TargetGroupId = dto.TargetGroupId;
+        rule.TargetUserId = dto.TargetUserId;
+        rule.SortOrder = dto.SortOrder;
+        rule.IsActive = dto.IsActive;
+        
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 
-    [HttpGet("definitions/{id}/options")]
-    [ProducesResponseType(typeof(IEnumerable<FieldOptionDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetOptions(int id) => Ok(await _service.GetFieldOptionsAsync(id));
-
-    [HttpPost("options")]
-    [ProducesResponseType(typeof(FieldOptionDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateOption([FromBody] CreateFieldOptionDto dto)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> DeleteRule(int id)
     {
-        var result = await _service.CreateFieldOptionAsync(dto);
-        return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result);
-    }
-
-    [HttpPut("options/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateOption(int id, [FromBody] UpdateFieldOptionDto dto)
-    {
-        try { await _service.UpdateFieldOptionAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
-    }
-
-    [HttpDelete("options/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteOption(int id)
-    {
-        await _service.DeleteFieldOptionAsync(id); return NoContent();
-    }
-
-    [HttpGet("placements")]
-    [ProducesResponseType(typeof(IEnumerable<FormFieldPlacementDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPlacements([FromQuery] int? projectId, [FromQuery] int? categoryId, [FromQuery] int? ticketTypeId)
-    {
-        return Ok(await _service.GetPlacementsAsync(projectId, categoryId, ticketTypeId));
-    }
-
-    [HttpPost("placements")]
-    [ProducesResponseType(typeof(FormFieldPlacementDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreatePlacement([FromBody] CreateFormFieldPlacementDto dto)
-    {
-        try { var result = await _service.CreatePlacementAsync(dto); return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpPut("placements/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdatePlacement(int id, [FromBody] UpdateFormFieldPlacementDto dto)
-    {
-        try { await _service.UpdatePlacementAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpDelete("placements/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeletePlacement(int id)
-    {
-        await _service.DeletePlacementAsync(id); return NoContent();
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+        
+        rule.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }
