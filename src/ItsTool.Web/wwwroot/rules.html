@@ -26,7 +26,7 @@
     </div>
     
     <div class="container">
-        <button type="button" class="btn" onclick="openCreateModal()">Create New Rule</button>
+        <button type="button" class="btn" id="btnCreateRule">Create New Rule</button>
         <table id="rulesTable">
             <thead>
                 <tr>
@@ -46,7 +46,7 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
         async function loadRules() {
@@ -73,32 +73,41 @@
                     tbody.appendChild(tr);
                 });
             } catch (err) {
+                console.error(err);
                 alert('Error loading rules');
             }
         }
 
-        async function deleteRule(id) {
+        window.deleteRule = async function(id) {
             if (confirm('Delete this rule?')) {
-                await window.api.deleteAssignmentRule(id);
-                loadRules();
+                try {
+                    await window.api.deleteAssignmentRule(id);
+                    await loadRules();
+                } catch (e) {
+                    console.error(e);
+                }
             }
-        }
+        };
 
-        async function openCreateModal() {
+        document.getElementById('btnCreateRule').addEventListener('click', async () => {
             const name = prompt('Rule Name:');
             if (!name) return;
             const sort = prompt('Sort Order:', "10");
             
-            await window.api.createAssignmentRule({
-                name: name,
-                sortOrder: Number.parseInt(sort) || 10,
-                isActive: true
-                // In a real modal we would prompt for ProjectId, CategoryId, etc.
-            });
-            loadRules();
-        }
+            try {
+                await window.api.createAssignmentRule({
+                    name: name,
+                    sortOrder: Number.parseInt(sort) || 10,
+                    isActive: true
+                    // In a real modal we would prompt for ProjectId, CategoryId, etc.
+                });
+                await loadRules();
+            } catch(e) {
+                console.error(e);
+            }
+        });
 
-        loadRules();
+        await loadRules();
     </script>
 </body>
 </html>

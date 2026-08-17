@@ -11,7 +11,7 @@
         .rating { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-direction: row-reverse; }
         
         .rating input { display: none; }
-        .rating label { font-size: 2rem; color: #ccc; cursor: pointer; transition: color 0.2s; }
+        .rating label { font-size: 2rem; color: #595959; cursor: pointer; transition: color 0.2s; }
         .rating input:checked ~ label { color: #ffc107; }
         .rating label:hover, .rating label:hover ~ label { color: #ffc107; }
 
@@ -44,19 +44,19 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
         const urlParams = new URLSearchParams(window.location.search);
         const ticketId = urlParams.get('id');
 
         if (!ticketId) {
-            document.querySelector('.container').innerHTML = '<p>No ticket specified.</p>';
+            document.querySelector('.container').innerHTML = '<h3>Invalid Link</h3><p>No ticket ID provided.</p>';
         } else {
-            document.getElementById('ticketInfo').textContent = `Ticket ID: ${ticketId}`;
+            document.getElementById('ticketIdDisplay').textContent = ticketId;
         }
 
-        document.getElementById('surveyForm').onsubmit = async (e) => {
+        document.getElementById('surveyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const ratingInput = document.querySelector('input[name="rating"]:checked');
@@ -75,9 +75,10 @@
                 });
                 document.querySelector('.container').innerHTML = '<h3>Thank you!</h3><p>Your feedback has been recorded.</p><a href="/tickets.html">Back to Tickets</a>';
             } catch (err) {
+                console.error(err);
                 alert('Error: ' + err.message);
             }
-        };
+        });
     </script>
 </body>
 </html>

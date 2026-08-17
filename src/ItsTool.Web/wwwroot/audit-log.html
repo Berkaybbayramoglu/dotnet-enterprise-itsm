@@ -25,7 +25,7 @@
         <div class="nav">
             <a href="/dashboard.html">Dashboard</a>
             <a href="/tickets.html">Tickets</a>
-            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+            <button type="button" class="nav-btn" id="btnLogout">Logout</button>
         </div>
     </div>
     
@@ -36,7 +36,7 @@
             <input type="text" id="filterAction" placeholder="Action (e.g. Created)" aria-label="Action">
             <input type="date" id="filterFrom" aria-label="From Date">
             <input type="date" id="filterTo" aria-label="To Date">
-            <button type="button" onclick="loadAuditLogs()">Search</button>
+            <button type="button" id="btnSearchAudit">Search</button>
         </div>
         
         <table>
@@ -58,7 +58,7 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
         async function loadAuditLogs() {
@@ -104,7 +104,16 @@
                 .replaceAll("'", "&#039;");
         }
 
-        loadAuditLogs();
+        document.getElementById('btnSearchAudit').addEventListener('click', async () => {
+            await loadAuditLogs();
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            window.api.clearToken(); 
+            window.location.reload();
+        });
+
+        await loadAuditLogs();
     </script>
 </body>
 </html>

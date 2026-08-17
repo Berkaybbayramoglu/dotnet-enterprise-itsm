@@ -17,7 +17,7 @@
         .article-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
         .article-card:hover { transform: translateY(-2px); }
         .article-card h3 { margin: 0 0 0.5rem 0; color: #007bff; }
-        .meta { font-size: 0.85rem; color: #666; display: flex; gap: 1rem; }
+        .meta { font-size: 0.85rem; color: #595959; display: flex; gap: 1rem; }
         .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
         .badge-internal { background: #dc3545; color: white; }
         .badge-draft { background: #ffc107; color: #333; }
@@ -36,14 +36,14 @@
         <div class="nav">
             <a href="/dashboard.html">Dashboard</a>
             <a href="/tickets.html">Tickets</a>
-            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+            <button type="button" class="nav-btn" id="btnLogout">Logout</button>
         </div>
     </div>
     
     <div class="container">
         <div class="search-bar">
             <input type="text" id="searchInput" aria-label="Search knowledge base" placeholder="Search knowledge base...">
-            <button type="button" onclick="searchKb()">Search</button>
+            <button type="button" class="btn" id="btnSearchKb">Search</button>
         </div>
         
         <div class="articles" id="articleList">
@@ -54,18 +54,17 @@
     <!-- Article Modal -->
     <div id="articleModal" class="modal">
         <div class="modal-content">
-            <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
+            <button type="button" id="btnCloseModal" class="close" aria-label="Close">&times;</button>
             <h2 id="modalTitle">Loading...</h2>
             <div id="modalBody" class="article-body"></div>
         </div>
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
-        async function searchKb() {
-            const keyword = document.getElementById('searchInput').value;
+        async function loadKb(keyword = '') {
             try {
                 const articles = await window.api.getKbArticles(keyword);
                 const list = document.getElementById('articleList');
@@ -75,7 +74,7 @@
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = 'article-card';
-                    btn.onclick = () => openArticle(a.id);
+                    btn.addEventListener('click', () => window.openArticle(a.id));
                     btn.style.width = '100%';
                     btn.style.textAlign = 'left';
                     btn.style.border = 'none';
@@ -96,7 +95,7 @@
             } catch(e) { console.error(e); }
         }
 
-        async function openArticle(id) {
+        window.openArticle = async function(id) {
             try {
                 // Fetch full article content from API
                 const res = await window.api.request(`/kb/articles/${id}`);
@@ -105,23 +104,16 @@
                 document.getElementById('modalBody').textContent = res.content;
                 document.getElementById('articleModal').style.display = 'block';
             } catch(e) {
+                console.error(e);
                 alert('Error loading article');
             }
-        }
+        };
 
-        function closeModal() {
+        window.closeModal = function() {
             document.getElementById('articleModal').style.display = 'none';
             document.getElementById('modalTitle').textContent = 'Loading...';
             document.getElementById('modalBody').textContent = '';
-        }
-
-        // Close modal if clicked outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('articleModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
+        };
 
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
@@ -132,7 +124,19 @@
                 .replaceAll("'", "&#039;");
         }
 
-        searchKb();
+        document.getElementById('btnSearchKb').addEventListener('click', async () => {
+            const kw = document.getElementById('searchInput').value;
+            await loadKb(kw);
+        });
+        
+        document.getElementById('btnCloseModal').addEventListener('click', window.closeModal);
+        
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            window.api.clearToken(); 
+            window.location.reload();
+        });
+
+        await loadKb();
     </script>
 </body>
 </html>

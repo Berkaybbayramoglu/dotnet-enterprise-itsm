@@ -93,7 +93,10 @@
                 a.href = url;
                 a.download = 'tickets.csv';
                 a.click();
-            } catch(e) { alert('Export failed'); }
+            } catch(e) { 
+                console.error(e);
+                alert('Export failed'); 
+            }
         }
 
         function escapeHtml(unsafe) {
@@ -128,7 +131,10 @@
             try {
                 await window.api.createSavedFilter({ name, queryJson });
                 loadFiltersDropdown();
-            } catch(e) { alert("Failed to save filter."); }
+            } catch(e) { 
+                console.error(e);
+                alert("Failed to save filter."); 
+            }
         }
 
         function loadFilter() {

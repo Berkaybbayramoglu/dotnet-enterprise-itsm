@@ -37,15 +37,15 @@
             </div>
             <div class="form-group">
                 <label for="projectId">Project *</label>
-                <select id="projectId" required onchange="loadDynamicFields()"><option value="">Select Project</option></select>
+                <select id="projectId" required><option value="">Select Project</option></select>
             </div>
             <div class="form-group">
                 <label for="categoryId">Category *</label>
-                <select id="categoryId" required onchange="loadDynamicFields()"><option value="">Select Category</option></select>
+                <select id="categoryId" required><option value="">Select Category</option></select>
             </div>
             <div class="form-group">
                 <label for="typeId">Ticket Type *</label>
-                <select id="typeId" required onchange="loadDynamicFields()"><option value="">Select Type</option></select>
+                <select id="typeId" required><option value="">Select Type</option></select>
             </div>
             <div class="form-group">
                 <label for="priorityId">Priority *</label>
@@ -62,15 +62,13 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
         
         let currentPlacements = [];
 
         async function loadLookups() {
             try {
-                // In a real scenario we would fetch projects, categories, types, priorities from catalog endpoint
-                // For simplicity assuming there is a generic catalog GET
                 const cats = await window.api.request('/catalog/categories');
                 const projs = await window.api.request('/projects');
                 const types = await window.api.request('/catalog/types');
@@ -95,7 +93,53 @@
             }
         }
 
-        async function loadDynamicFields() {
+        async function renderSelectField(def, place) {
+            const input = document.createElement('select');
+            if (def.fieldType === 4) input.multiple = true;
+            
+            const opts = await window.api.getFieldOptions(def.id);
+            opts.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o.value;
+                opt.textContent = o.label;
+                input.appendChild(opt);
+            });
+            return input;
+        }
+
+        function renderInputField(def) {
+            const input = document.createElement('input');
+            if (def.fieldType === 0) input.type = 'text';
+            else if (def.fieldType === 1) input.type = 'number';
+            else if (def.fieldType === 2) input.type = 'date';
+            return input;
+        }
+
+        async function renderDynamicField(place, container) {
+            const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
+            const fg = document.createElement('div');
+            fg.className = 'form-group';
+            
+            const lbl = document.createElement('label');
+            lbl.textContent = def.label + (place.isRequired ? ' *' : '');
+            lbl.setAttribute('for', 'cf_' + def.key);
+            fg.appendChild(lbl);
+
+            let input;
+            if (def.fieldType === 3 || def.fieldType === 4) {
+                input = await renderSelectField(def, place);
+            } else {
+                input = renderInputField(def);
+            }
+
+            input.id = 'cf_' + def.key;
+            if (place.isRequired) input.required = true;
+            
+            fg.appendChild(input);
+            container.appendChild(fg);
+        }
+
+        window.loadDynamicFields = async function() {
             const pId = document.getElementById('projectId').value;
             const cId = document.getElementById('categoryId').value;
             const tId = document.getElementById('typeId').value;
@@ -117,59 +161,18 @@
                 currentPlacements.sort((a,b) => a.sortOrder - b.sortOrder);
                 
                 for (const place of currentPlacements) {
-                    const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
-                    
-                    const fg = document.createElement('div');
-                    fg.className = 'form-group';
-                    
-                    const lbl = document.createElement('label');
-                    // Avoid XSS by textContent
-                    lbl.textContent = def.label + (place.isRequired ? ' *' : '');
-                    fg.appendChild(lbl);
-
-                    let input;
-                    if (def.fieldType === 0) { // Text
-                        input = document.createElement('input');
-                        input.type = 'text';
-                    } else if (def.fieldType === 1) { // Number
-                        input = document.createElement('input');
-                        input.type = 'number';
-                    } else if (def.fieldType === 2) { // Date
-                        input = document.createElement('input');
-                        input.type = 'date';
-                    } else if (def.fieldType === 3 || def.fieldType === 4) { // Dropdown / MultiSelect
-                        input = document.createElement('select');
-                        if (def.fieldType === 4) input.multiple = true;
-                        
-                        const opts = await window.api.getFieldOptions(def.id);
-                        opts.forEach(o => {
-                            const opt = document.createElement('option');
-                            opt.value = o.value;
-                            opt.textContent = o.label;
-                            input.appendChild(opt);
-                        });
-                    }
-
-                    input.id = 'cf_' + def.key;
-                    if (place.isRequired) input.required = true;
-                    
-                    fg.appendChild(input);
-                    container.appendChild(fg);
+                    await renderDynamicField(place, container);
                 }
             } catch (err) {
                 console.error(err);
                 container.innerHTML = '<span style="color:red">Failed to load fields.</span>';
             }
-        }
+        };
 
-        document.getElementById('createForm').onsubmit = async (e) => {
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const customFields = {};
-            for (const place of currentPlacements) {
-                // To safely get key, we need definition key... (ignoring lookup for brevity, assuming prefix works)
-                // We'll just select inputs starting with cf_
-            }
             
             const inputs = document.querySelectorAll('#dynamicFields [id^="cf_"]');
             inputs.forEach(inp => {
@@ -189,14 +192,11 @@
                 categoryId: Number.parseInt(document.getElementById('categoryId').value),
                 typeId: Number.parseInt(document.getElementById('typeId').value),
                 priorityId: Number.parseInt(document.getElementById('priorityId').value),
-                // Since this user is creating, requester is themselves (auth token handles this or we pass it)
                 requesterUserId: 1, // simplified for demo
                 customFields: customFields
             };
 
             try {
-                // Actually need current user's ID, fetch from /auth/me or hardcode for demo? 
-                // A complete implementation would get it from JWT or API.
                 await window.api.request('/ticket', {
                     method: 'POST',
                     body: JSON.stringify(payload)
@@ -204,11 +204,16 @@
                 alert('Ticket Created!');
                 window.location.href = '/tickets.html';
             } catch (err) {
+                console.error(err);
                 alert('Error: ' + err.message);
             }
-        };
+        });
 
-        loadLookups();
+        document.getElementById('projectId').addEventListener('change', window.loadDynamicFields);
+        document.getElementById('categoryId').addEventListener('change', window.loadDynamicFields);
+        document.getElementById('typeId').addEventListener('change', window.loadDynamicFields);
+
+        await loadLookups();
     </script>
 </body>
 </html>

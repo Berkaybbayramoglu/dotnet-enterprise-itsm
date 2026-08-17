@@ -118,7 +118,7 @@ public class ReportService : IReportService
         return ms;
     }
 
-    private string EscapeCsv(string? field)
+    private static string EscapeCsv(string? field)
     {
         if (string.IsNullOrEmpty(field)) return "";
         return field.Replace("\"", "\"\"");

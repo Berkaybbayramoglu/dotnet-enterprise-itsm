@@ -13,10 +13,10 @@
         h3 { margin-top: 0; }
         .property-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .property-grid div { margin-bottom: 0.5rem; }
-        .property-grid label { font-weight: bold; color: #666; display: block; font-size: 0.9rem; }
+        .property-grid label { font-weight: bold; color: #595959; display: block; font-size: 0.9rem; }
         .comment { border-bottom: 1px solid #eee; padding: 1rem 0; }
         .comment:last-child { border-bottom: none; }
-        .comment-meta { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; }
+        .comment-meta { font-size: 0.8rem; color: #595959; margin-bottom: 0.5rem; }
         .btn { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
         textarea, select { width: 100%; padding: 0.5rem; box-sizing: border-box; margin-bottom: 1rem; }
         .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; color: white; }
@@ -73,7 +73,7 @@
                     <option value="4">Çözüldü</option>
                     <option value="5">Kapatıldı</option>
                 </select>
-                <button type="button" class="btn" onclick="changeStatus()" style="width:100%">Update Status</button>
+                <button type="button" class="btn" id="btnChangeStatus" style="width:100%">Update Status</button>
                 
                 <div id="csatLink" style="display:none; margin-top: 1rem; text-align: center;">
                     <a href="#" id="surveyBtn" class="btn" style="background: #28a745; text-decoration: none; display: block;">Fill CSAT Survey</a>
@@ -83,7 +83,7 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -112,8 +112,11 @@
 
                 document.getElementById('content').style.display = 'grid';
 
-                loadComments();
-            } catch(e) { alert('Error loading ticket'); }
+                await loadComments();
+            } catch(e) { 
+                console.error(e);
+                alert('Error loading ticket'); 
+            }
         }
 
         async function loadComments() {
@@ -133,7 +136,7 @@
             } catch(e) { console.error(e); }
         }
 
-        document.getElementById('commentForm').onsubmit = async (e) => {
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const content = document.getElementById('commentText').value;
             try {
@@ -142,11 +145,14 @@
                     body: JSON.stringify({ content: content, isInternal: false })
                 });
                 document.getElementById('commentText').value = '';
-                loadComments();
-            } catch(e) { alert('Error adding comment'); }
-        };
+                await loadComments();
+            } catch(e) { 
+                console.error(e);
+                alert('Error adding comment'); 
+            }
+        });
 
-        async function changeStatus() {
+        document.getElementById('btnChangeStatus').addEventListener('click', async () => {
             const newStatus = Number.parseInt(document.getElementById('statusSelect').value);
             try {
                 await window.api.request(`/Ticket/${ticketId}/status`, {
@@ -154,9 +160,12 @@
                     body: JSON.stringify(newStatus)
                 });
                 alert('Status updated');
-                loadTicket();
-            } catch(e) { alert('Failed: ' + e.message); }
-        }
+                await loadTicket();
+            } catch(e) { 
+                console.error(e);
+                alert('Failed: ' + e.message); 
+            }
+        });
 
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
@@ -167,7 +176,7 @@
                 .replaceAll("'", "&#039;");
         }
 
-        loadTicket();
+        await loadTicket();
     </script>
 </body>
 </html>
