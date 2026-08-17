@@ -15,7 +15,7 @@
         .card { background: white; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: grab; display: flex; flex-direction: column; gap: 0.5rem; border-left: 4px solid #ccc; }
         .card:active { cursor: grabbing; }
         .card-title { font-weight: bold; }
-        .card-number { font-size: 0.8rem; color: #666; }
+        .card-number { font-size: 0.8rem; color: #595959; }
         .card-assignee { font-size: 0.8rem; text-align: right; color: #007bff; }
         
         .priority-100 { border-left-color: #dc3545; } /* Critical */
@@ -30,7 +30,7 @@
         <div class="nav">
             <a href="/dashboard.html">Dashboard</a>
             <a href="/tickets.html">List View</a>
-            <button type="button" class="nav-btn" onclick="window.api.clearToken(); window.location.reload();">Logout</button>
+            <button type="button" class="nav-btn" id="btnLogout">Logout</button>
         </div>
     </div>
     
@@ -39,7 +39,7 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
         let statuses = [];
@@ -87,7 +87,7 @@
                     card.className = `card priority-${getPriorityWeight(t.priorityId)}`;
                     card.draggable = true;
                     card.id = `ticket-${t.id}`;
-                    card.ondragstart = drag;
+                    card.ondragstart = window.drag;
                     
                     card.innerHTML = `
                         <div class="card-number"><a href="/ticket-detail.html?id=${t.id}" target="_blank">${escapeHtml(t.ticketNumber)}</a></div>
@@ -108,15 +108,15 @@
             return 50;
         }
 
-        function allowDrop(ev) {
+        window.allowDrop = function(ev) {
             ev.preventDefault();
-        }
+        };
 
-        function drag(ev) {
+        window.drag = function(ev) {
             ev.dataTransfer.setData("text", ev.target.id);
-        }
+        };
 
-        async function drop(ev) {
+        window.drop = async function(ev) {
             ev.preventDefault();
             const data = ev.dataTransfer.getData("text");
             const card = document.getElementById(data);
@@ -128,7 +128,7 @@
             }
 
             if (target && card) {
-                const newStatusId = Number.parseInt(target.getAttribute('data-status-id'));
+                const newStatusId = Number.parseInt(target.dataset.statusId);
                 const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
 
                 try {
@@ -145,10 +145,11 @@
                         alert("Ticket closed. Sending CSAT survey notification...");
                     }
                 } catch(e) {
+                    console.error(e);
                     alert('Status change failed: ' + e.message);
                 }
             }
-        }
+        };
 
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
@@ -159,7 +160,12 @@
                 .replaceAll("'", "&#039;");
         }
 
-        initKanban();
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            window.api.clearToken(); 
+            window.location.reload();
+        });
+
+        await initKanban();
     </script>
 </body>
 </html>

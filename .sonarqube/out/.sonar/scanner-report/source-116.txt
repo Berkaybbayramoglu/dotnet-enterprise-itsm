@@ -410,58 +410,10 @@ public class TicketService : ITicketService
             .Include(t => t.TicketSla)
             .Where(t => !t.IsDeleted);
 
-        // Security Scope filtering
-        if (!perms.Contains("report.view"))
-        {
-            var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
-            if (isAgent)
-            {
-                var userGroupIds = await _context.GroupMembers
-                    .Where(gm => gm.UserId == userId && !gm.IsDeleted)
-                    .Select(gm => gm.GroupId)
-                    .ToListAsync();
+        query = await ApplySecurityScope(query, perms, userId);
+        query = ApplyBasicFilters(query, filter);
+        query = ApplyKeywordAndSlaFilters(query, filter);
 
-                query = query.Where(t => t.AssignedUserId == userId || 
-                                        (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
-                                        t.RequesterUserId == userId);
-            }
-            else
-            {
-                query = query.Where(t => t.RequesterUserId == userId);
-            }
-        }
-
-        if (filter.ProjectId.HasValue) query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
-        if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
-        if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
-        if (filter.StatusId.HasValue) query = query.Where(t => t.StatusId == filter.StatusId.Value);
-        if (filter.PriorityId.HasValue) query = query.Where(t => t.PriorityId == filter.PriorityId.Value);
-        if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.AssignedUserId == filter.AssigneeUserId.Value);
-        if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
-        if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
-        if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
-        
-        if (!string.IsNullOrWhiteSpace(filter.Keyword))
-        {
-            var kw = filter.Keyword.ToLower();
-            query = query.Where(t => 
-                t.TicketNumber.ToLower().Contains(kw) || 
-                t.Title.ToLower().Contains(kw) || 
-                t.Description.ToLower().Contains(kw));
-        }
-
-        if (!string.IsNullOrWhiteSpace(filter.SlaStatus))
-        {
-            var s = filter.SlaStatus.ToLower();
-            if (s == "breached")
-                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
-            else if (s == "warning")
-                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
-            else if (s == "ontrack")
-                query = query.Where(t => t.TicketSla != null && !t.TicketSla.FirstResponseWarned && !t.TicketSla.ResolutionWarned && !t.TicketSla.FirstResponseBreached && !t.TicketSla.ResolutionBreached);
-        }
-
-        // Sorting
         query = filter.SortDescending 
             ? query.OrderByDescending(e => EF.Property<object>(e, filter.SortBy ?? "CreatedAt"))
             : query.OrderBy(e => EF.Property<object>(e, filter.SortBy ?? "CreatedAt"));
@@ -481,6 +433,65 @@ public class TicketService : ITicketService
             Page = filter.Page,
             PageSize = filter.PageSize
         };
+    }
+
+    private async Task<IQueryable<Ticket>> ApplySecurityScope(IQueryable<Ticket> query, HashSet<string> perms, int userId)
+    {
+        if (!perms.Contains("report.view"))
+        {
+            var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
+            if (isAgent)
+            {
+                var userGroupIds = await _context.GroupMembers
+                    .Where(gm => gm.UserId == userId && !gm.IsDeleted)
+                    .Select(gm => gm.GroupId)
+                    .ToListAsync();
+
+                return query.Where(t => t.AssignedUserId == userId || 
+                                        (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
+                                        t.RequesterUserId == userId);
+            }
+            return query.Where(t => t.RequesterUserId == userId);
+        }
+        return query;
+    }
+
+    private IQueryable<Ticket> ApplyBasicFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
+    {
+        if (filter.ProjectId.HasValue) query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
+        if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
+        if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
+        if (filter.StatusId.HasValue) query = query.Where(t => t.StatusId == filter.StatusId.Value);
+        if (filter.PriorityId.HasValue) query = query.Where(t => t.PriorityId == filter.PriorityId.Value);
+        if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.AssignedUserId == filter.AssigneeUserId.Value);
+        if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
+        if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
+        if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
+        return query;
+    }
+
+    private IQueryable<Ticket> ApplyKeywordAndSlaFilters(IQueryable<Ticket> query, TicketSearchFilterDto filter)
+    {
+        if (!string.IsNullOrWhiteSpace(filter.Keyword))
+        {
+            var kw = filter.Keyword;
+            query = query.Where(t => 
+                t.TicketNumber.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
+                t.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
+                t.Description.Contains(kw, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.SlaStatus))
+        {
+            var s = filter.SlaStatus.ToLower();
+            if (s == "breached")
+                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
+            else if (s == "warning")
+                query = query.Where(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached));
+            else if (s == "ontrack")
+                query = query.Where(t => t.TicketSla != null && !t.TicketSla.FirstResponseWarned && !t.TicketSla.ResolutionWarned && !t.TicketSla.FirstResponseBreached && !t.TicketSla.ResolutionBreached);
+        }
+        return query;
     }
 
     public async Task<TicketSurveyDto> SubmitSurveyAsync(int ticketId, SubmitTicketSurveyDto dto, int userId)

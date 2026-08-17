@@ -27,7 +27,7 @@
     
     <div class="container">
         <h3>Field Definitions</h3>
-        <button type="button" class="btn" onclick="openCreateFieldModal()">Create New Field</button>
+        <button type="button" class="btn" id="btnCreateField">Create New Field</button>
         <table id="fieldsTable">
             <thead>
                 <tr>
@@ -43,7 +43,7 @@
     </div>
 
     <script src="js/api.js"></script>
-    <script>
+    <script type="module">
         if (!window.api.token) window.location.href = '/login.html';
 
         async function loadFields() {
@@ -68,36 +68,45 @@
                     tbody.appendChild(tr);
                 });
             } catch (err) {
+                console.error(err);
                 alert('Error loading fields');
             }
         }
 
-        async function deleteField(id) {
+        window.deleteField = async function(id) {
             if (confirm('Delete this field?')) {
-                await window.api.request(`/DynamicForm/definitions/${id}`, { method: 'DELETE' });
-                loadFields();
+                try {
+                    await window.api.request(`/DynamicForm/definitions/${id}`, { method: 'DELETE' });
+                    await loadFields();
+                } catch (e) {
+                    console.error(e);
+                }
             }
-        }
+        };
 
-        async function openCreateFieldModal() {
+        document.getElementById('btnCreateField').addEventListener('click', async () => {
             const key = prompt('Field Key (e.g. server_name):');
             if (!key) return;
             const label = prompt('Field Label:');
             const typeStr = prompt('Type (0=Text, 1=Number, 2=Date, 3=Dropdown, 4=MultiSelect):', "0");
             
-            await window.api.request('/DynamicForm/definitions', {
-                method: 'POST',
-                body: JSON.stringify({
-                    key: key,
-                    label: label,
-                    fieldType: Number.parseInt(typeStr) || 0,
-                    validationRegex: null
-                })
-            });
-            loadFields();
-        }
+            try {
+                await window.api.request('/DynamicForm/definitions', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        key: key,
+                        label: label,
+                        fieldType: Number.parseInt(typeStr) || 0,
+                        validationRegex: null
+                    })
+                });
+                await loadFields();
+            } catch (e) {
+                console.error(e);
+            }
+        });
 
-        loadFields();
+        await loadFields();
     </script>
 </body>
 </html>

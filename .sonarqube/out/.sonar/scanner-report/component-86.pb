@@ -1,1 +1,1 @@
-V 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js
+V 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js

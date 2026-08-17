@@ -34,7 +34,7 @@ public class WebhookDispatcher : IWebhookDispatcher
 
         var activeSubs = subscriptions.Where(w => w.EventsCsv.Split(',').Select(e => e.Trim()).Contains(eventKey)).ToList();
 
-        if (!activeSubs.Any()) return;
+        if (activeSubs.Count == 0) return;
 
         var jsonPayload = JsonSerializer.Serialize(new
         {

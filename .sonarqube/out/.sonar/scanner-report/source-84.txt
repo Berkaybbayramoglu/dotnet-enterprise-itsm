@@ -18,7 +18,7 @@ class ApiClient {
     async request(endpoint, options = {}) {
         const headers = {
             'Content-Type': 'application/json',
-            ...(options.headers || {})
+            ...options.headers
         };
 
         if (this.token) {

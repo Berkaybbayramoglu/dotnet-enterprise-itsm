@@ -1,1 +1,1 @@
-O 2webXahr&src/ItsTool.Web/wwwroot/dashboard.html
+O 2webXfhr&src/ItsTool.Web/wwwroot/dashboard.html
