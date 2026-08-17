@@ -13,7 +13,7 @@
         .overview-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
         .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
         .card h3 { margin: 0; color: #4d4d4d; font-size: 1rem; }
-        .card .value { font-size: 2.5rem; font-weight: bold; color: #0056b3; margin-top: 0.5rem; }
+        .card .value { font-size: 2.5rem; font-weight: bold; color: #004085; margin-top: 0.5rem; }
         .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
         .chart-container { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
@@ -59,7 +59,7 @@
                     <div class="card"><h3>SLA Breached</h3><div class="value" style="color: #bd2130;">${overview.slaBreachedTickets ?? 0}</div></div>
                     <div class="card"><h3>SLA Risk</h3><div class="value" style="color: #d39e00;">${overview.slaRiskTickets ?? 0}</div></div>
                     <div class="card"><h3>Unassigned</h3><div class="value">${overview.unassignedTickets ?? 0}</div></div>
-                    <div class="card"><h3>Avg CSAT</h3><div class="value" style="color: #1e7e34;">${overview.avgCsatScore ?? 0}</div></div>
+                    <div class="card"><h3>Avg CSAT</h3><div class="value" style="color: #155724;">${overview.avgCsatScore ?? 0}</div></div>
                 `;
                 document.getElementById('overviewCards').innerHTML = cardsHtml;
 
@@ -68,7 +68,7 @@
                     type: 'doughnut',
                     data: {
                         labels: dist.byStatus.map(d => d.key),
-                        datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0056b3','#1e7e34','#d39e00','#bd2130','#6c757d'] }]
+                        datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#004085','#155724','#d39e00','#bd2130','#6c757d'] }]
                     },
                     options: { plugins: { title: { display: true, text: 'Tickets by Status' } } }
                 });
@@ -78,7 +78,7 @@
                     type: 'bar',
                     data: {
                         labels: dist.byPriority.map(d => d.key),
-                        datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0056b3' }]
+                        datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#004085' }]
                     },
                     options: { plugins: { title: { display: true, text: 'Tickets by Priority' } } }
                 });
