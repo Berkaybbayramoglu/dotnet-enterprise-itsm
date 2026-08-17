@@ -1,0 +1,2 @@
+ˆ
+roslynCS8604áPossible null reference argument for parameter 'CreatedBy' in 'AuditLogItemDto.AuditLogItemDto(int Id, int TicketId, string Action, string FieldName, string? OldValue, string? NewValue, string CreatedBy, DateTime CreatedAt)'. 2EE @R

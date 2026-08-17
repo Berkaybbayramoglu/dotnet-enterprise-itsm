@@ -1,0 +1,1 @@
+“ (2xmlX©—hr.tests/ItsTool.UnitTests/coverage.opencover.xml

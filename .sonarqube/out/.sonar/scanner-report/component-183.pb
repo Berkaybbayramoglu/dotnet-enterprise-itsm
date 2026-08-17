@@ -1,0 +1,1 @@
+· 2csX	hr8src/ItsTool.Application/Interfaces/IWebhookDispatcher.cs
