@@ -46,8 +46,8 @@
         </form>
     </div>
 
-    <script src="js/api.js"></script>
     <script type="module">
+        import './js/api.js';
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;

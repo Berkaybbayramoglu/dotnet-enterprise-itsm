@@ -193,9 +193,17 @@
                 }
 
                 document.getElementById('content').style.display = 'grid';
-
-                await loadComments();
-            } catch(e) { 
+        loadComments(); // removed await for resilience
+            } catch(e) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+ 
                 console.error(e);
                 showToast('Error loading ticket', 'error'); 
             }
@@ -222,7 +230,16 @@
                     `;
                     list.appendChild(div);
                 });
-            } catch(e) { console.error(e); }
+            } catch(e) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+ console.error(e); }
         }
 
         document.getElementById('commentForm').addEventListener('submit', async (e) => {
@@ -237,7 +254,7 @@
                 document.getElementById('commentText').value = '';
                 document.getElementById('isInternalComment').checked = false;
                 showToast('Comment added');
-                await loadComments();
+        loadComments(); // removed await for resilience
             } catch(e) { 
                 console.error(e);
                 showToast('Error adding comment', 'error'); 
@@ -252,7 +269,7 @@
                     body: JSON.stringify(newStatus)
                 });
                 showToast('Status updated');
-                await loadTicket();
+        loadTicket(); // removed await for resilience
             } catch(e) { 
                 console.error(e);
                 showToast('Failed to update status', 'error'); 
@@ -267,8 +284,7 @@
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
-
-        await loadTicket();
+        loadTicket(); // removed await for resilience
     </script>
 </body>
 </html>

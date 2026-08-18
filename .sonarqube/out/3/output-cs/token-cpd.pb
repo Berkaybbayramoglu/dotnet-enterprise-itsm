@@ -1991,7 +1991,7 @@ repository  
 )ii( )
 ;ii) *
 }jj 
-}kk …з
+}kk те
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs
 	namespace 	
 ItsTool
@@ -8510,33 +8510,25 @@ IQueryable
 TicketNumber
 ЯЯ 
 .
-ЯЯ 
-ToLower
-ЯЯ &
-(
-ЯЯ& '
-)
-ЯЯ' (
-.
-ЯЯ( )
+ЯЯ 
 Contains
-ЯЯ) 1
+ЯЯ '
 (
-ЯЯ1 2
+ЯЯ' (
 kw
-ЯЯ2 4
+ЯЯ( *
+,
+ЯЯ* +
+StringComparison
+ЯЯ, <
 .
-ЯЯ4 5
-ToLower
-ЯЯ5 <
-(
-ЯЯ< =
+ЯЯ< =
+OrdinalIgnoreCase
+ЯЯ= N
 )
-ЯЯ= >
-)
-ЯЯ> ?
+ЯЯN O
 ||
-ЯЯ@ B
+ЯЯP R
 t
 аа 
 .
@@ -8544,33 +8536,25 @@ IQueryable
 Title
 аа 
 .
-аа 
-ToLower
-аа 
-(
-аа  
-)
-аа  !
-.
-аа! "
+аа 
 Contains
-аа" *
+аа  
 (
-аа* +
+аа  !
 kw
-аа+ -
+аа! #
+,
+аа# $
+StringComparison
+аа% 5
 .
-аа- .
-ToLower
-аа. 5
-(
-аа5 6
+аа5 6
+OrdinalIgnoreCase
+аа6 G
 )
-аа6 7
-)
-аа7 8
+ааG H
 ||
-аа9 ;
+ааI K
 t
 бб 
 .
@@ -8578,35 +8562,27 @@ IQueryable
 Description
 бб 
 .
-бб 
-ToLower
-бб %
-(
-бб% &
-)
-бб& '
-.
-бб' (
+бб 
 Contains
-бб( 0
+бб &
 (
-бб0 1
+бб& '
 kw
-бб1 3
+бб' )
+,
+бб) *
+StringComparison
+бб+ ;
 .
-бб3 4
-ToLower
-бб4 ;
-(
-бб; <
+бб; <
+OrdinalIgnoreCase
+бб< M
 )
-бб< =
+ббM N
 )
-бб= >
-)
-бб> ?
+ббN O
 ;
-бб? @
+ббO P
 }
 вв 	
 if
@@ -13760,7 +13736,7 @@ repository  
 ;GG- .
 }HH 	
 }II 
-}JJ ­­
+}JJ І¬
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs
 	namespace 	
 ItsTool
@@ -14493,55 +14469,43 @@ IQueryableUU@ J
 t[[ 
 .[[ 
 TicketNumber[[ 
-.[[ 
-ToLower[[ &
-([[& '
-)[[' (
-.[[( )
-Contains[[) 1
-([[1 2
-kw[[2 4
-.[[4 5
-ToLower[[5 <
-([[< =
-)[[= >
-)[[> ?
-||[[@ B
+.[[ 
+Contains[[ '
+([[' (
+kw[[( *
+,[[* +
+StringComparison[[, <
+.[[< =
+OrdinalIgnoreCase[[= N
+)[[N O
+||[[P R
 t\\ 
 .\\ 
 Title\\ 
-.\\ 
-ToLower\\ 
-(\\  
-)\\  !
-.\\! "
-Contains\\" *
-(\\* +
-kw\\+ -
-.\\- .
-ToLower\\. 5
-(\\5 6
-)\\6 7
-)\\7 8
-||\\9 ;
+.\\ 
+Contains\\  
+(\\  !
+kw\\! #
+,\\# $
+StringComparison\\% 5
+.\\5 6
+OrdinalIgnoreCase\\6 G
+)\\G H
+||\\I K
 t]] 
 .]] 
 Description]] 
-.]] 
-ToLower]] %
-(]]% &
-)]]& '
-.]]' (
-Contains]]( 0
-(]]0 1
-kw]]1 3
-.]]3 4
-ToLower]]4 ;
-(]]; <
-)]]< =
-)]]= >
-)]]> ?
-;]]? @
+.]] 
+Contains]] &
+(]]& '
+kw]]' )
+,]]) *
+StringComparison]]+ ;
+.]]; <
+OrdinalIgnoreCase]]< M
+)]]M N
+)]]N O
+;]]O P
 }^^ 	
 if`` 
 
@@ -17342,7 +17306,7 @@ FileStream$$  *
 CompletedTask00 !
 ;00! "
 }11 
-}22 л”
+}22 ¤”
 h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs
 	namespace 	
 ItsTool
@@ -17838,38 +17802,35 @@ categoryIdNN5 ?
 aTT% &
 .TT& '
 TitleTT' ,
-.TT, -
-ToLowerTT- 4
-(TT4 5
-)TT5 6
-.TT6 7
-ContainsTT7 ?
-(TT? @
-kwTT@ B
-.TTB C
-ToLowerTTC J
-(TTJ K
-)TTK L
-)TTL M
-||TTN P
-aTTQ R
-.TTR S
-ContentTTS Z
-.TTZ [
-ToLowerTT[ b
-(TTb c
-)TTc d
-.TTd e
-ContainsTTe m
-(TTm n
-kwTTn p
-.TTp q
-ToLowerTTq x
-(TTx y
-)TTy z
-)TTz {
-)TT{ |
-;TT| }
+.TT, -
+ContainsTT- 5
+(TT5 6
+kwTT6 8
+,TT8 9
+StringComparisonTT: J
+.TTJ K
+OrdinalIgnoreCaseTTK \
+)TT\ ]
+||TT^ `
+aTTa b
+.TTb c
+ContentTTc j
+.TTj k
+ContainsTTk s
+(TTs t
+kwTTt v
+,TTv w
+StringComparison	TTx €
+.
+TT€ ‰
+OrdinalIgnoreCase
+TT‰ љ
+)
+TTљ ›
+)
+TT› њ
+;
+TTњ ќ
 }UU 	
 varWW 
 listWW 
@@ -19077,7 +19038,7 @@ repository  
 ;LL- .
 }MM 	
 }NN 
-}OO ЬS
+}OO дS
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/EmailIngestionService.cs
 	namespace 	
 ItsTool
@@ -19180,20 +19141,19 @@ i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Service
 u!!A B
 .!!B C
 Email!!C H
-.!!H I
-ToLower!!I P
-(!!P Q
-)!!Q R
-==!!S U
-dto!!V Y
-.!!Y Z
-From!!Z ^
-.!!^ _
-ToLower!!_ f
-(!!f g
-)!!g h
-)!!h i
-;!!i j
+.!!H I
+Equals!!I O
+(!!O P
+dto!!P S
+.!!S T
+From!!T X
+,!!X Y
+StringComparison!!Z j
+.!!j k
+OrdinalIgnoreCase!!k |
+)!!| }
+)!!} ~
+;!!~ 
 if"" 
 
 ("" 
@@ -21621,7 +21581,7 @@ Department !
 )55( )
 ;55) *
 }66 
-}77 м¬
+}77 ЭЇ
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs
 	namespace
 
@@ -22515,20 +22475,56 @@ byCategory``N X
 tii  !
 .ii! "
 AssignedUserIdii" 0
-,ii0 1
-tii2 3
-.ii3 4
-AssignedUserii4 @
-.ii@ A
-	FirstNameiiA J
-,iiJ K
-tiiL M
-.iiM N
-AssignedUseriiN Z
-.iiZ [
-LastNameii[ c
-}iid e
-)iie f
+,ii0 1
+	FirstNameii2 ;
+=ii< =
+tii> ?
+.ii? @
+AssignedUserii@ L
+!=iiM O
+nulliiP T
+?iiU V
+tiiW X
+.iiX Y
+AssignedUseriiY e
+.iie f
+	FirstNameiif o
+:iip q
+$striir {
+,ii{ |
+LastName	ii} …
+=
+ii† ‡
+t
+ii€ ‰
+.
+ii‰ Љ
+AssignedUser
+iiЉ –
+!=
+ii— ™
+null
+iiљ ћ
+?
+iiџ  
+t
+iiЎ ў
+.
+iiў Ј
+AssignedUser
+iiЈ Ї
+.
+iiЇ °
+LastName
+ii° ё
+:
+ii№ є
+$str
+ii» Б
+}
+iiВ Г
+)
+iiГ Д
 .jj 
 Selectjj 
 (jj 
@@ -22541,36 +22537,35 @@ byCategory``N X
 .jj/ 0
 Keyjj0 3
 .jj3 4
-AssignedUserIdjj4 B
-!jjB C
-.jjC D
-ValuejjD I
-,jjI J
-$"jjK M
-{jjM N
-gjjN O
-.jjO P
-KeyjjP S
-.jjS T
-	FirstNamejjT ]
-}jj] ^
-$strjj^ _
-{jj_ `
-gjj` a
-.jja b
-Keyjjb e
-.jje f
-LastNamejjf n
-}jjn o
-"jjo p
-,jjp q
-gjjr s
-.jjs t
-Countjjt y
-(jjy z
+AssignedUserIdjj4 B
+??jjC E
+$numjjF G
+,jjG H
+$"jjI K
+{jjK L
+gjjL M
+.jjM N
+KeyjjN Q
+.jjQ R
+	FirstNamejjR [
+}jj[ \
+$strjj\ ]
+{jj] ^
+gjj^ _
+.jj_ `
+Keyjj` c
+.jjc d
+LastNamejjd l
+}jjl m
+"jjm n
+,jjn o
+gjjp q
+.jjq r
+Countjjr w
+(jjw x
+)jjx y
+)jjy z
 )jjz {
-)jj{ |
-)jj| }
 .kk 
 ToListAsynckk 
 (kk 
@@ -24918,7 +24913,7 @@ ToStatusId||t ~
 ¤¤W X
 ;
 ¤¤X Y
-}ҐҐ СG
+}ҐҐ бG
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs
 	namespace 	
 ItsTool
@@ -25020,36 +25015,34 @@ LoginAsync' 1
 u!! 
 .!! 
 Username!! 
-.!! 
-ToLower!! #
-(!!# $
-)!!$ %
-==!!& (
-request!!) 0
-.!!0 1
-Username!!1 9
-.!!9 :
-ToLower!!: A
-(!!A B
-)!!B C
-||!!D F
+.!! 
+Equals!! "
+(!!" #
+request!!# *
+.!!* +
+Username!!+ 3
+,!!3 4
+StringComparison!!5 E
+.!!E F
+OrdinalIgnoreCase!!F W
+)!!W X
+||!!Y [
 u"" 
 ."" 
 Email"" 
-."" 
-ToLower""  
-(""  !
-)""! "
-==""# %
-request""& -
-.""- .
-Username"". 6
-.""6 7
-ToLower""7 >
-(""> ?
-)""? @
-)""@ A
-&&""B D
+."" 
+Equals"" 
+(""  
+request""  '
+.""' (
+Username""( 0
+,""0 1
+StringComparison""2 B
+.""B C
+OrdinalIgnoreCase""C T
+)""T U
+)""U V
+&&""W Y
 u## 
 .## 
 IsActive## 

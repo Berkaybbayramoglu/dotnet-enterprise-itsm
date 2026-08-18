@@ -33,14 +33,57 @@ export function showToast(message, type = 'success') {
     }, 3000);
 }
 
+let lastActiveElement = null;
+
 export function openModal(modalId) {
     const overlay = document.getElementById(modalId);
-    if (overlay) overlay.classList.add('active');
+    if (!overlay) return;
+    
+    lastActiveElement = document.activeElement;
+    overlay.classList.add('active');
+    
+    // Focus first input
+    const firstInput = overlay.querySelector('input, select, textarea, button');
+    if (firstInput) {
+        setTimeout(() => firstInput.focus(), 50);
+    }
+
+    // Backdrop click
+    const clickHandler = (e) => {
+        if (e.target === overlay) closeModal(modalId);
+    };
+    overlay.addEventListener('mousedown', clickHandler);
+    overlay._backdropClickHandler = clickHandler;
+
+    // Esc key
+    const keyHandler = (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+            closeModal(modalId);
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+    overlay._escKeyHandler = keyHandler;
 }
 
 export function closeModal(modalId) {
     const overlay = document.getElementById(modalId);
-    if (overlay) overlay.classList.remove('active');
+    if (!overlay) return;
+    
+    overlay.classList.remove('active');
+    
+    if (overlay._backdropClickHandler) {
+        overlay.removeEventListener('mousedown', overlay._backdropClickHandler);
+        delete overlay._backdropClickHandler;
+    }
+    if (overlay._escKeyHandler) {
+        document.removeEventListener('keydown', overlay._escKeyHandler);
+        delete overlay._escKeyHandler;
+    }
+    
+    if (lastActiveElement) {
+        lastActiveElement.focus();
+        lastActiveElement = null;
+    }
 }
 
 export function bindShellActions() {

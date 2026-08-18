@@ -88,9 +88,9 @@ public class ReportService : IReportService
         {
             var kw = filter.Keyword;
             query = query.Where(t => 
-                t.TicketNumber.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
-                t.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
-                t.Description.Contains(kw, StringComparison.OrdinalIgnoreCase));
+                t.TicketNumber.ToLower().Contains(kw.ToLower()) || 
+                t.Title.ToLower().Contains(kw.ToLower()) || 
+                t.Description.ToLower().Contains(kw.ToLower()));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.SlaStatus))

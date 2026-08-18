@@ -1,1 +1,1 @@
-H 2webXáhrsrc/ItsTool.Web/wwwroot/kb.html
+H 2webX×hrsrc/ItsTool.Web/wwwroot/kb.html

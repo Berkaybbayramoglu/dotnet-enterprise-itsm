@@ -26,17 +26,7 @@
         .meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: var(--spacing-md); margin-top: auto; padding-top: var(--spacing-md); border-top: 1px solid var(--border); width: 100%; }
         .meta-item { display: flex; align-items: center; gap: 4px; }
         
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(9,30,66,0.54); backdrop-filter: blur(4px); }
-        .modal-content { background-color: var(--bg-surface); margin: 5% auto; padding: 0; border-radius: var(--radius-lg); width: 90%; max-width: 800px; position: relative; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; max-height: 85vh; }
-        
-        .modal-header { padding: var(--spacing-lg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { margin: 0; font-size: 20px; color: var(--text-main); }
-        
-        .modal-body { padding: var(--spacing-lg); overflow-y: auto; line-height: 1.6; color: var(--text-main); font-size: 15px; }
-        
-        .close-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        .close-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+
     </style>
 </head>
 <body>
@@ -103,8 +93,8 @@
     </div>
 
     <!-- Article Modal -->
-    <div id="articleModal" class="modal">
-        <div class="modal-content">
+    <div id="articleModal" class="modal-overlay">
+        <div class="modal" style="max-width: 800px;">
             <div class="modal-header">
                 <h2 id="modalTitle">Loading...</h2>
                 <button type="button" id="btnCloseModal" class="close-btn" aria-label="Close">
@@ -164,7 +154,16 @@
                     `;
                     list.appendChild(btn);
                 });
-            } catch(e) { console.error(e); showToast('Search failed', 'error'); }
+            } catch(e) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+ console.error(e); showToast('Search failed', 'error'); }
         }
 
         window.openArticle = async function(id) {
@@ -198,13 +197,13 @@
 
         document.getElementById('btnSearchKb').addEventListener('click', async () => {
             const kw = document.getElementById('searchInput').value;
-            await loadKb(kw);
+        loadKb(kw); // removed await for resilience
         });
         
         // Allow pressing enter to search
         document.getElementById('searchInput').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
-                await loadKb(e.target.value);
+        loadKb(e.target.value); // removed await for resilience
             }
         });
 
@@ -217,8 +216,7 @@
                 window.closeModal();
             }
         }
-
-        await loadKb();
+        loadKb(); // removed await for resilience
     </script>
 </body>
 </html>

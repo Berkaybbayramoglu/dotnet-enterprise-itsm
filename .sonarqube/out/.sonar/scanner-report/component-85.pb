@@ -1,1 +1,1 @@
-U 2jsX>hr src/ItsTool.Web/wwwroot/js/ui.js
+U 2jsXihr src/ItsTool.Web/wwwroot/js/ui.js

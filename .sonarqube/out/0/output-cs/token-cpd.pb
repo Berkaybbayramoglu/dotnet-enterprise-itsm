@@ -549,125 +549,7 @@ BaseEntity '
 }		. /
 }
 
- Æ
-`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketComment.cs
-	namespace 	
-ItsTool
- 
-. 
-Domain 
-. 
-Entities !
-.! "
-Ticket" (
-;( )
-public 
-class 
-TicketComment 
-: 
-
-BaseEntity '
-{ 
-public 
-
-int 
-TicketId 
-{ 
-get 
-; 
-set "
-;" #
-}$ %
-public		 
-
-int		 
-AuthorUserId		 
-{		 
-get		 !
-;		! "
-set		# &
-;		& '
-}		( )
-public
-
- 
-
-string
-
- 
-Content
-
- 
-{
-
- 
-get
-
- 
-;
-
-  
-set
-
-! $
-;
-
-$ %
-}
-
-& '
-=
-
-( )
-string
-
-* 0
-.
-
-0 1
-Empty
-
-1 6
-;
-
-6 7
-public 
-
-bool 
-
-IsInternal 
-{ 
-get  
-;  !
-set" %
-;% &
-}' (
-public 
-
-virtual 
-Ticket 
-? 
-Ticket !
-{" #
-get$ '
-;' (
-set) ,
-;, -
-}. /
-public 
-
-virtual 
-User 
-? 
-
-AuthorUser #
-{$ %
-get& )
-;) *
-set+ .
-;. /
-}0 1
-} ¶
+ ¶
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs
 	namespace 	
 ItsTool
@@ -813,7 +695,125 @@ BaseEntity  *
 set/ 2
 ;2 3
 }4 5
-} “"
+} Æ
+`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketComment.cs
+	namespace 	
+ItsTool
+ 
+. 
+Domain 
+. 
+Entities !
+.! "
+Ticket" (
+;( )
+public 
+class 
+TicketComment 
+: 
+
+BaseEntity '
+{ 
+public 
+
+int 
+TicketId 
+{ 
+get 
+; 
+set "
+;" #
+}$ %
+public		 
+
+int		 
+AuthorUserId		 
+{		 
+get		 !
+;		! "
+set		# &
+;		& '
+}		( )
+public
+
+ 
+
+string
+
+ 
+Content
+
+ 
+{
+
+ 
+get
+
+ 
+;
+
+  
+set
+
+! $
+;
+
+$ %
+}
+
+& '
+=
+
+( )
+string
+
+* 0
+.
+
+0 1
+Empty
+
+1 6
+;
+
+6 7
+public 
+
+bool 
+
+IsInternal 
+{ 
+get  
+;  !
+set" %
+;% &
+}' (
+public 
+
+virtual 
+Ticket 
+? 
+Ticket !
+{" #
+get$ '
+;' (
+set) ,
+;, -
+}. /
+public 
+
+virtual 
+User 
+? 
+
+AuthorUser #
+{$ %
+get& )
+;) *
+set+ .
+;. /
+}0 1
+} “"
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Ticket.cs
 	namespace 	
 ItsTool
@@ -3735,7 +3735,76 @@ Permission )
 set1 4
 ;4 5
 }6 7
-} Ö
+} ß
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs
+	namespace 	
+ItsTool
+ 
+. 
+Domain 
+. 
+Entities !
+.! "
+Auth" &
+;& '
+public 
+class 
+Role 
+: 
+
+BaseEntity 
+{  
+public 
+
+string 
+Name 
+{ 
+get 
+; 
+set !
+;! "
+}# $
+=% &
+string' -
+.- .
+Empty. 3
+;3 4
+} ø
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs
+	namespace 	
+ItsTool
+ 
+. 
+Domain 
+. 
+Common 
+;  
+public 
+	interface 
+ISoftDelete 
+{ 
+bool 
+	IsDeleted	 
+{ 
+get 
+; 
+set 
+; 
+}  
+System 
+
+.
+ 
+DateTime 
+? 
+	DeletedAt 
+{  
+get! $
+;$ %
+set& )
+;) *
+}+ ,
+} Ö
 [/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs
 	namespace 	
 ItsTool
@@ -3910,76 +3979,7 @@ IAuditable 
 set  
 ;  !
 }" #
-} ø
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs
-	namespace 	
-ItsTool
- 
-. 
-Domain 
-. 
-Common 
-;  
-public 
-	interface 
-ISoftDelete 
-{ 
-bool 
-	IsDeleted	 
-{ 
-get 
-; 
-set 
-; 
-}  
-System 
-
-.
- 
-DateTime 
-? 
-	DeletedAt 
-{  
-get! $
-;$ %
-set& )
-;) *
-}+ ,
-} ß
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs
-	namespace 	
-ItsTool
- 
-. 
-Domain 
-. 
-Entities !
-.! "
-Auth" &
-;& '
-public 
-class 
-Role 
-: 
-
-BaseEntity 
-{  
-public 
-
-string 
-Name 
-{ 
-get 
-; 
-set !
-;! "
-}# $
-=% &
-string' -
-.- .
-Empty. 3
-;3 4
-} ò
+} ò
 T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/BaseEntity.cs
 	namespace 	
 ItsTool

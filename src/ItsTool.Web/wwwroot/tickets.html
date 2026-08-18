@@ -193,7 +193,16 @@
                     opt.textContent = f.name;
                     sel.appendChild(opt);
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+ console.error(e); }
         }
 
         async function saveFilter() {
@@ -228,9 +237,8 @@
         document.getElementById('btnSaveFilter').addEventListener('click', saveFilter);
         document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
         document.getElementById('savedFilters').addEventListener('change', loadFilter);
-
-        await loadFiltersDropdown();
-        await search();
+        loadFiltersDropdown(); // removed await for resilience
+        search(); // removed await for resilience
     </script>
 </body>
 </html>

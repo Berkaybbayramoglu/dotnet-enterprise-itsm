@@ -1,1 +1,1 @@
-G 2webXEhr"src/ItsTool.Web/wwwroot/login.html
+G 2webXEhr"src/ItsTool.Web/wwwroot/login.html

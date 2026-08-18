@@ -404,13 +404,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Modals */
 .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(9, 30, 66, 0.54);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s;
@@ -421,16 +418,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .modal {
-    background: var(--bg-surface);
-    border-radius: var(--radius-md);
-    width: 100%;
-    max-width: 500px;
+    position: relative; z-index: 1001;
+    background: var(--bg-surface); border-radius: 8px;
+    width: min(520px, calc(100% - 32px)); max-height: 88vh; overflow: auto;
     box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
     transform: scale(0.95);
     transition: transform 0.2s;
-    max-height: 90vh;
 }
 .modal-overlay.active .modal {
     transform: scale(1);

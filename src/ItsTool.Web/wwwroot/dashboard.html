@@ -69,8 +69,8 @@
         </main>
     </div>
 
-    <script src="js/api.js"></script>
     <script type="module">
+        import './js/api.js';
         import { bindShellActions, showToast } from './js/ui.js';
         
         if (!window.api.token) window.location.href = '/login.html';
@@ -128,13 +128,21 @@
                 });
 
             } catch (err) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+
                 console.error(err);
                 if(err.message === 'Unauthorized') return;
                 showToast('Error loading dashboard', 'error');
             }
         }
-
-        await loadDashboard();
+        loadDashboard(); // removed await for resilience
     </script>
 </body>
 </html>

@@ -8,12 +8,12 @@ j%*BGbsr
  8j)r&	 !"#$%&')*+,xÇ	 !&)À
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs 	8	rM	
  !#$%&'()*,-./01345678:;<=>?@ABCDEGHIJKLMNOPRSTUVWXxÇ ()07ABDMNOV∏
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs 8r7	 !"#$%&()*+,./01345789:;=>?@AxÇ#$%+,./0134:;=>?Ö
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/TicketController.cs8 8r◊
- !"#$%&'(*+,-./012356789:;<=>?@ABCEFGHIJKLMNOPQRSTUWXYZ[\]^_`abcefghijklmnopqstuvwxyz|}~ÄÅÇÉÖÜáàâäãåçéèêíìîïñóôöõúùûü°¢£§•¶®©™´¨≠ÆØ∞±≤≥¥µ∂xÇ@$%'012>?ABNOPRST]^_abklmopwxyÄÅÇåçèñùû§•Ø∞≤≥¥ÿ
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs 8r7	 !"#$%&()*+,./01345789:;=>?@AxÇ#$%+,./0134:;=>?ÿ
 [/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/UsersController.cs 	8
 rY	
- !"#%&'()*+-./0123456789:;=>?@ABCDEFGHIJKMNOPQRSUVWXYZ[]^_`abcdxÇ !")*459DEIQRYZab¿
+ !"#%&'()*+-./0123456789:;=>?@ABCDEFGHIJKMNOPQRSUVWXYZ[]^_`abcdxÇ !")*459DEIQRYZabÖ
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/TicketController.cs8 8r◊
+ !"#$%&'(*+,-./012356789:;<=>?@ABCEFGHIJKLMNOPQRSTUWXYZ[\]^_`abcefghijklmnopqstuvwxyz|}~ÄÅÇÉÖÜáàâäãåçéèêíìîïñóôöõúùûü°¢£§•¶®©™´¨≠ÆØ∞±≤≥¥µ∂xÇ@$%'012>?ABNOPRST]^_abklmopwxyÄÅÇåçèñùû§•Ø∞≤≥¥¿
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SystemController.cs 8rD	
  !"$%&'()*+-./0123456789:<=>?@ABDEFGHIJKLMxÇ!$%)5689<@JK√
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SlaController.cs 	8	jBrI	 !"#$&'()*+,-/012346789:;=>?@ABCEFGHIJKLNOPQRSTxÇ"#+,3:ABJKRƒ

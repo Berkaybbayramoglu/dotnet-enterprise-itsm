@@ -9,16 +9,7 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
         .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
         
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(9,30,66,0.54); backdrop-filter: blur(4px); }
-        .modal-content { background-color: var(--bg-surface); margin: 10% auto; padding: 0; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: var(--shadow-lg); }
-        .modal-header { padding: var(--spacing-lg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
-        .modal-body { padding: var(--spacing-lg); }
-        .modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: var(--spacing-sm); background: var(--bg-hover); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
-        
-        .close-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        .close-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+
     </style>
 </head>
 <body>
@@ -102,8 +93,8 @@
     </div>
 
     <!-- Create Rule Modal -->
-    <div id="createModal" class="modal">
-        <div class="modal-content">
+    <div id="createModal" class="modal-overlay">
+        <div class="modal">
             <form id="createForm">
                 <div class="modal-header">
                     <h2>Create Assignment Rule</h2>
@@ -136,8 +127,8 @@
     </div>
 
     <!-- Confirm Delete Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal" style="max-width: 400px;">
             <div class="modal-header">
                 <h2>Confirm Delete</h2>
                 <button type="button" class="close-btn" onclick="closeModal('confirmModal')" aria-label="Close">

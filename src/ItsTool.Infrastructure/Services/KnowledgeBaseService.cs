@@ -81,7 +81,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             var kw = keyword;
-            query = query.Where(a => a.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || a.Content.Contains(kw, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(a => a.Title.ToLower().Contains(kw.ToLower()) || a.Content.ToLower().Contains(kw.ToLower()));
         }
 
         var list = await query.OrderByDescending(a => a.CreatedAt).ToListAsync();
