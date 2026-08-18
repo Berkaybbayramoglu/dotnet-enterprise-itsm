@@ -1,1 +1,1 @@
-¸ 2csXhr6src/ItsTool.Application/Interfaces/IWorkflowService.cs
+¸ 2csXhr4src/ItsTool.Application/Interfaces/ITicketService.cs

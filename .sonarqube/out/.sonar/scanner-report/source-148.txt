@@ -1,24 +1,24 @@
-namespace ItsTool.Application.Constants;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-public static class PermissionConstants
+namespace ItsTool.UnitTests;
+
+public abstract class TestBase : IDisposable
 {
-    public const string TicketCreate = "ticket.create";
-    public const string TicketView = "ticket.view";
-    public const string TicketEdit = "ticket.edit";
-    public const string TicketAssign = "ticket.assign";
-    public const string TicketTransfer = "ticket.transfer";
-    public const string TicketResolve = "ticket.resolve";
-    public const string TicketClose = "ticket.close";
-    public const string TicketCommentInternal = "ticket.comment.internal";
-    public const string ReportView = "report.view";
-    public const string AdminManage = "admin.manage";
-    public const string ConfigManage = "config.manage";
-    public const string SlaManage = "sla.manage";
-    public const string AuditView = "audit.view";
+    protected readonly ItsToolDbContext _context;
 
-    public static IReadOnlyList<string> AllPermissions => new[]
+    protected TestBase()
     {
-        TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView
-    };
+        var options = new DbContextOptionsBuilder<ItsToolDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        _context = new ItsToolDbContext(options);
+    }
+
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

@@ -171,7 +171,7 @@
             try {
                 const res = await window.api.request(`/kb/articles/${id}`);
                 document.getElementById('modalTitle').textContent = res.title;
-                document.getElementById('modalBody').innerHTML = `<p>${escapeHtml(res.content).replace(/\n/g, '<br>')}</p>`;
+                document.getElementById('modalBody').innerHTML = `<p>${escapeHtml(res.content).replaceAll('\n', '<br>')}</p>`;
                 document.getElementById('articleModal').style.display = 'block';
                 document.body.style.overflow = 'hidden'; // Prevent background scrolling
             } catch(e) {

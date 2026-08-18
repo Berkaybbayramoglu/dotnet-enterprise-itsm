@@ -1,18 +1,13 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+using System.Linq.Expressions;
+using ItsTool.Domain.Common;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface ISlaService
+public interface IRepository<T> where T : BaseEntity
 {
-    Task<IEnumerable<SlaPolicyDto>> GetPoliciesAsync(int? projectId = null);
-    Task<SlaPolicyDto> CreatePolicyAsync(CreateSlaPolicyDto dto);
-    Task UpdatePolicyAsync(int id, UpdateSlaPolicyDto dto);
-    Task DeletePolicyAsync(int id);
-
-    Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId);
-    Task<SlaTargetDto> CreateTargetAsync(CreateSlaTargetDto dto);
-    Task UpdateTargetAsync(int id, UpdateSlaTargetDto dto);
-    Task DeleteTargetAsync(int id);
+    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null);
+    Task<T?> GetByIdAsync(int id);
+    Task<T> AddAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task DeleteAsync(int id);
 }

@@ -102,8 +102,8 @@ public class DashboardService : IDashboardService
         
         var workload = await query
             .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
-            .GroupBy(t => new { t.AssignedUserId, t.AssignedUser.FirstName, t.AssignedUser.LastName })
-            .Select(g => new AgentWorkloadDto(g.Key.AssignedUserId!.Value, $"{g.Key.FirstName} {g.Key.LastName}", g.Count()))
+            .GroupBy(t => new { t.AssignedUserId, FirstName = t.AssignedUser != null ? t.AssignedUser.FirstName : "Unknown", LastName = t.AssignedUser != null ? t.AssignedUser.LastName : "User" })
+            .Select(g => new AgentWorkloadDto(g.Key.AssignedUserId ?? 0, $"{g.Key.FirstName} {g.Key.LastName}", g.Count()))
             .ToListAsync();
 
         return workload.OrderByDescending(w => w.OpenTicketCount);

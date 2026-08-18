@@ -1,1 +1,1 @@
- 2csXhr:src/ItsTool.Domain/Entities/Organization/AssignmentRule.cs
+ 2csXhr:src/ItsTool.Domain/Entities/Organization/AssignmentRule.cs

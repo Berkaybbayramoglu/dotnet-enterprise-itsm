@@ -1,5 +1,5 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,47 +7,56 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class DepartmentServiceTests : TestBase
+public class CatalogServiceTests : TestBase
 {
-    private readonly Repository<Department> _repository;
-    private readonly DepartmentService _service;
+    private readonly Repository<Category> _categoryRepo;
+    private readonly Repository<TicketType> _ticketTypeRepo;
+    private readonly Repository<Status> _statusRepo;
+    private readonly Repository<Priority> _priorityRepo;
+    private readonly CatalogService _service;
 
-    public DepartmentServiceTests() : base()
+    public CatalogServiceTests() : base()
     {
-        _repository = new Repository<Department>(_context);
-        _service = new DepartmentService(_repository);
+        _categoryRepo = new Repository<Category>(_context);
+        _ticketTypeRepo = new Repository<TicketType>(_context);
+        _statusRepo = new Repository<Status>(_context);
+        _priorityRepo = new Repository<Priority>(_context);
+        _service = new CatalogService(_categoryRepo, _ticketTypeRepo, _statusRepo, _priorityRepo, _context);
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldCreateDepartment()
+    public async Task CreateCategoryAsync_ShouldCreateCategory()
     {
-        // Arrange
-        var dto = new CreateDepartmentDto("IT", "IT Dept");
+        var dto = new CreateCategoryDto("Network", 1, null, "Desc", null);
+        var result = await _service.CreateCategoryAsync(dto);
 
-        // Act
-        var result = await _service.CreateAsync(dto);
-
-        // Assert
         Assert.NotNull(result);
-        Assert.Equal("IT", result.Name);
-        var dbDept = await _context.Departments.FirstOrDefaultAsync(d => d.Id == result.Id);
-        Assert.NotNull(dbDept);
+        Assert.Equal("Network", result.Name);
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnDepartment()
+    public async Task GetCategoriesAsync_ShouldFilterByProject()
     {
-        // Arrange
-        var dept = new Department { Name = "HR" };
-        _context.Departments.Add(dept);
+        _context.Categories.Add(new Category { Name = "Cat1", ProjectId = 1 });
+        _context.Categories.Add(new Category { Name = "Cat2", ProjectId = 2 });
         await _context.SaveChangesAsync();
 
-        // Act
-        var result = await _service.GetByIdAsync(dept.Id);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("HR", result.Name);
+        var list = await _service.GetCategoriesAsync(1);
+        Assert.Single(list);
+        Assert.Equal("Cat1", list.First().Name);
     }
 
+    [Fact]
+    public async Task DeleteStatusAsync_ShouldThrowIfInUse()
+    {
+        var s = new Status { Name = "S1" };
+        _context.Statuses.Add(s);
+        await _context.SaveChangesAsync();
+
+        var wt = new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = 1, FromStatusId = s.Id, ToStatusId = 2, TransitionName = "t" };
+        _context.WorkflowTransitions.Add(wt);
+        await _context.SaveChangesAsync();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteStatusAsync(s.Id));
+    }
 }

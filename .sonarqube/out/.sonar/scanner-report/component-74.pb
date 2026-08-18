@@ -1,1 +1,1 @@
-J 2webX¬hr#src/ItsTool.Web/wwwroot/kanban.html
+J 2webXþhr#src/ItsTool.Web/wwwroot/kanban.html

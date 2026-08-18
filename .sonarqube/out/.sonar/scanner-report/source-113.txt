@@ -1,115 +1,73 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.SLA;
+using ItsTool.Domain.Entities.Auth;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class SlaService : ISlaService
+public class RoleService : IRoleService
 {
+    private readonly IRepository<Role> _repository;
     private readonly ItsToolDbContext _context;
-    private const string PolicyNotFound = "SLA Policy not found.";
-    private const string TargetNotFound = "SLA Target not found.";
 
-    public SlaService(ItsToolDbContext context)
+    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
     {
+        _repository = repository;
         _context = context;
     }
 
-    public async Task<IEnumerable<SlaPolicyDto>> GetPoliciesAsync(int? projectId = null)
+    public async Task<IEnumerable<RoleDto>> GetAllAsync()
     {
-        var list = await _context.SlaPolicies
-            .Where(p => !p.IsDeleted && (projectId == null || p.ProjectId == projectId))
-            .ToListAsync();
+        var roles = await _repository.GetAllAsync();
+        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
+    }
+
+    public async Task<RoleDto?> GetByIdAsync(int id)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) return null;
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
+
+    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
+    {
+        var r = new Role { Name = dto.Name };
+        await _repository.AddAsync(r);
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
+
+    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) throw new KeyNotFoundException("Role not found");
         
-        return list.Select(p => new SlaPolicyDto(p.Id, p.Name, p.Description, p.ProjectId, p.IsActive));
+        r.Name = dto.Name;
+        r.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(r);
     }
 
-    public async Task<SlaPolicyDto> CreatePolicyAsync(CreateSlaPolicyDto dto)
+    public async Task DeleteAsync(int id)
     {
-        var policy = new SlaPolicy
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task AssignPermissionAsync(int roleId, int permissionId)
+    {
+        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+        if (!exists)
         {
-            Name = dto.Name,
-            Description = dto.Description,
-            ProjectId = dto.ProjectId
-        };
-        _context.SlaPolicies.Add(policy);
-        await _context.SaveChangesAsync();
-        return new SlaPolicyDto(policy.Id, policy.Name, policy.Description, policy.ProjectId, policy.IsActive);
-    }
-
-    public async Task UpdatePolicyAsync(int id, UpdateSlaPolicyDto dto)
-    {
-        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
-        if (policy == null) throw new KeyNotFoundException(PolicyNotFound);
-
-        policy.Name = dto.Name;
-        policy.Description = dto.Description;
-        policy.ProjectId = dto.ProjectId;
-        policy.IsActive = dto.IsActive;
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeletePolicyAsync(int id)
-    {
-        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
-        if (policy != null)
-        {
-            policy.IsDeleted = true;
-            policy.IsActive = false;
+            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
             await _context.SaveChangesAsync();
         }
     }
 
-    public async Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId)
+    public async Task RevokePermissionAsync(int roleId, int permissionId)
     {
-        var list = await _context.SlaTargets
-            .Where(t => t.SlaPolicyId == policyId && !t.IsDeleted)
-            .ToListAsync();
-        
-        return list.Select(t => new SlaTargetDto(t.Id, t.SlaPolicyId, t.PriorityId, t.TicketTypeId, t.FirstResponseMinutes, t.ResolutionMinutes, t.IsActive));
-    }
-
-    public async Task<SlaTargetDto> CreateTargetAsync(CreateSlaTargetDto dto)
-    {
-        var target = new SlaTarget
+        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
+        if (rp != null)
         {
-            SlaPolicyId = dto.SlaPolicyId,
-            PriorityId = dto.PriorityId,
-            TicketTypeId = dto.TicketTypeId,
-            FirstResponseMinutes = dto.FirstResponseMinutes,
-            ResolutionMinutes = dto.ResolutionMinutes
-        };
-        _context.SlaTargets.Add(target);
-        await _context.SaveChangesAsync();
-        return new SlaTargetDto(target.Id, target.SlaPolicyId, target.PriorityId, target.TicketTypeId, target.FirstResponseMinutes, target.ResolutionMinutes, target.IsActive);
-    }
-
-    public async Task UpdateTargetAsync(int id, UpdateSlaTargetDto dto)
-    {
-        var target = await _context.SlaTargets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
-        if (target == null) throw new KeyNotFoundException(TargetNotFound);
-
-        target.PriorityId = dto.PriorityId;
-        target.TicketTypeId = dto.TicketTypeId;
-        target.FirstResponseMinutes = dto.FirstResponseMinutes;
-        target.ResolutionMinutes = dto.ResolutionMinutes;
-        target.IsActive = dto.IsActive;
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteTargetAsync(int id)
-    {
-        var target = await _context.SlaTargets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
-        if (target != null)
-        {
-            target.IsDeleted = true;
-            target.IsActive = false;
+            _context.RolePermissions.Remove(rp);
             await _context.SaveChangesAsync();
         }
     }

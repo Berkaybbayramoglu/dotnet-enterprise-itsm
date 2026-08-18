@@ -2992,7 +2992,99 @@ Visibility '
 set6 9
 ;9 :
 }; <
-} ±	
+} ›
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs
+	namespace 	
+ItsTool
+ 
+. 
+Domain 
+. 
+Entities !
+.! "
+Config" (
+;( )
+public 
+class 
+WebhookSubscription  
+:! "
+
+BaseEntity# -
+{ 
+public 
+
+string 
+Url 
+{ 
+get 
+; 
+set  
+;  !
+}" #
+=$ %
+string& ,
+., -
+Empty- 2
+;2 3
+public		 
+
+string		 
+	EventsCsv		 
+{		 
+get		 !
+;		! "
+set		# &
+;		& '
+}		( )
+=		* +
+string		, 2
+.		2 3
+Empty		3 8
+;		8 9
+public
+
+ 
+
+string
+
+ 
+Secret
+
+ 
+{
+
+ 
+get
+
+ 
+;
+
+ 
+set
+
+  #
+;
+
+# $
+}
+
+% &
+=
+
+' (
+string
+
+) /
+.
+
+/ 0
+Empty
+
+0 5
+;
+
+5 6
+} ±	
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/SavedFilter.cs
 	namespace 	
 ItsTool
@@ -3438,99 +3530,7 @@ BaseEntity%%  *
 set--; >
 ;--> ?
 }--@ A
-}.. ›
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs
-	namespace 	
-ItsTool
- 
-. 
-Domain 
-. 
-Entities !
-.! "
-Config" (
-;( )
-public 
-class 
-WebhookSubscription  
-:! "
-
-BaseEntity# -
-{ 
-public 
-
-string 
-Url 
-{ 
-get 
-; 
-set  
-;  !
-}" #
-=$ %
-string& ,
-., -
-Empty- 2
-;2 3
-public		 
-
-string		 
-	EventsCsv		 
-{		 
-get		 !
-;		! "
-set		# &
-;		& '
-}		( )
-=		* +
-string		, 2
-.		2 3
-Empty		3 8
-;		8 9
-public
-
- 
-
-string
-
- 
-Secret
-
- 
-{
-
- 
-get
-
- 
-;
-
- 
-set
-
-  #
-;
-
-# $
-}
-
-% &
-=
-
-' (
-string
-
-) /
-.
-
-/ 0
-Empty
-
-0 5
-;
-
-5 6
-} ù
+}.. ù
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserRole.cs
 	namespace 	
 ItsTool
@@ -3735,41 +3735,7 @@ Permission )
 set1 4
 ;4 5
 }6 7
-} ﬂ
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs
-	namespace 	
-ItsTool
- 
-. 
-Domain 
-. 
-Entities !
-.! "
-Auth" &
-;& '
-public 
-class 
-Role 
-: 
-
-BaseEntity 
-{  
-public 
-
-string 
-Name 
-{ 
-get 
-; 
-set !
-;! "
-}# $
-=% &
-string' -
-.- .
-Empty. 3
-;3 4
-} ÷
+} ÷
 [/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs
 	namespace 	
 ItsTool
@@ -3882,42 +3848,7 @@ BaseEntity #
 set% (
 ;( )
 }* +
-}		 ¯
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs
-	namespace 	
-ItsTool
- 
-. 
-Domain 
-. 
-Common 
-;  
-public 
-	interface 
-ISoftDelete 
-{ 
-bool 
-	IsDeleted	 
-{ 
-get 
-; 
-set 
-; 
-}  
-System 
-
-.
- 
-DateTime 
-? 
-	DeletedAt 
-{  
-get! $
-;$ %
-set& )
-;) *
-}+ ,
-} Õ
+}		 Õ
 T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/IAuditable.cs
 	namespace 	
 ItsTool
@@ -3979,7 +3910,76 @@ IAuditable 
 set  
 ;  !
 }" #
-} Ú
+} ¯
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs
+	namespace 	
+ItsTool
+ 
+. 
+Domain 
+. 
+Common 
+;  
+public 
+	interface 
+ISoftDelete 
+{ 
+bool 
+	IsDeleted	 
+{ 
+get 
+; 
+set 
+; 
+}  
+System 
+
+.
+ 
+DateTime 
+? 
+	DeletedAt 
+{  
+get! $
+;$ %
+set& )
+;) *
+}+ ,
+} ﬂ
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs
+	namespace 	
+ItsTool
+ 
+. 
+Domain 
+. 
+Entities !
+.! "
+Auth" &
+;& '
+public 
+class 
+Role 
+: 
+
+BaseEntity 
+{  
+public 
+
+string 
+Name 
+{ 
+get 
+; 
+set !
+;! "
+}# $
+=% &
+string' -
+.- .
+Empty. 3
+;3 4
+} Ú
 T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/BaseEntity.cs
 	namespace 	
 ItsTool

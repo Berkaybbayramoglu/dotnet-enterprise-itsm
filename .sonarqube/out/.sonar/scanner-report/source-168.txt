@@ -1,13 +1,14 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IDashboardService
+public interface ITokenService
 {
-    Task<DashboardOverviewDto> GetOverviewAsync(int userId);
-    Task<DashboardDistributionsDto> GetDistributionsAsync(int userId);
-    Task<IEnumerable<AgentWorkloadDto>> GetAgentWorkloadAsync(int userId);
-    Task<SlaComplianceDto> GetSlaComplianceAsync(int userId);
+    string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions);
+}
+
+public interface IAuthService
+{
+    Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+    Task<MeResponseDto> GetMeAsync(int userId);
 }

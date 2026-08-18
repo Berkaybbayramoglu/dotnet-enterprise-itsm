@@ -1,92 +1,70 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Domain.Entities.Notification;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Domain.Entities.Project;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
 using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.KnowledgeBase;
+using ItsTool.Infrastructure.Services;
 using Moq;
+using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class NotificationDispatcherTests : TestBase
+public class KnowledgeBaseServiceTests : TestBase
 {
-    private readonly NotificationDispatcher _dispatcher;
-    private readonly Mock<IEmailService> _mockEmailService;
-    private readonly Mock<IWebhookDispatcher> _mockWebhookDispatcher;
+    private readonly KnowledgeBaseService _kbService;
+    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
 
-    public NotificationDispatcherTests() : base()
+    public KnowledgeBaseServiceTests() : base()
     {
-        _mockEmailService = new Mock<IEmailService>();
-        _mockWebhookDispatcher = new Mock<IWebhookDispatcher>();
-        _dispatcher = new NotificationDispatcher(_context, _mockEmailService.Object, _mockWebhookDispatcher.Object);
+        _mockPermCalculator = new Mock<IPermissionCalculator>();
+        _kbService = new KnowledgeBaseService(_context, _mockPermCalculator.Object);
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldNotifyRequester_IfRuleActive()
+    public async Task SearchArticlesAsync_ShouldHideDraftAndInternal_FromEndUser()
     {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.created", TargetRole = "Requester", IsActive = true });
-        
-        var t = new Ticket { TicketNumber = "T1", RequesterUserId = 5 };
-        _context.Tickets.Add(t);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string>()); // End user
+
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A2", Status = ArticleStatus.Draft, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A3", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Internal });
         await _context.SaveChangesAsync();
 
-        await _dispatcher.DispatchEventAsync("ticket.created", t.Id);
+        var result = await _kbService.SearchArticlesAsync(1, null, null);
 
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Single(notifications);
-        Assert.Equal(5, notifications[0].UserId);
-        Assert.Equal("ticket.created", notifications[0].Title);
+        Assert.Single(result);
+        Assert.Equal("A1", result.First().Title);
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldNotNotify_IfRuleInactive()
+    public async Task SearchArticlesAsync_ShouldShowInternal_ToStaff()
     {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.created", TargetRole = "Requester", IsActive = false });
-        
-        var t = new Ticket { TicketNumber = "T1", RequesterUserId = 5 };
-        _context.Tickets.Add(t);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.manage" }); // Staff
+
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A2", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Internal });
         await _context.SaveChangesAsync();
 
-        await _dispatcher.DispatchEventAsync("ticket.created", t.Id);
+        var result = await _kbService.SearchArticlesAsync(1, null, null);
 
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Empty(notifications);
+        Assert.Equal(2, result.Count());
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldNotNotifyTriggerUser()
+    public async Task GetArticleAsync_ShouldIncrementViewCount_ForPublished()
     {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.comment.added", TargetRole = "Requester", IsActive = true });
-        
-        var t = new Ticket { TicketNumber = "T1", RequesterUserId = 5 };
-        _context.Tickets.Add(t);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string>());
+
+        var article = new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public, ViewCount = 0 };
+        _context.KnowledgeArticles.Add(article);
         await _context.SaveChangesAsync();
 
-        // Trigger user is 5 (Requester themselves commented)
-        await _dispatcher.DispatchEventAsync("ticket.comment.added", t.Id, triggerUserId: 5);
+        var result = await _kbService.GetArticleAsync(article.Id, 1);
 
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Empty(notifications); // Should not notify themselves
-    }
-
-    [Fact]
-    public async Task DispatchEventAsync_ShouldNotCreateDuplicates()
-    {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.assigned", TargetRole = "Assignee", IsActive = true });
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ViewCount);
         
-        var t = new Ticket { TicketNumber = "T1", AssignedUserId = 10 };
-        _context.Tickets.Add(t);
-        await _context.SaveChangesAsync();
-
-        // First event
-        await _dispatcher.DispatchEventAsync("ticket.assigned", t.Id);
-        
-        // Second identical event
-        await _dispatcher.DispatchEventAsync("ticket.assigned", t.Id);
-
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Single(notifications); // Should only be 1 notification due to duplicate check
+        var dbArticle = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.Equal(1, dbArticle!.ViewCount);
     }
 }

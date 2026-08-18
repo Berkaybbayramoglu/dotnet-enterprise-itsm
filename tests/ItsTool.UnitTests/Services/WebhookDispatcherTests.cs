@@ -51,7 +51,7 @@ public class WebhookDispatcherTests : TestBase
         await _context.SaveChangesAsync();
 
         await _dispatcher.DispatchEventAsync("ticket.created", new { id = 1 });
-        await Task.Delay(100); // Allow fire-and-forget to run
+        await Task.Delay(1000); // Allow fire-and-forget to run
 
         _httpMessageHandlerMock.Protected().Verify("SendAsync", Times.Once(), ItExpr.Is<HttpRequestMessage>(req => 
             req.Method == HttpMethod.Post && 

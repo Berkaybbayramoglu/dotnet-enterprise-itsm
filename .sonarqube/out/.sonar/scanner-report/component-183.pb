@@ -1,1 +1,1 @@
-· 2csX	hr8src/ItsTool.Application/Interfaces/IWebhookDispatcher.cs
+· 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs

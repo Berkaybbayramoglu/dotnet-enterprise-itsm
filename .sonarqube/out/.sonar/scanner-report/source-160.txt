@@ -1,12 +1,21 @@
-using System;
-using System.Collections.Generic;
-
 namespace ItsTool.Application.DTOs;
 
-public record SlaPolicyDto(int Id, string Name, string? Description, int? ProjectId, bool IsActive);
-public record CreateSlaPolicyDto(string Name, string? Description, int? ProjectId);
-public record UpdateSlaPolicyDto(string Name, string? Description, int? ProjectId, bool IsActive);
+public record DepartmentDto(int Id, string Name, string? Description, bool IsActive);
+public record CreateDepartmentDto(string Name, string? Description);
+public record UpdateDepartmentDto(string Name, string? Description, bool IsActive);
 
-public record SlaTargetDto(int Id, int SlaPolicyId, int PriorityId, int? TicketTypeId, int FirstResponseMinutes, int ResolutionMinutes, bool IsActive);
-public record CreateSlaTargetDto(int SlaPolicyId, int PriorityId, int? TicketTypeId, int FirstResponseMinutes, int ResolutionMinutes);
-public record UpdateSlaTargetDto(int PriorityId, int? TicketTypeId, int FirstResponseMinutes, int ResolutionMinutes, bool IsActive);
+public record GroupDto(int Id, string Name, bool IsActive, int DepartmentId);
+public record CreateGroupDto(string Name, int DepartmentId);
+public record UpdateGroupDto(string Name, bool IsActive, int DepartmentId);
+
+public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId);
+public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId);
+public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId);
+
+public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, bool IsActive);
+public record CreateProjectDto(string Name, string ProjectKey, string? Description);
+public record UpdateProjectDto(string Name, string ProjectKey, string? Description, bool IsActive);
+
+public record RoleDto(int Id, string Name, bool IsActive);
+public record CreateRoleDto(string Name);
+public record UpdateRoleDto(string Name, bool IsActive);

@@ -1,1 +1,1 @@
-U 2cssXhr1src/ItsTool.Web/wwwroot/css/lib/bootstrap.min.css
+U 2jsX>hr src/ItsTool.Web/wwwroot/js/ui.js

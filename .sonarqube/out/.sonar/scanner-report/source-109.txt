@@ -1,81 +1,49 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Project;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class ProjectService : IProjectService
+public class NotificationService : INotificationService
 {
-    private readonly IRepository<Project> _repository;
     private readonly ItsToolDbContext _context;
 
-    public ProjectService(IRepository<Project> repository, ItsToolDbContext context)
+    public NotificationService(ItsToolDbContext context)
     {
-        _repository = repository;
         _context = context;
     }
 
-    public async Task<IEnumerable<ProjectDto>> GetAllAsync()
+    public async Task<IEnumerable<NotificationDto>> GetUserNotificationsAsync(int userId)
     {
-        var projects = await _repository.GetAllAsync();
-        return projects.Select(p => new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.IsActive));
+        var list = await _context.Notifications
+            .Where(n => n.UserId == userId && !n.IsDeleted)
+            .OrderByDescending(n => n.CreatedAt)
+            .ToListAsync();
+
+        return list.Select(n => new NotificationDto(n.Id, n.UserId, n.Title, n.Message, n.IsRead, n.RelatedEntityId, n.RelatedEntityType, n.CreatedAt));
     }
 
-    public async Task<ProjectDto?> GetByIdAsync(int id)
+    public async Task MarkAsReadAsync(int notificationId, int userId)
     {
-        var p = await _repository.GetByIdAsync(id);
-        if (p == null) return null;
-        return new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.IsActive);
-    }
-
-    public async Task<ProjectDto> CreateAsync(CreateProjectDto dto)
-    {
-        var p = new Project
+        var notif = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId && !n.IsDeleted);
+        if (notif != null && !notif.IsRead)
         {
-            Name = dto.Name,
-            ProjectKey = dto.ProjectKey,
-            Description = dto.Description
-        };
-        await _repository.AddAsync(p);
-        return new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.IsActive);
-    }
-
-    public async Task UpdateAsync(int id, UpdateProjectDto dto)
-    {
-        var p = await _repository.GetByIdAsync(id);
-        if (p == null) throw new KeyNotFoundException("Project not found");
-        
-        p.Name = dto.Name;
-        p.ProjectKey = dto.ProjectKey;
-        p.Description = dto.Description;
-        p.IsActive = dto.IsActive;
-        await _repository.UpdateAsync(p);
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        await _repository.DeleteAsync(id);
-    }
-
-    public async Task AddMemberAsync(int projectId, int userId)
-    {
-        var exists = await _context.ProjectMembers.AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
-        if (!exists)
-        {
-            _context.ProjectMembers.Add(new ProjectMember { ProjectId = projectId, UserId = userId });
+            notif.IsRead = true;
             await _context.SaveChangesAsync();
         }
     }
 
-    public async Task RemoveMemberAsync(int projectId, int userId)
+    public async Task MarkAllAsReadAsync(int userId)
     {
-        var pm = await _context.ProjectMembers.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.UserId == userId);
-        if (pm != null)
+        var unread = await _context.Notifications.Where(n => n.UserId == userId && !n.IsRead && !n.IsDeleted).ToListAsync();
+        foreach (var n in unread)
         {
-            _context.ProjectMembers.Remove(pm);
-            await _context.SaveChangesAsync();
+            n.IsRead = true;
         }
+        await _context.SaveChangesAsync();
     }
 }

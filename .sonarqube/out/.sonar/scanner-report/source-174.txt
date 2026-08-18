@@ -1,8 +1,10 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using ItsTool.Application.DTOs;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface INotificationDispatcher
+public interface IFileStorageService
 {
-    Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null);
+    Task<string> SaveFileAsync(IFormFile file, int ticketId);
+    Task DeleteFileAsync(string filePath);
 }

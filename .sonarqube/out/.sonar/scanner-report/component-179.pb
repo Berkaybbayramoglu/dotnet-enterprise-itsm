@@ -1,1 +1,1 @@
-³ 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs
+³ 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs

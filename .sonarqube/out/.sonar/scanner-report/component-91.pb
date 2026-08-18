@@ -1,1 +1,1 @@
-[ 2csX†hr-src/ItsTool.Infrastructure/Data/DataSeeder.cs
+[ 2csX1hrFsrc/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs

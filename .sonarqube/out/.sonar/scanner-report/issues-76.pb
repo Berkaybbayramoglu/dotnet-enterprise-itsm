@@ -1,2 +1,2 @@
-`
-cssS7924HText does not meet the minimal contrast requirement with its background.2$ 1
+g
+WebS6850QHeadings must have content and the content must be accessible by a screen reader.2RR F

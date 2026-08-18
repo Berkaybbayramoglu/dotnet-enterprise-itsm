@@ -1,1 +1,1 @@
-š 2csXhr/src/ItsTool.Application/DTOs/DynamicFormDtos.cs
+š 2csXhr+src/ItsTool.Application/DTOs/CatalogDtos.cs

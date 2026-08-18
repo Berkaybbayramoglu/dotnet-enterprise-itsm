@@ -1,2 +1,4 @@
-`
-cssS7924HText does not meet the minimal contrast requirement with its background.2E R
+X
+
+javascriptS77815Prefer `String#replaceAll()` over `String#replace()`.2
+®®_ f@

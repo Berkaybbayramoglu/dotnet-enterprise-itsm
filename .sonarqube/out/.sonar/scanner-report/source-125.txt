@@ -1,62 +1,60 @@
-using ItsTool.Application.DTOs;
+using System.Threading.Tasks;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class CatalogServiceTests : TestBase
+public class AssignmentEngineTests : TestBase
 {
-    private readonly Repository<Category> _categoryRepo;
-    private readonly Repository<TicketType> _ticketTypeRepo;
-    private readonly Repository<Status> _statusRepo;
-    private readonly Repository<Priority> _priorityRepo;
-    private readonly CatalogService _service;
+    private readonly AssignmentEngine _engine;
 
-    public CatalogServiceTests() : base()
+    public AssignmentEngineTests() : base()
     {
-        _categoryRepo = new Repository<Category>(_context);
-        _ticketTypeRepo = new Repository<TicketType>(_context);
-        _statusRepo = new Repository<Status>(_context);
-        _priorityRepo = new Repository<Priority>(_context);
-        _service = new CatalogService(_categoryRepo, _ticketTypeRepo, _statusRepo, _priorityRepo, _context);
+        _engine = new AssignmentEngine(_context);
     }
 
     [Fact]
-    public async Task CreateCategoryAsync_ShouldCreateCategory()
+    public async Task AssignTicketAsync_ShouldAssign_WhenRuleMatches()
     {
-        var dto = new CreateCategoryDto("Network", 1, null, "Desc", null);
-        var result = await _service.CreateCategoryAsync(dto);
+        var rule1 = new AssignmentRule { Name = "R1", SortOrder = 10, ProjectId = 1, TargetUserId = 99, IsActive = true };
+        _context.AssignmentRules.Add(rule1);
+        await _context.SaveChangesAsync();
 
-        Assert.NotNull(result);
-        Assert.Equal("Network", result.Name);
+        var ticket = new Ticket { ProjectId = 1, CategoryId = 2 };
+        
+        await _engine.AssignTicketAsync(ticket);
+        
+        Assert.Equal(99, ticket.AssignedUserId);
     }
 
     [Fact]
-    public async Task GetCategoriesAsync_ShouldFilterByProject()
+    public async Task AssignTicketAsync_ShouldSkipInactiveRules()
     {
-        _context.Categories.Add(new Category { Name = "Cat1", ProjectId = 1 });
-        _context.Categories.Add(new Category { Name = "Cat2", ProjectId = 2 });
+        var rule1 = new AssignmentRule { Name = "R1", SortOrder = 10, ProjectId = 1, TargetUserId = 99, IsActive = false };
+        _context.AssignmentRules.Add(rule1);
         await _context.SaveChangesAsync();
 
-        var list = await _service.GetCategoriesAsync(1);
-        Assert.Single(list);
-        Assert.Equal("Cat1", list.First().Name);
+        var ticket = new Ticket { ProjectId = 1 };
+        
+        await _engine.AssignTicketAsync(ticket);
+        
+        Assert.Null(ticket.AssignedUserId); // Remained unassigned
     }
 
     [Fact]
-    public async Task DeleteStatusAsync_ShouldThrowIfInUse()
+    public async Task AssignTicketAsync_ShouldPickFirstMatchBySortOrder()
     {
-        var s = new Status { Name = "S1" };
-        _context.Statuses.Add(s);
+        var rule1 = new AssignmentRule { Name = "R1", SortOrder = 20, ProjectId = 1, TargetUserId = 99, IsActive = true };
+        var rule2 = new AssignmentRule { Name = "R2", SortOrder = 10, ProjectId = 1, TargetUserId = 88, IsActive = true };
+        _context.AssignmentRules.AddRange(rule1, rule2);
         await _context.SaveChangesAsync();
 
-        var wt = new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = 1, FromStatusId = s.Id, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(wt);
-        await _context.SaveChangesAsync();
-
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteStatusAsync(s.Id));
+        var ticket = new Ticket { ProjectId = 1 };
+        
+        await _engine.AssignTicketAsync(ticket);
+        
+        Assert.Equal(88, ticket.AssignedUserId); // 10 comes before 20
     }
 }

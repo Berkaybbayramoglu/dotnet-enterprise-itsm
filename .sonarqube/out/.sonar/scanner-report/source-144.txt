@@ -1,62 +1,62 @@
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Infrastructure.Services;
-using Microsoft.Extensions.Logging;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ItsTool.Infrastructure.Security;
+using Microsoft.Extensions.Configuration;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class WebhookDispatcherTests : TestBase
+public class TokenServiceTests
 {
-    private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-    private readonly HttpClient _httpClient;
-    private readonly WebhookDispatcher _dispatcher;
-
-    public WebhookDispatcherTests() : base()
+    [Fact]
+    public void GenerateToken_ShouldCreateValidJwtWithClaims()
     {
-        _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+        // Arrange
+        var inMemorySettings = new Dictionary<string, string> {
+            {"Jwt:Issuer", "TestIssuer"},
+            {"Jwt:Audience", "TestAudience"},
+            {"Jwt:Secret", "SUPER_SECRET_LONG_KEY_MUST_BE_AT_LEAST_16_CHARS"},
+            {"Jwt:ExpiryMinutes", "60"}
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings!)
+            .Build();
+
+        var tokenService = new TokenService(configuration);
+        var roles = new List<string> { "Admin", "User" };
+        var permissions = new List<string> { "ticket.create", "ticket.view" };
+
+        // Act
+        var tokenString = tokenService.GenerateToken(1, "testuser", roles, permissions);
+
+        // Assert
+        Assert.False(string.IsNullOrEmpty(tokenString));
+
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(tokenString);
+
+        Assert.Equal("TestIssuer", token.Issuer);
+        Assert.Equal("TestAudience", token.Audiences.First());
         
-        _httpMessageHandlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        // Assert Claims
+        var subClaim = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+        Assert.NotNull(subClaim);
+        Assert.Equal("1", subClaim.Value);
+        
+        var nameClaim = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+        Assert.NotNull(nameClaim);
+        Assert.Equal("testuser", nameClaim.Value);
 
-        _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-        var loggerMock = new Mock<ILogger<WebhookDispatcher>>();
+        var roleClaims = token.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+        Assert.Equal(2, roleClaims.Count);
+        Assert.Contains("Admin", roleClaims);
+        Assert.Contains("User", roleClaims);
 
-        _dispatcher = new WebhookDispatcher(_context, _httpClient, loggerMock.Object);
-    }
-
-    [Fact]
-    public async Task DispatchEventAsync_ShouldSkipInactiveSubscriptions()
-    {
-        _context.WebhookSubscriptions.Add(new WebhookSubscription { Url = "http://test.com", EventsCsv = "ticket.created", IsActive = false });
-        await _context.SaveChangesAsync();
-
-        await _dispatcher.DispatchEventAsync("ticket.created", new { id = 1 });
-        await Task.Delay(100); // Allow fire-and-forget to run
-
-        _httpMessageHandlerMock.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task DispatchEventAsync_ShouldSendPostRequestWithHmac()
-    {
-        _context.WebhookSubscriptions.Add(new WebhookSubscription { Url = "http://test.com", EventsCsv = "ticket.created", IsActive = true, Secret = "mysecret" });
-        await _context.SaveChangesAsync();
-
-        await _dispatcher.DispatchEventAsync("ticket.created", new { id = 1 });
-        await Task.Delay(100); // Allow fire-and-forget to run
-
-        _httpMessageHandlerMock.Protected().Verify("SendAsync", Times.Once(), ItExpr.Is<HttpRequestMessage>(req => 
-            req.Method == HttpMethod.Post && 
-            req.Headers.Contains("X-ITSM-Signature") &&
-            req.RequestUri!.ToString() == "http://test.com/"
-        ), ItExpr.IsAny<CancellationToken>());
+        var permClaims = token.Claims.Where(c => c.Type == "permission").Select(c => c.Value).ToList();
+        Assert.Equal(2, permClaims.Count);
+        Assert.Contains("ticket.create", permClaims);
+        Assert.Contains("ticket.view", permClaims);
     }
 }

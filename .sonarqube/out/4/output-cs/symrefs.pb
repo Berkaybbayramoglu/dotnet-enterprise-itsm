@@ -92,42 +92,7 @@ G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.csˆ
 
 88% 2
 887 9::E G
-:: ;; == ç
-[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/UsersController.cs
-
- d
-" *      !)) $44 DD QQ YY aa 
-( / 
-
-% +
-
-% ,
-1 3  / 1
-   !! "" 
-
-''% +
-''E H))1 4
-)) **; B**I P
-
-00% +
-000 244' )
-00M P44+ .
-
-@@% +
-@@0 2DD' )
-
-OO% /
-OO4 6QQ' )
-OO< BQQ+ 1
-
-WW% /
-WW4 6YY' )
-WW< BYY+ 1
-
-__% :
-__? Aaa2 4
-__G Saa6 B
-__f oaaD MÂ
+:: ;; == Â
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/TicketController.cs
 
  ¢
@@ -239,7 +204,42 @@ G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.csˆ
 
 ØØ 
 ∞∞A G
-∞∞T Z 
+∞∞T Zç
+[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/UsersController.cs
+
+ d
+" *      !)) $44 DD QQ YY aa 
+( / 
+
+% +
+
+% ,
+1 3  / 1
+   !! "" 
+
+''% +
+''E H))1 4
+)) **; B**I P
+
+00% +
+000 244' )
+00M P44+ .
+
+@@% +
+@@0 2DD' )
+
+OO% /
+OO4 6QQ' )
+OO< BQQ+ 1
+
+WW% /
+WW4 6YY' )
+WW< BYY+ 1
+
+__% :
+__? Aaa2 4
+__G Saa6 B
+__f oaaD M 
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SystemController.cs
 
 		 

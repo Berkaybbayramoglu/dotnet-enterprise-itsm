@@ -1,1 +1,1 @@
-\ 2csX\hr3src/ItsTool.Infrastructure/Data/ItsToolDbContext.cs
+\ 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs

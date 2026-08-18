@@ -3,169 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Webhooks</title>
-    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <title>ITSM Tool - Webhooks</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(9,30,66,0.54); backdrop-filter: blur(4px); }
+        .modal-content { background-color: var(--bg-surface); margin: 10% auto; padding: 0; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: var(--shadow-lg); }
+        .modal-header { padding: var(--spacing-lg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
+        .modal-body { padding: var(--spacing-lg); }
+        .modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: var(--spacing-sm); background: var(--bg-hover); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
+        
+        .close-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .close-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+                </a>
+                <a href="/tickets.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
+                </a>
+                <a href="/kanban.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm6 14H5V5h4v12zm6 0h-4V5h4v12zm6 0h-4V5h4v12z"/></svg> Kanban
+                </a>
+                <a href="/kb.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Knowledge Base
+                </a>
+                <a href="/audit-log.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Audit Log
+                </a>
+                <a href="/webhooks.html" class="sidebar-nav-item active">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg> Webhooks
+                </a>
+                <a href="/rules.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49-.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
+                </a>
+                <a href="/admin-fields.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> Custom Fields
+                </a>
+            </nav>
+        </aside>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="dashboard.html">ITSM Tool</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="tickets.html">Tickets</a></li>
-                <li class="nav-item"><a class="nav-link" href="kb.html">Knowledge Base</a></li>
-                <li class="nav-item"><a class="nav-link active" href="webhooks.html">Webhooks</a></li>
-                <li class="nav-item"><a class="nav-link" href="kanban.html">Kanban</a></li>
-            </ul>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2>Webhooks</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;">Webhook Subscriptions</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage external system integrations via webhooks.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="showCreateModal()">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Add Webhook
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="webhooksTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>URL</th>
+                                <th>Events</th>
+                                <th>Status</th>
+                                <th style="width: 140px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="webhooksBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Webhook Modal -->
+    <div id="webhookModal" class="modal">
+        <div class="modal-content">
+            <form id="webhookForm">
+                <div class="modal-header">
+                    <h2 id="webhookModalTitle">Webhook</h2>
+                    <button type="button" class="close-btn" onclick="closeModal('webhookModal')" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="webhookId">
+                    <div class="form-group">
+                        <label class="form-label" for="url">Endpoint URL *</label>
+                        <input type="url" class="form-control" id="url" required placeholder="https://api.example.com/webhook">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="eventsCsv">Events *</label>
+                        <input type="text" class="form-control" id="eventsCsv" placeholder="ticket.created, sla.breach" required>
+                        <small class="text-muted" style="display:block; margin-top:4px;">Comma separated list of events.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="secret">Secret Key *</label>
+                        <input type="text" class="form-control" id="secret" required placeholder="Authentication secret">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="isActive" checked>
+                        <label for="isActive" style="font-weight: 500; font-size: 14px; cursor: pointer;">Is Active</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('webhookModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Webhook</button>
+                </div>
+            </form>
         </div>
     </div>
-</nav>
 
-<div class="container mt-4">
-    <h2>Webhook Subscriptions</h2>
-    <button class="btn btn-primary mb-3" onclick="showCreateModal()">Add Webhook</button>
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>URL</th>
-                    <th>Events</th>
-                    <th>Active</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="webhooksBody">
-                <!-- Rows populated by JS -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="webhookModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Confirm Delete Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
-                <h5 class="modal-title" id="webhookModalTitle">Webhook</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h2>Confirm Delete</h2>
+                <button type="button" class="close-btn" onclick="closeModal('confirmModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
             </div>
             <div class="modal-body">
-                <form id="webhookForm">
-                    <input type="hidden" id="webhookId">
-                    <div class="mb-3">
-                        <label for="url">URL</label>
-                        <input type="url" class="form-control" id="url" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="eventsCsv">Events (comma separated)</label>
-                        <input type="text" class="form-control" id="eventsCsv" placeholder="ticket.created, sla.breach" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="secret">Secret</label>
-                        <input type="text" class="form-control" id="secret" required>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="isActive" checked>
-                        <label class="form-check-label" for="isActive">Is Active</label>
-                    </div>
-                </form>
+                <p>Are you sure you want to delete this webhook?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="saveWebhook()">Save</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
             </div>
         </div>
     </div>
-</div>
 
-<script src="js/lib/bootstrap.bundle.min.js"></script>
-<script src="js/api.js"></script>
-<script>
-    const modal = new bootstrap.Modal(document.getElementById('webhookModal'));
+    <script type="module">
+        import './js/api.js';
+        import { bindShellActions, showToast } from './js/ui.js';
 
-    async function loadWebhooks() {
-        try {
-            const subs = await apiFetch('/api/webhook');
-            const tbody = document.getElementById('webhooksBody');
-            tbody.innerHTML = subs.map(s => `
-                <tr>
-                    <td>${s.id}</td>
-                    <td>${s.url}</td>
-                    <td>${s.eventsCsv}</td>
-                    <td>${s.isActive ? 'Yes' : 'No'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="editWebhook(${s.id})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteWebhook(${s.id})">Delete</button>
-                    </td>
-                </tr>
-            `).join('');
-        } catch (e) {
-            console.error('Failed to load webhooks', e);
-        }
-    }
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
 
-    function showCreateModal() {
-        document.getElementById('webhookForm').reset();
-        document.getElementById('webhookId').value = '';
-        document.getElementById('webhookModalTitle').textContent = 'Create Webhook';
-        modal.show();
-    }
+        let webhookToDelete = null;
 
-    async function editWebhook(id) {
-        try {
-            const subs = await apiFetch('/api/webhook');
-            const sub = subs.find(s => s.id === id);
-            if (sub) {
-                document.getElementById('webhookId').value = sub.id;
-                document.getElementById('url').value = sub.url;
-                document.getElementById('eventsCsv').value = sub.eventsCsv;
-                document.getElementById('secret').value = sub.secret;
-                document.getElementById('isActive').checked = sub.isActive;
-                document.getElementById('webhookModalTitle').textContent = 'Edit Webhook';
-                modal.show();
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    async function saveWebhook() {
-        const id = document.getElementById('webhookId').value;
-        const payload = {
-            url: document.getElementById('url').value,
-            eventsCsv: document.getElementById('eventsCsv').value,
-            secret: document.getElementById('secret').value,
-            isActive: document.getElementById('isActive').checked
+        window.openModal = function(id) {
+            document.getElementById(id).style.display = 'block';
+        };
+        
+        window.closeModal = function(id) {
+            document.getElementById(id).style.display = 'none';
         };
 
-        try {
-            if (id) {
-                await apiFetch(`/api/webhook/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-            } else {
-                await apiFetch('/api/webhook', { method: 'POST', body: JSON.stringify(payload) });
-            }
-            modal.hide();
-            loadWebhooks();
-        } catch (e) {
-            alert('Failed to save webhook: ' + e.message);
-        }
-    }
+        window.showCreateModal = function() {
+            document.getElementById('webhookForm').reset();
+            document.getElementById('webhookId').value = '';
+            document.getElementById('webhookModalTitle').textContent = 'Create Webhook';
+            openModal('webhookModal');
+        };
 
-    async function deleteWebhook(id) {
-        if (confirm('Are you sure you want to delete this webhook?')) {
+        async function loadWebhooks() {
             try {
-                await apiFetch(`/api/webhook/${id}`, { method: 'DELETE' });
-                loadWebhooks();
+                const subs = await window.api.request('/webhook');
+                const tbody = document.getElementById('webhooksBody');
+                tbody.innerHTML = '';
+                
+                if (subs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No webhooks found.</td></tr>`;
+                    return;
+                }
+
+                subs.forEach(s => {
+                    const tr = document.createElement('tr');
+                    
+                    const statusBadge = s.isActive 
+                        ? `<span class="badge badge-success">Active</span>`
+                        : `<span class="badge badge-default">Inactive</span>`;
+                        
+                    tr.innerHTML = `
+                        <td style="font-family: monospace; color: var(--text-muted);">${s.id}</td>
+                        <td style="font-weight: 500;">${escapeHtml(s.url)}</td>
+                        <td style="font-size: 13px;">${escapeHtml(s.eventsCsv)}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div style="display: flex; gap: 4px;">
+                                <button type="button" class="btn btn-ghost" style="padding: 4px 8px; color: var(--primary);" onclick="editWebhook(${s.id})" title="Edit">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                </button>
+                                <button type="button" class="btn btn-ghost" style="padding: 4px 8px; color: var(--danger);" onclick="promptDeleteWebhook(${s.id})" title="Delete">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             } catch (e) {
-                alert('Failed to delete webhook: ' + e.message);
+                console.error('Failed to load webhooks', e);
+                showToast('Failed to load webhooks', 'error');
             }
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', loadWebhooks);
-</script>
+        window.editWebhook = async function(id) {
+            try {
+                const subs = await window.api.request('/webhook');
+                const sub = subs.find(s => s.id === id);
+                if (sub) {
+                    document.getElementById('webhookId').value = sub.id;
+                    document.getElementById('url').value = sub.url;
+                    document.getElementById('eventsCsv').value = sub.eventsCsv;
+                    document.getElementById('secret').value = sub.secret;
+                    document.getElementById('isActive').checked = sub.isActive;
+                    document.getElementById('webhookModalTitle').textContent = 'Edit Webhook';
+                    openModal('webhookModal');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to load webhook details', 'error');
+            }
+        };
+
+        document.getElementById('webhookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('webhookId').value;
+            const payload = {
+                url: document.getElementById('url').value,
+                eventsCsv: document.getElementById('eventsCsv').value,
+                secret: document.getElementById('secret').value,
+                isActive: document.getElementById('isActive').checked
+            };
+
+            try {
+                if (id) {
+                    await window.api.request(`/webhook/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+                    showToast('Webhook updated successfully');
+                } else {
+                    await window.api.request('/webhook', { method: 'POST', body: JSON.stringify(payload) });
+                    showToast('Webhook created successfully');
+                }
+                closeModal('webhookModal');
+                await loadWebhooks();
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to save webhook', 'error');
+            }
+        });
+
+        window.promptDeleteWebhook = function(id) {
+            webhookToDelete = id;
+            openModal('confirmModal');
+        };
+
+        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+            if (!webhookToDelete) return;
+            try {
+                await window.api.request(`/webhook/${webhookToDelete}`, { method: 'DELETE' });
+                closeModal('confirmModal');
+                showToast('Webhook deleted successfully');
+                await loadWebhooks();
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to delete webhook', 'error');
+            } finally {
+                webhookToDelete = null;
+            }
+        });
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadWebhooks);
+    </script>
 </body>
 </html>

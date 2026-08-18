@@ -1,1 +1,1 @@
-X 2csXhrsrc/ItsTool.Web/Program.cs
+X 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js

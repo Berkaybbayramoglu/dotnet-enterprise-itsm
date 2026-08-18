@@ -4,66 +4,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Create Ticket</title>
+    <link rel="stylesheet" href="css/design-system.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { padding: 2rem; max-width: 800px; margin: auto; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
-        input, select, textarea { width: 100%; padding: 0.5rem; box-sizing: border-box; }
-        .btn { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
-        #dynamicFields { border: 1px solid #ccc; padding: 1rem; margin-top: 1rem; border-radius: 4px; background: #fff; }
+        .form-section { background: var(--bg-surface); padding: var(--spacing-lg); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-lg); border: 1px solid var(--border); }
+        .form-section h3 { font-size: 16px; margin-bottom: var(--spacing-md); color: var(--primary); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Create Ticket</h2>
-        <div class="nav">
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/tickets.html">Tickets</a>
-        </div>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+                </a>
+                <a href="/tickets.html" class="sidebar-nav-item active">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
+                </a>
+                <a href="/kanban.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm6 14H5V5h4v12zm6 0h-4V5h4v12zm6 0h-4V5h4v12z"/></svg> Kanban
+                </a>
+                <a href="/kb.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Knowledge Base
+                </a>
+                <a href="/audit-log.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Audit Log
+                </a>
+                <a href="/webhooks.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg> Webhooks
+                </a>
+                <a href="/rules.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
+                </a>
+                <a href="/admin-fields.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> Custom Fields
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
+                        <h2>Create New Ticket</h2>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <form id="createForm">
+                        <div class="form-section">
+                            <h3>Basic Details</h3>
+                            <div class="form-group">
+                                <label class="form-label" for="title">Title *</label>
+                                <input class="form-control" type="text" id="title" required placeholder="Brief summary of the issue">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="desc">Description *</label>
+                                <textarea class="form-control" id="desc" rows="5" required placeholder="Detailed description..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Categorization</h3>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="projectId">Project *</label>
+                                    <select class="form-control" id="projectId" required><option value="">Select Project</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="categoryId">Category *</label>
+                                    <select class="form-control" id="categoryId" required><option value="">Select Category</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="typeId">Ticket Type *</label>
+                                    <select class="form-control" id="typeId" required><option value="">Select Type</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="priorityId">Priority *</label>
+                                    <select class="form-control" id="priorityId" required><option value="">Select Priority</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Additional Information</h3>
+                            <div id="dynamicFields">
+                                <div class="empty-state" style="padding: var(--spacing-md);">
+                                    <p style="margin: 0; font-size: 13px;">Select Project, Category, and Type to load custom fields.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: var(--spacing-sm);">
+                            <a href="/tickets.html" class="btn btn-ghost">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Create Ticket</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
     </div>
-    
-    <div class="container">
-        <form id="createForm">
-            <div class="form-group">
-                <label for="title">Title *</label>
-                <input type="text" id="title" required>
-            </div>
-            <div class="form-group">
-                <label for="desc">Description *</label>
-                <textarea id="desc" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="projectId">Project *</label>
-                <select id="projectId" required><option value="">Select Project</option></select>
-            </div>
-            <div class="form-group">
-                <label for="categoryId">Category *</label>
-                <select id="categoryId" required><option value="">Select Category</option></select>
-            </div>
-            <div class="form-group">
-                <label for="typeId">Ticket Type *</label>
-                <select id="typeId" required><option value="">Select Type</option></select>
-            </div>
-            <div class="form-group">
-                <label for="priorityId">Priority *</label>
-                <select id="priorityId" required><option value="">Select Priority</option></select>
-            </div>
 
-            <div id="dynamicFields">
-                <i>Select Project, Category, and Type to load custom fields.</i>
-            </div>
-
-            <br>
-            <button type="submit" class="btn">Create Ticket</button>
-        </form>
-    </div>
-
-    <script src="js/api.js"></script>
     <script type="module">
+        import './js/api.js';
+        import { bindShellActions, showToast } from './js/ui.js';
+        
         if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
         
         let currentPlacements = [];
 
@@ -90,11 +147,13 @@
                 populate('priorityId', prios);
             } catch (err) {
                 console.error(err);
+                showToast('Failed to load lookup data', 'error');
             }
         }
 
         async function renderSelectField(def, place) {
             const input = document.createElement('select');
+            input.className = 'form-control';
             if (def.fieldType === 4) input.multiple = true;
             
             const opts = await window.api.getFieldOptions(def.id);
@@ -109,6 +168,7 @@
 
         function renderInputField(def) {
             const input = document.createElement('input');
+            input.className = 'form-control';
             if (def.fieldType === 0) input.type = 'text';
             else if (def.fieldType === 1) input.type = 'number';
             else if (def.fieldType === 2) input.type = 'date';
@@ -121,6 +181,7 @@
             fg.className = 'form-group';
             
             const lbl = document.createElement('label');
+            lbl.className = 'form-label';
             lbl.textContent = def.label + (place.isRequired ? ' *' : '');
             lbl.setAttribute('for', 'cf_' + def.key);
             fg.appendChild(lbl);
@@ -147,14 +208,14 @@
             if (!pId || !cId || !tId) return;
 
             const container = document.getElementById('dynamicFields');
-            container.innerHTML = 'Loading fields...';
+            container.innerHTML = '<p class="text-muted" style="text-align: center; font-size: 13px;">Loading fields...</p>';
 
             try {
                 currentPlacements = await window.api.getPlacements(pId, cId, tId);
                 container.innerHTML = '';
                 
                 if (currentPlacements.length === 0) {
-                    container.innerHTML = '<i>No custom fields configured for this selection.</i>';
+                    container.innerHTML = '<div class="empty-state" style="padding: var(--spacing-sm);"><p style="margin: 0; font-size: 13px;">No custom fields configured for this selection.</p></div>';
                     return;
                 }
 
@@ -165,9 +226,13 @@
                 }
             } catch (err) {
                 console.error(err);
-                container.innerHTML = '<span style="color:red">Failed to load fields.</span>';
+                container.innerHTML = '<span class="text-danger">Failed to load fields.</span>';
             }
         };
+
+        ['projectId', 'categoryId', 'typeId'].forEach(id => {
+            document.getElementById(id).addEventListener('change', window.loadDynamicFields);
+        });
 
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -197,21 +262,17 @@
             };
 
             try {
-                await window.api.request('/ticket', {
+                const res = await window.api.request('/ticket', {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-                alert('Ticket Created!');
-                window.location.href = '/tickets.html';
+                showToast('Ticket created successfully!');
+                setTimeout(() => window.location.href = `/ticket-detail.html?id=${res.id}`, 1000);
             } catch (err) {
                 console.error(err);
-                alert('Error: ' + err.message);
+                showToast('Failed to create ticket', 'error');
             }
         });
-
-        document.getElementById('projectId').addEventListener('change', window.loadDynamicFields);
-        document.getElementById('categoryId').addEventListener('change', window.loadDynamicFields);
-        document.getElementById('typeId').addEventListener('change', window.loadDynamicFields);
 
         await loadLookups();
     </script>

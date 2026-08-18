@@ -1,1 +1,1 @@
-F 2webX¬hr%src/ItsTool.Web/wwwroot/webhooks.html
+F 2webX´hr%src/ItsTool.Web/wwwroot/webhooks.html

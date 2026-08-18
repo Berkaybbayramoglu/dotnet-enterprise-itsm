@@ -1,1 +1,1 @@
-µ 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs
+µ 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs

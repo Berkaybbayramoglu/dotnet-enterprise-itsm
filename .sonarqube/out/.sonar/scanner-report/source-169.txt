@@ -2,26 +2,33 @@ using ItsTool.Application.DTOs;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IDynamicFormService
+public interface ICatalogService
 {
-    // FieldDefinition
-    Task<IEnumerable<FieldDefinitionDto>> GetFieldDefinitionsAsync();
-    Task<FieldDefinitionDto?> GetFieldDefinitionByIdAsync(int id);
-    Task<FieldDefinitionDto> CreateFieldDefinitionAsync(CreateFieldDefinitionDto dto);
-    Task UpdateFieldDefinitionAsync(int id, UpdateFieldDefinitionDto dto);
-    Task DeleteFieldDefinitionAsync(int id);
+    // Category
+    Task<IEnumerable<CategoryDto>> GetCategoriesAsync(int? projectId = null);
+    Task<CategoryDto?> GetCategoryByIdAsync(int id);
+    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
+    Task UpdateCategoryAsync(int id, UpdateCategoryDto dto);
+    Task DeleteCategoryAsync(int id);
 
-    // FieldOption
-    Task<IEnumerable<FieldOptionDto>> GetFieldOptionsAsync(int fieldDefinitionId);
-    Task<FieldOptionDto?> GetFieldOptionByIdAsync(int id);
-    Task<FieldOptionDto> CreateFieldOptionAsync(CreateFieldOptionDto dto);
-    Task UpdateFieldOptionAsync(int id, UpdateFieldOptionDto dto);
-    Task DeleteFieldOptionAsync(int id);
+    // TicketType
+    Task<IEnumerable<TicketTypeDto>> GetTicketTypesAsync();
+    Task<TicketTypeDto?> GetTicketTypeByIdAsync(int id);
+    Task<TicketTypeDto> CreateTicketTypeAsync(CreateTicketTypeDto dto);
+    Task UpdateTicketTypeAsync(int id, UpdateTicketTypeDto dto);
+    Task DeleteTicketTypeAsync(int id);
 
-    // FormFieldPlacement
-    Task<IEnumerable<FormFieldPlacementDto>> GetPlacementsAsync(int? projectId, int? categoryId, int? ticketTypeId);
-    Task<FormFieldPlacementDto?> GetPlacementByIdAsync(int id);
-    Task<FormFieldPlacementDto> CreatePlacementAsync(CreateFormFieldPlacementDto dto);
-    Task UpdatePlacementAsync(int id, UpdateFormFieldPlacementDto dto);
-    Task DeletePlacementAsync(int id);
+    // Status
+    Task<IEnumerable<StatusDto>> GetStatusesAsync();
+    Task<StatusDto?> GetStatusByIdAsync(int id);
+    Task<StatusDto> CreateStatusAsync(CreateStatusDto dto);
+    Task UpdateStatusAsync(int id, UpdateStatusDto dto);
+    Task DeleteStatusAsync(int id);
+
+    // Priority
+    Task<IEnumerable<PriorityDto>> GetPrioritiesAsync();
+    Task<PriorityDto?> GetPriorityByIdAsync(int id);
+    Task<PriorityDto> CreatePriorityAsync(CreatePriorityDto dto);
+    Task UpdatePriorityAsync(int id, UpdatePriorityDto dto);
+    Task DeletePriorityAsync(int id);
 }

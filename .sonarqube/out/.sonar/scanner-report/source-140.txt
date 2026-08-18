@@ -1,95 +1,59 @@
-using System;
-using System.Threading.Tasks;
-using ItsTool.Domain.Entities.SLA;
-using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
-using ItsTool.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class SlaEscalationTests : TestBase
+public class RoleServiceTests : TestBase
 {
-    private readonly SlaEngine _engine;
-    private readonly Mock<IEmailService> _mockEmailService;
-    private readonly Mock<INotificationDispatcher> _mockNotificationDispatcher;
+    private readonly Repository<Role> _repository;
+    private readonly RoleService _service;
 
-    public SlaEscalationTests() : base()
+    public RoleServiceTests()
     {
-        _mockEmailService = new Mock<IEmailService>();
-        _mockNotificationDispatcher = new Mock<INotificationDispatcher>();
-        _engine = new SlaEngine(_context, _mockEmailService.Object, _mockNotificationDispatcher.Object);
-        SeedBasicData().Wait();
-    }
-
-    private async Task SeedBasicData()
-    {
-        var lowPriority = new Priority { Name = "Low", SeverityLevel = 1 };
-        var highPriority = new Priority { Name = "High", SeverityLevel = 2 };
-        _context.Priorities.AddRange(lowPriority, highPriority);
-
-        var policy = new SlaPolicy { Name = "Escalate Policy", EscalateOnBreach = true, IsActive = true };
-        _context.SlaPolicies.Add(policy);
-        await _context.SaveChangesAsync();
-
-        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = policy.Id, PriorityId = lowPriority.Id, FirstResponseMinutes = 60, ResolutionMinutes = 120, IsActive = true });
-        await _context.SaveChangesAsync();
+        _repository = new Repository<Role>(_context);
+        _service = new RoleService(_repository, _context);
     }
 
     [Fact]
-    public async Task CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllows()
+    public async Task CreateAsync_ShouldCreateRole()
     {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
-        _context.Tickets.Add(ticket);
-        await _context.SaveChangesAsync();
+        var dto = new CreateRoleDto("Manager");
+        var result = await _service.CreateAsync(dto);
 
-        var sla = new TicketSla
-        {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10)
-        };
-        _context.TicketSlas.Add(sla);
-        await _context.SaveChangesAsync();
-
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
-
-        // Verify Escalation
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var highPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 2)).Id;
-        
-        Assert.Equal(highPriorityId, updatedTicket?.PriorityId); // Priority bumped
-        
-        var updatedSla = await _context.TicketSlas.FindAsync(sla.Id);
-        Assert.NotNull(updatedSla?.EscalatedAt); // EscalatedAt set
-
-        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breach", ticket.Id, null, It.IsAny<string>()), Times.Once);
+        Assert.NotNull(result);
+        Assert.Equal("Manager", result.Name);
     }
 
     [Fact]
-    public async Task TryEscalateAsync_ShouldBeIdempotent()
+    public async Task UpdateAsync_ShouldUpdateRole()
     {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
-        _context.Tickets.Add(ticket);
+        var role = new Role { Name = "Old" };
+        _context.Roles.Add(role);
         await _context.SaveChangesAsync();
 
-        var sla = new TicketSla
-        {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10),
-            EscalatedAt = DateTime.UtcNow.AddDays(-1) // Already escalated
-        };
-        _context.TicketSlas.Add(sla);
+        var dto = new UpdateRoleDto("New", true);
+        await _service.UpdateAsync(role.Id, dto);
+
+        var updated = await _context.Roles.FindAsync(role.Id);
+        Assert.Equal("New", updated!.Name);
+    }
+
+    [Fact]
+    public async Task AssignPermissionAsync_ShouldAssignPermission()
+    {
+        var role = new Role { Name = "R1" };
+        var perm = new Permission { Name = "P1", Key = "p1" };
+        _context.Roles.Add(role);
+        _context.Permissions.Add(perm);
         await _context.SaveChangesAsync();
 
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
+        await _service.AssignPermissionAsync(role.Id, perm.Id);
 
-        // Priority should still be low because it shouldn't escalate twice
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var lowPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 1)).Id;
-        Assert.Equal(lowPriorityId, updatedTicket?.PriorityId); 
+        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
+        Assert.NotNull(assigned);
     }
 }

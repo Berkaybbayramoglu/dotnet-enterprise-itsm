@@ -1,44 +1,60 @@
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class LocalFileStorageServiceTests
+public class GroupServiceTests : TestBase
 {
-    private readonly string _testPath = Path.Combine(Path.GetTempPath(), "ItsmTestUploads");
+    private readonly Repository<Group> _repository;
+    private readonly GroupService _service;
 
-    public LocalFileStorageServiceTests()
+    public GroupServiceTests()
     {
-        if (Directory.Exists(_testPath)) Directory.Delete(_testPath, true);
+        _repository = new Repository<Group>(_context);
+        _service = new GroupService(_repository, _context);
     }
 
     [Fact]
-    public async Task SaveFileAsync_ShouldRejectInvalidMime()
+    public async Task CreateAsync_ShouldCreateGroup()
     {
-        var configMock = new Mock<IConfiguration>();
-        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
-        var service = new LocalFileStorageService(configMock.Object);
+        var dto = new CreateGroupDto("Helpdesk", 1);
+        var result = await _service.CreateAsync(dto);
 
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
-        
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+        Assert.NotNull(result);
+        Assert.Equal("Helpdesk", result.Name);
+        Assert.Equal(1, result.DepartmentId);
     }
 
     [Fact]
-    public async Task SaveFileAsync_ShouldRejectLargeFile()
+    public async Task UpdateAsync_ShouldUpdateGroup()
     {
-        var configMock = new Mock<IConfiguration>();
-        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
-        var service = new LocalFileStorageService(configMock.Object);
+        var group = new Group { Name = "OldName", DepartmentId = 1 };
+        _context.Groups.Add(group);
+        await _context.SaveChangesAsync();
 
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.ContentType).Returns("application/pdf");
-        fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
-        
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+        var dto = new UpdateGroupDto("NewName", true, 2);
+        await _service.UpdateAsync(group.Id, dto);
+
+        var updated = await _context.Groups.FindAsync(group.Id);
+        Assert.Equal("NewName", updated!.Name);
+        Assert.Equal(2, updated.DepartmentId);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldSoftDeleteGroup()
+    {
+        var group = new Group { Name = "ToDelete", DepartmentId = 1 };
+        _context.Groups.Add(group);
+        await _context.SaveChangesAsync();
+
+        await _service.DeleteAsync(group.Id);
+
+        var deleted = await _context.Groups.FindAsync(group.Id);
+        Assert.True(deleted!.IsDeleted);
+        Assert.NotNull(deleted.DeletedAt);
     }
 }

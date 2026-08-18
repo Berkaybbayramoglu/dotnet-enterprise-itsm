@@ -1,64 +1,44 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Notification;
-using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class NotificationServiceTests : TestBase
+public class LocalFileStorageServiceTests
 {
-    private readonly NotificationService _service;
+    private readonly string _testPath = Path.Combine(Path.GetTempPath(), "ItsmTestUploads");
 
-    public NotificationServiceTests() : base()
+    public LocalFileStorageServiceTests()
     {
-        _service = new NotificationService(_context);
+        if (Directory.Exists(_testPath)) Directory.Delete(_testPath, true);
     }
 
     [Fact]
-    public async Task GetUserNotificationsAsync_ShouldReturnOnlyUserNotifications()
+    public async Task SaveFileAsync_ShouldRejectInvalidMime()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A" });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "B", Message = "B" });
-        await _context.SaveChangesAsync();
+        var configMock = new Mock<IConfiguration>();
+        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
+        var service = new LocalFileStorageService(configMock.Object);
 
-        var notifs = await _service.GetUserNotificationsAsync(1);
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
         
-        Assert.Single(notifs);
-        Assert.Equal("A", notifs.First().Title);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
     }
 
     [Fact]
-    public async Task MarkAsReadAsync_ShouldMarkSpecificNotification()
+    public async Task SaveFileAsync_ShouldRejectLargeFile()
     {
-        var n = new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false };
-        _context.Notifications.Add(n);
-        await _context.SaveChangesAsync();
+        var configMock = new Mock<IConfiguration>();
+        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
+        var service = new LocalFileStorageService(configMock.Object);
 
-        await _service.MarkAsReadAsync(n.Id, 1);
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.ContentType).Returns("application/pdf");
+        fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
         
-        var dbN = await _context.Notifications.FirstAsync();
-        Assert.True(dbN.IsRead);
-    }
-
-    [Fact]
-    public async Task MarkAllAsReadAsync_ShouldMarkAllForUser()
-    {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "B", Message = "B", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "C", Message = "C", IsRead = false });
-        await _context.SaveChangesAsync();
-
-        await _service.MarkAllAsReadAsync(1);
-        
-        var user1Notifs = await _context.Notifications.Where(n => n.UserId == 1).ToListAsync();
-        Assert.All(user1Notifs, n => Assert.True(n.IsRead));
-
-        var user2Notifs = await _context.Notifications.Where(n => n.UserId == 2).ToListAsync();
-        Assert.All(user2Notifs, n => Assert.False(n.IsRead));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
     }
 }
