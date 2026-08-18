@@ -4,47 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Custom Fields Admin</title>
+    <link rel="stylesheet" href="css/design-system.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { padding: 2rem; max-width: 900px; margin: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #004085; color: white; }
-        .btn { background: #155724; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
-        .btn-danger { background: #bd2130; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        
+        /* Modal for Create/Confirm */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(9,30,66,0.54); backdrop-filter: blur(4px); }
+        .modal-content { background-color: var(--bg-surface); margin: 10% auto; padding: 0; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: var(--shadow-lg); }
+        .modal-header { padding: var(--spacing-lg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { margin: 0; font-size: 18px; color: var(--text-main); }
+        .modal-body { padding: var(--spacing-lg); }
+        .modal-footer { padding: var(--spacing-md) var(--spacing-lg); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: var(--spacing-sm); background: var(--bg-hover); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
+        
+        .close-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .close-btn:hover { background: var(--bg-hover); color: var(--text-main); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Custom Fields Admin</h2>
-        <div class="nav">
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/rules.html">Rules</a>
-        </div>
-    </div>
-    
-    <div class="container">
-        <h3>Field Definitions</h3>
-        <button type="button" class="btn" id="btnCreateField">Create New Field</button>
-        <table id="fieldsTable">
-            <thead>
-                <tr>
-                    <th>Key</th>
-                    <th>Label</th>
-                    <th>Type</th>
-                    <th>Regex</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+                </a>
+                <a href="/tickets.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
+                </a>
+                <a href="/kanban.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm6 14H5V5h4v12zm6 0h-4V5h4v12zm6 0h-4V5h4v12z"/></svg> Kanban
+                </a>
+                <a href="/kb.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Knowledge Base
+                </a>
+                <a href="/audit-log.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Audit Log
+                </a>
+                <a href="/webhooks.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg> Webhooks
+                </a>
+                <a href="/rules.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
+                </a>
+                <a href="/admin-fields.html" class="sidebar-nav-item active">
+                    <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> Custom Fields
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2>Custom Fields Admin</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;">Field Definitions</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage dynamic form fields available across the system.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnCreateFieldModal">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Create New Field
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="fieldsTable">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Label</th>
+                                <th>Type</th>
+                                <th>Regex</th>
+                                <th style="width: 100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <script src="js/api.js"></script>
+    <!-- Create Field Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <form id="createForm">
+                <div class="modal-header">
+                    <h2>Create New Field</h2>
+                    <button type="button" class="close-btn" onclick="closeModal('createModal')" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="fKey">Field Key *</label>
+                        <input type="text" id="fKey" class="form-control" required placeholder="e.g. server_name">
+                        <small class="text-muted" style="display:block; margin-top: 4px;">Must be unique and contain no spaces.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="fLabel">Field Label *</label>
+                        <input type="text" id="fLabel" class="form-control" required placeholder="e.g. Server Name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="fType">Field Type *</label>
+                        <select id="fType" class="form-control" required>
+                            <option value="0">Text</option>
+                            <option value="1">Number</option>
+                            <option value="2">Date</option>
+                            <option value="3">Dropdown</option>
+                            <option value="4">MultiSelect</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Field</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+                <button type="button" class="close-btn" onclick="closeModal('confirmModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this field? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
+        import './js/api.js';
+        import { bindShellActions, showToast } from './js/ui.js';
+
         if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        let fieldToDelete = null;
+
+        window.openModal = function(id) {
+            document.getElementById(id).style.display = 'block';
+        };
+        
+        window.closeModal = function(id) {
+            document.getElementById(id).style.display = 'none';
+        };
 
         async function loadFields() {
             try {
@@ -53,42 +179,66 @@
                 tbody.innerHTML = '';
                 
                 const typeNames = ['Text', 'Number', 'Date', 'Dropdown', 'MultiSelect'];
+                const typeColors = ['info', 'warning', 'success', 'primary', 'default'];
+
+                if (fields.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No custom fields found.</td></tr>`;
+                    return;
+                }
 
                 fields.forEach(f => {
                     const tr = document.createElement('tr');
+                    const badgeClass = `badge badge-${typeColors[f.fieldType] || 'default'}`;
+                    
                     tr.innerHTML = `
-                        <td>${f.key}</td>
-                        <td>${f.label}</td>
-                        <td>${typeNames[f.fieldType]}</td>
-                        <td>${f.validationRegex || ''}</td>
+                        <td style="font-family: monospace; font-size: 13px;">${escapeHtml(f.key)}</td>
+                        <td style="font-weight: 500;">${escapeHtml(f.label)}</td>
+                        <td><span class="${badgeClass}">${typeNames[f.fieldType]}</span></td>
+                        <td class="text-muted" style="font-size: 13px;">${escapeHtml(f.validationRegex) || '-'}</td>
                         <td>
-                            <button type="button" class="btn btn-danger" onclick="deleteField(${f.id})">Delete</button>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" onclick="promptDelete(${f.id})">
+                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            </button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (err) {
                 console.error(err);
-                alert('Error loading fields');
+                showToast('Error loading fields', 'error');
             }
         }
 
-        window.deleteField = async function(id) {
-            if (confirm('Delete this field?')) {
-                try {
-                    await window.api.request(`/DynamicForm/definitions/${id}`, { method: 'DELETE' });
-                    await loadFields();
-                } catch (e) {
-                    console.error(e);
-                }
-            }
+        window.promptDelete = function(id) {
+            fieldToDelete = id;
+            openModal('confirmModal');
         };
 
-        document.getElementById('btnCreateField').addEventListener('click', async () => {
-            const key = prompt('Field Key (e.g. server_name):');
-            if (!key) return;
-            const label = prompt('Field Label:');
-            const typeStr = prompt('Type (0=Text, 1=Number, 2=Date, 3=Dropdown, 4=MultiSelect):', "0");
+        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+            if (!fieldToDelete) return;
+            try {
+                await window.api.request(`/DynamicForm/definitions/${fieldToDelete}`, { method: 'DELETE' });
+                closeModal('confirmModal');
+                showToast('Field deleted successfully');
+                await loadFields();
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to delete field', 'error');
+            } finally {
+                fieldToDelete = null;
+            }
+        });
+
+        document.getElementById('btnCreateFieldModal').addEventListener('click', () => {
+            document.getElementById('createForm').reset();
+            openModal('createModal');
+        });
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const key = document.getElementById('fKey').value.trim();
+            const label = document.getElementById('fLabel').value.trim();
+            const typeStr = document.getElementById('fType').value;
             
             try {
                 await window.api.request('/DynamicForm/definitions', {
@@ -100,11 +250,30 @@
                         validationRegex: null
                     })
                 });
+                closeModal('createModal');
+                showToast('Field created successfully');
                 await loadFields();
             } catch (e) {
                 console.error(e);
+                showToast('Failed to create field', 'error');
             }
         });
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
 
         await loadFields();
     </script>

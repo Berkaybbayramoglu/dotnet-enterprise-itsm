@@ -4,31 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Login</title>
+    <link rel="stylesheet" href="css/design-system.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h1 { margin-top: 0; color: #333; text-align: center; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; color: #4d4d4d; }
-        input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 0.75rem; background-color: #004085; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
-        button:hover { background-color: #004085; }
-        .error { color: red; text-align: center; margin-top: 1rem; display: none; }
+        body { 
+            background: linear-gradient(135deg, var(--primary) 0%, #002255 100%);
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+        }
+        .login-box { 
+            background: var(--bg-surface); padding: var(--spacing-xl); 
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); 
+            width: 100%; max-width: 400px; text-align: center;
+        }
+        .login-logo {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; background-color: var(--primary-light);
+            color: var(--primary); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);
+        }
+        .login-logo svg { width: 24px; height: 24px; fill: currentColor; }
+        h1 { margin-bottom: var(--spacing-lg); color: var(--text-main); font-size: 24px; }
+        .form-group { text-align: left; }
+        .error { color: var(--danger); text-align: center; margin-top: var(--spacing-md); display: none; font-size: 13px; font-weight: 500; }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <h1>ITSM Login</h1>
+        <div class="login-logo">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg>
+        </div>
+        <h1>Welcome Back</h1>
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">Kullanıcı Adı veya E-posta</label>
-                <input type="text" id="username" autocomplete="username" required>
+                <label class="form-label" for="username">Username or Email</label>
+                <input type="text" id="username" class="form-control" autocomplete="username" required>
             </div>
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" autocomplete="current-password" required>
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" class="form-control" autocomplete="current-password" required>
             </div>
-            <button type="submit">Login</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md); padding: 10px;">Sign In</button>
             <div id="errorMessage" class="error"></div>
         </form>
     </div>

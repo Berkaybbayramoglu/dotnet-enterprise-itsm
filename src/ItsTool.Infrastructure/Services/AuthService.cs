@@ -30,8 +30,8 @@ public class AuthService : IAuthService
 
         var user = await _context.Users
             .FirstOrDefaultAsync(u => 
-                (u.Username.Equals(request.Username, StringComparison.OrdinalIgnoreCase) || 
-                 u.Email.Equals(request.Username, StringComparison.OrdinalIgnoreCase)) && 
+                (u.Username.ToLower() == request.Username.ToLower() || 
+                 u.Email.ToLower() == request.Username.ToLower()) && 
                 u.IsActive && !u.IsDeleted);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))

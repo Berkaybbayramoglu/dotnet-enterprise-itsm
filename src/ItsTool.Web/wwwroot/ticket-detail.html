@@ -4,87 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Ticket Detail</title>
+    <link rel="stylesheet" href="css/design-system.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .header { background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { padding: 2rem; max-width: 1000px; margin: auto; display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
-        h3 { margin-top: 0; }
-        .property-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .property-grid div { margin-bottom: 0.5rem; }
-        .property-grid label { font-weight: bold; color: #4d4d4d; display: block; font-size: 0.9rem; }
-        .comment { border-bottom: 1px solid #eee; padding: 1rem 0; }
-        .comment:last-child { border-bottom: none; }
-        .comment-meta { font-size: 0.8rem; color: #4d4d4d; margin-bottom: 0.5rem; }
-        .btn { background: #004085; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; }
-        textarea, select { width: 100%; padding: 0.5rem; box-sizing: border-box; margin-bottom: 1rem; }
-        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; color: white; }
+        .detail-container { display: grid; grid-template-columns: minmax(0, 2fr) 300px; gap: var(--spacing-lg); }
+        .ticket-header { margin-bottom: var(--spacing-md); }
+        .ticket-number { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+        .ticket-title { font-size: 24px; color: var(--text-main); margin: var(--spacing-xs) 0 var(--spacing-md) 0; }
+        
+        .description-box { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 14px; line-height: 1.6; margin-bottom: var(--spacing-xl); }
+        
+        .comment-thread { display: flex; flex-direction: column; gap: var(--spacing-md); }
+        .comment { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+        .comment.internal { background: #FFFAE6; border-color: #FFE380; } /* Yellowish for internal */
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); font-size: 12px; color: var(--text-muted); }
+        
+        .property-group { margin-bottom: var(--spacing-md); }
+        .property-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .property-value { font-size: 14px; color: var(--text-main); display: flex; align-items: center; gap: var(--spacing-sm); }
+        
+        .sidebar-panel { background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--spacing-md); border: 1px solid var(--border); }
+        .panel-divider { height: 1px; background: var(--border); margin: var(--spacing-md) 0; border: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Ticket Details</h2>
-        <div class="nav">
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/tickets.html">List</a>
-            <a href="/kanban.html">Kanban</a>
-        </div>
-    </div>
-    
-    <div class="container" id="content" style="display:none;">
-        <div class="main-column">
-            <div class="card">
-                <h3><span id="tNumber"></span> - <span id="tTitle"></span></h3>
-                <p id="tDesc"></p>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
             </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+                </a>
+                <a href="/tickets.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
+                </a>
+                <a href="/kanban.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm6 14H5V5h4v12zm6 0h-4V5h4v12zm6 0h-4V5h4v12z"/></svg> Kanban
+                </a>
+                <a href="/kb.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Knowledge Base
+                </a>
+                <a href="/audit-log.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Audit Log
+                </a>
+                <a href="/webhooks.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg> Webhooks
+                </a>
+                <a href="/rules.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
+                </a>
+                <a href="/admin-fields.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> Custom Fields
+                </a>
+            </nav>
+        </aside>
 
-            <div class="card">
-                <h3>Comments</h3>
-                <div id="commentsList"></div>
-                
-                <h4 style="margin-top: 2rem;">Add a Comment</h4>
-                <form id="commentForm">
-                    <textarea id="commentText" rows="4" required placeholder="Type your comment..." aria-label="Comment"></textarea>
-                    <button type="submit" class="btn">Post Comment</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="side-column">
-            <div class="card">
-                <h3>Properties</h3>
-                <div class="property-grid">
-                    <div><strong>Status</strong> <span id="tStatus"></span></div>
-                    <div><strong>Priority</strong> <span id="tPriority"></span></div>
-                    <div><strong>Project</strong> <span id="tProject"></span></div>
-                    <div><strong>Category</strong> <span id="tCategory"></span></div>
-                    <div><strong>Requester</strong> <span id="tReq"></span></div>
-                    <div><strong>Assignee</strong> <span id="tAssigned"></span></div>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
+                        <h2>Ticket Detail</h2>
+                    </div>
                 </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
 
-                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
-                
-                <h4>Change Status</h4>
-                <select id="statusSelect" aria-label="Status">
-                    <option value="1">Açık</option>
-                    <option value="2">Devam Ediyor</option>
-                    <option value="3">Beklemede</option>
-                    <option value="4">Çözüldü</option>
-                    <option value="5">Kapatıldı</option>
-                </select>
-                <button type="button" class="btn" id="btnChangeStatus" style="width:100%">Update Status</button>
-                
-                <div id="csatLink" style="display:none; margin-top: 1rem; text-align: center;">
-                    <a href="#" id="surveyBtn" class="btn" style="background: #155724; text-decoration: none; display: block;">Fill CSAT Survey</a>
+            <div class="content-area">
+                <div class="detail-container" id="content" style="display:none;">
+                    <div class="main-column">
+                        <div class="ticket-header">
+                            <div class="ticket-number" id="tNumber"></div>
+                            <h1 class="ticket-title" id="tTitle"></h1>
+                        </div>
+                        
+                        <div class="property-label">Description</div>
+                        <div class="description-box" id="tDesc"></div>
+
+                        <div class="property-label mb-md">Activity</div>
+                        <div class="comment-thread" id="commentsList"></div>
+                        
+                        <div style="margin-top: var(--spacing-xl);">
+                            <form id="commentForm">
+                                <textarea id="commentText" class="form-control mb-sm" rows="4" required placeholder="Add a comment..." aria-label="Comment"></textarea>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label style="font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                        <input type="checkbox" id="isInternalComment"> Internal Note
+                                    </label>
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="side-column">
+                        <div class="sidebar-panel">
+                            <div class="property-group">
+                                <div class="property-label">Status</div>
+                                <div class="property-value">
+                                    <select id="statusSelect" class="form-control" style="width:100%" aria-label="Status">
+                                        <option value="1">Open</option>
+                                        <option value="2">In Progress</option>
+                                        <option value="3">Pending</option>
+                                        <option value="4">Resolved</option>
+                                        <option value="5">Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <hr class="panel-divider">
+                            
+                            <div class="property-group">
+                                <div class="property-label">Assignee</div>
+                                <div class="property-value" id="tAssigned"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Requester</div>
+                                <div class="property-value" id="tReq"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Priority</div>
+                                <div class="property-value" id="tPriority"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Project</div>
+                                <div class="property-value" id="tProject"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Category</div>
+                                <div class="property-value" id="tCategory"></div>
+                            </div>
+
+                            <div id="csatLink" style="display:none; margin-top: var(--spacing-lg);">
+                                <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%">Fill CSAT Survey</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <script src="js/api.js"></script>
     <script type="module">
+        import './js/api.js';
+        import { bindShellActions, showToast } from './js/ui.js';
+
         if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        const getAvatar = (id, fallback) => {
+            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
+            const initial = String(fallback || id).charAt(0).toUpperCase();
+            return `<div class="avatar" title="${fallback}">${initial}</div>`;
+        };
 
         const urlParams = new URLSearchParams(window.location.search);
         const ticketId = urlParams.get('id');
@@ -95,19 +171,25 @@
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 document.getElementById('tNumber').textContent = t.ticketNumber;
                 document.getElementById('tTitle').textContent = t.title;
-                document.getElementById('tDesc').textContent = t.description;
-                document.getElementById('tStatus').textContent = `Status ${t.statusId}`;
-                document.getElementById('tPriority').textContent = `Priority ${t.priorityId}`;
-                document.getElementById('tProject').textContent = `Project ${t.projectId}`;
-                document.getElementById('tCategory').textContent = `Category ${t.categoryId}`;
-                document.getElementById('tReq').textContent = `User ${t.requesterUserId}`;
-                document.getElementById('tAssigned').textContent = t.assignedUserId ? `User ${t.assignedUserId}` : 'Unassigned';
+                document.getElementById('tDesc').textContent = t.description || 'No description provided.';
+                
+                // Mocks
+                const priorities = {1:'Critical', 2:'High', 3:'Medium', 4:'Low'};
+                
+                document.getElementById('tPriority').textContent = priorities[t.priorityId] || t.priorityId;
+                document.getElementById('tProject').textContent = `PRJ-${t.projectId || '0'}`;
+                document.getElementById('tCategory').textContent = `CAT-${t.categoryId || '0'}`;
+                
+                document.getElementById('tReq').innerHTML = `${getAvatar(t.requesterUserId, t.requesterUserId)} User ${t.requesterUserId}`;
+                document.getElementById('tAssigned').innerHTML = t.assignedUserId ? `${getAvatar(t.assignedUserId, t.assignedUserId)} User ${t.assignedUserId}` : '<span class="text-muted">Unassigned</span>';
 
                 document.getElementById('statusSelect').value = t.statusId;
 
                 if (t.statusId === 5) {
                     document.getElementById('csatLink').style.display = 'block';
                     document.getElementById('surveyBtn').href = `/survey.html?id=${t.id}`;
+                } else {
+                    document.getElementById('csatLink').style.display = 'none';
                 }
 
                 document.getElementById('content').style.display = 'grid';
@@ -115,7 +197,7 @@
                 await loadComments();
             } catch(e) { 
                 console.error(e);
-                alert('Error loading ticket'); 
+                showToast('Error loading ticket', 'error'); 
             }
         }
 
@@ -126,9 +208,16 @@
                 list.innerHTML = '';
                 comments.forEach(c => {
                     const div = document.createElement('div');
-                    div.className = 'comment';
+                    div.className = `comment ${c.isInternal ? 'internal' : ''}`;
                     div.innerHTML = `
-                        <div class="comment-meta">User ${c.authorUserId} - ${new Date(c.createdAt).toLocaleString()} ${c.isInternal ? '<span class="badge" style="background:#bd2130">Internal</span>' : ''}</div>
+                        <div class="comment-header">
+                            <div class="d-flex align-items-center gap-sm">
+                                ${getAvatar(c.authorUserId, c.authorUserId)}
+                                <strong>User ${c.authorUserId}</strong>
+                                <span>${new Date(c.createdAt).toLocaleString()}</span>
+                            </div>
+                            ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                        </div>
                         <div>${escapeHtml(c.content)}</div>
                     `;
                     list.appendChild(div);
@@ -139,31 +228,34 @@
         document.getElementById('commentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const content = document.getElementById('commentText').value;
+            const isInternal = document.getElementById('isInternalComment').checked;
             try {
                 await window.api.request(`/Ticket/${ticketId}/comments`, {
                     method: 'POST',
-                    body: JSON.stringify({ content: content, isInternal: false })
+                    body: JSON.stringify({ content: content, isInternal: isInternal })
                 });
                 document.getElementById('commentText').value = '';
+                document.getElementById('isInternalComment').checked = false;
+                showToast('Comment added');
                 await loadComments();
             } catch(e) { 
                 console.error(e);
-                alert('Error adding comment'); 
+                showToast('Error adding comment', 'error'); 
             }
         });
 
-        document.getElementById('btnChangeStatus').addEventListener('click', async () => {
-            const newStatus = Number.parseInt(document.getElementById('statusSelect').value);
+        document.getElementById('statusSelect').addEventListener('change', async (e) => {
+            const newStatus = Number.parseInt(e.target.value);
             try {
                 await window.api.request(`/Ticket/${ticketId}/status`, {
                     method: 'POST',
                     body: JSON.stringify(newStatus)
                 });
-                alert('Status updated');
+                showToast('Status updated');
                 await loadTicket();
             } catch(e) { 
                 console.error(e);
-                alert('Failed: ' + e.message); 
+                showToast('Failed to update status', 'error'); 
             }
         });
 
