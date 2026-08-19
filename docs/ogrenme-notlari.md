@@ -128,3 +128,8 @@ Son olarak, .NET backend tarafındaki C# Enum tipleri (örn. `FieldType.Text = 0
 - **Sorun:** `webhooks.html` ve `rules.html` sayfalarında modalları açan butonlar çalışmıyordu.
 - **Teşhis:** `<script type="module">` (ESM) kullanıldığında, tanımlanan fonksiyonlar `window` objesine atanmadıkça global scope'ta görünmez. Dahası, `onclick="showCreateModal()"` inline event handler'ları ESM ile senkronize değildir.
 - **Çözüm:** Tüm inline `onclick` handler'ları kaldırılarak element ID'leri üzerinden `addEventListener` kullanımı standartlaştırıldı.
+
+## EF Core Include ve Navigation Property Kısıtlamaları (Faz 14)
+- **Problem:** Dashboard üzerinde sayım (`CountAsync`) sorgularında `t => t.Status != null` ve `!t.Status.IsClosedStatus` kullanılmasına rağmen sonuçların hep 0 (sıfır) dönmesi.
+- **Teşhis:** EF Core 3.0 ve sonrasında *Client-Side Evaluation* kısıtlanmıştır. Eğer `query` nesnesinde `Include(t => t.Status)` yoksa, `t.Status` property'sine Navigation (erişim) sırasında ya `null` değerlendirilir ve sayım boş döner ya da SQL çevirisinde beklenmedik INNER JOIN'ler oluşturarak filtreyi daraltır. 
+- **Çözüm:** Tüm navigasyon property'leri (Status, Priority, Project vb.) ana base sorguya `.Include()` ile eklenerek hem bellek içi sayımların hem de ilişkisel veritabanı filtrelerinin doğru işlemesi sağlandı.

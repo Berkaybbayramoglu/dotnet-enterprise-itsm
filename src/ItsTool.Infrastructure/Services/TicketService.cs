@@ -194,7 +194,10 @@ public class TicketService : ITicketService
         var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId && !x.IsDeleted);
         if (t == null) throw new KeyNotFoundException(TicketNotFoundMessage);
 
-        var wf = await _context.Workflows.FirstOrDefaultAsync(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted);
+        var wf = await _context.Workflows
+            .Where(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted)
+            .OrderByDescending(w => w.ProjectId == t.ProjectId ? 1 : 0)
+            .FirstOrDefaultAsync();
         if (wf == null) return Enumerable.Empty<StatusDto>();
 
         var userPerms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
@@ -244,7 +247,10 @@ public class TicketService : ITicketService
         if (t.StatusId == dto.NewStatusId) return;
 
         // Verify Workflow Transition
-        var wf = await _context.Workflows.FirstOrDefaultAsync(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted);
+        var wf = await _context.Workflows
+            .Where(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted)
+            .OrderByDescending(w => w.ProjectId == t.ProjectId ? 1 : 0)
+            .FirstOrDefaultAsync();
         if (wf == null) throw new InvalidOperationException("No workflow found for project.");
 
         var transition = await _context.WorkflowTransitions.FirstOrDefaultAsync(wt => 

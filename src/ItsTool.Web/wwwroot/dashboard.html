@@ -104,7 +104,7 @@
                     </div>
                     <div class="card" style="border-left: 4px solid var(--success);">
                         <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Avg CSAT</div>
-                        <div style="font-size: 32px; font-weight: 700; color: var(--success); margin-top: var(--spacing-xs);">${overview.avgCsatScore ?? 0}</div>
+                        <div style="font-size: 32px; font-weight: 700; color: var(--success); margin-top: var(--spacing-xs);">${overview.csatAverage ?? 0}</div>
                     </div>
                 `;
                 document.getElementById('overviewCards').innerHTML = cardsHtml;
@@ -128,6 +128,7 @@
                 });
 
             } catch (err) {
+                console.warn("Defensive rendering triggered due to error:", err);
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
@@ -137,7 +138,6 @@
                     }
                 }
 
-                console.error(err);
                 if(err.message === 'Unauthorized') return;
                 showToast('Error loading dashboard', 'error');
             }

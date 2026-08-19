@@ -24,7 +24,14 @@ public class DashboardService : IDashboardService
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
         
-        var query = _context.Tickets.Include(t => t.TicketSla).Where(t => !t.IsDeleted);
+        var query = _context.Tickets
+            .Include(t => t.TicketSla)
+            .Include(t => t.Status)
+            .Include(t => t.Priority)
+            .Include(t => t.Project)
+            .Include(t => t.Category)
+            .Include(t => t.AssignedUser)
+            .Where(t => !t.IsDeleted);
 
         if (perms.Contains("report.view"))
         {
