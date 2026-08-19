@@ -1,0 +1,15 @@
+--- src/ItsTool.Infrastructure/Data/DataSeeder.cs
++++ src/ItsTool.Infrastructure/Data/DataSeeder.cs
+@@ -236,7 +236,6 @@
+         }
+ 
+-            var openStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Açık");
++        var openStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Açık");
+-            var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
++        var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
+-            var onHoldStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Beklemede");
++        var onHoldStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Beklemede");
+-            var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
++        var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
+-            var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
++        var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");

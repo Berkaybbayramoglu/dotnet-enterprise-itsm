@@ -1,0 +1,14 @@
+--- src/ItsTool.Infrastructure/Data/DataSeeder.cs
++++ src/ItsTool.Infrastructure/Data/DataSeeder.cs
+@@ -236,7 +236,7 @@
+         var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
++        var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
+ 
+         if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
+         {
+-                var existingCount = await _context.WorkflowTransitions.CountAsync(wt => wt.WorkflowId == defaultWorkflow.Id);
+-                if (existingCount < 14)
+-            {
++            var existingCount = await _context.WorkflowTransitions.CountAsync(wt => wt.WorkflowId == defaultWorkflow.Id);
++            if (existingCount < 14)
++            {

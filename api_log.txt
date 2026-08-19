@@ -1,0 +1,2264 @@
+Building...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (35ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "TicketTypes" AS t)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Statuses" AS s)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Priorities" AS p)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Departments" AS d)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT d."Id", d."CreatedAt", d."CreatedBy", d."DeletedAt", d."Description", d."IsActive", d."IsDeleted", d."Name", d."UpdatedAt", d."UpdatedBy"
+      FROM "Departments" AS d
+      WHERE d."Name" = 'Bilgi Teknolojileri'
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Groups" AS g)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."CreatedAt", r."CreatedBy", r."DeletedAt", r."IsActive", r."IsDeleted", r."Name", r."UpdatedAt", r."UpdatedBy"
+      FROM "Roles" AS r
+      WHERE r."Name" = 'SuperAdmin'
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."DeletedAt", p."IsActive", p."IsDeleted", p."Key", p."Name", p."UpdatedAt", p."UpdatedBy"
+      FROM "Permissions" AS p
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@__superAdminRole_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Id", r."CreatedAt", r."CreatedBy", r."DeletedAt", r."IsActive", r."IsDeleted", r."PermissionId", r."RoleId", r."UpdatedAt", r."UpdatedBy"
+      FROM "RolePermissions" AS r
+      WHERE r."RoleId" = @__superAdminRole_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE u."Username" = 'admin'
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__adminUser_Id_0='?' (DbType = Int32), @__superAdminRole_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "UserRoles" AS u
+          WHERE u."UserId" = @__adminUser_Id_0 AND u."RoleId" = @__superAdminRole_Id_1)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Projects" AS p)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE p."ProjectKey" = 'ITS'
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Categories" AS c)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "FieldDefinitions" AS f)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "SlaPolicies" AS s)
+info: ItsTool.API.HostedServices.SlaCheckerService[0]
+      SLA Checker Service running.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+warn: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[16]
+      The WebRootPath was not found: /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/wwwroot. Static files may be unavailable.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5246
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."CreatedAt", c."CreatedBy", c."DefaultAssigneeGroupId", c."DeletedAt", c."Description", c."IsActive", c."IsDeleted", c."Name", c."ParentCategoryId", c."ProjectId", c."UpdatedAt", c."UpdatedBy"
+      FROM "Categories" AS c
+      WHERE NOT (c."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ColorHex", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."Icon", t."IsActive", t."IsDeleted", t."IsSystemDefault", t."Name", t."ProjectId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketTypes" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."ColorHex", p."CreatedAt", p."CreatedBy", p."DeletedAt", p."IsActive", p."IsDeleted", p."Name", p."ProjectId", p."SeverityLevel", p."SortOrder", p."UpdatedAt", p."UpdatedBy", p."Weight"
+      FROM "Priorities" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."CreatedAt", c."CreatedBy", c."DefaultAssigneeGroupId", c."DeletedAt", c."Description", c."IsActive", c."IsDeleted", c."Name", c."ParentCategoryId", c."ProjectId", c."UpdatedAt", c."UpdatedBy"
+      FROM "Categories" AS c
+      WHERE NOT (c."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ColorHex", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."Icon", t."IsActive", t."IsDeleted", t."IsSystemDefault", t."Name", t."ProjectId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketTypes" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."ColorHex", p."CreatedAt", p."CreatedBy", p."DeletedAt", p."IsActive", p."IsDeleted", p."Name", p."ProjectId", p."SeverityLevel", p."SortOrder", p."UpdatedAt", p."UpdatedBy", p."Weight"
+      FROM "Priorities" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."CreatedAt", c."CreatedBy", c."DefaultAssigneeGroupId", c."DeletedAt", c."Description", c."IsActive", c."IsDeleted", c."Name", c."ParentCategoryId", c."ProjectId", c."UpdatedAt", c."UpdatedBy"
+      FROM "Categories" AS c
+      WHERE NOT (c."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ColorHex", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."Icon", t."IsActive", t."IsDeleted", t."IsSystemDefault", t."Name", t."ProjectId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketTypes" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."ColorHex", p."CreatedAt", p."CreatedBy", p."DeletedAt", p."IsActive", p."IsDeleted", p."Name", p."ProjectId", p."SeverityLevel", p."SortOrder", p."UpdatedAt", p."UpdatedBy", p."Weight"
+      FROM "Priorities" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsDeleted", s."Name", s."QueryJson", s."UpdatedAt", s."UpdatedBy", s."UserId"
+      FROM "SavedFilters" AS s
+      WHERE s."UserId" = @__userId_0 AND NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsDeleted", s."Name", s."QueryJson", s."UpdatedAt", s."UpdatedBy", s."UserId"
+      FROM "SavedFilters" AS s
+      WHERE s."UserId" = @__userId_0 AND NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND p."SeverityLevel" = 1 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseWarned" OR t0."ResolutionWarned") AND NOT (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t."AssignedUserId" IS NULL AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "TicketSurveys" AS t)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY s."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Projects" AS p ON t."ProjectId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT c."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Categories" AS c ON t."CategoryId" = c."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY c."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsDeleted", s."Name", s."QueryJson", s."UpdatedAt", s."UpdatedBy", s."UserId"
+      FROM "SavedFilters" AS s
+      WHERE s."UserId" = @__userId_0 AND NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."CreatedAt", c."CreatedBy", c."DefaultAssigneeGroupId", c."DeletedAt", c."Description", c."IsActive", c."IsDeleted", c."Name", c."ParentCategoryId", c."ProjectId", c."UpdatedAt", c."UpdatedBy"
+      FROM "Categories" AS c
+      WHERE NOT (c."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ColorHex", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."Icon", t."IsActive", t."IsDeleted", t."IsSystemDefault", t."Name", t."ProjectId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketTypes" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."ColorHex", p."CreatedAt", p."CreatedBy", p."DeletedAt", p."IsActive", p."IsDeleted", p."Name", p."ProjectId", p."SeverityLevel", p."SortOrder", p."UpdatedAt", p."UpdatedBy", p."Weight"
+      FROM "Priorities" AS p
+      WHERE NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@__projectId_0='?' (DbType = Int32), @__categoryId_1='?' (DbType = Int32), @__ticketTypeId_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CategoryId", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldDefinitionId", f."IsActive", f."IsDeleted", f."IsRequired", f."ProjectId", f."SortOrder", f."TicketTypeId", f."UpdatedAt", f."UpdatedBy"
+      FROM "FormFieldPlacements" AS f
+      WHERE NOT (f."IsDeleted") AND f."ProjectId" = @__projectId_0 AND f."CategoryId" = @__categoryId_1 AND f."TicketTypeId" = @__ticketTypeId_2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE p."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__projectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentValue", p."DeletedAt", p."IsActive", p."IsDeleted", p."ProjectId", p."UpdatedAt", p."UpdatedBy"
+      FROM "ProjectSequences" AS p
+      WHERE p."ProjectId" = @__projectId_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = Int32), @p7='?' (DbType = DateTime), @p8='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "ProjectSequences" ("CreatedAt", "CreatedBy", "CurrentValue", "DeletedAt", "IsActive", "IsDeleted", "ProjectId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__projectId_0='?' (DbType = Int32), @__categoryId_1='?' (DbType = Int32), @__typeId_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CategoryId", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldDefinitionId", f."IsActive", f."IsDeleted", f."IsRequired", f."ProjectId", f."SortOrder", f."TicketTypeId", f."UpdatedAt", f."UpdatedBy", f0."Id", f0."CreatedAt", f0."CreatedBy", f0."DeletedAt", f0."FieldType", f0."IsActive", f0."IsDeleted", f0."Key", f0."Label", f0."UpdatedAt", f0."UpdatedBy", f0."ValidationRegex"
+      FROM "FormFieldPlacements" AS f
+      INNER JOIN "FieldDefinitions" AS f0 ON f."FieldDefinitionId" = f0."Id"
+      WHERE NOT (f."IsDeleted") AND f."IsActive" AND f."ProjectId" = @__projectId_0 AND f."CategoryId" = @__categoryId_1 AND f."TicketTypeId" = @__typeId_2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE s."IsSystemDefault" AND NOT (s."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?', @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Boolean), @p9='?' (DbType = Boolean), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = Int32), @p13='?' (DbType = Int32), @p14='?', @p15='?', @p16='?' (DbType = Int32), @p17='?' (DbType = DateTime), @p18='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Tickets" ("AssignedGroupId", "AssignedUserId", "CategoryId", "CreatedAt", "CreatedBy", "DeletedAt", "Description", "ExternalMessageId", "IsActive", "IsDeleted", "PriorityId", "ProjectId", "RequesterUserId", "StatusId", "TicketNumber", "Title", "TypeId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = DateTime), @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?', @p8='?', @p9='?' (DbType = Int32), @p10='?' (DbType = DateTime), @p11='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "TicketHistories" ("Action", "CreatedAt", "CreatedBy", "DeletedAt", "FieldName", "IsActive", "IsDeleted", "NewValue", "OldValue", "TicketId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."CategoryId", a."CreatedAt", a."CreatedBy", a."DeletedAt", a."IsActive", a."IsDeleted", a."Name", a."PriorityId", a."ProjectId", a."SortOrder", a."TargetGroupId", a."TargetUserId", a."TicketTypeId", a."UpdatedAt", a."UpdatedBy"
+      FROM "AssignmentRules" AS a
+      WHERE a."IsActive" AND NOT (a."IsDeleted")
+      ORDER BY a."SortOrder"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticket_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."Description", s."EscalateOnBreach", s."IsActive", s."IsDeleted", s."Name", s."ProjectId", s."UpdatedAt", s."UpdatedBy"
+      FROM "SlaPolicies" AS s
+      WHERE s."IsActive" AND (s."ProjectId" = @__ticket_ProjectId_0 OR s."ProjectId" IS NULL)
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__policy_Id_0='?' (DbType = Int32), @__ticket_PriorityId_1='?' (DbType = Int32), @__ticket_TypeId_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."FirstResponseMinutes", s."IsActive", s."IsDeleted", s."PriorityId", s."ResolutionMinutes", s."SlaPolicyId", s."TicketTypeId", s."UpdatedAt", s."UpdatedBy"
+      FROM "SlaTargets" AS s
+      WHERE s."SlaPolicyId" = @__policy_Id_0 AND s."PriorityId" = @__ticket_PriorityId_1 AND (s."TicketTypeId" = @__ticket_TypeId_2 OR s."TicketTypeId" IS NULL)
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT h."Id", h."CreatedAt", h."CreatedBy", h."Date", h."DeletedAt", h."IsActive", h."IsDeleted", h."IsRecurring", h."Name", h."UpdatedAt", h."UpdatedBy"
+      FROM "Holidays" AS h
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."CreatedAt", b."CreatedBy", b."DayOfWeek", b."DeletedAt", b."EndTime", b."IsActive", b."IsDeleted", b."IsWorkingDay", b."StartTime", b."UpdatedAt", b."UpdatedBy"
+      FROM "BusinessHours" AS b
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT h."Id", h."CreatedAt", h."CreatedBy", h."Date", h."DeletedAt", h."IsActive", h."IsDeleted", h."IsRecurring", h."Name", h."UpdatedAt", h."UpdatedBy"
+      FROM "Holidays" AS h
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."CreatedAt", b."CreatedBy", b."DayOfWeek", b."DeletedAt", b."EndTime", b."IsActive", b."IsDeleted", b."IsWorkingDay", b."StartTime", b."UpdatedAt", b."UpdatedBy"
+      FROM "BusinessHours" AS b
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?' (DbType = DateTime), @p4='?' (DbType = Boolean), @p5='?' (DbType = DateTime), @p6='?' (DbType = DateTime), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTime), @p11='?' (DbType = Boolean), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Boolean), @p15='?' (DbType = Int32), @p16='?' (DbType = Int32), @p17='?' (DbType = DateTime), @p18='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "TicketSlas" ("CreatedAt", "CreatedBy", "DeletedAt", "EscalatedAt", "FirstResponseBreached", "FirstResponseDueAt", "FirstResponseMetAt", "FirstResponseWarned", "IsActive", "IsDeleted", "PausedAt", "ResolutionBreached", "ResolutionDueAt", "ResolutionMetAt", "ResolutionWarned", "TicketId", "TotalPausedMinutes", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__eventKey_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT n."Id", n."CreatedAt", n."CreatedBy", n."DeletedAt", n."EventKey", n."IsActive", n."IsDeleted", n."TargetRole", n."UpdatedAt", n."UpdatedBy"
+      FROM "NotificationRules" AS n
+      WHERE n."EventKey" = @__eventKey_0 AND n."IsActive" AND NOT (n."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__id_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AuthorUserId", t."Content", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."IsActive", t."IsDeleted", t."IsInternal", t."TicketId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketComments" AS t
+      WHERE t."TicketId" = @__ticketId_0 AND NOT (t."IsDeleted") AND NOT (t."IsInternal")
+      ORDER BY t."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND p."SeverityLevel" = 1 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseWarned" OR t0."ResolutionWarned") AND NOT (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t."AssignedUserId" IS NULL AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "TicketSurveys" AS t)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY s."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Projects" AS p ON t."ProjectId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT c."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Categories" AS c ON t."CategoryId" = c."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY c."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsDeleted", s."Name", s."QueryJson", s."UpdatedAt", s."UpdatedBy", s."UserId"
+      FROM "SavedFilters" AS s
+      WHERE s."UserId" = @__userId_0 AND NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__id_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AuthorUserId", t."Content", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."IsActive", t."IsDeleted", t."IsInternal", t."TicketId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketComments" AS t
+      WHERE t."TicketId" = @__ticketId_0 AND NOT (t."IsDeleted") AND NOT (t."IsInternal")
+      ORDER BY t."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND p."SeverityLevel" = 1 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseWarned" OR t0."ResolutionWarned") AND NOT (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t."AssignedUserId" IS NULL AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "TicketSurveys" AS t)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY s."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Projects" AS p ON t."ProjectId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT c."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Categories" AS c ON t."CategoryId" = c."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY c."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsDeleted", s."Name", s."QueryJson", s."UpdatedAt", s."UpdatedBy", s."UserId"
+      FROM "SavedFilters" AS s
+      WHERE s."UserId" = @__userId_0 AND NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__id_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AuthorUserId", t."Content", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."IsActive", t."IsDeleted", t."IsInternal", t."TicketId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketComments" AS t
+      WHERE t."TicketId" = @__ticketId_0 AND NOT (t."IsDeleted") AND NOT (t."IsInternal")
+      ORDER BY t."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = DateTime), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (DbType = Boolean), @p8='?' (DbType = Int32), @p9='?' (DbType = DateTime), @p10='?', @p11='?', @p12='?' (DbType = DateTime), @p13='?', @p14='?' (DbType = DateTime), @p15='?', @p16='?' (DbType = Boolean), @p17='?' (DbType = Boolean), @p18='?', @p19='?', @p20='?' (DbType = Int32), @p21='?' (DbType = DateTime), @p22='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "TicketComments" ("AuthorUserId", "Content", "CreatedAt", "CreatedBy", "DeletedAt", "IsActive", "IsDeleted", "IsInternal", "TicketId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)
+      RETURNING "Id";
+      INSERT INTO "TicketHistories" ("Action", "CreatedAt", "CreatedBy", "DeletedAt", "FieldName", "IsActive", "IsDeleted", "NewValue", "OldValue", "TicketId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22)
+      RETURNING "Id";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketSlas" AS t
+      WHERE t."TicketId" = @__ticketId_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "TicketSlas" SET "FirstResponseMetAt" = @p0
+      WHERE "Id" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__eventKey_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT n."Id", n."CreatedAt", n."CreatedBy", n."DeletedAt", n."EventKey", n."IsActive", n."IsDeleted", n."TargetRole", n."UpdatedAt", n."UpdatedBy"
+      FROM "NotificationRules" AS n
+      WHERE n."EventKey" = @__eventKey_0 AND n."IsActive" AND NOT (n."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AuthorUserId", t."Content", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."IsActive", t."IsDeleted", t."IsInternal", t."TicketId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketComments" AS t
+      WHERE t."TicketId" = @__ticketId_0 AND NOT (t."IsDeleted") AND NOT (t."IsInternal")
+      ORDER BY t."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__id_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AuthorUserId", t."Content", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."IsActive", t."IsDeleted", t."IsInternal", t."TicketId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketComments" AS t
+      WHERE t."TicketId" = @__ticketId_0 AND NOT (t."IsDeleted") AND NOT (t."IsInternal")
+      ORDER BY t."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsDeleted", s."Name", s."QueryJson", s."UpdatedAt", s."UpdatedBy", s."UserId"
+      FROM "SavedFilters" AS s
+      WHERE s."UserId" = @__userId_0 AND NOT (s."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT k."Id", k."AuthorUserId", k."CategoryId", k."Content", k."CreatedAt", k."CreatedBy", k."DeletedAt", k."IsActive", k."IsDeleted", k."Status", k."Title", k."UpdatedAt", k."UpdatedBy", k."ViewCount", k."Visibility"
+      FROM "KnowledgeArticles" AS k
+      WHERE NOT (k."IsDeleted") AND k."Status" = 1 AND k."Visibility" = 1
+      ORDER BY k."CreatedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT k."Id", k."AuthorUserId", k."CategoryId", k."Content", k."CreatedAt", k."CreatedBy", k."DeletedAt", k."IsActive", k."IsDeleted", k."Status", k."Title", k."UpdatedAt", k."UpdatedBy", k."ViewCount", k."Visibility"
+      FROM "KnowledgeArticles" AS k
+      WHERE NOT (k."IsDeleted") AND k."Status" = 1 AND k."Visibility" = 1
+      ORDER BY k."CreatedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "TicketHistories" AS t
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketId", t."Action", t."FieldName", t."OldValue", t."NewValue", COALESCE(t."CreatedBy", 'system'), t."CreatedAt"
+      FROM "TicketHistories" AS t
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."EventsCsv", w."IsActive", w."IsDeleted", w."Secret", w."UpdatedAt", w."UpdatedBy", w."Url"
+      FROM "WebhookSubscriptions" AS w
+      WHERE NOT (w."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."CategoryId", a."CreatedAt", a."CreatedBy", a."DeletedAt", a."IsActive", a."IsDeleted", a."Name", a."PriorityId", a."ProjectId", a."SortOrder", a."TargetGroupId", a."TargetUserId", a."TicketTypeId", a."UpdatedAt", a."UpdatedBy"
+      FROM "AssignmentRules" AS a
+      WHERE NOT (a."IsDeleted")
+      ORDER BY a."SortOrder"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldType", f."IsActive", f."IsDeleted", f."Key", f."Label", f."UpdatedAt", f."UpdatedBy", f."ValidationRegex"
+      FROM "FieldDefinitions" AS f
+      WHERE NOT (f."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."CategoryId", a."CreatedAt", a."CreatedBy", a."DeletedAt", a."IsActive", a."IsDeleted", a."Name", a."PriorityId", a."ProjectId", a."SortOrder", a."TargetGroupId", a."TargetUserId", a."TicketTypeId", a."UpdatedAt", a."UpdatedBy"
+      FROM "AssignmentRules" AS a
+      WHERE NOT (a."IsDeleted")
+      ORDER BY a."SortOrder"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE p."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__projectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentValue", p."DeletedAt", p."IsActive", p."IsDeleted", p."ProjectId", p."UpdatedAt", p."UpdatedBy"
+      FROM "ProjectSequences" AS p
+      WHERE p."ProjectId" = @__projectId_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "ProjectSequences" SET "CurrentValue" = @p0
+      WHERE "Id" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__projectId_0='?' (DbType = Int32), @__categoryId_1='?' (DbType = Int32), @__typeId_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CategoryId", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldDefinitionId", f."IsActive", f."IsDeleted", f."IsRequired", f."ProjectId", f."SortOrder", f."TicketTypeId", f."UpdatedAt", f."UpdatedBy", f0."Id", f0."CreatedAt", f0."CreatedBy", f0."DeletedAt", f0."FieldType", f0."IsActive", f0."IsDeleted", f0."Key", f0."Label", f0."UpdatedAt", f0."UpdatedBy", f0."ValidationRegex"
+      FROM "FormFieldPlacements" AS f
+      INNER JOIN "FieldDefinitions" AS f0 ON f."FieldDefinitionId" = f0."Id"
+      WHERE NOT (f."IsDeleted") AND f."IsActive" AND f."ProjectId" = @__projectId_0 AND f."CategoryId" = @__categoryId_1 AND f."TicketTypeId" = @__typeId_2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE s."IsSystemDefault" AND NOT (s."IsDeleted")
+      LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (56ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?', @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Boolean), @p9='?' (DbType = Boolean), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = Int32), @p13='?' (DbType = Int32), @p14='?', @p15='?', @p16='?' (DbType = Int32), @p17='?' (DbType = DateTime), @p18='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Tickets" ("AssignedGroupId", "AssignedUserId", "CategoryId", "CreatedAt", "CreatedBy", "DeletedAt", "Description", "ExternalMessageId", "IsActive", "IsDeleted", "PriorityId", "ProjectId", "RequesterUserId", "StatusId", "TicketNumber", "Title", "TypeId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)
+      RETURNING "Id";
+fail: Microsoft.EntityFrameworkCore.Update[10000]
+      An exception occurred in the database while saving changes for context type 'ItsTool.Infrastructure.Data.ItsToolDbContext'.
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Npgsql.PostgresException (0x80004005): 23503: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+      
+      DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+         at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+         at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+        Exception data:
+          Severity: ERROR
+          SqlState: 23503
+          MessageText: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+          Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+          SchemaName: public
+          TableName: Tickets
+          ConstraintName: FK_Tickets_TicketTypes_TypeId
+          File: ri_triggers.c
+          Line: 2608
+          Routine: ri_ReportViolation
+         --- End of inner exception stack trace ---
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Npgsql.PostgresException (0x80004005): 23503: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+      
+      DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+         at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+         at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+        Exception data:
+          Severity: ERROR
+          SqlState: 23503
+          MessageText: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+          Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+          SchemaName: public
+          TableName: Tickets
+          ConstraintName: FK_Tickets_TicketTypes_TypeId
+          File: ri_triggers.c
+          Line: 2608
+          Routine: ri_ReportViolation
+         --- End of inner exception stack trace ---
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+fail: Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]
+      An unhandled exception has occurred while executing the request.
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Npgsql.PostgresException (0x80004005): 23503: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+      
+      DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+         at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+         at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+        Exception data:
+          Severity: ERROR
+          SqlState: 23503
+          MessageText: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+          Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+          SchemaName: public
+          TableName: Tickets
+          ConstraintName: FK_Tickets_TicketTypes_TypeId
+          File: ri_triggers.c
+          Line: 2608
+          Routine: ri_ReportViolation
+         --- End of inner exception stack trace ---
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at ItsTool.Infrastructure.Services.TicketService.CreateTicketAsync(CreateTicketDto dto) in /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs:line 130
+         at ItsTool.API.Controllers.TicketController.CreateTicket(CreateTicketDto dto) in /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/TicketController.cs:line 36
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+         at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+         at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldType", f."IsActive", f."IsDeleted", f."Key", f."Label", f."UpdatedAt", f."UpdatedBy", f."ValidationRegex"
+      FROM "FieldDefinitions" AS f
+      WHERE NOT (f."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."CategoryId", a."CreatedAt", a."CreatedBy", a."DeletedAt", a."IsActive", a."IsDeleted", a."Name", a."PriorityId", a."ProjectId", a."SortOrder", a."TargetGroupId", a."TargetUserId", a."TicketTypeId", a."UpdatedAt", a."UpdatedBy"
+      FROM "AssignmentRules" AS a
+      WHERE NOT (a."IsDeleted")
+      ORDER BY a."SortOrder"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."EventsCsv", w."IsActive", w."IsDeleted", w."Secret", w."UpdatedAt", w."UpdatedBy", w."Url"
+      FROM "WebhookSubscriptions" AS w
+      WHERE NOT (w."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "TicketHistories" AS t
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketId", t."Action", t."FieldName", t."OldValue", t."NewValue", COALESCE(t."CreatedBy", 'system'), t."CreatedAt"
+      FROM "TicketHistories" AS t
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT k."Id", k."AuthorUserId", k."CategoryId", k."Content", k."CreatedAt", k."CreatedBy", k."DeletedAt", k."IsActive", k."IsDeleted", k."Status", k."Title", k."UpdatedAt", k."UpdatedBy", k."ViewCount", k."Visibility"
+      FROM "KnowledgeArticles" AS k
+      WHERE NOT (k."IsDeleted") AND k."Status" = 1 AND k."Visibility" = 1
+      ORDER BY k."CreatedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__id_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AuthorUserId", t."Content", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."IsActive", t."IsDeleted", t."IsInternal", t."TicketId", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketComments" AS t
+      WHERE t."TicketId" = @__ticketId_0 AND NOT (t."IsDeleted") AND NOT (t."IsInternal")
+      ORDER BY t."CreatedAt"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND p."SeverityLevel" = 1 AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      LEFT JOIN "TicketSlas" AS t0 ON t."Id" = t0."TicketId"
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t0."Id" IS NOT NULL AND (t0."FirstResponseWarned" OR t0."ResolutionWarned") AND NOT (t0."FirstResponseBreached" OR t0."ResolutionBreached") AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0 AND t."AssignedUserId" IS NULL AND NOT (s."IsClosedStatus")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "TicketSurveys" AS t)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Statuses" AS s ON t."StatusId" = s."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY s."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Priorities" AS p ON t."PriorityId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Projects" AS p ON t."ProjectId" = p."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY p."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT c."Name", count(*)::int
+      FROM "Tickets" AS t
+      INNER JOIN "Categories" AS c ON t."CategoryId" = c."Id"
+      WHERE NOT (t."IsDeleted") AND t."RequesterUserId" = @__userId_0
+      GROUP BY c."Name"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketNumber", t."Title", t."Description", t."ProjectId", t."CategoryId", t."TypeId", t."StatusId", t."PriorityId", t."RequesterUserId", t."AssignedUserId", t."AssignedGroupId"
+      FROM "Tickets" AS t
+      WHERE NOT (t."IsDeleted")
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT k."Id", k."AuthorUserId", k."CategoryId", k."Content", k."CreatedAt", k."CreatedBy", k."DeletedAt", k."IsActive", k."IsDeleted", k."Status", k."Title", k."UpdatedAt", k."UpdatedBy", k."ViewCount", k."Visibility"
+      FROM "KnowledgeArticles" AS k
+      WHERE NOT (k."IsDeleted") AND k."Status" = 1 AND k."Visibility" = 1
+      ORDER BY k."CreatedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT count(*)::int
+      FROM "TicketHistories" AS t
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."TicketId", t."Action", t."FieldName", t."OldValue", t."NewValue", COALESCE(t."CreatedBy", 'system'), t."CreatedAt"
+      FROM "TicketHistories" AS t
+      ORDER BY t."CreatedAt" DESC
+      LIMIT @__p_1 OFFSET @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."EventsCsv", w."IsActive", w."IsDeleted", w."Secret", w."UpdatedAt", w."UpdatedBy", w."Url"
+      FROM "WebhookSubscriptions" AS w
+      WHERE NOT (w."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."CategoryId", a."CreatedAt", a."CreatedBy", a."DeletedAt", a."IsActive", a."IsDeleted", a."Name", a."PriorityId", a."ProjectId", a."SortOrder", a."TargetGroupId", a."TargetUserId", a."TicketTypeId", a."UpdatedAt", a."UpdatedBy"
+      FROM "AssignmentRules" AS a
+      WHERE NOT (a."IsDeleted")
+      ORDER BY a."SortOrder"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldType", f."IsActive", f."IsDeleted", f."Key", f."Label", f."UpdatedAt", f."UpdatedBy", f."ValidationRegex"
+      FROM "FieldDefinitions" AS f
+      WHERE NOT (f."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy", t0."Id", t0."AssignedGroupId", t0."AssignedUserId", t0."CategoryId", t0."CreatedAt", t0."CreatedBy", t0."DeletedAt", t0."Description", t0."ExternalMessageId", t0."IsActive", t0."IsDeleted", t0."PriorityId", t0."ProjectId", t0."RequesterUserId", t0."StatusId", t0."TicketNumber", t0."Title", t0."TypeId", t0."UpdatedAt", t0."UpdatedBy"
+      FROM "TicketSlas" AS t
+      INNER JOIN "Tickets" AS t0 ON t."TicketId" = t0."Id"
+      WHERE t."PausedAt" IS NULL AND (t."ResolutionMetAt" IS NULL OR t."FirstResponseMetAt" IS NULL)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ToLower_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT u."Id", u."CreatedAt", u."CreatedBy", u."DeletedAt", u."DepartmentId", u."Email", u."FirstName", u."IsActive", u."IsDeleted", u."LastName", u."PasswordHash", u."UpdatedAt", u."UpdatedBy", u."Username"
+      FROM "Users" AS u
+      WHERE (lower(u."Username") = @__ToLower_0 OR lower(u."Email") = @__ToLower_0) AND u."IsActive" AND NOT (u."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT r."Name"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      WHERE u."UserId" = @__user_Id_0 AND r."IsActive"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserRoles" AS u
+      INNER JOIN "Roles" AS r ON u."RoleId" = r."Id"
+      INNER JOIN "RolePermissions" AS r0 ON u."RoleId" = r0."RoleId"
+      INNER JOIN "Permissions" AS p ON r0."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND r."IsActive" AND NOT (r."IsDeleted") AND NOT (u."IsDeleted") AND NOT (r0."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "GroupMembers" AS g
+      INNER JOIN "Groups" AS g0 ON g."GroupId" = g0."Id"
+      INNER JOIN "GroupRoles" AS g1 ON g."GroupId" = g1."GroupId"
+      INNER JOIN "RolePermissions" AS r ON g1."RoleId" = r."RoleId"
+      INNER JOIN "Permissions" AS p ON r."PermissionId" = p."Id"
+      WHERE g."UserId" = @__userId_0 AND NOT (g."IsDeleted") AND g0."IsActive" AND NOT (g0."IsDeleted") AND NOT (g1."IsDeleted") AND NOT (r."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__userId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Key"
+      FROM "UserPermissionOverrides" AS u
+      INNER JOIN "Permissions" AS p ON u."PermissionId" = p."Id"
+      WHERE u."UserId" = @__userId_0 AND u."IsGranted" AND NOT (u."IsDeleted") AND p."IsActive" AND NOT (p."IsDeleted")
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentTicketSequence", p."DeletedAt", p."Description", p."IsActive", p."IsDeleted", p."Name", p."ProjectKey", p."UpdatedAt", p."UpdatedBy"
+      FROM "Projects" AS p
+      WHERE p."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__projectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT p."Id", p."CreatedAt", p."CreatedBy", p."CurrentValue", p."DeletedAt", p."IsActive", p."IsDeleted", p."ProjectId", p."UpdatedAt", p."UpdatedBy"
+      FROM "ProjectSequences" AS p
+      WHERE p."ProjectId" = @__projectId_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      UPDATE "ProjectSequences" SET "CurrentValue" = @p0
+      WHERE "Id" = @p1;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__projectId_0='?' (DbType = Int32), @__categoryId_1='?' (DbType = Int32), @__typeId_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT f."Id", f."CategoryId", f."CreatedAt", f."CreatedBy", f."DeletedAt", f."FieldDefinitionId", f."IsActive", f."IsDeleted", f."IsRequired", f."ProjectId", f."SortOrder", f."TicketTypeId", f."UpdatedAt", f."UpdatedBy", f0."Id", f0."CreatedAt", f0."CreatedBy", f0."DeletedAt", f0."FieldType", f0."IsActive", f0."IsDeleted", f0."Key", f0."Label", f0."UpdatedAt", f0."UpdatedBy", f0."ValidationRegex"
+      FROM "FormFieldPlacements" AS f
+      INNER JOIN "FieldDefinitions" AS f0 ON f."FieldDefinitionId" = f0."Id"
+      WHERE NOT (f."IsDeleted") AND f."IsActive" AND f."ProjectId" = @__projectId_0 AND f."CategoryId" = @__categoryId_1 AND f."TicketTypeId" = @__typeId_2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE s."IsSystemDefault" AND NOT (s."IsDeleted")
+      LIMIT 1
+fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+      Failed executing DbCommand (2ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime), @p4='?', @p5='?' (DbType = DateTime), @p6='?', @p7='?', @p8='?' (DbType = Boolean), @p9='?' (DbType = Boolean), @p10='?' (DbType = Int32), @p11='?' (DbType = Int32), @p12='?' (DbType = Int32), @p13='?' (DbType = Int32), @p14='?', @p15='?', @p16='?' (DbType = Int32), @p17='?' (DbType = DateTime), @p18='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "Tickets" ("AssignedGroupId", "AssignedUserId", "CategoryId", "CreatedAt", "CreatedBy", "DeletedAt", "Description", "ExternalMessageId", "IsActive", "IsDeleted", "PriorityId", "ProjectId", "RequesterUserId", "StatusId", "TicketNumber", "Title", "TypeId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)
+      RETURNING "Id";
+fail: Microsoft.EntityFrameworkCore.Update[10000]
+      An exception occurred in the database while saving changes for context type 'ItsTool.Infrastructure.Data.ItsToolDbContext'.
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Npgsql.PostgresException (0x80004005): 23503: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+      
+      DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+         at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+         at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+        Exception data:
+          Severity: ERROR
+          SqlState: 23503
+          MessageText: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+          Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+          SchemaName: public
+          TableName: Tickets
+          ConstraintName: FK_Tickets_TicketTypes_TypeId
+          File: ri_triggers.c
+          Line: 2608
+          Routine: ri_ReportViolation
+         --- End of inner exception stack trace ---
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Npgsql.PostgresException (0x80004005): 23503: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+      
+      DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+         at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+         at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+        Exception data:
+          Severity: ERROR
+          SqlState: 23503
+          MessageText: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+          Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+          SchemaName: public
+          TableName: Tickets
+          ConstraintName: FK_Tickets_TicketTypes_TypeId
+          File: ri_triggers.c
+          Line: 2608
+          Routine: ri_ReportViolation
+         --- End of inner exception stack trace ---
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+fail: Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]
+      An unhandled exception has occurred while executing the request.
+      Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+       ---> Npgsql.PostgresException (0x80004005): 23503: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+      
+      DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+         at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+         at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+         at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+        Exception data:
+          Severity: ERROR
+          SqlState: 23503
+          MessageText: insert or update on table "Tickets" violates foreign key constraint "FK_Tickets_TicketTypes_TypeId"
+          Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+          SchemaName: public
+          TableName: Tickets
+          ConstraintName: FK_Tickets_TicketTypes_TypeId
+          File: ri_triggers.c
+          Line: 2608
+          Routine: ri_ReportViolation
+         --- End of inner exception stack trace ---
+         at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+         at ItsTool.Infrastructure.Services.TicketService.CreateTicketAsync(CreateTicketDto dto) in /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs:line 130
+         at ItsTool.API.Controllers.TicketController.CreateTicket(CreateTicketDto dto) in /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/TicketController.cs:line 36
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+         at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+         at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+         at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedGroupId", t."AssignedUserId", t."CategoryId", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."Description", t."ExternalMessageId", t."IsActive", t."IsDeleted", t."PriorityId", t."ProjectId", t."RequesterUserId", t."StatusId", t."TicketNumber", t."Title", t."TypeId", t."UpdatedAt", t."UpdatedBy"
+      FROM "Tickets" AS t
+      WHERE t."Id" = @__ticketId_0 AND NOT (t."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@__t_ProjectId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."Description", w."IsActive", w."IsDeleted", w."Name", w."ProjectId", w."UpdatedAt", w."UpdatedBy"
+      FROM "Workflows" AS w
+      WHERE (w."ProjectId" = @__t_ProjectId_0 OR w."ProjectId" IS NULL) AND NOT (w."IsDeleted")
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__wf_Id_0='?' (DbType = Int32), @__t_StatusId_1='?' (DbType = Int32), @__dto_NewStatusId_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT w."Id", w."CreatedAt", w."CreatedBy", w."DeletedAt", w."FromStatusId", w."IsActive", w."IsDeleted", w."RequiredPermissionKey", w."SortOrder", w."ToStatusId", w."TransitionName", w."UpdatedAt", w."UpdatedBy", w."WorkflowId"
+      FROM "WorkflowTransitions" AS w
+      WHERE w."WorkflowId" = @__wf_Id_0 AND w."FromStatusId" = @__t_StatusId_1 AND w."ToStatusId" = @__dto_NewStatusId_2 AND NOT (w."IsDeleted") AND w."IsActive"
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?', @p3='?' (DbType = DateTime), @p4='?', @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?', @p8='?', @p9='?' (DbType = Int32), @p10='?' (DbType = DateTime), @p11='?', @p13='?' (DbType = Int32), @p12='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "TicketHistories" ("Action", "CreatedAt", "CreatedBy", "DeletedAt", "FieldName", "IsActive", "IsDeleted", "NewValue", "OldValue", "TicketId", "UpdatedAt", "UpdatedBy")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)
+      RETURNING "Id";
+      UPDATE "Tickets" SET "StatusId" = @p12
+      WHERE "Id" = @p13;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__ticketId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."CreatedAt", t."CreatedBy", t."DeletedAt", t."EscalatedAt", t."FirstResponseBreached", t."FirstResponseDueAt", t."FirstResponseMetAt", t."FirstResponseWarned", t."IsActive", t."IsDeleted", t."PausedAt", t."ResolutionBreached", t."ResolutionDueAt", t."ResolutionMetAt", t."ResolutionWarned", t."TicketId", t."TotalPausedMinutes", t."UpdatedAt", t."UpdatedBy"
+      FROM "TicketSlas" AS t
+      WHERE t."TicketId" = @__ticketId_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE s."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."ColorHex", s."CreatedAt", s."CreatedBy", s."DeletedAt", s."IsActive", s."IsClosedStatus", s."IsDeleted", s."IsSystemDefault", s."Name", s."PausesSla", s."ProjectId", s."SortOrder", s."UpdatedAt", s."UpdatedBy"
+      FROM "Statuses" AS s
+      WHERE s."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?' (DbType = DateTime), @p3='?', @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?', @p7='?' (DbType = DateTime), @p8='?', @p9='?'], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "WebhookSubscriptions" ("CreatedAt", "CreatedBy", "DeletedAt", "EventsCsv", "IsActive", "IsDeleted", "Secret", "UpdatedAt", "UpdatedBy", "Url")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)
+      RETURNING "Id";

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Groups</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        .member-list { margin-top: 8px; font-size: 13px; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+        .member-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+                </a>
+                <a href="/tickets.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
+                </a>
+                <div style="padding: 16px 20px 8px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Administration</div>
+                <a href="/projects.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2z"/></svg> Projects
+                </a>
+                <a href="/categories.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm15 0h-2v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg> Categories
+                </a>
+                <a href="/departments.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg> Departments
+                </a>
+                <a href="/groups.html" class="sidebar-nav-item active">
+                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Groups
+                </a>
+                <a href="/users.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Users
+                </a>
+                <a href="/roles.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> Roles
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2>Groups Management</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;">Groups</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage teams and their members.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="window.openGroupModal()">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New Group
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Department ID</th>
+                                <th>Members</th>
+                                <th style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Group Modal -->
+    <div id="groupModal" class="modal-overlay">
+        <div class="modal">
+            <form id="groupForm">
+                <input type="hidden" id="gId">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Group</h2>
+                    <button type="button" class="close-btn" onclick="closeModal('groupModal')" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="gName">Name *</label>
+                        <input type="text" id="gName" class="form-control" required placeholder="e.g. Helpdesk">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="gDept">Department ID</label>
+                        <input type="number" id="gDept" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('groupModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Members Modal -->
+    <div id="membersModal" class="modal-overlay">
+        <div class="modal" style="width: min(600px, 90%);">
+            <div class="modal-header">
+                <h2>Manage Members</h2>
+                <button type="button" class="close-btn" onclick="closeModal('membersModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted" style="margin-top:0;">Group: <strong id="mGroupName"></strong></p>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <select id="userSelect" class="form-control" style="flex: 1;">
+                        <!-- populated by JS -->
+                    </select>
+                    <button type="button" class="btn btn-secondary" id="btnAddMember">Add Member</button>
+                </div>
+                
+                <h4>Current Members</h4>
+                <div class="member-list" id="memberList">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+                <button type="button" class="close-btn" onclick="closeModal('deleteModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this group? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/api.js';
+        import { bindShellActions, showToast, escapeHtml } from './js/ui.js';
+
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        let currentData = [];
+        let allUsers = [];
+        let itemToDelete = null;
+        let activeGroupId = null;
+
+        window.loadData = async function() {
+            try {
+                currentData = await window.api.getGroups();
+                allUsers = await window.api.getUsers();
+                const tbody = document.querySelector('#dataTable tbody');
+                tbody.innerHTML = '';
+                
+                if (currentData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No groups found.</td></tr>`;
+                    return;
+                }
+
+                currentData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const memCount = item.memberIds ? item.memberIds.length : 0;
+                    tr.innerHTML = `
+                        <td class="text-muted">#${item.id}</td>
+                        <td style="font-weight: 500;">${escapeHtml(item.name)}</td>
+                        <td class="text-muted">${item.departmentId || '-'}</td>
+                        <td>${memCount} members</td>
+                        <td>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openMembersModal(${item.id})">Members</button>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openGroupModal(${item.id})">Edit</button>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" onclick="window.promptDelete(${item.id})">Del</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+
+                console.error(err);
+                showToast('Error loading groups', 'error');
+            }
+        };
+
+        window.openGroupModal = function(id = null) {
+            const form = document.getElementById('groupForm');
+            form.reset();
+            document.getElementById('gId').value = id || '';
+            document.getElementById('modalTitle').textContent = id ? 'Edit Group' : 'New Group';
+            
+            if (id) {
+                const item = currentData.find(x => x.id === id);
+                if (item) {
+                    document.getElementById('gName').value = item.name;
+                    document.getElementById('gDept').value = item.departmentId || '';
+                }
+            }
+            openModal('groupModal');
+        };
+
+        window.openMembersModal = function(id) {
+            activeGroupId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            
+            document.getElementById('mGroupName').textContent = item.name;
+            
+            // Populate select
+            const select = document.getElementById('userSelect');
+            select.innerHTML = '<option value="">-- Select User --</option>';
+            allUsers.forEach(u => {
+                if (!item.memberIds || !item.memberIds.includes(u.id)) {
+                    select.innerHTML += `<option value="${u.id}">${escapeHtml(u.firstName + ' ' + u.lastName)} (${escapeHtml(u.username)})</option>`;
+                }
+            });
+
+            // Populate list
+            const list = document.getElementById('memberList');
+            list.innerHTML = '';
+            if (!item.memberIds || item.memberIds.length === 0) {
+                list.innerHTML = '<div class="text-muted" style="padding: 8px;">No members yet.</div>';
+            } else {
+                item.memberIds.forEach(uId => {
+                    const u = allUsers.find(x => x.id === uId);
+                    const label = u ? escapeHtml(`${u.firstName} ${u.lastName} (${u.username})`) : `User #${uId}`;
+                    list.innerHTML += `
+                        <div class="member-item">
+                            <span>${label}</span>
+                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" onclick="window.removeMember(${uId})">Remove</button>
+                        </div>
+                    `;
+                });
+            }
+
+            openModal('membersModal');
+        };
+
+        document.getElementById('btnAddMember').addEventListener('click', async () => {
+            const userId = document.getElementById('userSelect').value;
+            if (!userId || !activeGroupId) return;
+            try {
+                await window.api.addGroupMember(activeGroupId, userId);
+                showToast('Member added');
+        loadData(); // removed await for resilience
+                window.openMembersModal(activeGroupId);
+            } catch (err) {
+                showToast('Failed to add member', 'error');
+            }
+        });
+
+        window.removeMember = async function(userId) {
+            if (!activeGroupId) return;
+            try {
+                await window.api.removeGroupMember(activeGroupId, userId);
+                showToast('Member removed');
+        loadData(); // removed await for resilience
+                window.openMembersModal(activeGroupId);
+            } catch (err) {
+                showToast('Failed to remove member', 'error');
+            }
+        };
+
+        window.promptDelete = function(id) {
+            itemToDelete = id;
+            openModal('deleteModal');
+        };
+
+        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+            if (!itemToDelete) return;
+            try {
+                await window.api.deleteGroup(itemToDelete);
+                closeModal('deleteModal');
+                showToast('Group deleted');
+        loadData(); // removed await for resilience
+            } catch (e) {
+                showToast('Failed to delete group', 'error');
+            } finally {
+                itemToDelete = null;
+            }
+        });
+
+        document.getElementById('groupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('gId').value;
+            const data = {
+                name: document.getElementById('gName').value.trim(),
+                departmentId: document.getElementById('gDept').value ? parseInt(document.getElementById('gDept').value) : null
+            };
+            
+            try {
+                if (id) await window.api.updateGroup(id, data);
+                else await window.api.createGroup(data);
+                
+                closeModal('groupModal');
+                showToast('Group saved');
+        loadData(); // removed await for resilience
+            } catch (err) {
+                showToast('Failed to save group', 'error');
+            }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

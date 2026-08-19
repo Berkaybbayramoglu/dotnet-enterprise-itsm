@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ItsTool.API.Controllers;
 using ItsTool.Application.DTOs;
 using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
@@ -37,6 +38,9 @@ public class AuditLogControllerTests : TestBase
         _context.TicketHistories.Add(new TicketHistory { TicketId = 1, Action = "A", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 10, 0, 0, 0, DateTimeKind.Utc) });
         _context.TicketHistories.Add(new TicketHistory { TicketId = 2, Action = "B", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 15, 0, 0, 0, DateTimeKind.Utc) });
         _context.TicketHistories.Add(new TicketHistory { TicketId = 3, Action = "C", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 20, 0, 0, 0, DateTimeKind.Utc) });
+        
+        _context.SystemAuditLogs.Add(new SystemAuditLog { EntityName = "AssignmentRule", EntityId = "1", Action = "Created", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 16, 0, 0, 0, DateTimeKind.Utc) });
+        
         await _context.SaveChangesAsync();
 
         var filter = new AuditLogFilterDto(
@@ -53,7 +57,8 @@ public class AuditLogControllerTests : TestBase
         var okResult = Assert.IsType<OkObjectResult>(result);
         var pagedData = Assert.IsType<PaginatedAuditLogDto>(okResult.Value);
 
-        Assert.Single(pagedData.Items);
-        Assert.Equal("B", pagedData.Items.First().Action);
+        Assert.Equal(2, pagedData.Items.Count());
+        Assert.Contains(pagedData.Items, i => i.Action == "B");
+        Assert.Contains(pagedData.Items, i => i.Action == "Created" && i.TicketId == null);
     }
 }
