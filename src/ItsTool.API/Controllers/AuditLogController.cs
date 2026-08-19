@@ -24,7 +24,10 @@ public class AuditLogController : ControllerBase
     [ProducesResponseType(typeof(PaginatedAuditLogDto), 200)]
     public async Task<IActionResult> GetAuditLogs([FromQuery] AuditLogFilterDto filter)
     {
-        var query = _context.TicketHistories.AsQueryable();
+        var ticketQuery = _context.TicketHistories.AsQueryable();
+        var systemQuery = _context.SystemAuditLogs.AsQueryable();
+        
+        bool isTicketFiltered = false;
 
         if (!string.IsNullOrEmpty(filter.Ticket))
         {
@@ -33,43 +36,49 @@ public class AuditLogController : ControllerBase
             {
                 if (int.TryParse(ticketStr.Substring(4), out int parsedId))
                 {
-                    query = query.Where(h => h.TicketId == parsedId);
+                    ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
+                    isTicketFiltered = true;
                 }
             }
             else if (int.TryParse(ticketStr, out int parsedId))
             {
-                query = query.Where(h => h.TicketId == parsedId);
+                ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
+                isTicketFiltered = true;
             }
         }
 
         if (!string.IsNullOrEmpty(filter.Action))
         {
-            query = query.Where(h => h.Action == filter.Action);
+            ticketQuery = ticketQuery.Where(h => h.Action == filter.Action);
+            systemQuery = systemQuery.Where(h => h.Action == filter.Action);
         }
 
         if (filter.UserId.HasValue)
         {
             var userIdStr = filter.UserId.Value.ToString();
-            query = query.Where(h => h.CreatedBy == userIdStr);
+            ticketQuery = ticketQuery.Where(h => h.CreatedBy == userIdStr);
+            systemQuery = systemQuery.Where(h => h.CreatedBy == userIdStr);
         }
 
         if (filter.FromDate.HasValue)
         {
-            // Convert to UTC for DB comparison if needed, assuming CreatedAt is UTC
-            query = query.Where(h => h.CreatedAt >= filter.FromDate.Value);
+            ticketQuery = ticketQuery.Where(h => h.CreatedAt >= filter.FromDate.Value);
+            systemQuery = systemQuery.Where(h => h.CreatedAt >= filter.FromDate.Value);
         }
 
         if (filter.ToDate.HasValue)
         {
-            query = query.Where(h => h.CreatedAt <= filter.ToDate.Value);
+            ticketQuery = ticketQuery.Where(h => h.CreatedAt <= filter.ToDate.Value);
+            systemQuery = systemQuery.Where(h => h.CreatedAt <= filter.ToDate.Value);
         }
 
-        var totalCount = await query.CountAsync();
+        var ticketCount = await ticketQuery.CountAsync();
+        var systemCount = isTicketFiltered ? 0 : await systemQuery.CountAsync();
+        var totalCount = ticketCount + systemCount;
 
-        var items = await query
+        var ticketItems = await ticketQuery
             .OrderByDescending(h => h.CreatedAt)
-            .Skip((filter.Page - 1) * filter.PageSize)
-            .Take(filter.PageSize)
+            .Take(filter.PageSize * filter.Page)
             .Select(h => new AuditLogItemDto(
                 h.Id,
                 h.TicketId,
@@ -78,9 +87,38 @@ public class AuditLogController : ControllerBase
                 h.OldValue,
                 h.NewValue,
                 h.CreatedBy ?? "system",
-                h.CreatedAt
+                h.CreatedAt,
+                null,
+                null
             ))
             .ToListAsync();
+
+        var systemItems = new System.Collections.Generic.List<AuditLogItemDto>();
+        if (!isTicketFiltered)
+        {
+            systemItems = await systemQuery
+                .OrderByDescending(h => h.CreatedAt)
+                .Take(filter.PageSize * filter.Page)
+                .Select(h => new AuditLogItemDto(
+                    h.Id,
+                    null,
+                    h.Action,
+                    h.FieldName ?? "",
+                    h.OldValue,
+                    h.NewValue,
+                    h.CreatedBy ?? "system",
+                    h.CreatedAt,
+                    h.EntityName,
+                    h.EntityId
+                ))
+                .ToListAsync();
+        }
+
+        var items = ticketItems.Concat(systemItems)
+            .OrderByDescending(h => h.CreatedAt)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
 
         return Ok(new PaginatedAuditLogDto(items, totalCount, filter.Page, filter.PageSize));
     }

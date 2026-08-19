@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using ItsTool.Application.Interfaces;
 using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 using ItsTool.Domain.Entities.Organization;
@@ -16,10 +17,12 @@ namespace ItsTool.API.Controllers;
 public class AssignmentRuleController : ControllerBase
 {
     private readonly ItsToolDbContext _context;
+    private readonly ISystemAuditService _auditService;
 
-    public AssignmentRuleController(ItsToolDbContext context)
+    public AssignmentRuleController(ItsToolDbContext context, ISystemAuditService auditService)
     {
         _context = context;
+        _auditService = auditService;
     }
 
     [HttpGet]
@@ -57,6 +60,8 @@ public class AssignmentRuleController : ControllerBase
         _context.AssignmentRules.Add(rule);
         await _context.SaveChangesAsync();
         
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Created", "Rule", null, rule.Name);
+
         var responseDto = new AssignmentRuleDto(
             rule.Id, rule.Name, rule.ProjectId, rule.CategoryId, rule.TicketTypeId, rule.PriorityId, rule.TargetGroupId, rule.TargetUserId, rule.SortOrder, rule.IsActive);
             
@@ -81,6 +86,7 @@ public class AssignmentRuleController : ControllerBase
         rule.IsActive = dto.IsActive;
         
         await _context.SaveChangesAsync();
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Updated", "Rule", null, rule.Name);
         return NoContent();
     }
 
@@ -93,6 +99,7 @@ public class AssignmentRuleController : ControllerBase
         
         rule.IsDeleted = true;
         await _context.SaveChangesAsync();
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Deleted", "Rule", rule.Name, null);
         return NoContent();
     }
 }

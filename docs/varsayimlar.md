@@ -23,3 +23,9 @@
 | 019 | Veritabanı | Migration | Migration dosyalarının (`Migrations/` klasöründeki .cs dosyaları) version control'de tutulması. | EF Core migration mimarisinin temel mantığıdır. | Yüksek | Düşük | Açık | Faz 2B eklendi |
 | 024 | Kurulum | Seed Data | Sisteme ilk giriş için admin/Admin123! kullanıcısı ve temel ITSM config verileri API endpoint'i üzerinden seed edilecektir. | Login sisteminin test edilmesi ve temel ayarların yapılması. | Yüksek | Düşük | Kabul Edildi | API endpoint ile yapıldı. |
 \n## Faz 4 Sonrası Quality Gate ve Coverage Kararı\nCoverage koşulu bilinçli olarak (şimdilik) kaldırıldı/indirildi; Faz 12'de (sistem ve entegrasyon testleri eklendiğinde) %80 koşulu geri eklenecektir.
+
+## Audit Log Kapsamı (Faz 15 Kararı)
+Sistemde loglama işlemleri aşağıdaki kapsama alınmıştır:
+- **Bilet Yaşam Döngüsü**: Ticket nesnesinin statü, öncelik, assignee ve diğer alanlarındaki değişiklikler (`TicketHistory` tablosu).
+- **Konfigürasyon/Admin CRUD**: Assignment Rules, Webhooks, Custom Fields vb. biletlerin davranışını etkileyen konfigürasyon işlemlerinin Create/Update/Delete işlemleri (`SystemAuditLog` tablosu).
+- **Kapsam Dışı**: Read/Get okuma işlemleri loglanmaz. Bunun sebebi performans yükünü azaltmak ve sadece davranış değişikliği yaratan "State Mutation" (Durum değişimi) olaylarına odaklanmaktır.

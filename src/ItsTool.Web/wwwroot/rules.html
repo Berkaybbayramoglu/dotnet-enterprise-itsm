@@ -92,12 +92,12 @@
         </main>
     </div>
 
-    <!-- Create Rule Modal -->
+    <!-- Rule Modal (Create/Edit) -->
     <div id="createModal" class="modal-overlay">
         <div class="modal">
             <form id="createForm">
                 <div class="modal-header">
-                    <h2>Create Assignment Rule</h2>
+                    <h2 id="ruleModalTitle">Create Assignment Rule</h2>
                     <button type="button" class="close-btn" onclick="closeModal('createModal')" aria-label="Close">
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                     </button>
@@ -135,7 +135,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Rule</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitRule">Create Rule</button>
                 </div>
             </form>
         </div>
@@ -168,6 +168,9 @@
         bindShellActions();
 
         let ruleToDelete = null;
+        let ruleToEdit = null;
+        let lookupData = {};
+        let rulesList = [];
 
         window.openModal = openModal;
         window.closeModal = closeModal;
@@ -175,6 +178,7 @@
         async function loadRules() {
             try {
                 const rules = await window.api.getAssignmentRules();
+                rulesList = rules;
                 const tbody = document.querySelector('#rulesTable tbody');
                 tbody.innerHTML = '';
                 
@@ -189,17 +193,26 @@
                     const statusBadge = r.isActive 
                         ? `<span class="badge badge-success">Active</span>`
                         : `<span class="badge badge-default">Inactive</span>`;
-                        
+                    
+                    const projName = lookupData.projects?.find(x => x.id === r.projectId)?.name || 'Herhangi';
+                    const catName = lookupData.categories?.find(x => x.id === r.categoryId)?.name || 'Herhangi';
+                    const typeName = lookupData.ticketTypes?.find(x => x.id === r.ticketTypeId)?.name || 'Herhangi';
+                    const groupName = lookupData.groups?.find(x => x.id === r.targetGroupId)?.name || '—';
+                    const userName = lookupData.users?.find(x => x.id === r.targetUserId)?.username || '—';
+
                     tr.innerHTML = `
                         <td style="font-family: monospace;">${r.sortOrder}</td>
                         <td style="font-weight: 500;">${escapeHtml(r.name)}</td>
-                        <td class="text-muted">${r.projectId || '*'}</td>
-                        <td class="text-muted">${r.categoryId || '*'}</td>
-                        <td class="text-muted">${r.ticketTypeId || '*'}</td>
-                        <td class="text-muted">${r.targetGroupId || '-'}</td>
-                        <td class="text-muted">${r.targetUserId || '-'}</td>
+                        <td class="text-muted">${escapeHtml(projName)}</td>
+                        <td class="text-muted">${escapeHtml(catName)}</td>
+                        <td class="text-muted">${escapeHtml(typeName)}</td>
+                        <td class="text-muted">${escapeHtml(groupName)}</td>
+                        <td class="text-muted">${escapeHtml(userName)}</td>
                         <td>${statusBadge}</td>
                         <td>
+                            <button type="button" class="btn btn-ghost btn-edit" style="color: var(--primary); padding: 4px 8px;" data-id="${r.id}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
                             <button type="button" class="btn btn-ghost btn-delete" style="color: var(--danger); padding: 4px 8px;" data-id="${r.id}">
                                 <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                             </button>
@@ -224,9 +237,25 @@
 
         document.querySelector('#rulesTable tbody').addEventListener('click', (e) => {
             const deleteBtn = e.target.closest('.btn-delete');
+            const editBtn = e.target.closest('.btn-edit');
             if (deleteBtn) {
                 ruleToDelete = Number.parseInt(deleteBtn.dataset.id);
                 openModal('confirmModal');
+            } else if (editBtn) {
+                ruleToEdit = Number.parseInt(editBtn.dataset.id);
+                const r = rulesList.find(x => x.id === ruleToEdit);
+                if (r) {
+                    document.getElementById('rName').value = r.name;
+                    document.getElementById('rSort').value = r.sortOrder;
+                    document.getElementById('rProject').value = r.projectId || '';
+                    document.getElementById('rCategory').value = r.categoryId || '';
+                    document.getElementById('rType').value = r.ticketTypeId || '';
+                    document.getElementById('rGroup').value = r.targetGroupId || '';
+                    document.getElementById('rUser').value = r.targetUserId || '';
+                    document.getElementById('ruleModalTitle').textContent = 'Edit Assignment Rule';
+                    document.getElementById('btnSubmitRule').textContent = 'Save Changes';
+                    openModal('createModal');
+                }
             }
         });
 
@@ -246,32 +275,39 @@
         });
 
         document.getElementById('btnCreateRuleModal').addEventListener('click', () => {
+            ruleToEdit = null;
             document.getElementById('createForm').reset();
+            document.getElementById('ruleModalTitle').textContent = 'Create Assignment Rule';
+            document.getElementById('btnSubmitRule').textContent = 'Create Rule';
             openModal('createModal');
         });
 
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('rName').value.trim();
-            const sort = document.getElementById('rSort').value;
+            const payload = {
+                name: document.getElementById('rName').value.trim(),
+                sortOrder: Number.parseInt(document.getElementById('rSort').value) || 10,
+                isActive: true,
+                projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value) : null,
+                categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value) : null,
+                ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value) : null,
+                targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value) : null,
+                targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value) : null
+            };
             
             try {
-                await window.api.createAssignmentRule({
-                    name: name,
-                    sortOrder: Number.parseInt(sort) || 10,
-                    isActive: true,
-                    projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value) : null,
-                    categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value) : null,
-                    ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value) : null,
-                    targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value) : null,
-                    targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value) : null
-                });
+                if (ruleToEdit) {
+                    await window.api.updateAssignmentRule(ruleToEdit, payload);
+                    showToast('Rule updated successfully');
+                } else {
+                    await window.api.createAssignmentRule(payload);
+                    showToast('Rule created successfully');
+                }
                 closeModal('createModal');
-                showToast('Rule created successfully');
-        loadRules(); // removed await for resilience
+                loadRules();
             } catch (e) {
                 console.error(e);
-                showToast('Failed to create rule', 'error');
+                showToast(ruleToEdit ? 'Failed to update rule' : 'Failed to create rule', 'error');
             }
         });
 
@@ -292,7 +328,12 @@
         }
         async function initRules() {
             try {
-                const lookups = await window.api.request('/lookup');
+                lookupData = await window.api.request('/lookup');
+                const usersList = await window.api.getUsers();
+                const groupsList = await window.api.getGroups();
+                lookupData.users = usersList;
+                lookupData.groups = groupsList;
+
                 const populate = (id, arr) => {
                     const el = document.getElementById(id);
                     arr.forEach(x => {
@@ -301,11 +342,11 @@
                         el.appendChild(opt);
                     });
                 };
-                populate('rProject', lookups.projects || []);
-                populate('rCategory', lookups.categories || []);
-                populate('rType', lookups.ticketTypes || []);
-                populate('rGroup', lookups.groups || []);
-                populate('rUser', lookups.users || []);
+                populate('rProject', lookupData.projects || []);
+                populate('rCategory', lookupData.categories || []);
+                populate('rType', lookupData.ticketTypes || []);
+                populate('rGroup', lookupData.groups || []);
+                populate('rUser', lookupData.users || []);
             } catch(e) {
                 console.error("Failed to load lookups", e);
             }

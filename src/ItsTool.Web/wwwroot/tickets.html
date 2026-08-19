@@ -148,13 +148,16 @@
                     tr.innerHTML = `
                         <td>
                             <a href="/ticket-detail.html?id=${t.id}" class="ticket-title">
-                                <span class="ticket-number">${escapeHtml(t.ticketNumber)}</span>
-                                ${escapeHtml(t.title)}
+                                <div>
+                                    <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(t.ticketNumber)}</span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">#${t.id}</span>
+                                </div>
+                                <span style="margin-left: 8px;">${escapeHtml(t.title)}</span>
                             </a>
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
-                        <td class="d-flex align-items-center gap-sm">${getPriorityIcon(prioName)} ${escapeHtml(prioName)}</td>
-                        <td class="d-flex align-items-center gap-sm">${getAvatar(t.assignedUserId, assigneeName)} ${escapeHtml(assigneeName)}</td>
+                        <td><div class="d-flex align-items-center gap-sm">${getPriorityIcon(prioName)} ${escapeHtml(prioName)}</div></td>
+                        <td><div class="d-flex align-items-center gap-sm">${getAvatar(t.assignedUserId, assigneeName)} ${escapeHtml(assigneeName)}</div></td>
                         <td>
                             <div class="row-actions">
                                 <a href="/ticket-detail.html?id=${t.id}" class="btn btn-ghost">View</a>

@@ -187,8 +187,8 @@
                 const catName = lookup.categories?.find(x => x.id === t.categoryId)?.name || '-';
                 
                 document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
-                document.getElementById('tProject').textContent = escapeHtml(projName);
-                document.getElementById('tCategory').textContent = escapeHtml(catName);
+                document.getElementById('tProject').textContent = projName;
+                document.getElementById('tCategory').textContent = catName;
                 
                 const getReqName = users.find(u => u.id === t.requesterUserId)?.username || `User ${t.requesterUserId}`;
                 const getAssignedName = t.assignedUserId ? (users.find(u => u.id === t.assignedUserId)?.username || `User ${t.assignedUserId}`) : 'Atanmamış';

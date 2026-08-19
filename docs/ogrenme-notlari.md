@@ -143,3 +143,13 @@ Son olarak, .NET backend tarafındaki C# Enum tipleri (örn. `FieldType.Text = 0
 - **Grafik Boyutlandırma:** Canvas öğeleri ekranın aşırı büyük bölümünü kaplamamalıdır (`maintainAspectRatio: false` ve belirli bir `height` ile sınırlanmalıdır, örn. 260px). Donut grafikleri için cutout oranları (örn. %60-70) denge sağlamak için idealdir.
 - **ID Gösterme Kuralı:** Kullanıcı arayüzlerinde son kullanıcıya ham veritabanı ID'leri gösterilmemelidir. Bunun yerine "Lookup Cache" yapılarıyla ID'ler eşleştirilerek gerçek isimler (Name, Title) sunulmalıdır.
 - **State-Machine Tamamlanmışlığı:** İş akışlarında "ölü noktalardan" kaçınmak için (örneğin Resolved olan bir talebin geri alınamaması) tersine mühendislik yapılarak (Reopen) olası tüm durumların bir döngüsü kurulmalıdır. ITSM sistemlerinde Reopen sadece In Progress veya Open'a değil, ihtiyaca göre Pending'e bile geçebilmelidir.
+
+## XSS Double-Escape Önlemi ve TextContent
+- **Kavram:** Çifte Kaçış (Double-Escape) ve Native Tarayıcı Koruması.
+- **Problem:** Frontend tarafında XSS (Cross-Site Scripting) ataklarını engellemek için yazılan `escapeHtml()` fonksiyonu, veriyi zaten `&amp;` gibi HTML entity'lerine dönüştürür. Ancak bu veri, `.textContent` veya `.innerText` aracılığıyla DOM'a eklendiğinde tarayıcı bu entity'leri BİR KEZ DAHA escape eder. Bu durumda ekranda "&" yerine "&amp;amp;" yazısı görünür (Double-Escape).
+- **Kural:** Eğer bir string doğrudan `innerHTML` ile sayfaya gömülüyorsa `escapeHtml()` kullanılmalıdır (veya backend'de sanitize edilmelidir). Eğer `textContent` kullanılıyorsa, tarayıcı metni saf metin (plain-text) olarak render edeceğinden HTML tag'leri zaten render edilmeyecek ve XSS'e kapalı olacaktır. Bu yüzden `textContent` atamalarında `escapeHtml` ÇAĞRILMAMALIDIR.
+
+## Temiz Mimari: Sistem Audit ve Ticket Audit Ayrımı
+- **Kavram:** Referential Integrity (Referans Bütünlüğü) ve Bounded Contexts.
+- **Problem:** "Kurallar güncellendiğinde bunu kim yaptı?" sorusuna yanıt vermek için `TicketHistory` tablosu kullanılmak istendiğinde, bu tablonun `TicketId` alanı Foreign Key (FK) zorunluluğuna sahipti. Sistem konfigürasyonları (örn: Assignment Rules, Webhooks) hiçbir bilete ait (TicketId = null) olmadığı için bu tabloya yazılamıyordu.
+- **Kural:** Biletlerin yaşam döngüsü (`TicketHistory`) ile sistem yöneticilerinin ayar değişiklikleri (`SystemAuditLog`) kavramsal olarak birbirinden tamamen farklı (Bounded Context) alanlardır. Kirli mimari yapmamak ve nullable TicketId ile FK bütünlüğünü bozmamak adına `SystemAuditLog` ayrı bir Entity olarak tasarlanmış ve sunum katmanında (Controller) bu iki log kaynağı birleştirilerek (Union/Concat) arayüze tek bir zaman tüneli olarak sunulmuştur.

@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<ItsToolDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -67,6 +68,7 @@ builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.AddScoped<IReportService, ReportService>();
     builder.Services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
+    builder.Services.AddScoped<ISystemAuditService, SystemAuditService>();
 
 // Auth Setup
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

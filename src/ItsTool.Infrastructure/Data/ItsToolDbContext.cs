@@ -1,3 +1,4 @@
+using ItsTool.Domain.Entities;
 using ItsTool.Domain.Entities.Organization;
 using ItsTool.Domain.Entities.Auth;
 using ItsTool.Domain.Entities.Project;
@@ -43,6 +44,7 @@ public class ItsToolDbContext : DbContext
     public DbSet<Priority> Priorities => Set<Priority>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
+    public DbSet<SystemAuditLog> SystemAuditLogs => Set<SystemAuditLog>();
     public DbSet<Workflow> Workflows => Set<Workflow>();
     public DbSet<WorkflowTransition> WorkflowTransitions => Set<WorkflowTransition>();
     public DbSet<TicketComment> TicketComments => Set<TicketComment>();

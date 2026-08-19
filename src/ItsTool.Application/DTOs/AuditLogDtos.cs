@@ -14,13 +14,15 @@ public record AuditLogFilterDto(
 
 public record AuditLogItemDto(
     int Id,
-    int TicketId,
+    int? TicketId,
     string Action,
     string FieldName,
     string? OldValue,
     string? NewValue,
     string CreatedBy,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    string? EntityName = null,
+    string? EntityId = null
 );
 
 public record PaginatedAuditLogDto(

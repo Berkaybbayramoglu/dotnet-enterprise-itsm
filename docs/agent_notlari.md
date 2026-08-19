@@ -25,6 +25,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Kanban Modal:** ID'ler yerine kullanıcı adlarının ve pill tasarımlarının gösterilmesi (Lookup Cache yardımıyla) sağlandı.
 
 ### Faz 14v4 (19 Ağustos 2026) - Kanban Regresyonu ve ID->Label Mapping
+- **Faz 12.5**: Fix Batch v4 (Kanban regresyonu, raw ID temizliği, Reopen iş akışı).
+- **Faz 12.6**: Fix Batch v5 (XSS Double-Escape, Rules Label Mapping ve Edit, SystemAuditLog Ayrışımı).
 - **Kanban Regresyon Çözümü:** `window.api.getLookup()` çağrısı `api.js` dosyasına eklendi ve `kanban.html` içerisinde fallback (defensive rendering) eklendi.
 - **ID to Label Mapping:** `tickets.html`, `dashboard.html` (Recent Tickets), `ticket-detail.html`, ve `audit-log.html` üzerinde ham ID gösterimleri kaldırılarak lookup üzerinden gelen Name karşılıkları yazıldı.
 - **Assign UI:** `ticket-detail.html` içerisine kullanıcı atama (Assign) dropdown'ı eklendi.
