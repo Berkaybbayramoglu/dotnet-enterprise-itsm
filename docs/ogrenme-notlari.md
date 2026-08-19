@@ -137,3 +137,9 @@ Son olarak, .NET backend tarafındaki C# Enum tipleri (örn. `FieldType.Text = 0
 ## EF Core ve Claim Yönetimi (Dashboard Bug)
 - `User.FindFirst("UserId")` gibi custom claim anahtarları ararken, JWT üreten tarafın `JwtRegisteredClaimNames.Sub` ("sub") kullanıp kullanmadığına dikkat edilmeli. ASP.NET Core MVC, varsayılan olarak "sub" değerini `ClaimTypes.NameIdentifier` ile eşleştirir. Bu değer yanlış arandığında, ID varsayılan olarak 0'a düşer ve yetki hesaplamaları/veri filtrelemeleri sessizce bozulur.
 - EF Core `.CountAsync()` metodu, performans optimizasyonu gereği `.Include()` ile bağlanan One-To-Many tablolarını (sonucu değiştirmeyeceği için) yoksayar. Dashboard ticket sayılarındaki sıfır hatası Include'lardan değil, RequestUserId=0 filtrelemesinden kaynaklıydı.
+
+## HCI (Human-Computer Interaction) Temelleri ve Uygulamaları
+- **Hiyerarşi ve F-Pattern:** Dashboard tasarımlarında verilerin (KPI'ların) en üstte tek bir satır (veya ızgara) halinde, sola veya F-Pattern şeklinde dizilmesi, bilişsel yükü azaltır. KPI'ları okuyan kullanıcı, sonrasında karmaşık görsellere (grafiklere) daha kolay odaklanır.
+- **Grafik Boyutlandırma:** Canvas öğeleri ekranın aşırı büyük bölümünü kaplamamalıdır (`maintainAspectRatio: false` ve belirli bir `height` ile sınırlanmalıdır, örn. 260px). Donut grafikleri için cutout oranları (örn. %60-70) denge sağlamak için idealdir.
+- **ID Gösterme Kuralı:** Kullanıcı arayüzlerinde son kullanıcıya ham veritabanı ID'leri gösterilmemelidir. Bunun yerine "Lookup Cache" yapılarıyla ID'ler eşleştirilerek gerçek isimler (Name, Title) sunulmalıdır.
+- **State-Machine Tamamlanmışlığı:** İş akışlarında "ölü noktalardan" kaçınmak için (örneğin Resolved olan bir talebin geri alınamaması) tersine mühendislik yapılarak (Reopen) olası tüm durumların bir döngüsü kurulmalıdır. ITSM sistemlerinde Reopen sadece In Progress veya Open'a değil, ihtiyaca göre Pending'e bile geçebilmelidir.
