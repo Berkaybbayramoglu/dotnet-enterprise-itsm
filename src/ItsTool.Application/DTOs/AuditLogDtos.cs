@@ -5,7 +5,7 @@ namespace ItsTool.Application.DTOs;
 public record AuditLogFilterDto(
     int? UserId,
     string? Action,
-    int? TicketId,
+    string? Ticket,
     DateTime? FromDate,
     DateTime? ToDate,
     int Page = 1,

@@ -42,7 +42,7 @@ public class AuditLogControllerTests : TestBase
         var filter = new AuditLogFilterDto(
             UserId: null, 
             Action: null, 
-            TicketId: null, 
+            Ticket: null, 
             FromDate: new DateTime(2023, 1, 12, 0, 0, 0, DateTimeKind.Utc), 
             ToDate: new DateTime(2023, 1, 18, 0, 0, 0, DateTimeKind.Utc), 
             Page: 1, 

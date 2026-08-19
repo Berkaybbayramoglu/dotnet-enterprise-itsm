@@ -157,13 +157,18 @@
 
                 // Recent Tickets List
                 const getStatusName = (id) => lookup.statuses?.find(s => s.id === id)?.name || 'Unknown';
+                const getStatusBadge = (status) => {
+                    const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default', 'Açık': 'info', 'Devam Ediyor': 'warning', 'Beklemede': 'warning', 'Çözüldü': 'success', 'Kapatıldı': 'default' };
+                    return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${status}</span>`;
+                };
+                
                 const recentHtml = recentTickets.length === 0
                     ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
                     : recentTickets.map(t => `
                         <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.location.href='/ticket-detail.html?id=${t.id}'" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
                             <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
                             <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
-                            <span class="badge badge-default" style="font-size: 11px;">${getStatusName(t.statusId)}</span>
+                            ${getStatusBadge(getStatusName(t.statusId))}
                         </div>
                     `).join('');
                 document.getElementById('recentTicketsList').innerHTML = recentHtml;

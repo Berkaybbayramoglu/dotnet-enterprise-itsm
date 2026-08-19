@@ -84,6 +84,9 @@ class ApiClient {
         return this.request('/dashboard/distributions');
     }
 
+    // Lookup
+    async getLookup() { return this.request('/lookup'); }
+
     // Tickets
     async searchTickets(filter = {}) {
         const queryParams = new URLSearchParams();

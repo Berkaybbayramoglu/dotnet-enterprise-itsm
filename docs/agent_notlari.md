@@ -23,3 +23,9 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Transition Matrisi:** 19 olasılıklı (tüm olası geri dönüşleri ve reopen koşullarını içeren) tam state-machine matrisi seed edildi.
 - **Dashboard HCI:** 6 KPI kartı yatayda, takiben sınırlandırılmış (260px) grafikler ve 'Takım Yükü' (agent-workload), 'Son Talepler' listesi oluşturuldu.
 - **Kanban Modal:** ID'ler yerine kullanıcı adlarının ve pill tasarımlarının gösterilmesi (Lookup Cache yardımıyla) sağlandı.
+
+### Faz 14v4 (19 Ağustos 2026) - Kanban Regresyonu ve ID->Label Mapping
+- **Kanban Regresyon Çözümü:** `window.api.getLookup()` çağrısı `api.js` dosyasına eklendi ve `kanban.html` içerisinde fallback (defensive rendering) eklendi.
+- **ID to Label Mapping:** `tickets.html`, `dashboard.html` (Recent Tickets), `ticket-detail.html`, ve `audit-log.html` üzerinde ham ID gösterimleri kaldırılarak lookup üzerinden gelen Name karşılıkları yazıldı.
+- **Assign UI:** `ticket-detail.html` içerisine kullanıcı atama (Assign) dropdown'ı eklendi.
+- **Audit ve Dashboard Workload:** AuditLog filter dto'sunda int id yerine "ITS-1" okuyabilmesi için `Ticket (string)`'e geçildi. DashboardService takım yükü'nde ise, henüz bilet atanmamış aktif kullanıcıları (0) listeye dâhil edecek GroupJoin eklendi.

@@ -26,9 +26,20 @@ public class AuditLogController : ControllerBase
     {
         var query = _context.TicketHistories.AsQueryable();
 
-        if (filter.TicketId.HasValue)
+        if (!string.IsNullOrEmpty(filter.Ticket))
         {
-            query = query.Where(h => h.TicketId == filter.TicketId.Value);
+            var ticketStr = filter.Ticket.Trim().ToUpper();
+            if (ticketStr.StartsWith("ITS-"))
+            {
+                if (int.TryParse(ticketStr.Substring(4), out int parsedId))
+                {
+                    query = query.Where(h => h.TicketId == parsedId);
+                }
+            }
+            else if (int.TryParse(ticketStr, out int parsedId))
+            {
+                query = query.Where(h => h.TicketId == parsedId);
+            }
         }
 
         if (!string.IsNullOrEmpty(filter.Action))

@@ -135,7 +135,13 @@
         let lookupData = {};
         async function initKanban() {
             try {
-                lookupData = await window.api.getLookup();
+                try {
+                    lookupData = await window.api.getLookup();
+                } catch(err) {
+                    console.warn("Lookup fetching failed, using fallback empty object.", err);
+                    lookupData = {};
+                }
+                
                 // Override statuses with real ones if available
                 if (lookupData.statuses && lookupData.statuses.length > 0) {
                     statuses = lookupData.statuses;
@@ -163,11 +169,16 @@
                     board.appendChild(col);
                 });
 
-                const res = await window.api.searchTickets({ pageSize: 100 });
-                tickets = res.items;
+                try {
+                    const res = await window.api.searchTickets({ pageSize: 100 });
+                    tickets = res.items || [];
+                } catch(err) {
+                    console.warn("Tickets fetching failed.", err);
+                    tickets = [];
+                }
 
                 renderTickets();
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error("Critical error in initKanban:", e); }
         }
 
         function renderTickets() {

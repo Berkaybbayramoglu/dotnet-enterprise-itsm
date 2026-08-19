@@ -116,7 +116,13 @@
                             
                             <div class="property-group">
                                 <div class="property-label">Assignee</div>
-                                <div class="property-value" id="tAssigned"></div>
+                                <div class="property-value" id="tAssigned" style="margin-bottom: var(--spacing-sm);"></div>
+                                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                    <select id="assigneeSelect" class="form-control" style="flex: 1;" aria-label="Assign to">
+                                        <option value="">Select User...</option>
+                                    </select>
+                                    <button id="btnAssign" class="btn btn-secondary">Assign</button>
+                                </div>
                             </div>
                             <div class="property-group">
                                 <div class="property-label">Requester</div>
@@ -164,20 +170,54 @@
         async function loadTicket() {
             if (!ticketId) return;
             try {
+                let lookup = {};
+                let users = [];
+                try { 
+                    lookup = await window.api.getLookup(); 
+                    users = await window.api.getUsers();
+                } catch(e) { console.warn('Lookup failed', e); }
+
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 document.getElementById('tNumber').textContent = t.ticketNumber;
                 document.getElementById('tTitle').textContent = t.title;
                 document.getElementById('tDesc').textContent = t.description || 'No description provided.';
                 
-                // Mocks
-                const priorities = {1:'Critical', 2:'High', 3:'Medium', 4:'Low'};
+                const prioName = lookup.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
+                const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
+                const catName = lookup.categories?.find(x => x.id === t.categoryId)?.name || '-';
                 
-                document.getElementById('tPriority').textContent = priorities[t.priorityId] || t.priorityId;
-                document.getElementById('tProject').textContent = `PRJ-${t.projectId || '0'}`;
-                document.getElementById('tCategory').textContent = `CAT-${t.categoryId || '0'}`;
+                document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
+                document.getElementById('tProject').textContent = escapeHtml(projName);
+                document.getElementById('tCategory').textContent = escapeHtml(catName);
                 
-                document.getElementById('tReq').innerHTML = `${getAvatar(t.requesterUserId, t.requesterUserId)} User ${t.requesterUserId}`;
-                document.getElementById('tAssigned').innerHTML = t.assignedUserId ? `${getAvatar(t.assignedUserId, t.assignedUserId)} User ${t.assignedUserId}` : '<span class="text-muted">Unassigned</span>';
+                const getReqName = users.find(u => u.id === t.requesterUserId)?.username || `User ${t.requesterUserId}`;
+                const getAssignedName = t.assignedUserId ? (users.find(u => u.id === t.assignedUserId)?.username || `User ${t.assignedUserId}`) : 'Atanmamış';
+
+                document.getElementById('tReq').innerHTML = `<div class="d-flex align-items-center gap-sm">${getAvatar(t.requesterUserId, getReqName)} ${escapeHtml(getReqName)}</div>`;
+                document.getElementById('tAssigned').innerHTML = t.assignedUserId 
+                    ? `<div class="d-flex align-items-center gap-sm">${getAvatar(t.assignedUserId, getAssignedName)} ${escapeHtml(getAssignedName)}</div>` 
+                    : '<span class="text-muted">Atanmamış</span>';
+
+                // Populate Assign Dropdown
+                const assignSelect = document.getElementById('assigneeSelect');
+                assignSelect.innerHTML = '<option value="">Select User...</option>';
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = `${u.firstName} ${u.lastName} (@${u.username})`;
+                    if(t.assignedUserId === u.id) opt.selected = true;
+                    assignSelect.appendChild(opt);
+                });
+
+                document.getElementById('btnAssign').onclick = async () => {
+                    const selectedUserId = assignSelect.value;
+                    if(!selectedUserId) return;
+                    try {
+                        await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(Number(selectedUserId)) });
+                        showToast('Assigned successfully');
+                        window.location.reload();
+                    } catch(e) { showToast('Assign failed', 'error'); }
+                };
 
                 try {
                     const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);

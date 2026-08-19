@@ -105,15 +105,25 @@ public class DashboardService : IDashboardService
 
     public async Task<IEnumerable<AgentWorkloadDto>> GetAgentWorkloadAsync(int userId)
     {
-        var query = await GetScopedTicketsQueryAsync(userId);
-        
-        var workload = await query
-            .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
-            .GroupBy(t => new { t.AssignedUserId, FirstName = t.AssignedUser != null ? t.AssignedUser.FirstName : "Unknown", LastName = t.AssignedUser != null ? t.AssignedUser.LastName : "User" })
-            .Select(g => new AgentWorkloadDto(g.Key.AssignedUserId ?? 0, $"{g.Key.FirstName} {g.Key.LastName}", g.Count()))
+        var activeUsers = await _context.Users
+            .Where(u => !u.IsDeleted && u.IsActive)
             .ToListAsync();
 
-        return workload.OrderByDescending(w => w.OpenTicketCount);
+        var query = await GetScopedTicketsQueryAsync(userId);
+        
+        var openTicketsCountPerUser = await query
+            .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
+            .GroupBy(t => t.AssignedUserId)
+            .Select(g => new { UserId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(k => k.UserId ?? 0, v => v.Count);
+
+        var workload = activeUsers
+            .Select(u => new AgentWorkloadDto(u.Id, $"{u.FirstName} {u.LastName}", openTicketsCountPerUser.ContainsKey(u.Id) ? openTicketsCountPerUser[u.Id] : 0))
+            .OrderByDescending(w => w.OpenTicketCount)
+            .ThenBy(w => w.UserName)
+            .ToList();
+
+        return workload;
     }
 
     public async Task<SlaComplianceDto> GetSlaComplianceAsync(int userId)

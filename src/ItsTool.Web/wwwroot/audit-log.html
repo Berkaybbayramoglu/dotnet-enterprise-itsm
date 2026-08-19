@@ -79,8 +79,8 @@
 
                 <div class="filter-panel">
                     <div class="filter-group">
-                        <label for="filterTicketId">Ticket ID</label>
-                        <input type="number" id="filterTicketId" placeholder="e.g. 1042">
+                        <label for="filterTicket">Ticket ID</label>
+                        <input type="text" id="filterTicket" placeholder="e.g. ITS-1">
                     </div>
                     <div class="filter-group">
                         <label for="filterUserId">User ID</label>
@@ -133,15 +133,22 @@
         bindShellActions();
 
         async function loadAuditLogs() {
-            const ticketId = document.getElementById('filterTicketId').value;
+            const ticket = document.getElementById('filterTicket').value;
             const userId = document.getElementById('filterUserId').value;
             const action = document.getElementById('filterAction').value;
             const fromDate = document.getElementById('filterFrom').value;
             const toDate = document.getElementById('filterTo').value;
 
             try {
+                let lookup = {};
+                let users = [];
+                try {
+                    lookup = await window.api.getLookup();
+                    users = await window.api.getUsers();
+                } catch(e) { console.warn('Lookup failed in audit', e); }
+
                 const res = await window.api.getAuditLogs({
-                    ticketId, userId, action, fromDate, toDate, page: 1, pageSize: 100
+                    ticket, userId, action, fromDate, toDate, page: 1, pageSize: 100
                 });
                 
                 const tbody = document.getElementById('auditList');
@@ -155,14 +162,30 @@
                 res.items.forEach(a => {
                     const tr = document.createElement('tr');
                     
-                    const oldVal = a.oldValue ? `<span class="value-cell" title="${escapeHtml(a.oldValue)}">${escapeHtml(a.oldValue)}</span>` : '<span class="text-muted">-</span>';
-                    const newVal = a.newValue ? `<span class="value-cell" title="${escapeHtml(a.newValue)}">${escapeHtml(a.newValue)}</span>` : '<span class="text-muted">-</span>';
-                    const ticketLink = a.ticketId ? `<a href="/ticket-detail.html?id=${a.ticketId}">#${a.ticketId}</a>` : '-';
+                    let mappedOld = a.oldValue;
+                    let mappedNew = a.newValue;
                     
+                    if (a.fieldName === 'StatusId') {
+                        mappedOld = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'PriorityId') {
+                        mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    }
+                    
+                    const oldVal = mappedOld ? `<span class="value-cell" title="${escapeHtml(mappedOld)}">${escapeHtml(mappedOld)}</span>` : '<span class="text-muted">-</span>';
+                    const newVal = mappedNew ? `<span class="value-cell" title="${escapeHtml(mappedNew)}">${escapeHtml(mappedNew)}</span>` : '<span class="text-muted">-</span>';
+                    
+                    const ticketLink = a.ticketId ? `<a href="/ticket-detail.html?id=${a.ticketId}">ITS-${a.ticketId}</a>` : '-';
+                    
+                    // a.createdBy is usually a string (e.g., UserId or System), try parsing to map username
+                    const creatorUser = users.find(u => String(u.id) === a.createdBy);
+                    const creatorName = creatorUser ? `@${creatorUser.username}` : (a.createdBy || '-');
+
                     tr.innerHTML = `
                         <td style="font-size: 13px; color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</td>
                         <td style="font-weight: 500;">${ticketLink}</td>
-                        <td style="font-family: monospace;">${escapeHtml(a.createdBy) || '-'}</td>
+                        <td style="font-family: monospace;">${escapeHtml(creatorName)}</td>
                         <td><span class="badge badge-default">${escapeHtml(a.action)}</span></td>
                         <td style="font-size: 13px;">${escapeHtml(a.fieldName) || '-'}</td>
                         <td>${oldVal}</td>
