@@ -9,6 +9,7 @@ public interface ITicketService
     Task<TicketDto?> GetTicketByIdAsync(int id);
     Task UpdateTicketAsync(int id, UpdateTicketDto dto, int currentUserId);
     Task ChangeStatusAsync(int ticketId, ChangeStatusDto dto);
+    Task<IEnumerable<StatusDto>> GetAllowedTransitionsAsync(int ticketId, int userId);
     Task AssignTicketAsync(int ticketId, AssignTicketDto dto);
     Task TransferTicketAsync(int ticketId, TransferTicketDto dto);
     

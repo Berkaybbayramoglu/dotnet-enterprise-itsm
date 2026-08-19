@@ -118,3 +118,13 @@ Modal yapılarında ise, frontend kodunda event handler'ların çalışma sıras
 Son olarak, .NET backend tarafındaki C# Enum tipleri (örn. `FieldType.Text = 0`), JSON'a çevrilirken (Serialization) ya integer (`0`) ya da string (`"Text"`) olarak döner. Frontend bu değere göre CSS rozeti (badge) veya metin eşleştirirken sadece integer'a göre map yaparsa string geldiğinde "UNDEFINED" gösterir. Frontend map sözleşmesi hem sayısal ("0") hem de metinsel ("Text") anahtarları kapsayacak şekilde genişletildi.
 **Projede Nerede:** `LookupController.cs`, `ticket-create.html`, `admin-fields.html`, `rules.html`, `webhooks.html`.
 **Mentor Sorarsa Cevabın:** "Sistemdeki 404 ve çalışmayan buton hatalarını çözerken mimari dayanıklılığı (resilience) artırdım. Ticket oluştururken atılan 4 ayrı HTTP isteğini, backend'e yeni bir '/api/lookup' endpoint'i ekleyerek teke indirdim (Network Optimizasyonu). Modal'ların açılmama sorunu, global ui.js'deki class-based (active) açılış mantığının yerel sayfalarda style.display ile ezilmesinden kaynaklanıyordu; modül pattern'i ile bağları onardım. Enum map yapısını ise, backend serialization ayarları değişse bile (int veya string) frontend çökmesin diye iki yönlü (Two-Way Map) hale getirdim."
+
+### Hata ve Çözüm: Status 400 ve Workflow Transition Eksikliği
+- **Sorun:** Ticket detay veya Kanban üzerinden statü geçişlerinde API `400 Bad Request` veya `InvalidOperationException` dönüyordu.
+- **Teşhis:** Model binding `int` tipinde doğru çalışıyordu ancak `DataSeeder` içinde hiçbir `WorkflowTransition` kaydı oluşturulmamıştı. Veritabanı boş olduğu için TicketService geçişi reddediyordu.
+- **Çözüm:** `DataSeeder.cs` içine varsayılan (Default Global) bir Workflow eklendi ve Açık -> Devam Ediyor gibi temel geçiş kuralları tohumlandı. State-machine UX sağlamak için de `GET /api/tickets/{id}/allowed-transitions` uç noktası eklendi.
+
+### Hata ve Çözüm: Ölü Butonlar ve ESM Module Kapsülü
+- **Sorun:** `webhooks.html` ve `rules.html` sayfalarında modalları açan butonlar çalışmıyordu.
+- **Teşhis:** `<script type="module">` (ESM) kullanıldığında, tanımlanan fonksiyonlar `window` objesine atanmadıkça global scope'ta görünmez. Dahası, `onclick="showCreateModal()"` inline event handler'ları ESM ile senkronize değildir.
+- **Çözüm:** Tüm inline `onclick` handler'ları kaldırılarak element ID'leri üzerinden `addEventListener` kullanımı standartlaştırıldı.

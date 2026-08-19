@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/lookup")]
 [Authorize]
 public class LookupController : ControllerBase
 {

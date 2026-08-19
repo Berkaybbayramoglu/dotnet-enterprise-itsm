@@ -107,11 +107,7 @@
                                 <div class="property-label">Status</div>
                                 <div class="property-value">
                                     <select id="statusSelect" class="form-control" style="width:100%" aria-label="Status">
-                                        <option value="1">Open</option>
-                                        <option value="2">In Progress</option>
-                                        <option value="3">Pending</option>
-                                        <option value="4">Resolved</option>
-                                        <option value="5">Closed</option>
+                                        <!-- Options will be populated dynamically -->
                                     </select>
                                 </div>
                             </div>
@@ -183,7 +179,20 @@
                 document.getElementById('tReq').innerHTML = `${getAvatar(t.requesterUserId, t.requesterUserId)} User ${t.requesterUserId}`;
                 document.getElementById('tAssigned').innerHTML = t.assignedUserId ? `${getAvatar(t.assignedUserId, t.assignedUserId)} User ${t.assignedUserId}` : '<span class="text-muted">Unassigned</span>';
 
-                document.getElementById('statusSelect').value = t.statusId;
+                try {
+                    const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);
+                    const select = document.getElementById('statusSelect');
+                    select.innerHTML = '';
+                    allowedStatuses.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = s.name;
+                        select.appendChild(opt);
+                    });
+                    select.value = t.statusId;
+                } catch(e) {
+                    console.error("Failed to load allowed transitions", e);
+                }
 
                 if (t.statusId === 5) {
                     document.getElementById('csatLink').style.display = 'block';
@@ -263,16 +272,18 @@
 
         document.getElementById('statusSelect').addEventListener('change', async (e) => {
             const newStatus = Number.parseInt(e.target.value);
+            const statusName = e.target.options[e.target.selectedIndex].text;
             try {
                 await window.api.request(`/Ticket/${ticketId}/status`, {
                     method: 'POST',
                     body: JSON.stringify(newStatus)
                 });
                 showToast('Status updated');
-        loadTicket(); // removed await for resilience
+                loadTicket(); // Refresh to update allowed transitions
             } catch(e) { 
                 console.error(e);
-                showToast('Failed to update status', 'error'); 
+                showToast(`Geçersiz geçiş: ${statusName} durumuna geçilemez.`, 'error');
+                loadTicket(); // Reset dropdown to previous state
             }
         });
 

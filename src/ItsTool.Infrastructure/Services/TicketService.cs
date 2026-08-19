@@ -188,6 +188,54 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
     }
 
+    
+    public async Task<IEnumerable<StatusDto>> GetAllowedTransitionsAsync(int ticketId, int userId)
+    {
+        var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId && !x.IsDeleted);
+        if (t == null) throw new KeyNotFoundException(TicketNotFoundMessage);
+
+        var wf = await _context.Workflows.FirstOrDefaultAsync(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted);
+        if (wf == null) return Enumerable.Empty<StatusDto>();
+
+        var userPerms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+
+        var transitions = await _context.WorkflowTransitions
+            .Include(wt => wt.ToStatus)
+            .Where(wt => wt.WorkflowId == wf.Id && wt.FromStatusId == t.StatusId && !wt.IsDeleted && wt.IsActive)
+            .ToListAsync();
+
+        var allowed = transitions.Where(wt => 
+            string.IsNullOrEmpty(wt.RequiredPermissionKey) || userPerms.Contains(wt.RequiredPermissionKey))
+            .Select(wt => new StatusDto(
+                wt.ToStatus.Id,
+                wt.ToStatus.Name,
+                null, // ColorHex not in entity? Just pass null or "" 
+                wt.ToStatus.SortOrder,
+                wt.ToStatus.IsClosedStatus,
+                wt.ToStatus.IsSystemDefault,
+                true // IsActive
+            ))
+            .OrderBy(s => s.SortOrder)
+            .ToList();
+            
+        // Also include the current status as an option
+        var currentStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Id == t.StatusId);
+        if (currentStatus != null && !allowed.Any(a => a.Id == currentStatus.Id))
+        {
+            allowed.Insert(0, new StatusDto(
+                currentStatus.Id,
+                currentStatus.Name,
+                null,
+                currentStatus.SortOrder,
+                currentStatus.IsClosedStatus,
+                currentStatus.IsSystemDefault,
+                true
+            ));
+        }
+
+        return allowed;
+    }
+
     public async Task ChangeStatusAsync(int ticketId, ChangeStatusDto dto)
     {
         var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId && !x.IsDeleted);

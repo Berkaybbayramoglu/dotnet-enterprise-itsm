@@ -216,5 +216,37 @@ public class DataSeeder
 
             await _context.SaveChangesAsync();
         }
+        // 13. Default Workflow & Transitions
+        if (!_context.Workflows.Any())
+        {
+            var defaultWorkflow = new ItsTool.Domain.Entities.Workflow.Workflow 
+            { 
+                Name = "Default Global Workflow", 
+                Description = "Sistem varsayılan iş akışı", 
+                IsActive = true 
+            };
+            _context.Workflows.Add(defaultWorkflow);
+            await _context.SaveChangesAsync();
+
+            var openStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Açık");
+            var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
+            var onHoldStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Beklemede");
+            var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
+            var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
+
+            if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
+            {
+                _context.WorkflowTransitions.AddRange(
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = closedStatus.Id, IsActive = true },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true }
+                );
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
