@@ -191,8 +191,8 @@
                     const tr = document.createElement('tr');
                     
                     const statusBadge = r.isActive 
-                        ? `<span class="badge badge-success">Active</span>`
-                        : `<span class="badge badge-default">Inactive</span>`;
+                        ? `<span class="badge badge-success btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to disable">Active</span>`
+                        : `<span class="badge badge-default btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to enable">Inactive</span>`;
                     
                     const projName = lookupData.projects?.find(x => x.id === r.projectId)?.name || 'Herhangi';
                     const catName = lookupData.categories?.find(x => x.id === r.categoryId)?.name || 'Herhangi';
@@ -235,9 +235,11 @@
             }
         }
 
-        document.querySelector('#rulesTable tbody').addEventListener('click', (e) => {
+        document.querySelector('#rulesTable tbody').addEventListener('click', async (e) => {
             const deleteBtn = e.target.closest('.btn-delete');
             const editBtn = e.target.closest('.btn-edit');
+            const toggleBtn = e.target.closest('.btn-toggle');
+            
             if (deleteBtn) {
                 ruleToDelete = Number.parseInt(deleteBtn.dataset.id);
                 openModal('confirmModal');
@@ -252,9 +254,22 @@
                     document.getElementById('rType').value = r.ticketTypeId || '';
                     document.getElementById('rGroup').value = r.targetGroupId || '';
                     document.getElementById('rUser').value = r.targetUserId || '';
+                    document.getElementById('rActive').checked = r.isActive;
                     document.getElementById('ruleModalTitle').textContent = 'Edit Assignment Rule';
                     document.getElementById('btnSubmitRule').textContent = 'Save Changes';
                     openModal('createModal');
+                }
+            } else if (toggleBtn) {
+                const id = Number.parseInt(toggleBtn.dataset.id);
+                toggleBtn.style.opacity = '0.5';
+                try {
+                    await window.api.toggleAssignmentRule(id);
+                    showToast('Rule status updated');
+                    loadRules();
+                } catch (err) {
+                    console.error(err);
+                    showToast('Failed to toggle rule', 'error');
+                    toggleBtn.style.opacity = '1';
                 }
             }
         });

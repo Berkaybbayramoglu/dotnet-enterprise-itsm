@@ -29,3 +29,8 @@ Sistemde loglama işlemleri aşağıdaki kapsama alınmıştır:
 - **Bilet Yaşam Döngüsü**: Ticket nesnesinin statü, öncelik, assignee ve diğer alanlarındaki değişiklikler (`TicketHistory` tablosu).
 - **Konfigürasyon/Admin CRUD**: Assignment Rules, Webhooks, Custom Fields vb. biletlerin davranışını etkileyen konfigürasyon işlemlerinin Create/Update/Delete işlemleri (`SystemAuditLog` tablosu).
 - **Kapsam Dışı**: Read/Get okuma işlemleri loglanmaz. Bunun sebebi performans yükünü azaltmak ve sadece davranış değişikliği yaratan "State Mutation" (Durum değişimi) olaylarına odaklanmaktır.
+
+## Status Semantiği (Faz 16 Kararı)
+Sistemdeki statü geçişleri ve anlamları şu şekilde netleştirilmiştir:
+- **Resolved (Çözüldü)**: Çözüm uygulandı, kullanıcının onayı veya geri bildirimi bekleniyor. Bilet hala "aktif" kabul edilir.
+- **Closed (Kapalı)**: Bilet kesin olarak tamamlandı. Panodan (Kanban) gizlenir ancak silinmez. ITSM standartları ve audit bütünlüğü gereği biletler sadece "soft-archive" (Closed) durumuna çekilir, veri kaybı yaşanmaması için tamamen silinmez. Raporlarda ve ana listede görüntülenmeye devam eder.

@@ -12,6 +12,13 @@ Farklı iş birimlerinin IT talep ve sorunlarını yönetebileceği, çok projel
 - **Versiyon Kontrol:** Git & Bitbucket
 - **Kod Kalite Analizi:** SonarQube
 
+## Öne Çıkan Özellikler (MVP)
+- **Dinamik Bilet Yönetimi:** Özel form alanları, projeler ve kategoriler.
+- **Otomatik Atama Kuralları:** Biletleri belirli koşullara göre gruplara veya kullanıcılara atama (Aktif/Pasif Rule Toggle).
+- **SLA & Webhook:** SLA süre takibi ve dış sistemlere (ör. Slack/Discord) bildirim.
+- **Kanban Panosu:** Sürükle bırak ile durum değiştirme. *Not: Kapalı (Closed) talepler panoda gizlenir; Tickets ve raporlarda arşivlenerek saklanır.*
+- **Audit Logging:** Hem bilet yaşam döngüsü (history) hem de sistem ayarlarının (admin/config) detaylı izlenebilirliği.
+
 ## Solution Yapısı
 ```text
 itsm-tool/

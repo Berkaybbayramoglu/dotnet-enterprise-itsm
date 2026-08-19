@@ -72,11 +72,26 @@
                     <a href="/ticket-create.html" class="btn btn-primary ml-auto">+ New Ticket</a>
                 </div>
 
+                <div class="filter-bar" style="margin-top: 12px; margin-bottom: 24px;">
+                    <div class="btn-group" role="group" aria-label="Ticket Status Filter">
+                        <button type="button" class="btn btn-secondary active" id="filterActive">Aktif</button>
+                        <button type="button" class="btn btn-secondary" id="filterClosed">Kapalı</button>
+                        <button type="button" class="btn btn-secondary" id="filterAll">Tümü</button>
+                    </div>
+                </div>
+
                 <div class="table-container">
-                    <table class="table">
+                    <table class="table" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 45%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 10%;">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th style="width: 60%;">Ticket</th>
+                                <th>Ticket</th>
                                 <th>Status</th>
                                 <th>Priority</th>
                                 <th>Assignee</th>
@@ -99,18 +114,32 @@
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
+        let activeFilterState = 'active'; // 'active', 'closed', 'all'
+
+        document.getElementById('filterActive').addEventListener('click', (e) => { setFilterState('active', e.target); });
+        document.getElementById('filterClosed').addEventListener('click', (e) => { setFilterState('closed', e.target); });
+        document.getElementById('filterAll').addEventListener('click', (e) => { setFilterState('all', e.target); });
+
+        function setFilterState(state, btnEl) {
+            activeFilterState = state;
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            search();
+        }
+
         const getStatusBadge = (status) => {
-            const map = { 'Open': 'info', 'In Progress': 'warning', 'Resolved': 'success', 'Closed': 'default' };
-            return `<span class="badge badge-${map[status] || 'default'}">${status}</span>`;
+            const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
+            const label = status === 'Closed' ? 'KAPALI' : status;
+            return `<span class="badge badge-${map[status] || 'default'}">${label}</span>`;
         };
 
-        const getPriorityIcon = (priority) => {
-            const colors = { 'Critical': 'var(--danger)', 'High': 'var(--warning)', 'Medium': 'var(--info)', 'Low': 'var(--success)' };
-            return `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: ${colors[priority] || 'var(--text-muted)'}"><path d="M16 11V3H8v6H2v12h20V11h-6zM10 5h4v14h-4V5zM4 11h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg>`;
+        const getPriorityBadge = (priority) => {
+            const map = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
+            return `<span class="badge badge-${map[priority] || 'default'}">${priority}</span>`;
         };
 
         const getAvatar = (id, fallback) => {
-            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
+            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border); visibility: hidden;"></div>`;
             const initial = String(fallback || id).charAt(0).toUpperCase();
             return `<div class="avatar" title="${fallback}">${initial}</div>`;
         };
@@ -128,7 +157,21 @@
                 const tbody = document.getElementById('ticketList');
                 tbody.innerHTML = '';
                 
-                if (res.items.length === 0) {
+                // Apply front-end filter for active/closed/all
+                let filteredItems = res.items;
+                if (activeFilterState === 'active') {
+                    filteredItems = filteredItems.filter(t => {
+                        const sName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || '';
+                        return sName !== 'Closed';
+                    });
+                } else if (activeFilterState === 'closed') {
+                    filteredItems = filteredItems.filter(t => {
+                        const sName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || '';
+                        return sName === 'Closed';
+                    });
+                }
+
+                if (filteredItems.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="5">
                         <div class="empty-state">
                             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
@@ -139,7 +182,7 @@
                     return;
                 }
 
-                res.items.forEach(t => {
+                filteredItems.forEach(t => {
                     const statusName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || 'Unknown';
                     const prioName = lookupData.priorities?.find(p => p.id === t.priorityId)?.name || 'Normal';
                     const assigneeName = t.assignedUserId ? `User ${t.assignedUserId}` : 'Atanmamış';
@@ -156,7 +199,7 @@
                             </a>
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
-                        <td><div class="d-flex align-items-center gap-sm">${getPriorityIcon(prioName)} ${escapeHtml(prioName)}</div></td>
+                        <td>${getPriorityBadge(prioName)}</td>
                         <td><div class="d-flex align-items-center gap-sm">${getAvatar(t.assignedUserId, assigneeName)} ${escapeHtml(assigneeName)}</div></td>
                         <td>
                             <div class="row-actions">

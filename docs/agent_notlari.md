@@ -28,6 +28,7 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Faz 12.5**: Fix Batch v4 (Kanban regresyonu, raw ID temizliği, Reopen iş akışı).
 - **Faz 12.6**: Fix Batch v5 (XSS Double-Escape, Rules Label Mapping ve Edit, SystemAuditLog Ayrışımı).
 - **Faz 12.7**: Audit 500 Root Cause Resolution (Schema Drift Migration, Null-Safe UI, Test Coverage).
+- **Faz 12.8**: Fix Batch v6 (Status Semantics, Tickets UI Final Sweep, Rule Toggle with Audit).
 - **Kanban Regresyon Çözümü:** `window.api.getLookup()` çağrısı `api.js` dosyasına eklendi ve `kanban.html` içerisinde fallback (defensive rendering) eklendi.
 - **ID to Label Mapping:** `tickets.html`, `dashboard.html` (Recent Tickets), `ticket-detail.html`, ve `audit-log.html` üzerinde ham ID gösterimleri kaldırılarak lookup üzerinden gelen Name karşılıkları yazıldı.
 - **Assign UI:** `ticket-detail.html` içerisine kullanıcı atama (Assign) dropdown'ı eklendi.

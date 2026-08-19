@@ -127,6 +127,7 @@ class ApiClient {
     async getAssignmentRules() { return this.request('/rules/assignment'); }
     async createAssignmentRule(data) { return this.request('/rules/assignment', { method: 'POST', body: JSON.stringify(data) }); }
     async updateAssignmentRule(id, data) { return this.request(`/rules/assignment/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async toggleAssignmentRule(id) { return this.request(`/rules/assignment/${id}/toggle`, { method: 'PUT' }); }
     async deleteAssignmentRule(id) { return this.request(`/rules/assignment/${id}`, { method: 'DELETE' }); }
 
     // Saved Filters

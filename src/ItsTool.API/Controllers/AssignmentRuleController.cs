@@ -102,4 +102,20 @@ public class AssignmentRuleController : ControllerBase
         await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Deleted", "Rule", rule.Name, null);
         return NoContent();
     }
+
+    [HttpPut("{id}/toggle")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> ToggleRule(int id)
+    {
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+
+        var oldStatus = rule.IsActive.ToString();
+        rule.IsActive = !rule.IsActive;
+        var newStatus = rule.IsActive.ToString();
+
+        await _context.SaveChangesAsync();
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", oldStatus, newStatus);
+        return NoContent();
+    }
 }
