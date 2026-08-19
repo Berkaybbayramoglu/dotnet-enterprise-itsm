@@ -266,7 +266,7 @@ public class TicketService : ITicketService
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = t.Id,
-            Action = "StatusChanged",
+            Action = transition.TransitionName == "Reopen" ? "Reopened" : "StatusChanged",
             FieldName = "StatusId",
             OldValue = oldStatus.ToString(),
             NewValue = dto.NewStatusId.ToString(),

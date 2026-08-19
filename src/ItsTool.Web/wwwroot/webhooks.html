@@ -189,10 +189,10 @@
                         <td>${statusBadge}</td>
                         <td>
                             <div style="display: flex; gap: 4px;">
-                                <button type="button" class="btn btn-ghost" style="padding: 4px 8px; color: var(--primary);" onclick="editWebhook(${s.id})" title="Edit">
+                                <button type="button" class="btn btn-ghost btn-edit" style="padding: 4px 8px; color: var(--primary);" data-id="${s.id}" title="Edit">
                                     <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                                 </button>
-                                <button type="button" class="btn btn-ghost" style="padding: 4px 8px; color: var(--danger);" onclick="promptDeleteWebhook(${s.id})" title="Delete">
+                                <button type="button" class="btn btn-ghost btn-delete" style="padding: 4px 8px; color: var(--danger);" data-id="${s.id}" title="Delete">
                                     <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                                 </button>
                             </div>
@@ -215,24 +215,34 @@
             }
         }
 
-        window.editWebhook = async function(id) {
-            try {
-                const subs = await window.api.request('/webhook');
-                const sub = subs.find(s => s.id === id);
-                if (sub) {
-                    document.getElementById('webhookId').value = sub.id;
-                    document.getElementById('url').value = sub.url;
-                    document.getElementById('eventsCsv').value = sub.eventsCsv;
-                    document.getElementById('secret').value = sub.secret;
-                    document.getElementById('isActive').checked = sub.isActive;
-                    document.getElementById('webhookModalTitle').textContent = 'Edit Webhook';
-                    openModal('webhookModal');
+        document.getElementById('webhooksBody').addEventListener('click', async (e) => {
+            const editBtn = e.target.closest('.btn-edit');
+            const deleteBtn = e.target.closest('.btn-delete');
+            
+            if (editBtn) {
+                const id = Number.parseInt(editBtn.dataset.id);
+                try {
+                    const subs = await window.api.request('/webhook');
+                    const sub = subs.find(s => s.id === id);
+                    if (sub) {
+                        document.getElementById('webhookId').value = sub.id;
+                        document.getElementById('url').value = sub.url;
+                        document.getElementById('eventsCsv').value = sub.eventsCsv;
+                        document.getElementById('secret').value = sub.secret;
+                        document.getElementById('isActive').checked = sub.isActive;
+                        document.getElementById('webhookModalTitle').textContent = 'Edit Webhook';
+                        openModal('webhookModal');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Failed to load webhook details', 'error');
                 }
-            } catch (e) {
-                console.error(e);
-                showToast('Failed to load webhook details', 'error');
+            } else if (deleteBtn) {
+                const id = Number.parseInt(deleteBtn.dataset.id);
+                webhookToDelete = id;
+                openModal('confirmModal');
             }
-        };
+        });
 
         document.getElementById('webhookForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -260,10 +270,6 @@
             }
         });
 
-        window.promptDeleteWebhook = function(id) {
-            webhookToDelete = id;
-            openModal('confirmModal');
-        };
 
         document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
             if (!webhookToDelete) return;

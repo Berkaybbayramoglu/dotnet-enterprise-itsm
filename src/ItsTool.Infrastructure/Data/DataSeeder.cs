@@ -243,10 +243,33 @@ public class DataSeeder
                     new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true },
                     new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true },
                     new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = closedStatus.Id, IsActive = true },
-                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true }
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen", RequiredPermissionKey = "ticket.reopen" },
+                    new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen", RequiredPermissionKey = "ticket.reopen" }
                 );
                 await _context.SaveChangesAsync();
             }
+        }
+
+        var existingTransitions = _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToList();
+        if (existingTransitions.Any())
+        {
+            var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
+            var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
+            var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
+
+            foreach (var et in existingTransitions)
+            {
+                if ((et.FromStatusId == resolvedStatus?.Id || et.FromStatusId == closedStatus?.Id) && et.ToStatusId == inProgressStatus?.Id)
+                {
+                    et.TransitionName = "Reopen";
+                    et.RequiredPermissionKey = "ticket.reopen";
+                }
+                else
+                {
+                    et.TransitionName = "Default";
+                }
+            }
+            await _context.SaveChangesAsync();
         }
     }
 }

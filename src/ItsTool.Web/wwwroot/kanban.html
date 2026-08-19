@@ -11,7 +11,7 @@
         .column-header { padding: var(--spacing-md); font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; }
         .column-body { padding: var(--spacing-sm); flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); min-height: 200px; }
         
-        .card { background: var(--bg-surface); padding: var(--spacing-md); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: grab; display: flex; flex-direction: column; gap: var(--spacing-sm); border-left: 3px solid transparent; transition: box-shadow 0.2s; }
+        .card { background: var(--bg-surface); padding: var(--spacing-md); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-sm); border-left: 3px solid transparent; transition: box-shadow 0.2s; }
         .card:hover { box-shadow: var(--shadow-md); }
         .card:active { cursor: grabbing; }
         
@@ -163,7 +163,17 @@
                     card.className = `card priority-${t.priorityId || 'Medium'}`;
                     card.draggable = true;
                     card.id = `ticket-${t.id}`;
-                    card.ondragstart = window.drag;
+                    let isDragging = false;
+                    card.ondragstart = (ev) => { isDragging = true; window.drag(ev); };
+                    card.ondragend = () => { setTimeout(() => isDragging = false, 50); };
+                    card.onclick = (e) => {
+                        if (e.target.closest('.card-number')) return;
+                        if (!isDragging) window.location.href = `/ticket-detail.html?id=${t.id}`;
+                    };
+                    card.tabIndex = 0;
+                    card.onkeydown = (e) => {
+                        if (e.key === 'Enter') window.location.href = `/ticket-detail.html?id=${t.id}`;
+                    };
                     
                     card.innerHTML = `
                         <div class="card-header">
