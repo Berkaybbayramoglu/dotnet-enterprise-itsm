@@ -40,6 +40,13 @@ class ApiClient {
             throw new Error('Unauthorized');
         }
 
+        if (response.status === 403) {
+            const errorText = await response.text();
+            console.error(`API Error 403:`, errorText);
+            showToast('Yetkiniz yok veya oturum bilgileri güncel değil — yeniden giriş yapmayı deneyin (403)', 'error');
+            throw new Error('Forbidden');
+        }
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`API Error ${response.status}:`, errorText);

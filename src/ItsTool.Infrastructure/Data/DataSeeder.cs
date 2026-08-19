@@ -80,20 +80,28 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.Permissions.Any())
+        var allPermissions = ItsTool.Application.Constants.PermissionConstants.AllPermissions;
+        var existingPermissions = _context.Permissions.ToList();
+        var superAdminRolePermissions = _context.RolePermissions.Where(rp => rp.RoleId == superAdminRole.Id).ToList();
+
+        foreach (var pKey in allPermissions)
         {
-            var permissions = ItsTool.Application.Constants.PermissionConstants.AllPermissions
-                .Select(p => new Permission { Name = p, Key = p })
-                .ToList();
-            _context.Permissions.AddRange(permissions);
-            await _context.SaveChangesAsync();
-            
-            foreach (var p in permissions)
+            var dbPermission = existingPermissions.FirstOrDefault(p => p.Key == pKey);
+            if (dbPermission == null)
             {
-                _context.RolePermissions.Add(new RolePermission { RoleId = superAdminRole.Id, PermissionId = p.Id });
+                dbPermission = new Permission { Name = pKey, Key = pKey };
+                _context.Permissions.Add(dbPermission);
+                existingPermissions.Add(dbPermission);
             }
-            await _context.SaveChangesAsync();
+
+            if (!superAdminRolePermissions.Any(rp => rp.PermissionId == dbPermission.Id && rp.RoleId == superAdminRole.Id))
+            {
+                var rolePerm = new RolePermission { RoleId = superAdminRole.Id, Permission = dbPermission };
+                _context.RolePermissions.Add(rolePerm);
+                superAdminRolePermissions.Add(rolePerm);
+            }
         }
+        await _context.SaveChangesAsync();
 
         // 7. İlk Admin Kullanıcısı
         var adminUser = _context.Users.FirstOrDefault(u => u.Username == "admin");
@@ -110,14 +118,21 @@ public class DataSeeder
             };
             _context.Users.Add(adminUser);
             await _context.SaveChangesAsync();
+        }
 
-            // 8. Admin Kullanıcısına Rol Atama
-            _context.UserRoles.Add(new UserRole
+        // 8. Admin Kullanıcısına Rol Atama (Idempotent)
+        if (adminUser != null && superAdminRole != null)
+        {
+            var adminHasSuperRole = _context.UserRoles.Any(ur => ur.UserId == adminUser.Id && ur.RoleId == superAdminRole.Id);
+            if (!adminHasSuperRole)
             {
-                UserId = adminUser.Id,
-                RoleId = superAdminRole.Id
-            });
-            await _context.SaveChangesAsync();
+                _context.UserRoles.Add(new UserRole
+                {
+                    UserId = adminUser.Id,
+                    RoleId = superAdminRole.Id
+                });
+                await _context.SaveChangesAsync();
+            }
         }
 
         // 9. 5 Adet Default Proje (Doküman Madde 3.3)

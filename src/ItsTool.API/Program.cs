@@ -140,4 +140,12 @@ app.MapGet("/api/health", () =>
 
 app.MapControllers();
 
+if (app.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("AutoSeed"))
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ItsTool.Infrastructure.Data.ItsToolDbContext>();
+    var seeder = new ItsTool.Infrastructure.Data.DataSeeder(context);
+    await seeder.SeedAsync();
+}
+
 await app.RunAsync();

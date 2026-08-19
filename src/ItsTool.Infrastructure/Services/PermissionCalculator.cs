@@ -19,13 +19,13 @@ public class PermissionCalculator : IPermissionCalculator
 
         // 1. Kullanıcının doğrudan rollerinden gelen yetkiler
         var userRolePerms = await _context.UserRoles
-            .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive)
+            .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive && !ur.Role.IsDeleted && !ur.IsDeleted)
             .Join(_context.RolePermissions, 
                   ur => ur.RoleId, 
                   rp => rp.RoleId, 
-                  (ur, rp) => rp.Permission)
-            .Where(p => p != null && p.IsActive)
-            .Select(p => p!.Key)
+                  (ur, rp) => rp)
+            .Where(rp => !rp.IsDeleted && rp.Permission != null && rp.Permission.IsActive && !rp.Permission.IsDeleted)
+            .Select(rp => rp.Permission!.Key)
             .ToListAsync();
             
         foreach (var p in userRolePerms)
@@ -35,17 +35,18 @@ public class PermissionCalculator : IPermissionCalculator
 
         // 2. Kullanıcının dahil olduğu grupların rollerinden gelen yetkiler
         var groupRolePerms = await _context.GroupMembers
-            .Where(gm => gm.UserId == userId)
+            .Where(gm => gm.UserId == userId && !gm.IsDeleted && gm.Group != null && gm.Group.IsActive && !gm.Group.IsDeleted)
             .Join(_context.GroupRoles, 
                   gm => gm.GroupId, 
                   gr => gr.GroupId, 
-                  (gm, gr) => gr.RoleId)
+                  (gm, gr) => gr)
+            .Where(gr => !gr.IsDeleted)
             .Join(_context.RolePermissions, 
-                  roleId => roleId, 
+                  gr => gr.RoleId, 
                   rp => rp.RoleId, 
-                  (roleId, rp) => rp.Permission)
-            .Where(p => p != null && p.IsActive)
-            .Select(p => p!.Key)
+                  (gr, rp) => rp)
+            .Where(rp => !rp.IsDeleted && rp.Permission != null && rp.Permission.IsActive && !rp.Permission.IsDeleted)
+            .Select(rp => rp.Permission!.Key)
             .ToListAsync();
             
         foreach (var p in groupRolePerms)
@@ -56,7 +57,7 @@ public class PermissionCalculator : IPermissionCalculator
         // 3. UserPermissionOverride tablosundaki spesifik yetkiler
         var overrides = await _context.UserPermissionOverrides
             .Include(o => o.Permission)
-            .Where(o => o.UserId == userId && o.IsGranted && o.Permission != null && o.Permission.IsActive)
+            .Where(o => o.UserId == userId && o.IsGranted && !o.IsDeleted && o.Permission != null && o.Permission.IsActive && !o.Permission.IsDeleted)
             .Select(o => o.Permission!.Key)
             .ToListAsync();
 

@@ -108,4 +108,50 @@ public class PermissionCalculatorTests : TestBase
         Assert.Contains("override.perm", resultUser2);
     }
 
+    [Fact]
+    public async Task CalculateEffectivePermissionsAsync_ShouldIgnoreSoftDeletedEntities()
+    {
+        // Arrange
+        var user = new User { Username = "deltest", Email = "del@test.com", PasswordHash = "hash" };
+        _context.Users.Add(user);
+        
+        var perm1 = new Permission { Name = "ActivePerm", Key = "active.perm" };
+        var perm2 = new Permission { Name = "DeletedPerm", Key = "deleted.perm", IsDeleted = true };
+        _context.Permissions.AddRange(perm1, perm2);
+        
+        var role1 = new Role { Name = "ActiveRole" };
+        var role2 = new Role { Name = "DeletedRole", IsDeleted = true };
+        _context.Roles.AddRange(role1, role2);
+        
+        await _context.SaveChangesAsync();
+        
+        // Active role + Active perm -> SHOULD return
+        _context.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role1.Id });
+        _context.RolePermissions.Add(new RolePermission { RoleId = role1.Id, PermissionId = perm1.Id });
+        
+        // Active role + Deleted perm -> SHOULD NOT return
+        _context.RolePermissions.Add(new RolePermission { RoleId = role1.Id, PermissionId = perm2.Id });
+
+        // Deleted role + Active perm -> SHOULD NOT return
+        _context.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role2.Id });
+        _context.RolePermissions.Add(new RolePermission { RoleId = role2.Id, PermissionId = perm1.Id });
+        
+        // Deleted user role association -> SHOULD NOT return
+        var role3 = new Role { Name = "Role3" };
+        _context.Roles.Add(role3);
+        await _context.SaveChangesAsync();
+        
+        _context.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role3.Id, IsDeleted = true });
+        _context.RolePermissions.Add(new RolePermission { RoleId = role3.Id, PermissionId = perm1.Id });
+
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _calculator.CalculateEffectivePermissionsAsync(user.Id);
+
+        // Assert
+        Assert.Single(result);
+        Assert.Contains("active.perm", result);
+        Assert.DoesNotContain("deleted.perm", result);
+    }
 }
