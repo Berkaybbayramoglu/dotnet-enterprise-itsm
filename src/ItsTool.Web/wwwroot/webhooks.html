@@ -147,20 +147,15 @@
 
     <script type="module">
         import './js/api.js';
-        import { bindShellActions, showToast } from './js/ui.js';
+        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
         let webhookToDelete = null;
 
-        window.openModal = function(id) {
-            document.getElementById(id).style.display = 'block';
-        };
-        
-        window.closeModal = function(id) {
-            document.getElementById(id).style.display = 'none';
-        };
+        window.openModal = openModal;
+        window.closeModal = closeModal;
 
         window.showCreateModal = function() {
             document.getElementById('webhookForm').reset();

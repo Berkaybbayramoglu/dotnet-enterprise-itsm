@@ -126,10 +126,7 @@
 
         async function loadLookups() {
             try {
-                const cats = await window.api.request('/catalog/categories');
-                const projs = await window.api.request('/projects');
-                const types = await window.api.request('/catalog/types');
-                const prios = await window.api.request('/catalog/priorities');
+                const lookup = await window.api.request('/lookup');
 
                 const populate = (id, data) => {
                     const sel = document.getElementById(id);
@@ -141,10 +138,10 @@
                     });
                 };
 
-                populate('projectId', projs);
-                populate('categoryId', cats);
-                populate('typeId', types);
-                populate('priorityId', prios);
+                populate('projectId', lookup.projects);
+                populate('categoryId', lookup.categories);
+                populate('typeId', lookup.ticketTypes);
+                populate('priorityId', lookup.priorities);
             } catch (err) {
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
