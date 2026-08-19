@@ -133,3 +133,7 @@ Son olarak, .NET backend tarafındaki C# Enum tipleri (örn. `FieldType.Text = 0
 - **Problem:** Dashboard üzerinde sayım (`CountAsync`) sorgularında `t => t.Status != null` ve `!t.Status.IsClosedStatus` kullanılmasına rağmen sonuçların hep 0 (sıfır) dönmesi.
 - **Teşhis:** EF Core 3.0 ve sonrasında *Client-Side Evaluation* kısıtlanmıştır. Eğer `query` nesnesinde `Include(t => t.Status)` yoksa, `t.Status` property'sine Navigation (erişim) sırasında ya `null` değerlendirilir ve sayım boş döner ya da SQL çevirisinde beklenmedik INNER JOIN'ler oluşturarak filtreyi daraltır. 
 - **Çözüm:** Tüm navigasyon property'leri (Status, Priority, Project vb.) ana base sorguya `.Include()` ile eklenerek hem bellek içi sayımların hem de ilişkisel veritabanı filtrelerinin doğru işlemesi sağlandı.
+
+## EF Core ve Claim Yönetimi (Dashboard Bug)
+- `User.FindFirst("UserId")` gibi custom claim anahtarları ararken, JWT üreten tarafın `JwtRegisteredClaimNames.Sub` ("sub") kullanıp kullanmadığına dikkat edilmeli. ASP.NET Core MVC, varsayılan olarak "sub" değerini `ClaimTypes.NameIdentifier` ile eşleştirir. Bu değer yanlış arandığında, ID varsayılan olarak 0'a düşer ve yetki hesaplamaları/veri filtrelemeleri sessizce bozulur.
+- EF Core `.CountAsync()` metodu, performans optimizasyonu gereği `.Include()` ile bağlanan One-To-Many tablolarını (sonucu değiştirmeyeceği için) yoksayar. Dashboard ticket sayılarındaki sıfır hatası Include'lardan değil, RequestUserId=0 filtrelemesinden kaynaklıydı.

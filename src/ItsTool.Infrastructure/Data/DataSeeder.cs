@@ -217,9 +217,10 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
         // 13. Default Workflow & Transitions
-        if (!_context.Workflows.Any())
+        var defaultWorkflow = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
+        if (defaultWorkflow == null)
         {
-            var defaultWorkflow = new ItsTool.Domain.Entities.Workflow.Workflow 
+            defaultWorkflow = new ItsTool.Domain.Entities.Workflow.Workflow 
             { 
                 Name = "Default Global Workflow", 
                 Description = "Sistem varsayılan iş akışı", 
@@ -227,6 +228,7 @@ public class DataSeeder
             };
             _context.Workflows.Add(defaultWorkflow);
             await _context.SaveChangesAsync();
+        }
 
             var openStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Açık");
             var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
@@ -234,11 +236,11 @@ public class DataSeeder
             var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
             var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
 
-            if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
+        if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
+        {
+            var existingCount = await _context.WorkflowTransitions.CountAsync(wt => wt.WorkflowId == defaultWorkflow.Id);
+            if (existingCount < 14)
             {
-                var existingCount = await _context.WorkflowTransitions.CountAsync(wt => wt.WorkflowId == defaultWorkflow.Id);
-                if (existingCount < 14)
-                {
                     var oldTransitions = await _context.WorkflowTransitions.Where(wt => wt.WorkflowId == defaultWorkflow.Id).ToListAsync();
                     _context.WorkflowTransitions.RemoveRange(oldTransitions);
                     await _context.SaveChangesAsync();
@@ -268,17 +270,13 @@ public class DataSeeder
                         // Closed -> X
                         new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen", RequiredPermissionKey = "ticket.reopen" }
                     );
-                    await _context.SaveChangesAsync();
-                }
+                await _context.SaveChangesAsync();
             }
         }
 
         var existingTransitions = _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToList();
         if (existingTransitions.Any())
         {
-            var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
-            var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
-            var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
 
             foreach (var et in existingTransitions)
             {

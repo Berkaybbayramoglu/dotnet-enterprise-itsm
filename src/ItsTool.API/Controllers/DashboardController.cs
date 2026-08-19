@@ -17,7 +17,7 @@ public class DashboardController : ControllerBase
         _dashboardService = dashboardService;
     }
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+    private int GetCurrentUserId() => int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
 
     [HttpGet("overview")]
     public async Task<IActionResult> GetOverview()

@@ -110,10 +110,13 @@
 
     <script type="module">
         import './js/api.js';
-        import { bindShellActions, showToast } from './js/ui.js';
+        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
         
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
+        
+        window.openModal = openModal;
+        window.closeModal = closeModal;
 
         let statuses = [];
         let tickets = [];
