@@ -160,7 +160,7 @@ public class TicketService : ITicketService
         await _slaEngine.AttachSlaToTicketAsync(t.Id);
         await _notificationDispatcher.DispatchEventAsync("ticket.created", t.Id, dto.RequesterUserId, "A new ticket has been created.");
 
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId);
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, null);
     }
 
     public async Task<TicketDto?> GetTicketByIdAsync(int id)
@@ -171,7 +171,7 @@ public class TicketService : ITicketService
         var customFields = await _context.TicketFieldValues
             .Include(tfv => tfv.FieldDefinition)
             .Where(tfv => tfv.TicketId == id)
-            .ToDictionaryAsync(tfv => tfv.FieldDefinition.Key, tfv => tfv.ValueString);
+            .ToDictionaryAsync(tfv => tfv.FieldDefinition!.Key, tfv => tfv.ValueString);
 
         return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, customFields);
     }
@@ -272,7 +272,7 @@ public class TicketService : ITicketService
         var allowed = transitions.Where(wt => 
             string.IsNullOrEmpty(wt.RequiredPermissionKey) || userPerms.Contains(wt.RequiredPermissionKey))
             .Select(wt => new StatusDto(
-                wt.ToStatus.Id,
+                wt.ToStatus!.Id,
                 wt.ToStatus.Name,
                 null, // ColorHex not in entity? Just pass null or "" 
                 wt.ToStatus.SortOrder,
@@ -334,7 +334,7 @@ public class TicketService : ITicketService
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = t.Id,
-            Action = transition.TransitionName == "Reopen" ? "Reopened" : "StatusChanged",
+            Action = transition.TransitionName.Contains("Reopen") ? "Reopened" : "StatusChanged",
             FieldName = "StatusId",
             OldValue = oldStatus.ToString(),
             NewValue = dto.NewStatusId.ToString(),
@@ -539,7 +539,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, null))
             .ToListAsync();
 
         return new PagedResult<TicketDto>

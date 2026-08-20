@@ -179,8 +179,8 @@
                     const tr = document.createElement('tr');
                     
                     const statusBadge = s.isActive 
-                        ? `<span class="badge badge-success">Active</span>`
-                        : `<span class="badge badge-default">Inactive</span>`;
+                        ? `<span class="badge badge-success btn-toggle" style="cursor: pointer;" data-id="${s.id}" title="Click to disable">Active</span>`
+                        : `<span class="badge badge-default btn-toggle" style="cursor: pointer;" data-id="${s.id}" title="Click to enable">Inactive</span>`;
                         
                     tr.innerHTML = `
                         <td style="font-family: monospace; color: var(--text-muted);">${s.id}</td>
@@ -218,8 +218,21 @@
         document.getElementById('webhooksBody').addEventListener('click', async (e) => {
             const editBtn = e.target.closest('.btn-edit');
             const deleteBtn = e.target.closest('.btn-delete');
+            const toggleBtn = e.target.closest('.btn-toggle');
             
-            if (editBtn) {
+            if (toggleBtn) {
+                const id = Number.parseInt(toggleBtn.dataset.id);
+                toggleBtn.style.opacity = '0.5';
+                try {
+                    await window.api.request(`/Webhook/${id}/toggle`, { method: 'PUT' });
+                    showToast('Webhook status updated');
+                    loadWebhooks();
+                } catch (err) {
+                    console.error(err);
+                    showToast('Failed to toggle webhook', 'error');
+                    toggleBtn.style.opacity = '1';
+                }
+            } else if (editBtn) {
                 const id = Number.parseInt(editBtn.dataset.id);
                 try {
                     const subs = await window.api.request('/webhook');
