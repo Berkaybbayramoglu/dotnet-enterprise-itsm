@@ -61,4 +61,18 @@ public class AuditLogControllerTests : TestBase
         Assert.Contains(pagedData.Items, i => i.Action == "B");
         Assert.Contains(pagedData.Items, i => i.Action == "Created" && i.TicketId == null);
     }
+
+    [Fact]
+    public async Task GetAuditLogs_ShouldHandleNullFields_WhenTicketAndUserAreNull()
+    {
+        _context.SystemAuditLogs.Add(new SystemAuditLog { EntityName = "Config", EntityId = "1", Action = "NullTest", CreatedBy = null, CreatedAt = DateTime.UtcNow });
+        await _context.SaveChangesAsync();
+
+        var filter = new AuditLogFilterDto(null, null, null, null, null, 1, 10);
+        var result = await _controller.GetAuditLogs(filter);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var pagedData = Assert.IsType<PaginatedAuditLogDto>(okResult.Value);
+
+        Assert.Contains(pagedData.Items, i => i.Action == "NullTest" && i.CreatedBy == "system" && i.TicketId == null);
+    }
 }

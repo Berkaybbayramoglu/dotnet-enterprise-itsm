@@ -302,7 +302,7 @@
             const payload = {
                 name: document.getElementById('rName').value.trim(),
                 sortOrder: Number.parseInt(document.getElementById('rSort').value) || 10,
-                isActive: true,
+                isActive: document.getElementById('rActive').checked,
                 projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value) : null,
                 categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value) : null,
                 ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value) : null,

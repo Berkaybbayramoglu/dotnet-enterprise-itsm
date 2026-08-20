@@ -165,3 +165,9 @@ Son olarak, .NET backend tarafındaki C# Enum tipleri (örn. `FieldType.Text = 0
 - **Kural:** 
   1. **Semantik:** "Resolved" (Çözüldü), çözümün uygulandığını ve teyit beklediğini ifade eder; Kanban panosunda aktiftir. "Closed" (Kapalı) ise mutlak bir sondur; Kanban'dan gizlenir (Soft-Archive) ancak analiz ve veri güvenliği için veritabanında kalmaya (hiçbir zaman silinmemeye) ve listelerde/raporlarda görünmeye devam eder.
   2. **Audit:** Sistemin çalışma mantığını (AssignmentEngine) etkileyen en küçük yapılandırma değişikliği bile (IsActive toggle dahil) `SystemAuditLog` tablosuna yazılmalıdır.
+
+## Event Delegation ve Dinamik UI Güvenliği (Faz 16 - v7)
+- **Kavram:** Event Delegation (Olay Temsilcisi).
+- **Problem:** Tablo satırları API'den her veri çekildiğinde (`tbody.innerHTML = ...`) sıfırdan oluşturulur (re-render). Eğer doğrudan `onclick` veya `addEventListener` ile butonlara event bağlanırsa, bu butonlar silinip yeniden çizildiğinde event listener'lar "ölür".
+- **Kural:** Dinamik render edilen tüm elementlerde aksiyon event'leri daima en yakın "kalıcı üst öğeye" (parent container, ör. `tbody`) bağlanmalıdır (`tbody.addEventListener('click', e => { ... })`).
+- **500 Root Cause Disiplini:** Hata 500 olduğunda asla tahminde bulunulmaz; öncelikle Schema Drift olup olmadığı `dotnet ef database update` ile veya curl ile gerçek loglar izlenerek test edilir. Null-safe mimari, entity yapısı değiştiğinde frontend çökmemesi için `a.ticketId ? ... : 'CONFIG'` şeklinde yedeklenir.

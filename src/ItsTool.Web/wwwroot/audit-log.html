@@ -176,7 +176,7 @@
                     const oldVal = mappedOld ? `<span class="value-cell" title="${escapeHtml(mappedOld)}">${escapeHtml(mappedOld)}</span>` : '<span class="text-muted">-</span>';
                     const newVal = mappedNew ? `<span class="value-cell" title="${escapeHtml(mappedNew)}">${escapeHtml(mappedNew)}</span>` : '<span class="text-muted">-</span>';
                     
-                    const ticketLink = a.ticketId ? `<a href="/ticket-detail.html?id=${a.ticketId}">ITS-${a.ticketId}</a>` : '-';
+                    const ticketLink = a.ticketId ? `<a href="/ticket-detail.html?id=${a.ticketId}">ITS-${a.ticketId}</a>` : '<span class="badge badge-default">CONFIG</span>';
                     
                     // a.createdBy is usually a string (e.g., UserId or System), try parsing to map username
                     const creatorUser = users.find(u => String(u.id) === a.createdBy);
