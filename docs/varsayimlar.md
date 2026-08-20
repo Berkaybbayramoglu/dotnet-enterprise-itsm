@@ -24,11 +24,12 @@
 | 024 | Kurulum | Seed Data | Sisteme ilk giriş için admin/Admin123! kullanıcısı ve temel ITSM config verileri API endpoint'i üzerinden seed edilecektir. | Login sisteminin test edilmesi ve temel ayarların yapılması. | Yüksek | Düşük | Kabul Edildi | API endpoint ile yapıldı. |
 \n## Faz 4 Sonrası Quality Gate ve Coverage Kararı\nCoverage koşulu bilinçli olarak (şimdilik) kaldırıldı/indirildi; Faz 12'de (sistem ve entegrasyon testleri eklendiğinde) %80 koşulu geri eklenecektir.
 
-## Audit Log Kapsamı (Faz 15 Kararı)
-Sistemde loglama işlemleri aşağıdaki kapsama alınmıştır:
-- **Bilet Yaşam Döngüsü**: Ticket nesnesinin statü, öncelik, assignee ve diğer alanlarındaki değişiklikler (`TicketHistory` tablosu).
-- **Konfigürasyon/Admin CRUD**: Assignment Rules, Webhooks, Custom Fields vb. biletlerin davranışını etkileyen konfigürasyon işlemlerinin Create/Update/Delete işlemleri (`SystemAuditLog` tablosu).
-- **Kapsam Dışı**: Read/Get okuma işlemleri loglanmaz. Bunun sebebi performans yükünü azaltmak ve sadece davranış değişikliği yaratan "State Mutation" (Durum değişimi) olaylarına odaklanmaktır.
+## Audit Log Kapsamı (Faz 15/17 Kararı)
+Sistemde loglama işlemleri aşağıdaki kapsama alınmıştır. İlke: "herkesin yaptığı her şey iz bırakır".
+- **Ticket**: created/status/assign/reopen/UPDATED (alan bazlı old→new olarak loglanır, değişiklik olmayan alanlar loglanmaz) (`TicketHistory` tablosu).
+- **Config**: rules/fields/workflows/sla/webhooks CRUD işlemleri ve toggle (Active/Inactive) hareketleri (`SystemAuditLog` tablosu).
+- **User/Auth**: user/role/permission değişiklikleri; auth login başarılı/başarısız denemeleri.
+- **Kapsam Dışı**: Read/Get (okuma) işlemleri loglanmaz. Bunun sebebi performans yükünü azaltmak ve sadece davranış değişikliği yaratan "State Mutation" (Durum değişimi) olaylarına odaklanmaktır.
 
 ## Status Semantiği (Faz 16 Kararı)
 Sistemdeki statü geçişleri ve anlamları şu şekilde netleştirilmiştir:

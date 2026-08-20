@@ -66,6 +66,7 @@
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
                         <h2>Ticket Detail</h2>
+                        <button class="btn btn-secondary" onclick="openEditModal()" style="margin-left: 8px;">Düzenle</button>
                     </div>
                 </div>
                 <div class="topbar-right">
@@ -151,6 +152,35 @@
         </main>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Ticket Düzenle</h2>
+                <button type="button" class="close-btn" onclick="closeModal('editModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <form id="editForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="editTitle">Başlık</label>
+                        <input type="text" id="editTitle" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editDesc">Açıklama</label>
+                        <textarea id="editDesc" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div id="editDynamicFieldsContainer"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('editModal')">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import './js/api.js';
         import { bindShellActions, showToast } from './js/ui.js';
@@ -178,6 +208,7 @@
                 } catch(e) { console.warn('Lookup failed', e); }
 
                 const t = await window.api.request(`/Ticket/${ticketId}`);
+                currentTicket = t;
                 document.getElementById('tNumber').textContent = t.ticketNumber;
                 document.getElementById('tTitle').textContent = t.title;
                 document.getElementById('tDesc').textContent = t.description || 'No description provided.';
@@ -257,6 +288,111 @@
                 showToast('Error loading ticket', 'error'); 
             }
         }
+
+        let currentTicket = null;
+
+        window.openEditModal = async function() {
+            if (!currentTicket) return;
+            document.getElementById('editTitle').value = currentTicket.title;
+            document.getElementById('editDesc').value = currentTicket.description || '';
+            
+            const dynContainer = document.getElementById('editDynamicFieldsContainer');
+            dynContainer.innerHTML = '<p class="text-muted" style="text-align: center; font-size: 13px;">Loading fields...</p>';
+            
+            try {
+                const placements = await window.api.getPlacements(currentTicket.projectId, currentTicket.categoryId, currentTicket.typeId);
+                dynContainer.innerHTML = '';
+                
+                if (placements.length > 0) {
+                    placements.sort((a,b) => a.sortOrder - b.sortOrder);
+                    for (const place of placements) {
+                        const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
+                        const fg = document.createElement('div');
+                        fg.className = 'form-group';
+                        
+                        const lbl = document.createElement('label');
+                        lbl.className = 'form-label';
+                        lbl.textContent = def.label + (place.isRequired ? ' *' : '');
+                        lbl.setAttribute('for', 'cf_' + def.key);
+                        fg.appendChild(lbl);
+
+                        let input;
+                        if (def.fieldType === 3 || def.fieldType === 4) { // dropdown / multiselect
+                            input = document.createElement('select');
+                            input.className = 'form-control';
+                            if (def.fieldType === 4) input.multiple = true;
+                            const opts = await window.api.getFieldOptions(def.id);
+                            opts.forEach(o => {
+                                const opt = document.createElement('option');
+                                opt.value = o.value;
+                                opt.textContent = o.label;
+                                input.appendChild(opt);
+                            });
+                        } else {
+                            input = document.createElement('input');
+                            input.className = 'form-control';
+                            if (def.fieldType === 0) input.type = 'text';
+                            else if (def.fieldType === 1) input.type = 'number';
+                            else if (def.fieldType === 2) input.type = 'date';
+                        }
+                        
+                        input.id = 'cf_' + def.key;
+                        input.dataset.key = def.key;
+                        if (place.isRequired) input.required = true;
+                        
+                        // Populate existing value
+                        if (currentTicket.customFields && currentTicket.customFields[def.key]) {
+                            input.value = currentTicket.customFields[def.key];
+                        }
+                        
+                        fg.appendChild(input);
+                        dynContainer.appendChild(fg);
+                    }
+                }
+            } catch(e) {
+                dynContainer.innerHTML = '<div style="color: var(--danger);">Failed to load dynamic fields.</div>';
+            }
+            
+            window.openModal('editModal');
+        };
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentTicket) return;
+
+            const title = document.getElementById('editTitle').value;
+            const description = document.getElementById('editDesc').value;
+            
+            const customFields = {};
+            const dynContainer = document.getElementById('editDynamicFieldsContainer');
+            const inputs = dynContainer.querySelectorAll('input, select');
+            inputs.forEach(inp => {
+                if (inp.dataset.key) {
+                    customFields[inp.dataset.key] = inp.value;
+                }
+            });
+
+            const payload = {
+                title,
+                description,
+                categoryId: currentTicket.categoryId,
+                priorityId: currentTicket.priorityId,
+                customFields
+            };
+
+            try {
+                await window.api.request(`/Ticket/${ticketId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                showToast('Ticket updated successfully');
+                window.closeModal('editModal');
+                window.location.reload();
+            } catch(err) {
+                console.error(err);
+                showToast('Update failed', 'error');
+            }
+        });
 
         async function loadComments() {
             try {

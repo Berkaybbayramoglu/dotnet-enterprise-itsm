@@ -1,6 +1,6 @@
 namespace ItsTool.Application.DTOs;
 
-public record TicketDto(int Id, string TicketNumber, string Title, string Description, int ProjectId, int CategoryId, int TypeId, int StatusId, int PriorityId, int RequesterUserId, int? AssignedUserId, int? AssignedGroupId);
+public record TicketDto(int Id, string TicketNumber, string Title, string Description, int ProjectId, int CategoryId, int TypeId, int StatusId, int PriorityId, int RequesterUserId, int? AssignedUserId, int? AssignedGroupId, Dictionary<string, string>? CustomFields = null);
 public record CreateTicketDto(string Title, string Description, int ProjectId, int CategoryId, int TypeId, int PriorityId, int RequesterUserId, Dictionary<string, string> CustomFields);
 public record UpdateTicketDto(string Title, string Description, int CategoryId, int PriorityId, Dictionary<string, string> CustomFields);
 

@@ -167,7 +167,13 @@ public class TicketService : ITicketService
     {
         var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (t == null) return null;
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId);
+
+        var customFields = await _context.TicketFieldValues
+            .Include(tfv => tfv.FieldDefinition)
+            .Where(tfv => tfv.TicketId == id)
+            .ToDictionaryAsync(tfv => tfv.FieldDefinition.Key, tfv => tfv.ValueString);
+
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, customFields);
     }
 
     public async Task UpdateTicketAsync(int id, UpdateTicketDto dto, int currentUserId)
@@ -177,14 +183,70 @@ public class TicketService : ITicketService
 
         await ValidateDynamicFieldsAsync(t.ProjectId, dto.CategoryId, t.TypeId, dto.CustomFields);
 
+        var historyEntries = new List<TicketHistory>();
+
+        void CheckDiff(string fieldName, string? oldVal, string? newVal)
+        {
+            if (oldVal != newVal)
+            {
+                historyEntries.Add(new TicketHistory
+                {
+                    TicketId = id,
+                    Action = "Updated",
+                    FieldName = fieldName,
+                    OldValue = oldVal,
+                    NewValue = newVal,
+                    CreatedBy = currentUserId.ToString()
+                });
+            }
+        }
+
+        CheckDiff("Title", t.Title, dto.Title);
+        CheckDiff("Description", t.Description, dto.Description);
+        CheckDiff("CategoryId", t.CategoryId.ToString(), dto.CategoryId.ToString());
+        CheckDiff("PriorityId", t.PriorityId.ToString(), dto.PriorityId.ToString());
+
         t.Title = dto.Title;
         t.Description = dto.Description;
         t.CategoryId = dto.CategoryId;
         t.PriorityId = dto.PriorityId;
 
-        // Custom fields update logic would go here in a full system
-        // For brevity and scope, ignoring Field History diffs
+        // Custom fields update logic
+        var existingFields = await _context.TicketFieldValues
+            .Include(f => f.FieldDefinition)
+            .Where(f => f.TicketId == id)
+            .ToListAsync();
 
+        foreach (var kvp in dto.CustomFields)
+        {
+            var def = await _context.FieldDefinitions.FirstOrDefaultAsync(fd => fd.Key == kvp.Key);
+            if (def == null) continue;
+
+            var existing = existingFields.FirstOrDefault(f => f.FieldDefinitionId == def.Id);
+            if (existing == null)
+            {
+                _context.TicketFieldValues.Add(new TicketFieldValue
+                {
+                    TicketId = id,
+                    FieldDefinitionId = def.Id,
+                    ValueString = kvp.Value
+                });
+                CheckDiff(kvp.Key, null, kvp.Value);
+            }
+            else
+            {
+                if (existing.ValueString != kvp.Value)
+                {
+                    CheckDiff(kvp.Key, existing.ValueString, kvp.Value);
+                    existing.ValueString = kvp.Value;
+                }
+            }
+        }
+
+        if (historyEntries.Any())
+        {
+            _context.TicketHistories.AddRange(historyEntries);
+        }
         await _context.SaveChangesAsync();
     }
 
