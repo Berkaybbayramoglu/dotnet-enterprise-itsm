@@ -71,69 +71,108 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-        // 6. Roles & Permissions
-        var superAdminRole = _context.Roles.FirstOrDefault(r => r.Name == "SuperAdmin");
-        if (superAdminRole == null)
-        {
-            superAdminRole = new Role { Name = "SuperAdmin" };
-            _context.Roles.Add(superAdminRole);
-            await _context.SaveChangesAsync();
-        }
-
+        // 6. Roles & Permissions Setup
         var allPermissions = ItsTool.Application.Constants.PermissionConstants.AllPermissions;
-        var existingPermissions = _context.Permissions.ToList();
-        var superAdminRolePermissions = _context.RolePermissions.Where(rp => rp.RoleId == superAdminRole.Id).ToList();
-
+        var existingPermissions = await _context.Permissions.ToListAsync();
+        
         foreach (var pKey in allPermissions)
         {
-            var dbPermission = existingPermissions.FirstOrDefault(p => p.Key == pKey);
-            if (dbPermission == null)
+            if (!existingPermissions.Any(p => p.Key == pKey))
             {
-                dbPermission = new Permission { Name = pKey, Key = pKey };
-                _context.Permissions.Add(dbPermission);
-                existingPermissions.Add(dbPermission);
-            }
-
-            if (!superAdminRolePermissions.Any(rp => rp.PermissionId == dbPermission.Id && rp.RoleId == superAdminRole.Id))
-            {
-                var rolePerm = new RolePermission { RoleId = superAdminRole.Id, Permission = dbPermission };
-                _context.RolePermissions.Add(rolePerm);
-                superAdminRolePermissions.Add(rolePerm);
+                var p = new Permission { Name = pKey, Key = pKey };
+                _context.Permissions.Add(p);
+                existingPermissions.Add(p);
             }
         }
         await _context.SaveChangesAsync();
 
-        // 7. İlk Admin Kullanıcısı
-        var adminUser = _context.Users.FirstOrDefault(u => u.Username == "admin");
-        if (adminUser == null && itDept != null)
+        var rolesToSeed = new Dictionary<string, string[]>
         {
-            adminUser = new User
-            {
-                Username = "admin",
-                Email = "admin@itsm.local",
-                FirstName = "System",
-                LastName = "Admin",
-                DepartmentId = itDept.Id,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!")
-            };
-            _context.Users.Add(adminUser);
-            await _context.SaveChangesAsync();
-        }
+            { "SuperAdmin", allPermissions.ToArray() },
+            { "Manager", new[] { "report.view", "audit.view", "ticket.view", "ticket.assign", "kb.manage" } },
+            { "Agent", new[] { "ticket.view", "ticket.edit", "ticket.resolve", "ticket.comment", "kb.view" } },
+            { "EndUser", new[] { "ticket.create", "ticket.view", "survey.submit", "kb.view" } }
+        };
 
-        // 8. Admin Kullanıcısına Rol Atama (Idempotent)
-        if (adminUser != null && superAdminRole != null)
+        var existingRoles = await _context.Roles.Include(r => r.RolePermissions).ToListAsync();
+
+        foreach (var kvp in rolesToSeed)
         {
-            var adminHasSuperRole = _context.UserRoles.Any(ur => ur.UserId == adminUser.Id && ur.RoleId == superAdminRole.Id);
-            if (!adminHasSuperRole)
+            var role = existingRoles.FirstOrDefault(r => r.Name == kvp.Key);
+            if (role == null)
             {
-                _context.UserRoles.Add(new UserRole
+                role = new Role { Name = kvp.Key };
+                _context.Roles.Add(role);
+                existingRoles.Add(role);
+                await _context.SaveChangesAsync(); // save to get Id
+            }
+
+            foreach (var permKey in kvp.Value)
+            {
+                var perm = existingPermissions.FirstOrDefault(p => p.Key == permKey);
+                if (perm != null && !role.RolePermissions.Any(rp => rp.PermissionId == perm.Id))
                 {
-                    UserId = adminUser.Id,
-                    RoleId = superAdminRole.Id
-                });
-                await _context.SaveChangesAsync();
+                    _context.RolePermissions.Add(new RolePermission { RoleId = role.Id, PermissionId = perm.Id });
+                }
             }
         }
+        await _context.SaveChangesAsync();
+
+        // 7. Users
+        var usersToSeed = new List<(string Username, string Password, string Role, string FirstName, string LastName)>
+        {
+            ("admin", "Admin123!", "SuperAdmin", "System", "Admin"),
+            ("manager", "Manager123!", "Manager", "IT", "Manager"),
+            ("agent1", "Agent123!", "Agent", "Helpdesk", "Agent 1"),
+            ("agent2", "Agent123!", "Agent", "Helpdesk", "Agent 2"),
+            ("user1", "User123!", "EndUser", "End", "User")
+        };
+
+        var existingUsers = await _context.Users.Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
+
+        foreach (var u in usersToSeed)
+        {
+            var user = existingUsers.FirstOrDefault(x => x.Username == u.Username);
+            if (user == null && itDept != null)
+            {
+                user = new User
+                {
+                    Username = u.Username,
+                    Email = $"{u.Username}@itsm.local",
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    DepartmentId = itDept.Id,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(u.Password)
+                };
+                _context.Users.Add(user);
+                existingUsers.Add(user);
+                await _context.SaveChangesAsync(); // get Id
+            }
+
+            if (user != null)
+            {
+                var role = existingRoles.First(r => r.Name == u.Role);
+                if (!user.UserRoles.Any(ur => ur.RoleId == role.Id))
+                {
+                    _context.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = role.Id });
+                }
+
+                if (u.Username == "agent2")
+                {
+                    var closePerm = existingPermissions.First(p => p.Key == "ticket.close");
+                    if (!user.PermissionOverrides.Any(po => po.PermissionId == closePerm.Id))
+                    {
+                        _context.UserPermissionOverrides.Add(new UserPermissionOverride
+                        {
+                            UserId = user.Id,
+                            PermissionId = closePerm.Id,
+                            IsGranted = true
+                        });
+                    }
+                }
+            }
+        }
+        await _context.SaveChangesAsync();
 
         // 9. 5 Adet Default Proje (Doküman Madde 3.3)
         if (!_context.Projects.Any())

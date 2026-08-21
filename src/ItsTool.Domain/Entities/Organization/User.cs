@@ -10,4 +10,6 @@ public class User : BaseEntity {
     public int? DepartmentId { get; set; }
     public virtual Department? Department { get; set; }
     public virtual ICollection<GroupMember> GroupMemberships { get; set; } = new List<GroupMember>();
+    public virtual ICollection<ItsTool.Domain.Entities.Auth.UserRole> UserRoles { get; set; } = new List<ItsTool.Domain.Entities.Auth.UserRole>();
+    public virtual ICollection<ItsTool.Domain.Entities.Auth.UserPermissionOverride> PermissionOverrides { get; set; } = new List<ItsTool.Domain.Entities.Auth.UserPermissionOverride>();
 }

@@ -163,6 +163,24 @@
         </div>
     </div>
 
+    <!-- Manage Overrides Modal -->
+    <div id="overridesModal" class="modal-overlay">
+        <div class="modal" style="width: min(800px, 90%);">
+            <div class="modal-header">
+                <h2>Manage Permission Overrides</h2>
+                <button type="button" class="close-btn" onclick="closeModal('overridesModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted" style="margin-top:0;">User: <strong id="oUserName"></strong></p>
+                <div class="perm-list" id="overrideList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 400px; padding: 12px; border-radius: 8px;">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Modal -->
     <div id="deleteModal" class="modal-overlay">
         <div class="modal" style="max-width: 400px;">
@@ -191,6 +209,7 @@
 
         let currentData = [];
         let allRoles = [];
+        let allPermissions = [];
         let itemToDelete = null;
         let activeUserId = null;
 
@@ -198,6 +217,7 @@
             try {
                 currentData = await window.api.getUsers();
                 allRoles = await window.api.getRoles();
+                try { allPermissions = await window.api.getPermissions(); } catch (e) { console.error('Failed to load perms', e); }
                 const tbody = document.querySelector('#dataTable tbody');
                 tbody.innerHTML = '';
                 
@@ -216,6 +236,7 @@
                         <td>${badge}</td>
                         <td>
                             <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openRolesModal(${item.id})">Roles</button>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openOverridesModal(${item.id})">Overrides</button>
                             <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openUserModal(${item.id})">Edit</button>
                             <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" onclick="window.promptDelete(${item.id})">Del</button>
                         </td>
@@ -294,6 +315,47 @@
             }
 
             openModal('rolesModal');
+        };
+
+        window.openOverridesModal = function(id) {
+            activeUserId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            
+            document.getElementById('oUserName').textContent = item.username;
+
+            const list = document.getElementById('overrideList');
+            list.innerHTML = '';
+            
+            allPermissions.forEach(p => {
+                const overrideValue = item.permissionOverrides ? item.permissionOverrides[p.id] : undefined;
+                const isGranted = overrideValue === true;
+                const isRevoked = overrideValue === false;
+                
+                list.innerHTML += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                        <span>${p.key} <small class="text-muted" style="display:block;">${p.name}</small></span>
+                        <div style="display: flex; gap: 4px;">
+                            <button type="button" class="btn ${isGranted ? 'btn-success' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" onclick="window.setOverride(${p.id}, true)">Allow</button>
+                            <button type="button" class="btn ${isRevoked ? 'btn-danger' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" onclick="window.setOverride(${p.id}, false)">Deny</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            openModal('overridesModal');
+        };
+
+        window.setOverride = async function(permId, isGranted) {
+            if (!activeUserId) return;
+            try {
+                await window.api.setPermissionOverride(activeUserId, permId, isGranted);
+                showToast('Override saved');
+                loadData();
+            } catch (err) {
+                showToast('Failed to save override', 'error');
+                loadData();
+            }
         };
 
         document.getElementById('btnAssignRole').addEventListener('click', async () => {

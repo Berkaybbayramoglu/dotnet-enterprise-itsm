@@ -115,7 +115,7 @@
 
     <!-- Manage Permissions Modal -->
     <div id="permsModal" class="modal-overlay">
-        <div class="modal" style="width: min(600px, 90%);">
+        <div class="modal" style="width: min(800px, 90%);">
             <div class="modal-header">
                 <h2>Manage Permissions</h2>
                 <button type="button" class="close-btn" onclick="closeModal('permsModal')" aria-label="Close">
@@ -124,16 +124,9 @@
             </div>
             <div class="modal-body">
                 <p class="text-muted" style="margin-top:0;">Role: <strong id="pRoleName"></strong></p>
-                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    <input type="number" id="permIdInput" class="form-control" placeholder="Enter Permission ID" style="flex: 1;">
-                    <button type="button" class="btn btn-secondary" id="btnAssignPerm">Assign Permission</button>
-                </div>
-                
-                <h4>Current Permissions (IDs)</h4>
-                <div class="perm-list" id="permList">
+                <div class="perm-list" id="permList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 400px; padding: 12px; border-radius: 8px;">
                     <!-- populated by JS -->
                 </div>
-                <small class="text-muted" style="display:block; margin-top: 8px;">Note: Since getPermissions endpoint is unavailable, use numerical Permission IDs directly.</small>
             </div>
         </div>
     </div>
@@ -167,10 +160,12 @@
         let currentData = [];
         let itemToDelete = null;
         let activeRoleId = null;
+        let allPermissions = [];
 
         window.loadData = async function() {
             try {
                 currentData = await window.api.getRoles();
+                try { allPermissions = await window.api.getPermissions(); } catch (e) { console.error('Failed to load perms', e); }
                 const tbody = document.querySelector('#dataTable tbody');
                 tbody.innerHTML = '';
                 
@@ -228,49 +223,38 @@
             if (!item) return;
             
             document.getElementById('pRoleName').textContent = item.name;
-            document.getElementById('permIdInput').value = '';
 
             // Populate list
             const list = document.getElementById('permList');
             list.innerHTML = '';
-            if (!item.permissionIds || item.permissionIds.length === 0) {
-                list.innerHTML = '<div class="text-muted" style="padding: 8px;">No permissions assigned.</div>';
-            } else {
-                item.permissionIds.forEach(pId => {
-                    list.innerHTML += `
-                        <div class="perm-item">
-                            <span>Permission ID: ${pId}</span>
-                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" onclick="window.revokePerm(${pId})">Revoke</button>
-                        </div>
-                    `;
-                });
-            }
+            
+            allPermissions.forEach(p => {
+                const isAssigned = item.permissionIds && item.permissionIds.includes(p.id);
+                list.innerHTML += `
+                    <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
+                        <input type="checkbox" onchange="window.togglePerm(${p.id}, this.checked)" ${isAssigned ? 'checked' : ''}>
+                        <span>${p.key} <small class="text-muted" style="display:block;">${p.name}</small></span>
+                    </label>
+                `;
+            });
 
             openModal('permsModal');
         };
 
-        document.getElementById('btnAssignPerm').addEventListener('click', async () => {
-            const permId = document.getElementById('permIdInput').value;
-            if (!permId || !activeRoleId) return;
-            try {
-                await window.api.assignPermission(activeRoleId, permId);
-                showToast('Permission assigned');
-        loadData(); // removed await for resilience
-                window.openPermsModal(activeRoleId);
-            } catch (err) {
-                showToast('Failed to assign permission', 'error');
-            }
-        });
-
-        window.revokePerm = async function(permId) {
+        window.togglePerm = async function(permId, isChecked) {
             if (!activeRoleId) return;
             try {
-                await window.api.revokePermission(activeRoleId, permId);
-                showToast('Permission revoked');
-        loadData(); // removed await for resilience
-                window.openPermsModal(activeRoleId);
+                if (isChecked) {
+                    await window.api.assignPermission(activeRoleId, permId);
+                    showToast('Permission assigned');
+                } else {
+                    await window.api.revokePermission(activeRoleId, permId);
+                    showToast('Permission revoked');
+                }
+                loadData();
             } catch (err) {
-                showToast('Failed to revoke permission', 'error');
+                showToast('Failed to update permission', 'error');
+                loadData();
             }
         };
 

@@ -35,6 +35,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Faz 12.12**: Fix Batch v10 (In-Place Ticket Editing, Dynamic Field Validation, No-Op Audit Tracking, Timeline Activity).
 - **Faz 12.13**: Fix Batch v11 (Tickets Chip Filters Delegation, Shared Preview Modal for Kanban & Dashboard).
 - **Faz 12.14**: Fix Batch v12 (Knowledge Base Authoring UI, Data Seeder KB articles, Hero Contrast, kb-article.html ViewCount integration).
+- **Faz 12.15**: Fix Batch v13 (RBAC ve Rol Yönetimi, Data Seeder Demo Kimlikleri, Permission Matrix UI, JWT üzerinden dinamik menü rendering, Kapsamlı Rol/Permission Yetkilendirme).
+- **Faz 14**: Fix Batch v14 (Clickable KPI Cards, Drill-Down Modals, Dashboard Surveys Endpoint, A11y enhancements).
 - **Kanban Regresyon Çözümü:** `window.api.getLookup()` çağrısı `api.js` dosyasına eklendi ve `kanban.html` içerisinde fallback (defensive rendering) eklendi.
 - **ID to Label Mapping:** `tickets.html`, `dashboard.html` (Recent Tickets), `ticket-detail.html`, ve `audit-log.html` üzerinde ham ID gösterimleri kaldırılarak lookup üzerinden gelen Name karşılıkları yazıldı.
 - **Assign UI:** `ticket-detail.html` içerisine kullanıcı atama (Assign) dropdown'ı eklendi.

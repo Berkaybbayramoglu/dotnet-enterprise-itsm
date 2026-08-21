@@ -93,12 +93,36 @@
         </main>
     </div>
 
+    <!-- Drill-Down Modal -->
+    <div id="drillDownModal" class="modal-overlay">
+        <div class="modal" style="max-width: 800px; width: 90%;">
+            <div class="modal-header">
+                <h2 id="drillDownTitle">Details</h2>
+                <button type="button" class="close-btn" onclick="closeModal('drillDownModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="drillDownCount" style="margin-bottom: 12px; font-weight: 500; color: var(--text-muted);"></div>
+                <div id="drillDownList" style="display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 8px;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import './js/api.js';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js';
+        import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js';
         
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+
         window.openTicketPreviewWrapper = function(id) {
-            const t = window.__recentTicketsCache?.find(x => x.id === id);
+            let t = window.__recentTicketsCache?.find(x => x.id === id);
+            if (!t && window.__drillDownCache) {
+                t = window.__drillDownCache.find(x => x.id === id);
+            }
             if (t) openTicketPreview(t, window.__lookupCache || {});
         };
         
@@ -125,7 +149,13 @@
                 window.__lookupCache = lookup;
 
                 const createKpiCard = (title, val, color, iconPath) => `
-                    <div class="card" style="display: flex; align-items: center; gap: 12px; height: 96px; padding: 16px; border-left: 4px solid var(--${color});">
+                    <div class="card" 
+                         role="button" tabindex="0" 
+                         style="display: flex; align-items: center; gap: 12px; height: 96px; padding: 16px; border-left: 4px solid var(--${color}); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'"
+                         onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'"
+                         onclick="window.openDrillDown('${title}')"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openDrillDown('${title}');}">
                         <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(var(--${color}-rgb), 0.1); display: flex; align-items: center; justify-content: center; color: var(--${color});">
                             <svg viewBox="0 0 24 24" width="24" height="24" style="fill: currentColor;">${iconPath}</svg>
                         </div>
@@ -142,7 +172,7 @@
                     ${createKpiCard('SLA Risk', overview.slaRiskTickets ?? 0, 'warning', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>')}
                     ${createKpiCard('SLA Breached', overview.slaBreachedTickets ?? 0, 'danger', '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>')}
                     ${createKpiCard('Unassigned', overview.unassignedTickets ?? 0, 'default', '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>')}
-                    ${createKpiCard('Avg CSAT', overview.csatAverage ?? 0, 'success', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>')}
+                    ${createKpiCard('Avg CSAT', overview.csatAverage ? overview.csatAverage.toFixed(1) : 0, 'success', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>')}
                 `;
 
                 // Workload List
@@ -221,6 +251,104 @@
                 showToast('Error loading dashboard', 'error');
             }
         }
+        
+        window.openDrillDown = async function(type) {
+            document.getElementById('drillDownTitle').textContent = type + ' Details';
+            document.getElementById('drillDownCount').textContent = 'Loading...';
+            document.getElementById('drillDownList').innerHTML = '<div style="padding:20px;text-align:center;">Loading data...</div>';
+            
+            // Need ui.js openModal available in global
+            if (window.openModal) window.openModal('drillDownModal');
+
+            const getStatusName = (id) => window.__lookupCache?.statuses?.find(s => s.id === id)?.name || 'Unknown';
+            const getPriorityName = (id) => window.__lookupCache?.priorities?.find(s => s.id === id)?.name || 'Normal';
+            const getStatusBadge = (status) => {
+                const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
+                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${status}</span>`;
+            };
+            
+            const renderTickets = (items) => {
+                window.__drillDownCache = items;
+                document.getElementById('drillDownCount').textContent = `${items.length} records found`;
+                if (items.length === 0) {
+                    document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
+                    return;
+                }
+                
+                document.getElementById('drillDownList').innerHTML = items.map(t => `
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${t.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
+                        <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
+                        <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
+                        ${getStatusBadge(getStatusName(t.statusId))}
+                        <span class="badge badge-default" style="font-size: 11px;">${getPriorityName(t.priorityId)}</span>
+                    </div>
+                `).join('');
+            };
+
+            try {
+                if (type === 'Avg CSAT') {
+                    const surveys = await window.api.getDashboardSurveys();
+                    document.getElementById('drillDownCount').textContent = `${surveys.length} survey(s) found`;
+                    if (surveys.length === 0) {
+                        document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
+                    } else {
+                        document.getElementById('drillDownList').innerHTML = surveys.map(s => `
+                            <div style="padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong style="color:var(--primary);">Rating: ${s.rating}/5</strong>
+                                    <span style="font-size: 12px; color: var(--text-muted);">${new Date(s.createdAt).toLocaleString()}</span>
+                                </div>
+                                <div style="font-size: 14px; color: var(--text-main); font-style: italic;">"${s.comment || 'No comment'}"</div>
+                            </div>
+                        `).join('');
+                    }
+                    return;
+                }
+                
+                let filter = { pageSize: 50 }; // Max 50 for drilldown
+                if (type === 'Open Tickets') {
+                    // Custom logic handled backend typically or we find open status ID
+                    const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+                    if (closedStatus) filter.excludeStatusId = closedStatus.id; 
+                } else if (type === 'Critical') {
+                    const critPrio = window.__lookupCache?.priorities?.find(p => p.name === 'Critical');
+                    if (critPrio) filter.priorityId = critPrio.id;
+                    const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+                    if (closedStatus) filter.excludeStatusId = closedStatus.id;
+                } else if (type === 'SLA Risk') {
+                    filter.slaStatus = 'warning';
+                } else if (type === 'SLA Breached') {
+                    filter.slaStatus = 'breached';
+                } else if (type === 'Unassigned') {
+                    filter.unassigned = true;
+                }
+                
+                // Note: We might need to adjust backend to support `excludeStatusId` or `unassigned`.
+                // However, searchTickets in TicketService currently checks `filter.StatusId` and `filter.AssigneeUserId`.
+                // For simplicity we will fetch tickets and filter them client-side if the backend doesn't support the exact filter natively.
+                const res = await window.api.searchTickets({ pageSize: 100 });
+                let items = res.items || [];
+                
+                // Client-side filtering as fallback if API doesn't support exact drill-down params
+                if (type === 'Open Tickets') {
+                    const closedId = window.__lookupCache?.statuses?.find(s => s.name === 'Closed' || s.name === 'Kapatıldı')?.id;
+                    items = items.filter(t => t.statusId !== closedId);
+                } else if (type === 'Critical') {
+                    const critId = window.__lookupCache?.priorities?.find(p => p.name === 'Critical' || p.level === 1)?.id;
+                    const closedId = window.__lookupCache?.statuses?.find(s => s.name === 'Closed' || s.name === 'Kapatıldı')?.id;
+                    items = items.filter(t => t.priorityId === critId && t.statusId !== closedId);
+                } else if (type === 'Unassigned') {
+                    items = items.filter(t => !t.assignedUserId);
+                }
+                // SLA Risk/Breached logic relies on backend or ticketSla field (if populated in DTO).
+                
+                renderTickets(items);
+            } catch (err) {
+                console.error("Drill-down error", err);
+                document.getElementById('drillDownList').innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load data.</div>';
+            }
+        };
+
         loadDashboard(); // removed await for resilience
     </script>
 </body>

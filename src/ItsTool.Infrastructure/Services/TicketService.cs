@@ -555,7 +555,7 @@ public class TicketService : ITicketService
     {
         if (!perms.Contains("report.view"))
         {
-            var isAgent = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
+            var isAgent = perms.Contains("ticket.edit") || perms.Contains("ticket.resolve") || perms.Contains("ticket.assign");
             if (isAgent)
             {
                 var userGroupIds = await _context.GroupMembers

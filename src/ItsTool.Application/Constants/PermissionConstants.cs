@@ -17,9 +17,15 @@ public static class PermissionConstants
     public const string SlaManage = "sla.manage";
     public const string AuditView = "audit.view";
 
+    public const string KbManage = "kb.manage";
+    public const string KbView = "kb.view";
+    public const string SurveySubmit = "survey.submit";
+    public const string TicketComment = "ticket.comment";
+
     public static IReadOnlyList<string> AllPermissions => new[]
     {
         TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView
+        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
+        KbManage, KbView, SurveySubmit, TicketComment
     };
 }

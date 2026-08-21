@@ -159,4 +159,33 @@ public class DashboardService : IDashboardService
 
         return new SlaComplianceDto(frRate, resRate, avgTime);
     }
+
+    public async Task<IEnumerable<TicketSurveyDto>> GetRecentSurveysAsync(int userId)
+    {
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+        
+        // Let's assume we want to return all surveys for users with report.view,
+        // else return an empty list or only surveys related to their tickets.
+        // For simplicity, we just join with Tickets and apply the same scoped query if needed, 
+        // or just return recent 50 surveys for demo purposes.
+        var query = _context.TicketSurveys.AsQueryable();
+
+        if (!perms.Contains("report.view"))
+        {
+            // Limit to surveys they submitted, or nothing. For this drilldown, usually managers/agents view it.
+            // But we'll let it pass if they can see the ticket.
+            var scopedTickets = await GetScopedTicketsQueryAsync(userId);
+            var scopedTicketIds = await scopedTickets.Select(t => t.Id).ToListAsync();
+            query = query.Where(s => scopedTicketIds.Contains(s.TicketId));
+        }
+
+        var surveys = await query
+            .Include(s => s.Ticket)
+            .OrderByDescending(s => s.CreatedAt)
+            .Take(50)
+            .Select(s => new TicketSurveyDto(s.Id, s.TicketId, s.Rating, s.Comment, s.CreatedAt))
+            .ToListAsync();
+
+        return surveys;
+    }
 }

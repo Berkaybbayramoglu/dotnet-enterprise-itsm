@@ -101,6 +101,32 @@ export function bindShellActions() {
             l.classList.add('active');
         }
     });
+
+    // RBAC Sidebar rendering
+    if (window.api && window.api.token) {
+        try {
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let perms = [];
+            if (payload.Permissions) {
+                perms = typeof payload.Permissions === 'string' ? [payload.Permissions] : payload.Permissions;
+            }
+            
+            if (!perms.includes('config.manage')) {
+                document.querySelectorAll('a[href="/projects.html"], a[href="/categories.html"], a[href="/departments.html"], a[href="/groups.html"], a[href="/users.html"], a[href="/roles.html"], a[href="/fields.html"], a[href="/rules.html"], a[href="/webhooks.html"]').forEach(el => {
+                    el.style.display = 'none';
+                });
+                // Hide administration section title
+                const adminTitle = Array.from(document.querySelectorAll('.sidebar-nav-title')).find(el => el.textContent.includes('Administration'));
+                if (adminTitle) adminTitle.style.display = 'none';
+            }
+            if (!perms.includes('audit.view')) {
+                const auditLink = document.querySelector('a[href="/audit.html"]');
+                if (auditLink) auditLink.style.display = 'none';
+            }
+        } catch (e) {
+            console.error('Failed to parse token permissions', e);
+        }
+    }
 }
 
 export function openTicketPreview(t, lookupData) {

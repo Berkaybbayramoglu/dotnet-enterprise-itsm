@@ -84,6 +84,10 @@ class ApiClient {
         return this.request('/dashboard/distributions');
     }
 
+    async getDashboardSurveys() {
+        return this.request('/dashboard/surveys');
+    }
+
     // Lookup
     async getLookup() { return this.request('/lookup'); }
 
@@ -171,6 +175,9 @@ class ApiClient {
     async deleteUser(id) { return this.request(`/users/${id}`, { method: 'DELETE' }); }
     async assignRole(userId, roleId) { return this.request(`/users/${userId}/roles/${roleId}`, { method: 'POST' }); }
     async revokeRole(userId, roleId) { return this.request(`/users/${userId}/roles/${roleId}`, { method: 'DELETE' }); }
+    async setPermissionOverride(userId, permId, isGranted) { return this.request(`/users/${userId}/permissions/${permId}?isGranted=${isGranted}`, { method: 'POST' }); }
+    
+    async getPermissions() { return this.request('/permissions'); }
 
     async getRoles() { return this.request('/roles'); }
     async createRole(data) { return this.request('/roles', { method: 'POST', body: JSON.stringify(data) }); }

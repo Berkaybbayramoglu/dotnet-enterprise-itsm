@@ -10,4 +10,5 @@ public interface IDashboardService
     Task<DashboardDistributionsDto> GetDistributionsAsync(int userId);
     Task<IEnumerable<AgentWorkloadDto>> GetAgentWorkloadAsync(int userId);
     Task<SlaComplianceDto> GetSlaComplianceAsync(int userId);
+    Task<IEnumerable<TicketSurveyDto>> GetRecentSurveysAsync(int userId);
 }

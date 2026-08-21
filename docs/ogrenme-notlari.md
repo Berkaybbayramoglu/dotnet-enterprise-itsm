@@ -22,3 +22,10 @@ Bilgi Bankası (Knowledge Base) modülünde dokümanların statüsü ve görün�
 - **Statü (Status):** Draft (Taslak) veya Published (Yayınlanmış). Sadece "Published" olanlar genel kullanıcılara (end-user) listelenir. "Draft" statüsündekiler sadece `kb.manage` yetkisine sahip kullanıcılar tarafından (Authoring UI üzerinden) görülebilir ve düzenlenebilir.
 - **Görünürlük (Visibility):** Internal (Sadece dahili personel görebilir) veya Public (Herkes görebilir).
 Bu ayrım sayesinde, bir makale hem "Published" hem de "Internal" olabilir. Bu durumda dış müşteriler göremezken, iç ekipler makaleye erişebilir. API tarafında kullanıcının yetkisine göre bu filtrelerin sunucuda (backend) işletilmesi (filtering at source) güvenlik açısından kritiktir.
+
+## Drill-Down Dashboard Deseni ve Erişilebilirlik (a11y)
+Dashboard KPI kartlarının statik rakamlar yerine dinamik, etkileşimli nesnelere dönüştürülmesi (Drill-Down), kullanıcıların ilgilendikleri veri kümesinin detayına saniyeler içinde inebilmesini sağlar. 
+Bunu yaparken **Erişilebilirlik (Accessibility - a11y)** göz ardı edilmemelidir. Salt `<div>` olan bir karta tıklama eventi (`onclick`) vermek yeterli değildir. Ekran okuyucuların ve klavye kullanıcılarının (tab navigasyonu) bu elementi bir buton olarak algılayabilmesi için:
+- `role="button"` ve `tabindex="0"` özniteliklerinin eklenmesi gerekir.
+- Sadece `onclick` değil, aynı zamanda `onkeydown` event'i ile "Enter" veya "Space" tuşlarına basıldığında (event.key === 'Enter' || event.key === ' ') aynı aksiyonun tetiklenmesi garanti altına alınmalıdır.
+Bu desen, hem şık (hover effect) hem de engelsiz bir Dashboard sunar.

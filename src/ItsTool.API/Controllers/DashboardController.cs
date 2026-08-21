@@ -46,4 +46,11 @@ public class DashboardController : ControllerBase
         var result = await _dashboardService.GetSlaComplianceAsync(GetCurrentUserId());
         return Ok(result);
     }
+
+    [HttpGet("surveys")]
+    public async Task<IActionResult> GetRecentSurveys()
+    {
+        var result = await _dashboardService.GetRecentSurveysAsync(GetCurrentUserId());
+        return Ok(result);
+    }
 }

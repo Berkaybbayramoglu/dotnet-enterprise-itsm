@@ -20,15 +20,23 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
-        var users = await _repository.GetAllAsync();
-        return users.Select(u => new UserDto(u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId));
+        var users = await _context.Users.Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
+        return users.Select(u => new UserDto(
+            u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId,
+            u.UserRoles.Select(ur => ur.RoleId).ToArray(),
+            u.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted)
+        ));
     }
 
     public async Task<UserDto?> GetByIdAsync(int id)
     {
-        var user = await _repository.GetByIdAsync(id);
+        var user = await _context.Users.Include(u => u.UserRoles).Include(u => u.PermissionOverrides).FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return null;
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId);
+        return new UserDto(
+            user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId,
+            user.UserRoles.Select(ur => ur.RoleId).ToArray(),
+            user.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted)
+        );
     }
 
     public async Task<UserDto> CreateAsync(CreateUserDto dto)
@@ -43,7 +51,7 @@ public class UserService : IUserService
             DepartmentId = dto.DepartmentId
         };
         await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId);
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>());
     }
 
     public async Task UpdateAsync(int id, UpdateUserDto dto)
