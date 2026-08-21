@@ -135,8 +135,8 @@ export function openTicketPreview(t, lookupData) {
     const prioColors = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
     const prioColor = prioColors[prioName] || 'default';
     const statusName = lookupData.statuses?.find(x => x.id === t.statusId)?.name || 'Unknown';
-    const assigneeName = t.assignedUserId ? \`User \${t.assignedUserId}\` : 'Atanmamış';
-    const reqName = t.requesterUserId ? \`User \${t.requesterUserId}\` : 'Unknown';
+    const assigneeName = t.assignedUserId ? `User ${t.assignedUserId}` : 'Atanmamış';
+    const reqName = t.requesterUserId ? `User ${t.requesterUserId}` : 'Unknown';
     
     const formatDate = (d) => {
         if(!d) return '-';
@@ -146,29 +146,29 @@ export function openTicketPreview(t, lookupData) {
 
     const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
     const getAvatar = (id, fallback) => {
-        if (!id || id === '-') return \`<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>\`;
-        return \`<div class="avatar" title="\${fallback}">\${String(fallback || id).charAt(0).toUpperCase()}</div>\`;
+        if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
+        return `<div class="avatar" title="${fallback}">${String(fallback || id).charAt(0).toUpperCase()}</div>`;
     };
 
     const headerEl = modalOverlay.querySelector('.modal-header h2');
     if (headerEl) {
-        headerEl.innerHTML = \`\${escapeHtml(t.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px;">\${escapeHtml(statusName)}</span>\`;
+        headerEl.innerHTML = `${escapeHtml(t.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px;">${escapeHtml(statusName)}</span>`;
     }
 
-    content.innerHTML = \`
-        <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">\${escapeHtml(t.title)}</div>
+    content.innerHTML = `
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">${escapeHtml(t.title)}</div>
         <div style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: var(--spacing-md); color: var(--text-muted); font-size: 14px;">
-            \${escapeHtml(t.description || '')}
+            ${escapeHtml(t.description || '')}
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); background: var(--bg-hover); padding: var(--spacing-md); border-radius: var(--radius-md);">
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Priority</div><span class="badge badge-\${prioColor}">\${escapeHtml(prioName)}</span></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Project / Category</div><div style="font-size: 14px; font-weight: 500;">\${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> \${escapeHtml(catName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Requester</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">\${getAvatar(t.requesterUserId, reqName)} \${escapeHtml(reqName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Assignee</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">\${t.assignedUserId ? getAvatar(t.assignedUserId, assigneeName) : ''} \${escapeHtml(assigneeName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Priority</div><span class="badge badge-${prioColor}">${escapeHtml(prioName)}</span></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Project / Category</div><div style="font-size: 14px; font-weight: 500;">${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> ${escapeHtml(catName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Requester</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${getAvatar(t.requesterUserId, reqName)} ${escapeHtml(reqName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Assignee</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${t.assignedUserId ? getAvatar(t.assignedUserId, assigneeName) : ''} ${escapeHtml(assigneeName)}</div></div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">SLA Status</div><span class="badge badge-success">On Track</span></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Created At</div><div style="font-size: 14px;">\${formatDate(t.createdAt)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Created At</div><div style="font-size: 14px;">${formatDate(t.createdAt)}</div></div>
         </div>
-    \`;
-    document.getElementById('previewDetailLink').href = \`/ticket-detail.html?id=\${t.id}\`;
+    `;
+    document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${t.id}`;
     openModal('previewModal');
 }
