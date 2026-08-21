@@ -24,6 +24,9 @@
         
         .sidebar-panel { background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--spacing-md); border: 1px solid var(--border); }
         .panel-divider { height: 1px; background: var(--border); margin: var(--spacing-md) 0; border: none; }
+
+        .history-event { padding: 8px 12px; background: var(--bg-hover); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-muted); }
+        .history-event strong { color: var(--text-main); }
     </style>
 </head>
 <body>
@@ -66,7 +69,13 @@
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
                         <h2>Ticket Detail</h2>
-                        <button class="btn btn-secondary" onclick="openEditModal()" style="margin-left: 8px;">Düzenle</button>
+                        <button class="btn btn-secondary" id="btnEditInline" onclick="toggleEditMode()" style="margin-left: 8px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Düzenle
+                        </button>
+                        <div id="editActions" style="display:none; margin-left: 8px;">
+                            <button class="btn btn-ghost" onclick="cancelEditMode()">İptal</button>
+                            <button class="btn btn-primary" onclick="saveEditMode()">Kaydet</button>
+                        </div>
                     </div>
                 </div>
                 <div class="topbar-right">
@@ -85,6 +94,8 @@
                         
                         <div class="property-label">Description</div>
                         <div class="description-box" id="tDesc"></div>
+
+                        <div id="dynamicFieldsDisplay" style="margin-bottom: var(--spacing-xl);"></div>
 
                         <div class="property-label mb-md">Activity</div>
                         <div class="comment-thread" id="commentsList"></div>
@@ -152,35 +163,6 @@
         </main>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Ticket Düzenle</h2>
-                <button type="button" class="close-btn" onclick="closeModal('editModal')" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <form id="editForm">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="form-label" for="editTitle">Başlık</label>
-                        <input type="text" id="editTitle" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="editDesc">Açıklama</label>
-                        <textarea id="editDesc" class="form-control" rows="4"></textarea>
-                    </div>
-                    <div id="editDynamicFieldsContainer"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal('editModal')">İptal</button>
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script type="module">
         import './js/api.js';
         import { bindShellActions, showToast } from './js/ui.js';
@@ -197,6 +179,39 @@
         const urlParams = new URLSearchParams(window.location.search);
         const ticketId = urlParams.get('id');
 
+        let currentTicket = null;
+        let dynamicPlacements = [];
+        let isEditMode = false;
+
+        async function loadDynamicFieldsMeta() {
+            try {
+                const placements = await window.api.getPlacements(currentTicket.projectId, currentTicket.categoryId, currentTicket.typeId);
+                dynamicPlacements = [];
+                placements.sort((a,b) => a.sortOrder - b.sortOrder);
+                for (const place of placements) {
+                    const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
+                    let options = [];
+                    if (def.fieldType === 3 || def.fieldType === 4) {
+                        options = await window.api.getFieldOptions(def.id);
+                    }
+                    dynamicPlacements.push({ place, def, options, isRequired: place.isRequired });
+                }
+            } catch(e) { console.error("Failed to load dynamic fields meta", e); }
+        }
+
+        function renderTicketData() {
+            document.getElementById('tNumber').textContent = currentTicket.ticketNumber;
+            document.getElementById('tTitle').textContent = currentTicket.title;
+            document.getElementById('tDesc').textContent = currentTicket.description || 'No description provided.';
+            
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            dynContainer.innerHTML = '';
+            dynamicPlacements.forEach(dp => {
+                const val = currentTicket.customFields ? currentTicket.customFields[dp.def.key] : '-';
+                dynContainer.innerHTML += `<div class="property-group"><div class="property-label">${escapeHtml(dp.def.label)}</div><div class="property-value">${escapeHtml(val || '-')}</div></div>`;
+            });
+        }
+
         async function loadTicket() {
             if (!ticketId) return;
             try {
@@ -209,9 +224,9 @@
 
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 currentTicket = t;
-                document.getElementById('tNumber').textContent = t.ticketNumber;
-                document.getElementById('tTitle').textContent = t.title;
-                document.getElementById('tDesc').textContent = t.description || 'No description provided.';
+                
+                await loadDynamicFieldsMeta();
+                renderTicketData();
                 
                 const prioName = lookup.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
                 const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
@@ -229,7 +244,6 @@
                     ? `<div class="d-flex align-items-center gap-sm">${getAvatar(t.assignedUserId, getAssignedName)} ${escapeHtml(getAssignedName)}</div>` 
                     : '<span class="text-muted">Atanmamış</span>';
 
-                // Populate Assign Dropdown
                 const assignSelect = document.getElementById('assigneeSelect');
                 assignSelect.innerHTML = '<option value="">Select User...</option>';
                 users.forEach(u => {
@@ -273,104 +287,93 @@
                 }
 
                 document.getElementById('content').style.display = 'grid';
-        loadComments(); // removed await for resilience
+                loadTimeline();
             } catch(e) {
-                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                let errEl = document.querySelector('tbody') || document.querySelector('.content-area');
                 if (errEl) {
-                    if (errEl.tagName === 'TBODY') {
-                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
-                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
-                    }
+                    errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                 }
- 
                 console.error(e);
                 showToast('Error loading ticket', 'error'); 
             }
         }
 
-        let currentTicket = null;
-
-        window.openEditModal = async function() {
+        window.toggleEditMode = function() {
             if (!currentTicket) return;
-            document.getElementById('editTitle').value = currentTicket.title;
-            document.getElementById('editDesc').value = currentTicket.description || '';
-            
-            const dynContainer = document.getElementById('editDynamicFieldsContainer');
-            dynContainer.innerHTML = '<p class="text-muted" style="text-align: center; font-size: 13px;">Loading fields...</p>';
-            
-            try {
-                const placements = await window.api.getPlacements(currentTicket.projectId, currentTicket.categoryId, currentTicket.typeId);
-                dynContainer.innerHTML = '';
-                
-                if (placements.length > 0) {
-                    placements.sort((a,b) => a.sortOrder - b.sortOrder);
-                    for (const place of placements) {
-                        const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
-                        const fg = document.createElement('div');
-                        fg.className = 'form-group';
-                        
-                        const lbl = document.createElement('label');
-                        lbl.className = 'form-label';
-                        lbl.textContent = def.label + (place.isRequired ? ' *' : '');
-                        lbl.setAttribute('for', 'cf_' + def.key);
-                        fg.appendChild(lbl);
+            isEditMode = true;
+            document.getElementById('btnEditInline').style.display = 'none';
+            document.getElementById('editActions').style.display = 'flex';
 
-                        let input;
-                        if (def.fieldType === 3 || def.fieldType === 4) { // dropdown / multiselect
-                            input = document.createElement('select');
-                            input.className = 'form-control';
-                            if (def.fieldType === 4) input.multiple = true;
-                            const opts = await window.api.getFieldOptions(def.id);
-                            opts.forEach(o => {
-                                const opt = document.createElement('option');
-                                opt.value = o.value;
-                                opt.textContent = o.label;
-                                input.appendChild(opt);
-                            });
-                        } else {
-                            input = document.createElement('input');
-                            input.className = 'form-control';
-                            if (def.fieldType === 0) input.type = 'text';
-                            else if (def.fieldType === 1) input.type = 'number';
-                            else if (def.fieldType === 2) input.type = 'date';
-                        }
-                        
-                        input.id = 'cf_' + def.key;
-                        input.dataset.key = def.key;
-                        if (place.isRequired) input.required = true;
-                        
-                        // Populate existing value
-                        if (currentTicket.customFields && currentTicket.customFields[def.key]) {
-                            input.value = currentTicket.customFields[def.key];
-                        }
-                        
-                        fg.appendChild(input);
-                        dynContainer.appendChild(fg);
-                    }
-                }
-            } catch(e) {
-                dynContainer.innerHTML = '<div style="color: var(--danger);">Failed to load dynamic fields.</div>';
-            }
+            const tTitle = document.getElementById('tTitle');
+            tTitle.innerHTML = `<input type="text" id="inlineEditTitle" class="form-control" style="font-size:24px; font-weight:bold; width:100%;" value="${escapeHtml(currentTicket.title)}">`;
+
+            const tDesc = document.getElementById('tDesc');
+            tDesc.innerHTML = `<textarea id="inlineEditDesc" class="form-control" rows="4" style="width:100%;">${escapeHtml(currentTicket.description || '')}</textarea>`;
+
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            dynContainer.innerHTML = '';
             
-            window.openModal('editModal');
+            for (const dp of dynamicPlacements) {
+                const def = dp.def;
+                const val = currentTicket.customFields ? currentTicket.customFields[def.key] : '';
+                const fg = document.createElement('div');
+                fg.className = 'property-group';
+                fg.innerHTML = `<div class="property-label">${escapeHtml(def.label)}${dp.isRequired ? ' *' : ''}</div>`;
+                
+                let inputStr = '';
+                if (def.fieldType === 3 || def.fieldType === 4) {
+                    inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
+                    inputStr += `<option value="">Select option...</option>`;
+                    dp.options.forEach(o => {
+                        const sel = val === o.value ? 'selected' : '';
+                        inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
+                    });
+                    inputStr += `</select>`;
+                } else {
+                    const typeMap = {0: 'text', 1: 'number', 2: 'date'};
+                    inputStr = `<input type="${typeMap[def.fieldType]}" class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} value="${escapeHtml(val || '')}">`;
+                }
+                fg.innerHTML += `<div class="property-value">${inputStr}</div>`;
+                dynContainer.appendChild(fg);
+            }
         };
 
-        document.getElementById('editForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        window.cancelEditMode = function() {
+            isEditMode = false;
+            document.getElementById('btnEditInline').style.display = 'inline-block';
+            document.getElementById('editActions').style.display = 'none';
+            renderTicketData();
+        };
+
+        window.saveEditMode = async function() {
             if (!currentTicket) return;
 
-            const title = document.getElementById('editTitle').value;
-            const description = document.getElementById('editDesc').value;
+            const titleInput = document.getElementById('inlineEditTitle');
+            if(titleInput.value.trim() === '') {
+                showToast('Title is required', 'error');
+                return;
+            }
+
+            const title = titleInput.value;
+            const description = document.getElementById('inlineEditDesc').value;
             
             const customFields = {};
-            const dynContainer = document.getElementById('editDynamicFieldsContainer');
-            const inputs = dynContainer.querySelectorAll('input, select');
+            let validationFailed = false;
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            const inputs = dynContainer.querySelectorAll('.dyn-input');
             inputs.forEach(inp => {
+                if (inp.hasAttribute('required') && !inp.value) {
+                    validationFailed = true;
+                }
                 if (inp.dataset.key) {
                     customFields[inp.dataset.key] = inp.value;
                 }
             });
+
+            if(validationFailed) {
+                showToast('Lütfen zorunlu alanları doldurun.', 'error');
+                return;
+            }
 
             const payload = {
                 title,
@@ -385,46 +388,53 @@
                     method: 'PUT',
                     body: JSON.stringify(payload)
                 });
-                showToast('Ticket updated successfully');
-                window.closeModal('editModal');
-                window.location.reload();
+                showToast('Talep güncellendi');
+                isEditMode = false;
+                document.getElementById('btnEditInline').style.display = 'inline-block';
+                document.getElementById('editActions').style.display = 'none';
+                loadTicket(); // full reload to get latest history
             } catch(err) {
                 console.error(err);
-                showToast('Update failed', 'error');
+                if(err.message) {
+                    showToast(err.message, 'error'); // Usually from backend 400 Bad Request
+                } else {
+                    showToast('Update failed. Dinamik alan kurallarına dikkat edin.', 'error');
+                }
             }
-        });
+        };
 
-        async function loadComments() {
+        async function loadTimeline() {
             try {
-                const comments = await window.api.request(`/Ticket/${ticketId}/comments`);
+                const events = await window.api.request(`/Ticket/${ticketId}/timeline`);
                 const list = document.getElementById('commentsList');
                 list.innerHTML = '';
-                comments.forEach(c => {
+                events.forEach(e => {
                     const div = document.createElement('div');
-                    div.className = `comment ${c.isInternal ? 'internal' : ''}`;
-                    div.innerHTML = `
-                        <div class="comment-header">
-                            <div class="d-flex align-items-center gap-sm">
-                                ${getAvatar(c.authorUserId, c.authorUserId)}
-                                <strong>User ${c.authorUserId}</strong>
-                                <span>${new Date(c.createdAt).toLocaleString()}</span>
+                    
+                    if (e.eventType === 'Comment') {
+                        const c = e.data;
+                        div.className = `comment ${c.isInternal ? 'internal' : ''}`;
+                        div.innerHTML = `
+                            <div class="comment-header">
+                                <div class="d-flex align-items-center gap-sm">
+                                    ${getAvatar(c.authorUserId, c.authorUserId)}
+                                    <strong>User ${c.authorUserId}</strong>
+                                    <span>${new Date(e.timestamp).toLocaleString()}</span>
+                                </div>
+                                ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
                             </div>
-                            ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
-                        </div>
-                        <div>${escapeHtml(c.content)}</div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch(e) {
-                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
-                if (errEl) {
-                    if (errEl.tagName === 'TBODY') {
-                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
-                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                            <div>${escapeHtml(c.content)}</div>
+                        `;
+                    } else if (e.eventType === 'History') {
+                        const h = e.data;
+                        if(h.action === 'Updated' || h.action === 'StatusChanged' || h.action === 'Reopened') {
+                            div.className = 'history-event';
+                            div.innerHTML = `<strong>User ${h.createdBy}</strong> ${h.action} <strong>${h.fieldName}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em> at ${new Date(e.timestamp).toLocaleString()}`;
+                        }
                     }
-                }
- console.error(e); }
+                    if(div.innerHTML) list.appendChild(div);
+                });
+            } catch(e) { console.error(e); }
         }
 
         document.getElementById('commentForm').addEventListener('submit', async (e) => {
@@ -439,7 +449,7 @@
                 document.getElementById('commentText').value = '';
                 document.getElementById('isInternalComment').checked = false;
                 showToast('Comment added');
-        loadComments(); // removed await for resilience
+                loadTimeline();
             } catch(e) { 
                 console.error(e);
                 showToast('Error adding comment', 'error'); 
@@ -471,7 +481,7 @@
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
-        loadTicket(); // removed await for resilience
+        loadTicket();
     </script>
 </body>
 </html>
