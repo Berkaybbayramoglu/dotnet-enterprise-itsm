@@ -304,5 +304,72 @@ public class DataSeeder
             }
             await _context.SaveChangesAsync();
         }
+
+        // 14. Knowledge Base Categories & Articles
+        if (!_context.KnowledgeCategories.Any())
+        {
+            _context.KnowledgeCategories.AddRange(
+                new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeCategory { Name = "Rehberler" },
+                new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeCategory { Name = "Prosedürler" },
+                new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeCategory { Name = "Sistem & Altyapı" }
+            );
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.KnowledgeArticles.Any())
+        {
+            var rehberlerCat = _context.KnowledgeCategories.FirstOrDefault(c => c.Name == "Rehberler");
+            var prosedurlerCat = _context.KnowledgeCategories.FirstOrDefault(c => c.Name == "Prosedürler");
+            var sistemCat = _context.KnowledgeCategories.FirstOrDefault(c => c.Name == "Sistem & Altyapı");
+
+            var adminAuthor = _context.Users.FirstOrDefault(u => u.Username == "admin");
+            
+            if (adminAuthor != null && rehberlerCat != null && prosedurlerCat != null && sistemCat != null)
+            {
+                _context.KnowledgeArticles.AddRange(
+                    new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticle
+                    {
+                        Title = "VPN Bağlantı Rehberi",
+                        Content = "Şirket ağına uzaktan erişim sağlamak için VPN bağlantısının nasıl kurulacağını adım adım anlatan rehber.\n\n1. Cisco AnyConnect uygulamasını açın.\n2. Sunucu adresi olarak vpn.sirket.com girin.\n3. Kullanıcı adı ve şifrenizle giriş yapın.\n4. MFA (Çok Faktörlü Doğrulama) kodunu girin.",
+                        CategoryId = rehberlerCat.Id,
+                        AuthorUserId = adminAuthor.Id,
+                        Visibility = ItsTool.Domain.Entities.KnowledgeBase.ArticleVisibility.Public,
+                        Status = ItsTool.Domain.Entities.KnowledgeBase.ArticleStatus.Published,
+                        ViewCount = 12
+                    },
+                    new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticle
+                    {
+                        Title = "Parola Sıfırlama Prosedürü",
+                        Content = "Hesap parolanızı unuttuysanız veya süresi dolduysa izlemeniz gereken adımlar.\n\nEğer bilgisayarınızda oturum açabiliyorsanız, Ctrl+Alt+Del yaparak 'Parola Değiştir' seçeneğini kullanın. Oturum açamıyorsanız Self-Service Portal üzerinden telefon numaranıza gelecek SMS ile sıfırlama yapabilirsiniz.",
+                        CategoryId = prosedurlerCat.Id,
+                        AuthorUserId = adminAuthor.Id,
+                        Visibility = ItsTool.Domain.Entities.KnowledgeBase.ArticleVisibility.Public,
+                        Status = ItsTool.Domain.Entities.KnowledgeBase.ArticleStatus.Published,
+                        ViewCount = 8
+                    },
+                    new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticle
+                    {
+                        Title = "Sunucu Bakım Kontrol Listesi",
+                        Content = "DİKKAT: Bu doküman sadece IT personeli içindir.\n\nAylık sunucu bakımlarında kontrol edilmesi gereken metrikler:\n- CPU ve RAM kullanım trendleri\n- Disk doluluk oranları (>%80 ise uyarı)\n- Güvenlik yamalarının (patch) durumu\n- Backup operasyonlarının son durumu (Success/Failure logları)",
+                        CategoryId = sistemCat.Id,
+                        AuthorUserId = adminAuthor.Id,
+                        Visibility = ItsTool.Domain.Entities.KnowledgeBase.ArticleVisibility.Internal,
+                        Status = ItsTool.Domain.Entities.KnowledgeBase.ArticleStatus.Published,
+                        ViewCount = 3
+                    },
+                    new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticle
+                    {
+                        Title = "Taslak: Yeni Personel Onboarding",
+                        Content = "Yeni personellerin ilk günlerinde IT tarafından sağlanacak donanım ve yazılım erişimlerinin taslağıdır. Henüz tamamlanmamıştır.",
+                        CategoryId = rehberlerCat.Id,
+                        AuthorUserId = adminAuthor.Id,
+                        Visibility = ItsTool.Domain.Entities.KnowledgeBase.ArticleVisibility.Internal,
+                        Status = ItsTool.Domain.Entities.KnowledgeBase.ArticleStatus.Draft,
+                        ViewCount = 0
+                    }
+                );
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

@@ -97,12 +97,16 @@ class ApiClient {
     }
 
     // Knowledge Base
+    async getKbCategories() { return this.request('/kb/categories'); }
     async getKbArticles(search = '', categoryId = '') {
         const queryParams = new URLSearchParams();
         if (search) queryParams.append('search', search);
         if (categoryId) queryParams.append('category', categoryId);
         return this.request(`/kb/articles?${queryParams.toString()}`);
     }
+    async createKbArticle(data) { return this.request('/kb/articles', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateKbArticle(id, data) { return this.request(`/kb/articles/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteKbArticle(id) { return this.request(`/kb/articles/${id}`, { method: 'DELETE' }); }
 
     // Reports
     async exportTickets(filter = {}) {
