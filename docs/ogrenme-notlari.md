@@ -12,3 +12,7 @@ Update işlemlerinde tüm değerleri alıp direkt veritabanına kaydetmek (ve he
 
 ## Dinamik Alanlar ve Validasyon
 Dinamik olarak formlara sonradan eklenen alanların (Regex, Required flag'leri) backend üzerinde `ValidateDynamicFieldsAsync` içerisinde kontrol edilmesi, sistemin veri bütünlüğünü sağlar. Edit ekranında da frontend seviyesinde bu kuralların (required attribute vb.) input'lara bağlanması UX'i iyileştirir ve 400 Bad Request fırlatma ihtimalini minimize eder.
+
+## Shared Component Extraction (DRY) & Event Delegation
+UI modallarını tekil sayfalarda (örn. `kanban.html` içinde statik olarak) tutmak yerine `ui.js` gibi merkezi ve paylaşılan scriptler içerisinden dinamik DOM enjeksiyonu ile yönetmek ciddi kod tasarrufu ve bakım kolaylığı sağlar (DRY prensibi). Özellikle `dashboard.html`'deki liste elemanlarında ve `kanban.html`'deki kartlarda aynı preview modalı (Ticket Preview) başarılı bir şekilde kullanıldı.
+Ayrıca, `tickets.html` üzerindeki chip'lerde click eventlerini teker teker bağlamak yerine kapsayıcı `.btn-group` üzerine bağlayıp (Event Delegation), accessibility standartlarına uygun şekilde `aria-pressed` özniteliklerini güncelledik. `Closed` durumu UI tarafında kırılgan string karşılaştırması yerine daha güvenli olan `isClosedStatus` bayrağı ile sağlandı.

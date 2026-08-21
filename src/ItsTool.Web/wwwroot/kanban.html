@@ -93,34 +93,14 @@
         </main>
     </div>
 
-    <!-- Preview Modal -->
-    <div id="previewModal" class="modal-overlay">
-        <div class="modal" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2>Ticket Preview</h2>
-                <button type="button" class="close-btn" onclick="closeModal('previewModal')" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <div class="modal-body" id="previewContent">
-                <!-- Preview details injected here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('previewModal')">Close</button>
-                <a href="#" id="previewDetailLink" class="btn btn-primary">Detaya Git</a>
-            </div>
-        </div>
-    </div>
+    <!-- Shared Preview Modal is dynamically injected by ui.js -->
 
     <script type="module">
         import './js/api.js';
-        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js';
         
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
-        
-        window.openModal = openModal;
-        window.closeModal = closeModal;
 
         let statuses = [];
         let tickets = [];
@@ -211,11 +191,11 @@
                     card.ondragend = () => { setTimeout(() => isDragging = false, 150); };
                     card.onclick = (e) => {
                         if (e.target.closest('.card-number')) return;
-                        if (!isDragging) showPreview(t);
+                        if (!isDragging) openTicketPreview(t, lookupData);
                     };
                     card.tabIndex = 0;
                     card.onkeydown = (e) => {
-                        if (e.key === 'Enter') showPreview(t);
+                        if (e.key === 'Enter') openTicketPreview(t, lookupData);
                     };
                     
                     card.innerHTML = `
@@ -301,78 +281,6 @@
         }
 
         await initKanban();
-        function showPreview(t) {
-            const content = document.getElementById('previewContent');
-            
-            // Map IDs to Names
-            const projName = lookupData.projects?.find(x => x.id === t.projectId)?.name || '-';
-            const catName = lookupData.categories?.find(x => x.id === t.categoryId)?.name || '-';
-            
-            // Priority mapping
-            const prioName = lookupData.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
-            const prioColors = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
-            const prioColor = prioColors[prioName] || 'default';
-            
-            // Status mapping
-            const statusName = statuses.find(x => x.id === t.statusId)?.name || 'Unknown';
-            
-            // Assignee & Requester mapping (requires user fetch or mockup, API lookup might not have all users)
-            const assigneeName = t.assignedUserId ? `User ${t.assignedUserId}` : 'Atanmamış';
-            const reqName = t.requesterUserId ? `User ${t.requesterUserId}` : 'Unknown';
-            
-            const formatDate = (d) => {
-                if(!d) return '-';
-                const date = new Date(d);
-                return isNaN(date.getTime()) ? '-' : date.toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' });
-            };
-
-            const headerEl = document.querySelector('#previewModal .modal-header h2');
-            if (headerEl) {
-                headerEl.innerHTML = `${escapeHtml(t.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px;">${escapeHtml(statusName)}</span>`;
-            }
-
-            content.innerHTML = `
-                <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">${escapeHtml(t.title)}</div>
-                <div style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: var(--spacing-md); color: var(--text-muted); font-size: 14px;">
-                    ${escapeHtml(t.description || '')}
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); background: var(--bg-hover); padding: var(--spacing-md); border-radius: var(--radius-md);">
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Priority</div>
-                        <span class="badge badge-${prioColor}">${escapeHtml(prioName)}</span>
-                    </div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Project / Category</div>
-                        <div style="font-size: 14px; font-weight: 500;">${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> ${escapeHtml(catName)}</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Requester</div>
-                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
-                            ${getAvatar(t.requesterUserId, reqName)} ${escapeHtml(reqName)}
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Assignee</div>
-                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
-                            ${t.assignedUserId ? getAvatar(t.assignedUserId, assigneeName) : ''} ${escapeHtml(assigneeName)}
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">SLA Status</div>
-                        <span class="badge badge-success">On Track</span>
-                    </div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Created At</div>
-                        <div style="font-size: 14px;">${formatDate(t.createdAt)}</div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${t.id}`;
-            openModal('previewModal');
-        }
-
-        // Expose to window for inline onclicks in modals
-        window.closeModal = closeModal;
     </script>
 </body>
 </html>

@@ -95,7 +95,12 @@
 
     <script type="module">
         import './js/api.js';
-        import { bindShellActions, showToast } from './js/ui.js';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js';
+        
+        window.openTicketPreviewWrapper = function(id) {
+            const t = window.__recentTicketsCache?.find(x => x.id === id);
+            if (t) openTicketPreview(t, window.__lookupCache || {});
+        };
         
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
@@ -113,9 +118,11 @@
                     const res = await window.api.searchTickets({ pageSize: 5 }); 
                     recentTickets = res.items || [];
                 } catch(e) { console.warn("searchTickets error", e); }
+                window.__recentTicketsCache = recentTickets;
                 
                 let lookup = {};
                 try { lookup = await window.api.getLookup(); } catch(e) {}
+                window.__lookupCache = lookup;
 
                 const createKpiCard = (title, val, color, iconPath) => `
                     <div class="card" style="display: flex; align-items: center; gap: 12px; height: 96px; padding: 16px; border-left: 4px solid var(--${color});">
@@ -165,7 +172,7 @@
                 const recentHtml = recentTickets.length === 0
                     ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
                     : recentTickets.map(t => `
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.location.href='/ticket-detail.html?id=${t.id}'" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${t.id})" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
                             <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
                             <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
                             ${getStatusBadge(getStatusName(t.statusId))}

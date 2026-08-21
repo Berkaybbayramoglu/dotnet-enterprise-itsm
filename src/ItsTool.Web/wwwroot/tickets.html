@@ -73,10 +73,10 @@
                 </div>
 
                 <div class="filter-bar" style="margin-top: 12px; margin-bottom: 24px;">
-                    <div class="btn-group" role="group" aria-label="Ticket Status Filter">
-                        <button type="button" class="btn btn-secondary active" id="filterActive">Aktif</button>
-                        <button type="button" class="btn btn-secondary" id="filterClosed">Kapalı</button>
-                        <button type="button" class="btn btn-secondary" id="filterAll">Tümü</button>
+                    <div class="btn-group" id="statusFilterGroup" role="group" aria-label="Ticket Status Filter">
+                        <button type="button" class="btn btn-secondary active" id="filterActive" aria-pressed="true">Aktif</button>
+                        <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false">Kapalı</button>
+                        <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false">Tümü</button>
                     </div>
                 </div>
 
@@ -116,16 +116,22 @@
 
         let activeFilterState = 'active'; // 'active', 'closed', 'all'
 
-        document.getElementById('filterActive').addEventListener('click', (e) => { setFilterState('active', e.target); });
-        document.getElementById('filterClosed').addEventListener('click', (e) => { setFilterState('closed', e.target); });
-        document.getElementById('filterAll').addEventListener('click', (e) => { setFilterState('all', e.target); });
-
-        function setFilterState(state, btnEl) {
-            activeFilterState = state;
-            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
-            btnEl.classList.add('active');
-            search();
-        }
+        document.getElementById('statusFilterGroup').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const stateMap = { 'filterActive': 'active', 'filterClosed': 'closed', 'filterAll': 'all' };
+                const state = stateMap[e.target.id];
+                if (state) {
+                    activeFilterState = state;
+                    document.querySelectorAll('#statusFilterGroup .btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-pressed', 'false');
+                    });
+                    e.target.classList.add('active');
+                    e.target.setAttribute('aria-pressed', 'true');
+                    search();
+                }
+            }
+        });
 
         const getStatusBadge = (status) => {
             const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
@@ -161,13 +167,13 @@
                 let filteredItems = res.items;
                 if (activeFilterState === 'active') {
                     filteredItems = filteredItems.filter(t => {
-                        const sName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || '';
-                        return sName !== 'Closed';
+                        const s = lookupData.statuses?.find(st => st.id === t.statusId);
+                        return s ? !s.isClosedStatus : true;
                     });
                 } else if (activeFilterState === 'closed') {
                     filteredItems = filteredItems.filter(t => {
-                        const sName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || '';
-                        return sName === 'Closed';
+                        const s = lookupData.statuses?.find(st => st.id === t.statusId);
+                        return s ? s.isClosedStatus : false;
                     });
                 }
 
