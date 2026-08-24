@@ -35,3 +35,7 @@ Sistemde loglama işlemleri aşağıdaki kapsama alınmıştır. İlke: "herkesi
 Sistemdeki statü geçişleri ve anlamları şu şekilde netleştirilmiştir:
 - **Resolved (Çözüldü)**: Çözüm uygulandı, kullanıcının onayı veya geri bildirimi bekleniyor. Bilet hala "aktif" kabul edilir.
 - **Closed (Kapalı)**: Bilet kesin olarak tamamlandı. Panodan (Kanban) gizlenir ancak silinmez. ITSM standartları ve audit bütünlüğü gereği biletler sadece "soft-archive" (Closed) durumuna çekilir, veri kaybı yaşanmaması için tamamen silinmez. Raporlarda ve ana listede görüntülenmeye devam eder.
+
+## 1. Çoklu Dil (i18n) Desteği
+- **Karar:** Sistemin varsayılan ve şu anki tek dili **Türkçe (TR)** olarak belirlenmiştir. Geliştirme süresince kod içi hata mesajları ve değişkenler İngilizce olsa da, kullanıcı arayüzündeki terimler ve süreçler Türkçe ağırlıklıdır.
+- **Gerekçe:** i18n entegrasyonu (örneğin JSON dil dosyaları ve çeviri yükleyici mekanizmaları) mevcut MVP (Minimum Viable Product) aşamasında geliştirme maliyetini artıracaktır. Çoklu dil desteği (EN) mimari olarak planlanmış olup **Faz 2 (Roadmap)** içerisine bırakılmıştır.

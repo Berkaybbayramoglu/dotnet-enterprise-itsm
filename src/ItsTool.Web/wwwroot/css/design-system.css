@@ -461,3 +461,94 @@ h1, h2, h3, h4, h5, h6 {
 .mt-md { margin-top: var(--spacing-md); }
 .text-muted { color: var(--text-muted); }
 .text-danger { color: var(--danger); }
+
+/* 6. Responsive Design (a11y & Mobile) */
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+    .app-shell {
+        position: relative;
+    }
+    
+    .sidebar {
+        position: absolute;
+        left: -var(--sidebar-width);
+        top: 0;
+        bottom: 0;
+        transition: left 0.3s ease;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .sidebar.open {
+        left: 0;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(9, 30, 66, 0.54);
+        z-index: 9;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .topbar-left {
+        gap: var(--spacing-sm);
+    }
+
+    /* Table horizontal scroll */
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .table {
+        min-width: 600px;
+    }
+
+    /* Grid & Flex Stacks */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Kanban stack */
+    .kanban-board {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    .kanban-column {
+        width: 100%;
+        min-width: unset;
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal {
+        width: 95%;
+        margin: 16px;
+    }
+    .topbar {
+        padding: 0 var(--spacing-sm);
+    }
+    .content-area {
+        padding: var(--spacing-sm);
+    }
+}

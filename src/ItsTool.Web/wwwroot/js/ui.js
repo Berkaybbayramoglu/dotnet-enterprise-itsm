@@ -95,6 +95,22 @@ export function bindShellActions() {
         });
     }
 
+    // Hamburger Menu Logic
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    if (mobileMenuBtn && sidebar && sidebarOverlay) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+        });
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+        });
+    }
+
     const currentPath = window.location.pathname;
     document.querySelectorAll('.sidebar-nav-item').forEach(l => {
         if (l.getAttribute('href') === currentPath) {
@@ -112,7 +128,7 @@ export function bindShellActions() {
             }
             
             if (!perms.includes('config.manage')) {
-                document.querySelectorAll('a[href="/projects.html"], a[href="/categories.html"], a[href="/departments.html"], a[href="/groups.html"], a[href="/users.html"], a[href="/roles.html"], a[href="/fields.html"], a[href="/rules.html"], a[href="/webhooks.html"]').forEach(el => {
+                document.querySelectorAll('a[href="/projects.html"], a[href="/categories.html"], a[href="/departments.html"], a[href="/groups.html"], a[href="/users.html"], a[href="/roles.html"], a[href="/admin-fields.html"], a[href="/rules.html"], a[href="/webhooks.html"]').forEach(el => {
                     el.style.display = 'none';
                 });
                 // Hide administration section title
@@ -120,7 +136,7 @@ export function bindShellActions() {
                 if (adminTitle) adminTitle.style.display = 'none';
             }
             if (!perms.includes('audit.view')) {
-                const auditLink = document.querySelector('a[href="/audit.html"]');
+                const auditLink = document.querySelector('a[href="/audit-log.html"]');
                 if (auditLink) auditLink.style.display = 'none';
             }
         } catch (e) {

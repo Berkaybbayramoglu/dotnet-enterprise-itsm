@@ -41,3 +41,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **ID to Label Mapping:** `tickets.html`, `dashboard.html` (Recent Tickets), `ticket-detail.html`, ve `audit-log.html` üzerinde ham ID gösterimleri kaldırılarak lookup üzerinden gelen Name karşılıkları yazıldı.
 - **Assign UI:** `ticket-detail.html` içerisine kullanıcı atama (Assign) dropdown'ı eklendi.
 - **Audit ve Dashboard Workload:** AuditLog filter dto'sunda int id yerine "ITS-1" okuyabilmesi için `Ticket (string)`'e geçildi. DashboardService takım yükü'nde ise, henüz bilet atanmamış aktif kullanıcıları (0) listeye dâhil edecek GroupJoin eklendi.
+
+## COMPLIANCE AUDIT BATCH
+- **Hedef:** PDF staj dokümanı gereksinimlerine (Compliance) tam uygunluk.
+- **Yapılanlar:** `DataSeeder.cs` içerisinde Grup sayısı 4'e çıkarıldı. Admin sidebar linkleri `config.manage` yetkisine bağlandı (Tüm sayfalara entegre edildi). Transfer UI özelliği `ticket-detail.html` içerisine eklendi. Responsive (Hamburger menü, grid stack, overflow) tasarımı `design-system.css` ve `ui.js` içerisine eklendi. `varsayimlar.md` oluşturularak i18n kararı belgelendi. README.md tamamen yenilendi.
+- **Durum:** Tamamlandı (✅).

@@ -29,3 +29,8 @@ Bunu yaparken **Erişilebilirlik (Accessibility - a11y)** göz ardı edilmemelid
 - `role="button"` ve `tabindex="0"` özniteliklerinin eklenmesi gerekir.
 - Sadece `onclick` değil, aynı zamanda `onkeydown` event'i ile "Enter" veya "Space" tuşlarına basıldığında (event.key === 'Enter' || event.key === ' ') aynı aksiyonun tetiklenmesi garanti altına alınmalıdır.
 Bu desen, hem şık (hover effect) hem de engelsiz bir Dashboard sunar.
+
+## 10. Compliance Audit ve Responsive UI (Staj Dokümanı Uyumluluğu)
+- **Compliance Audit Yöntemi:** Projenin staj gereksinimlerine (PDF) göre tam uyumluluğunun denetimi için tüm özellikler (CRUD sayfaları, Seed Data, Transfer özellikleri vb.) maddeler halinde denetlenmiş, `varsayimlar.md` gibi açıklama dokümanları eklenerek boşluklar kapatılmıştır.
+- **Responsive (Mobil) Stratejisi:** Medya sorguları (`@media`) kullanılarak, ekran boyutu 768px altına düştüğünde sidebar gizlenmiş (overlay ile açılır hale getirilmiş), tablo verileri yatay kaydırma (overflow-x) ile taşınmış ve modal ile form yapıları esnek (grid 1fr) hale getirilmiştir. Bu yapı `ui.js` içerisinde bir Hamburger menü dinleyicisi ile tamamlanmıştır.
+- **i18n Karar Çerçevesi:** Çoklu dil (İngilizce/Türkçe) desteği MVC yapısında MVP'ye entegre etmek yerine, varsayılan bir "TR" dil altyapısıyla çalışması sağlanmış ve `varsayimlar.md` dosyasında bir mimari kısıtlılık / roadmap hedefi olarak izah edilmiştir.

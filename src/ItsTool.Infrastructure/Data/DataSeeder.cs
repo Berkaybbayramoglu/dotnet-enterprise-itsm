@@ -66,7 +66,9 @@ public class DataSeeder
         {
             _context.Groups.AddRange(
                 new Group { Name = "Helpdesk Ekibi", DepartmentId = itDept.Id },
-                new Group { Name = "Sistem & Network Ekibi", DepartmentId = itDept.Id }
+                new Group { Name = "Sistem & Network Ekibi", DepartmentId = itDept.Id },
+                new Group { Name = "Yazılım Destek Ekibi", DepartmentId = itDept.Id },
+                new Group { Name = "Güvenlik Ekibi", DepartmentId = itDept.Id }
             );
             await _context.SaveChangesAsync();
         }

@@ -1,85 +1,83 @@
-# ITSM Tool
+# ITSM Tool (Staj Projesi)
 
 ## Proje Hakkında
 Farklı iş birimlerinin IT talep ve sorunlarını yönetebileceği, çok projeli, dinamik olarak yapılandırılabilir, yetkilendirmesi esnek, gerçek ITSM süreçlerine uygun bir web uygulamasıdır.
 
-## Kullanılan Teknolojiler
+---
+
+## 🔗 Doküman Uyumluluk Eşlemesi (Compliance Mapping)
+
+Bu proje staj gereksinimleri doğrultusunda geliştirilmiş olup, maddelerin karşılıkları aşağıdadır:
+
+| Doküman Maddesi | Özellik / Karşılık |
+| :--- | :--- |
+| **3.1** Tam Yetkili Admin Paneli | Tüm yönetim işlemleri sol menüdeki "Administration" altındaki sayfalardan (Projects, Groups, Rules, vb.) yapılabilir. |
+| **3.2** Gruplar ve Yetkiler | 5 Proje, 4 Grup tohumlanmıştır (DataSeeder). `Roles` ve Claim tabanlı `Permissions` (override) ile aynı roldeki kişilere farklı yetki verilebilir. |
+| **3.3** Proje Bazlı Akış | Biletler proje ve kategoriye göre dinamik form alanları (DynamicFields) ve kurallar (Rules) alır. |
+| **3.4** ITSM Döngüsü | Incident/Request ayrımı; Açık, Beklemede (SLA Durdurur), Çözüldü, Kapalı durumları; Kritik'ten Düşüğe öncelikler; **Transfer** yeteneği; Dashboard raporlaması ve Bilgi Bankası (KB) aktiftir. |
+| **4.1** Git & Branch | Bitbucket üzerinde barındırılmaktadır (Sık ve anlamlı commitler). |
+| **4.2** SonarQube | Mimari buna uygun tasarlanmış, entegrasyon hedeflenmiştir. |
+| **4.3** PostgreSQL & DBeaver | İlişkisel ve EAV karma yapısı (EF Core) PostgreSQL üzerinde kurgulanmıştır. |
+| **5 (Bonus)** | SLA uyarıları, Webhook bildirimleri, In-App (SignalR) bildirim, Dashboard (Grid/Grafik/Drill-Down), Responsive UI (Mobil Uyumluluk) desteklenmektedir. Çoklu dil (TR/EN) altyapı olarak planlanmış olup MVP'de varsayılan TR kullanılmıştır (Bkz: `docs/varsayimlar.md`). |
+| **6** README | Kurulum, Demo Hesaplar ve Mimari açıklamaları bu dosyada yer almaktadır. |
+
+---
+
+## 🛠 Kullanılan Teknolojiler
 - **Backend:** .NET 8 LTS (ASP.NET Core Web API)
-- **Veritabanı:** PostgreSQL
-- **DB Yönetim Aracı:** DBeaver
-- **ORM:** Entity Framework Core (Npgsql)
-- **Frontend:** Vanilla HTML, CSS, JavaScript
+- **Veritabanı:** PostgreSQL (Entity Framework Core)
+- **Frontend:** Vanilla HTML, CSS, JavaScript (Framework Kullanılmamıştır)
 - **Versiyon Kontrol:** Git & Bitbucket
-- **Kod Kalite Analizi:** SonarQube
 
-## Öne Çıkan Özellikler (MVP)
-- **Dinamik Bilet Yönetimi:** Özel form alanları, projeler ve kategoriler.
-- **Otomatik Atama Kuralları:** Biletleri belirli koşullara göre gruplara veya kullanıcılara atama (Aktif/Pasif Rule Toggle).
-- **SLA & Webhook:** SLA süre takibi ve dış sistemlere (ör. Slack/Discord) bildirim.
-- **Kanban Panosu:** Sürükle bırak ile durum değiştirme. *Not: Kapalı (Closed) talepler panoda gizlenir; Tickets ve raporlarda arşivlenerek saklanır.*
-- **Audit Logging:** Hem bilet yaşam döngüsü (history) hem de sistem ayarlarının (admin/config) detaylı izlenebilirliği.
+---
 
-## Solution Yapısı
-```text
-itsm-tool/
-├── src/
-│   ├── ItsTool.API/             # Web API Katmanı (Endpoint'ler, Middleware)
-│   ├── ItsTool.Application/     # İş Mantığı, Servisler, DTO'lar
-│   ├── ItsTool.Domain/          # Domain Entity'leri (Core)
-│   ├── ItsTool.Infrastructure/  # EF Core DbContext, Veri Erişimi
-│   └── ItsTool.Web/             # Vanilla HTML/CSS/JS Frontend
-├── tests/                       # Unit ve Integration testleri
-├── docs/                        # Proje Dokümantasyonu (Agent Notları dahil)
-├── README.md
-├── ItsTool.sln
-└── .gitignore
-```
+## 🚀 Kurulum ve Çalıştırma
 
-## Gereksinimler
+### 1. Gereksinimler
 - .NET 8 SDK
-- PostgreSQL
-- DBeaver
+- PostgreSQL Server
 - Git
-- SonarQube (İsteğe bağlı / ilerleyen aşamada)
 
-## Kurulum Adımları
-1. Repository'yi klonlayın.
-2. PostgreSQL servisini başlatın.
-3. API dizinindeki `appsettings.Development.json` dosyasında connection string parolasını kendinize göre düzenleyin.
+### 2. Veritabanı Hazırlığı
+PostgreSQL'de `itsm_tool` adında boş bir veritabanı oluşturun ve `src/ItsTool.API/appsettings.Development.json` dosyasındaki ConnectionString'i kendi şifrenize göre ayarlayın.
 
-## Veritabanı Oluşturma Adımları
-1. DBeaver (veya pgAdmin) üzerinden PostgreSQL'e bağlanın.
-2. `itsm_tool` adında boş bir veritabanı oluşturun.
-
-## Migration Komutları
-Solution dizininde (.sln dosyasının olduğu yerde) terminal açarak aşağıdaki komutları kullanabilirsiniz:
+### 3. Uygulamayı Başlatma
+Projenin kök dizininde bir terminal açın ve aşağıdaki komutu çalıştırarak her iki projeyi de (API ve Web) başlatın:
 
 ```bash
-# İlk migration dosyasını oluşturmak için:
-dotnet ef migrations add InitialCreate --project src/ItsTool.Infrastructure --startup-project src/ItsTool.API
-
-# Migration'ları veritabanına uygulamak için (Şu an için çalıştırılmayacaktır):
-dotnet ef database update --project src/ItsTool.Infrastructure --startup-project src/ItsTool.API
-```
-
-## Çalıştırma
-**API Projesini Çalıştırmak İçin:**
-```bash
+# API'yi başlat (Veritabanı otomatik olarak oluşturulur ve tohumlanır / AutoSeed)
 dotnet run --project src/ItsTool.API
-```
-Health endpoint kontrolü için tarayıcıda veya Postman üzerinden: `http://localhost:5000/api/health` adresine istek atın. Status: OK dönmelidir.
 
-**Veritabanını Seed Etmek İçin:**
-Swagger (ör. `http://localhost:5000/swagger`) üzerinden veya Postman ile `POST /api/system/seed` endpoint'ini çalıştırın. Bu işlem, ilk admin kullanıcısını ve varsayılan durum/kategori gibi verileri veritabanına ekler. Veritabanı bağlantısını test etmek için `GET /api/system/db-test` endpoint'ini kullanabilirsiniz.
-
-**Web Projesini Çalıştırmak İçin:**
-```bash
+# Başka bir terminalde Web arayüzünü başlat
 dotnet run --project src/ItsTool.Web
 ```
+> **Not:** API projesi çalışırken `DataSeeder.cs` otomatik olarak 5 Proje, 4 Grup, Rol matrisleri ve örnek kullanıcıları veritabanına ekler (Development ortamı için).
 
-## Agent Notları ve Varsayım Dosyalarının Amacı
-- `docs/agent_notlari.md`: Geliştirme sürecinin aktif fazını, günlüğünü ve bir sonraki adımını tutar.
-- `docs/varsayimlar.md`: Proje süresince alınan kritik mimari/tasarım kararlarını izler ve onay sürecini kaydeder.
+---
 
-**Bir Sonraki Adım:**
-Faz 2B kapsamında, Dinamik konfigürasyon entity'lerinin (Workflow, FieldDefinition vb.) Domain katmanına eklenmesi.
+## 🔑 Demo Hesaplar
+Sistem tohumlandığında (seed) aşağıdaki kullanıcılar otomatik olarak oluşturulur. **Tüm şifreler:** `123456`
+
+- **SuperAdmin:** `admin` (Tüm yetkiler)
+- **Manager:** `manager` (Rapor, Yönetim, KB yetkileri)
+- **Agent 1:** `agent1` (Standart Temsilci)
+- **Agent 2:** `agent2` (Agent 1 ile aynı rol, ancak `ticket.close` yetkisi "Override" ile eklenmiş)
+- **End User:** `user1` (Sadece kendi biletlerini görür, anket doldurabilir)
+
+---
+
+## 📸 Ekran Görüntüleri
+
+*Not: Görseller `screenshots/` klasörüne eklenecektir.*
+
+- **Dashboard:** `![Dashboard Placeholder](screenshots/dashboard.png)`
+- **Kanban Panosu:** `![Kanban Placeholder](screenshots/kanban.png)`
+- **Bilet Detayı & Transfer:** `![Ticket Detail Placeholder](screenshots/ticket_detail.png)`
+- **Admin Ekranları (Projeler):** `![Admin Projects Placeholder](screenshots/admin_projects.png)`
+
+---
+
+## 📚 Geliştirici Belgeleri
+- `docs/agent_notlari.md`: Geliştirme süreci ve faz günlüğü.
+- `docs/ogrenme-notlari.md`: Teknik kararlar, responsive ve UX notları.
+- `docs/varsayimlar.md`: i18n Kararı gibi mimari varsayımlar.
