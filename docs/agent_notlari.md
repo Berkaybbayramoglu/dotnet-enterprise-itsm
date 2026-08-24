@@ -46,3 +46,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Hedef:** PDF staj dokümanı gereksinimlerine (Compliance) tam uygunluk.
 - **Yapılanlar:** `DataSeeder.cs` içerisinde Grup sayısı 4'e çıkarıldı. Admin sidebar linkleri `config.manage` yetkisine bağlandı (Tüm sayfalara entegre edildi). Transfer UI özelliği `ticket-detail.html` içerisine eklendi. Responsive (Hamburger menü, grid stack, overflow) tasarımı `design-system.css` ve `ui.js` içerisine eklendi. `varsayimlar.md` oluşturularak i18n kararı belgelendi. README.md tamamen yenilendi.
 - **Durum:** Tamamlandı (✅).
+
+## FIX BATCH v15
+- **Hedef:** Undo Pattern, KB Aksiyonları, Görünürlük (Visibility) düzeltmesi ve Kanban Scroll izolasyonu.
+- **Yapılanlar:** `KnowledgeBaseService.cs` içerisinde `isStaff` kontrolü `ticket.edit` içerecek şekilde düzeltildi (Temsilcilerin internal/draft makale görmesi için). `ui.js` içerisine `showUndoToast` animasyonlu olarak eklendi. `kb-article.html` sayfasına yönetici (kb.manage) için Edit/Publish/Delete aksiyon bar'ı entegre edildi ve Undo ile bağlandı. `kanban.html` CSS'i sayfa scroll'unu durdurup board'un (viewport) yatay scroll almasını sağlayacak şekilde `height: calc(100vh - 150px)` ile ezildi. Unit testler çalıştırılarak onaylandı.
+- **Durum:** Tamamlandı (✅).

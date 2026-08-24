@@ -58,7 +58,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
         bool canManageKb = perms.Contains("kb.manage");
-        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign"); // Determine internal visibility
+        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit"); // Determine internal visibility
 
         var query = _context.KnowledgeArticles
             .Where(a => !a.IsDeleted);
@@ -93,7 +93,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
         bool canManageKb = perms.Contains("kb.manage");
-        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign");
+        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit");
 
         var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         if (article == null) return null;

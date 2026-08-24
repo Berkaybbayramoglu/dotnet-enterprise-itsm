@@ -6,7 +6,7 @@
     <title>ITSM Tool - Kanban</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
-        .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; height: calc(100vh - var(--topbar-height) - 40px); align-items: flex-start; padding-bottom: var(--spacing-md); }
+        .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
         .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
         .column-header { padding: var(--spacing-md); font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; }
         .column-body { padding: var(--spacing-sm); flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); min-height: 200px; }

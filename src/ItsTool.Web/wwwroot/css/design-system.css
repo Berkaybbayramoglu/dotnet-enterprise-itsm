@@ -397,6 +397,29 @@ h1, h2, h3, h4, h5, h6 {
 .toast.success { border-left-color: var(--success); }
 .toast.error { border-left-color: var(--danger); }
 
+.toast.undo-toast {
+    padding-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.undo-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: var(--primary);
+    width: 100%;
+    animation-name: shrinkProgress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes shrinkProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -530,13 +553,17 @@ h1, h2, h3, h4, h5, h6 {
     
     /* Kanban stack */
     .kanban-board {
+        height: auto;
         flex-direction: column;
         overflow-y: auto;
+        overflow-x: hidden;
     }
     .kanban-column {
         width: 100%;
         min-width: unset;
         flex: 0 0 auto;
+        height: auto;
+        overflow-y: visible;
     }
 }
 

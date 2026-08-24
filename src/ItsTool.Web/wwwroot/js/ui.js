@@ -33,6 +33,61 @@ export function showToast(message, type = 'success') {
     }, 3000);
 }
 
+export function showUndoToast(message, undoFn, ms = 6000) {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    
+    return new Promise((resolve) => {
+        const toast = document.createElement('div');
+        toast.className = 'toast info undo-toast';
+        toast.setAttribute('role', 'status');
+        
+        toast.innerHTML = `
+            <div class="d-flex align-items-center gap-sm" style="flex: 1; justify-content: space-between;">
+                <span style="font-weight: 500;">${message}</span>
+                <button type="button" class="btn btn-secondary btn-undo" style="padding: 4px 8px; font-size: 12px; margin-left: 12px;">Undo</button>
+            </div>
+            <div class="undo-progress" style="animation-duration: ${ms}ms;"></div>
+        `;
+        
+        container.appendChild(toast);
+        
+        let isUndone = false;
+        
+        const undoBtn = toast.querySelector('.btn-undo');
+        undoBtn.focus(); // A11y focusable
+
+        let timerId = setTimeout(() => {
+            if (!isUndone) {
+                removeToast(toast);
+                resolve(true); // Proceed with action
+            }
+        }, ms);
+        
+        undoBtn.addEventListener('click', async () => {
+            isUndone = true;
+            clearTimeout(timerId);
+            removeToast(toast);
+            if (undoFn) {
+                try { await undoFn(); } catch(e) { console.error("Undo failed:", e); }
+            }
+            resolve(false); // Action undone
+        });
+    });
+}
+
+function removeToast(toast) {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+}
+
 let lastActiveElement = null;
 
 export function openModal(modalId) {
