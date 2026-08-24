@@ -79,13 +79,20 @@ public class AuthService : IAuthService
 
         var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
 
+        var overrides = await _context.UserPermissionOverrides
+            .Include(o => o.Permission)
+            .Where(o => o.UserId == user.Id && o.IsGranted && !o.IsDeleted && o.Permission != null && o.Permission.IsActive && !o.Permission.IsDeleted)
+            .Select(o => o.Permission!.Key)
+            .ToListAsync();
+
         return new MeResponseDto(
             Id: user.Id,
             Username: user.Username,
             Email: user.Email,
             Groups: groups,
             Roles: roles,
-            Permissions: permissions
+            Permissions: permissions,
+            Overrides: overrides
         );
     }
 }

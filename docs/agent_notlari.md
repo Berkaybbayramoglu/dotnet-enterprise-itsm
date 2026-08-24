@@ -51,3 +51,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Hedef:** Undo Pattern, KB Aksiyonları, Görünürlük (Visibility) düzeltmesi ve Kanban Scroll izolasyonu.
 - **Yapılanlar:** `KnowledgeBaseService.cs` içerisinde `isStaff` kontrolü `ticket.edit` içerecek şekilde düzeltildi (Temsilcilerin internal/draft makale görmesi için). `ui.js` içerisine `showUndoToast` animasyonlu olarak eklendi. `kb-article.html` sayfasına yönetici (kb.manage) için Edit/Publish/Delete aksiyon bar'ı entegre edildi ve Undo ile bağlandı. `kanban.html` CSS'i sayfa scroll'unu durdurup board'un (viewport) yatay scroll almasını sağlayacak şekilde `height: calc(100vh - 150px)` ile ezildi. Unit testler çalıştırılarak onaylandı.
 - **Durum:** Tamamlandı (✅).
+
+## FIX BATCH v16
+- **Hedef:** Kanban Kolon Sırası (Kişisel) ve Avatar Yetki Paneli.
+- **Yapılanlar:** `/api/auth/me` uç noktasına `Overrides` eklendi. UI (ui.js) içerisinde sağ üstteki avatar için tıklamayla açılan "Benim Yetkilerim" modal paneli kodlandı; override edilen yetkilere rozet eklendi. `kanban.html` sayfasında HTML5 Drag & Drop (dataTransfer 'column') ile kolon başlıklarına sıralama özelliği kazandırıldı, sıra `kanban.colorder.{userId}` olarak localStorage'a bağlandı.
+- **Durum:** Tamamlandı (✅).

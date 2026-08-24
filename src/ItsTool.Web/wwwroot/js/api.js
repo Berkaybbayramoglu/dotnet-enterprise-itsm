@@ -75,6 +75,10 @@ class ApiClient {
         return res;
     }
 
+    async getMe() {
+        return this.request('/auth/me');
+    }
+
     // Dashboard
     async getDashboardOverview() {
         return this.request('/dashboard/overview');

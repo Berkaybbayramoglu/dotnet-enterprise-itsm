@@ -15,4 +15,5 @@ public record MeResponseDto(
     string Email, 
     IEnumerable<string> Groups, 
     IEnumerable<string> Roles, 
-    IEnumerable<string> Permissions);
+    IEnumerable<string> Permissions,
+    IEnumerable<string> Overrides);
