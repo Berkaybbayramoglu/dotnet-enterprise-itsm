@@ -144,9 +144,9 @@
                     <div class="form-group">
                         <label class="form-label" for="pStatus">Status</label>
                         <select id="pStatus" class="form-control">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                            <option value="Postponed">Postponed</option>
+                            <option value="Active" style="color: var(--success); background-color: var(--success-light); font-weight: 600;">Active</option>
+                            <option value="Inactive" style="color: var(--text-muted); background-color: var(--bg-hover); font-weight: 600;">Inactive</option>
+                            <option value="Postponed" style="color: #B36200; background-color: var(--warning-light); font-weight: 600;">Postponed</option>
                         </select>
                     </div>
                 </div>
@@ -207,9 +207,9 @@
                     
                     const badge = `
                         <select class="badge badge-${statusColor}" style="cursor:pointer; border: none; outline: none; appearance: none; padding: 4px 8px; font-weight: 600;" onchange="updateProjectStatus(${item.id}, this)">
-                            <option value="Active" ${statusStr === 'Active' ? 'selected' : ''}>Active</option>
-                            <option value="Inactive" ${statusStr === 'Inactive' ? 'selected' : ''}>Inactive</option>
-                            <option value="Postponed" ${statusStr === 'Postponed' ? 'selected' : ''}>Postponed</option>
+                            <option value="Active" style="color: var(--success); background-color: var(--success-light); font-weight: 600;" ${statusStr === 'Active' ? 'selected' : ''}>Active</option>
+                            <option value="Inactive" style="color: var(--text-muted); background-color: var(--bg-hover); font-weight: 600;" ${statusStr === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                            <option value="Postponed" style="color: #B36200; background-color: var(--warning-light); font-weight: 600;" ${statusStr === 'Postponed' ? 'selected' : ''}>Postponed</option>
                         </select>
                     `;
                     tr.innerHTML = `
