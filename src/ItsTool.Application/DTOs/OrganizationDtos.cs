@@ -12,9 +12,9 @@ public record UserDto(int Id, string Username, string Email, string FirstName, s
 public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId, string? ProfilePhoto);
 public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, string? ProfilePhoto);
 
-public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, bool IsActive);
+public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, string Status);
 public record CreateProjectDto(string Name, string ProjectKey, string? Description);
-public record UpdateProjectDto(string Name, string ProjectKey, string? Description, bool IsActive);
+public record UpdateProjectDto(string Name, string ProjectKey, string? Description, string Status);
 
 public record RoleDto(int Id, string Name, bool IsActive);
 public record CreateRoleDto(string Name);

@@ -141,9 +141,13 @@
                         <label class="form-label" for="pKey">Project Key *</label>
                         <input type="text" id="pKey" class="form-control" required placeholder="e.g. ITS" maxlength="10">
                     </div>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="pActive" checked>
-                        <label class="form-label" for="pActive" style="margin: 0;">Is Active</label>
+                    <div class="form-group">
+                        <label class="form-label" for="pStatus">Status</label>
+                        <select id="pStatus" class="form-control">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Postponed">Postponed</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -198,7 +202,16 @@
 
                 currentData.forEach(item => {
                     const tr = document.createElement('tr');
-                    const badge = item.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
+                    const statusStr = item.status || 'Active';
+                    let statusColor = statusStr === 'Active' ? 'success' : (statusStr === 'Inactive' ? 'default' : 'warning');
+                    
+                    const badge = `
+                        <select class="badge badge-${statusColor}" style="cursor:pointer; border: none; outline: none; appearance: none; padding: 4px 8px; font-weight: 600;" onchange="updateProjectStatus(${item.id}, this)">
+                            <option value="Active" ${statusStr === 'Active' ? 'selected' : ''}>Active</option>
+                            <option value="Inactive" ${statusStr === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                            <option value="Postponed" ${statusStr === 'Postponed' ? 'selected' : ''}>Postponed</option>
+                        </select>
+                    `;
                     tr.innerHTML = `
                         <td class="text-muted">#${item.id}</td>
                         <td style="font-weight: 500;">${escapeHtml(item.projectKey)}</td>
@@ -226,6 +239,32 @@
             }
         };
 
+        window.updateProjectStatus = async function(id, selectElement) {
+            const newStatus = selectElement.value;
+            const newColor = newStatus === 'Active' ? 'success' : (newStatus === 'Inactive' ? 'default' : 'warning');
+            selectElement.className = `badge badge-${newColor}`;
+            
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            try {
+                await window.api.updateProject(id, {
+                    name: item.name,
+                    description: item.description,
+                    projectKey: item.projectKey,
+                    status: newStatus
+                });
+                showToast('Project status updated');
+                // No need to reload all data if we just updated the select locally
+            } catch(e) { 
+                showToast('Failed to update status', 'error');
+                // Revert color on failure
+                const oldStatusStr = item.status || 'Active';
+                selectElement.value = oldStatusStr;
+                const oldColor = oldStatusStr === 'Active' ? 'success' : (oldStatusStr === 'Inactive' ? 'default' : 'warning');
+                selectElement.className = `badge badge-${oldColor}`;
+            }
+        };
+
         window.openProjectModal = function(id = null) {
             const form = document.getElementById('projectForm');
             form.reset();
@@ -237,7 +276,7 @@
                 if (item) {
                     document.getElementById('pName').value = item.name;
                     document.getElementById('pKey').value = item.projectKey;
-                    document.getElementById('pActive').checked = item.isActive;
+                    document.getElementById('pStatus').value = item.status || 'Active';
                 }
             }
             openModal('projectModal');
@@ -264,7 +303,7 @@
             const data = {
                 name: document.getElementById('pName').value.trim(),
                 projectKey: document.getElementById('pKey').value.trim(),
-                isActive: document.getElementById('pActive').checked
+                status: document.getElementById('pStatus').value
             };
             
             try {

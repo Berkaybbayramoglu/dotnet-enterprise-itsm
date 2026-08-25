@@ -1,6 +1,7 @@
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using ItsTool.Domain.Entities.Project;
+using ItsTool.Domain.Enums;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,14 +21,14 @@ public class ProjectService : IProjectService
     public async Task<IEnumerable<ProjectDto>> GetAllAsync()
     {
         var projects = await _repository.GetAllAsync();
-        return projects.Select(p => new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.IsActive));
+        return projects.Select(p => new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.Status.ToString()));
     }
 
     public async Task<ProjectDto?> GetByIdAsync(int id)
     {
         var p = await _repository.GetByIdAsync(id);
         if (p == null) return null;
-        return new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.IsActive);
+        return new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.Status.ToString());
     }
 
     public async Task<ProjectDto> CreateAsync(CreateProjectDto dto)
@@ -36,10 +37,11 @@ public class ProjectService : IProjectService
         {
             Name = dto.Name,
             ProjectKey = dto.ProjectKey,
-            Description = dto.Description
+            Description = dto.Description,
+            Status = ProjectStatus.Active
         };
         await _repository.AddAsync(p);
-        return new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.IsActive);
+        return new ProjectDto(p.Id, p.Name, p.ProjectKey, p.Description, p.Status.ToString());
     }
 
     public async Task UpdateAsync(int id, UpdateProjectDto dto)
@@ -50,7 +52,12 @@ public class ProjectService : IProjectService
         p.Name = dto.Name;
         p.ProjectKey = dto.ProjectKey;
         p.Description = dto.Description;
-        p.IsActive = dto.IsActive;
+
+        if (Enum.TryParse<ProjectStatus>(dto.Status, true, out var status))
+        {
+            p.Status = status;
+        }
+
         await _repository.UpdateAsync(p);
     }
 

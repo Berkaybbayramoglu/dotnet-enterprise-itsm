@@ -146,6 +146,7 @@ if (app.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("Aut
 {
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ItsTool.Infrastructure.Data.ItsToolDbContext>();
+    await context.Database.MigrateAsync();
     var seeder = new ItsTool.Infrastructure.Data.DataSeeder(context);
     await seeder.SeedAsync();
 }
