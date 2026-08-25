@@ -56,3 +56,13 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - **Hedef:** Kanban Kolon Sırası (Kişisel) ve Avatar Yetki Paneli.
 - **Yapılanlar:** `/api/auth/me` uç noktasına `Overrides` eklendi. UI (ui.js) içerisinde sağ üstteki avatar için tıklamayla açılan "Benim Yetkilerim" modal paneli kodlandı; override edilen yetkilere rozet eklendi. `kanban.html` sayfasında HTML5 Drag & Drop (dataTransfer 'column') ile kolon başlıklarına sıralama özelliği kazandırıldı, sıra `kanban.colorder.{userId}` olarak localStorage'a bağlandı.
 - **Durum:** Tamamlandı (✅).
+
+## FIX BATCH v17
+- **Hedef:** Kanban "null" gösterge temizliği ve SuperAdmin Sidebar regresyonu.
+- **Yapılanlar:** Kanban'da kolon sürüklenirken beliren "null" yazısı, dataset hedefi düzeltilerek ve şeffaf dragImage (1x1 pixel) atanarak çözüldü. SuperAdmin hesaplarında sidebar linklerinin kaybolması sorunu (fail-closed token parse) çözüldü; `/api/me` üzerinden async veri çekilip token claims yalnızca fallback olarak kullanıldı. `docs/varsayimlar.md` içerisine RBAC Yetki-Özellik matrisi tablo olarak eklendi.
+- **Durum:** Tamamlandı (✅).
+
+## FIX BATCH v18
+- **Hedef:** Org Admin Sayfaları (6 sayfa) Runtime kanıtı, Event Delegation ve Drag Visual Feedback.
+- **Yapılanlar:** Eksik olan `CategoriesController` oluşturuldu ve tüm `/api/categories`, `/api/projects` vb. org uç noktalarının runtime GET 200 ve POST yanıtları curl testiyle doğrulandı. 6 admin sayfasındaki (Projects, Categories, Depts, Groups, Users, Roles) tüm inline `onclick=` işleyicileri temizlenerek `data-action=` mimarisine ve Event Delegation pattern'ine geçirildi. Silme işlemleri v15 undo toast deseniyle (`showUndoToast`) güncellendi. `kanban.html` ve `design-system.css` içerisine kolon ve bilet sürükleme anında görsel geri bildirim (affordance) sağlaması için `.dragging` (opacity) ve `.drag-over` (outline) class'ları native DnD olaylarına eklendi. Öğrenme raporu (ogrenme-notlari.md) "Kodda var vs Runtime'da var" maddesiyle güncellendi.
+- **Durum:** Tamamlandı (✅).

@@ -579,3 +579,17 @@ h1, h2, h3, h4, h5, h6 {
         padding: var(--spacing-sm);
     }
 }
+
+/* Kanban Drag & Drop Feedback */
+.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+.drag-over {
+    outline: 2px dashed var(--primary);
+    outline-offset: -2px;
+    background: rgba(99, 102, 241, 0.05);
+}
+.card.dragging {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}

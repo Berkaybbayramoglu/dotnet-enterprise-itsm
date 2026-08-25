@@ -89,7 +89,7 @@
                         <h3 style="margin:0; font-size: 18px;">Groups</h3>
                         <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage teams and their members.</p>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="window.openGroupModal()">
+                    <button type="button" class="btn btn-primary" data-action="openGroupModal">
                         <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New Group
                     </button>
                 </div>
@@ -121,7 +121,7 @@
                 <input type="hidden" id="gId">
                 <div class="modal-header">
                     <h2 id="modalTitle">Group</h2>
-                    <button type="button" class="close-btn" onclick="closeModal('groupModal')" aria-label="Close">
+                    <button type="button" class="close-btn" data-action="closeModal" data-target="groupModal" aria-label="Close">
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                     </button>
                 </div>
@@ -136,7 +136,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal('groupModal')">Cancel</button>
+                    <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="groupModal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
@@ -148,7 +148,7 @@
         <div class="modal" style="width: min(600px, 90%);">
             <div class="modal-header">
                 <h2>Manage Members</h2>
-                <button type="button" class="close-btn" onclick="closeModal('membersModal')" aria-label="Close">
+                <button type="button" class="close-btn" data-action="closeModal" data-target="membersModal" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
@@ -169,31 +169,33 @@
         </div>
     </div>
 
-    <!-- Delete Modal -->
-    <div id="deleteModal" class="modal-overlay">
-        <div class="modal" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Confirm Delete</h2>
-                <button type="button" class="close-btn" onclick="closeModal('deleteModal')" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this group? This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
-            </div>
-        </div>
-    </div>
+    
 
     <script type="module">
         import './js/api.js';
-        import { bindShellActions, showToast, escapeHtml } from './js/ui.js';
+        import { bindShellActions, showToast, escapeHtml, showUndoToast } from './js/ui.js';
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const target = btn.getAttribute('data-target');
+            const idAttr = btn.getAttribute('data-id');
+            const flagAttr = btn.getAttribute('data-flag');
+            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
+            const flag = flagAttr ? (flagAttr === 'true') : undefined;
+            
+            if (action === 'closeModal' && target) {
+                if (typeof closeModal === 'function') closeModal(target);
+            } else if (typeof window[action] === 'function') {
+                if (flag !== undefined) window[action](id, flag);
+                else window[action](id);
+            }
+        });
+
 
         let currentData = [];
         let allUsers = [];
@@ -221,9 +223,9 @@
                         <td class="text-muted">${item.departmentId || '-'}</td>
                         <td>${memCount} members</td>
                         <td>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openMembersModal(${item.id})">Members</button>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" onclick="window.openGroupModal(${item.id})">Edit</button>
-                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" onclick="window.promptDelete(${item.id})">Del</button>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openMembersModal" data-id="${item.id}">Members</button>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openGroupModal" data-id="${item.id}">Edit</button>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -287,7 +289,7 @@
                     list.innerHTML += `
                         <div class="member-item">
                             <span>${label}</span>
-                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" onclick="window.removeMember(${uId})">Remove</button>
+                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" data-action="removeMember" data-id="${uId}">Remove</button>
                         </div>
                     `;
                 });
@@ -321,24 +323,20 @@
             }
         };
 
-        window.promptDelete = function(id) {
-            itemToDelete = id;
-            openModal('deleteModal');
+        window.promptDelete = async function(id) {
+            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
+            if (proceed) {
+                try {
+                    await window.api.deleteGroup(id);
+                    showToast('Silme işlemi tamamlandı');
+                    loadData();
+                } catch (e) {
+                    showToast('Silme işlemi başarısız', 'error');
+                }
+            }
         };
 
-        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
-            if (!itemToDelete) return;
-            try {
-                await window.api.deleteGroup(itemToDelete);
-                closeModal('deleteModal');
-                showToast('Group deleted');
-        loadData(); // removed await for resilience
-            } catch (e) {
-                showToast('Failed to delete group', 'error');
-            } finally {
-                itemToDelete = null;
-            }
-        });
+        
 
         document.getElementById('groupForm').addEventListener('submit', async (e) => {
             e.preventDefault();

@@ -202,7 +202,7 @@
                     col.ondrop = window.colDrop;
                     
                     col.innerHTML = `
-                        <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" style="cursor: grab;">
+                        <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
                             <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${s.name}</span>
                             <span class="badge badge-default" id="count-${s.id}">0</span>
                         </div>
@@ -281,6 +281,11 @@
 
         window.allowColDrop = function(ev) {
             ev.preventDefault();
+            const targetEl = ev.target.closest('.column');
+            if (targetEl) {
+                document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
+                targetEl.classList.add('drag-over');
+            }
         };
 
         window.colDrag = function(ev) {
@@ -288,6 +293,7 @@
             const col = ev.target.closest('.column');
             if (col) {
                 ev.dataTransfer.setData("columnId", col.dataset.colId);
+                col.classList.add('dragging');
             }
             
             // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
@@ -298,7 +304,16 @@
             }
         };
 
+        window.dragEnd = function(ev) {
+            document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        };
+
         window.colDrop = function(ev) {
+            document.querySelectorAll('.column').forEach(c => {
+                c.classList.remove('drag-over');
+                c.classList.remove('dragging');
+            });
             ev.preventDefault();
             const type = ev.dataTransfer.getData("type");
             if (type !== "column") return;
@@ -350,6 +365,12 @@
 
         window.allowDrop = function(ev) {
             ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") {
+                document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+                const colBody = ev.target.closest('.column-body');
+                if (colBody) colBody.classList.add('drag-over');
+            }
         };
 
         window.drag = function(ev) {
@@ -359,6 +380,10 @@
         };
 
         window.drop = async function(ev) {
+            document.querySelectorAll('.dragging, .drag-over').forEach(el => {
+                el.classList.remove('dragging');
+                el.classList.remove('drag-over');
+            });
             ev.preventDefault();
             const data = ev.dataTransfer.getData("text");
             const card = document.getElementById(data);
