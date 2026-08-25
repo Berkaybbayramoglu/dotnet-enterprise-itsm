@@ -33,10 +33,10 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("agent-workload")]
-    public async Task<IActionResult> GetAgentWorkload()
+    [HttpGet("department-workload")]
+    public async Task<IActionResult> GetDepartmentWorkload()
     {
-        var result = await _dashboardService.GetAgentWorkloadAsync(GetCurrentUserId());
+        var result = await _dashboardService.GetDepartmentWorkloadAsync(GetCurrentUserId());
         return Ok(result);
     }
 

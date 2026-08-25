@@ -11,7 +11,9 @@ public class TicketSearchFilterDto
     public int? StatusId { get; set; }
     public int? PriorityId { get; set; }
     public int? AssigneeUserId { get; set; }
+    public bool? Unassigned { get; set; }
     public int? RequesterUserId { get; set; }
+    public int? ExcludeStatusId { get; set; }
     public DateTime? FromDate { get; set; }
     public DateTime? ToDate { get; set; }
     public string? Keyword { get; set; }

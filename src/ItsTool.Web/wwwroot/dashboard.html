@@ -160,7 +160,7 @@
                 const dist = await window.api.getDashboardDistributions();
                 
                 let workload = [];
-                try { workload = await window.api.request('/dashboard/agent-workload'); } catch(e) { console.warn("agent-workload error", e); }
+                try { workload = await window.api.request('/dashboard/department-workload'); } catch(e) { console.warn("department-workload error", e); }
                 
                 let recentTickets = [];
                 try { 
@@ -205,9 +205,9 @@
                     ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
                     : workload.map(w => `
                         <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
-                            <div class="avatar" style="width:32px; height:32px; font-size:14px;">${w.userName ? w.userName.charAt(0).toUpperCase() : 'U'}</div>
+                            <div class="avatar" style="width:32px; height:32px; font-size:14px; border-radius: 8px;">${w.departmentName ? w.departmentName.charAt(0).toUpperCase() : 'D'}</div>
                             <div style="flex:1;">
-                                <div style="font-weight: 500;">${w.userName || 'User ' + w.userId}</div>
+                                <div style="font-weight: 500;">${w.departmentName || 'Dept ' + w.departmentId}</div>
                                 <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden;">
                                     <div style="height: 100%; background: var(--primary); width: ${Math.min(w.openTicketCount * 10, 100)}%;"></div>
                                 </div>
@@ -244,7 +244,18 @@
                             labels: dist.byStatus.map(d => d.key),
                             datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
                         },
-                        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '62%' }
+                        options: { 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: 'bottom' } }, 
+                            cutout: '62%',
+                            onClick: (e, activeElements) => {
+                                if (activeElements.length > 0) {
+                                    const index = activeElements[0].index;
+                                    const label = dist.byStatus[index].key;
+                                    window.openDrillDown('Status: ' + label);
+                                }
+                            }
+                        }
                     });
                 }
 
@@ -257,7 +268,17 @@
                             labels: dist.byPriority.map(d => d.key),
                             datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
                         },
-                        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                        options: { 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { display: false } },
+                            onClick: (e, activeElements) => {
+                                if (activeElements.length > 0) {
+                                    const index = activeElements[0].index;
+                                    const label = dist.byPriority[index].key;
+                                    window.openDrillDown('Priority: ' + label);
+                                }
+                            }
+                        }
                     });
                 }
 
@@ -346,28 +367,20 @@
                     filter.slaStatus = 'breached';
                 } else if (type === 'Unassigned') {
                     filter.unassigned = true;
+                    const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+                    if (closedStatus) filter.excludeStatusId = closedStatus.id;
+                } else if (type.startsWith('Status: ')) {
+                    const statusName = type.replace('Status: ', '');
+                    const statusObj = window.__lookupCache?.statuses?.find(s => s.name === statusName);
+                    if (statusObj) filter.statusId = statusObj.id;
+                } else if (type.startsWith('Priority: ')) {
+                    const priorityName = type.replace('Priority: ', '');
+                    const priorityObj = window.__lookupCache?.priorities?.find(s => s.name === priorityName);
+                    if (priorityObj) filter.priorityId = priorityObj.id;
                 }
-                
-                // Note: We might need to adjust backend to support `excludeStatusId` or `unassigned`.
-                // However, searchTickets in TicketService currently checks `filter.StatusId` and `filter.AssigneeUserId`.
-                // For simplicity we will fetch tickets and filter them client-side if the backend doesn't support the exact filter natively.
-                const res = await window.api.searchTickets({ pageSize: 100 });
-                let items = res.items || [];
-                
-                // Client-side filtering as fallback if API doesn't support exact drill-down params
-                if (type === 'Open Tickets') {
-                    const closedId = window.__lookupCache?.statuses?.find(s => s.name === 'Closed' || s.name === 'Kapatıldı')?.id;
-                    items = items.filter(t => t.statusId !== closedId);
-                } else if (type === 'Critical') {
-                    const critId = window.__lookupCache?.priorities?.find(p => p.name === 'Critical' || p.level === 1)?.id;
-                    const closedId = window.__lookupCache?.statuses?.find(s => s.name === 'Closed' || s.name === 'Kapatıldı')?.id;
-                    items = items.filter(t => t.priorityId === critId && t.statusId !== closedId);
-                } else if (type === 'Unassigned') {
-                    items = items.filter(t => !t.assignedUserId);
-                }
-                // SLA Risk/Breached logic relies on backend or ticketSla field (if populated in DTO).
-                
-                renderTickets(items);
+
+                const res = await window.api.searchTickets(filter);
+                renderTickets(res.items || []);
             } catch (err) {
                 console.error("Drill-down error", err);
                 document.getElementById('drillDownList').innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load data.</div>';

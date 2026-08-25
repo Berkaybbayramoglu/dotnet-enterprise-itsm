@@ -578,8 +578,10 @@ public class TicketService : ITicketService
         if (filter.CategoryId.HasValue) query = query.Where(t => t.CategoryId == filter.CategoryId.Value);
         if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
         if (filter.StatusId.HasValue) query = query.Where(t => t.StatusId == filter.StatusId.Value);
+        if (filter.ExcludeStatusId.HasValue) query = query.Where(t => t.StatusId != filter.ExcludeStatusId.Value);
         if (filter.PriorityId.HasValue) query = query.Where(t => t.PriorityId == filter.PriorityId.Value);
         if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.AssignedUserId == filter.AssigneeUserId.Value);
+        if (filter.Unassigned == true) query = query.Where(t => t.AssignedUserId == null);
         if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
         if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
         if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);

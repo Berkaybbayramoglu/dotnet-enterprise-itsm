@@ -8,7 +8,7 @@ public interface IDashboardService
 {
     Task<DashboardOverviewDto> GetOverviewAsync(int userId);
     Task<DashboardDistributionsDto> GetDistributionsAsync(int userId);
-    Task<IEnumerable<AgentWorkloadDto>> GetAgentWorkloadAsync(int userId);
+    Task<IEnumerable<DepartmentWorkloadDto>> GetDepartmentWorkloadAsync(int userId);
     Task<SlaComplianceDto> GetSlaComplianceAsync(int userId);
     Task<IEnumerable<TicketSurveyDto>> GetRecentSurveysAsync(int userId);
 }

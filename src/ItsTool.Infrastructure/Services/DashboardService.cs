@@ -103,24 +103,24 @@ public class DashboardService : IDashboardService
         return new DashboardDistributionsDto(byStatus, byPriority, byProject, byCategory);
     }
 
-    public async Task<IEnumerable<AgentWorkloadDto>> GetAgentWorkloadAsync(int userId)
+    public async Task<IEnumerable<DepartmentWorkloadDto>> GetDepartmentWorkloadAsync(int userId)
     {
-        var activeUsers = await _context.Users
-            .Where(u => !u.IsDeleted && u.IsActive)
+        var activeDepartments = await _context.Departments
+            .Where(d => !d.IsDeleted && d.IsActive)
             .ToListAsync();
 
         var query = await GetScopedTicketsQueryAsync(userId);
         
-        var openTicketsCountPerUser = await query
-            .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
-            .GroupBy(t => t.AssignedUserId)
-            .Select(g => new { UserId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(k => k.UserId ?? 0, v => v.Count);
+        var openTicketsCountPerDept = await query
+            .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus && t.AssignedUser != null && t.AssignedUser.DepartmentId != null)
+            .GroupBy(t => t.AssignedUser!.DepartmentId)
+            .Select(g => new { DeptId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(k => k.DeptId ?? 0, v => v.Count);
 
-        var workload = activeUsers
-            .Select(u => new AgentWorkloadDto(u.Id, $"{u.FirstName} {u.LastName}", openTicketsCountPerUser.ContainsKey(u.Id) ? openTicketsCountPerUser[u.Id] : 0))
+        var workload = activeDepartments
+            .Select(d => new DepartmentWorkloadDto(d.Id, d.Name, openTicketsCountPerDept.ContainsKey(d.Id) ? openTicketsCountPerDept[d.Id] : 0))
             .OrderByDescending(w => w.OpenTicketCount)
-            .ThenBy(w => w.UserName)
+            .ThenBy(w => w.DepartmentName)
             .ToList();
 
         return workload;
