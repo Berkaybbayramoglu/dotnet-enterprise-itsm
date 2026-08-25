@@ -126,8 +126,8 @@
     <!-- Shared Preview Modal is dynamically injected by ui.js -->
 
     <script type="module">
-        import './js/api.js';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js';
+        import './js/api.js?v=2';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=2';
         
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();

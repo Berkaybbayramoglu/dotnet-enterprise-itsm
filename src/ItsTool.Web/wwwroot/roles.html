@@ -14,6 +14,16 @@
     </style>
 </head>
 <body>
+
+    <script>
+        window.addEventListener('error', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">ERROR: ' + e.message + '</div>';
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">PROMISE ERROR: ' + e.reason + '</div>';
+        });
+    </script>
+
     <div class="app-shell">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <aside class="sidebar">
@@ -158,8 +168,8 @@
     
 
     <script type="module">
-        import './js/api.js';
-        import { bindShellActions, showToast, escapeHtml, showUndoToast } from './js/ui.js';
+        import './js/api.js?v=2';
+        import { bindShellActions, showToast, escapeHtml, showUndoToast } from './js/ui.js?v=2';
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
@@ -175,7 +185,7 @@
             const flag = flagAttr ? (flagAttr === 'true') : undefined;
             
             if (action === 'closeModal' && target) {
-                if (typeof closeModal === 'function') closeModal(target);
+                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
             } else if (typeof window[action] === 'function') {
                 if (flag !== undefined) window[action](id, flag);
                 else window[action](id);

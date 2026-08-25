@@ -1,3 +1,4 @@
+export const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 // ui.js - Reusable UI components
 
 export function showToast(message, type = 'success') {
@@ -386,3 +387,7 @@ export function openTicketPreview(t, lookupData) {
     document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${t.id}`;
     openModal('previewModal');
 }
+
+window.openModal = openModal;
+window.showToast = showToast;
+window.showUndoToast = showUndoToast;
