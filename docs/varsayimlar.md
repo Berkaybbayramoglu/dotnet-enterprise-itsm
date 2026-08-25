@@ -39,3 +39,15 @@ Sistemdeki statü geçişleri ve anlamları şu şekilde netleştirilmiştir:
 ## 1. Çoklu Dil (i18n) Desteği
 - **Karar:** Sistemin varsayılan ve şu anki tek dili **Türkçe (TR)** olarak belirlenmiştir. Geliştirme süresince kod içi hata mesajları ve değişkenler İngilizce olsa da, kullanıcı arayüzündeki terimler ve süreçler Türkçe ağırlıklıdır.
 - **Gerekçe:** i18n entegrasyonu (örneğin JSON dil dosyaları ve çeviri yükleyici mekanizmaları) mevcut MVP (Minimum Viable Product) aşamasında geliştirme maliyetini artıracaktır. Çoklu dil desteği (EN) mimari olarak planlanmış olup **Faz 2 (Roadmap)** içerisine bırakılmıştır.
+
+## RBAC Yetki-Özellik Haritası (Faz 17 Kararı)
+Sistemdeki Kimlik ve Erişim Yönetimi (RBAC) stratejisi aşağıdaki matris üzerinden yürütülür:
+
+| Rol | Yetkiler (Claims) | Modül/Erişim Özeti |
+|---|---|---|
+| **SuperAdmin** | `Tüm yetkiler` | Sistemin her noktasına tam erişim, config/admin panelleri. |
+| **Manager** | `report.view`, `audit.view`, `ticket.view`, `ticket.assign`, `kb.manage` | Raporlama, SLA takibi, bilet atama/dağıtma ve Bilgi Bankası yönetimi. |
+| **Agent** | `ticket.view(scope)`, `ticket.update`, `ticket.resolve`, `comment`, `kb.view` | Kendine/grubuna atanan biletleri çözme, yorum yapma. |
+| **EndUser** | `ticket.create`, `ticket.view(own)`, `survey.submit`, `kb.view(public)` | Kendi biletini açma/izleme, CSAT anketi doldurma, açık makaleleri okuma. |
+
+*(Not: Spesifik durumlarda kullanıcılara User Override ile ek yetkiler atanabilir, örn: `ticket.close`)*

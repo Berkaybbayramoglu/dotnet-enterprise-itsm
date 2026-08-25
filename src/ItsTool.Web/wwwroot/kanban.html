@@ -285,7 +285,17 @@
 
         window.colDrag = function(ev) {
             ev.dataTransfer.setData("type", "column");
-            ev.dataTransfer.setData("columnId", ev.target.dataset.colId);
+            const col = ev.target.closest('.column');
+            if (col) {
+                ev.dataTransfer.setData("columnId", col.dataset.colId);
+            }
+            
+            // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
+            if (ev.dataTransfer.setDragImage) {
+                const img = new Image();
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // transparent pixel
+                ev.dataTransfer.setDragImage(img, 0, 0);
+            }
         };
 
         window.colDrop = function(ev) {
