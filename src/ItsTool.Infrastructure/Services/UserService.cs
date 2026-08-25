@@ -24,7 +24,8 @@ public class UserService : IUserService
         return users.Select(u => new UserDto(
             u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId,
             u.UserRoles.Select(ur => ur.RoleId).ToArray(),
-            u.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted)
+            u.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
+            u.ProfilePhoto
         ));
     }
 
@@ -35,7 +36,8 @@ public class UserService : IUserService
         return new UserDto(
             user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId,
             user.UserRoles.Select(ur => ur.RoleId).ToArray(),
-            user.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted)
+            user.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
+            user.ProfilePhoto
         );
     }
 
@@ -48,10 +50,11 @@ public class UserService : IUserService
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            DepartmentId = dto.DepartmentId
+            DepartmentId = dto.DepartmentId,
+            ProfilePhoto = dto.ProfilePhoto
         };
         await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>());
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto);
     }
 
     public async Task UpdateAsync(int id, UpdateUserDto dto)
@@ -64,6 +67,7 @@ public class UserService : IUserService
         user.LastName = dto.LastName;
         user.IsActive = dto.IsActive;
         user.DepartmentId = dto.DepartmentId;
+        user.ProfilePhoto = dto.ProfilePhoto;
         await _repository.UpdateAsync(user);
     }
 

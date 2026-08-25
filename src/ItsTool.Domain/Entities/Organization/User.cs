@@ -7,6 +7,7 @@ public class User : BaseEntity {
     public string PasswordHash { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
+    public string? ProfilePhoto { get; set; }
     public int? DepartmentId { get; set; }
     public virtual Department? Department { get; set; }
     public virtual ICollection<GroupMember> GroupMemberships { get; set; } = new List<GroupMember>();

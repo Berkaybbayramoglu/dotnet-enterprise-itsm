@@ -11,6 +11,10 @@
         .role-list { margin-top: 8px; font-size: 13px; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
         .role-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }
         .role-item:last-child { border-bottom: none; }
+        .avatar-upload { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .avatar-preview { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background-color: var(--bg-body); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 24px; color: var(--text-muted); font-weight: bold; }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .mini-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background-color: var(--primary); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; margin-right: 8px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -136,6 +140,17 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="uAvatarPreview">
+                            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <div>
+                            <label class="btn btn-secondary" for="uAvatarFile" style="cursor: pointer; padding: 6px 12px; font-size: 13px;">Upload Photo</label>
+                            <input type="file" id="uAvatarFile" accept="image/*" style="display: none;">
+                            <input type="hidden" id="uProfilePhotoBase64">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Max 200x200 (Auto-resized)</div>
+                        </div>
+                    </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
                             <label class="form-label" for="uFirst">First Name *</label>
@@ -266,7 +281,10 @@
                     const tr = document.createElement('tr');
                     const badge = item.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
                     tr.innerHTML = `
-                        <td style="font-weight: 500;">${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}</td>
+                        <td style="font-weight: 500;">
+                            ${item.profilePhoto ? `<img src="${item.profilePhoto}" class="mini-avatar" alt="Avatar">` : `<div class="mini-avatar">${item.firstName.charAt(0).toUpperCase()}</div>`}
+                            ${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}
+                        </td>
                         <td>${escapeHtml(item.username)}</td>
                         <td class="text-muted">${escapeHtml(item.email)}</td>
                         <td>${badge}</td>
@@ -308,10 +326,18 @@
                     document.getElementById('uUsername').value = item.username;
                     document.getElementById('uEmail').value = item.email;
                     document.getElementById('uActive').checked = item.isActive;
+                    document.getElementById('uProfilePhotoBase64').value = item.profilePhoto || '';
+                    if (item.profilePhoto) {
+                        document.getElementById('uAvatarPreview').innerHTML = `<img src="${item.profilePhoto}">`;
+                    } else {
+                        document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+                    }
                 }
                 document.getElementById('uPassword').required = false;
             } else {
                 document.getElementById('uPassword').required = true;
+                document.getElementById('uProfilePhotoBase64').value = '';
+                document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
             }
             openModal('userModal');
         };
@@ -434,6 +460,44 @@
 
         
 
+        document.getElementById('uAvatarFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 200;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    document.getElementById('uProfilePhotoBase64').value = dataUrl;
+                    document.getElementById('uAvatarPreview').innerHTML = `<img src="${dataUrl}">`;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
         document.getElementById('userForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('uId').value;
@@ -442,7 +506,8 @@
                 lastName: document.getElementById('uLast').value.trim(),
                 username: document.getElementById('uUsername').value.trim(),
                 email: document.getElementById('uEmail').value.trim(),
-                isActive: document.getElementById('uActive').checked
+                isActive: document.getElementById('uActive').checked,
+                profilePhoto: document.getElementById('uProfilePhotoBase64').value || null
             };
             
             const pwd = document.getElementById('uPassword').value;

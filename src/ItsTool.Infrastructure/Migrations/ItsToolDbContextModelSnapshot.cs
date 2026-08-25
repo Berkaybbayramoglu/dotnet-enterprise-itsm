@@ -1020,6 +1020,9 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ProfilePhoto")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -2181,7 +2184,7 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ItsTool.Domain.Entities.Auth.Role", "Role")
-                        .WithMany()
+                        .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2200,7 +2203,7 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ItsTool.Domain.Entities.Organization.User", "User")
-                        .WithMany()
+                        .WithMany("PermissionOverrides")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2219,7 +2222,7 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ItsTool.Domain.Entities.Organization.User", "User")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2599,6 +2602,11 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Navigation("Workflow");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Auth.Role", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Organization.Department", b =>
                 {
                     b.Navigation("Groups");
@@ -2614,6 +2622,10 @@ namespace ItsTool.Infrastructure.Migrations
             modelBuilder.Entity("ItsTool.Domain.Entities.Organization.User", b =>
                 {
                     b.Navigation("GroupMemberships");
+
+                    b.Navigation("PermissionOverrides");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.Ticket", b =>
