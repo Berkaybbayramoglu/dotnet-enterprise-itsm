@@ -279,7 +279,7 @@
 
                 currentData.forEach(item => {
                     const tr = document.createElement('tr');
-                    const badge = item.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
+                    const badge = item.isActive ? `<span class="badge badge-success" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="false">Active</span>` : `<span class="badge badge-default" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="true">Inactive</span>`;
                     tr.innerHTML = `
                         <td style="font-weight: 500;">
                             ${item.profilePhoto ? `<img src="${item.profilePhoto}" class="mini-avatar" alt="Avatar">` : `<div class="mini-avatar">${item.firstName.charAt(0).toUpperCase()}</div>`}
@@ -309,6 +309,25 @@
 
                 console.error(err);
                 showToast('Error loading users', 'error');
+            }
+        };
+
+        window.toggleUserStatus = async function(id, newStatus) {
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            try {
+                await window.api.updateUser(id, {
+                    firstName: item.firstName,
+                    lastName: item.lastName,
+                    email: item.email,
+                    departmentId: item.departmentId,
+                    isActive: newStatus,
+                    profilePhoto: item.profilePhoto
+                });
+                showToast('User status updated');
+                loadData();
+            } catch(e) { 
+                showToast('Failed to update status', 'error'); 
             }
         };
 

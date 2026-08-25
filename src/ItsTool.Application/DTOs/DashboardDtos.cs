@@ -14,7 +14,8 @@ public record DashboardDistributionsDto(
     IEnumerable<TicketDistributionDto> ByCategory
 );
 
-public record DepartmentWorkloadDto(int DepartmentId, string DepartmentName, int OpenTicketCount);
+public record AgentWorkloadDto(int UserId, string UserName, int OpenTicketCount);
+public record DepartmentWorkloadDto(int DepartmentId, string DepartmentName, int OpenTicketCount, IEnumerable<AgentWorkloadDto> Members);
 
 public record SlaComplianceDto(
     double FirstResponseComplianceRate,
