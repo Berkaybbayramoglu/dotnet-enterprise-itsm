@@ -7,7 +7,7 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:admin.manage")]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _service;
@@ -35,6 +35,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
@@ -43,6 +44,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
@@ -59,6 +61,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
@@ -75,6 +78,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("{id}/roles/{roleId}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> AssignRole(int id, int roleId)
     {
@@ -83,6 +87,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id}/roles/{roleId}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RevokeRole(int id, int roleId)
     {
@@ -91,6 +96,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("{id}/permissions/{permissionId}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> SetPermissionOverride(int id, int permissionId, [FromQuery] bool isGranted)
     {

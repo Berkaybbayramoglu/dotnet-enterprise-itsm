@@ -20,7 +20,7 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
-        var users = await _context.Users.Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
+        var users = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
         return users.Select(u => new UserDto(
             u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId,
             u.UserRoles.Select(ur => ur.RoleId).ToArray(),
@@ -30,7 +30,7 @@ public class UserService : IUserService
 
     public async Task<UserDto?> GetByIdAsync(int id)
     {
-        var user = await _context.Users.Include(u => u.UserRoles).Include(u => u.PermissionOverrides).FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return null;
         return new UserDto(
             user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId,
