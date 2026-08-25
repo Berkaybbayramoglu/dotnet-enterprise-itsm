@@ -7,7 +7,7 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:config.manage")]
+[Authorize]
 public class DynamicFormController : ControllerBase
 {
     private readonly IDynamicFormService _service;
@@ -22,6 +22,7 @@ public class DynamicFormController : ControllerBase
     public async Task<IActionResult> GetDefinitions() => Ok(await _service.GetFieldDefinitionsAsync());
 
     [HttpPost("definitions")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(typeof(FieldDefinitionDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateDefinition([FromBody] CreateFieldDefinitionDto dto)
@@ -31,6 +32,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpPut("definitions/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,6 +44,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpDelete("definitions/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteDefinition(int id)
     {
@@ -53,6 +56,7 @@ public class DynamicFormController : ControllerBase
     public async Task<IActionResult> GetOptions(int id) => Ok(await _service.GetFieldOptionsAsync(id));
 
     [HttpPost("options")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(typeof(FieldOptionDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateOption([FromBody] CreateFieldOptionDto dto)
     {
@@ -61,6 +65,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpPut("options/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateOption(int id, [FromBody] UpdateFieldOptionDto dto)
@@ -70,6 +75,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpDelete("options/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteOption(int id)
     {
@@ -84,6 +90,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpPost("placements")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(typeof(FormFieldPlacementDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreatePlacement([FromBody] CreateFormFieldPlacementDto dto)
@@ -93,6 +100,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpPut("placements/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -104,6 +112,7 @@ public class DynamicFormController : ControllerBase
     }
 
     [HttpDelete("placements/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeletePlacement(int id)
     {

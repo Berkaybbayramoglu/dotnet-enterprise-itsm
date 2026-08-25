@@ -281,10 +281,18 @@
 
         window.allowColDrop = function(ev) {
             ev.preventDefault();
-            const targetEl = ev.target.closest('.column');
-            if (targetEl) {
-                document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
-                targetEl.classList.add('drag-over');
+            const targetCol = ev.target.closest('.column');
+            const draggingCol = document.querySelector('.column.dragging');
+            
+            if (targetCol && draggingCol && targetCol !== draggingCol) {
+                // Determine whether to place before or after based on mouse position
+                const rect = targetCol.getBoundingClientRect();
+                const mid = rect.left + rect.width / 2;
+                if (ev.clientX < mid) {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol);
+                } else {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol.nextSibling);
+                }
             }
         };
 
@@ -294,6 +302,8 @@
             if (col) {
                 ev.dataTransfer.setData("columnId", col.dataset.colId);
                 col.classList.add('dragging');
+                // Optional: make the dragged original element slightly transparent
+                col.style.opacity = '0.4';
             }
             
             // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
@@ -305,7 +315,10 @@
         };
 
         window.dragEnd = function(ev) {
-            document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+                el.style.opacity = '1';
+            });
             document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
         };
 
@@ -313,33 +326,13 @@
             document.querySelectorAll('.column').forEach(c => {
                 c.classList.remove('drag-over');
                 c.classList.remove('dragging');
+                c.style.opacity = '1';
             });
             ev.preventDefault();
             const type = ev.dataTransfer.getData("type");
             if (type !== "column") return;
             
-            const sourceColId = parseInt(ev.dataTransfer.getData("columnId"));
-            const targetEl = ev.target.closest('.column');
-            if (!targetEl) return;
-            const targetColId = parseInt(targetEl.dataset.colId);
-            
-            if (sourceColId === targetColId) return;
-            
-            const board = document.getElementById('board');
-            const sourceEl = board.querySelector(`.column[data-col-id="${sourceColId}"]`);
-            
-            // Insert before target or after if moving right
-            const cols = Array.from(board.children);
-            const sourceIdx = cols.indexOf(sourceEl);
-            const targetIdx = cols.indexOf(targetEl);
-            
-            if (sourceIdx < targetIdx) {
-                targetEl.after(sourceEl);
-            } else {
-                targetEl.before(sourceEl);
-            }
-            
-            // Save new order
+            // Since the DOM is already reordered by allowColDrop, we just save it.
             saveColumnOrder();
         };
         

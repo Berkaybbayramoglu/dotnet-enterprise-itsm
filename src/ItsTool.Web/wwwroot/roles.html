@@ -169,7 +169,7 @@
 
     <script type="module">
         import './js/api.js?v=2';
-        import { bindShellActions, showToast, escapeHtml, showUndoToast } from './js/ui.js?v=2';
+        import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();

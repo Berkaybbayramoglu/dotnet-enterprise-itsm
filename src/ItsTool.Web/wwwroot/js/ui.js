@@ -391,3 +391,5 @@ export function openTicketPreview(t, lookupData) {
 window.openModal = openModal;
 window.showToast = showToast;
 window.showUndoToast = showUndoToast;
+
+window.closeModal = closeModal;
