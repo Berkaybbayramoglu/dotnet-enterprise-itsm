@@ -73,3 +73,7 @@ Bu desen, hem şık (hover effect) hem de engelsiz bir Dashboard sunar.
 - **UI Complexity ve A11y:**
   - `projects.html` içerisinde üç defa tekrar eden statü-renk eşleştirme ternarileri (içiçe geçmiş - nested ternary) `getProjectStatusColor` adlı bir yardımcı metoda çıkarılarak karmaşıklık düşürüldü.
   - A11y (Erişilebilirlik) standartları gereği filtre butonlarını gruplayan `role="group"` div'leri, anlamsal (semantic) HTML etiketi olan `<fieldset>` ve `<legend>` yapısına dönüştürüldü.
+
+### Öğrenme Notu - Void vs Return Sözleşmesi ve Son Sweep (FAZ 11 Kapanış)
+- **Void vs Return Sözleşmesi:** `buildEditDynamicFields` gibi HTML string'i üreten yardımcı (helper) metodlar, kendi içinde `container.innerHTML = ...` gibi DOM manipülasyonu yapmamalıdır. Ürettikleri string değerini `return html;` ile geri dönmeli ve çağrı yapılan noktada (caller tarafında) bu değer DOM'a aktarılmalıdır. Bu kural çiğnendiğinde, atama yapılan değişkene `undefined` döner ve `innerHTML = undefined` hatasına sebep olur.
+- **Top-Level Await Kapanışı:** Son kalan `kb.html` ve `kb-article.html` sayfaları da `<script type="module">` ve top-level `await` yapısına geçirilerek projede sıfır hataya ulaşıldı.

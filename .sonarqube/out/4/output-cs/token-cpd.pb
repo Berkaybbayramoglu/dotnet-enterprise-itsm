@@ -1,113 +1,372 @@
-ë
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
-	namespace 	
-ItsTool
+Æ2
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs
+	namespace 	
+ItsTool
  
-. 
-API 
-. 
-Security 
-; 
-public 
-class !
-PermissionRequirement "
-:# $%
-IAuthorizationRequirement% >
-{ 
-public 
-
-string 
-
-Permission 
-{ 
-get "
-;" #
-}$ %
-public 
-!
-PermissionRequirement  
-(  !
-string! '
-
-permission( 2
-)2 3
-=>4 6
-
-Permission7 A
-=B C
-
-permissionD N
-;N O
-}		 
-public 
-class *
-PermissionAuthorizationHandler +
-:, - 
-AuthorizationHandler. B
-<B C!
-PermissionRequirementC X
->X Y
-{ 
-	protected 
-override 
-Task "
-HandleRequirementAsync 2
-(2 3'
-AuthorizationHandlerContext3 N
-contextO V
-,V W!
-PermissionRequirementX m
-requirementn y
-)y z
-{ 
-var 
-hasPermission 
-= 
-context #
-.# $
-User$ (
-.( )
-HasClaim) 1
-(1 2
-c2 3
-=>4 6
-c 
-. 
-Type 
-== 
-$str "
-&&# %
-c& '
-.' (
-Value( -
-==. 0
-requirement1 <
-.< =
-
-Permission= G
-)G H
-;H I
-if 
+. 
+API 
+. 
+Controllers !
+;! "
+[ 
+ApiController 
+] 
+[ 
+Route 
+( 
+$str 
+) 
+] 
+[ 
+	Authorize 
 
-( 
-hasPermission 
-) 
-{ 	
-context 
-. 
-Succeed 
-( 
-requirement '
-)' (
-;( )
-} 	
-return 
-Task 
-. 
-CompletedTask !
-;! "
-} 
-} Ï‰
+(
+ 
+Policy 
+= 
+$str 5
+)5 6
+]6 7
+public 
+class 
+WebhookController 
+:  
+ControllerBase! /
+{ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+public 
+
+WebhookController 
+( 
+ItsToolDbContext -
+context. 5
+)5 6
+{ 
+_context 
+= 
+context 
+; 
+} 
+[ 
+HttpGet 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+GetWebhooks% 0
+(0 1
+)1 2
+{ 
+var 
+subs 
+= 
+await 
+_context !
+.! " 
+WebhookSubscriptions" 6
+.6 7
+Where7 <
+(< =
+w= >
+=>? A
+!B C
+wC D
+.D E
+	IsDeletedE N
+)N O
+.O P
+ToListAsyncP [
+([ \
+)\ ]
+;] ^
+return 
+Ok 
+( 
+subs 
+) 
+; 
+} 
+[   
+HttpPost   
+]   
+public!! 
+
+async!! 
+Task!! 
+<!! 
+IActionResult!! #
+>!!# $
+CreateWebhook!!% 2
+(!!2 3
+[!!3 4
+FromBody!!4 <
+]!!< =
+WebhookSubscription!!> Q
+sub!!R U
+)!!U V
+{"" 
+_context## 
+.##  
+WebhookSubscriptions## %
+.##% &
+Add##& )
+(##) *
+sub##* -
+)##- .
+;##. /
+await$$ 
+_context$$ 
+.$$ 
+SaveChangesAsync$$ '
+($$' (
+)$$( )
+;$$) *
+return%% 
+Ok%% 
+(%% 
+sub%% 
+)%% 
+;%% 
+}&& 
+[(( 
+HttpPut(( 
+((( 
+$str(( 
+)(( 
+](( 
+public)) 
+
+async)) 
+Task)) 
+<)) 
+IActionResult)) #
+>))# $
+UpdateWebhook))% 2
+())2 3
+int))3 6
+id))7 9
+,))9 :
+[)); <
+FromBody))< D
+]))D E
+WebhookSubscription))F Y
+sub))Z ]
+)))] ^
+{** 
+var++ 
+existing++ 
+=++ 
+await++ 
+_context++ %
+.++% & 
+WebhookSubscriptions++& :
+.++: ;
+	FindAsync++; D
+(++D E
+id++E G
+)++G H
+;++H I
+if,, 
+
+(,, 
+existing,, 
+==,, 
+null,, 
+),, 
+return,, $
+NotFound,,% -
+(,,- .
+),,. /
+;,,/ 0
+existing.. 
+... 
+Url.. 
+=.. 
+sub.. 
+... 
+Url.. 
+;.. 
+existing// 
+.// 
+	EventsCsv// 
+=// 
+sub//  
+.//  !
+	EventsCsv//! *
+;//* +
+existing00 
+.00 
+Secret00 
+=00 
+sub00 
+.00 
+Secret00 $
+;00$ %
+existing11 
+.11 
+IsActive11 
+=11 
+sub11 
+.11  
+IsActive11  (
+;11( )
+await33 
+_context33 
+.33 
+SaveChangesAsync33 '
+(33' (
+)33( )
+;33) *
+return44 
+Ok44 
+(44 
+existing44 
+)44 
+;44 
+}55 
+[77 
+
+HttpDelete77 
+(77 
+$str77 
+)77 
+]77 
+public88 
+
+async88 
+Task88 
+<88 
+IActionResult88 #
+>88# $
+DeleteWebhook88% 2
+(882 3
+int883 6
+id887 9
+)889 :
+{99 
+var:: 
+existing:: 
+=:: 
+await:: 
+_context:: %
+.::% & 
+WebhookSubscriptions::& :
+.::: ;
+	FindAsync::; D
+(::D E
+id::E G
+)::G H
+;::H I
+if;; 
+
+(;; 
+existing;; 
+==;; 
+null;; 
+);; 
+return;; $
+NotFound;;% -
+(;;- .
+);;. /
+;;;/ 0
+existing== 
+.== 
+	IsDeleted== 
+=== 
+true== !
+;==! "
+await>> 
+_context>> 
+.>> 
+SaveChangesAsync>> '
+(>>' (
+)>>( )
+;>>) *
+return?? 
+	NoContent?? 
+(?? 
+)?? 
+;?? 
+}@@ 
+[BB 
+HttpPutBB 
+(BB 
+$strBB 
+)BB 
+]BB 
+publicCC 
+
+asyncCC 
+TaskCC 
+<CC 
+IActionResultCC #
+>CC# $
+ToggleWebhookCC% 2
+(CC2 3
+intCC3 6
+idCC7 9
+)CC9 :
+{DD 
+varEE 
+existingEE 
+=EE 
+awaitEE 
+_contextEE %
+.EE% & 
+WebhookSubscriptionsEE& :
+.EE: ;
+	FindAsyncEE; D
+(EED E
+idEEE G
+)EEG H
+;EEH I
+ifFF 
+
+(FF 
+existingFF 
+==FF 
+nullFF 
+||FF 
+existingFF  (
+.FF( )
+	IsDeletedFF) 2
+)FF2 3
+returnFF4 :
+NotFoundFF; C
+(FFC D
+)FFD E
+;FFE F
+existingHH 
+.HH 
+IsActiveHH 
+=HH 
+!HH 
+existingHH %
+.HH% &
+IsActiveHH& .
+;HH. /
+awaitII 
+_contextII 
+.II 
+SaveChangesAsyncII '
+(II' (
+)II( )
+;II) *
+returnJJ 
+	NoContentJJ 
+(JJ 
+)JJ 
+;JJ 
+}KK 
+}LL Ï‰
 G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs
 var 
 builder 
@@ -1955,375 +2214,116 @@ HttpDeleteRR 
 )VVC D
 ;VVD E
 }WW 
-}XX Æ2
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs
-	namespace 	
-ItsTool
+}XX ë
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
+	namespace 	
+ItsTool
  
-. 
-API 
-. 
-Controllers !
-;! "
-[ 
-ApiController 
-] 
-[ 
-Route 
-( 
-$str 
-) 
-] 
-[ 
-	Authorize 
-
-(
- 
-Policy 
-= 
-$str 5
-)5 6
-]6 7
-public 
-class 
-WebhookController 
-:  
-ControllerBase! /
-{ 
-private 
-readonly 
-ItsToolDbContext %
-_context& .
-;. /
-public 
-
-WebhookController 
-( 
-ItsToolDbContext -
-context. 5
-)5 6
-{ 
-_context 
-= 
-context 
-; 
-} 
-[ 
-HttpGet 
-] 
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-GetWebhooks% 0
-(0 1
-)1 2
-{ 
-var 
-subs 
-= 
-await 
-_context !
-.! " 
-WebhookSubscriptions" 6
-.6 7
-Where7 <
-(< =
-w= >
-=>? A
-!B C
-wC D
-.D E
-	IsDeletedE N
-)N O
-.O P
-ToListAsyncP [
-([ \
-)\ ]
-;] ^
-return 
-Ok 
-( 
-subs 
-) 
-; 
-} 
-[   
-HttpPost   
-]   
-public!! 
-
-async!! 
-Task!! 
-<!! 
-IActionResult!! #
->!!# $
-CreateWebhook!!% 2
-(!!2 3
-[!!3 4
-FromBody!!4 <
-]!!< =
-WebhookSubscription!!> Q
-sub!!R U
-)!!U V
-{"" 
-_context## 
-.##  
-WebhookSubscriptions## %
-.##% &
-Add##& )
-(##) *
-sub##* -
-)##- .
-;##. /
-await$$ 
-_context$$ 
-.$$ 
-SaveChangesAsync$$ '
-($$' (
-)$$( )
-;$$) *
-return%% 
-Ok%% 
-(%% 
-sub%% 
-)%% 
-;%% 
-}&& 
-[(( 
-HttpPut(( 
-((( 
-$str(( 
-)(( 
-](( 
-public)) 
-
-async)) 
-Task)) 
-<)) 
-IActionResult)) #
->))# $
-UpdateWebhook))% 2
-())2 3
-int))3 6
-id))7 9
-,))9 :
-[)); <
-FromBody))< D
-]))D E
-WebhookSubscription))F Y
-sub))Z ]
-)))] ^
-{** 
-var++ 
-existing++ 
-=++ 
-await++ 
-_context++ %
-.++% & 
-WebhookSubscriptions++& :
-.++: ;
-	FindAsync++; D
-(++D E
-id++E G
-)++G H
-;++H I
-if,, 
-
-(,, 
-existing,, 
-==,, 
-null,, 
-),, 
-return,, $
-NotFound,,% -
-(,,- .
-),,. /
-;,,/ 0
-existing.. 
-... 
-Url.. 
-=.. 
-sub.. 
-... 
-Url.. 
-;.. 
-existing// 
-.// 
-	EventsCsv// 
-=// 
-sub//  
-.//  !
-	EventsCsv//! *
-;//* +
-existing00 
-.00 
-Secret00 
-=00 
-sub00 
-.00 
-Secret00 $
-;00$ %
-existing11 
-.11 
-IsActive11 
-=11 
-sub11 
-.11  
-IsActive11  (
-;11( )
-await33 
-_context33 
-.33 
-SaveChangesAsync33 '
-(33' (
-)33( )
-;33) *
-return44 
-Ok44 
-(44 
-existing44 
-)44 
-;44 
-}55 
-[77 
+. 
+API 
+. 
+Security 
+; 
+public 
+class !
+PermissionRequirement "
+:# $%
+IAuthorizationRequirement% >
+{ 
+public 
+
+string 
 
-HttpDelete77 
-(77 
-$str77 
-)77 
-]77 
-public88 
-
-async88 
-Task88 
-<88 
-IActionResult88 #
->88# $
-DeleteWebhook88% 2
-(882 3
-int883 6
-id887 9
-)889 :
-{99 
-var:: 
-existing:: 
-=:: 
-await:: 
-_context:: %
-.::% & 
-WebhookSubscriptions::& :
-.::: ;
-	FindAsync::; D
-(::D E
-id::E G
-)::G H
-;::H I
-if;; 
+Permission 
+{ 
+get "
+;" #
+}$ %
+public 
+!
+PermissionRequirement  
+(  !
+string! '
+
+permission( 2
+)2 3
+=>4 6
+
+Permission7 A
+=B C
+
+permissionD N
+;N O
+}		 
+public 
+class *
+PermissionAuthorizationHandler +
+:, - 
+AuthorizationHandler. B
+<B C!
+PermissionRequirementC X
+>X Y
+{ 
+	protected 
+override 
+Task "
+HandleRequirementAsync 2
+(2 3'
+AuthorizationHandlerContext3 N
+contextO V
+,V W!
+PermissionRequirementX m
+requirementn y
+)y z
+{ 
+var 
+hasPermission 
+= 
+context #
+.# $
+User$ (
+.( )
+HasClaim) 1
+(1 2
+c2 3
+=>4 6
+c 
+. 
+Type 
+== 
+$str "
+&&# %
+c& '
+.' (
+Value( -
+==. 0
+requirement1 <
+.< =
+
+Permission= G
+)G H
+;H I
+if 
 
-(;; 
-existing;; 
-==;; 
-null;; 
-);; 
-return;; $
-NotFound;;% -
-(;;- .
-);;. /
-;;;/ 0
-existing== 
-.== 
-	IsDeleted== 
-=== 
-true== !
-;==! "
-await>> 
-_context>> 
-.>> 
-SaveChangesAsync>> '
-(>>' (
-)>>( )
-;>>) *
-return?? 
-	NoContent?? 
-(?? 
-)?? 
-;?? 
-}@@ 
-[BB 
-HttpPutBB 
-(BB 
-$strBB 
-)BB 
-]BB 
-publicCC 
-
-asyncCC 
-TaskCC 
-<CC 
-IActionResultCC #
->CC# $
-ToggleWebhookCC% 2
-(CC2 3
-intCC3 6
-idCC7 9
-)CC9 :
-{DD 
-varEE 
-existingEE 
-=EE 
-awaitEE 
-_contextEE %
-.EE% & 
-WebhookSubscriptionsEE& :
-.EE: ;
-	FindAsyncEE; D
-(EED E
-idEEE G
-)EEG H
-;EEH I
-ifFF 
-
-(FF 
-existingFF 
-==FF 
-nullFF 
-||FF 
-existingFF  (
-.FF( )
-	IsDeletedFF) 2
-)FF2 3
-returnFF4 :
-NotFoundFF; C
-(FFC D
-)FFD E
-;FFE F
-existingHH 
-.HH 
-IsActiveHH 
-=HH 
-!HH 
-existingHH %
-.HH% &
-IsActiveHH& .
-;HH. /
-awaitII 
-_contextII 
-.II 
-SaveChangesAsyncII '
-(II' (
-)II( )
-;II) *
-returnJJ 
-	NoContentJJ 
-(JJ 
-)JJ 
-;JJ 
-}KK 
-}LL õL
+( 
+hasPermission 
+) 
+{ 	
+context 
+. 
+Succeed 
+( 
+requirement '
+)' (
+;( )
+} 	
+return 
+Task 
+. 
+CompletedTask !
+;! "
+} 
+} õL
 [/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/UsersController.cs
 	namespace 	
 ItsTool
@@ -7299,167 +7299,7 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/Permis
 ) 
 ; 
 } 
-} º
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/LookupController.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Controllers !
-;! "
-[ 
-ApiController 
-] 
-[ 
-Route 
-( 
-$str 
-) 
-] 
-[		 
-	Authorize		 
-
-]		
- 
-public
-
- 
-class
-
- 
-LookupController
-
- 
-:
-
- 
-ControllerBase
-
-  .
-{ 
-private 
-readonly 
-ICatalogService $
-_catalogService% 4
-;4 5
-private 
-readonly 
-IProjectService $
-_projectService% 4
-;4 5
-public 
-
-LookupController 
-( 
-ICatalogService +
-catalogService, :
-,: ;
-IProjectService< K
-projectServiceL Z
-)Z [
-{ 
-_catalogService 
-= 
-catalogService (
-;( )
-_projectService 
-= 
-projectService (
-;( )
-} 
-[ 
-HttpGet 
-] 
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-
-GetLookups% /
-(/ 0
-)0 1
-{ 
-var 
-projects 
-= 
-await 
-_projectService ,
-., -
-GetAllAsync- 8
-(8 9
-)9 :
-;: ;
-var 
-
-categories 
-= 
-await 
-_catalogService .
-.. /
-GetCategoriesAsync/ A
-(A B
-nullB F
-)F G
-;G H
-var 
-ticketTypes 
-= 
-await 
-_catalogService  /
-./ 0
-GetTicketTypesAsync0 C
-(C D
-)D E
-;E F
-var 
-
-priorities 
-= 
-await 
-_catalogService .
-.. /
-GetPrioritiesAsync/ A
-(A B
-)B C
-;C D
-var 
-statuses 
-= 
-await 
-_catalogService ,
-., -
-GetStatusesAsync- =
-(= >
-)> ?
-;? @
-return 
-Ok 
-( 
-new 
-{ 	
-projects   
-,   
-
-categories!! 
-,!! 
-ticketTypes"" 
-,"" 
-
-priorities## 
-,## 
-statuses$$ 
-}%% 	
-)%%	 
-
-;%%
- 
-}&& 
-}'' –!
+} –!
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/NotificationsController.cs
 	namespace
 
@@ -7707,7 +7547,167 @@ MarkAsRead((% /
 )55 
 ;55 
 }66 
-}77 ”B
+}77 º
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/LookupController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[ 
+ApiController 
+] 
+[ 
+Route 
+( 
+$str 
+) 
+] 
+[		 
+	Authorize		 
+
+]		
+ 
+public
+
+ 
+class
+
+ 
+LookupController
+
+ 
+:
+
+ 
+ControllerBase
+
+  .
+{ 
+private 
+readonly 
+ICatalogService $
+_catalogService% 4
+;4 5
+private 
+readonly 
+IProjectService $
+_projectService% 4
+;4 5
+public 
+
+LookupController 
+( 
+ICatalogService +
+catalogService, :
+,: ;
+IProjectService< K
+projectServiceL Z
+)Z [
+{ 
+_catalogService 
+= 
+catalogService (
+;( )
+_projectService 
+= 
+projectService (
+;( )
+} 
+[ 
+HttpGet 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+
+GetLookups% /
+(/ 0
+)0 1
+{ 
+var 
+projects 
+= 
+await 
+_projectService ,
+., -
+GetAllAsync- 8
+(8 9
+)9 :
+;: ;
+var 
+
+categories 
+= 
+await 
+_catalogService .
+.. /
+GetCategoriesAsync/ A
+(A B
+nullB F
+)F G
+;G H
+var 
+ticketTypes 
+= 
+await 
+_catalogService  /
+./ 0
+GetTicketTypesAsync0 C
+(C D
+)D E
+;E F
+var 
+
+priorities 
+= 
+await 
+_catalogService .
+.. /
+GetPrioritiesAsync/ A
+(A B
+)B C
+;C D
+var 
+statuses 
+= 
+await 
+_catalogService ,
+., -
+GetStatusesAsync- =
+(= >
+)> ?
+;? @
+return 
+Ok 
+( 
+new 
+{ 	
+projects   
+,   
+
+categories!! 
+,!! 
+ticketTypes"" 
+,"" 
+
+priorities## 
+,## 
+statuses$$ 
+}%% 	
+)%%	 
+
+;%%
+ 
+}&& 
+}'' ”B
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/KnowledgeBaseController.cs
 	namespace 	
 ItsTool

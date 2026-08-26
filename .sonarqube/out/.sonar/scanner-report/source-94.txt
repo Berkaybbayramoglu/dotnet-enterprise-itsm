@@ -295,7 +295,7 @@
                 showToast('Failed to create ticket', 'error');
             }
         });
-        loadLookups(); // removed await for resilience
+        await loadLookups();
     </script>
 </body>
 </html>

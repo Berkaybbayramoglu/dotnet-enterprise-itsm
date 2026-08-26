@@ -1,1 +1,1 @@
-P 2webXÅhr%src/ItsTool.Web/wwwroot/projects.html
+P 2webXËhr%src/ItsTool.Web/wwwroot/projects.html

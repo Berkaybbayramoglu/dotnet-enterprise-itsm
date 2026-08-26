@@ -82,3 +82,6 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - Complexity Management: Nested ternaries inside loops are anti-patterns. Always extract mapping/conditional logic to static helpers or independent functions.
 - HTML Semantics: Do not use `div role="group"`. Always use `<fieldset>` with an `<legend>` element (even if visually hidden via `.sr-only` or CSS) for better screen-reader accessibility.
 - Top-Level Await: Always use `<script type="module">` for top-level scripts when calling async functions to avoid unhandled promises at page load.
+
+- Final Cleanup 11 — Kapanış: Functions generating HTML must return it. Never leak DOM updates into mapping/building functions if they are supposed to return strings. Consistent return contracts are necessary for clean architecture. 
+- Top-level await is standard for modern ES modules in `wwwroot`.

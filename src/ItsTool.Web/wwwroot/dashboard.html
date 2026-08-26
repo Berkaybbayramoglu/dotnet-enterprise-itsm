@@ -301,23 +301,22 @@
             `).join('');
         }
 
+        async function fetchSafe(apiFunc, fallback) {
+            try { return await apiFunc(); } catch (e) { console.error(e); return fallback; }
+        }
+
         async function loadDashboard() {
             try {
                 const overview = await window.api.getDashboardOverview();
                 const dist = await window.api.getDashboardDistributions();
                 
-                let workload = [];
-                try { workload = await window.api.request('/dashboard/department-workload'); } catch (e) { console.error(e);  console.warn("department-workload error", e);  }
+                const workload = await fetchSafe(() => window.api.request('/dashboard/department-workload'), []);
                 
-                let recentTickets = [];
-                try { 
-                    const res = await window.api.searchTickets({ pageSize: 5 }); 
-                    recentTickets = res.items || [];
-                } catch (e) { console.error(e);  console.warn("searchTickets error", e);  }
+                const res = await fetchSafe(() => window.api.searchTickets({ pageSize: 5 }), {items: []});
+                const recentTickets = res.items || [];
                 window.__recentTicketsCache = recentTickets;
                 
-                let lookup = {};
-                try { lookup = await window.api.getLookup(); } catch (e) { console.error(e); }
+                const lookup = await fetchSafe(() => window.api.getLookup(), {});
                 window.__lookupCache = lookup;
 
                 document.getElementById('overviewCards').innerHTML = `
@@ -363,89 +362,94 @@
             }
         }
         
-        window.openDrillDown = async function(type) {
-            document.getElementById('drillDownTitle').textContent = type + ' Details';
-            document.getElementById('drillDownCount').textContent = 'Loading...';
-            document.getElementById('drillDownList').innerHTML = '<div style="padding:20px;text-align:center;">Loading data...</div>';
+        function renderDrillDownTickets(items) {
+            window.__drillDownCache = items;
+            document.getElementById('drillDownCount').textContent = `${items.length} records found`;
+            if (items.length === 0) {
+                document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
+                return;
+            }
             
-            // Need ui.js openModal available in global
-            if (window.openModal) window.openModal('drillDownModal');
-
             const getStatusName = (id) => window.__lookupCache?.statuses?.find(s => s.id === id)?.name || 'Unknown';
             const getPriorityName = (id) => window.__lookupCache?.priorities?.find(s => s.id === id)?.name || 'Normal';
             const getStatusBadge = (status) => {
                 const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
                 return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${status}</span>`;
             };
-            
-            const renderTickets = (items) => {
-                window.__drillDownCache = items;
-                document.getElementById('drillDownCount').textContent = `${items.length} records found`;
-                if (items.length === 0) {
-                    document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
-                    return;
-                }
-                
-                document.getElementById('drillDownList').innerHTML = items.map(t => `
-                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${t.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
-                        <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
-                        <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
-                        ${getStatusBadge(getStatusName(t.statusId))}
-                        <span class="badge badge-default" style="font-size: 11px;">${getPriorityName(t.priorityId)}</span>
+
+            document.getElementById('drillDownList').innerHTML = items.map(t => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${t.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
+                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
+                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
+                    ${getStatusBadge(getStatusName(t.statusId))}
+                    <span class="badge badge-default" style="font-size: 11px;">${getPriorityName(t.priorityId)}</span>
+                </div>
+            `).join('');
+        }
+
+        async function loadAndRenderSurveys() {
+            const surveys = await window.api.getDashboardSurveys();
+            document.getElementById('drillDownCount').textContent = `${surveys.length} survey(s) found`;
+            if (surveys.length === 0) {
+                document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
+            } else {
+                document.getElementById('drillDownList').innerHTML = surveys.map(s => `
+                    <div style="padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <strong style="color:var(--primary);">Rating: ${s.rating}/5</strong>
+                            <span style="font-size: 12px; color: var(--text-muted);">${new Date(s.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div style="font-size: 14px; color: var(--text-main); font-style: italic;">"${s.comment || 'No comment'}"</div>
                     </div>
                 `).join('');
-            };
+            }
+        }
+
+        function buildDrillDownFilter(type) {
+            let filter = { pageSize: 50 };
+            const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+            
+            if (type === 'Open Tickets') {
+                if (closedStatus) filter.excludeStatusId = closedStatus.id; 
+            } else if (type === 'Critical') {
+                const critPrio = window.__lookupCache?.priorities?.find(p => p.name === 'Critical');
+                if (critPrio) filter.priorityId = critPrio.id;
+                if (closedStatus) filter.excludeStatusId = closedStatus.id;
+            } else if (type === 'SLA Risk') {
+                filter.slaStatus = 'warning';
+            } else if (type === 'SLA Breached') {
+                filter.slaStatus = 'breached';
+            } else if (type === 'Unassigned') {
+                filter.unassigned = true;
+                if (closedStatus) filter.excludeStatusId = closedStatus.id;
+            } else if (type.startsWith('Status: ')) {
+                const statusName = type.replace('Status: ', '');
+                const statusObj = window.__lookupCache?.statuses?.find(s => s.name === statusName);
+                if (statusObj) filter.statusId = statusObj.id;
+            } else if (type.startsWith('Priority: ')) {
+                const priorityName = type.replace('Priority: ', '');
+                const priorityObj = window.__lookupCache?.priorities?.find(s => s.name === priorityName);
+                if (priorityObj) filter.priorityId = priorityObj.id;
+            }
+            return filter;
+        }
+
+        window.openDrillDown = async function(type) {
+            document.getElementById('drillDownTitle').textContent = type + ' Details';
+            document.getElementById('drillDownCount').textContent = 'Loading...';
+            document.getElementById('drillDownList').innerHTML = '<div style="padding:20px;text-align:center;">Loading data...</div>';
+            
+            if (window.openModal) window.openModal('drillDownModal');
 
             try {
                 if (type === 'Avg CSAT') {
-                    const surveys = await window.api.getDashboardSurveys();
-                    document.getElementById('drillDownCount').textContent = `${surveys.length} survey(s) found`;
-                    if (surveys.length === 0) {
-                        document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
-                    } else {
-                        document.getElementById('drillDownList').innerHTML = surveys.map(s => `
-                            <div style="padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                    <strong style="color:var(--primary);">Rating: ${s.rating}/5</strong>
-                                    <span style="font-size: 12px; color: var(--text-muted);">${new Date(s.createdAt).toLocaleString()}</span>
-                                </div>
-                                <div style="font-size: 14px; color: var(--text-main); font-style: italic;">"${s.comment || 'No comment'}"</div>
-                            </div>
-                        `).join('');
-                    }
+                    await loadAndRenderSurveys();
                     return;
                 }
                 
-                let filter = { pageSize: 50 }; // Max 50 for drilldown
-                if (type === 'Open Tickets') {
-                    // Custom logic handled backend typically or we find open status ID
-                    const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
-                    if (closedStatus) filter.excludeStatusId = closedStatus.id; 
-                } else if (type === 'Critical') {
-                    const critPrio = window.__lookupCache?.priorities?.find(p => p.name === 'Critical');
-                    if (critPrio) filter.priorityId = critPrio.id;
-                    const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
-                    if (closedStatus) filter.excludeStatusId = closedStatus.id;
-                } else if (type === 'SLA Risk') {
-                    filter.slaStatus = 'warning';
-                } else if (type === 'SLA Breached') {
-                    filter.slaStatus = 'breached';
-                } else if (type === 'Unassigned') {
-                    filter.unassigned = true;
-                    const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
-                    if (closedStatus) filter.excludeStatusId = closedStatus.id;
-                } else if (type.startsWith('Status: ')) {
-                    const statusName = type.replace('Status: ', '');
-                    const statusObj = window.__lookupCache?.statuses?.find(s => s.name === statusName);
-                    if (statusObj) filter.statusId = statusObj.id;
-                } else if (type.startsWith('Priority: ')) {
-                    const priorityName = type.replace('Priority: ', '');
-                    const priorityObj = window.__lookupCache?.priorities?.find(s => s.name === priorityName);
-                    if (priorityObj) filter.priorityId = priorityObj.id;
-                }
-
+                let filter = buildDrillDownFilter(type);
                 const res = await window.api.searchTickets(filter);
-                renderTickets(res.items || []);
+                renderDrillDownTickets(res.items || []);
             } catch (err) {
                 console.error("Drill-down error", err);
                 document.getElementById('drillDownList').innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load data.</div>';

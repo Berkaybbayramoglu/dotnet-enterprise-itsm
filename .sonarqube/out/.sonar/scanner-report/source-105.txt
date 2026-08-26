@@ -456,7 +456,7 @@ public class DataSeeder
 
 
 
-    private List<ItsTool.Domain.Entities.Workflow.WorkflowTransition> BuildDesiredTransitions(int workflowId, int openId, int inProgressId, int onHoldId, int resolvedId, int closedId)
+    private static List<ItsTool.Domain.Entities.Workflow.WorkflowTransition> BuildDesiredTransitions(int workflowId, int openId, int inProgressId, int onHoldId, int resolvedId, int closedId)
     {
         return new List<ItsTool.Domain.Entities.Workflow.WorkflowTransition>
         {

@@ -167,6 +167,12 @@
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
+        function getProjectStatusColor(statusStr) {
+            if (statusStr === 'Active') return 'success';
+            if (statusStr === 'Inactive') return 'default';
+            return 'warning';
+        }
+
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-action]');
             if (!btn) return;
@@ -203,7 +209,7 @@
                 currentData.forEach(item => {
                     const tr = document.createElement('tr');
                     const statusStr = item.status || 'Active';
-                    let statusColor = statusStr === 'Active' ? 'success' : (statusStr === 'Inactive' ? 'default' : 'warning');
+                    let statusColor = getProjectStatusColor(statusStr);
                     
                     const badge = `
                         <select class="badge badge-${statusColor}" style="cursor:pointer; border: none; outline: none; appearance: none; padding: 4px 8px; font-weight: 600;" onchange="updateProjectStatus(${item.id}, this)">
@@ -241,7 +247,7 @@
 
         window.updateProjectStatus = async function(id, selectElement) {
             const newStatus = selectElement.value;
-            const newColor = newStatus === 'Active' ? 'success' : (newStatus === 'Inactive' ? 'default' : 'warning');
+            const newColor = getProjectStatusColor(newStatus);
             selectElement.className = `badge badge-${newColor}`;
             
             const item = currentData.find(x => x.id === id);
@@ -260,7 +266,7 @@
                 // Revert color on failure
                 const oldStatusStr = item.status || 'Active';
                 selectElement.value = oldStatusStr;
-                const oldColor = oldStatusStr === 'Active' ? 'success' : (oldStatusStr === 'Inactive' ? 'default' : 'warning');
+                const oldColor = getProjectStatusColor(oldStatusStr);
                 selectElement.className = `badge badge-${oldColor }`;
             }
         };

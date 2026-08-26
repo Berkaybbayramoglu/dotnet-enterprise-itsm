@@ -315,24 +315,27 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-        var existingTransitions = await _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToListAsync();
-        if (existingTransitions.Count > 0)
-        {
+        await UpdateLegacyTransitionsAsync(resolvedStatus?.Id, closedStatus?.Id, inProgressStatus?.Id);
+    }
 
-            foreach (var et in existingTransitions)
+    private async Task UpdateLegacyTransitionsAsync(int? resolvedStatusId, int? closedStatusId, int? inProgressStatusId)
+    {
+        var existingTransitions = await _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToListAsync();
+        if (existingTransitions.Count == 0) return;
+
+        foreach (var et in existingTransitions)
+        {
+            if ((et.FromStatusId == resolvedStatusId || et.FromStatusId == closedStatusId) && et.ToStatusId == inProgressStatusId)
             {
-                if ((et.FromStatusId == resolvedStatus?.Id || et.FromStatusId == closedStatus?.Id) && et.ToStatusId == inProgressStatus?.Id)
-                {
-                    et.TransitionName = "Reopen";
-                    et.RequiredPermissionKey = PermissionConstants.TicketReopen;
-                }
-                else
-                {
-                    et.TransitionName = "Default";
-                }
+                et.TransitionName = "Reopen";
+                et.RequiredPermissionKey = PermissionConstants.TicketReopen;
             }
-            await _context.SaveChangesAsync();
+            else
+            {
+                et.TransitionName = "Default";
+            }
         }
+        await _context.SaveChangesAsync();
     }
 
     private async Task SeedKnowledgeBaseAsync()
