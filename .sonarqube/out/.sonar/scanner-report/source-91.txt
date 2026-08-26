@@ -290,13 +290,8 @@
                     document.getElementById('eKey').value = field.key;
                     document.getElementById('eLabel').value = field.label;
                     
-                    const typeStr = field.fieldType.toString();
-                    let selectVal = "0";
-                    if(typeStr === 'Text' || typeStr === '0') selectVal = "0";
-                    else if(typeStr === 'Number' || typeStr === '1') selectVal = "1";
-                    else if(typeStr === 'Date' || typeStr === '2') selectVal = "2";
-                    else if(typeStr === 'Dropdown' || typeStr === '3') selectVal = "3";
-                    else if(typeStr === 'MultiSelect' || typeStr === '4') selectVal = "4";
+                    const typeMap = { 'Text': '0', 'Number': '1', 'Date': '2', 'Dropdown': '3', 'MultiSelect': '4' };
+                    let selectVal = typeMap[field.fieldType] || field.fieldType.toString();
                     
                     document.getElementById('eType').value = selectVal;
                     document.getElementById('eRegex').value = field.validationRegex || '';
@@ -329,7 +324,7 @@
                 });
                 closeModal('editModal');
                 showToast('Field updated successfully');
-                loadFields();
+        await loadFields();
             } catch (err) {
                 console.error(err);
                 showToast('Failed to update field', 'error');
@@ -342,7 +337,7 @@
                 await window.api.request(`/DynamicForm/definitions/${fieldToDelete}`, { method: 'DELETE' });
                 closeModal('confirmModal');
                 showToast('Field deleted successfully');
-        loadFields(); // removed await for resilience
+        await loadFields();
             } catch (e) {
                 console.error(e);
                 showToast('Failed to delete field', 'error');
@@ -374,7 +369,7 @@
                 });
                 closeModal('createModal');
                 showToast('Field created successfully');
-        loadFields(); // removed await for resilience
+        await loadFields();
             } catch (e) {
                 console.error(e);
                 showToast('Failed to create field', 'error');
@@ -396,7 +391,7 @@
                 event.target.style.display = "none";
             }
         }
-        loadFields(); // removed await for resilience
+        await loadFields();
     </script>
 </body>
 </html>

@@ -2216,7 +2216,7 @@ Dictionary
 )uu( )
 ;uu) *
 }vv 
-}ww ζε
+}ww λε
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs
 	namespace 	
 ItsTool
@@ -4593,15 +4593,15 @@ PriorityId
 historyEntries
 φφ 
 .
-φφ 
-Any
-φφ 
-(
-φφ 
+φφ 
+Count
+φφ  
+>
+φφ! "
+$num
+φφ# $
 )
-φφ  
-)
-φφ  !
+φφ$ %
 {
 χχ 	
 _context
@@ -11188,7 +11188,74 @@ IQueryable
 „„q r
 }
 …… 
-}†† Ζ
+}†† Ή	
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/StubEmailService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+Services! )
+;) *
+public 
+class 
+StubEmailService 
+: 
+IEmailService  -
+{ 
+public		 
+
+Task		 
+SendEmailAsync		 
+(		 
+string		 %
+to		& (
+,		( )
+string		* 0
+subject		1 8
+,		8 9
+string		: @
+body		A E
+)		E F
+{
+
+ 
+Console 
+. 
+	WriteLine 
+( 
+$" 
+$str -
+{- .
+to. 0
+}0 1
+$str1 <
+{< =
+subject= D
+}D E
+"E F
+)F G
+;G H
+Console 
+. 
+	WriteLine 
+( 
+$" 
+$str /
+{/ 0
+body0 4
+}4 5
+"5 6
+)6 7
+;7 8
+return 
+Task 
+. 
+CompletedTask !
+;! "
+} 
+} Ζ
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/SystemAuditService.cs
 	namespace		 	
 ItsTool		
@@ -11363,74 +11430,7 @@ entityName #
 )''( )
 ;'') *
 }(( 
-})) Ή	
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/StubEmailService.cs
-	namespace 	
-ItsTool
- 
-. 
-Infrastructure  
-.  !
-Services! )
-;) *
-public 
-class 
-StubEmailService 
-: 
-IEmailService  -
-{ 
-public		 
-
-Task		 
-SendEmailAsync		 
-(		 
-string		 %
-to		& (
-,		( )
-string		* 0
-subject		1 8
-,		8 9
-string		: @
-body		A E
-)		E F
-{
-
- 
-Console 
-. 
-	WriteLine 
-( 
-$" 
-$str -
-{- .
-to. 0
-}0 1
-$str1 <
-{< =
-subject= D
-}D E
-"E F
-)F G
-;G H
-Console 
-. 
-	WriteLine 
-( 
-$" 
-$str /
-{/ 0
-body0 4
-}4 5
-"5 6
-)6 7
-;7 8
-return 
-Task 
-. 
-CompletedTask !
-;! "
-} 
-} ο)
+})) ο)
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/SmtpEmailService.cs
 	namespace		 	
 ItsTool		
@@ -26067,612 +26067,7 @@ ResolvedAt
 ΙΙ 
 }
 ΚΚ 
-}ΛΛ ώR
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs
-	namespace 	
-ItsTool
- 
-. 
-Infrastructure  
-.  !
-Services! )
-;) *
-public		 
-class		 
-AuthService		 
-:		 
-IAuthService		 '
-{
-
- 
-private 
-readonly 
-ItsToolDbContext %
-_context& .
-;. /
-private 
-readonly 
-ITokenService "
-_tokenService# 0
-;0 1
-private 
-readonly !
-IPermissionCalculator *!
-_permissionCalculator+ @
-;@ A
-private 
-readonly 
-IConfiguration #
-_configuration$ 2
-;2 3
-public 
-
-AuthService 
-( 
-ItsToolDbContext 
-context  
-,  !
-ITokenService 
-tokenService "
-," #!
-IPermissionCalculator  
-permissionCalculator 2
-,2 3
-IConfiguration 
-configuration $
-)$ %
-{ 
-_context 
-= 
-context 
-; 
-_tokenService 
-= 
-tokenService $
-;$ %!
-_permissionCalculator 
-=  
-permissionCalculator  4
-;4 5
-_configuration 
-= 
-configuration &
-;& '
-} 
-public 
-
-async 
-Task 
-< 
-AuthResponseDto %
->% &
-
-LoginAsync' 1
-(1 2
-LoginRequestDto2 A
-requestB I
-)I J
-{ 
-var 
-user 
-= 
-await 
-_context !
-.! "
-Users" '
-.   
-FirstOrDefaultAsync    
-(    !
-u  ! "
-=>  # %
-(!! 
-string!! 
-.!! 
-Equals!! 
-(!! 
-u!!  
-.!!  !
-Username!!! )
-,!!) *
-request!!+ 2
-.!!2 3
-Username!!3 ;
-,!!; <
-StringComparison!!= M
-.!!M N
-OrdinalIgnoreCase!!N _
-)!!_ `
-||!!a c
-string"" 
-."" 
-Equals"" 
-("" 
-u""  
-.""  !
-Email""! &
-,""& '
-request""( /
-.""/ 0
-Username""0 8
-,""8 9
-StringComparison"": J
-.""J K
-OrdinalIgnoreCase""K \
-)""\ ]
-)""] ^
-&&""_ a
-u## 
-.## 
-IsActive## 
-&&## 
-!## 
-u##  
-.##  !
-	IsDeleted##! *
-)##* +
-;##+ ,
-if%% 
-
-(%% 
-user%% 
-==%% 
-null%% 
-||%% 
-!%% 
-BCrypt%% #
-.%%# $
-Net%%$ '
-.%%' (
-BCrypt%%( .
-.%%. /
-Verify%%/ 5
-(%%5 6
-request%%6 =
-.%%= >
-Password%%> F
-,%%F G
-user%%H L
-.%%L M
-PasswordHash%%M Y
-)%%Y Z
-)%%Z [
-{&& 	
-throw'' 
-new'' '
-UnauthorizedAccessException'' 1
-(''1 2
-$str''2 H
-)''H I
-;''I J
-}(( 	
-var** 
-roles** 
-=** 
-await** 
-_context** "
-.**" #
-	UserRoles**# ,
-.++ 
-Where++ 
-(++ 
-ur++ 
-=>++ 
-ur++ 
-.++ 
-UserId++ "
-==++# %
-user++& *
-.++* +
-Id+++ -
-&&++. 0
-ur++1 3
-.++3 4
-Role++4 8
-!=++9 ;
-null++< @
-&&++A C
-ur++D F
-.++F G
-Role++G K
-.++K L
-IsActive++L T
-)++T U
-.,, 
-Select,, 
-(,, 
-ur,, 
-=>,, 
-ur,, 
-.,, 
-Role,, !
-!,,! "
-.,," #
-Name,,# '
-),,' (
-.-- 
-ToListAsync-- 
-(-- 
-)-- 
-;-- 
-var// 
-permissions// 
-=// 
-await// !
-_permissionCalculator//  5
-.//5 6.
-"CalculateEffectivePermissionsAsync//6 X
-(//X Y
-user//Y ]
-.//] ^
-Id//^ `
-)//` a
-;//a b
-var11 
-token11 
-=11 
-_tokenService11 !
-.11! "
-GenerateToken11" /
-(11/ 0
-user110 4
-.114 5
-Id115 7
-,117 8
-user119 =
-.11= >
-Username11> F
-,11F G
-roles11H M
-,11M N
-permissions11O Z
-)11Z [
-;11[ \
-var33 
-expiryMinutes33 
-=33 
-double33 "
-.33" #
-Parse33# (
-(33( )
-_configuration33) 7
-[337 8
-$str338 K
-]33K L
-??33M O
-$str33P U
-)33U V
-;33V W
-return55 
-new55 
-AuthResponseDto55 "
-(55" #
-Token66 
-:66 
-token66 
-,66 
-	ExpiresAt77 
-:77 
-DateTime77 
-.77  
-UtcNow77  &
-.77& '
-
-AddMinutes77' 1
-(771 2
-expiryMinutes772 ?
-)77? @
-,77@ A
-Username88 
-:88 
-user88 
-.88 
-Username88 #
-,88# $
-Roles99 
-:99 
-roles99 
-,99 
-Permissions:: 
-::: 
-permissions:: $
-);; 	
-;;;	 
-
-}<< 
-public>> 
-
-async>> 
-Task>> 
-<>> 
-MeResponseDto>> #
->>># $
-
-GetMeAsync>>% /
-(>>/ 0
-int>>0 3
-userId>>4 :
-)>>: ;
-{?? 
-var@@ 
-user@@ 
-=@@ 
-await@@ 
-_context@@ !
-.@@! "
-Users@@" '
-.AA 
-FirstOrDefaultAsyncAA  
-(AA  !
-uAA! "
-=>AA# %
-uAA& '
-.AA' (
-IdAA( *
-==AA+ -
-userIdAA. 4
-&&AA5 7
-uAA8 9
-.AA9 :
-IsActiveAA: B
-&&AAC E
-!AAF G
-uAAG H
-.AAH I
-	IsDeletedAAI R
-)AAR S
-;AAS T
-ifCC 
-
-(CC 
-userCC 
-==CC 
-nullCC 
-)CC 
-throwDD 
-newDD '
-UnauthorizedAccessExceptionDD 1
-(DD1 2
-$strDD2 C
-)DDC D
-;DDD E
-varFF 
-rolesFF 
-=FF 
-awaitFF 
-_contextFF "
-.FF" #
-	UserRolesFF# ,
-.GG 
-WhereGG 
-(GG 
-urGG 
-=>GG 
-urGG 
-.GG 
-UserIdGG "
-==GG# %
-userGG& *
-.GG* +
-IdGG+ -
-&&GG. 0
-urGG1 3
-.GG3 4
-RoleGG4 8
-!=GG9 ;
-nullGG< @
-&&GGA C
-urGGD F
-.GGF G
-RoleGGG K
-.GGK L
-IsActiveGGL T
-)GGT U
-.HH 
-SelectHH 
-(HH 
-urHH 
-=>HH 
-urHH 
-.HH 
-RoleHH !
-!HH! "
-.HH" #
-NameHH# '
-)HH' (
-.II 
-ToListAsyncII 
-(II 
-)II 
-;II 
-varKK 
-groupsKK 
-=KK 
-awaitKK 
-_contextKK #
-.KK# $
-GroupMembersKK$ 0
-.LL 
-WhereLL 
-(LL 
-gmLL 
-=>LL 
-gmLL 
-.LL 
-UserIdLL "
-==LL# %
-userLL& *
-.LL* +
-IdLL+ -
-&&LL. 0
-gmLL1 3
-.LL3 4
-GroupLL4 9
-!=LL: <
-nullLL= A
-&&LLB D
-gmLLE G
-.LLG H
-GroupLLH M
-.LLM N
-IsActiveLLN V
-)LLV W
-.MM 
-SelectMM 
-(MM 
-gmMM 
-=>MM 
-gmMM 
-.MM 
-GroupMM "
-!MM" #
-.MM# $
-NameMM$ (
-)MM( )
-.NN 
-ToListAsyncNN 
-(NN 
-)NN 
-;NN 
-varPP 
-permissionsPP 
-=PP 
-awaitPP !
-_permissionCalculatorPP  5
-.PP5 6.
-"CalculateEffectivePermissionsAsyncPP6 X
-(PPX Y
-userPPY ]
-.PP] ^
-IdPP^ `
-)PP` a
-;PPa b
-varRR 
-	overridesRR 
-=RR 
-awaitRR 
-_contextRR &
-.RR& '#
-UserPermissionOverridesRR' >
-.SS 
-IncludeSS 
-(SS 
-oSS 
-=>SS 
-oSS 
-.SS 
-
-PermissionSS &
-)SS& '
-.TT 
-WhereTT 
-(TT 
-oTT 
-=>TT 
-oTT 
-.TT 
-UserIdTT  
-==TT! #
-userTT$ (
-.TT( )
-IdTT) +
-&&TT, .
-oTT/ 0
-.TT0 1
-	IsGrantedTT1 :
-&&TT; =
-!TT> ?
-oTT? @
-.TT@ A
-	IsDeletedTTA J
-&&TTK M
-oTTN O
-.TTO P
-
-PermissionTTP Z
-!=TT[ ]
-nullTT^ b
-&&TTc e
-oTTf g
-.TTg h
-
-PermissionTTh r
-.TTr s
-IsActiveTTs {
-&&TT| ~
-!	TT €
-o
-TT€ 
-.
-TT ‚
-
-Permission
-TT‚ 
-.
-TT 
-	IsDeleted
-TT –
-)
-TT– —
-.UU 
-SelectUU 
-(UU 
-oUU 
-=>UU 
-oUU 
-.UU 
-
-PermissionUU %
-!UU% &
-.UU& '
-KeyUU' *
-)UU* +
-.VV 
-ToListAsyncVV 
-(VV 
-)VV 
-;VV 
-returnXX 
-newXX 
-MeResponseDtoXX  
-(XX  !
-IdYY 
-:YY 
-userYY 
-.YY 
-IdYY 
-,YY 
-UsernameZZ 
-:ZZ 
-userZZ 
-.ZZ 
-UsernameZZ #
-,ZZ# $
-Email[[ 
-:[[ 
-user[[ 
-.[[ 
-Email[[ 
-,[[ 
-Groups\\ 
-:\\ 
-groups\\ 
-,\\ 
-Roles]] 
-:]] 
-roles]] 
-,]] 
-Permissions^^ 
-:^^ 
-permissions^^ $
-,^^$ %
-	Overrides__ 
-:__ 
-	overrides__  
-)`` 	
-;``	 
-
-}aa 
-}bb «Ε
+}ΛΛ «Ε
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/CatalogService.cs
 	namespace 	
 ItsTool
@@ -28465,7 +27860,612 @@ ToStatusId||t ~
 ¤¤W X
 ;
 ¤¤X Y
-}¥¥ ν
+}¥¥ ώR
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs
+	namespace 	
+ItsTool
+ 
+. 
+Infrastructure  
+.  !
+Services! )
+;) *
+public		 
+class		 
+AuthService		 
+:		 
+IAuthService		 '
+{
+
+ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+private 
+readonly 
+ITokenService "
+_tokenService# 0
+;0 1
+private 
+readonly !
+IPermissionCalculator *!
+_permissionCalculator+ @
+;@ A
+private 
+readonly 
+IConfiguration #
+_configuration$ 2
+;2 3
+public 
+
+AuthService 
+( 
+ItsToolDbContext 
+context  
+,  !
+ITokenService 
+tokenService "
+," #!
+IPermissionCalculator  
+permissionCalculator 2
+,2 3
+IConfiguration 
+configuration $
+)$ %
+{ 
+_context 
+= 
+context 
+; 
+_tokenService 
+= 
+tokenService $
+;$ %!
+_permissionCalculator 
+=  
+permissionCalculator  4
+;4 5
+_configuration 
+= 
+configuration &
+;& '
+} 
+public 
+
+async 
+Task 
+< 
+AuthResponseDto %
+>% &
+
+LoginAsync' 1
+(1 2
+LoginRequestDto2 A
+requestB I
+)I J
+{ 
+var 
+user 
+= 
+await 
+_context !
+.! "
+Users" '
+.   
+FirstOrDefaultAsync    
+(    !
+u  ! "
+=>  # %
+(!! 
+string!! 
+.!! 
+Equals!! 
+(!! 
+u!!  
+.!!  !
+Username!!! )
+,!!) *
+request!!+ 2
+.!!2 3
+Username!!3 ;
+,!!; <
+StringComparison!!= M
+.!!M N
+OrdinalIgnoreCase!!N _
+)!!_ `
+||!!a c
+string"" 
+."" 
+Equals"" 
+("" 
+u""  
+.""  !
+Email""! &
+,""& '
+request""( /
+.""/ 0
+Username""0 8
+,""8 9
+StringComparison"": J
+.""J K
+OrdinalIgnoreCase""K \
+)""\ ]
+)""] ^
+&&""_ a
+u## 
+.## 
+IsActive## 
+&&## 
+!## 
+u##  
+.##  !
+	IsDeleted##! *
+)##* +
+;##+ ,
+if%% 
+
+(%% 
+user%% 
+==%% 
+null%% 
+||%% 
+!%% 
+BCrypt%% #
+.%%# $
+Net%%$ '
+.%%' (
+BCrypt%%( .
+.%%. /
+Verify%%/ 5
+(%%5 6
+request%%6 =
+.%%= >
+Password%%> F
+,%%F G
+user%%H L
+.%%L M
+PasswordHash%%M Y
+)%%Y Z
+)%%Z [
+{&& 	
+throw'' 
+new'' '
+UnauthorizedAccessException'' 1
+(''1 2
+$str''2 H
+)''H I
+;''I J
+}(( 	
+var** 
+roles** 
+=** 
+await** 
+_context** "
+.**" #
+	UserRoles**# ,
+.++ 
+Where++ 
+(++ 
+ur++ 
+=>++ 
+ur++ 
+.++ 
+UserId++ "
+==++# %
+user++& *
+.++* +
+Id+++ -
+&&++. 0
+ur++1 3
+.++3 4
+Role++4 8
+!=++9 ;
+null++< @
+&&++A C
+ur++D F
+.++F G
+Role++G K
+.++K L
+IsActive++L T
+)++T U
+.,, 
+Select,, 
+(,, 
+ur,, 
+=>,, 
+ur,, 
+.,, 
+Role,, !
+!,,! "
+.,," #
+Name,,# '
+),,' (
+.-- 
+ToListAsync-- 
+(-- 
+)-- 
+;-- 
+var// 
+permissions// 
+=// 
+await// !
+_permissionCalculator//  5
+.//5 6.
+"CalculateEffectivePermissionsAsync//6 X
+(//X Y
+user//Y ]
+.//] ^
+Id//^ `
+)//` a
+;//a b
+var11 
+token11 
+=11 
+_tokenService11 !
+.11! "
+GenerateToken11" /
+(11/ 0
+user110 4
+.114 5
+Id115 7
+,117 8
+user119 =
+.11= >
+Username11> F
+,11F G
+roles11H M
+,11M N
+permissions11O Z
+)11Z [
+;11[ \
+var33 
+expiryMinutes33 
+=33 
+double33 "
+.33" #
+Parse33# (
+(33( )
+_configuration33) 7
+[337 8
+$str338 K
+]33K L
+??33M O
+$str33P U
+)33U V
+;33V W
+return55 
+new55 
+AuthResponseDto55 "
+(55" #
+Token66 
+:66 
+token66 
+,66 
+	ExpiresAt77 
+:77 
+DateTime77 
+.77  
+UtcNow77  &
+.77& '
+
+AddMinutes77' 1
+(771 2
+expiryMinutes772 ?
+)77? @
+,77@ A
+Username88 
+:88 
+user88 
+.88 
+Username88 #
+,88# $
+Roles99 
+:99 
+roles99 
+,99 
+Permissions:: 
+::: 
+permissions:: $
+);; 	
+;;;	 
+
+}<< 
+public>> 
+
+async>> 
+Task>> 
+<>> 
+MeResponseDto>> #
+>>># $
+
+GetMeAsync>>% /
+(>>/ 0
+int>>0 3
+userId>>4 :
+)>>: ;
+{?? 
+var@@ 
+user@@ 
+=@@ 
+await@@ 
+_context@@ !
+.@@! "
+Users@@" '
+.AA 
+FirstOrDefaultAsyncAA  
+(AA  !
+uAA! "
+=>AA# %
+uAA& '
+.AA' (
+IdAA( *
+==AA+ -
+userIdAA. 4
+&&AA5 7
+uAA8 9
+.AA9 :
+IsActiveAA: B
+&&AAC E
+!AAF G
+uAAG H
+.AAH I
+	IsDeletedAAI R
+)AAR S
+;AAS T
+ifCC 
+
+(CC 
+userCC 
+==CC 
+nullCC 
+)CC 
+throwDD 
+newDD '
+UnauthorizedAccessExceptionDD 1
+(DD1 2
+$strDD2 C
+)DDC D
+;DDD E
+varFF 
+rolesFF 
+=FF 
+awaitFF 
+_contextFF "
+.FF" #
+	UserRolesFF# ,
+.GG 
+WhereGG 
+(GG 
+urGG 
+=>GG 
+urGG 
+.GG 
+UserIdGG "
+==GG# %
+userGG& *
+.GG* +
+IdGG+ -
+&&GG. 0
+urGG1 3
+.GG3 4
+RoleGG4 8
+!=GG9 ;
+nullGG< @
+&&GGA C
+urGGD F
+.GGF G
+RoleGGG K
+.GGK L
+IsActiveGGL T
+)GGT U
+.HH 
+SelectHH 
+(HH 
+urHH 
+=>HH 
+urHH 
+.HH 
+RoleHH !
+!HH! "
+.HH" #
+NameHH# '
+)HH' (
+.II 
+ToListAsyncII 
+(II 
+)II 
+;II 
+varKK 
+groupsKK 
+=KK 
+awaitKK 
+_contextKK #
+.KK# $
+GroupMembersKK$ 0
+.LL 
+WhereLL 
+(LL 
+gmLL 
+=>LL 
+gmLL 
+.LL 
+UserIdLL "
+==LL# %
+userLL& *
+.LL* +
+IdLL+ -
+&&LL. 0
+gmLL1 3
+.LL3 4
+GroupLL4 9
+!=LL: <
+nullLL= A
+&&LLB D
+gmLLE G
+.LLG H
+GroupLLH M
+.LLM N
+IsActiveLLN V
+)LLV W
+.MM 
+SelectMM 
+(MM 
+gmMM 
+=>MM 
+gmMM 
+.MM 
+GroupMM "
+!MM" #
+.MM# $
+NameMM$ (
+)MM( )
+.NN 
+ToListAsyncNN 
+(NN 
+)NN 
+;NN 
+varPP 
+permissionsPP 
+=PP 
+awaitPP !
+_permissionCalculatorPP  5
+.PP5 6.
+"CalculateEffectivePermissionsAsyncPP6 X
+(PPX Y
+userPPY ]
+.PP] ^
+IdPP^ `
+)PP` a
+;PPa b
+varRR 
+	overridesRR 
+=RR 
+awaitRR 
+_contextRR &
+.RR& '#
+UserPermissionOverridesRR' >
+.SS 
+IncludeSS 
+(SS 
+oSS 
+=>SS 
+oSS 
+.SS 
+
+PermissionSS &
+)SS& '
+.TT 
+WhereTT 
+(TT 
+oTT 
+=>TT 
+oTT 
+.TT 
+UserIdTT  
+==TT! #
+userTT$ (
+.TT( )
+IdTT) +
+&&TT, .
+oTT/ 0
+.TT0 1
+	IsGrantedTT1 :
+&&TT; =
+!TT> ?
+oTT? @
+.TT@ A
+	IsDeletedTTA J
+&&TTK M
+oTTN O
+.TTO P
+
+PermissionTTP Z
+!=TT[ ]
+nullTT^ b
+&&TTc e
+oTTf g
+.TTg h
+
+PermissionTTh r
+.TTr s
+IsActiveTTs {
+&&TT| ~
+!	TT €
+o
+TT€ 
+.
+TT ‚
+
+Permission
+TT‚ 
+.
+TT 
+	IsDeleted
+TT –
+)
+TT– —
+.UU 
+SelectUU 
+(UU 
+oUU 
+=>UU 
+oUU 
+.UU 
+
+PermissionUU %
+!UU% &
+.UU& '
+KeyUU' *
+)UU* +
+.VV 
+ToListAsyncVV 
+(VV 
+)VV 
+;VV 
+returnXX 
+newXX 
+MeResponseDtoXX  
+(XX  !
+IdYY 
+:YY 
+userYY 
+.YY 
+IdYY 
+,YY 
+UsernameZZ 
+:ZZ 
+userZZ 
+.ZZ 
+UsernameZZ #
+,ZZ# $
+Email[[ 
+:[[ 
+user[[ 
+.[[ 
+Email[[ 
+,[[ 
+Groups\\ 
+:\\ 
+groups\\ 
+,\\ 
+Roles]] 
+:]] 
+roles]] 
+,]] 
+Permissions^^ 
+:^^ 
+permissions^^ $
+,^^$ %
+	Overrides__ 
+:__ 
+	overrides__  
+)`` 	
+;``	 
+
+}aa 
+}bb ν
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AssignmentEngine.cs
 	namespace 	
 ItsTool
@@ -54881,7 +54881,7 @@ TicketSlasBB &
 )[[T U
 ;[[U V
 }\\ 
-}]] “Ο
+}]] έσ
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs
 	namespace 	
 ItsTool
@@ -54951,1374 +54951,1306 @@ InProgress "
 
 DataSeeder 
 { 
-private 
-readonly 
-ItsToolDbContext %
-_context& .
-;. /
-public 
+private 
+static 
+readonly 
+string "
+[" #
+]# $
+ManagerPermissions% 7
+=8 9
+new: =
+[= >
+]> ?
+{@ A
+$strB O
+,O P
+$strQ ]
+,] ^
+$str_ l
+,l m
+$strn }
+,} ~
+$str	 
+}
+‹ 
+;
+ 
+private 
+static 
+readonly 
+string "
+[" #
+]# $
+AgentPermissions% 5
+=6 7
+new8 ;
+[; <
+]< =
+{> ?
+$str@ M
+,M N
+PermissionConstantsO b
+.b c
+
+TicketEditc m
+,m n 
+PermissionConstants	o ‚
+.
+‚ ƒ
+TicketResolve
+ƒ 
+,
+ ‘
+$str
+’ Ά
+,
+Ά £
+$str
+¤ ­
+}
+® ―
+;
+― °
+private 
+static 
+readonly 
+string "
+[" #
+]# $
+EndUserPermissions% 7
+=8 9
+new: =
+[= >
+]> ?
+{@ A
+$strB Q
+,Q R
+$strS `
+,` a
+$strb q
+,q r
+$strs |
+}} ~
+;~ 
+private 
+readonly 
+ItsToolDbContext %
+_context& .
+;. /
+public 
 
 
-DataSeeder 
-( 
-ItsToolDbContext &
-context' .
-). /
-{ 
-_context 
-= 
-context 
-; 
-} 
-public 
+DataSeeder 
+( 
+ItsToolDbContext &
+context' .
+). /
+{ 
+_context 
+= 
+context 
+; 
+} 
+public!! 
 
-async 
-Task 
-	SeedAsync 
-(  
-)  !
-{ 
-await  
-SeedTicketTypesAsync '
-(' (
-)( )
-;) *
-await 
-SeedStatusesAsync 
-(  
-)  !
-;! "
-await   
-SeedPrioritiesAsync   !
-(  ! "
-)  " #
-;  # $
-await!! )
-SeedDepartmentsAndGroupsAsync!! +
-(!!+ ,
-)!!, -
-;!!- .
-await"" (
-SeedRolesAndPermissionsAsync"" *
-(""* +
-)""+ ,
-;"", -
-await## 
-SeedUsersAsync## 
-(## 
-)## 
-;## 
-await$$ *
-SeedProjectsAndCategoriesAsync$$ ,
-($$, -
-)$$- .
-;$$. /
-await%% "
-SeedDynamicFieldsAsync%% $
-(%%$ %
-)%%% &
-;%%& '
-await&&  
-SeedSlaPoliciesAsync&& "
-(&&" #
-)&&# $
-;&&$ %
-await'' (
-SeedWorkflowTransitionsAsync'' *
-(''* +
-)''+ ,
-;'', -
-await(( "
-SeedKnowledgeBaseAsync(( $
-((($ %
-)((% &
-;((& '
-}** 
-private,, 
-async,, 
-Task,,  
-SeedTicketTypesAsync,, +
-(,,+ ,
-),,, -
-{-- 
-if// 
+async!! 
+Task!! 
+	SeedAsync!! 
+(!!  
+)!!  !
+{"" 
+await""  
+SeedTicketTypesAsync"" '
+(""' (
+)""( )
+;"") *
+await## 
+SeedStatusesAsync## 
+(##  
+)##  !
+;##! "
+await$$ 
+SeedPrioritiesAsync$$ !
+($$! "
+)$$" #
+;$$# $
+await%% )
+SeedDepartmentsAndGroupsAsync%% +
+(%%+ ,
+)%%, -
+;%%- .
+await&& (
+SeedRolesAndPermissionsAsync&& *
+(&&* +
+)&&+ ,
+;&&, -
+await'' 
+SeedUsersAsync'' 
+('' 
+)'' 
+;'' 
+await(( *
+SeedProjectsAndCategoriesAsync(( ,
+(((, -
+)((- .
+;((. /
+await)) "
+SeedDynamicFieldsAsync)) $
+())$ %
+)))% &
+;))& '
+await**  
+SeedSlaPoliciesAsync** "
+(**" #
+)**# $
+;**$ %
+await++ (
+SeedWorkflowTransitionsAsync++ *
+(++* +
+)+++ ,
+;++, -
+await,, "
+SeedKnowledgeBaseAsync,, $
+(,,$ %
+),,% &
+;,,& '
+}.. 
+private00 
+async00 
+Task00  
+SeedTicketTypesAsync00 +
+(00+ ,
+)00, -
+{11 
+if33 
 
-(// 
-!// 
-await// 
-_context// 
-.// 
-TicketTypes// '
-.//' (
-AnyAsync//( 0
-(//0 1
-)//1 2
-)//2 3
-{00 	
-_context11 
-.11 
-TicketTypes11  
-.11  !
-AddRange11! )
-(11) *
-new22 
+(33 
+!33 
+await33 
+_context33 
+.33 
+TicketTypes33 '
+.33' (
+AnyAsync33( 0
+(330 1
+)331 2
+)332 3
+{44 	
+_context55 
+.55 
+TicketTypes55  
+.55  !
+AddRange55! )
+(55) *
+new66 
 
-TicketType22 
-{22  
-Name22! %
-=22& '
-$str22( 2
-}223 4
-,224 5
-new33 
+TicketType66 
+{66  
+Name66! %
+=66& '
+$str66( 2
+}663 4
+,664 5
+new77 
 
-TicketType33 
-{33  
-Name33! %
-=33& '
-$str33( 9
-}33: ;
-)44 
-;44 
-}55 	
-}66 
-private88 
-async88 
-Task88 
-SeedStatusesAsync88 (
-(88( )
-)88) *
-{99 
-if;; 
+TicketType77 
+{77  
+Name77! %
+=77& '
+$str77( 9
+}77: ;
+)88 
+;88 
+}99 	
+}:: 
+private<< 
+async<< 
+Task<< 
+SeedStatusesAsync<< (
+(<<( )
+)<<) *
+{== 
+if?? 
 
-(;; 
-!;; 
-await;; 
-_context;; 
-.;; 
-Statuses;; $
-.;;$ %
-AnyAsync;;% -
-(;;- .
-);;. /
-);;/ 0
-{<< 	
-_context== 
-.== 
-Statuses== 
-.== 
-AddRange== &
-(==& '
-new>> 
-Status>> 
-{>> 
-Name>> !
-=>>" #
-StatusConstants>>$ 3
-.>>3 4
-Open>>4 8
-,>>8 9
-	SortOrder>>: C
-=>>D E
-$num>>F G
-,>>G H
-IsSystemDefault>>I X
-=>>Y Z
-true>>[ _
-}>>` a
-,>>a b
-new?? 
-Status?? 
-{?? 
-Name?? !
-=??" #
-StatusConstants??$ 3
-.??3 4
-
-InProgress??4 >
-,??> ?
-	SortOrder??@ I
-=??J K
-$num??L M
-}??N O
-,??O P
-new@@ 
-Status@@ 
-{@@ 
-Name@@ !
-=@@" #
-StatusConstants@@$ 3
-.@@3 4
-OnHold@@4 :
-,@@: ;
-	SortOrder@@< E
-=@@F G
-$num@@H I
-,@@I J
-	PausesSla@@K T
-=@@U V
-true@@W [
-}@@\ ]
-,@@] ^
-newAA 
-StatusAA 
-{AA 
-NameAA !
-=AA" #
-StatusConstantsAA$ 3
-.AA3 4
-ResolvedAA4 <
-,AA< =
-	SortOrderAA> G
-=AAH I
-$numAAJ K
-,AAK L
-IsClosedStatusAAM [
-=AA\ ]
-trueAA^ b
-}AAc d
-,AAd e
+(?? 
+!?? 
+await?? 
+_context?? 
+.?? 
+Statuses?? $
+.??$ %
+AnyAsync??% -
+(??- .
+)??. /
+)??/ 0
+{@@ 	
+_contextAA 
+.AA 
+StatusesAA 
+.AA 
+AddRangeAA &
+(AA& '
 newBB 
 StatusBB 
 {BB 
 NameBB !
 =BB" #
 StatusConstantsBB$ 3
-.BB3 4
-ClosedBB4 :
-,BB: ;
-	SortOrderBB< E
-=BBF G
-$numBBH I
-,BBI J
-IsClosedStatusBBK Y
-=BBZ [
-trueBB\ `
-}BBa b
-)CC 
-;CC 
-}DD 	
-}EE 
-privateGG 
-asyncGG 
-TaskGG 
-SeedPrioritiesAsyncGG *
-(GG* +
-)GG+ ,
-{HH 
-ifJJ 
+.BB3 4
+OpenBB4 8
+,BB8 9
+	SortOrderBB: C
+=BBD E
+$numBBF G
+,BBG H
+IsSystemDefaultBBI X
+=BBY Z
+trueBB[ _
+}BB` a
+,BBa b
+newCC 
+StatusCC 
+{CC 
+NameCC !
+=CC" #
+StatusConstantsCC$ 3
+.CC3 4
+
+InProgressCC4 >
+,CC> ?
+	SortOrderCC@ I
+=CCJ K
+$numCCL M
+}CCN O
+,CCO P
+newDD 
+StatusDD 
+{DD 
+NameDD !
+=DD" #
+StatusConstantsDD$ 3
+.DD3 4
+OnHoldDD4 :
+,DD: ;
+	SortOrderDD< E
+=DDF G
+$numDDH I
+,DDI J
+	PausesSlaDDK T
+=DDU V
+trueDDW [
+}DD\ ]
+,DD] ^
+newEE 
+StatusEE 
+{EE 
+NameEE !
+=EE" #
+StatusConstantsEE$ 3
+.EE3 4
+ResolvedEE4 <
+,EE< =
+	SortOrderEE> G
+=EEH I
+$numEEJ K
+,EEK L
+IsClosedStatusEEM [
+=EE\ ]
+trueEE^ b
+}EEc d
+,EEd e
+newFF 
+StatusFF 
+{FF 
+NameFF !
+=FF" #
+StatusConstantsFF$ 3
+.FF3 4
+ClosedFF4 :
+,FF: ;
+	SortOrderFF< E
+=FFF G
+$numFFH I
+,FFI J
+IsClosedStatusFFK Y
+=FFZ [
+trueFF\ `
+}FFa b
+)GG 
+;GG 
+}HH 	
+}II 
+privateKK 
+asyncKK 
+TaskKK 
+SeedPrioritiesAsyncKK *
+(KK* +
+)KK+ ,
+{LL 
+ifNN 
 
-(JJ 
-!JJ 
-awaitJJ 
-_contextJJ 
-.JJ 
+(NN 
+!NN 
+awaitNN 
+_contextNN 
+.NN 
 
-PrioritiesJJ &
-.JJ& '
-AnyAsyncJJ' /
-(JJ/ 0
-)JJ0 1
-)JJ1 2
-{KK 	
-_contextLL 
-.LL 
+PrioritiesNN &
+.NN& '
+AnyAsyncNN' /
+(NN/ 0
+)NN0 1
+)NN1 2
+{OO 	
+_contextPP 
+.PP 
 
-PrioritiesLL 
-.LL  
-AddRangeLL  (
-(LL( )
-newMM 
-PriorityMM 
-{MM 
-NameMM #
-=MM$ %
-$strMM& .
-,MM. /
-WeightMM0 6
-=MM7 8
-$numMM9 <
-,MM< =
-SeverityLevelMM> K
-=MML M
-$numMMN O
-}MMP Q
-,MMQ R
-newNN 
-PriorityNN 
-{NN 
-NameNN #
-=NN$ %
-$strNN& .
-,NN. /
-WeightNN0 6
-=NN7 8
-$numNN9 ;
-,NN; <
-SeverityLevelNN= J
-=NNK L
-$numNNM N
-}NNO P
-,NNP Q
-newOO 
-PriorityOO 
-{OO 
-NameOO #
-=OO$ %
-$strOO& ,
-,OO, -
-WeightOO. 4
-=OO5 6
-$numOO7 9
-,OO9 :
-SeverityLevelOO; H
-=OOI J
-$numOOK L
-}OOM N
-,OON O
-newPP 
-PriorityPP 
-{PP 
-NamePP #
-=PP$ %
-$strPP& -
-,PP- .
-WeightPP/ 5
-=PP6 7
-$numPP8 :
-,PP: ;
-SeverityLevelPP< I
-=PPJ K
-$numPPL M
-}PPN O
-)QQ 
-;QQ 
-}RR 	
-}SS 
-privateUU 
-asyncUU 
-TaskUU )
-SeedDepartmentsAndGroupsAsyncUU 4
-(UU4 5
-)UU5 6
-{VV 
-ifXX 
+PrioritiesPP 
+.PP  
+AddRangePP  (
+(PP( )
+newQQ 
+PriorityQQ 
+{QQ 
+NameQQ #
+=QQ$ %
+$strQQ& .
+,QQ. /
+WeightQQ0 6
+=QQ7 8
+$numQQ9 <
+,QQ< =
+SeverityLevelQQ> K
+=QQL M
+$numQQN O
+}QQP Q
+,QQQ R
+newRR 
+PriorityRR 
+{RR 
+NameRR #
+=RR$ %
+$strRR& .
+,RR. /
+WeightRR0 6
+=RR7 8
+$numRR9 ;
+,RR; <
+SeverityLevelRR= J
+=RRK L
+$numRRM N
+}RRO P
+,RRP Q
+newSS 
+PrioritySS 
+{SS 
+NameSS #
+=SS$ %
+$strSS& ,
+,SS, -
+WeightSS. 4
+=SS5 6
+$numSS7 9
+,SS9 :
+SeverityLevelSS; H
+=SSI J
+$numSSK L
+}SSM N
+,SSN O
+newTT 
+PriorityTT 
+{TT 
+NameTT #
+=TT$ %
+$strTT& -
+,TT- .
+WeightTT/ 5
+=TT6 7
+$numTT8 :
+,TT: ;
+SeverityLevelTT< I
+=TTJ K
+$numTTL M
+}TTN O
+)UU 
+;UU 
+}VV 	
+}WW 
+privateYY 
+asyncYY 
+TaskYY )
+SeedDepartmentsAndGroupsAsyncYY 4
+(YY4 5
+)YY5 6
+{ZZ 
+if\\ 
 
-(XX 
-!XX 
-awaitXX 
-_contextXX 
-.XX 
-DepartmentsXX '
-.XX' (
-AnyAsyncXX( 0
-(XX0 1
-)XX1 2
-)XX2 3
-{YY 	
-_contextZZ 
-.ZZ 
-DepartmentsZZ  
-.ZZ  !
-AddRangeZZ! )
-(ZZ) *
-new[[ 
+(\\ 
+!\\ 
+await\\ 
+_context\\ 
+.\\ 
+Departments\\ '
+.\\' (
+AnyAsync\\( 0
+(\\0 1
+)\\1 2
+)\\2 3
+{]] 	
+_context^^ 
+.^^ 
+Departments^^  
+.^^  !
+AddRange^^! )
+(^^) *
+new__ 
 
-Department[[ 
-{[[  
-Name[[! %
-=[[& '
-$str[[( =
-}[[> ?
-,[[? @
-new\\ 
+Department__ 
+{__  
+Name__! %
+=__& '
+$str__( =
+}__> ?
+,__? @
+new`` 
 
-Department\\ 
-{\\  
-Name\\! %
-=\\& '
-$str\\( :
-}\\; <
-)]] 
-;]] 
-}^^ 	
-await__ 
-_context__ 
-.__ 
-SaveChangesAsync__ '
-(__' (
-)__( )
-;__) *
-varaa 
-itDeptaa 
-=aa 
-awaitaa 
-_contextaa #
-.aa# $
-Departmentsaa$ /
-.aa/ 0
-FirstOrDefaultAsyncaa0 C
-(aaC D
-daaD E
-=>aaF H
-daaI J
-.aaJ K
-NameaaK O
-==aaP R
-$straaS h
-)aah i
-;aai j
-ifcc 
+Department`` 
+{``  
+Name``! %
+=``& '
+$str``( :
+}``; <
+)aa 
+;aa 
+}bb 	
+awaitcc 
+_contextcc 
+.cc 
+SaveChangesAsynccc '
+(cc' (
+)cc( )
+;cc) *
+varee 
+itDeptee 
+=ee 
+awaitee 
+_contextee #
+.ee# $
+Departmentsee$ /
+.ee/ 0
+FirstOrDefaultAsyncee0 C
+(eeC D
+deeD E
+=>eeF H
+deeI J
+.eeJ K
+NameeeK O
+==eeP R
+$streeS h
+)eeh i
+;eei j
+ifgg 
 
-(cc 
-!cc 
-awaitcc 
-_contextcc 
-.cc 
-Groupscc "
-.cc" #
-AnyAsynccc# +
-(cc+ ,
-)cc, -
-&&cc. 0
-itDeptcc1 7
-!=cc8 :
-nullcc; ?
-)cc? @
-{dd 	
-_contextee 
-.ee 
-Groupsee 
-.ee 
-AddRangeee $
-(ee$ %
-newff 
-Groupff 
-{ff 
-Nameff  
-=ff! "
-$strff# 3
-,ff3 4
-DepartmentIdff5 A
-=ffB C
-itDeptffD J
-.ffJ K
-IdffK M
-}ffN O
-,ffO P
-newgg 
-Groupgg 
-{gg 
-Namegg  
-=gg! "
-$strgg# ;
-,gg; <
-DepartmentIdgg= I
-=ggJ K
-itDeptggL R
-.ggR S
-IdggS U
-}ggV W
-,ggW X
-newhh 
-Grouphh 
-{hh 
-Namehh  
-=hh! "
-$strhh# 9
-,hh9 :
-DepartmentIdhh; G
-=hhH I
-itDepthhJ P
-.hhP Q
-IdhhQ S
-}hhT U
-,hhU V
-newii 
-Groupii 
-{ii 
-Nameii  
-=ii! "
-$strii# 3
-,ii3 4
-DepartmentIdii5 A
-=iiB C
-itDeptiiD J
-.iiJ K
-IdiiK M
-}iiN O
-)jj 
-;jj 
-awaitkk 
-_contextkk 
-.kk 
-SaveChangesAsynckk +
-(kk+ ,
-)kk, -
-;kk- .
-}ll 	
-}mm 
-privateoo 
-asyncoo 
-Taskoo (
-SeedRolesAndPermissionsAsyncoo 3
-(oo3 4
-)oo4 5
-{pp 
-varrr 
-allPermissionsrr 
-=rr 
-ItsToolrr $
-.rr$ %
-Applicationrr% 0
-.rr0 1
-	Constantsrr1 :
-.rr: ;
-PermissionConstantsrr; N
-.rrN O
-AllPermissionsrrO ]
-;rr] ^
-varss 
-existingPermissionsss 
-=ss  !
-awaitss" '
-_contextss( 0
-.ss0 1
-Permissionsss1 <
-.ss< =
-ToListAsyncss= H
-(ssH I
-)ssI J
-;ssJ K
-varuu 
-missingPermissionsuu 
-=uu  
-allPermissionsuu! /
-.uu/ 0
-Whereuu0 5
-(uu5 6
-pKeyuu6 :
-=>uu; =
-!uu> ?
-existingPermissionsuu? R
-.uuR S
-AnyuuS V
-(uuV W
-puuW X
-=>uuY [
-puu\ ]
-.uu] ^
-Keyuu^ a
-==uub d
-pKeyuue i
-)uui j
-)uuj k
-.uuk l
-Selectuul r
-(uur s
-pKeyuus w
-=>uux z
-newuu{ ~
+(gg 
+!gg 
+awaitgg 
+_contextgg 
+.gg 
+Groupsgg "
+.gg" #
+AnyAsyncgg# +
+(gg+ ,
+)gg, -
+&&gg. 0
+itDeptgg1 7
+!=gg8 :
+nullgg; ?
+)gg? @
+{hh 	
+_contextii 
+.ii 
+Groupsii 
+.ii 
+AddRangeii $
+(ii$ %
+newjj 
+Groupjj 
+{jj 
+Namejj  
+=jj! "
+$strjj# 3
+,jj3 4
+DepartmentIdjj5 A
+=jjB C
+itDeptjjD J
+.jjJ K
+IdjjK M
+}jjN O
+,jjO P
+newkk 
+Groupkk 
+{kk 
+Namekk  
+=kk! "
+$strkk# ;
+,kk; <
+DepartmentIdkk= I
+=kkJ K
+itDeptkkL R
+.kkR S
+IdkkS U
+}kkV W
+,kkW X
+newll 
+Groupll 
+{ll 
+Namell  
+=ll! "
+$strll# 9
+,ll9 :
+DepartmentIdll; G
+=llH I
+itDeptllJ P
+.llP Q
+IdllQ S
+}llT U
+,llU V
+newmm 
+Groupmm 
+{mm 
+Namemm  
+=mm! "
+$strmm# 3
+,mm3 4
+DepartmentIdmm5 A
+=mmB C
+itDeptmmD J
+.mmJ K
+IdmmK M
+}mmN O
+)nn 
+;nn 
+awaitoo 
+_contextoo 
+.oo 
+SaveChangesAsyncoo +
+(oo+ ,
+)oo, -
+;oo- .
+}pp 	
+}qq 
+privatess 
+asyncss 
+Taskss (
+SeedRolesAndPermissionsAsyncss 3
+(ss3 4
+)ss4 5
+{tt 
+varvv 
+allPermissionsvv 
+=vv 
+ItsToolvv $
+.vv$ %
+Applicationvv% 0
+.vv0 1
+	Constantsvv1 :
+.vv: ;
+PermissionConstantsvv; N
+.vvN O
+AllPermissionsvvO ]
+;vv] ^
+varww 
+existingPermissionsww 
+=ww  !
+awaitww" '
+_contextww( 0
+.ww0 1
+Permissionsww1 <
+.ww< =
+ToListAsyncww= H
+(wwH I
+)wwI J
+;wwJ K
+varyy 
+missingPermissionsyy 
+=yy  
+allPermissionsyy! /
+.yy/ 0
+Whereyy0 5
+(yy5 6
+pKeyyy6 :
+=>yy; =
+!yy> ?
+existingPermissionsyy? R
+.yyR S
+AnyyyS V
+(yyV W
+pyyW X
+=>yyY [
+pyy\ ]
+.yy] ^
+Keyyy^ a
+==yyb d
+pKeyyye i
+)yyi j
+)yyj k
+.yyk l
+Selectyyl r
+(yyr s
+pKeyyys w
+=>yyx z
+newyy{ ~
 
-Permission	uu ‰
+Permission	yy ‰
 {
-uu ‹
+yy ‹
 Name
-uu 
+yy 
 =
-uu‘ ’
+yy‘ ’
 pKey
-uu“ —
+yy“ —
 ,
-uu— 
+yy— 
 Key
-uu™ 
+yy™ 
 =
-uu 
+yy 
 pKey
-uu £
+yy £
 }
-uu¤ ¥
+yy¤ ¥
 )
-uu¥ ¦
+yy¥ ¦
 .
-uu¦ §
+yy¦ §
 ToList
-uu§ ­
+yy§ ­
 (
-uu­ ®
+yy­ ®
 )
-uu® ―
+yy® ―
 ;
-uu― °
-ifvv 
+yy― °
+ifzz 
 
-(vv 
-missingPermissionsvv 
-.vv 
-Countvv $
->vv% &
-$numvv' (
-)vv( )
-{ww 	
-_contextxx 
-.xx 
-Permissionsxx  
-.xx  !
-AddRangexx! )
-(xx) *
-missingPermissionsxx* <
-)xx< =
-;xx= >
-existingPermissionsyy 
-.yy  
-AddRangeyy  (
-(yy( )
-missingPermissionsyy) ;
-)yy; <
-;yy< =
-}zz 	
-await{{ 
-_context{{ 
-.{{ 
-SaveChangesAsync{{ '
-({{' (
-){{( )
-;{{) *
-var}} 
-rolesToSeed}} 
-=}} 
-new}} 
+(zz 
+missingPermissionszz 
+.zz 
+Countzz $
+>zz% &
+$numzz' (
+)zz( )
+{{{ 	
+_context|| 
+.|| 
+Permissions||  
+.||  !
+AddRange||! )
+(||) *
+missingPermissions||* <
+)||< =
+;||= >
+existingPermissions}} 
+.}}  
+AddRange}}  (
+(}}( )
+missingPermissions}}) ;
+)}}; <
+;}}< =
+}~~ 	
+await 
+_context 
+. 
+SaveChangesAsync '
+(' (
+)( )
+;) *
+var
+ 
+rolesToSeed
+ 
+=
+ 
+new
+ 
 
-Dictionary}} (
-<}}( )
-string}}) /
-,}}/ 0
-string}}1 7
-[}}7 8
-]}}8 9
->}}9 :
-{~~ 	
-{ 
-$str 
-, 
-allPermissions *
-.* +
-ToArray+ 2
-(2 3
-)3 4
-}5 6
-,6 7
-{
-€€ 
-$str
-€€ 
+Dictionary
+ (
+<
+( )
+string
+) /
 ,
-€€ 
-new
-€€ 
+/ 0
+string
+1 7
 [
-€€ 
+7 8
 ]
-€€ 
+8 9
+>
+9 :
 {
-€€  
-$str
-€€! .
-,
-€€. /
-$str
-€€0 <
-,
-€€< =
-$str
-€€> K
-,
-€€K L
-$str
-€€M \
-,
-€€\ ]
-$str
-€€^ i
-}
-€€j k
-}
-€€l m
-,
-€€m n
+‚‚ 	
 {
- 
+ƒƒ 
 $str
- 
+ƒƒ 
 ,
- 
-new
- 
-[
- 
-]
- 
-{
- 
-$str
- ,
-,
-, -!
-PermissionConstants
-. A
+ƒƒ 
+allPermissions
+ƒƒ *
 .
-A B
-
-TicketEdit
-B L
+ƒƒ* +
+ToArray
+ƒƒ+ 2
+(
+ƒƒ2 3
+)
+ƒƒ3 4
+}
+ƒƒ5 6
 ,
-L M!
-PermissionConstants
-N a
-.
-a b
-TicketResolve
-b o
-,
-o p
-$strq 
-, ‚
-$strƒ 
-} 
-} 
-, ‘
+ƒƒ6 7
 {
-‚‚ 
+„„ 
 $str
-‚‚ 
+„„ 
 ,
-‚‚ 
-new
-‚‚ 
-[
-‚‚ 
-]
-‚‚ 
+„„  
+ManagerPermissions
+„„ +
+}
+„„, -
+,
+„„- .
 {
-‚‚  
+…… 
 $str
-‚‚! 0
+…… 
 ,
-‚‚0 1
-$str
-‚‚2 ?
+…… 
+AgentPermissions
+…… '
+}
+……( )
 ,
-‚‚? @
+……) *
+{
+†† 
 $str
-‚‚A P
+†† 
 ,
-‚‚P Q
-$str
-‚‚R [
+††  
+EndUserPermissions
+†† +
 }
-‚‚\ ]
+††, -
 }
-‚‚^ _
-}
-ƒƒ 	
+‡‡ 	
 ;
-ƒƒ	 
+‡‡	 
 
 var
-…… 
+‰‰ 
 existingRoles
-…… 
+‰‰ 
 =
-…… 
+‰‰ 
 await
-…… !
+‰‰ !
 _context
-……" *
+‰‰" *
 .
-……* +
+‰‰* +
 Roles
-……+ 0
+‰‰+ 0
 .
-……0 1
+‰‰0 1
 Include
-……1 8
+‰‰1 8
 (
-……8 9
+‰‰8 9
 r
-……9 :
+‰‰9 :
 =>
-……; =
+‰‰; =
 r
-……> ?
+‰‰> ?
 .
-……? @
+‰‰? @
 RolePermissions
-……@ O
+‰‰@ O
 )
-……O P
+‰‰O P
 .
-……P Q
+‰‰P Q
 ToListAsync
-……Q \
+‰‰Q \
 (
-……\ ]
+‰‰\ ]
 )
-……] ^
+‰‰] ^
 ;
-……^ _
+‰‰^ _
 foreach
-‡‡ 
+‹‹ 
 (
-‡‡ 
+‹‹ 
 var
-‡‡ 
+‹‹ 
 kvp
-‡‡ 
+‹‹ 
 in
-‡‡ 
+‹‹ 
 rolesToSeed
-‡‡ '
+‹‹ '
 )
-‡‡' (
+‹‹' (
 {
- 	
+ 	
 var
-‰‰ 
+ 
 role
-‰‰ 
+ 
 =
-‰‰ 
+ 
 existingRoles
-‰‰ $
+ $
 .
-‰‰$ %
+$ %
 FirstOrDefault
-‰‰% 3
+% 3
 (
-‰‰3 4
+3 4
 r
-‰‰4 5
+4 5
 =>
-‰‰6 8
+6 8
 r
-‰‰9 :
+9 :
 .
-‰‰: ;
+: ;
 Name
-‰‰; ?
+; ?
 ==
-‰‰@ B
+@ B
 kvp
-‰‰C F
+C F
 .
-‰‰F G
+F G
 Key
-‰‰G J
+G J
 )
-‰‰J K
+J K
 ;
-‰‰K L
+K L
 if
- 
+ 
 (
- 
+ 
 role
- 
+ 
 ==
- 
+ 
 null
- 
+ 
 )
- 
+ 
 {
-‹‹ 
+ 
 role
- 
+ 
 =
- 
+ 
 new
- 
+ 
 Role
- 
+ 
 {
-  !
+  !
 Name
-" &
+" &
 =
-' (
+' (
 kvp
-) ,
+) ,
 .
-, -
+, -
 Key
-- 0
+- 0
 }
-1 2
+1 2
 ;
-2 3
+2 3
 _context
- 
+‘‘ 
 .
- 
+‘‘ 
 Roles
- 
+‘‘ 
 .
- 
+‘‘ 
 Add
- "
+‘‘ "
 (
-" #
+‘‘" #
 role
-# '
+‘‘# '
 )
-' (
+‘‘' (
 ;
-( )
+‘‘( )
 existingRoles
- 
+’’ 
 .
- 
+’’ 
 Add
- !
+’’ !
 (
-! "
+’’! "
 role
-" &
+’’" &
 )
-& '
+’’& '
 ;
-' (
-await
- 
-_context
- 
-.
- 
-SaveChangesAsync
- /
-(
-/ 0
-)
-0 1
-;
-1 2
-}
- 
-foreach
-’’ 
-(
-’’ 
-var
-’’ 
-permKey
-’’  
-in
-’’! #
-kvp
-’’$ '
-.
 ’’' (
-Value
-’’( -
-)
-’’- .
-{
-““ 
-var
-”” 
-perm
-”” 
-=
-”” !
-existingPermissions
-”” .
-.
-””. /
-FirstOrDefault
-””/ =
-(
-””= >
-p
-””> ?
-=>
-””@ B
-p
-””C D
-.
-””D E
-Key
-””E H
-==
-””I K
-permKey
-””L S
-)
-””S T
-;
-””T U
-if
-•• 
-(
-•• 
-perm
-•• 
-!=
-•• 
-null
-••  
-&&
-••! #
-!
-••$ %
-role
-••% )
-.
-••) *
-RolePermissions
-••* 9
-.
-••9 :
-Any
-••: =
-(
-••= >
-rp
-••> @
-=>
-••A C
-rp
-••D F
-.
-••F G
-PermissionId
-••G S
-==
-••T V
-perm
-••W [
-.
-••[ \
-Id
-••\ ^
-)
-••^ _
-)
-••_ `
-{
-–– 
-_context
-—— 
-.
-—— 
-RolePermissions
-—— ,
-.
-——, -
-Add
-——- 0
-(
-——0 1
-new
-——1 4
-RolePermission
-——5 C
-{
-——D E
-RoleId
-——F L
-=
-——M N
-role
-——O S
-.
-——S T
-Id
-——T V
-,
-——V W
-PermissionId
-——X d
-=
-——e f
-perm
-——g k
-.
-——k l
-Id
-——l n
-}
-——o p
-)
-——p q
-;
-——q r
-}
- 
-}
-™™ 
-}
- 	
 await
-›› 
+““ 
 _context
-›› 
+““ 
 .
-›› 
+““ 
 SaveChangesAsync
-›› '
+““ /
 (
-››' (
+““/ 0
 )
-››( )
+““0 1
 ;
-››) *
+““1 2
 }
- 
-private
- 
-async
- 
-Task
- 
-SeedUsersAsync
- %
+”” 
+foreach
+–– 
 (
-% &
+–– 
+var
+–– 
+permKey
+––  
+in
+––! #
+kvp
+––$ '
+.
+––' (
+Value
+––( -
 )
-& '
+––- .
 {
- 
+—— 
 var
-   
-itDept
-   
+ 
+perm
+ 
 =
-   
-await
-   
-_context
-   #
-.
-  # $
-Departments
-  $ /
-.
-  / 0!
-FirstOrDefaultAsync
-  0 C
-(
-  C D
-d
-  D E
-=>
-  F H
-d
-  I J
-.
-  J K
-Name
-  K O
-==
-  P R
-$str
-  S h
-)
-  h i
-;
-  i j
-var
-΅΅ 
-existingRoles
-΅΅ 
-=
-΅΅ 
-await
-΅΅ !
-_context
-΅΅" *
-.
-΅΅* +
-Roles
-΅΅+ 0
-.
-΅΅0 1
-ToListAsync
-΅΅1 <
-(
-΅΅< =
-)
-΅΅= >
-;
-΅΅> ?
-var
-ΆΆ !
+ !
 existingPermissions
-ΆΆ 
-=
-ΆΆ  !
-await
-ΆΆ" '
-_context
-ΆΆ( 0
+ .
 .
-ΆΆ0 1
-Permissions
-ΆΆ1 <
-.
-ΆΆ< =
-ToListAsync
-ΆΆ= H
+. /
+FirstOrDefault
+/ =
 (
-ΆΆH I
+= >
+p
+> ?
+=>
+@ B
+p
+C D
+.
+D E
+Key
+E H
+==
+I K
+permKey
+L S
 )
-ΆΆI J
+S T
 ;
-ΆΆJ K
-var
-¤¤ 
-usersToSeed
-¤¤ 
-=
-¤¤ 
-new
-¤¤ 
-List
-¤¤ "
-<
-¤¤" #
+T U
+if
+™™ 
 (
-¤¤# $
-string
-¤¤$ *
-Username
-¤¤+ 3
-,
-¤¤3 4
-string
-¤¤5 ;
-Password
-¤¤< D
-,
-¤¤D E
-string
-¤¤F L
-Role
-¤¤M Q
-,
-¤¤Q R
-string
-¤¤S Y
-	FirstName
-¤¤Z c
-,
-¤¤c d
-string
-¤¤e k
-LastName
-¤¤l t
+™™ 
+perm
+™™ 
+!=
+™™ 
+null
+™™  
+&&
+™™! #
+!
+™™$ %
+role
+™™% )
+.
+™™) *
+RolePermissions
+™™* 9
+.
+™™9 :
+Any
+™™: =
+(
+™™= >
+rp
+™™> @
+=>
+™™A C
+rp
+™™D F
+.
+™™F G
+PermissionId
+™™G S
+==
+™™T V
+perm
+™™W [
+.
+™™[ \
+Id
+™™\ ^
 )
-¤¤t u
->
-¤¤u v
+™™^ _
+)
+™™_ `
 {
-¥¥ 	
+ 
+_context
+›› 
+.
+›› 
+RolePermissions
+›› ,
+.
+››, -
+Add
+››- 0
 (
-¦¦ 
-$str
-¦¦ 
+››0 1
+new
+››1 4
+RolePermission
+››5 C
+{
+››D E
+RoleId
+››F L
+=
+››M N
+role
+››O S
+.
+››S T
+Id
+››T V
 ,
-¦¦ 
-$str
-¦¦ !
-,
-¦¦! "
-$str
-¦¦# /
-,
-¦¦/ 0
-$str
-¦¦1 9
-,
-¦¦9 :
-$str
-¦¦; B
+››V W
+PermissionId
+››X d
+=
+››e f
+perm
+››g k
+.
+››k l
+Id
+››l n
+}
+››o p
 )
-¦¦B C
-,
-¦¦C D
+››p q
+;
+››q r
+}
+ 
+}
+ 
+}
+ 	
+await
+ 
+_context
+ 
+.
+ 
+SaveChangesAsync
+ '
 (
-§§ 
-$str
-§§ 
-,
-§§ 
-$str
-§§ %
-,
-§§% &
-$str
-§§' 0
-,
-§§0 1
-$str
-§§2 6
-,
-§§6 7
-$str
-§§8 A
+' (
 )
-§§A B
-,
-§§B C
+( )
+;
+) *
+}
+   
+private
+ΆΆ 
+async
+ΆΆ 
+Task
+ΆΆ 
+SeedUsersAsync
+ΆΆ %
 (
-¨¨ 
-$str
-¨¨ 
-,
-¨¨ 
-$str
-¨¨ "
-,
-¨¨" #
-$str
-¨¨$ +
-,
-¨¨+ ,
-$str
-¨¨- 7
-,
-¨¨7 8
-$str
-¨¨9 B
+ΆΆ% &
 )
-¨¨B C
-,
-¨¨C D
+ΆΆ& '
+{
+££ 
+var
+¤¤ 
+itDept
+¤¤ 
+=
+¤¤ 
+await
+¤¤ 
+_context
+¤¤ #
+.
+¤¤# $
+Departments
+¤¤$ /
+.
+¤¤/ 0!
+FirstOrDefaultAsync
+¤¤0 C
 (
-©© 
+¤¤C D
+d
+¤¤D E
+=>
+¤¤F H
+d
+¤¤I J
+.
+¤¤J K
+Name
+¤¤K O
+==
+¤¤P R
 $str
-©© 
-,
-©© 
-$str
-©© "
-,
-©©" #
-$str
-©©$ +
-,
-©©+ ,
-$str
-©©- 7
-,
-©©7 8
-$str
-©©9 B
+¤¤S h
 )
-©©B C
+¤¤h i
+;
+¤¤i j
+var
+¥¥ 
+existingRoles
+¥¥ 
+=
+¥¥ 
+await
+¥¥ !
+_context
+¥¥" *
+.
+¥¥* +
+Roles
+¥¥+ 0
+.
+¥¥0 1
+ToListAsync
+¥¥1 <
+(
+¥¥< =
+)
+¥¥= >
+;
+¥¥> ?
+var
+¦¦ !
+existingPermissions
+¦¦ 
+=
+¦¦  !
+await
+¦¦" '
+_context
+¦¦( 0
+.
+¦¦0 1
+Permissions
+¦¦1 <
+.
+¦¦< =
+ToListAsync
+¦¦= H
+(
+¦¦H I
+)
+¦¦I J
+;
+¦¦J K
+var
+¨¨ 
+usersToSeed
+¨¨ 
+=
+¨¨ 
+new
+¨¨ 
+List
+¨¨ "
+<
+¨¨" #
+(
+¨¨# $
+string
+¨¨$ *
+Username
+¨¨+ 3
 ,
-©©C D
+¨¨3 4
+string
+¨¨5 ;
+Password
+¨¨< D
+,
+¨¨D E
+string
+¨¨F L
+Role
+¨¨M Q
+,
+¨¨Q R
+string
+¨¨S Y
+	FirstName
+¨¨Z c
+,
+¨¨c d
+string
+¨¨e k
+LastName
+¨¨l t
+)
+¨¨t u
+>
+¨¨u v
+{
+©© 	
 (
 ªª 
 $str
@@ -56326,5265 +56258,7084 @@ TicketEdit
 ,
 ªª 
 $str
-ªª  
+ªª !
 ,
-ªª  !
+ªª! "
 $str
-ªª" +
+ªª# /
 ,
-ªª+ ,
+ªª/ 0
 $str
-ªª- 2
+ªª1 9
 ,
-ªª2 3
+ªª9 :
 $str
-ªª4 :
+ªª; B
 )
-ªª: ;
+ªªB C
+,
+ªªC D
+(
+«« 
+$str
+«« 
+,
+«« 
+$str
+«« %
+,
+««% &
+$str
+««' 0
+,
+««0 1
+$str
+««2 6
+,
+««6 7
+$str
+««8 A
+)
+««A B
+,
+««B C
+(
+¬¬ 
+$str
+¬¬ 
+,
+¬¬ 
+$str
+¬¬ "
+,
+¬¬" #
+$str
+¬¬$ +
+,
+¬¬+ ,
+$str
+¬¬- 7
+,
+¬¬7 8
+$str
+¬¬9 B
+)
+¬¬B C
+,
+¬¬C D
+(
+­­ 
+$str
+­­ 
+,
+­­ 
+$str
+­­ "
+,
+­­" #
+$str
+­­$ +
+,
+­­+ ,
+$str
+­­- 7
+,
+­­7 8
+$str
+­­9 B
+)
+­­B C
+,
+­­C D
+(
+®® 
+$str
+®® 
+,
+®® 
+$str
+®®  
+,
+®®  !
+$str
+®®" +
+,
+®®+ ,
+$str
+®®- 2
+,
+®®2 3
+$str
+®®4 :
+)
+®®: ;
 }
-«« 	
+―― 	
 ;
-««	 
+――	 
 
 var
-­­ 
+±± 
 existingUsers
-­­ 
+±± 
 =
-­­ 
+±± 
 await
-­­ !
+±± !
 _context
-­­" *
+±±" *
 .
-­­* +
+±±* +
 Users
-­­+ 0
+±±+ 0
 .
-­­0 1
+±±0 1
 Include
-­­1 8
+±±1 8
 (
-­­8 9
+±±8 9
 u
-­­9 :
+±±9 :
 =>
-­­; =
+±±; =
 u
-­­> ?
+±±> ?
 .
-­­? @
+±±? @
 	UserRoles
-­­@ I
+±±@ I
 )
-­­I J
+±±I J
 .
-­­J K
+±±J K
 Include
-­­K R
+±±K R
 (
-­­R S
+±±R S
 u
-­­S T
+±±S T
 =>
-­­U W
+±±U W
 u
-­­X Y
+±±X Y
 .
-­­Y Z!
+±±Y Z!
 PermissionOverrides
-­­Z m
+±±Z m
 )
-­­m n
+±±m n
 .
-­­n o
+±±n o
 ToListAsync
-­­o z
+±±o z
 (
-­­z {
+±±z {
 )
-­­{ |
+±±{ |
 ;
-­­| }
+±±| }
 foreach
-―― 
+³³ 
 (
-―― 
+³³ 
 var
-―― 
+³³ 
 u
-―― 
+³³ 
 in
-―― 
+³³ 
 usersToSeed
-―― %
+³³ %
 )
-――% &
+³³% &
 {
-°° 	
-var
-±± 
-user
-±± 
-=
-±± 
-existingUsers
-±± $
-.
-±±$ %
-FirstOrDefault
-±±% 3
-(
-±±3 4
-x
-±±4 5
-=>
-±±6 8
-x
-±±9 :
-.
-±±: ;
-Username
-±±; C
-==
-±±D F
-u
-±±G H
-.
-±±H I
-Username
-±±I Q
-)
-±±Q R
-;
-±±R S
-if
-²² 
-(
-²² 
-user
-²² 
-==
-²² 
-null
-²² 
-&&
-²² 
-itDept
-²²  &
-!=
-²²' )
-null
-²²* .
-)
-²². /
-{
-³³ 
-user
-΄΄ 
-=
-΄΄ 
-new
-΄΄ 
-User
-΄΄ 
-{
-µµ 
-Username
-¶¶ 
-=
-¶¶ 
-u
-¶¶  
-.
-¶¶  !
-Username
-¶¶! )
-,
-¶¶) *
-Email
-·· 
-=
-·· 
-$"
-·· 
-{
-·· 
-u
-··  
-.
-··  !
-Username
-··! )
-}
-··) *
-$str
-··* 5
-"
-··5 6
-,
-··6 7
-	FirstName
-ΈΈ 
-=
-ΈΈ 
-u
-ΈΈ  !
-.
-ΈΈ! "
-	FirstName
-ΈΈ" +
-,
-ΈΈ+ ,
-LastName
-ΉΉ 
-=
-ΉΉ 
-u
-ΉΉ  
-.
-ΉΉ  !
-LastName
-ΉΉ! )
-,
-ΉΉ) *
-DepartmentId
-ΊΊ  
-=
-ΊΊ! "
-itDept
-ΊΊ# )
-.
-ΊΊ) *
-Id
-ΊΊ* ,
-,
-ΊΊ, -
-PasswordHash
-»»  
-=
-»»! "
-BCrypt
-»»# )
-.
-»») *
-Net
-»»* -
-.
-»»- .
-BCrypt
-»». 4
-.
-»»4 5
-HashPassword
-»»5 A
-(
-»»A B
-u
-»»B C
-.
-»»C D
-Password
-»»D L
-)
-»»L M
-}
-ΌΌ 
-;
-ΌΌ 
-_context
-½½ 
-.
-½½ 
-Users
-½½ 
-.
-½½ 
-Add
-½½ "
-(
-½½" #
-user
-½½# '
-)
-½½' (
-;
-½½( )
-existingUsers
-ΎΎ 
-.
-ΎΎ 
-Add
-ΎΎ !
-(
-ΎΎ! "
-user
-ΎΎ" &
-)
-ΎΎ& '
-;
-ΎΎ' (
+΄΄ 	
 await
-ΏΏ 
-_context
-ΏΏ 
-.
-ΏΏ 
-SaveChangesAsync
-ΏΏ /
+µµ %
+CreateOrUpdateUserAsync
+µµ )
 (
-ΏΏ/ 0
-)
-ΏΏ0 1
-;
-ΏΏ1 2
-}
-ΐΐ 
-if
-ΒΒ 
-(
-ΒΒ 
-user
-ΒΒ 
-!=
-ΒΒ 
-null
-ΒΒ 
-)
-ΒΒ 
-{
-ΓΓ 
-var
-ΔΔ 
-role
-ΔΔ 
-=
-ΔΔ 
+µµ) *
+u
+µµ* +
+,
+µµ+ ,
+existingUsers
+µµ- :
+,
+µµ: ;
+itDept
+µµ< B
+,
+µµB C
 existingRoles
-ΔΔ (
-.
-ΔΔ( )
-First
-ΔΔ) .
-(
-ΔΔ. /
-r
-ΔΔ/ 0
-=>
-ΔΔ1 3
-r
-ΔΔ4 5
-.
-ΔΔ5 6
-Name
-ΔΔ6 :
-==
-ΔΔ; =
-u
-ΔΔ> ?
-.
-ΔΔ? @
-Role
-ΔΔ@ D
-)
-ΔΔD E
-;
-ΔΔE F
-if
-ΕΕ 
-(
-ΕΕ 
-!
-ΕΕ 
-user
-ΕΕ 
-.
-ΕΕ 
-	UserRoles
-ΕΕ #
-.
-ΕΕ# $
-Any
-ΕΕ$ '
-(
-ΕΕ' (
-ur
-ΕΕ( *
-=>
-ΕΕ+ -
-ur
-ΕΕ. 0
-.
-ΕΕ0 1
-RoleId
-ΕΕ1 7
-==
-ΕΕ8 :
-role
-ΕΕ; ?
-.
-ΕΕ? @
-Id
-ΕΕ@ B
-)
-ΕΕB C
-)
-ΕΕC D
-{
-ΖΖ 
-_context
-ΗΗ 
-.
-ΗΗ 
-	UserRoles
-ΗΗ &
-.
-ΗΗ& '
-Add
-ΗΗ' *
-(
-ΗΗ* +
-new
-ΗΗ+ .
-UserRole
-ΗΗ/ 7
-{
-ΗΗ8 9
-UserId
-ΗΗ: @
-=
-ΗΗA B
-user
-ΗΗC G
-.
-ΗΗG H
-Id
-ΗΗH J
+µµD Q
 ,
-ΗΗJ K
-RoleId
-ΗΗL R
-=
-ΗΗS T
-role
-ΗΗU Y
-.
-ΗΗY Z
-Id
-ΗΗZ \
-}
-ΗΗ] ^
-)
-ΗΗ^ _
-;
-ΗΗ_ `
-}
-ΘΘ 
-if
-ΚΚ 
-(
-ΚΚ 
-u
-ΚΚ 
-.
-ΚΚ 
-Username
-ΚΚ 
-==
-ΚΚ !
-$str
-ΚΚ" *
-)
-ΚΚ* +
-{
-ΛΛ 
-var
-ΜΜ 
-	closePerm
-ΜΜ !
-=
-ΜΜ" #!
+µµQ R!
 existingPermissions
-ΜΜ$ 7
-.
-ΜΜ7 8
-First
-ΜΜ8 =
-(
-ΜΜ= >
-p
-ΜΜ> ?
-=>
-ΜΜ@ B
-p
-ΜΜC D
-.
-ΜΜD E
-Key
-ΜΜE H
-==
-ΜΜI K!
-PermissionConstants
-ΜΜL _
-.
-ΜΜ_ `
-TicketClose
-ΜΜ` k
+µµS f
 )
-ΜΜk l
+µµf g
 ;
-ΜΜl m
-if
-ΝΝ 
-(
-ΝΝ 
-!
-ΝΝ 
-user
-ΝΝ 
-.
-ΝΝ !
-PermissionOverrides
-ΝΝ 1
-.
-ΝΝ1 2
-Any
-ΝΝ2 5
-(
-ΝΝ5 6
-po
-ΝΝ6 8
-=>
-ΝΝ9 ;
-po
-ΝΝ< >
-.
-ΝΝ> ?
-PermissionId
-ΝΝ? K
-==
-ΝΝL N
-	closePerm
-ΝΝO X
-.
-ΝΝX Y
-Id
-ΝΝY [
-)
-ΝΝ[ \
-)
-ΝΝ\ ]
-{
-ΞΞ 
-_context
-ΟΟ  
-.
-ΟΟ  !%
-UserPermissionOverrides
-ΟΟ! 8
-.
-ΟΟ8 9
-Add
-ΟΟ9 <
-(
-ΟΟ< =
-new
-ΟΟ= @$
-UserPermissionOverride
-ΟΟA W
-{
-ΠΠ 
-UserId
-ΡΡ "
-=
-ΡΡ# $
-user
-ΡΡ% )
-.
-ΡΡ) *
-Id
-ΡΡ* ,
-,
-ΡΡ, -
-PermissionId
-ÒÒ (
-=
-ÒÒ) *
-	closePerm
-ÒÒ+ 4
-.
-ÒÒ4 5
-Id
-ÒÒ5 7
-,
-ÒÒ7 8
-	IsGranted
-ΣΣ %
-=
-ΣΣ& '
-true
-ΣΣ( ,
+µµg h
 }
-ΤΤ 
-)
-ΤΤ 
-;
-ΤΤ 
-}
-ΥΥ 
-}
-ΦΦ 
-}
-ΧΧ 
-}
-ΨΨ 	
+¶¶ 	
 await
-ΩΩ 
+·· 
 _context
-ΩΩ 
+·· 
 .
-ΩΩ 
+·· 
 SaveChangesAsync
-ΩΩ '
+·· '
 (
-ΩΩ' (
+··' (
 )
-ΩΩ( )
+··( )
 ;
-ΩΩ) *
+··) *
 }
-ΪΪ 
+ΈΈ 
 private
-άά 
+ΊΊ 
 async
-άά 
+ΊΊ 
 Task
-άά ,
+ΊΊ ,
 SeedProjectsAndCategoriesAsync
-άά 5
+ΊΊ 5
 (
-άά5 6
+ΊΊ5 6
 )
-άά6 7
+ΊΊ6 7
 {
-έέ 
+»» 
 if
-ίί 
+½½ 
 
 (
-ίί 
+½½ 
 !
-ίί 
+½½ 
 await
-ίί 
+½½ 
 _context
-ίί 
+½½ 
 .
-ίί 
+½½ 
 Projects
-ίί $
+½½ $
 .
-ίί$ %
+½½$ %
 AnyAsync
-ίί% -
+½½% -
 (
-ίί- .
+½½- .
 )
-ίί. /
+½½. /
 )
-ίί/ 0
+½½/ 0
 {
-ΰΰ 	
+ΎΎ 	
 _context
-αα 
+ΏΏ 
 .
-αα 
+ΏΏ 
 Projects
-αα 
+ΏΏ 
 .
-αα 
+ΏΏ 
 AddRange
-αα &
+ΏΏ &
 (
-αα& '
+ΏΏ& '
 new
-ββ 
+ΐΐ 
 ItsTool
-ββ 
+ΐΐ 
 .
-ββ 
+ΐΐ 
 Domain
-ββ "
+ΐΐ "
 .
-ββ" #
+ΐΐ" #
 Entities
-ββ# +
+ΐΐ# +
 .
-ββ+ ,
+ΐΐ+ ,
 Project
-ββ, 3
+ΐΐ, 3
 .
-ββ3 4
+ΐΐ3 4
 Project
-ββ4 ;
+ΐΐ4 ;
 {
-ββ< =
+ΐΐ< =
 Name
-ββ> B
+ΐΐ> B
 =
-ββC D
+ΐΐC D
 $str
-ββE P
+ΐΐE P
 ,
-ββP Q
+ΐΐP Q
 
 ProjectKey
-ββR \
+ΐΐR \
 =
-ββ] ^
+ΐΐ] ^
 $str
-ββ_ d
+ΐΐ_ d
 }
-ββe f
+ΐΐe f
 ,
-ββf g
+ΐΐf g
 new
-γγ 
+ΑΑ 
 ItsTool
-γγ 
+ΑΑ 
 .
-γγ 
+ΑΑ 
 Domain
-γγ "
+ΑΑ "
 .
-γγ" #
+ΑΑ" #
 Entities
-γγ# +
+ΑΑ# +
 .
-γγ+ ,
+ΑΑ+ ,
 Project
-γγ, 3
+ΑΑ, 3
 .
-γγ3 4
+ΑΑ3 4
 Project
-γγ4 ;
+ΑΑ4 ;
 {
-γγ< =
+ΑΑ< =
 Name
-γγ> B
+ΑΑ> B
 =
-γγC D
+ΑΑC D
 $str
-γγE W
+ΑΑE W
 ,
+ΑΑW X
+
+ProjectKey
+ΑΑY c
+=
+ΑΑd e
+$str
+ΑΑf j
+}
+ΑΑk l
+,
+ΑΑl m
+new
+ΒΒ 
+ItsTool
+ΒΒ 
+.
+ΒΒ 
+Domain
+ΒΒ "
+.
+ΒΒ" #
+Entities
+ΒΒ# +
+.
+ΒΒ+ ,
+Project
+ΒΒ, 3
+.
+ΒΒ3 4
+Project
+ΒΒ4 ;
+{
+ΒΒ< =
+Name
+ΒΒ> B
+=
+ΒΒC D
+$str
+ΒΒE Y
+,
+ΒΒY Z
+
+ProjectKey
+ΒΒ[ e
+=
+ΒΒf g
+$str
+ΒΒh m
+}
+ΒΒn o
+,
+ΒΒo p
+new
+ΓΓ 
+ItsTool
+ΓΓ 
+.
+ΓΓ 
+Domain
+ΓΓ "
+.
+ΓΓ" #
+Entities
+ΓΓ# +
+.
+ΓΓ+ ,
+Project
+ΓΓ, 3
+.
+ΓΓ3 4
+Project
+ΓΓ4 ;
+{
+ΓΓ< =
+Name
+ΓΓ> B
+=
+ΓΓC D
+$str
+ΓΓE W
+,
+ΓΓW X
+
+ProjectKey
+ΓΓY c
+=
+ΓΓd e
+$str
+ΓΓf k
+}
+ΓΓl m
+,
+ΓΓm n
+new
+ΔΔ 
+ItsTool
+ΔΔ 
+.
+ΔΔ 
+Domain
+ΔΔ "
+.
+ΔΔ" #
+Entities
+ΔΔ# +
+.
+ΔΔ+ ,
+Project
+ΔΔ, 3
+.
+ΔΔ3 4
+Project
+ΔΔ4 ;
+{
+ΔΔ< =
+Name
+ΔΔ> B
+=
+ΔΔC D
+$str
+ΔΔE ]
+,
+ΔΔ] ^
+
+ProjectKey
+ΔΔ_ i
+=
+ΔΔj k
+$str
+ΔΔl q
+}
+ΔΔr s
+)
+ΕΕ 
+;
+ΕΕ 
+await
+ΖΖ 
+_context
+ΖΖ 
+.
+ΖΖ 
+SaveChangesAsync
+ΖΖ +
+(
+ΖΖ+ ,
+)
+ΖΖ, -
+;
+ΖΖ- .
+}
+ΗΗ 	
+var
+ΙΙ 
+
+itsProject
+ΙΙ 
+=
+ΙΙ 
+await
+ΙΙ 
+_context
+ΙΙ '
+.
+ΙΙ' (
+Projects
+ΙΙ( 0
+.
+ΙΙ0 1!
+FirstOrDefaultAsync
+ΙΙ1 D
+(
+ΙΙD E
+p
+ΙΙE F
+=>
+ΙΙG I
+p
+ΙΙJ K
+.
+ΙΙK L
+
+ProjectKey
+ΙΙL V
+==
+ΙΙW Y
+$str
+ΙΙZ _
+)
+ΙΙ_ `
+;
+ΙΙ` a
+if
+ΚΚ 
+
+(
+ΚΚ 
+!
+ΚΚ 
+await
+ΚΚ 
+_context
+ΚΚ 
+.
+ΚΚ 
+
+Categories
+ΚΚ &
+.
+ΚΚ& '
+AnyAsync
+ΚΚ' /
+(
+ΚΚ/ 0
+)
+ΚΚ0 1
+&&
+ΚΚ2 4
+
+itsProject
+ΚΚ5 ?
+!=
+ΚΚ@ B
+null
+ΚΚC G
+)
+ΚΚG H
+{
+ΛΛ 	
+_context
+ΜΜ 
+.
+ΜΜ 
+
+Categories
+ΜΜ 
+.
+ΜΜ  
+AddRange
+ΜΜ  (
+(
+ΜΜ( )
+new
+ΝΝ 
+ItsTool
+ΝΝ 
+.
+ΝΝ 
+Domain
+ΝΝ "
+.
+ΝΝ" #
+Entities
+ΝΝ# +
+.
+ΝΝ+ ,
+Ticket
+ΝΝ, 2
+.
+ΝΝ2 3
+Category
+ΝΝ3 ;
+{
+ΝΝ< =
+Name
+ΝΝ> B
+=
+ΝΝC D
+$str
+ΝΝE V
+,
+ΝΝV W
+	ProjectId
+ΝΝX a
+=
+ΝΝb c
+
+itsProject
+ΝΝd n
+.
+ΝΝn o
+Id
+ΝΝo q
+}
+ΝΝr s
+,
+ΝΝs t
+new
+ΞΞ 
+ItsTool
+ΞΞ 
+.
+ΞΞ 
+Domain
+ΞΞ "
+.
+ΞΞ" #
+Entities
+ΞΞ# +
+.
+ΞΞ+ ,
+Ticket
+ΞΞ, 2
+.
+ΞΞ2 3
+Category
+ΞΞ3 ;
+{
+ΞΞ< =
+Name
+ΞΞ> B
+=
+ΞΞC D
+$str
+ΞΞE U
+,
+ΞΞU V
+	ProjectId
+ΞΞW `
+=
+ΞΞa b
+
+itsProject
+ΞΞc m
+.
+ΞΞm n
+Id
+ΞΞn p
+}
+ΞΞq r
+,
+ΞΞr s
+new
+ΟΟ 
+ItsTool
+ΟΟ 
+.
+ΟΟ 
+Domain
+ΟΟ "
+.
+ΟΟ" #
+Entities
+ΟΟ# +
+.
+ΟΟ+ ,
+Ticket
+ΟΟ, 2
+.
+ΟΟ2 3
+Category
+ΟΟ3 ;
+{
+ΟΟ< =
+Name
+ΟΟ> B
+=
+ΟΟC D
+$str
+ΟΟE T
+,
+ΟΟT U
+	ProjectId
+ΟΟV _
+=
+ΟΟ` a
+
+itsProject
+ΟΟb l
+.
+ΟΟl m
+Id
+ΟΟm o
+}
+ΟΟp q
+)
+ΠΠ 
+;
+ΠΠ 
+await
+ΡΡ 
+_context
+ΡΡ 
+.
+ΡΡ 
+SaveChangesAsync
+ΡΡ +
+(
+ΡΡ+ ,
+)
+ΡΡ, -
+;
+ΡΡ- .
+}
+ÒÒ 	
+}
+ΣΣ 
+private
+ΥΥ 
+async
+ΥΥ 
+Task
+ΥΥ $
+SeedDynamicFieldsAsync
+ΥΥ -
+(
+ΥΥ- .
+)
+ΥΥ. /
+{
+ΦΦ 
+if
+ΨΨ 
+
+(
+ΨΨ 
+!
+ΨΨ 
+await
+ΨΨ 
+_context
+ΨΨ 
+.
+ΨΨ 
+FieldDefinitions
+ΨΨ ,
+.
+ΨΨ, -
+AnyAsync
+ΨΨ- 5
+(
+ΨΨ5 6
+)
+ΨΨ6 7
+)
+ΨΨ7 8
+{
+ΩΩ 	
+var
+ΪΪ 
+serverNameField
+ΪΪ 
+=
+ΪΪ  !
+new
+ΪΪ" %
+ItsTool
+ΪΪ& -
+.
+ΪΪ- .
+Domain
+ΪΪ. 4
+.
+ΪΪ4 5
+Entities
+ΪΪ5 =
+.
+ΪΪ= >
+Config
+ΪΪ> D
+.
+ΪΪD E
+FieldDefinition
+ΪΪE T
+{
+ΪΪU V
+Key
+ΪΪW Z
+=
+ΪΪ[ \
+$str
+ΪΪ] i
+,
+ΪΪi j
+Label
+ΪΪk p
+=
+ΪΪq r
+$str
+ΪΪs 
+,ΪΪ €
+	FieldTypeΪΪ 
+=ΪΪ‹ 
+ItsToolΪΪ ”
+.ΪΪ” •
+DomainΪΪ• ›
+.ΪΪ› 
+EntitiesΪΪ ¤
+.ΪΪ¤ ¥
+ConfigΪΪ¥ «
+.ΪΪ« ¬
+	FieldTypeΪΪ¬ µ
+.ΪΪµ ¶
+TextΪΪ¶ Ί
+}ΪΪ» Ό
+;ΪΪΌ ½
+var
+ΫΫ  
+impactedUsersField
+ΫΫ "
+=
+ΫΫ# $
+new
+ΫΫ% (
+ItsTool
+ΫΫ) 0
+.
+ΫΫ0 1
+Domain
+ΫΫ1 7
+.
+ΫΫ7 8
+Entities
+ΫΫ8 @
+.
+ΫΫ@ A
+Config
+ΫΫA G
+.
+ΫΫG H
+FieldDefinition
+ΫΫH W
+{
+ΫΫX Y
+Key
+ΫΫZ ]
+=
+ΫΫ^ _
+$str
+ΫΫ` x
+,
+ΫΫx y
+Label
+ΫΫz 
+=ΫΫ€ 
+$strΫΫ‚ 
+,ΫΫ 
+	FieldTypeΫΫ  ©
+=ΫΫª «
+ItsToolΫΫ¬ ³
+.ΫΫ³ ΄
+DomainΫΫ΄ Ί
+.ΫΫΊ »
+EntitiesΫΫ» Γ
+.ΫΫΓ Δ
+ConfigΫΫΔ Κ
+.ΫΫΚ Λ
+	FieldTypeΫΫΛ Τ
+.ΫΫΤ Υ
+NumberΫΫΥ Ϋ
+}ΫΫά έ
+;ΫΫέ ή
+_context
+άά 
+.
+άά 
+FieldDefinitions
+άά %
+.
+άά% &
+AddRange
+άά& .
+(
+άά. /
+serverNameField
+άά/ >
+,
+άά> ? 
+impactedUsersField
+άά@ R
+)
+άάR S
+;
+άάS T
+await
+έέ 
+_context
+έέ 
+.
+έέ 
+SaveChangesAsync
+έέ +
+(
+έέ+ ,
+)
+έέ, -
+;
+έέ- .
+var
+ίί 
+
+hwCategory
+ίί 
+=
+ίί 
+await
+ίί "
+_context
+ίί# +
+.
+ίί+ ,
+
+Categories
+ίί, 6
+.
+ίί6 7!
+FirstOrDefaultAsync
+ίί7 J
+(
+ίίJ K
+c
+ίίK L
+=>
+ίίM O
+c
+ίίP Q
+.
+ίίQ R
+Name
+ίίR V
+==
+ίίW Y
+$str
+ίίZ k
+)
+ίίk l
+;
+ίίl m
+if
+ΰΰ 
+(
+ΰΰ 
+
+hwCategory
+ΰΰ 
+!=
+ΰΰ 
+null
+ΰΰ "
+)
+ΰΰ" #
+{
+αα 
+_context
+ββ 
+.
+ββ !
+FormFieldPlacements
+ββ ,
+.
+ββ, -
+AddRange
+ββ- 5
+(
+ββ5 6
+new
+γγ 
+ItsTool
+γγ 
+.
+γγ  
+Domain
+γγ  &
+.
+γγ& '
+Entities
+γγ' /
+.
+γγ/ 0
+Config
+γγ0 6
+.
+γγ6 7 
+FormFieldPlacement
+γγ7 I
+{
+γγJ K
+
+CategoryId
+γγL V
+=
 γγW X
 
-ProjectKey
+hwCategory
 γγY c
-=
-γγd e
-$str
-γγf j
-}
-γγk l
+.
+γγc d
+Id
+γγd f
 ,
-γγl m
-new
-δδ 
-ItsTool
-δδ 
-.
-δδ 
-Domain
-δδ "
-.
-δδ" #
-Entities
-δδ# +
-.
-δδ+ ,
-Project
-δδ, 3
-.
-δδ3 4
-Project
-δδ4 ;
-{
-δδ< =
-Name
-δδ> B
+γγf g
+FieldDefinitionId
+γγh y
 =
-δδC D
-$str
-δδE Y
-,
-δδY Z
+γγz {
+serverNameFieldγγ| ‹
+.γγ‹ 
+Idγγ 
+,γγ 
+	SortOrderγγ ™
+=γγ ›
+$numγγ 
+,γγ 
 
-ProjectKey
-δδ[ e
-=
-δδf g
-$str
-δδh m
-}
-δδn o
-,
-δδo p
+IsRequiredγγ ©
+=γγª «
+trueγγ¬ °
+}γγ± ²
+,γγ² ³
 new
-εε 
+δδ 
 ItsTool
-εε 
+δδ 
 .
-εε 
+δδ  
 Domain
-εε "
+δδ  &
 .
-εε" #
+δδ& '
 Entities
-εε# +
+δδ' /
 .
-εε+ ,
-Project
-εε, 3
+δδ/ 0
+Config
+δδ0 6
 .
-εε3 4
-Project
-εε4 ;
+δδ6 7 
+FormFieldPlacement
+δδ7 I
 {
-εε< =
-Name
-εε> B
-=
-εεC D
-$str
-εεE W
-,
-εεW X
+δδJ K
 
-ProjectKey
-εεY c
+CategoryId
+δδL V
 =
-εεd e
-$str
-εεf k
-}
-εεl m
-,
-εεm n
-new
-ζζ 
-ItsTool
-ζζ 
-.
-ζζ 
-Domain
-ζζ "
-.
-ζζ" #
-Entities
-ζζ# +
-.
-ζζ+ ,
-Project
-ζζ, 3
-.
-ζζ3 4
-Project
-ζζ4 ;
-{
-ζζ< =
-Name
-ζζ> B
-=
-ζζC D
-$str
-ζζE ]
-,
-ζζ] ^
+δδW X
 
-ProjectKey
-ζζ_ i
+hwCategory
+δδY c
+.
+δδc d
+Id
+δδd f
+,
+δδf g
+FieldDefinitionId
+δδh y
 =
-ζζj k
-$str
-ζζl q
-}
-ζζr s
+δδz {!
+impactedUsersFieldδδ| 
+.δδ 
+Idδδ ‘
+,δδ‘ ’
+	SortOrderδδ“ 
+=δδ 
+$numδδ  
+,δδ  ΅
+
+IsRequiredδδΆ ¬
+=δδ­ ®
+falseδδ― ΄
+}δδµ ¶
 )
+εε 
+;
+εε 
+await
+ζζ 
+_context
+ζζ 
+.
+ζζ 
+SaveChangesAsync
+ζζ /
+(
+ζζ/ 0
+)
+ζζ0 1
+;
+ζζ1 2
+}
 ηη 
-;
-ηη 
-await
-θθ 
-_context
-θθ 
-.
-θθ 
-SaveChangesAsync
-θθ +
-(
-θθ+ ,
-)
-θθ, -
-;
-θθ- .
 }
-ιι 	
-var
-λλ 
-
-itsProject
-λλ 
-=
-λλ 
-await
-λλ 
-_context
-λλ '
-.
-λλ' (
-Projects
-λλ( 0
-.
-λλ0 1!
-FirstOrDefaultAsync
-λλ1 D
-(
-λλD E
-p
-λλE F
-=>
-λλG I
-p
-λλJ K
-.
-λλK L
-
-ProjectKey
-λλL V
-==
-λλW Y
-$str
-λλZ _
-)
-λλ_ `
-;
-λλ` a
-if
-μμ 
-
-(
-μμ 
-!
-μμ 
-await
-μμ 
-_context
-μμ 
-.
-μμ 
-
-Categories
-μμ &
-.
-μμ& '
-AnyAsync
-μμ' /
-(
-μμ/ 0
-)
-μμ0 1
-&&
-μμ2 4
-
-itsProject
-μμ5 ?
-!=
-μμ@ B
-null
-μμC G
-)
-μμG H
-{
-νν 	
-_context
-ξξ 
-.
-ξξ 
-
-Categories
-ξξ 
-.
-ξξ  
-AddRange
-ξξ  (
-(
-ξξ( )
-new
-οο 
-ItsTool
-οο 
-.
-οο 
-Domain
-οο "
-.
-οο" #
-Entities
-οο# +
-.
-οο+ ,
-Ticket
-οο, 2
-.
-οο2 3
-Category
-οο3 ;
-{
-οο< =
-Name
-οο> B
-=
-οοC D
-$str
-οοE V
-,
-οοV W
-	ProjectId
-οοX a
-=
-οοb c
-
-itsProject
-οοd n
-.
-οοn o
-Id
-οοo q
+θθ 	
 }
-οοr s
-,
-οοs t
-new
-ππ 
-ItsTool
-ππ 
-.
-ππ 
-Domain
-ππ "
-.
-ππ" #
-Entities
-ππ# +
-.
-ππ+ ,
-Ticket
-ππ, 2
-.
-ππ2 3
-Category
-ππ3 ;
-{
-ππ< =
-Name
-ππ> B
-=
-ππC D
-$str
-ππE U
-,
-ππU V
-	ProjectId
-ππW `
-=
-ππa b
-
-itsProject
-ππc m
-.
-ππm n
-Id
-ππn p
-}
-ππq r
-,
-ππr s
-new
-ρρ 
-ItsTool
-ρρ 
-.
-ρρ 
-Domain
-ρρ "
-.
-ρρ" #
-Entities
-ρρ# +
-.
-ρρ+ ,
-Ticket
-ρρ, 2
-.
-ρρ2 3
-Category
-ρρ3 ;
-{
-ρρ< =
-Name
-ρρ> B
-=
-ρρC D
-$str
-ρρE T
-,
-ρρT U
-	ProjectId
-ρρV _
-=
-ρρ` a
-
-itsProject
-ρρb l
-.
-ρρl m
-Id
-ρρm o
-}
-ρρp q
-)
-ςς 
-;
-ςς 
-await
-σσ 
-_context
-σσ 
-.
-σσ 
-SaveChangesAsync
-σσ +
-(
-σσ+ ,
-)
-σσ, -
-;
-σσ- .
-}
-ττ 	
-}
-υυ 
+ιι 
 private
-χχ 
+λλ 
 async
-χχ 
+λλ 
 Task
-χχ $
-SeedDynamicFieldsAsync
-χχ -
+λλ "
+SeedSlaPoliciesAsync
+λλ +
 (
-χχ- .
+λλ+ ,
 )
-χχ. /
+λλ, -
 {
-ψψ 
-var
-ωω 
-
-itsProject
-ωω 
-=
-ωω 
-await
-ωω 
-_context
-ωω '
-.
-ωω' (
-Projects
-ωω( 0
-.
-ωω0 1!
-FirstOrDefaultAsync
-ωω1 D
-(
-ωωD E
-p
-ωωE F
-=>
-ωωG I
-p
-ωωJ K
-.
-ωωK L
-
-ProjectKey
-ωωL V
-==
-ωωW Y
-$str
-ωωZ _
-)
-ωω_ `
-;
-ωω` a
+μμ 
 if
-ϋϋ 
+ξξ 
 
 (
-ϋϋ 
+ξξ 
 !
-ϋϋ 
+ξξ 
 await
-ϋϋ 
+ξξ 
 _context
-ϋϋ 
+ξξ 
 .
-ϋϋ 
-FieldDefinitions
-ϋϋ ,
+ξξ 
+SlaPolicies
+ξξ '
 .
-ϋϋ, -
+ξξ' (
 AnyAsync
-ϋϋ- 5
+ξξ( 0
 (
-ϋϋ5 6
+ξξ0 1
 )
-ϋϋ6 7
+ξξ1 2
 )
-ϋϋ7 8
+ξξ2 3
 {
-όό 	
+οο 	
 var
-ύύ 
-serverNameField
-ύύ 
+ππ 
+policy
+ππ 
 =
-ύύ  !
+ππ 
 new
-ύύ" %
-ItsTool
-ύύ& -
-.
-ύύ- .
-Domain
-ύύ. 4
-.
-ύύ4 5
-Entities
-ύύ5 =
-.
-ύύ= >
-Config
-ύύ> D
-.
-ύύD E
-FieldDefinition
-ύύE T
+ππ 
+	SlaPolicy
+ππ &
 {
-ύύU V
-Key
-ύύW Z
-=
-ύύ[ \
-$str
-ύύ] i
-,
-ύύi j
-Label
-ύύk p
-=
-ύύq r
-$str
-ύύs 
-,ύύ €
-	FieldTypeύύ 
-=ύύ‹ 
-ItsToolύύ ”
-.ύύ” •
-Domainύύ• ›
-.ύύ› 
-Entitiesύύ ¤
-.ύύ¤ ¥
-Configύύ¥ «
-.ύύ« ¬
-	FieldTypeύύ¬ µ
-.ύύµ ¶
-Textύύ¶ Ί
-}ύύ» Ό
-;ύύΌ ½
-var
-ώώ  
-impactedUsersField
-ώώ "
-=
-ώώ# $
-new
-ώώ% (
-ItsTool
-ώώ) 0
-.
-ώώ0 1
-Domain
-ώώ1 7
-.
-ώώ7 8
-Entities
-ώώ8 @
-.
-ώώ@ A
-Config
-ώώA G
-.
-ώώG H
-FieldDefinition
-ώώH W
-{
-ώώX Y
-Key
-ώώZ ]
-=
-ώώ^ _
-$str
-ώώ` x
-,
-ώώx y
-Label
-ώώz 
-=ώώ€ 
-$strώώ‚ 
-,ώώ 
-	FieldTypeώώ  ©
-=ώώª «
-ItsToolώώ¬ ³
-.ώώ³ ΄
-Domainώώ΄ Ί
-.ώώΊ »
-Entitiesώώ» Γ
-.ώώΓ Δ
-ConfigώώΔ Κ
-.ώώΚ Λ
-	FieldTypeώώΛ Τ
-.ώώΤ Υ
-NumberώώΥ Ϋ
-}ώώά έ
-;ώώέ ή
-_context
-ÿÿ 
-.
-ÿÿ 
-FieldDefinitions
-ÿÿ %
-.
-ÿÿ% &
-AddRange
-ÿÿ& .
-(
-ÿÿ. /
-serverNameField
-ÿÿ/ >
-,
-ÿÿ> ? 
-impactedUsersField
-ÿÿ@ R
-)
-ÿÿR S
-;
-ÿÿS T
-await
-€€ 
-_context
-€€ 
-.
-€€ 
-SaveChangesAsync
-€€ +
-(
-€€+ ,
-)
-€€, -
-;
-€€- .
-var
-‚‚ 
-
-hwCategory
-‚‚ 
-=
-‚‚ 
-await
-‚‚ "
-_context
-‚‚# +
-.
-‚‚+ ,
-
-Categories
-‚‚, 6
-.
-‚‚6 7!
-FirstOrDefaultAsync
-‚‚7 J
-(
-‚‚J K
-c
-‚‚K L
-=>
-‚‚M O
-c
-‚‚P Q
-.
-‚‚Q R
+ππ' (
 Name
-‚‚R V
-==
-‚‚W Y
+ππ) -
+=
+ππ. /
 $str
-‚‚Z k
-)
-‚‚k l
+ππ0 D
+,
+ππD E
+Description
+ππF Q
+=
+ππR S
+$str
+ππT {
+}
+ππ| }
 ;
-‚‚l m
-if
-ƒƒ 
+ππ} ~
+_context
+ρρ 
+.
+ρρ 
+SlaPolicies
+ρρ  
+.
+ρρ  !
+Add
+ρρ! $
 (
-ƒƒ 
-
-hwCategory
-ƒƒ 
-!=
-ƒƒ 
-null
-ƒƒ "
+ρρ$ %
+policy
+ρρ% +
 )
+ρρ+ ,
+;
+ρρ, -
+await
+ςς 
+_context
+ςς 
+.
+ςς 
+SaveChangesAsync
+ςς +
+(
+ςς+ ,
+)
+ςς, -
+;
+ςς- .
+var
+ττ 
+critical
+ττ 
+=
+ττ 
+await
+ττ  
+_context
+ττ! )
+.
+ττ) *
+
+Priorities
+ττ* 4
+.
+ττ4 5!
+FirstOrDefaultAsync
+ττ5 H
+(
+ττH I
+p
+ττI J
+=>
+ττK M
+p
+ττN O
+.
+ττO P
+Name
+ττP T
+==
+ττU W
+$str
+ττX `
+)
+ττ` a
+;
+ττa b
+var
+υυ 
+high
+υυ 
+=
+υυ 
+await
+υυ 
+_context
+υυ %
+.
+υυ% &
+
+Priorities
+υυ& 0
+.
+υυ0 1!
+FirstOrDefaultAsync
+υυ1 D
+(
+υυD E
+p
+υυE F
+=>
+υυG I
+p
+υυJ K
+.
+υυK L
+Name
+υυL P
+==
+υυQ S
+$str
+υυT \
+)
+υυ\ ]
+;
+υυ] ^
+var
+φφ 
+medium
+φφ 
+=
+φφ 
+await
+φφ 
+_context
+φφ '
+.
+φφ' (
+
+Priorities
+φφ( 2
+.
+φφ2 3!
+FirstOrDefaultAsync
+φφ3 F
+(
+φφF G
+p
+φφG H
+=>
+φφI K
+p
+φφL M
+.
+φφM N
+Name
+φφN R
+==
+φφS U
+$str
+φφV \
+)
+φφ\ ]
+;
+φφ] ^
+var
+χχ 
+low
+χχ 
+=
+χχ 
+await
+χχ 
+_context
+χχ $
+.
+χχ$ %
+
+Priorities
+χχ% /
+.
+χχ/ 0!
+FirstOrDefaultAsync
+χχ0 C
+(
+χχC D
+p
+χχD E
+=>
+χχF H
+p
+χχI J
+.
+χχJ K
+Name
+χχK O
+==
+χχP R
+$str
+χχS Z
+)
+χχZ [
+;
+χχ[ \
+if
+ωω 
+(
+ωω 
+critical
+ωω 
+!=
+ωω 
+null
+ωω  
+&&
+ωω! #
+high
+ωω$ (
+!=
+ωω) +
+null
+ωω, 0
+&&
+ωω1 3
+medium
+ωω4 :
+!=
+ωω; =
+null
+ωω> B
+&&
+ωωC E
+low
+ωωF I
+!=
+ωωJ L
+null
+ωωM Q
+)
+ωωQ R
+{
+ϊϊ 
+_context
+ϋϋ 
+.
+ϋϋ 
+
+SlaTargets
+ϋϋ #
+.
+ϋϋ# $
+AddRange
+ϋϋ$ ,
+(
+ϋϋ, -
+new
+όό 
+	SlaTarget
+όό !
+{
+όό" #
+SlaPolicyId
+όό$ /
+=
+όό0 1
+policy
+όό2 8
+.
+όό8 9
+Id
+όό9 ;
+,
+όό; <
+
+PriorityId
+όό= G
+=
+όόH I
+critical
+όόJ R
+.
+όόR S
+Id
+όόS U
+,
+όόU V"
+FirstResponseMinutes
+όόW k
+=
+όόl m
+$num
+όόn p
+,
+όόp q 
+ResolutionMinutesόόr ƒ
+=όό„ …
+$numόό† ‰
+}όό ‹
+,όό‹ 
+new
+ύύ 
+	SlaTarget
+ύύ !
+{
+ύύ" #
+SlaPolicyId
+ύύ$ /
+=
+ύύ0 1
+policy
+ύύ2 8
+.
+ύύ8 9
+Id
+ύύ9 ;
+,
+ύύ; <
+
+PriorityId
+ύύ= G
+=
+ύύH I
+high
+ύύJ N
+.
+ύύN O
+Id
+ύύO Q
+,
+ύύQ R"
+FirstResponseMinutes
+ύύS g
+=
+ύύh i
+$num
+ύύj m
+,
+ύύm n 
+ResolutionMinutesύύo €
+=ύύ ‚
+$numύύƒ ‡
+}ύύ ‰
+,ύύ‰ 
+new
+ώώ 
+	SlaTarget
+ώώ !
+{
+ώώ" #
+SlaPolicyId
+ώώ$ /
+=
+ώώ0 1
+policy
+ώώ2 8
+.
+ώώ8 9
+Id
+ώώ9 ;
+,
+ώώ; <
+
+PriorityId
+ώώ= G
+=
+ώώH I
+medium
+ώώJ P
+.
+ώώP Q
+Id
+ώώQ S
+,
+ώώS T"
+FirstResponseMinutes
+ώώU i
+=
+ώώj k
+$num
+ώώl o
+,
+ώώo p 
+ResolutionMinutesώώq ‚
+=ώώƒ „
+$numώώ… ‰
+}ώώ ‹
+,ώώ‹ 
+new
+ÿÿ 
+	SlaTarget
+ÿÿ !
+{
+ÿÿ" #
+SlaPolicyId
+ÿÿ$ /
+=
+ÿÿ0 1
+policy
+ÿÿ2 8
+.
+ÿÿ8 9
+Id
+ÿÿ9 ;
+,
+ÿÿ; <
+
+PriorityId
+ÿÿ= G
+=
+ÿÿH I
+low
+ÿÿJ M
+.
+ÿÿM N
+Id
+ÿÿN P
+,
+ÿÿP Q"
+FirstResponseMinutes
+ÿÿR f
+=
+ÿÿg h
+$num
+ÿÿi m
+,
+ÿÿm n 
+ResolutionMinutesÿÿo €
+=ÿÿ ‚
+$numÿÿƒ ‡
+}ÿÿ ‰
+)
+€€ 
+;
+€€ 
+}
+ 
+for
+ƒƒ 
+(
+ƒƒ 
+int
+ƒƒ 
+i
+ƒƒ 
+=
+ƒƒ 
+$num
+ƒƒ 
+;
+ƒƒ 
+i
+ƒƒ 
+<=
+ƒƒ  
+$num
+ƒƒ! "
+;
 ƒƒ" #
+i
+ƒƒ$ %
+++
+ƒƒ% '
+)
+ƒƒ' (
 {
 „„ 
 _context
 …… 
 .
-…… !
-FormFieldPlacements
-…… ,
-.
-……, -
-AddRange
-……- 5
-(
-……5 6
-new
-†† 
-ItsTool
-†† 
-.
-††  
-Domain
-††  &
-.
-††& '
-Entities
-††' /
-.
-††/ 0
-Config
-††0 6
-.
-††6 7 
-FormFieldPlacement
-††7 I
-{
-††J K
-
-CategoryId
-††L V
-=
-††W X
-
-hwCategory
-††Y c
-.
-††c d
-Id
-††d f
-,
-††f g
-FieldDefinitionId
-††h y
-=
-††z {
-serverNameField††| ‹
-.††‹ 
-Id†† 
-,†† 
-	SortOrder†† ™
-=†† ›
-$num†† 
-,†† 
-
-IsRequired†† ©
-=††ª «
-true††¬ °
-}††± ²
-,††² ³
-new
-‡‡ 
-ItsTool
-‡‡ 
-.
-‡‡  
-Domain
-‡‡  &
-.
-‡‡& '
-Entities
-‡‡' /
-.
-‡‡/ 0
-Config
-‡‡0 6
-.
-‡‡6 7 
-FormFieldPlacement
-‡‡7 I
-{
-‡‡J K
-
-CategoryId
-‡‡L V
-=
-‡‡W X
-
-hwCategory
-‡‡Y c
-.
-‡‡c d
-Id
-‡‡d f
-,
-‡‡f g
-FieldDefinitionId
-‡‡h y
-=
-‡‡z {!
-impactedUsersField‡‡| 
-.‡‡ 
-Id‡‡ ‘
-,‡‡‘ ’
-	SortOrder‡‡“ 
-=‡‡ 
-$num‡‡  
-,‡‡  ΅
-
-IsRequired‡‡Ά ¬
-=‡‡­ ®
-false‡‡― ΄
-}‡‡µ ¶
-)
- 
-;
- 
-await
-‰‰ 
-_context
-‰‰ 
-.
-‰‰ 
-SaveChangesAsync
-‰‰ /
-(
-‰‰/ 0
-)
-‰‰0 1
-;
-‰‰1 2
-}
- 
-}
-‹‹ 	
-}
- 
-private
- 
-async
- 
-Task
- "
-SeedSlaPoliciesAsync
- +
-(
-+ ,
-)
-, -
-{
- 
-if
-‘‘ 
-
-(
-‘‘ 
-!
-‘‘ 
-await
-‘‘ 
-_context
-‘‘ 
-.
-‘‘ 
-SlaPolicies
-‘‘ '
-.
-‘‘' (
-AnyAsync
-‘‘( 0
-(
-‘‘0 1
-)
-‘‘1 2
-)
-‘‘2 3
-{
-’’ 	
-var
-““ 
-policy
-““ 
-=
-““ 
-new
-““ 
-	SlaPolicy
-““ &
-{
-““' (
-Name
-““) -
-=
-““. /
-$str
-““0 D
-,
-““D E
-Description
-““F Q
-=
-““R S
-$str
-““T {
-}
-““| }
-;
-““} ~
-_context
-”” 
-.
-”” 
-SlaPolicies
-””  
-.
-””  !
-Add
-””! $
-(
-””$ %
-policy
-””% +
-)
-””+ ,
-;
-””, -
-await
-•• 
-_context
-•• 
-.
-•• 
-SaveChangesAsync
-•• +
-(
-••+ ,
-)
-••, -
-;
-••- .
-var
-—— 
-critical
-—— 
-=
-—— 
-await
-——  
-_context
-——! )
-.
-——) *
-
-Priorities
-——* 4
-.
-——4 5!
-FirstOrDefaultAsync
-——5 H
-(
-——H I
-p
-——I J
-=>
-——K M
-p
-——N O
-.
-——O P
-Name
-——P T
-==
-——U W
-$str
-——X `
-)
-——` a
-;
-——a b
-var
- 
-high
- 
-=
- 
-await
- 
-_context
- %
-.
-% &
-
-Priorities
-& 0
-.
-0 1!
-FirstOrDefaultAsync
-1 D
-(
-D E
-p
-E F
-=>
-G I
-p
-J K
-.
-K L
-Name
-L P
-==
-Q S
-$str
-T \
-)
-\ ]
-;
-] ^
-var
-™™ 
-medium
-™™ 
-=
-™™ 
-await
-™™ 
-_context
-™™ '
-.
-™™' (
-
-Priorities
-™™( 2
-.
-™™2 3!
-FirstOrDefaultAsync
-™™3 F
-(
-™™F G
-p
-™™G H
-=>
-™™I K
-p
-™™L M
-.
-™™M N
-Name
-™™N R
-==
-™™S U
-$str
-™™V \
-)
-™™\ ]
-;
-™™] ^
-var
- 
-low
- 
-=
- 
-await
- 
-_context
- $
-.
-$ %
-
-Priorities
-% /
-.
-/ 0!
-FirstOrDefaultAsync
-0 C
-(
-C D
-p
-D E
-=>
-F H
-p
-I J
-.
-J K
-Name
-K O
-==
-P R
-$str
-S Z
-)
-Z [
-;
-[ \
-if
- 
-(
- 
-critical
- 
-!=
- 
-null
-  
-&&
-! #
-high
-$ (
-!=
-) +
-null
-, 0
-&&
-1 3
-medium
-4 :
-!=
-; =
-null
-> B
-&&
-C E
-low
-F I
-!=
-J L
-null
-M Q
-)
-Q R
-{
- 
-_context
- 
-.
- 
-
-SlaTargets
- #
-.
-# $
-AddRange
-$ ,
-(
-, -
-new
- 
-	SlaTarget
- !
-{
-" #
-SlaPolicyId
-$ /
-=
-0 1
-policy
-2 8
-.
-8 9
-Id
-9 ;
-,
-; <
-
-PriorityId
-= G
-=
-H I
-critical
-J R
-.
-R S
-Id
-S U
-,
-U V"
-FirstResponseMinutes
-W k
-=
-l m
-$num
-n p
-,
-p q 
-ResolutionMinutesr ƒ
-=„ …
-$num† ‰
-} ‹
-,‹ 
-new
-   
-	SlaTarget
-   !
-{
-  " #
-SlaPolicyId
-  $ /
-=
-  0 1
-policy
-  2 8
-.
-  8 9
-Id
-  9 ;
-,
-  ; <
-
-PriorityId
-  = G
-=
-  H I
-high
-  J N
-.
-  N O
-Id
-  O Q
-,
-  Q R"
-FirstResponseMinutes
-  S g
-=
-  h i
-$num
-  j m
-,
-  m n 
-ResolutionMinutes  o €
-=   ‚
-$num  ƒ ‡
-}   ‰
-,  ‰ 
-new
-΅΅ 
-	SlaTarget
-΅΅ !
-{
-΅΅" #
-SlaPolicyId
-΅΅$ /
-=
-΅΅0 1
-policy
-΅΅2 8
-.
-΅΅8 9
-Id
-΅΅9 ;
-,
-΅΅; <
-
-PriorityId
-΅΅= G
-=
-΅΅H I
-medium
-΅΅J P
-.
-΅΅P Q
-Id
-΅΅Q S
-,
-΅΅S T"
-FirstResponseMinutes
-΅΅U i
-=
-΅΅j k
-$num
-΅΅l o
-,
-΅΅o p 
-ResolutionMinutes΅΅q ‚
-=΅΅ƒ „
-$num΅΅… ‰
-}΅΅ ‹
-,΅΅‹ 
-new
-ΆΆ 
-	SlaTarget
-ΆΆ !
-{
-ΆΆ" #
-SlaPolicyId
-ΆΆ$ /
-=
-ΆΆ0 1
-policy
-ΆΆ2 8
-.
-ΆΆ8 9
-Id
-ΆΆ9 ;
-,
-ΆΆ; <
-
-PriorityId
-ΆΆ= G
-=
-ΆΆH I
-low
-ΆΆJ M
-.
-ΆΆM N
-Id
-ΆΆN P
-,
-ΆΆP Q"
-FirstResponseMinutes
-ΆΆR f
-=
-ΆΆg h
-$num
-ΆΆi m
-,
-ΆΆm n 
-ResolutionMinutesΆΆo €
-=ΆΆ ‚
-$numΆΆƒ ‡
-}ΆΆ ‰
-)
-££ 
-;
-££ 
-}
-¤¤ 
-for
-¦¦ 
-(
-¦¦ 
-int
-¦¦ 
-i
-¦¦ 
-=
-¦¦ 
-$num
-¦¦ 
-;
-¦¦ 
-i
-¦¦ 
-<=
-¦¦  
-$num
-¦¦! "
-;
-¦¦" #
-i
-¦¦$ %
-++
-¦¦% '
-)
-¦¦' (
-{
-§§ 
-_context
-¨¨ 
-.
-¨¨ 
+…… 
 BusinessHours
-¨¨ &
+…… &
 .
-¨¨& '
+……& '
 Add
-¨¨' *
+……' *
 (
-¨¨* +
+……* +
 new
-¨¨+ .
+……+ .
 BusinessHour
-¨¨/ ;
+……/ ;
 {
-©© 
+†† 
 	DayOfWeek
-ªª 
+‡‡ 
 =
-ªª 
+‡‡ 
 (
-ªª  !
+‡‡  !
 	DayOfWeek
-ªª! *
+‡‡! *
 )
-ªª* +
+‡‡* +
 i
-ªª+ ,
+‡‡+ ,
 ,
-ªª, -
+‡‡, -
 	StartTime
-«« 
+ 
 =
-«« 
+ 
 new
-««  #
+  #
 TimeSpan
-««$ ,
+$ ,
 (
-««, -
+, -
 $num
-««- .
+- .
 ,
-««. /
+. /
 $num
-««0 1
+0 1
 ,
-««1 2
+1 2
 $num
-««3 4
+3 4
 )
-««4 5
+4 5
 ,
-««5 6
+5 6
 EndTime
-¬¬ 
+‰‰ 
 =
-¬¬ 
+‰‰ 
 new
-¬¬ !
+‰‰ !
 TimeSpan
-¬¬" *
+‰‰" *
 (
-¬¬* +
+‰‰* +
 $num
-¬¬+ -
+‰‰+ -
 ,
-¬¬- .
+‰‰- .
 $num
-¬¬/ 0
+‰‰/ 0
 ,
-¬¬0 1
+‰‰0 1
 $num
-¬¬2 3
+‰‰2 3
 )
-¬¬3 4
+‰‰3 4
 ,
-¬¬4 5
+‰‰4 5
 IsWorkingDay
-­­  
+  
 =
-­­! "
+! "
 true
-­­# '
+# '
 }
-®® 
+‹‹ 
 )
-®® 
+‹‹ 
 ;
-®® 
+‹‹ 
 }
-―― 
+ 
 _context
-°° 
+ 
 .
-°° 
+ 
 BusinessHours
-°° "
+ "
 .
-°°" #
+" #
 Add
-°°# &
+# &
 (
-°°& '
+& '
 new
-°°' *
+' *
 BusinessHour
-°°+ 7
++ 7
 {
-°°8 9
+8 9
 	DayOfWeek
-°°: C
+: C
 =
-°°D E
+D E
 	DayOfWeek
-°°F O
+F O
 .
-°°O P
+O P
 Saturday
-°°P X
+P X
 ,
-°°X Y
+X Y
 IsWorkingDay
-°°Z f
+Z f
 =
-°°g h
+g h
 false
-°°i n
+i n
 }
-°°o p
+o p
 )
-°°p q
+p q
 ;
-°°q r
+q r
 _context
-±± 
+ 
 .
-±± 
+ 
 BusinessHours
-±± "
+ "
 .
-±±" #
+" #
 Add
-±±# &
+# &
 (
-±±& '
+& '
 new
-±±' *
+' *
 BusinessHour
-±±+ 7
++ 7
 {
-±±8 9
+8 9
 	DayOfWeek
-±±: C
+: C
 =
-±±D E
+D E
 	DayOfWeek
-±±F O
+F O
 .
-±±O P
+O P
 Sunday
-±±P V
+P V
 ,
-±±V W
+V W
 IsWorkingDay
-±±X d
+X d
 =
-±±e f
+e f
 false
-±±g l
+g l
 }
-±±m n
+m n
 )
-±±n o
+n o
 ;
-±±o p
+o p
 await
-³³ 
+ 
 _context
-³³ 
+ 
 .
-³³ 
+ 
 SaveChangesAsync
-³³ +
+ +
 (
-³³+ ,
++ ,
 )
-³³, -
+, -
 ;
-³³- .
+- .
 }
-΄΄ 	
+‘‘ 	
 }
-µµ 
+’’ 
 private
-·· 
+”” 
 async
-·· 
+”” 
 Task
-·· *
+”” *
 SeedWorkflowTransitionsAsync
-·· 3
+”” 3
 (
-··3 4
+””3 4
 )
-··4 5
+””4 5
 {
-ΈΈ 
+•• 
 var
-ΊΊ 
+—— 
 defaultWorkflow
-ΊΊ 
+—— 
 =
-ΊΊ 
+—— 
 await
-ΊΊ #
+—— #
 _context
-ΊΊ$ ,
+——$ ,
 .
-ΊΊ, -
+——, -
 	Workflows
-ΊΊ- 6
+——- 6
 .
-ΊΊ6 7!
+——6 7!
 FirstOrDefaultAsync
-ΊΊ7 J
+——7 J
 (
-ΊΊJ K
+——J K
 w
-ΊΊK L
+——K L
 =>
-ΊΊM O
+——M O
 w
-ΊΊP Q
+——P Q
 .
-ΊΊQ R
+——Q R
 Name
-ΊΊR V
+——R V
 ==
-ΊΊW Y
+——W Y
 $str
-ΊΊZ s
+——Z s
 )
-ΊΊs t
+——s t
 ;
-ΊΊt u
+——t u
 if
-»» 
+ 
 
 (
-»» 
+ 
 defaultWorkflow
-»» 
+ 
 ==
-»» 
+ 
 null
-»» #
+ #
 )
-»»# $
+# $
 {
-ΌΌ 	
+™™ 	
 defaultWorkflow
-½½ 
+ 
 =
-½½ 
+ 
 new
-½½ !
+ !
 ItsTool
-½½" )
+" )
 .
-½½) *
+) *
 Domain
-½½* 0
+* 0
 .
-½½0 1
+0 1
 Entities
-½½1 9
+1 9
 .
-½½9 :
+9 :
 Workflow
-½½: B
+: B
 .
-½½B C
+B C
 Workflow
-½½C K
+C K
 {
-ΎΎ 
+›› 
 Name
-ΏΏ 
+ 
 =
-ΏΏ 
+ 
 $str
-ΏΏ 0
+ 0
 ,
-ΏΏ0 1
+0 1
 Description
-ΐΐ 
+ 
 =
-ΐΐ 
+ 
 $str
-ΐΐ :
+ :
 ,
-ΐΐ: ;
+: ;
 IsActive
-ΑΑ 
+ 
 =
-ΑΑ 
+ 
 true
-ΑΑ 
+ 
 }
-ΒΒ 
+ 
 ;
-ΒΒ 
+ 
 _context
-ΓΓ 
+   
 .
-ΓΓ 
+   
 	Workflows
-ΓΓ 
+   
 .
-ΓΓ 
+   
 Add
-ΓΓ "
+   "
 (
-ΓΓ" #
+  " #
 defaultWorkflow
-ΓΓ# 2
+  # 2
 )
-ΓΓ2 3
+  2 3
 ;
-ΓΓ3 4
+  3 4
 await
-ΔΔ 
+΅΅ 
 _context
-ΔΔ 
+΅΅ 
 .
-ΔΔ 
+΅΅ 
 SaveChangesAsync
-ΔΔ +
+΅΅ +
 (
-ΔΔ+ ,
+΅΅+ ,
 )
-ΔΔ, -
+΅΅, -
 ;
-ΔΔ- .
+΅΅- .
 }
-ΕΕ 	
+ΆΆ 	
 var
-ΗΗ 
+¤¤ 
 
 openStatus
-ΗΗ 
+¤¤ 
 =
-ΗΗ 
+¤¤ 
 await
-ΗΗ "
+¤¤ "
 _context
-ΗΗ# +
+¤¤# +
 .
-ΗΗ+ ,
+¤¤+ ,
 Statuses
-ΗΗ, 4
+¤¤, 4
 .
-ΗΗ4 5!
+¤¤4 5!
 FirstOrDefaultAsync
-ΗΗ5 H
+¤¤5 H
 (
-ΗΗH I
+¤¤H I
 s
-ΗΗI J
+¤¤I J
 =>
-ΗΗK M
+¤¤K M
 s
-ΗΗN O
+¤¤N O
 .
-ΗΗO P
+¤¤O P
 Name
-ΗΗP T
+¤¤P T
 ==
-ΗΗU W
+¤¤U W
 StatusConstants
-ΗΗX g
+¤¤X g
 .
-ΗΗg h
+¤¤g h
 Open
-ΗΗh l
+¤¤h l
 )
-ΗΗl m
+¤¤l m
 ;
-ΗΗm n
+¤¤m n
 var
-ΘΘ 
+¥¥ 
 inProgressStatus
-ΘΘ  
+¥¥  
 =
-ΘΘ! "
+¥¥! "
 await
-ΘΘ# (
+¥¥# (
 _context
-ΘΘ) 1
+¥¥) 1
 .
-ΘΘ1 2
+¥¥1 2
 Statuses
-ΘΘ2 :
+¥¥2 :
 .
-ΘΘ: ;!
+¥¥: ;!
 FirstOrDefaultAsync
-ΘΘ; N
+¥¥; N
 (
-ΘΘN O
+¥¥N O
 s
-ΘΘO P
+¥¥O P
 =>
-ΘΘQ S
+¥¥Q S
 s
-ΘΘT U
+¥¥T U
 .
-ΘΘU V
+¥¥U V
 Name
-ΘΘV Z
+¥¥V Z
 ==
-ΘΘ[ ]
+¥¥[ ]
 StatusConstants
-ΘΘ^ m
+¥¥^ m
 .
-ΘΘm n
+¥¥m n
 
 InProgress
-ΘΘn x
+¥¥n x
 )
-ΘΘx y
+¥¥x y
 ;
-ΘΘy z
+¥¥y z
 var
-ΙΙ 
+¦¦ 
 onHoldStatus
-ΙΙ 
+¦¦ 
 =
-ΙΙ 
+¦¦ 
 await
-ΙΙ $
+¦¦ $
 _context
-ΙΙ% -
+¦¦% -
 .
-ΙΙ- .
+¦¦- .
 Statuses
-ΙΙ. 6
+¦¦. 6
 .
-ΙΙ6 7!
+¦¦6 7!
 FirstOrDefaultAsync
-ΙΙ7 J
+¦¦7 J
 (
-ΙΙJ K
+¦¦J K
 s
-ΙΙK L
+¦¦K L
 =>
-ΙΙM O
+¦¦M O
 s
-ΙΙP Q
+¦¦P Q
 .
-ΙΙQ R
+¦¦Q R
 Name
-ΙΙR V
+¦¦R V
 ==
-ΙΙW Y
+¦¦W Y
 StatusConstants
-ΙΙZ i
+¦¦Z i
 .
-ΙΙi j
+¦¦i j
 OnHold
-ΙΙj p
+¦¦j p
 )
-ΙΙp q
+¦¦p q
 ;
-ΙΙq r
+¦¦q r
 var
-ΚΚ 
+§§ 
 resolvedStatus
-ΚΚ 
+§§ 
 =
-ΚΚ  
+§§  
 await
-ΚΚ! &
+§§! &
 _context
-ΚΚ' /
+§§' /
 .
-ΚΚ/ 0
+§§/ 0
 Statuses
-ΚΚ0 8
+§§0 8
 .
-ΚΚ8 9!
+§§8 9!
 FirstOrDefaultAsync
-ΚΚ9 L
+§§9 L
 (
-ΚΚL M
+§§L M
 s
-ΚΚM N
+§§M N
 =>
-ΚΚO Q
+§§O Q
 s
-ΚΚR S
+§§R S
 .
-ΚΚS T
+§§S T
 Name
-ΚΚT X
+§§T X
 ==
-ΚΚY [
+§§Y [
 StatusConstants
-ΚΚ\ k
+§§\ k
 .
-ΚΚk l
+§§k l
 Resolved
-ΚΚl t
+§§l t
 )
-ΚΚt u
+§§t u
 ;
-ΚΚu v
+§§u v
 var
-ΛΛ 
+¨¨ 
 closedStatus
-ΛΛ 
+¨¨ 
 =
-ΛΛ 
+¨¨ 
 await
-ΛΛ $
+¨¨ $
 _context
-ΛΛ% -
+¨¨% -
 .
-ΛΛ- .
+¨¨- .
 Statuses
-ΛΛ. 6
+¨¨. 6
 .
-ΛΛ6 7!
+¨¨6 7!
 FirstOrDefaultAsync
-ΛΛ7 J
+¨¨7 J
 (
-ΛΛJ K
+¨¨J K
 s
-ΛΛK L
+¨¨K L
 =>
-ΛΛM O
+¨¨M O
 s
-ΛΛP Q
+¨¨P Q
 .
-ΛΛQ R
+¨¨Q R
 Name
-ΛΛR V
+¨¨R V
 ==
-ΛΛW Y
+¨¨W Y
 StatusConstants
-ΛΛZ i
+¨¨Z i
 .
-ΛΛi j
+¨¨i j
 Closed
-ΛΛj p
+¨¨j p
 )
-ΛΛp q
+¨¨p q
 ;
-ΛΛq r
+¨¨q r
 if
-ΝΝ 
+ªª 
 
 (
-ΝΝ 
+ªª 
 
 openStatus
-ΝΝ 
+ªª 
 !=
-ΝΝ 
+ªª 
 null
-ΝΝ 
+ªª 
 &&
-ΝΝ !
+ªª !
 inProgressStatus
-ΝΝ" 2
+ªª" 2
 !=
-ΝΝ3 5
+ªª3 5
 null
-ΝΝ6 :
+ªª6 :
 &&
-ΝΝ; =
+ªª; =
 onHoldStatus
-ΝΝ> J
+ªª> J
 !=
-ΝΝK M
+ªªK M
 null
-ΝΝN R
+ªªN R
 &&
-ΝΝS U
+ªªS U
 resolvedStatus
-ΝΝV d
+ªªV d
 !=
-ΝΝe g
+ªªe g
 null
-ΝΝh l
+ªªh l
 &&
-ΝΝm o
+ªªm o
 closedStatus
-ΝΝp |
+ªªp |
 !=
-ΝΝ} 
-nullΝΝ€ „
-)ΝΝ„ …
+ªª} 
+nullªª€ „
+)ªª„ …
 {
-ΞΞ 	
+«« 	
 var
-ΟΟ  
+¬¬  
 desiredTransitions
-ΟΟ "
+¬¬ "
 =
-ΟΟ# $
+¬¬# $
 new
-ΟΟ% (
+¬¬% (
 List
-ΟΟ) -
+¬¬) -
 <
-ΟΟ- .
+¬¬- .
 ItsTool
-ΟΟ. 5
+¬¬. 5
 .
-ΟΟ5 6
+¬¬5 6
 Domain
-ΟΟ6 <
+¬¬6 <
 .
-ΟΟ< =
+¬¬< =
 Entities
-ΟΟ= E
+¬¬= E
 .
-ΟΟE F
+¬¬E F
 Workflow
-ΟΟF N
+¬¬F N
 .
-ΟΟN O 
+¬¬N O 
 WorkflowTransition
-ΟΟO a
+¬¬O a
 >
-ΟΟa b
+¬¬a b
 {
-ΠΠ 
+­­ 
 new
-ÒÒ 
+―― 
 (
-ÒÒ 
+―― 
 )
-ÒÒ 
+―― 
 {
-ÒÒ 
+―― 
 
 WorkflowId
-ÒÒ "
+―― "
 =
-ÒÒ# $
+――# $
 defaultWorkflow
-ÒÒ% 4
+――% 4
 .
-ÒÒ4 5
+――4 5
 Id
-ÒÒ5 7
+――5 7
 ,
-ÒÒ7 8
+――7 8
 FromStatusId
-ÒÒ9 E
+――9 E
 =
-ÒÒF G
+――F G
 
 openStatus
-ÒÒH R
+――H R
 .
-ÒÒR S
+――R S
 Id
-ÒÒS U
+――S U
 ,
-ÒÒU V
+――U V
 
 ToStatusId
-ÒÒW a
+――W a
 =
-ÒÒb c
+――b c
 inProgressStatus
-ÒÒd t
+――d t
 .
-ÒÒt u
+――t u
 Id
-ÒÒu w
+――u w
 ,
-ÒÒw x
-IsActiveÒÒy 
-=ÒÒ‚ ƒ
-trueÒÒ„ 
-,ÒÒ ‰
-TransitionNameÒÒ 
-=ÒÒ™ 
-$strÒÒ› «
-}ÒÒ¬ ­
-,ÒÒ­ ®
+――w x
+IsActive――y 
+=――‚ ƒ
+true――„ 
+,―― ‰
+TransitionName―― 
+=――™ 
+$str――› «
+}――¬ ­
+,――­ ®
 new
-ΣΣ 
+°° 
 (
-ΣΣ 
+°° 
 )
-ΣΣ 
+°° 
 {
-ΣΣ 
+°° 
 
 WorkflowId
-ΣΣ "
+°° "
 =
-ΣΣ# $
+°°# $
 defaultWorkflow
-ΣΣ% 4
+°°% 4
 .
-ΣΣ4 5
+°°4 5
 Id
-ΣΣ5 7
+°°5 7
 ,
-ΣΣ7 8
+°°7 8
 FromStatusId
-ΣΣ9 E
+°°9 E
 =
-ΣΣF G
+°°F G
 
 openStatus
-ΣΣH R
+°°H R
 .
-ΣΣR S
+°°R S
 Id
-ΣΣS U
+°°S U
 ,
-ΣΣU V
+°°U V
 
 ToStatusId
-ΣΣW a
+°°W a
 =
-ΣΣb c
+°°b c
 onHoldStatus
-ΣΣd p
+°°d p
 .
-ΣΣp q
+°°p q
 Id
-ΣΣq s
+°°q s
 ,
-ΣΣs t
+°°s t
 IsActive
-ΣΣu }
+°°u }
 =
-ΣΣ~ 
-trueΣΣ€ „
-,ΣΣ„ …
-TransitionNameΣΣ† ”
-=ΣΣ• –
-$strΣΣ— ¤
-}ΣΣ¥ ¦
-,ΣΣ¦ §
+°°~ 
+true°°€ „
+,°°„ …
+TransitionName°°† ”
+=°°• –
+$str°°— ¤
+}°°¥ ¦
+,°°¦ §
 new
-ΤΤ 
+±± 
+(
+±± 
+)
+±± 
+{
+±± 
+
+WorkflowId
+±± "
+=
+±±# $
+defaultWorkflow
+±±% 4
+.
+±±4 5
+Id
+±±5 7
+,
+±±7 8
+FromStatusId
+±±9 E
+=
+±±F G
+
+openStatus
+±±H R
+.
+±±R S
+Id
+±±S U
+,
+±±U V
+
+ToStatusId
+±±W a
+=
+±±b c
+resolvedStatus
+±±d r
+.
+±±r s
+Id
+±±s u
+,
+±±u v
+IsActive
+±±w 
+=±±€ 
+true±±‚ †
+,±±† ‡
+TransitionName±± –
+=±±— 
+$str±±™ Ά
+,±±Ά £%
+RequiredPermissionKey±±¤ Ή
+=±±Ί »#
+PermissionConstants±±Ό Ο
+.±±Ο Π
+TicketResolve±±Π έ
+}±±ή ί
+,±±ί ΰ
+new
+²² 
+(
+²² 
+)
+²² 
+{
+²² 
+
+WorkflowId
+²² "
+=
+²²# $
+defaultWorkflow
+²²% 4
+.
+²²4 5
+Id
+²²5 7
+,
+²²7 8
+FromStatusId
+²²9 E
+=
+²²F G
+
+openStatus
+²²H R
+.
+²²R S
+Id
+²²S U
+,
+²²U V
+
+ToStatusId
+²²W a
+=
+²²b c
+closedStatus
+²²d p
+.
+²²p q
+Id
+²²q s
+,
+²²s t
+IsActive
+²²u }
+=
+²²~ 
+true²²€ „
+,²²„ …
+TransitionName²²† ”
+=²²• –
+StatusConstants²²— ¦
+.²²¦ §
+Closed²²§ ­
+,²²­ ®%
+RequiredPermissionKey²²― Δ
+=²²Ε Ζ#
+PermissionConstants²²Η Ϊ
+.²²Ϊ Ϋ
+TicketClose²²Ϋ ζ
+}²²η θ
+,²²θ ι
+new
+µµ 
+(
+µµ 
+)
+µµ 
+{
+µµ 
+
+WorkflowId
+µµ "
+=
+µµ# $
+defaultWorkflow
+µµ% 4
+.
+µµ4 5
+Id
+µµ5 7
+,
+µµ7 8
+FromStatusId
+µµ9 E
+=
+µµF G
+inProgressStatus
+µµH X
+.
+µµX Y
+Id
+µµY [
+,
+µµ[ \
+
+ToStatusId
+µµ] g
+=
+µµh i
+
+openStatus
+µµj t
+.
+µµt u
+Id
+µµu w
+,
+µµw x
+IsActiveµµy 
+=µµ‚ ƒ
+trueµµ„ 
+,µµ ‰
+TransitionNameµµ 
+=µµ™ 
+$strµµ› ©
+}µµª «
+,µµ« ¬
+new
+¶¶ 
+(
+¶¶ 
+)
+¶¶ 
+{
+¶¶ 
+
+WorkflowId
+¶¶ "
+=
+¶¶# $
+defaultWorkflow
+¶¶% 4
+.
+¶¶4 5
+Id
+¶¶5 7
+,
+¶¶7 8
+FromStatusId
+¶¶9 E
+=
+¶¶F G
+inProgressStatus
+¶¶H X
+.
+¶¶X Y
+Id
+¶¶Y [
+,
+¶¶[ \
+
+ToStatusId
+¶¶] g
+=
+¶¶h i
+onHoldStatus
+¶¶j v
+.
+¶¶v w
+Id
+¶¶w y
+,
+¶¶y z
+IsActive¶¶{ ƒ
+=¶¶„ …
+true¶¶† 
+,¶¶ ‹
+TransitionName¶¶ 
+=¶¶› 
+$str¶¶ ª
+}¶¶« ¬
+,¶¶¬ ­
+new
+·· 
+(
+·· 
+)
+·· 
+{
+·· 
+
+WorkflowId
+·· "
+=
+··# $
+defaultWorkflow
+··% 4
+.
+··4 5
+Id
+··5 7
+,
+··7 8
+FromStatusId
+··9 E
+=
+··F G
+inProgressStatus
+··H X
+.
+··X Y
+Id
+··Y [
+,
+··[ \
+
+ToStatusId
+··] g
+=
+··h i
+resolvedStatus
+··j x
+.
+··x y
+Id
+··y {
+,
+··{ |
+IsActive··} …
+=··† ‡
+true·· 
+,·· 
+TransitionName·· 
+=·· 
+$str·· ¨
+,··¨ ©%
+RequiredPermissionKey··ª Ώ
+=··ΐ Α#
+PermissionConstants··Β Υ
+.··Υ Φ
+TicketResolve··Φ γ
+}··δ ε
+,··ε ζ
+new
+ΈΈ 
+(
+ΈΈ 
+)
+ΈΈ 
+{
+ΈΈ 
+
+WorkflowId
+ΈΈ "
+=
+ΈΈ# $
+defaultWorkflow
+ΈΈ% 4
+.
+ΈΈ4 5
+Id
+ΈΈ5 7
+,
+ΈΈ7 8
+FromStatusId
+ΈΈ9 E
+=
+ΈΈF G
+inProgressStatus
+ΈΈH X
+.
+ΈΈX Y
+Id
+ΈΈY [
+,
+ΈΈ[ \
+
+ToStatusId
+ΈΈ] g
+=
+ΈΈh i
+closedStatus
+ΈΈj v
+.
+ΈΈv w
+Id
+ΈΈw y
+,
+ΈΈy z
+IsActiveΈΈ{ ƒ
+=ΈΈ„ …
+trueΈΈ† 
+,ΈΈ ‹
+TransitionNameΈΈ 
+=ΈΈ› 
+StatusConstantsΈΈ ¬
+.ΈΈ¬ ­
+ClosedΈΈ­ ³
+,ΈΈ³ ΄%
+RequiredPermissionKeyΈΈµ Κ
+=ΈΈΛ Μ#
+PermissionConstantsΈΈΝ ΰ
+.ΈΈΰ α
+TicketCloseΈΈα μ
+}ΈΈν ξ
+,ΈΈξ ο
+new
+»» 
+(
+»» 
+)
+»» 
+{
+»» 
+
+WorkflowId
+»» "
+=
+»»# $
+defaultWorkflow
+»»% 4
+.
+»»4 5
+Id
+»»5 7
+,
+»»7 8
+FromStatusId
+»»9 E
+=
+»»F G
+onHoldStatus
+»»H T
+.
+»»T U
+Id
+»»U W
+,
+»»W X
+
+ToStatusId
+»»Y c
+=
+»»d e
+
+openStatus
+»»f p
+.
+»»p q
+Id
+»»q s
+,
+»»s t
+IsActive
+»»u }
+=
+»»~ 
+true»»€ „
+,»»„ …
+TransitionName»»† ”
+=»»• –
+$str»»— ¥
+}»»¦ §
+,»»§ ¨
+new
+ΌΌ 
+(
+ΌΌ 
+)
+ΌΌ 
+{
+ΌΌ 
+
+WorkflowId
+ΌΌ "
+=
+ΌΌ# $
+defaultWorkflow
+ΌΌ% 4
+.
+ΌΌ4 5
+Id
+ΌΌ5 7
+,
+ΌΌ7 8
+FromStatusId
+ΌΌ9 E
+=
+ΌΌF G
+onHoldStatus
+ΌΌH T
+.
+ΌΌT U
+Id
+ΌΌU W
+,
+ΌΌW X
+
+ToStatusId
+ΌΌY c
+=
+ΌΌd e
+inProgressStatus
+ΌΌf v
+.
+ΌΌv w
+Id
+ΌΌw y
+,
+ΌΌy z
+IsActiveΌΌ{ ƒ
+=ΌΌ„ …
+trueΌΌ† 
+,ΌΌ ‹
+TransitionNameΌΌ 
+=ΌΌ› 
+$strΌΌ ®
+}ΌΌ― °
+,ΌΌ° ±
+new
+½½ 
+(
+½½ 
+)
+½½ 
+{
+½½ 
+
+WorkflowId
+½½ "
+=
+½½# $
+defaultWorkflow
+½½% 4
+.
+½½4 5
+Id
+½½5 7
+,
+½½7 8
+FromStatusId
+½½9 E
+=
+½½F G
+onHoldStatus
+½½H T
+.
+½½T U
+Id
+½½U W
+,
+½½W X
+
+ToStatusId
+½½Y c
+=
+½½d e
+resolvedStatus
+½½f t
+.
+½½t u
+Id
+½½u w
+,
+½½w x
+IsActive½½y 
+=½½‚ ƒ
+true½½„ 
+,½½ ‰
+TransitionName½½ 
+=½½™ 
+$str½½› ¤
+,½½¤ ¥%
+RequiredPermissionKey½½¦ »
+=½½Ό ½#
+PermissionConstants½½Ύ Ρ
+.½½Ρ Ò
+TicketResolve½½Ò ί
+}½½ΰ α
+,½½α β
+new
+ΎΎ 
+(
+ΎΎ 
+)
+ΎΎ 
+{
+ΎΎ 
+
+WorkflowId
+ΎΎ "
+=
+ΎΎ# $
+defaultWorkflow
+ΎΎ% 4
+.
+ΎΎ4 5
+Id
+ΎΎ5 7
+,
+ΎΎ7 8
+FromStatusId
+ΎΎ9 E
+=
+ΎΎF G
+onHoldStatus
+ΎΎH T
+.
+ΎΎT U
+Id
+ΎΎU W
+,
+ΎΎW X
+
+ToStatusId
+ΎΎY c
+=
+ΎΎd e
+closedStatus
+ΎΎf r
+.
+ΎΎr s
+Id
+ΎΎs u
+,
+ΎΎu v
+IsActive
+ΎΎw 
+=ΎΎ€ 
+trueΎΎ‚ †
+,ΎΎ† ‡
+TransitionNameΎΎ –
+=ΎΎ— 
+StatusConstantsΎΎ™ ¨
+.ΎΎ¨ ©
+ClosedΎΎ© ―
+,ΎΎ― °%
+RequiredPermissionKeyΎΎ± Ζ
+=ΎΎΗ Θ#
+PermissionConstantsΎΎΙ ά
+.ΎΎά έ
+TicketCloseΎΎέ θ
+}ΎΎι κ
+,ΎΎκ λ
+new
+ΑΑ 
+(
+ΑΑ 
+)
+ΑΑ 
+{
+ΑΑ 
+
+WorkflowId
+ΑΑ "
+=
+ΑΑ# $
+defaultWorkflow
+ΑΑ% 4
+.
+ΑΑ4 5
+Id
+ΑΑ5 7
+,
+ΑΑ7 8
+FromStatusId
+ΑΑ9 E
+=
+ΑΑF G
+resolvedStatus
+ΑΑH V
+.
+ΑΑV W
+Id
+ΑΑW Y
+,
+ΑΑY Z
+
+ToStatusId
+ΑΑ[ e
+=
+ΑΑf g
+
+openStatus
+ΑΑh r
+.
+ΑΑr s
+Id
+ΑΑs u
+,
+ΑΑu v
+IsActive
+ΑΑw 
+=ΑΑ€ 
+trueΑΑ‚ †
+,ΑΑ† ‡
+TransitionNameΑΑ –
+=ΑΑ— 
+$strΑΑ™ ©
+,ΑΑ© ª%
+RequiredPermissionKeyΑΑ« ΐ
+=ΑΑΑ Β#
+PermissionConstantsΑΑΓ Φ
+.ΑΑΦ Χ
+TicketReopenΑΑΧ γ
+}ΑΑδ ε
+,ΑΑε ζ
+new
+ΒΒ 
+(
+ΒΒ 
+)
+ΒΒ 
+{
+ΒΒ 
+
+WorkflowId
+ΒΒ "
+=
+ΒΒ# $
+defaultWorkflow
+ΒΒ% 4
+.
+ΒΒ4 5
+Id
+ΒΒ5 7
+,
+ΒΒ7 8
+FromStatusId
+ΒΒ9 E
+=
+ΒΒF G
+resolvedStatus
+ΒΒH V
+.
+ΒΒV W
+Id
+ΒΒW Y
+,
+ΒΒY Z
+
+ToStatusId
+ΒΒ[ e
+=
+ΒΒf g
+inProgressStatus
+ΒΒh x
+.
+ΒΒx y
+Id
+ΒΒy {
+,
+ΒΒ{ |
+IsActiveΒΒ} …
+=ΒΒ† ‡
+trueΒΒ 
+,ΒΒ 
+TransitionNameΒΒ 
+=ΒΒ 
+$strΒΒ ³
+,ΒΒ³ ΄%
+RequiredPermissionKeyΒΒµ Κ
+=ΒΒΛ Μ#
+PermissionConstantsΒΒΝ ΰ
+.ΒΒΰ α
+TicketReopenΒΒα ν
+}ΒΒξ ο
+,ΒΒο π
+new
+ΓΓ 
+(
+ΓΓ 
+)
+ΓΓ 
+{
+ΓΓ 
+
+WorkflowId
+ΓΓ "
+=
+ΓΓ# $
+defaultWorkflow
+ΓΓ% 4
+.
+ΓΓ4 5
+Id
+ΓΓ5 7
+,
+ΓΓ7 8
+FromStatusId
+ΓΓ9 E
+=
+ΓΓF G
+resolvedStatus
+ΓΓH V
+.
+ΓΓV W
+Id
+ΓΓW Y
+,
+ΓΓY Z
+
+ToStatusId
+ΓΓ[ e
+=
+ΓΓf g
+onHoldStatus
+ΓΓh t
+.
+ΓΓt u
+Id
+ΓΓu w
+,
+ΓΓw x
+IsActiveΓΓy 
+=ΓΓ‚ ƒ
+trueΓΓ„ 
+,ΓΓ ‰
+TransitionNameΓΓ 
+=ΓΓ™ 
+$strΓΓ› ®
+,ΓΓ® ―%
+RequiredPermissionKeyΓΓ° Ε
+=ΓΓΖ Η#
+PermissionConstantsΓΓΘ Ϋ
+.ΓΓΫ ά
+TicketReopenΓΓά θ
+}ΓΓι κ
+,ΓΓκ λ
+new
+ΔΔ 
+(
+ΔΔ 
+)
+ΔΔ 
+{
+ΔΔ 
+
+WorkflowId
+ΔΔ "
+=
+ΔΔ# $
+defaultWorkflow
+ΔΔ% 4
+.
+ΔΔ4 5
+Id
+ΔΔ5 7
+,
+ΔΔ7 8
+FromStatusId
+ΔΔ9 E
+=
+ΔΔF G
+resolvedStatus
+ΔΔH V
+.
+ΔΔV W
+Id
+ΔΔW Y
+,
+ΔΔY Z
+
+ToStatusId
+ΔΔ[ e
+=
+ΔΔf g
+closedStatus
+ΔΔh t
+.
+ΔΔt u
+Id
+ΔΔu w
+,
+ΔΔw x
+IsActiveΔΔy 
+=ΔΔ‚ ƒ
+trueΔΔ„ 
+,ΔΔ ‰
+TransitionNameΔΔ 
+=ΔΔ™ 
+StatusConstantsΔΔ› ª
+.ΔΔª «
+ClosedΔΔ« ±
+,ΔΔ± ²%
+RequiredPermissionKeyΔΔ³ Θ
+=ΔΔΙ Κ#
+PermissionConstantsΔΔΛ ή
+.ΔΔή ί
+TicketCloseΔΔί κ
+}ΔΔλ μ
+,ΔΔμ ν
+new
+ΗΗ 
+(
+ΗΗ 
+)
+ΗΗ 
+{
+ΗΗ 
+
+WorkflowId
+ΗΗ "
+=
+ΗΗ# $
+defaultWorkflow
+ΗΗ% 4
+.
+ΗΗ4 5
+Id
+ΗΗ5 7
+,
+ΗΗ7 8
+FromStatusId
+ΗΗ9 E
+=
+ΗΗF G
+closedStatus
+ΗΗH T
+.
+ΗΗT U
+Id
+ΗΗU W
+,
+ΗΗW X
+
+ToStatusId
+ΗΗY c
+=
+ΗΗd e
+
+openStatus
+ΗΗf p
+.
+ΗΗp q
+Id
+ΗΗq s
+,
+ΗΗs t
+IsActive
+ΗΗu }
+=
+ΗΗ~ 
+trueΗΗ€ „
+,ΗΗ„ …
+TransitionNameΗΗ† ”
+=ΗΗ• –
+$strΗΗ— §
+,ΗΗ§ ¨%
+RequiredPermissionKeyΗΗ© Ύ
+=ΗΗΏ ΐ#
+PermissionConstantsΗΗΑ Τ
+.ΗΗΤ Υ
+TicketReopenΗΗΥ α
+}ΗΗβ γ
+,ΗΗγ δ
+new
+ΘΘ 
+(
+ΘΘ 
+)
+ΘΘ 
+{
+ΘΘ 
+
+WorkflowId
+ΘΘ "
+=
+ΘΘ# $
+defaultWorkflow
+ΘΘ% 4
+.
+ΘΘ4 5
+Id
+ΘΘ5 7
+,
+ΘΘ7 8
+FromStatusId
+ΘΘ9 E
+=
+ΘΘF G
+closedStatus
+ΘΘH T
+.
+ΘΘT U
+Id
+ΘΘU W
+,
+ΘΘW X
+
+ToStatusId
+ΘΘY c
+=
+ΘΘd e
+inProgressStatus
+ΘΘf v
+.
+ΘΘv w
+Id
+ΘΘw y
+,
+ΘΘy z
+IsActiveΘΘ{ ƒ
+=ΘΘ„ …
+trueΘΘ† 
+,ΘΘ ‹
+TransitionNameΘΘ 
+=ΘΘ› 
+$strΘΘ ±
+,ΘΘ± ²%
+RequiredPermissionKeyΘΘ³ Θ
+=ΘΘΙ Κ#
+PermissionConstantsΘΘΛ ή
+.ΘΘή ί
+TicketReopenΘΘί λ
+}ΘΘμ ν
+,ΘΘν ξ
+new
+ΙΙ 
+(
+ΙΙ 
+)
+ΙΙ 
+{
+ΙΙ 
+
+WorkflowId
+ΙΙ "
+=
+ΙΙ# $
+defaultWorkflow
+ΙΙ% 4
+.
+ΙΙ4 5
+Id
+ΙΙ5 7
+,
+ΙΙ7 8
+FromStatusId
+ΙΙ9 E
+=
+ΙΙF G
+closedStatus
+ΙΙH T
+.
+ΙΙT U
+Id
+ΙΙU W
+,
+ΙΙW X
+
+ToStatusId
+ΙΙY c
+=
+ΙΙd e
+onHoldStatus
+ΙΙf r
+.
+ΙΙr s
+Id
+ΙΙs u
+,
+ΙΙu v
+IsActive
+ΙΙw 
+=ΙΙ€ 
+trueΙΙ‚ †
+,ΙΙ† ‡
+TransitionNameΙΙ –
+=ΙΙ— 
+$strΙΙ™ ¬
+,ΙΙ¬ ­%
+RequiredPermissionKeyΙΙ® Γ
+=ΙΙΔ Ε#
+PermissionConstantsΙΙΖ Ω
+.ΙΙΩ Ϊ
+TicketReopenΙΙΪ ζ
+}ΙΙη θ
+,ΙΙθ ι
+new
+ΚΚ 
+(
+ΚΚ 
+)
+ΚΚ 
+{
+ΚΚ 
+
+WorkflowId
+ΚΚ "
+=
+ΚΚ# $
+defaultWorkflow
+ΚΚ% 4
+.
+ΚΚ4 5
+Id
+ΚΚ5 7
+,
+ΚΚ7 8
+FromStatusId
+ΚΚ9 E
+=
+ΚΚF G
+closedStatus
+ΚΚH T
+.
+ΚΚT U
+Id
+ΚΚU W
+,
+ΚΚW X
+
+ToStatusId
+ΚΚY c
+=
+ΚΚd e
+resolvedStatus
+ΚΚf t
+.
+ΚΚt u
+Id
+ΚΚu w
+,
+ΚΚw x
+IsActiveΚΚy 
+=ΚΚ‚ ƒ
+trueΚΚ„ 
+,ΚΚ ‰
+TransitionNameΚΚ 
+=ΚΚ™ 
+$strΚΚ› ―
+,ΚΚ― °%
+RequiredPermissionKeyΚΚ± Ζ
+=ΚΚΗ Θ#
+PermissionConstantsΚΚΙ ά
+.ΚΚά έ
+TicketReopenΚΚέ ι
+}ΚΚκ λ
+}
+ΛΛ 
+;
+ΛΛ 
+var
+ΝΝ  
+currentTransitions
+ΝΝ "
+=
+ΝΝ# $
+await
+ΝΝ% *
+_context
+ΝΝ+ 3
+.
+ΝΝ3 4!
+WorkflowTransitions
+ΝΝ4 G
+.
+ΞΞ 
+Where
+ΞΞ 
+(
+ΞΞ 
+wt
+ΞΞ 
+=>
+ΞΞ 
+wt
+ΞΞ 
+.
+ΞΞ  
+
+WorkflowId
+ΞΞ  *
+==
+ΞΞ+ -
+defaultWorkflow
+ΞΞ. =
+.
+ΞΞ= >
+Id
+ΞΞ> @
+)
+ΞΞ@ A
+.
+ΟΟ 
+ToListAsync
+ΟΟ 
+(
+ΟΟ 
+)
+ΟΟ 
+;
+ΟΟ 
+foreach
+ΡΡ 
+(
+ΡΡ 
+var
+ΡΡ 
+dt
+ΡΡ 
+in
+ΡΡ  
+desiredTransitions
+ΡΡ 1
+)
+ΡΡ1 2
+{
+ÒÒ 
+var
+ΣΣ 
+exists
+ΣΣ 
+=
+ΣΣ  
+currentTransitions
+ΣΣ /
+.
+ΣΣ/ 0
+Any
+ΣΣ0 3
+(
+ΣΣ3 4
+wt
+ΣΣ4 6
+=>
+ΣΣ7 9
+wt
+ΣΣ: <
+.
+ΣΣ< =
+FromStatusId
+ΣΣ= I
+==
+ΣΣJ L
+dt
+ΣΣM O
+.
+ΣΣO P
+FromStatusId
+ΣΣP \
+&&
+ΣΣ] _
+wt
+ΣΣ` b
+.
+ΣΣb c
+
+ToStatusId
+ΣΣc m
+==
+ΣΣn p
+dt
+ΣΣq s
+.
+ΣΣs t
+
+ToStatusId
+ΣΣt ~
+)
+ΣΣ~ 
+;ΣΣ €
+if
+ΤΤ 
 (
 ΤΤ 
-)
-ΤΤ 
-{
-ΤΤ 
-
-WorkflowId
-ΤΤ "
-=
-ΤΤ# $
-defaultWorkflow
-ΤΤ% 4
-.
-ΤΤ4 5
-Id
-ΤΤ5 7
-,
-ΤΤ7 8
-FromStatusId
-ΤΤ9 E
-=
-ΤΤF G
-
-openStatus
-ΤΤH R
-.
-ΤΤR S
-Id
-ΤΤS U
-,
-ΤΤU V
-
-ToStatusId
-ΤΤW a
-=
-ΤΤb c
-resolvedStatus
-ΤΤd r
-.
-ΤΤr s
-Id
-ΤΤs u
-,
-ΤΤu v
-IsActive
-ΤΤw 
-=ΤΤ€ 
-trueΤΤ‚ †
-,ΤΤ† ‡
-TransitionNameΤΤ –
-=ΤΤ— 
-$strΤΤ™ Ά
-,ΤΤΆ £%
-RequiredPermissionKeyΤΤ¤ Ή
-=ΤΤΊ »#
-PermissionConstantsΤΤΌ Ο
-.ΤΤΟ Π
-TicketResolveΤΤΠ έ
-}ΤΤή ί
-,ΤΤί ΰ
-new
-ΥΥ 
-(
-ΥΥ 
-)
-ΥΥ 
-{
-ΥΥ 
-
-WorkflowId
-ΥΥ "
-=
-ΥΥ# $
-defaultWorkflow
-ΥΥ% 4
-.
-ΥΥ4 5
-Id
-ΥΥ5 7
-,
-ΥΥ7 8
-FromStatusId
-ΥΥ9 E
-=
-ΥΥF G
-
-openStatus
-ΥΥH R
-.
-ΥΥR S
-Id
-ΥΥS U
-,
-ΥΥU V
-
-ToStatusId
-ΥΥW a
-=
-ΥΥb c
-closedStatus
-ΥΥd p
-.
-ΥΥp q
-Id
-ΥΥq s
-,
-ΥΥs t
-IsActive
-ΥΥu }
-=
-ΥΥ~ 
-trueΥΥ€ „
-,ΥΥ„ …
-TransitionNameΥΥ† ”
-=ΥΥ• –
-$strΥΥ— 
-,ΥΥ %
-RequiredPermissionKeyΥΥ  µ
-=ΥΥ¶ ·#
-PermissionConstantsΥΥΈ Λ
-.ΥΥΛ Μ
-TicketCloseΥΥΜ Χ
-}ΥΥΨ Ω
-,ΥΥΩ Ϊ
-new
-ΨΨ 
-(
-ΨΨ 
-)
-ΨΨ 
-{
-ΨΨ 
-
-WorkflowId
-ΨΨ "
-=
-ΨΨ# $
-defaultWorkflow
-ΨΨ% 4
-.
-ΨΨ4 5
-Id
-ΨΨ5 7
-,
-ΨΨ7 8
-FromStatusId
-ΨΨ9 E
-=
-ΨΨF G
-inProgressStatus
-ΨΨH X
-.
-ΨΨX Y
-Id
-ΨΨY [
-,
-ΨΨ[ \
-
-ToStatusId
-ΨΨ] g
-=
-ΨΨh i
-
-openStatus
-ΨΨj t
-.
-ΨΨt u
-Id
-ΨΨu w
-,
-ΨΨw x
-IsActiveΨΨy 
-=ΨΨ‚ ƒ
-trueΨΨ„ 
-,ΨΨ ‰
-TransitionNameΨΨ 
-=ΨΨ™ 
-$strΨΨ› ©
-}ΨΨª «
-,ΨΨ« ¬
-new
-ΩΩ 
-(
-ΩΩ 
-)
-ΩΩ 
-{
-ΩΩ 
-
-WorkflowId
-ΩΩ "
-=
-ΩΩ# $
-defaultWorkflow
-ΩΩ% 4
-.
-ΩΩ4 5
-Id
-ΩΩ5 7
-,
-ΩΩ7 8
-FromStatusId
-ΩΩ9 E
-=
-ΩΩF G
-inProgressStatus
-ΩΩH X
-.
-ΩΩX Y
-Id
-ΩΩY [
-,
-ΩΩ[ \
-
-ToStatusId
-ΩΩ] g
-=
-ΩΩh i
-onHoldStatus
-ΩΩj v
-.
-ΩΩv w
-Id
-ΩΩw y
-,
-ΩΩy z
-IsActiveΩΩ{ ƒ
-=ΩΩ„ …
-trueΩΩ† 
-,ΩΩ ‹
-TransitionNameΩΩ 
-=ΩΩ› 
-$strΩΩ ª
-}ΩΩ« ¬
-,ΩΩ¬ ­
-new
-ΪΪ 
-(
-ΪΪ 
-)
-ΪΪ 
-{
-ΪΪ 
-
-WorkflowId
-ΪΪ "
-=
-ΪΪ# $
-defaultWorkflow
-ΪΪ% 4
-.
-ΪΪ4 5
-Id
-ΪΪ5 7
-,
-ΪΪ7 8
-FromStatusId
-ΪΪ9 E
-=
-ΪΪF G
-inProgressStatus
-ΪΪH X
-.
-ΪΪX Y
-Id
-ΪΪY [
-,
-ΪΪ[ \
-
-ToStatusId
-ΪΪ] g
-=
-ΪΪh i
-resolvedStatus
-ΪΪj x
-.
-ΪΪx y
-Id
-ΪΪy {
-,
-ΪΪ{ |
-IsActiveΪΪ} …
-=ΪΪ† ‡
-trueΪΪ 
-,ΪΪ 
-TransitionNameΪΪ 
-=ΪΪ 
-$strΪΪ ¨
-,ΪΪ¨ ©%
-RequiredPermissionKeyΪΪª Ώ
-=ΪΪΐ Α#
-PermissionConstantsΪΪΒ Υ
-.ΪΪΥ Φ
-TicketResolveΪΪΦ γ
-}ΪΪδ ε
-,ΪΪε ζ
-new
-ΫΫ 
-(
-ΫΫ 
-)
-ΫΫ 
-{
-ΫΫ 
-
-WorkflowId
-ΫΫ "
-=
-ΫΫ# $
-defaultWorkflow
-ΫΫ% 4
-.
-ΫΫ4 5
-Id
-ΫΫ5 7
-,
-ΫΫ7 8
-FromStatusId
-ΫΫ9 E
-=
-ΫΫF G
-inProgressStatus
-ΫΫH X
-.
-ΫΫX Y
-Id
-ΫΫY [
-,
-ΫΫ[ \
-
-ToStatusId
-ΫΫ] g
-=
-ΫΫh i
-closedStatus
-ΫΫj v
-.
-ΫΫv w
-Id
-ΫΫw y
-,
-ΫΫy z
-IsActiveΫΫ{ ƒ
-=ΫΫ„ …
-trueΫΫ† 
-,ΫΫ ‹
-TransitionNameΫΫ 
-=ΫΫ› 
-$strΫΫ ¤
-,ΫΫ¤ ¥%
-RequiredPermissionKeyΫΫ¦ »
-=ΫΫΌ ½#
-PermissionConstantsΫΫΎ Ρ
-.ΫΫΡ Ò
-TicketCloseΫΫÒ έ
-}ΫΫή ί
-,ΫΫί ΰ
-new
-ήή 
-(
-ήή 
-)
-ήή 
-{
-ήή 
-
-WorkflowId
-ήή "
-=
-ήή# $
-defaultWorkflow
-ήή% 4
-.
-ήή4 5
-Id
-ήή5 7
-,
-ήή7 8
-FromStatusId
-ήή9 E
-=
-ήήF G
-onHoldStatus
-ήήH T
-.
-ήήT U
-Id
-ήήU W
-,
-ήήW X
-
-ToStatusId
-ήήY c
-=
-ήήd e
-
-openStatus
-ήήf p
-.
-ήήp q
-Id
-ήήq s
-,
-ήήs t
-IsActive
-ήήu }
-=
-ήή~ 
-trueήή€ „
-,ήή„ …
-TransitionNameήή† ”
-=ήή• –
-$strήή— ¥
-}ήή¦ §
-,ήή§ ¨
-new
-ίί 
-(
-ίί 
-)
-ίί 
-{
-ίί 
-
-WorkflowId
-ίί "
-=
-ίί# $
-defaultWorkflow
-ίί% 4
-.
-ίί4 5
-Id
-ίί5 7
-,
-ίί7 8
-FromStatusId
-ίί9 E
-=
-ίίF G
-onHoldStatus
-ίίH T
-.
-ίίT U
-Id
-ίίU W
-,
-ίίW X
-
-ToStatusId
-ίίY c
-=
-ίίd e
-inProgressStatus
-ίίf v
-.
-ίίv w
-Id
-ίίw y
-,
-ίίy z
-IsActiveίί{ ƒ
-=ίί„ …
-trueίί† 
-,ίί ‹
-TransitionNameίί 
-=ίί› 
-$strίί ®
-}ίί― °
-,ίί° ±
-new
-ΰΰ 
-(
-ΰΰ 
-)
-ΰΰ 
-{
-ΰΰ 
-
-WorkflowId
-ΰΰ "
-=
-ΰΰ# $
-defaultWorkflow
-ΰΰ% 4
-.
-ΰΰ4 5
-Id
-ΰΰ5 7
-,
-ΰΰ7 8
-FromStatusId
-ΰΰ9 E
-=
-ΰΰF G
-onHoldStatus
-ΰΰH T
-.
-ΰΰT U
-Id
-ΰΰU W
-,
-ΰΰW X
-
-ToStatusId
-ΰΰY c
-=
-ΰΰd e
-resolvedStatus
-ΰΰf t
-.
-ΰΰt u
-Id
-ΰΰu w
-,
-ΰΰw x
-IsActiveΰΰy 
-=ΰΰ‚ ƒ
-trueΰΰ„ 
-,ΰΰ ‰
-TransitionNameΰΰ 
-=ΰΰ™ 
-$strΰΰ› ¤
-,ΰΰ¤ ¥%
-RequiredPermissionKeyΰΰ¦ »
-=ΰΰΌ ½#
-PermissionConstantsΰΰΎ Ρ
-.ΰΰΡ Ò
-TicketResolveΰΰÒ ί
-}ΰΰΰ α
-,ΰΰα β
-new
-αα 
-(
-αα 
-)
-αα 
-{
-αα 
-
-WorkflowId
-αα "
-=
-αα# $
-defaultWorkflow
-αα% 4
-.
-αα4 5
-Id
-αα5 7
-,
-αα7 8
-FromStatusId
-αα9 E
-=
-ααF G
-onHoldStatus
-ααH T
-.
-ααT U
-Id
-ααU W
-,
-ααW X
-
-ToStatusId
-ααY c
-=
-ααd e
-closedStatus
-ααf r
-.
-ααr s
-Id
-ααs u
-,
-ααu v
-IsActive
-ααw 
-=αα€ 
-trueαα‚ †
-,αα† ‡
-TransitionNameαα –
-=αα— 
-$strαα™  
-,αα  ΅%
-RequiredPermissionKeyααΆ ·
-=ααΈ Ή#
-PermissionConstantsααΊ Ν
-.ααΝ Ξ
-TicketCloseααΞ Ω
-}ααΪ Ϋ
-,ααΫ ά
-new
-δδ 
-(
-δδ 
-)
-δδ 
-{
-δδ 
-
-WorkflowId
-δδ "
-=
-δδ# $
-defaultWorkflow
-δδ% 4
-.
-δδ4 5
-Id
-δδ5 7
-,
-δδ7 8
-FromStatusId
-δδ9 E
-=
-δδF G
-resolvedStatus
-δδH V
-.
-δδV W
-Id
-δδW Y
-,
-δδY Z
-
-ToStatusId
-δδ[ e
-=
-δδf g
-
-openStatus
-δδh r
-.
-δδr s
-Id
-δδs u
-,
-δδu v
-IsActive
-δδw 
-=δδ€ 
-trueδδ‚ †
-,δδ† ‡
-TransitionNameδδ –
-=δδ— 
-$strδδ™ ©
-,δδ© ª%
-RequiredPermissionKeyδδ« ΐ
-=δδΑ Β#
-PermissionConstantsδδΓ Φ
-.δδΦ Χ
-TicketReopenδδΧ γ
-}δδδ ε
-,δδε ζ
-new
-εε 
-(
-εε 
-)
-εε 
-{
-εε 
-
-WorkflowId
-εε "
-=
-εε# $
-defaultWorkflow
-εε% 4
-.
-εε4 5
-Id
-εε5 7
-,
-εε7 8
-FromStatusId
-εε9 E
-=
-εεF G
-resolvedStatus
-εεH V
-.
-εεV W
-Id
-εεW Y
-,
-εεY Z
-
-ToStatusId
-εε[ e
-=
-εεf g
-inProgressStatus
-εεh x
-.
-εεx y
-Id
-εεy {
-,
-εε{ |
-IsActiveεε} …
-=εε† ‡
-trueεε 
-,εε 
-TransitionNameεε 
-=εε 
-$strεε ³
-,εε³ ΄%
-RequiredPermissionKeyεεµ Κ
-=εεΛ Μ#
-PermissionConstantsεεΝ ΰ
-.εεΰ α
-TicketReopenεεα ν
-}εεξ ο
-,εεο π
-new
-ζζ 
-(
-ζζ 
-)
-ζζ 
-{
-ζζ 
-
-WorkflowId
-ζζ "
-=
-ζζ# $
-defaultWorkflow
-ζζ% 4
-.
-ζζ4 5
-Id
-ζζ5 7
-,
-ζζ7 8
-FromStatusId
-ζζ9 E
-=
-ζζF G
-resolvedStatus
-ζζH V
-.
-ζζV W
-Id
-ζζW Y
-,
-ζζY Z
-
-ToStatusId
-ζζ[ e
-=
-ζζf g
-onHoldStatus
-ζζh t
-.
-ζζt u
-Id
-ζζu w
-,
-ζζw x
-IsActiveζζy 
-=ζζ‚ ƒ
-trueζζ„ 
-,ζζ ‰
-TransitionNameζζ 
-=ζζ™ 
-$strζζ› ®
-,ζζ® ―%
-RequiredPermissionKeyζζ° Ε
-=ζζΖ Η#
-PermissionConstantsζζΘ Ϋ
-.ζζΫ ά
-TicketReopenζζά θ
-}ζζι κ
-,ζζκ λ
-new
-ηη 
-(
-ηη 
-)
-ηη 
-{
-ηη 
-
-WorkflowId
-ηη "
-=
-ηη# $
-defaultWorkflow
-ηη% 4
-.
-ηη4 5
-Id
-ηη5 7
-,
-ηη7 8
-FromStatusId
-ηη9 E
-=
-ηηF G
-resolvedStatus
-ηηH V
-.
-ηηV W
-Id
-ηηW Y
-,
-ηηY Z
-
-ToStatusId
-ηη[ e
-=
-ηηf g
-closedStatus
-ηηh t
-.
-ηηt u
-Id
-ηηu w
-,
-ηηw x
-IsActiveηηy 
-=ηη‚ ƒ
-trueηη„ 
-,ηη ‰
-TransitionNameηη 
-=ηη™ 
-$strηη› Ά
-,ηηΆ £%
-RequiredPermissionKeyηη¤ Ή
-=ηηΊ »#
-PermissionConstantsηηΌ Ο
-.ηηΟ Π
-TicketCloseηηΠ Ϋ
-}ηηά έ
-,ηηέ ή
-new
-κκ 
-(
-κκ 
-)
-κκ 
-{
-κκ 
-
-WorkflowId
-κκ "
-=
-κκ# $
-defaultWorkflow
-κκ% 4
-.
-κκ4 5
-Id
-κκ5 7
-,
-κκ7 8
-FromStatusId
-κκ9 E
-=
-κκF G
-closedStatus
-κκH T
-.
-κκT U
-Id
-κκU W
-,
-κκW X
-
-ToStatusId
-κκY c
-=
-κκd e
-
-openStatus
-κκf p
-.
-κκp q
-Id
-κκq s
-,
-κκs t
-IsActive
-κκu }
-=
-κκ~ 
-trueκκ€ „
-,κκ„ …
-TransitionNameκκ† ”
-=κκ• –
-$strκκ— §
-,κκ§ ¨%
-RequiredPermissionKeyκκ© Ύ
-=κκΏ ΐ#
-PermissionConstantsκκΑ Τ
-.κκΤ Υ
-TicketReopenκκΥ α
-}κκβ γ
-,κκγ δ
-new
-λλ 
-(
-λλ 
-)
-λλ 
-{
-λλ 
-
-WorkflowId
-λλ "
-=
-λλ# $
-defaultWorkflow
-λλ% 4
-.
-λλ4 5
-Id
-λλ5 7
-,
-λλ7 8
-FromStatusId
-λλ9 E
-=
-λλF G
-closedStatus
-λλH T
-.
-λλT U
-Id
-λλU W
-,
-λλW X
-
-ToStatusId
-λλY c
-=
-λλd e
-inProgressStatus
-λλf v
-.
-λλv w
-Id
-λλw y
-,
-λλy z
-IsActiveλλ{ ƒ
-=λλ„ …
-trueλλ† 
-,λλ ‹
-TransitionNameλλ 
-=λλ› 
-$strλλ ±
-,λλ± ²%
-RequiredPermissionKeyλλ³ Θ
-=λλΙ Κ#
-PermissionConstantsλλΛ ή
-.λλή ί
-TicketReopenλλί λ
-}λλμ ν
-,λλν ξ
-new
-μμ 
-(
-μμ 
-)
-μμ 
-{
-μμ 
-
-WorkflowId
-μμ "
-=
-μμ# $
-defaultWorkflow
-μμ% 4
-.
-μμ4 5
-Id
-μμ5 7
-,
-μμ7 8
-FromStatusId
-μμ9 E
-=
-μμF G
-closedStatus
-μμH T
-.
-μμT U
-Id
-μμU W
-,
-μμW X
-
-ToStatusId
-μμY c
-=
-μμd e
-onHoldStatus
-μμf r
-.
-μμr s
-Id
-μμs u
-,
-μμu v
-IsActive
-μμw 
-=μμ€ 
-trueμμ‚ †
-,μμ† ‡
-TransitionNameμμ –
-=μμ— 
-$strμμ™ ¬
-,μμ¬ ­%
-RequiredPermissionKeyμμ® Γ
-=μμΔ Ε#
-PermissionConstantsμμΖ Ω
-.μμΩ Ϊ
-TicketReopenμμΪ ζ
-}μμη θ
-,μμθ ι
-new
-νν 
-(
-νν 
-)
-νν 
-{
-νν 
-
-WorkflowId
-νν "
-=
-νν# $
-defaultWorkflow
-νν% 4
-.
-νν4 5
-Id
-νν5 7
-,
-νν7 8
-FromStatusId
-νν9 E
-=
-ννF G
-closedStatus
-ννH T
-.
-ννT U
-Id
-ννU W
-,
-ννW X
-
-ToStatusId
-ννY c
-=
-ννd e
-resolvedStatus
-ννf t
-.
-ννt u
-Id
-ννu w
-,
-ννw x
-IsActiveννy 
-=νν‚ ƒ
-trueνν„ 
-,νν ‰
-TransitionNameνν 
-=νν™ 
-$strνν› ―
-,νν― °%
-RequiredPermissionKeyνν± Ζ
-=ννΗ Θ#
-PermissionConstantsννΙ ά
-.ννά έ
-TicketReopenννέ ι
-}ννκ λ
-}
-ξξ 
-;
-ξξ 
-var
-ππ  
-currentTransitions
-ππ "
-=
-ππ# $
-await
-ππ% *
-_context
-ππ+ 3
-.
-ππ3 4!
-WorkflowTransitions
-ππ4 G
-.
-ρρ 
-Where
-ρρ 
-(
-ρρ 
-wt
-ρρ 
-=>
-ρρ 
-wt
-ρρ 
-.
-ρρ  
-
-WorkflowId
-ρρ  *
-==
-ρρ+ -
-defaultWorkflow
-ρρ. =
-.
-ρρ= >
-Id
-ρρ> @
-)
-ρρ@ A
-.
-ςς 
-ToListAsync
-ςς 
-(
-ςς 
-)
-ςς 
-;
-ςς 
-foreach
-ττ 
-(
-ττ 
-var
-ττ 
-dt
-ττ 
-in
-ττ  
-desiredTransitions
-ττ 1
-)
-ττ1 2
-{
-υυ 
-var
-φφ 
-exists
-φφ 
-=
-φφ  
-currentTransitions
-φφ /
-.
-φφ/ 0
-Any
-φφ0 3
-(
-φφ3 4
-wt
-φφ4 6
-=>
-φφ7 9
-wt
-φφ: <
-.
-φφ< =
-FromStatusId
-φφ= I
-==
-φφJ L
-dt
-φφM O
-.
-φφO P
-FromStatusId
-φφP \
-&&
-φφ] _
-wt
-φφ` b
-.
-φφb c
-
-ToStatusId
-φφc m
-==
-φφn p
-dt
-φφq s
-.
-φφs t
-
-ToStatusId
-φφt ~
-)
-φφ~ 
-;φφ €
-if
-χχ 
-(
-χχ 
 !
-χχ 
+ΤΤ 
 exists
-χχ 
+ΤΤ 
 )
-χχ 
+ΤΤ 
 {
-ψψ 
+ΥΥ 
 _context
-ωω 
+ΦΦ 
 .
-ωω !
+ΦΦ !
 WorkflowTransitions
-ωω 0
+ΦΦ 0
 .
-ωω0 1
+ΦΦ0 1
 Add
-ωω1 4
+ΦΦ1 4
 (
-ωω4 5
+ΦΦ4 5
 dt
-ωω5 7
+ΦΦ5 7
 )
-ωω7 8
+ΦΦ7 8
 ;
-ωω8 9
+ΦΦ8 9
 }
-ϊϊ 
+ΧΧ 
 }
-ϋϋ 
+ΨΨ 
 await
-όό 
+ΩΩ 
 _context
-όό 
+ΩΩ 
 .
-όό 
+ΩΩ 
 SaveChangesAsync
-όό +
+ΩΩ +
 (
-όό+ ,
+ΩΩ+ ,
 )
-όό, -
+ΩΩ, -
 ;
-όό- .
+ΩΩ- .
 }
-ύύ 	
+ΪΪ 	
 var
-ÿÿ !
+άά !
 existingTransitions
-ÿÿ 
+άά 
 =
-ÿÿ  !
+άά  !
 await
-ÿÿ" '
+άά" '
 _context
-ÿÿ( 0
+άά( 0
 .
-ÿÿ0 1!
+άά0 1!
 WorkflowTransitions
-ÿÿ1 D
+άά1 D
 .
-ÿÿD E
+άάD E
 Where
-ÿÿE J
+άάE J
 (
-ÿÿJ K
+άάJ K
 wt
-ÿÿK M
+άάK M
 =>
-ÿÿN P
+άάN P
 string
-ÿÿQ W
+άάQ W
 .
-ÿÿW X
+άάW X
 IsNullOrEmpty
-ÿÿX e
+άάX e
 (
-ÿÿe f
+άάe f
 wt
-ÿÿf h
+άάf h
 .
-ÿÿh i
+άάh i
 TransitionName
-ÿÿi w
+άάi w
 )
-ÿÿw x
+άάw x
 )
-ÿÿx y
+άάx y
 .
-ÿÿy z
-ToListAsyncÿÿz …
-(ÿÿ… †
-)ÿÿ† ‡
-;ÿÿ‡ 
+άάy z
+ToListAsyncάάz …
+(άά… †
+)άά† ‡
+;άά‡ 
 if
-€€ 
+έέ 
 
 (
-€€ !
+έέ !
 existingTransitions
-€€ 
+έέ 
 .
-€€  
+έέ  
 Count
-€€  %
+έέ  %
 >
-€€& '
+έέ& '
 $num
-€€( )
+έέ( )
 )
-€€) *
+έέ) *
 {
- 	
+ήή 	
 foreach
-ƒƒ 
+ΰΰ 
 (
-ƒƒ 
+ΰΰ 
 var
-ƒƒ 
+ΰΰ 
 et
-ƒƒ 
+ΰΰ 
 in
-ƒƒ !
+ΰΰ !
 existingTransitions
-ƒƒ 2
+ΰΰ 2
 )
-ƒƒ2 3
+ΰΰ2 3
 {
-„„ 
+αα 
 if
-…… 
+ββ 
 (
-…… 
+ββ 
 (
-…… 
+ββ 
 et
-…… 
+ββ 
 .
-…… 
+ββ 
 FromStatusId
-…… $
+ββ $
 ==
-……% '
+ββ% '
 resolvedStatus
-……( 6
+ββ( 6
 ?
-……6 7
+ββ6 7
 .
-……7 8
+ββ7 8
 Id
-……8 :
+ββ8 :
 ||
-……; =
+ββ; =
 et
-……> @
+ββ> @
 .
-……@ A
+ββ@ A
 FromStatusId
-……A M
+ββA M
 ==
-……N P
+ββN P
 closedStatus
-……Q ]
+ββQ ]
 ?
-……] ^
+ββ] ^
 .
-……^ _
+ββ^ _
 Id
-……_ a
+ββ_ a
 )
-……a b
+ββa b
 &&
-……c e
+ββc e
 et
-……f h
+ββf h
 .
-……h i
+ββh i
 
 ToStatusId
-……i s
+ββi s
 ==
-……t v
-inProgressStatus……w ‡
-?……‡ 
-.…… ‰
-Id……‰ ‹
-)……‹ 
+ββt v
+inProgressStatusββw ‡
+?ββ‡ 
+.ββ ‰
+Idββ‰ ‹
+)ββ‹ 
 {
-†† 
+γγ 
 et
-‡‡ 
+δδ 
 .
-‡‡ 
+δδ 
 TransitionName
-‡‡ %
+δδ %
 =
-‡‡& '
+δδ& '
 $str
-‡‡( 0
+δδ( 0
 ;
-‡‡0 1
+δδ0 1
 et
- 
+εε 
 .
- #
+εε #
 RequiredPermissionKey
- ,
+εε ,
 =
-- .!
+εε- .!
 PermissionConstants
-/ B
+εε/ B
 .
-B C
+εεB C
 TicketReopen
-C O
+εεC O
 ;
-O P
+εεO P
 }
-‰‰ 
+ζζ 
 else
- 
+ηη 
 {
-‹‹ 
+θθ 
 et
- 
+ιι 
 .
- 
+ιι 
 TransitionName
- %
+ιι %
 =
-& '
+ιι& '
 $str
-( 1
+ιι( 1
 ;
-1 2
+ιι1 2
 }
- 
+κκ 
 }
- 
+λλ 
 await
- 
+μμ 
 _context
- 
+μμ 
 .
- 
+μμ 
 SaveChangesAsync
- +
+μμ +
 (
-+ ,
+μμ+ ,
 )
-, -
+μμ, -
 ;
-- .
+μμ- .
 }
- 	
+νν 	
 }
-‘‘ 
+ξξ 
 private
-““ 
+ππ 
 async
-““ 
+ππ 
 Task
-““ $
+ππ $
 SeedKnowledgeBaseAsync
-““ -
+ππ -
 (
-““- .
+ππ- .
 )
-““. /
+ππ. /
 {
-”” 
+ρρ 
 if
-–– 
+σσ 
 
 (
-–– 
+σσ 
 !
-–– 
+σσ 
 await
-–– 
+σσ 
 _context
-–– 
+σσ 
 .
-–– !
+σσ !
 KnowledgeCategories
-–– /
+σσ /
 .
-––/ 0
+σσ/ 0
 AnyAsync
-––0 8
+σσ0 8
 (
-––8 9
+σσ8 9
 )
-––9 :
+σσ9 :
 )
-––: ;
+σσ: ;
 {
-—— 	
+ττ 	
 _context
- 
+υυ 
 .
- !
+υυ !
 KnowledgeCategories
- (
+υυ (
 .
-( )
+υυ( )
 AddRange
-) 1
+υυ) 1
 (
-1 2
+υυ1 2
 new
-™™ 
+φφ 
 ItsTool
-™™ 
+φφ 
 .
-™™ 
+φφ 
 Domain
-™™ "
+φφ "
 .
-™™" #
+φφ" #
 Entities
-™™# +
+φφ# +
 .
-™™+ ,
+φφ+ ,
 KnowledgeBase
-™™, 9
+φφ, 9
 .
-™™9 :
+φφ9 :
 KnowledgeCategory
-™™: K
+φφ: K
 {
-™™L M
+φφL M
 Name
-™™N R
+φφN R
 =
-™™S T
+φφS T
 $str
-™™U `
+φφU `
 }
-™™a b
+φφa b
 ,
-™™b c
+φφb c
 new
- 
+χχ 
 ItsTool
- 
+χχ 
 .
- 
+χχ 
 Domain
- "
+χχ "
 .
-" #
+χχ" #
 Entities
-# +
+χχ# +
 .
-+ ,
+χχ+ ,
 KnowledgeBase
-, 9
+χχ, 9
 .
-9 :
+χχ9 :
 KnowledgeCategory
-: K
+χχ: K
 {
-L M
+χχL M
 Name
-N R
+χχN R
 =
-S T
+χχS T
 $str
-U b
+χχU b
 }
-c d
+χχc d
 ,
-d e
+χχd e
 new
-›› 
+ψψ 
 ItsTool
-›› 
+ψψ 
 .
-›› 
+ψψ 
 Domain
-›› "
+ψψ "
 .
-››" #
+ψψ" #
 Entities
-››# +
+ψψ# +
 .
-››+ ,
+ψψ+ ,
 KnowledgeBase
-››, 9
+ψψ, 9
 .
-››9 :
+ψψ9 :
 KnowledgeCategory
-››: K
+ψψ: K
 {
-››L M
+ψψL M
 Name
-››N R
+ψψN R
 =
-››S T
+ψψS T
 $str
-››U g
+ψψU g
 }
-››h i
+ψψh i
 )
- 
+ωω 
 ;
- 
+ωω 
 await
- 
+ϊϊ 
 _context
- 
+ϊϊ 
 .
- 
+ϊϊ 
 SaveChangesAsync
- +
+ϊϊ +
 (
-+ ,
+ϊϊ+ ,
 )
-, -
+ϊϊ, -
 ;
-- .
+ϊϊ- .
 }
- 	
+ϋϋ 	
 if
-   
+ύύ 
 
 (
-   
+ύύ 
 !
-   
+ύύ 
 await
-   
+ύύ 
 _context
-   
+ύύ 
 .
-   
+ύύ 
 KnowledgeArticles
-   -
+ύύ -
 .
-  - .
+ύύ- .
 AnyAsync
-  . 6
+ύύ. 6
 (
-  6 7
+ύύ6 7
 )
-  7 8
+ύύ7 8
 )
-  8 9
+ύύ8 9
 {
-΅΅ 	
+ώώ 	
 var
-ΆΆ 
+ÿÿ 
 rehberlerCat
-ΆΆ 
+ÿÿ 
 =
-ΆΆ 
+ÿÿ 
 await
-ΆΆ $
+ÿÿ $
 _context
-ΆΆ% -
+ÿÿ% -
 .
-ΆΆ- .!
+ÿÿ- .!
 KnowledgeCategories
-ΆΆ. A
+ÿÿ. A
 .
-ΆΆA B!
+ÿÿA B!
 FirstOrDefaultAsync
-ΆΆB U
+ÿÿB U
 (
-ΆΆU V
+ÿÿU V
 c
-ΆΆV W
+ÿÿV W
 =>
-ΆΆX Z
+ÿÿX Z
 c
-ΆΆ[ \
+ÿÿ[ \
 .
-ΆΆ\ ]
+ÿÿ\ ]
 Name
-ΆΆ] a
+ÿÿ] a
 ==
-ΆΆb d
+ÿÿb d
 $str
-ΆΆe p
+ÿÿe p
 )
-ΆΆp q
+ÿÿp q
 ;
-ΆΆq r
+ÿÿq r
 var
-££ 
+€€ 
 prosedurlerCat
-££ 
+€€ 
 =
-££  
+€€  
 await
-££! &
+€€! &
 _context
-££' /
+€€' /
 .
-££/ 0!
+€€/ 0!
 KnowledgeCategories
-££0 C
+€€0 C
 .
-££C D!
+€€C D!
 FirstOrDefaultAsync
-££D W
+€€D W
 (
-££W X
+€€W X
 c
-££X Y
+€€X Y
 =>
-££Z \
+€€Z \
 c
-££] ^
+€€] ^
 .
-££^ _
+€€^ _
 Name
-££_ c
+€€_ c
 ==
-££d f
+€€d f
 $str
-££g t
+€€g t
 )
-££t u
+€€t u
 ;
-££u v
+€€u v
 var
-¤¤ 
+ 
 	sistemCat
-¤¤ 
+ 
 =
-¤¤ 
+ 
 await
-¤¤ !
+ !
 _context
-¤¤" *
+" *
 .
-¤¤* +!
+* +!
 KnowledgeCategories
-¤¤+ >
++ >
 .
-¤¤> ?!
+> ?!
 FirstOrDefaultAsync
-¤¤? R
+? R
 (
-¤¤R S
+R S
 c
-¤¤S T
+S T
 =>
-¤¤U W
+U W
 c
-¤¤X Y
+X Y
 .
-¤¤Y Z
+Y Z
 Name
-¤¤Z ^
+Z ^
 ==
-¤¤_ a
+_ a
 $str
-¤¤b t
+b t
 )
-¤¤t u
+t u
 ;
-¤¤u v
+u v
 var
-¦¦ 
+ƒƒ 
 adminAuthor
-¦¦ 
+ƒƒ 
 =
-¦¦ 
+ƒƒ 
 await
-¦¦ #
+ƒƒ #
 _context
-¦¦$ ,
+ƒƒ$ ,
 .
-¦¦, -
+ƒƒ, -
 Users
-¦¦- 2
+ƒƒ- 2
 .
-¦¦2 3!
+ƒƒ2 3!
 FirstOrDefaultAsync
-¦¦3 F
+ƒƒ3 F
 (
-¦¦F G
+ƒƒF G
 u
-¦¦G H
+ƒƒG H
 =>
-¦¦I K
+ƒƒI K
 u
-¦¦L M
+ƒƒL M
 .
-¦¦M N
+ƒƒM N
 Username
-¦¦N V
+ƒƒN V
 ==
-¦¦W Y
+ƒƒW Y
 $str
-¦¦Z a
+ƒƒZ a
 )
-¦¦a b
+ƒƒa b
 ;
-¦¦b c
+ƒƒb c
 if
-¨¨ 
+…… 
 (
-¨¨ 
+…… 
 adminAuthor
-¨¨ 
+…… 
 !=
-¨¨ 
+…… 
 null
-¨¨ #
+…… #
 &&
-¨¨$ &
+……$ &
 rehberlerCat
-¨¨' 3
+……' 3
 !=
-¨¨4 6
+……4 6
 null
-¨¨7 ;
+……7 ;
 &&
-¨¨< >
+……< >
 prosedurlerCat
-¨¨? M
+……? M
 !=
-¨¨N P
+……N P
 null
-¨¨Q U
+……Q U
 &&
-¨¨V X
+……V X
 	sistemCat
-¨¨Y b
+……Y b
 !=
-¨¨c e
+……c e
 null
-¨¨f j
+……f j
 )
-¨¨j k
+……j k
 {
-©© 
+†† 
 _context
-ªª 
+‡‡ 
 .
-ªª 
+‡‡ 
 KnowledgeArticles
-ªª *
+‡‡ *
 .
-ªª* +
+‡‡* +
 AddRange
-ªª+ 3
+‡‡+ 3
 (
-ªª3 4
+‡‡3 4
 new
-«« 
+ 
 ItsTool
-«« 
+ 
 .
-««  
+  
 Domain
-««  &
+  &
 .
-««& '
+& '
 Entities
-««' /
+' /
 .
-««/ 0
+/ 0
 KnowledgeBase
-««0 =
+0 =
 .
-««= >
+= >
 KnowledgeArticle
-««> N
+> N
 {
-¬¬ 
+‰‰ 
 Title
-­­ 
+ 
 =
-­­ 
+ 
 $str
-­­  6
+  6
 ,
-­­6 7
+6 7
 Content
-®® 
+‹‹ 
 =
-®®  !
-$str®®" Α
-,®®Α Β
+‹‹  !
+$str‹‹" Α
+,‹‹Α Β
 
 CategoryId
-―― "
+ "
 =
-――# $
+# $
 rehberlerCat
-――% 1
+% 1
 .
-――1 2
+1 2
 Id
-――2 4
+2 4
 ,
-――4 5
+4 5
 AuthorUserId
-°° $
+ $
 =
-°°% &
+% &
 adminAuthor
-°°' 2
+' 2
 .
-°°2 3
+2 3
 Id
-°°3 5
+3 5
 ,
-°°5 6
+5 6
 
 Visibility
-±± "
+ "
 =
-±±# $
+# $
 ItsTool
-±±% ,
+% ,
 .
-±±, -
+, -
 Domain
-±±- 3
+- 3
 .
-±±3 4
+3 4
 Entities
-±±4 <
+4 <
 .
-±±< =
+< =
 KnowledgeBase
-±±= J
+= J
 .
-±±J K
+J K
 ArticleVisibility
-±±K \
+K \
 .
-±±\ ]
+\ ]
 Public
-±±] c
+] c
 ,
-±±c d
+c d
 Status
-²² 
+ 
 =
-²²  
+  
 ItsTool
-²²! (
+! (
 .
-²²( )
+( )
 Domain
-²²) /
+) /
 .
-²²/ 0
+/ 0
 Entities
-²²0 8
+0 8
 .
-²²8 9
+8 9
 KnowledgeBase
-²²9 F
+9 F
 .
-²²F G
+F G
 ArticleStatus
-²²G T
+G T
 .
-²²T U
+T U
 	Published
-²²U ^
+U ^
 ,
-²²^ _
+^ _
 	ViewCount
-³³ !
+ !
 =
-³³" #
+" #
 $num
-³³$ &
+$ &
 }
-΄΄ 
+‘‘ 
 ,
-΄΄ 
+‘‘ 
 new
-µµ 
+’’ 
 ItsTool
-µµ 
+’’ 
 .
-µµ  
+’’  
 Domain
-µµ  &
+’’  &
 .
-µµ& '
+’’& '
 Entities
-µµ' /
+’’' /
 .
-µµ/ 0
+’’/ 0
 KnowledgeBase
-µµ0 =
+’’0 =
 .
-µµ= >
+’’= >
 KnowledgeArticle
-µµ> N
+’’> N
 {
-¶¶ 
+““ 
 Title
-·· 
+”” 
 =
-·· 
+”” 
 $str
-··  <
+””  <
 ,
-··< =
+””< =
 Content
-ΈΈ 
+•• 
 =
-ΈΈ  !
-$strΈΈ" Ξ
-,ΈΈΞ Ο
+••  !
+$str••" Ξ
+,••Ξ Ο
 
 CategoryId
-ΉΉ "
+–– "
 =
-ΉΉ# $
+––# $
 prosedurlerCat
-ΉΉ% 3
+––% 3
 .
-ΉΉ3 4
+––3 4
 Id
-ΉΉ4 6
+––4 6
 ,
-ΉΉ6 7
+––6 7
 AuthorUserId
-ΊΊ $
+—— $
 =
-ΊΊ% &
+——% &
 adminAuthor
-ΊΊ' 2
+——' 2
 .
-ΊΊ2 3
+——2 3
 Id
-ΊΊ3 5
+——3 5
 ,
-ΊΊ5 6
+——5 6
 
 Visibility
-»» "
+ "
 =
-»»# $
+# $
 ItsTool
-»»% ,
+% ,
 .
-»», -
+, -
 Domain
-»»- 3
+- 3
 .
-»»3 4
+3 4
 Entities
-»»4 <
+4 <
 .
-»»< =
+< =
 KnowledgeBase
-»»= J
+= J
 .
-»»J K
+J K
 ArticleVisibility
-»»K \
+K \
 .
-»»\ ]
+\ ]
 Public
-»»] c
+] c
 ,
-»»c d
+c d
 Status
-ΌΌ 
+™™ 
 =
-ΌΌ  
+™™  
 ItsTool
-ΌΌ! (
+™™! (
 .
-ΌΌ( )
+™™( )
 Domain
-ΌΌ) /
+™™) /
 .
-ΌΌ/ 0
+™™/ 0
 Entities
-ΌΌ0 8
+™™0 8
 .
-ΌΌ8 9
+™™8 9
 KnowledgeBase
-ΌΌ9 F
+™™9 F
 .
-ΌΌF G
+™™F G
 ArticleStatus
-ΌΌG T
+™™G T
 .
-ΌΌT U
+™™T U
 	Published
-ΌΌU ^
+™™U ^
 ,
-ΌΌ^ _
+™™^ _
 	ViewCount
-½½ !
+ !
 =
-½½" #
+" #
 $num
-½½$ %
+$ %
 }
-ΎΎ 
+›› 
 ,
-ΎΎ 
+›› 
 new
-ΏΏ 
+ 
 ItsTool
-ΏΏ 
+ 
 .
-ΏΏ  
+  
 Domain
-ΏΏ  &
+  &
 .
-ΏΏ& '
+& '
 Entities
-ΏΏ' /
+' /
 .
-ΏΏ/ 0
+/ 0
 KnowledgeBase
-ΏΏ0 =
+0 =
 .
-ΏΏ= >
+= >
 KnowledgeArticle
-ΏΏ> N
+> N
 {
-ΐΐ 
+ 
 Title
-ΑΑ 
+ 
 =
-ΑΑ 
+ 
 $str
-ΑΑ  >
+  >
 ,
-ΑΑ> ?
+> ?
 Content
-ΒΒ 
+ 
 =
-ΒΒ  !
-$strΒΒ" Ζ
-,ΒΒΖ Η
+  !
+$str" Ζ
+,Ζ Η
 
 CategoryId
-ΓΓ "
+   "
 =
-ΓΓ# $
+  # $
 	sistemCat
-ΓΓ% .
+  % .
 .
-ΓΓ. /
+  . /
 Id
-ΓΓ/ 1
+  / 1
 ,
-ΓΓ1 2
+  1 2
 AuthorUserId
-ΔΔ $
+΅΅ $
 =
-ΔΔ% &
+΅΅% &
 adminAuthor
-ΔΔ' 2
+΅΅' 2
 .
-ΔΔ2 3
+΅΅2 3
 Id
-ΔΔ3 5
+΅΅3 5
 ,
-ΔΔ5 6
+΅΅5 6
 
 Visibility
-ΕΕ "
+ΆΆ "
 =
-ΕΕ# $
+ΆΆ# $
 ItsTool
-ΕΕ% ,
+ΆΆ% ,
 .
-ΕΕ, -
+ΆΆ, -
 Domain
-ΕΕ- 3
+ΆΆ- 3
 .
-ΕΕ3 4
+ΆΆ3 4
 Entities
-ΕΕ4 <
+ΆΆ4 <
 .
-ΕΕ< =
+ΆΆ< =
 KnowledgeBase
-ΕΕ= J
+ΆΆ= J
 .
-ΕΕJ K
+ΆΆJ K
 ArticleVisibility
-ΕΕK \
+ΆΆK \
 .
-ΕΕ\ ]
+ΆΆ\ ]
 Internal
-ΕΕ] e
+ΆΆ] e
 ,
-ΕΕe f
+ΆΆe f
 Status
-ΖΖ 
+££ 
 =
-ΖΖ  
+££  
 ItsTool
-ΖΖ! (
+££! (
 .
-ΖΖ( )
+££( )
 Domain
-ΖΖ) /
+££) /
 .
-ΖΖ/ 0
+££/ 0
 Entities
-ΖΖ0 8
+££0 8
 .
-ΖΖ8 9
+££8 9
 KnowledgeBase
-ΖΖ9 F
+££9 F
 .
-ΖΖF G
+££F G
 ArticleStatus
-ΖΖG T
+££G T
 .
-ΖΖT U
+££T U
 	Published
-ΖΖU ^
+££U ^
 ,
-ΖΖ^ _
+££^ _
 	ViewCount
-ΗΗ !
+¤¤ !
 =
-ΗΗ" #
+¤¤" #
 $num
-ΗΗ$ %
+¤¤$ %
 }
-ΘΘ 
+¥¥ 
 ,
-ΘΘ 
+¥¥ 
 new
-ΙΙ 
+¦¦ 
 ItsTool
-ΙΙ 
+¦¦ 
 .
-ΙΙ  
+¦¦  
 Domain
-ΙΙ  &
+¦¦  &
 .
-ΙΙ& '
+¦¦& '
 Entities
-ΙΙ' /
+¦¦' /
 .
-ΙΙ/ 0
+¦¦/ 0
 KnowledgeBase
-ΙΙ0 =
+¦¦0 =
 .
-ΙΙ= >
+¦¦= >
 KnowledgeArticle
-ΙΙ> N
+¦¦> N
 {
-ΚΚ 
+§§ 
 Title
-ΛΛ 
+¨¨ 
 =
-ΛΛ 
+¨¨ 
 $str
-ΛΛ  B
+¨¨  B
 ,
-ΛΛB C
+¨¨B C
 Content
-ΜΜ 
+©© 
 =
-ΜΜ  !
-$strΜΜ" £
-,ΜΜ£ ¤
+©©  !
+$str©©" £
+,©©£ ¤
 
 CategoryId
-ΝΝ "
+ªª "
 =
-ΝΝ# $
+ªª# $
 rehberlerCat
-ΝΝ% 1
+ªª% 1
 .
-ΝΝ1 2
+ªª1 2
 Id
-ΝΝ2 4
+ªª2 4
 ,
-ΝΝ4 5
+ªª4 5
 AuthorUserId
-ΞΞ $
+«« $
 =
-ΞΞ% &
+««% &
 adminAuthor
-ΞΞ' 2
+««' 2
 .
-ΞΞ2 3
+««2 3
 Id
-ΞΞ3 5
+««3 5
 ,
-ΞΞ5 6
+««5 6
 
 Visibility
-ΟΟ "
+¬¬ "
 =
-ΟΟ# $
+¬¬# $
 ItsTool
-ΟΟ% ,
+¬¬% ,
 .
-ΟΟ, -
+¬¬, -
 Domain
-ΟΟ- 3
+¬¬- 3
 .
-ΟΟ3 4
+¬¬3 4
 Entities
-ΟΟ4 <
+¬¬4 <
 .
-ΟΟ< =
+¬¬< =
 KnowledgeBase
-ΟΟ= J
+¬¬= J
 .
-ΟΟJ K
+¬¬J K
 ArticleVisibility
-ΟΟK \
+¬¬K \
 .
-ΟΟ\ ]
+¬¬\ ]
 Internal
-ΟΟ] e
+¬¬] e
 ,
-ΟΟe f
+¬¬e f
 Status
-ΠΠ 
+­­ 
 =
-ΠΠ  
+­­  
 ItsTool
-ΠΠ! (
+­­! (
 .
-ΠΠ( )
+­­( )
 Domain
-ΠΠ) /
+­­) /
 .
-ΠΠ/ 0
+­­/ 0
 Entities
-ΠΠ0 8
+­­0 8
 .
-ΠΠ8 9
+­­8 9
 KnowledgeBase
-ΠΠ9 F
+­­9 F
 .
-ΠΠF G
+­­F G
 ArticleStatus
-ΠΠG T
+­­G T
 .
-ΠΠT U
+­­T U
 Draft
-ΠΠU Z
+­­U Z
 ,
-ΠΠZ [
+­­Z [
 	ViewCount
-ΡΡ !
+®® !
 =
-ΡΡ" #
+®®" #
 $num
-ΡΡ$ %
+®®$ %
 }
-ÒÒ 
+―― 
 )
-ΣΣ 
+°° 
 ;
-ΣΣ 
+°° 
 await
-ΤΤ 
+±± 
 _context
-ΤΤ 
+±± 
 .
-ΤΤ 
+±± 
 SaveChangesAsync
-ΤΤ /
+±± /
 (
-ΤΤ/ 0
+±±/ 0
 )
-ΤΤ0 1
+±±0 1
 ;
-ΤΤ1 2
+±±1 2
 }
-ΥΥ 
+²² 
 }
-ΦΦ 	
+³³ 	
 }
-ΧΧ 
-}ΩΩ ¥
+΄΄ 
+private
+·· 
+async
+·· 
+Task
+·· %
+CreateOrUpdateUserAsync
+·· .
+(
+··. /
+(
+ΈΈ 	
+string
+ΈΈ	 
+Username
+ΈΈ 
+,
+ΈΈ 
+string
+ΈΈ  
+Password
+ΈΈ! )
+,
+ΈΈ) *
+string
+ΈΈ+ 1
+Role
+ΈΈ2 6
+,
+ΈΈ6 7
+string
+ΈΈ8 >
+	FirstName
+ΈΈ? H
+,
+ΈΈH I
+string
+ΈΈJ P
+LastName
+ΈΈQ Y
+)
+ΈΈY Z
+u
+ΈΈ[ \
+,
+ΈΈ\ ]
+List
+ΉΉ 
+<
+ΉΉ 
+ItsTool
+ΉΉ 
+.
+ΉΉ 
+Domain
+ΉΉ 
+.
+ΉΉ 
+Entities
+ΉΉ $
+.
+ΉΉ$ %
+Organization
+ΉΉ% 1
+.
+ΉΉ1 2
+User
+ΉΉ2 6
+>
+ΉΉ6 7
+existingUsers
+ΉΉ8 E
+,
+ΉΉE F
+ItsTool
+ΊΊ 
+.
+ΊΊ 
+Domain
+ΊΊ 
+.
+ΊΊ 
+Entities
+ΊΊ 
+.
+ΊΊ  
+Organization
+ΊΊ  ,
+.
+ΊΊ, -
+
+Department
+ΊΊ- 7
+?
+ΊΊ7 8
+itDept
+ΊΊ9 ?
+,
+ΊΊ? @
+List
+»» 
+<
+»» 
+ItsTool
+»» 
+.
+»» 
+Domain
+»» 
+.
+»» 
+Entities
+»» $
+.
+»»$ %
+Auth
+»»% )
+.
+»») *
+Role
+»»* .
+>
+»». /
+existingRoles
+»»0 =
+,
+»»= >
+List
+ΌΌ 
+<
+ΌΌ 
+ItsTool
+ΌΌ 
+.
+ΌΌ 
+Domain
+ΌΌ 
+.
+ΌΌ 
+Entities
+ΌΌ $
+.
+ΌΌ$ %
+Auth
+ΌΌ% )
+.
+ΌΌ) *
+
+Permission
+ΌΌ* 4
+>
+ΌΌ4 5!
+existingPermissions
+ΌΌ6 I
+)
+ΌΌI J
+{
+½½ 
+var
+ΎΎ 
+user
+ΎΎ 
+=
+ΎΎ 
+existingUsers
+ΎΎ  
+.
+ΎΎ  !
+FirstOrDefault
+ΎΎ! /
+(
+ΎΎ/ 0
+x
+ΎΎ0 1
+=>
+ΎΎ2 4
+x
+ΎΎ5 6
+.
+ΎΎ6 7
+Username
+ΎΎ7 ?
+==
+ΎΎ@ B
+u
+ΎΎC D
+.
+ΎΎD E
+Username
+ΎΎE M
+)
+ΎΎM N
+;
+ΎΎN O
+if
+ΏΏ 
+
+(
+ΏΏ 
+user
+ΏΏ 
+==
+ΏΏ 
+null
+ΏΏ 
+&&
+ΏΏ 
+itDept
+ΏΏ "
+!=
+ΏΏ# %
+null
+ΏΏ& *
+)
+ΏΏ* +
+{
+ΐΐ 	
+user
+ΑΑ 
+=
+ΑΑ 
+new
+ΑΑ 
+ItsTool
+ΑΑ 
+.
+ΑΑ 
+Domain
+ΑΑ %
+.
+ΑΑ% &
+Entities
+ΑΑ& .
+.
+ΑΑ. /
+Organization
+ΑΑ/ ;
+.
+ΑΑ; <
+User
+ΑΑ< @
+{
+ΒΒ 
+Username
+ΓΓ 
+=
+ΓΓ 
+u
+ΓΓ 
+.
+ΓΓ 
+Username
+ΓΓ %
+,
+ΓΓ% &
+Email
+ΔΔ 
+=
+ΔΔ 
+$"
+ΔΔ 
+{
+ΔΔ 
+u
+ΔΔ 
+.
+ΔΔ 
+Username
+ΔΔ %
+}
+ΔΔ% &
+$str
+ΔΔ& 1
+"
+ΔΔ1 2
+,
+ΔΔ2 3
+	FirstName
+ΕΕ 
+=
+ΕΕ 
+u
+ΕΕ 
+.
+ΕΕ 
+	FirstName
+ΕΕ '
+,
+ΕΕ' (
+LastName
+ΖΖ 
+=
+ΖΖ 
+u
+ΖΖ 
+.
+ΖΖ 
+LastName
+ΖΖ %
+,
+ΖΖ% &
+DepartmentId
+ΗΗ 
+=
+ΗΗ 
+itDept
+ΗΗ %
+.
+ΗΗ% &
+Id
+ΗΗ& (
+,
+ΗΗ( )
+PasswordHash
+ΘΘ 
+=
+ΘΘ 
+BCrypt
+ΘΘ %
+.
+ΘΘ% &
+Net
+ΘΘ& )
+.
+ΘΘ) *
+BCrypt
+ΘΘ* 0
+.
+ΘΘ0 1
+HashPassword
+ΘΘ1 =
+(
+ΘΘ= >
+u
+ΘΘ> ?
+.
+ΘΘ? @
+Password
+ΘΘ@ H
+)
+ΘΘH I
+}
+ΙΙ 
+;
+ΙΙ 
+_context
+ΚΚ 
+.
+ΚΚ 
+Users
+ΚΚ 
+.
+ΚΚ 
+Add
+ΚΚ 
+(
+ΚΚ 
+user
+ΚΚ #
+)
+ΚΚ# $
+;
+ΚΚ$ %
+existingUsers
+ΛΛ 
+.
+ΛΛ 
+Add
+ΛΛ 
+(
+ΛΛ 
+user
+ΛΛ "
+)
+ΛΛ" #
+;
+ΛΛ# $
+await
+ΜΜ 
+_context
+ΜΜ 
+.
+ΜΜ 
+SaveChangesAsync
+ΜΜ +
+(
+ΜΜ+ ,
+)
+ΜΜ, -
+;
+ΜΜ- .
+}
+ΝΝ 	
+if
+ΟΟ 
+
+(
+ΟΟ 
+user
+ΟΟ 
+!=
+ΟΟ 
+null
+ΟΟ 
+)
+ΟΟ 
+{
+ΠΠ 	
+var
+ΡΡ 
+role
+ΡΡ 
+=
+ΡΡ 
+existingRoles
+ΡΡ $
+.
+ΡΡ$ %
+First
+ΡΡ% *
+(
+ΡΡ* +
+r
+ΡΡ+ ,
+=>
+ΡΡ- /
+r
+ΡΡ0 1
+.
+ΡΡ1 2
+Name
+ΡΡ2 6
+==
+ΡΡ7 9
+u
+ΡΡ: ;
+.
+ΡΡ; <
+Role
+ΡΡ< @
+)
+ΡΡ@ A
+;
+ΡΡA B
+if
+ÒÒ 
+(
+ÒÒ 
+!
+ÒÒ 
+user
+ÒÒ 
+.
+ÒÒ 
+	UserRoles
+ÒÒ 
+.
+ÒÒ  
+Any
+ÒÒ  #
+(
+ÒÒ# $
+ur
+ÒÒ$ &
+=>
+ÒÒ' )
+ur
+ÒÒ* ,
+.
+ÒÒ, -
+RoleId
+ÒÒ- 3
+==
+ÒÒ4 6
+role
+ÒÒ7 ;
+.
+ÒÒ; <
+Id
+ÒÒ< >
+)
+ÒÒ> ?
+)
+ÒÒ? @
+{
+ΣΣ 
+_context
+ΤΤ 
+.
+ΤΤ 
+	UserRoles
+ΤΤ "
+.
+ΤΤ" #
+Add
+ΤΤ# &
+(
+ΤΤ& '
+new
+ΤΤ' *
+ItsTool
+ΤΤ+ 2
+.
+ΤΤ2 3
+Domain
+ΤΤ3 9
+.
+ΤΤ9 :
+Entities
+ΤΤ: B
+.
+ΤΤB C
+Auth
+ΤΤC G
+.
+ΤΤG H
+UserRole
+ΤΤH P
+{
+ΤΤQ R
+UserId
+ΤΤS Y
+=
+ΤΤZ [
+user
+ΤΤ\ `
+.
+ΤΤ` a
+Id
+ΤΤa c
+,
+ΤΤc d
+RoleId
+ΤΤe k
+=
+ΤΤl m
+role
+ΤΤn r
+.
+ΤΤr s
+Id
+ΤΤs u
+}
+ΤΤv w
+)
+ΤΤw x
+;
+ΤΤx y
+}
+ΥΥ 
+if
+ΧΧ 
+(
+ΧΧ 
+u
+ΧΧ 
+.
+ΧΧ 
+Username
+ΧΧ 
+==
+ΧΧ 
+$str
+ΧΧ &
+)
+ΧΧ& '
+{
+ΨΨ 
+var
+ΩΩ 
+	closePerm
+ΩΩ 
+=
+ΩΩ !
+existingPermissions
+ΩΩ  3
+.
+ΩΩ3 4
+First
+ΩΩ4 9
+(
+ΩΩ9 :
+p
+ΩΩ: ;
+=>
+ΩΩ< >
+p
+ΩΩ? @
+.
+ΩΩ@ A
+Key
+ΩΩA D
+==
+ΩΩE G!
+PermissionConstants
+ΩΩH [
+.
+ΩΩ[ \
+TicketClose
+ΩΩ\ g
+)
+ΩΩg h
+;
+ΩΩh i
+if
+ΪΪ 
+(
+ΪΪ 
+!
+ΪΪ 
+user
+ΪΪ 
+.
+ΪΪ !
+PermissionOverrides
+ΪΪ -
+.
+ΪΪ- .
+Any
+ΪΪ. 1
+(
+ΪΪ1 2
+po
+ΪΪ2 4
+=>
+ΪΪ5 7
+po
+ΪΪ8 :
+.
+ΪΪ: ;
+PermissionId
+ΪΪ; G
+==
+ΪΪH J
+	closePerm
+ΪΪK T
+.
+ΪΪT U
+Id
+ΪΪU W
+)
+ΪΪW X
+)
+ΪΪX Y
+{
+ΫΫ 
+_context
+άά 
+.
+άά %
+UserPermissionOverrides
+άά 4
+.
+άά4 5
+Add
+άά5 8
+(
+άά8 9
+new
+άά9 <
+ItsTool
+άά= D
+.
+άάD E
+Domain
+άάE K
+.
+άάK L
+Entities
+άάL T
+.
+άάT U
+Auth
+άάU Y
+.
+άάY Z$
+UserPermissionOverride
+άάZ p
+{
+έέ 
+UserId
+ήή 
+=
+ήή  
+user
+ήή! %
+.
+ήή% &
+Id
+ήή& (
+,
+ήή( )
+PermissionId
+ίί $
+=
+ίί% &
+	closePerm
+ίί' 0
+.
+ίί0 1
+Id
+ίί1 3
+,
+ίί3 4
+	IsGranted
+ΰΰ !
+=
+ΰΰ" #
+true
+ΰΰ$ (
+}
+αα 
+)
+αα 
+;
+αα 
+}
+ββ 
+}
+γγ 
+}
+δδ 	
+}
+εε 
+private
+ηη 
+async
+ηη 
+Task
+ηη (
+AddDefaultTransitionsAsync
+ηη 1
+(
+ηη1 2
+ItsTool
+ηη2 9
+.
+ηη9 :
+Domain
+ηη: @
+.
+ηη@ A
+Entities
+ηηA I
+.
+ηηI J
+Workflow
+ηηJ R
+.
+ηηR S
+Workflow
+ηηS [
+defaultWorkflow
+ηη\ k
+,
+ηηk l
+ItsTool
+θθ 
+.
+θθ 
+Domain
+θθ 
+.
+θθ 
+Entities
+θθ 
+.
+θθ  
+Ticket
+θθ  &
+.
+θθ& '
+Status
+θθ' -
+
+openStatus
+θθ. 8
+,
+θθ8 9
+ItsTool
+θθ: A
+.
+θθA B
+Domain
+θθB H
+.
+θθH I
+Entities
+θθI Q
+.
+θθQ R
+Ticket
+θθR X
+.
+θθX Y
+Status
+θθY _
+inProgressStatus
+θθ` p
+,
+θθp q
+ItsTool
+ιι 
+.
+ιι 
+Domain
+ιι 
+.
+ιι 
+Entities
+ιι 
+.
+ιι  
+Ticket
+ιι  &
+.
+ιι& '
+Status
+ιι' -
+onHoldStatus
+ιι. :
+,
+ιι: ;
+ItsTool
+ιι< C
+.
+ιιC D
+Domain
+ιιD J
+.
+ιιJ K
+Entities
+ιιK S
+.
+ιιS T
+Ticket
+ιιT Z
+.
+ιιZ [
+Status
+ιι[ a
+resolvedStatus
+ιιb p
+,
+ιιp q
+ItsTool
+κκ 
+.
+κκ 
+Domain
+κκ 
+.
+κκ 
+Entities
+κκ 
+.
+κκ  
+Ticket
+κκ  &
+.
+κκ& '
+Status
+κκ' -
+closedStatus
+κκ. :
+)
+κκ: ;
+{
+λλ 
+var
+μμ  
+desiredTransitions
+μμ 
+=
+μμ  
+new
+μμ! $
+List
+μμ% )
+<
+μμ) *
+ItsTool
+μμ* 1
+.
+μμ1 2
+Domain
+μμ2 8
+.
+μμ8 9
+Entities
+μμ9 A
+.
+μμA B
+Workflow
+μμB J
+.
+μμJ K 
+WorkflowTransition
+μμK ]
+>
+μμ] ^
+{
+νν 	
+new
+οο 
+(
+οο 
+)
+οο 
+{
+οο 
+
+WorkflowId
+οο 
+=
+οο  
+defaultWorkflow
+οο! 0
+.
+οο0 1
+Id
+οο1 3
+,
+οο3 4
+FromStatusId
+οο5 A
+=
+οοB C
+
+openStatus
+οοD N
+.
+οοN O
+Id
+οοO Q
+,
+οοQ R
+
+ToStatusId
+οοS ]
+=
+οο^ _
+inProgressStatus
+οο` p
+.
+οοp q
+Id
+οοq s
+,
+οοs t
+IsActive
+οοu }
+=
+οο~ 
+trueοο€ „
+,οο„ …
+TransitionNameοο† ”
+=οο• –
+$strοο— §
+}οο¨ ©
+,οο© ª
+new
+ππ 
+(
+ππ 
+)
+ππ 
+{
+ππ 
+
+WorkflowId
+ππ 
+=
+ππ  
+defaultWorkflow
+ππ! 0
+.
+ππ0 1
+Id
+ππ1 3
+,
+ππ3 4
+FromStatusId
+ππ5 A
+=
+ππB C
+
+openStatus
+ππD N
+.
+ππN O
+Id
+ππO Q
+,
+ππQ R
+
+ToStatusId
+ππS ]
+=
+ππ^ _
+onHoldStatus
+ππ` l
+.
+ππl m
+Id
+ππm o
+,
+ππo p
+IsActive
+ππq y
+=
+ππz {
+trueππ| €
+,ππ€ 
+TransitionNameππ‚ 
+=ππ‘ ’
+$strππ“  
+}ππ΅ Ά
+,ππΆ £
+new
+ρρ 
+(
+ρρ 
+)
+ρρ 
+{
+ρρ 
+
+WorkflowId
+ρρ 
+=
+ρρ  
+defaultWorkflow
+ρρ! 0
+.
+ρρ0 1
+Id
+ρρ1 3
+,
+ρρ3 4
+FromStatusId
+ρρ5 A
+=
+ρρB C
+
+openStatus
+ρρD N
+.
+ρρN O
+Id
+ρρO Q
+,
+ρρQ R
+
+ToStatusId
+ρρS ]
+=
+ρρ^ _
+resolvedStatus
+ρρ` n
+.
+ρρn o
+Id
+ρρo q
+,
+ρρq r
+IsActive
+ρρs {
+=
+ρρ| }
+trueρρ~ ‚
+,ρρ‚ ƒ
+TransitionNameρρ„ ’
+=ρρ“ ”
+$strρρ• 
+,ρρ %
+RequiredPermissionKeyρρ  µ
+=ρρ¶ ·#
+PermissionConstantsρρΈ Λ
+.ρρΛ Μ
+TicketResolveρρΜ Ω
+}ρρΪ Ϋ
+,ρρΫ ά
+new
+ςς 
+(
+ςς 
+)
+ςς 
+{
+ςς 
+
+WorkflowId
+ςς 
+=
+ςς  
+defaultWorkflow
+ςς! 0
+.
+ςς0 1
+Id
+ςς1 3
+,
+ςς3 4
+FromStatusId
+ςς5 A
+=
+ςςB C
+
+openStatus
+ςςD N
+.
+ςςN O
+Id
+ςςO Q
+,
+ςςQ R
+
+ToStatusId
+ςςS ]
+=
+ςς^ _
+closedStatus
+ςς` l
+.
+ςςl m
+Id
+ςςm o
+,
+ςςo p
+IsActive
+ςςq y
+=
+ςςz {
+trueςς| €
+,ςς€ 
+TransitionNameςς‚ 
+=ςς‘ ’
+StatusConstantsςς“ Ά
+.ςςΆ £
+Closedςς£ ©
+,ςς© ª%
+RequiredPermissionKeyςς« ΐ
+=ςςΑ Β#
+PermissionConstantsςςΓ Φ
+.ςςΦ Χ
+TicketCloseςςΧ β
+}ςςγ δ
+,ςςδ ε
+new
+υυ 
+(
+υυ 
+)
+υυ 
+{
+υυ 
+
+WorkflowId
+υυ 
+=
+υυ  
+defaultWorkflow
+υυ! 0
+.
+υυ0 1
+Id
+υυ1 3
+,
+υυ3 4
+FromStatusId
+υυ5 A
+=
+υυB C
+inProgressStatus
+υυD T
+.
+υυT U
+Id
+υυU W
+,
+υυW X
+
+ToStatusId
+υυY c
+=
+υυd e
+
+openStatus
+υυf p
+.
+υυp q
+Id
+υυq s
+,
+υυs t
+IsActive
+υυu }
+=
+υυ~ 
+trueυυ€ „
+,υυ„ …
+TransitionNameυυ† ”
+=υυ• –
+$strυυ— ¥
+}υυ¦ §
+,υυ§ ¨
+new
+φφ 
+(
+φφ 
+)
+φφ 
+{
+φφ 
+
+WorkflowId
+φφ 
+=
+φφ  
+defaultWorkflow
+φφ! 0
+.
+φφ0 1
+Id
+φφ1 3
+,
+φφ3 4
+FromStatusId
+φφ5 A
+=
+φφB C
+inProgressStatus
+φφD T
+.
+φφT U
+Id
+φφU W
+,
+φφW X
+
+ToStatusId
+φφY c
+=
+φφd e
+onHoldStatus
+φφf r
+.
+φφr s
+Id
+φφs u
+,
+φφu v
+IsActive
+φφw 
+=φφ€ 
+trueφφ‚ †
+,φφ† ‡
+TransitionNameφφ –
+=φφ— 
+$strφφ™ ¦
+}φφ§ ¨
+,φφ¨ ©
+new
+χχ 
+(
+χχ 
+)
+χχ 
+{
+χχ 
+
+WorkflowId
+χχ 
+=
+χχ  
+defaultWorkflow
+χχ! 0
+.
+χχ0 1
+Id
+χχ1 3
+,
+χχ3 4
+FromStatusId
+χχ5 A
+=
+χχB C
+inProgressStatus
+χχD T
+.
+χχT U
+Id
+χχU W
+,
+χχW X
+
+ToStatusId
+χχY c
+=
+χχd e
+resolvedStatus
+χχf t
+.
+χχt u
+Id
+χχu w
+,
+χχw x
+IsActiveχχy 
+=χχ‚ ƒ
+trueχχ„ 
+,χχ ‰
+TransitionNameχχ 
+=χχ™ 
+$strχχ› ¤
+,χχ¤ ¥%
+RequiredPermissionKeyχχ¦ »
+=χχΌ ½#
+PermissionConstantsχχΎ Ρ
+.χχΡ Ò
+TicketResolveχχÒ ί
+}χχΰ α
+,χχα β
+new
+ψψ 
+(
+ψψ 
+)
+ψψ 
+{
+ψψ 
+
+WorkflowId
+ψψ 
+=
+ψψ  
+defaultWorkflow
+ψψ! 0
+.
+ψψ0 1
+Id
+ψψ1 3
+,
+ψψ3 4
+FromStatusId
+ψψ5 A
+=
+ψψB C
+inProgressStatus
+ψψD T
+.
+ψψT U
+Id
+ψψU W
+,
+ψψW X
+
+ToStatusId
+ψψY c
+=
+ψψd e
+closedStatus
+ψψf r
+.
+ψψr s
+Id
+ψψs u
+,
+ψψu v
+IsActive
+ψψw 
+=ψψ€ 
+trueψψ‚ †
+,ψψ† ‡
+TransitionNameψψ –
+=ψψ— 
+StatusConstantsψψ™ ¨
+.ψψ¨ ©
+Closedψψ© ―
+,ψψ― °%
+RequiredPermissionKeyψψ± Ζ
+=ψψΗ Θ#
+PermissionConstantsψψΙ ά
+.ψψά έ
+TicketCloseψψέ θ
+}ψψι κ
+,ψψκ λ
+new
+ϋϋ 
+(
+ϋϋ 
+)
+ϋϋ 
+{
+ϋϋ 
+
+WorkflowId
+ϋϋ 
+=
+ϋϋ  
+defaultWorkflow
+ϋϋ! 0
+.
+ϋϋ0 1
+Id
+ϋϋ1 3
+,
+ϋϋ3 4
+FromStatusId
+ϋϋ5 A
+=
+ϋϋB C
+onHoldStatus
+ϋϋD P
+.
+ϋϋP Q
+Id
+ϋϋQ S
+,
+ϋϋS T
+
+ToStatusId
+ϋϋU _
+=
+ϋϋ` a
+
+openStatus
+ϋϋb l
+.
+ϋϋl m
+Id
+ϋϋm o
+,
+ϋϋo p
+IsActive
+ϋϋq y
+=
+ϋϋz {
+trueϋϋ| €
+,ϋϋ€ 
+TransitionNameϋϋ‚ 
+=ϋϋ‘ ’
+$strϋϋ“ ΅
+}ϋϋΆ £
+,ϋϋ£ ¤
+new
+όό 
+(
+όό 
+)
+όό 
+{
+όό 
+
+WorkflowId
+όό 
+=
+όό  
+defaultWorkflow
+όό! 0
+.
+όό0 1
+Id
+όό1 3
+,
+όό3 4
+FromStatusId
+όό5 A
+=
+όόB C
+onHoldStatus
+όόD P
+.
+όόP Q
+Id
+όόQ S
+,
+όόS T
+
+ToStatusId
+όόU _
+=
+όό` a
+inProgressStatus
+όόb r
+.
+όόr s
+Id
+όόs u
+,
+όόu v
+IsActive
+όόw 
+=όό€ 
+trueόό‚ †
+,όό† ‡
+TransitionNameόό –
+=όό— 
+$strόό™ ª
+}όό« ¬
+,όό¬ ­
+new
+ύύ 
+(
+ύύ 
+)
+ύύ 
+{
+ύύ 
+
+WorkflowId
+ύύ 
+=
+ύύ  
+defaultWorkflow
+ύύ! 0
+.
+ύύ0 1
+Id
+ύύ1 3
+,
+ύύ3 4
+FromStatusId
+ύύ5 A
+=
+ύύB C
+onHoldStatus
+ύύD P
+.
+ύύP Q
+Id
+ύύQ S
+,
+ύύS T
+
+ToStatusId
+ύύU _
+=
+ύύ` a
+resolvedStatus
+ύύb p
+.
+ύύp q
+Id
+ύύq s
+,
+ύύs t
+IsActive
+ύύu }
+=
+ύύ~ 
+trueύύ€ „
+,ύύ„ …
+TransitionNameύύ† ”
+=ύύ• –
+$strύύ—  
+,ύύ  ΅%
+RequiredPermissionKeyύύΆ ·
+=ύύΈ Ή#
+PermissionConstantsύύΊ Ν
+.ύύΝ Ξ
+TicketResolveύύΞ Ϋ
+}ύύά έ
+,ύύέ ή
+new
+ώώ 
+(
+ώώ 
+)
+ώώ 
+{
+ώώ 
+
+WorkflowId
+ώώ 
+=
+ώώ  
+defaultWorkflow
+ώώ! 0
+.
+ώώ0 1
+Id
+ώώ1 3
+,
+ώώ3 4
+FromStatusId
+ώώ5 A
+=
+ώώB C
+onHoldStatus
+ώώD P
+.
+ώώP Q
+Id
+ώώQ S
+,
+ώώS T
+
+ToStatusId
+ώώU _
+=
+ώώ` a
+closedStatus
+ώώb n
+.
+ώώn o
+Id
+ώώo q
+,
+ώώq r
+IsActive
+ώώs {
+=
+ώώ| }
+trueώώ~ ‚
+,ώώ‚ ƒ
+TransitionNameώώ„ ’
+=ώώ“ ”
+StatusConstantsώώ• ¤
+.ώώ¤ ¥
+Closedώώ¥ «
+,ώώ« ¬%
+RequiredPermissionKeyώώ­ Β
+=ώώΓ Δ#
+PermissionConstantsώώΕ Ψ
+.ώώΨ Ω
+TicketCloseώώΩ δ
+}ώώε ζ
+,ώώζ η
+new
+ 
+(
+ 
+)
+ 
+{
+ 
+
+WorkflowId
+ 
+=
+  
+defaultWorkflow
+! 0
+.
+0 1
+Id
+1 3
+,
+3 4
+FromStatusId
+5 A
+=
+B C
+resolvedStatus
+D R
+.
+R S
+Id
+S U
+,
+U V
+
+ToStatusId
+W a
+=
+b c
+
+openStatus
+d n
+.
+n o
+Id
+o q
+,
+q r
+IsActive
+s {
+=
+| }
+true~ ‚
+,‚ ƒ
+TransitionName„ ’
+=“ ”
+$str• ¥
+,¥ ¦%
+RequiredPermissionKey§ Ό
+=½ Ύ#
+PermissionConstantsΏ Ò
+.Ò Σ
+TicketReopenΣ ί
+}ΰ α
+,α β
+new
+‚‚ 
+(
+‚‚ 
+)
+‚‚ 
+{
+‚‚ 
+
+WorkflowId
+‚‚ 
+=
+‚‚  
+defaultWorkflow
+‚‚! 0
+.
+‚‚0 1
+Id
+‚‚1 3
+,
+‚‚3 4
+FromStatusId
+‚‚5 A
+=
+‚‚B C
+resolvedStatus
+‚‚D R
+.
+‚‚R S
+Id
+‚‚S U
+,
+‚‚U V
+
+ToStatusId
+‚‚W a
+=
+‚‚b c
+inProgressStatus
+‚‚d t
+.
+‚‚t u
+Id
+‚‚u w
+,
+‚‚w x
+IsActive‚‚y 
+=‚‚‚ ƒ
+true‚‚„ 
+,‚‚ ‰
+TransitionName‚‚ 
+=‚‚™ 
+$str‚‚› ―
+,‚‚― °%
+RequiredPermissionKey‚‚± Ζ
+=‚‚Η Θ#
+PermissionConstants‚‚Ι ά
+.‚‚ά έ
+TicketReopen‚‚έ ι
+}‚‚κ λ
+,‚‚λ μ
+new
+ƒƒ 
+(
+ƒƒ 
+)
+ƒƒ 
+{
+ƒƒ 
+
+WorkflowId
+ƒƒ 
+=
+ƒƒ  
+defaultWorkflow
+ƒƒ! 0
+.
+ƒƒ0 1
+Id
+ƒƒ1 3
+,
+ƒƒ3 4
+FromStatusId
+ƒƒ5 A
+=
+ƒƒB C
+resolvedStatus
+ƒƒD R
+.
+ƒƒR S
+Id
+ƒƒS U
+,
+ƒƒU V
+
+ToStatusId
+ƒƒW a
+=
+ƒƒb c
+onHoldStatus
+ƒƒd p
+.
+ƒƒp q
+Id
+ƒƒq s
+,
+ƒƒs t
+IsActive
+ƒƒu }
+=
+ƒƒ~ 
+trueƒƒ€ „
+,ƒƒ„ …
+TransitionNameƒƒ† ”
+=ƒƒ• –
+$strƒƒ— ª
+,ƒƒª «%
+RequiredPermissionKeyƒƒ¬ Α
+=ƒƒΒ Γ#
+PermissionConstantsƒƒΔ Χ
+.ƒƒΧ Ψ
+TicketReopenƒƒΨ δ
+}ƒƒε ζ
+,ƒƒζ η
+new
+„„ 
+(
+„„ 
+)
+„„ 
+{
+„„ 
+
+WorkflowId
+„„ 
+=
+„„  
+defaultWorkflow
+„„! 0
+.
+„„0 1
+Id
+„„1 3
+,
+„„3 4
+FromStatusId
+„„5 A
+=
+„„B C
+resolvedStatus
+„„D R
+.
+„„R S
+Id
+„„S U
+,
+„„U V
+
+ToStatusId
+„„W a
+=
+„„b c
+closedStatus
+„„d p
+.
+„„p q
+Id
+„„q s
+,
+„„s t
+IsActive
+„„u }
+=
+„„~ 
+true„„€ „
+,„„„ …
+TransitionName„„† ”
+=„„• –
+StatusConstants„„— ¦
+.„„¦ §
+Closed„„§ ­
+,„„­ ®%
+RequiredPermissionKey„„― Δ
+=„„Ε Ζ#
+PermissionConstants„„Η Ϊ
+.„„Ϊ Ϋ
+TicketClose„„Ϋ ζ
+}„„η θ
+,„„θ ι
+new
+‡‡ 
+(
+‡‡ 
+)
+‡‡ 
+{
+‡‡ 
+
+WorkflowId
+‡‡ 
+=
+‡‡  
+defaultWorkflow
+‡‡! 0
+.
+‡‡0 1
+Id
+‡‡1 3
+,
+‡‡3 4
+FromStatusId
+‡‡5 A
+=
+‡‡B C
+closedStatus
+‡‡D P
+.
+‡‡P Q
+Id
+‡‡Q S
+,
+‡‡S T
+
+ToStatusId
+‡‡U _
+=
+‡‡` a
+
+openStatus
+‡‡b l
+.
+‡‡l m
+Id
+‡‡m o
+,
+‡‡o p
+IsActive
+‡‡q y
+=
+‡‡z {
+true‡‡| €
+,‡‡€ 
+TransitionName‡‡‚ 
+=‡‡‘ ’
+$str‡‡“ £
+,‡‡£ ¤%
+RequiredPermissionKey‡‡¥ Ί
+=‡‡» Ό#
+PermissionConstants‡‡½ Π
+.‡‡Π Ρ
+TicketReopen‡‡Ρ έ
+}‡‡ή ί
+,‡‡ί ΰ
+new
+ 
+(
+ 
+)
+ 
+{
+ 
+
+WorkflowId
+ 
+=
+  
+defaultWorkflow
+! 0
+.
+0 1
+Id
+1 3
+,
+3 4
+FromStatusId
+5 A
+=
+B C
+closedStatus
+D P
+.
+P Q
+Id
+Q S
+,
+S T
+
+ToStatusId
+U _
+=
+` a
+inProgressStatus
+b r
+.
+r s
+Id
+s u
+,
+u v
+IsActive
+w 
+=€ 
+true‚ †
+,† ‡
+TransitionName –
+=— 
+$str™ ­
+,­ ®%
+RequiredPermissionKey― Δ
+=Ε Ζ#
+PermissionConstantsΗ Ϊ
+.Ϊ Ϋ
+TicketReopenΫ η
+}θ ι
+,ι κ
+new
+‰‰ 
+(
+‰‰ 
+)
+‰‰ 
+{
+‰‰ 
+
+WorkflowId
+‰‰ 
+=
+‰‰  
+defaultWorkflow
+‰‰! 0
+.
+‰‰0 1
+Id
+‰‰1 3
+,
+‰‰3 4
+FromStatusId
+‰‰5 A
+=
+‰‰B C
+closedStatus
+‰‰D P
+.
+‰‰P Q
+Id
+‰‰Q S
+,
+‰‰S T
+
+ToStatusId
+‰‰U _
+=
+‰‰` a
+onHoldStatus
+‰‰b n
+.
+‰‰n o
+Id
+‰‰o q
+,
+‰‰q r
+IsActive
+‰‰s {
+=
+‰‰| }
+true‰‰~ ‚
+,‰‰‚ ƒ
+TransitionName‰‰„ ’
+=‰‰“ ”
+$str‰‰• ¨
+,‰‰¨ ©%
+RequiredPermissionKey‰‰ª Ώ
+=‰‰ΐ Α#
+PermissionConstants‰‰Β Υ
+.‰‰Υ Φ
+TicketReopen‰‰Φ β
+}‰‰γ δ
+,‰‰δ ε
+new
+ 
+(
+ 
+)
+ 
+{
+ 
+
+WorkflowId
+ 
+=
+  
+defaultWorkflow
+! 0
+.
+0 1
+Id
+1 3
+,
+3 4
+FromStatusId
+5 A
+=
+B C
+closedStatus
+D P
+.
+P Q
+Id
+Q S
+,
+S T
+
+ToStatusId
+U _
+=
+` a
+resolvedStatus
+b p
+.
+p q
+Id
+q s
+,
+s t
+IsActive
+u }
+=
+~ 
+true€ „
+,„ …
+TransitionName† ”
+=• –
+$str—  
+,  ΅%
+RequiredPermissionKeyΆ ·
+=Έ Ή#
+PermissionConstantsΊ Ν
+.Ν Ξ
+TicketResolveΞ Ϋ
+}ά έ
+}
+‹‹ 	
+;
+‹‹	 
+
+var
+ !
+existingTransitions
+ 
+=
+  !
+await
+" '
+_context
+( 0
+.
+0 1!
+WorkflowTransitions
+1 D
+.
+D E
+Where
+E J
+(
+J K
+wt
+K M
+=>
+N P
+wt
+Q S
+.
+S T
+
+WorkflowId
+T ^
+==
+_ a
+defaultWorkflow
+b q
+.
+q r
+Id
+r t
+)
+t u
+.
+u v
+ToListAsyncv 
+( ‚
+)‚ ƒ
+;ƒ „
+if
+ 
+
+(
+ !
+existingTransitions
+ 
+.
+  
+Count
+  %
+==
+& (
+$num
+) *
+)
+* +
+{
+ 	
+_context
+ 
+.
+ !
+WorkflowTransitions
+ (
+.
+( )
+AddRange
+) 1
+(
+1 2 
+desiredTransitions
+2 D
+)
+D E
+;
+E F
+await
+‘‘ 
+_context
+‘‘ 
+.
+‘‘ 
+SaveChangesAsync
+‘‘ +
+(
+‘‘+ ,
+)
+‘‘, -
+;
+‘‘- .
+}
+’’ 	
+}
+““ 
+}”” ¥
 r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs
 	namespace 	
 ItsTool

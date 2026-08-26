@@ -207,11 +207,11 @@
                     const tBtn = document.getElementById('btnTogglePublish');
                     tBtn.textContent = a.status === 0 ? 'Publish' : 'Unpublish';
                 }
-            } catch(e) {
+            } catch (e) { console.error(e); 
                 showToast('Failed to load article', 'error');
                 document.getElementById('articleTitle').textContent = 'Article Not Found';
                 document.getElementById('articleContent').innerHTML = '<p class="text-danger">The article you are looking for does not exist or you do not have permission to view it.</p>';
-            }
+             }
         }
         
         
@@ -229,12 +229,15 @@
                 document.getElementById('adminActionBar').style.display = 'flex';
                 
                 // Load categories for edit modal
-                window.api.request('/kb/categories').then(cats => {
+                try {
+                    const cats = await window.api.request('/kb/categories');
                     const sel = document.getElementById('editArticleCategory');
                     cats.forEach(c => {
                         sel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
                     });
-                });
+                } catch (e) {
+                    console.error(e);
+                }
             }
         } catch (e) { console.error(e); }
 
@@ -261,7 +264,7 @@
                 closeModal('articleModal');
                 showToast('Article updated successfully.');
                 loadArticle();
-            } catch(e) { showToast('Update failed', 'error'); }
+            } catch (e) { console.error(e);  showToast('Update failed', 'error');  }
         });
 
         document.getElementById('btnTogglePublish')?.addEventListener('click', async () => {
@@ -279,10 +282,10 @@
                     await window.api.request(`/kb/articles/${articleId}`, { method: 'PUT', body: JSON.stringify(loadedArticle) });
                     loadArticle();
                 });
-            } catch(e) {
+            } catch (e) { console.error(e); 
                 loadedArticle.status = oldStatus;
                 showToast('Failed to change publish status.', 'error');
-            }
+             }
         });
 
         document.getElementById('btnDeleteArticle')?.addEventListener('click', () => {
@@ -294,7 +297,7 @@
                     try {
                         await window.api.request(`/kb/articles/${articleId}`, { method: 'DELETE' });
                         window.location.href = '/kb.html';
-                    } catch(e) { showToast('Delete failed.', 'error'); }
+                    } catch (e) { console.error(e);  showToast('Delete failed.', 'error');  }
                 }
             });
         });

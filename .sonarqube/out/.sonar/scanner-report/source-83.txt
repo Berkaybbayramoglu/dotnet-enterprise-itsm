@@ -173,7 +173,7 @@
                 let payload = { sub: 'unknown' };
                 try {
                     payload = JSON.parse(atob(window.api.token.split('.')[1]));
-                } catch(e) {}
+                } catch (e) { console.error(e); }
                 const userId = payload.sub;
                 
                 let savedOrder = localStorage.getItem(`kanban.colorder.${userId}`);
@@ -189,7 +189,7 @@
                             if (!savedOrder.includes(st.id)) sortedStatuses.push(st);
                         });
                         statuses = sortedStatuses;
-                    } catch(e) {}
+                    } catch (e) { console.error(e); }
                 }
 
                 const board = document.getElementById('board');

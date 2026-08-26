@@ -61,3 +61,8 @@ Bu desen, hem şık (hover effect) hem de engelsiz bir Dashboard sunar.
 - **Dataset API:** `getAttribute('data-*')` kullanımlarını `dataset.*` şeklinde yeniden düzenledik (ör. `dataset.statusName`). Bu standart, camelCase mapping ile daha güvenli DOM erişimi sağlar.
 - **Top-Level Await (v11.5 Deseni):** ES Modules ( `<script type="module">`) içinde top-level await yapabilmek, "unhandled promise rejection" kaynaklı kırılganlıkları engellemek için async metot başlatımlarını `await` ile bağladık (`loadDashboard`, `loadFields` vb.).
 - **Ders (Tekrar Eden Bulgu):** Eğer aynı bulgu (empty-catch, boş-heading) projenin birkaç yerinde tekrar ediyorsa, sweep'i (taramayı) satır bazlı değil *repo-geneli* yapmalıyız. Tekrar eden bulgu = sweep eksik.
+
+### Öğrenme Notu - One-Off Script Politikası ve Son Sweep (FAZ 9)
+- **One-off Script Politikası:** Toplu düzeltmeler (bulk-fix) için yazılan geçici Python veya JS betiklerinin repo içerisinde tutulmaması kritik bir kuraldır. Geçmişte bu tarz `fix_*.py` scriptleri SonarQube bulgularına ve gereksiz kod kirliliğine neden oldu. Bu betikler artık ya `/tmp` gibi repo dışı bir alanda çalıştırılmalı ya da çalıştırıldıktan hemen sonra (ör. `&& rm script.py`) silinmelidir.
+- **Empty Catch Disiplini:** Arayüz (UI) katmanında ve `wwwroot` altındaki tüm API isteklerinde oluşabilecek hataların yutulmasını (swallow) önlemek için tüm boş `catch(e) {}` bloklarına `console.error(e)` eklendi.
+- **DataSeeder Constants:** `StatusConstants` ve geçiş isimleri (TransitionName) gibi "magic string" (sihirli metin) değerlerinin merkezileştirilmesi SOLID prensiplerine tam uyum sağlar.

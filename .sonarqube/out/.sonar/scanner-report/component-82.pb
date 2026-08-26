@@ -1,1 +1,1 @@
-R 2webXçhr(src/ItsTool.Web/wwwroot/departments.html
+R 2webXçhr(src/ItsTool.Web/wwwroot/departments.html

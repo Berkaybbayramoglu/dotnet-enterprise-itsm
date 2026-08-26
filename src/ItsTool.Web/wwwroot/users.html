@@ -297,12 +297,12 @@
                     `;
                     tbody.appendChild(tr);
                 });
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
                         errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
+                     } else {
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }
@@ -326,9 +326,9 @@
                 });
                 showToast('User status updated');
                 loadData();
-            } catch(e) { 
+            } catch (e) { console.error(e);  
                 showToast('Failed to update status', 'error'); 
-            }
+             }
         };
 
         window.openUserModal = function(id = null) {
@@ -433,10 +433,10 @@
                 await window.api.setPermissionOverride(activeUserId, permId, isGranted);
                 showToast('Override saved');
                 loadData();
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to save override', 'error');
                 loadData();
-            }
+             }
         };
 
         document.getElementById('btnAssignRole').addEventListener('click', async () => {
@@ -447,9 +447,9 @@
                 showToast('Role assigned');
                 await loadData();
                 window.openRolesModal(activeUserId);
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to assign role', 'error');
-            }
+             }
         });
 
         window.revokeRole = async function(roleId) {
@@ -459,9 +459,9 @@
                 showToast('Role revoked');
                 await loadData();
                 window.openRolesModal(activeUserId);
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to revoke role', 'error');
-            }
+             }
         };
 
         window.promptDelete = async function(id) {
@@ -471,9 +471,9 @@
                     await window.api.deleteUser(id);
                     showToast('Silme işlemi tamamlandı');
                     loadData();
-                } catch (e) {
+                } catch (e) { console.error(e); 
                     showToast('Silme işlemi başarısız', 'error');
-                }
+                 }
             }
         };
 
@@ -539,9 +539,9 @@
                 closeModal('userModal');
                 showToast('User saved');
         loadData(); // removed await for resilience
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to save user', 'error');
-            }
+             }
         });
 
         loadData();

@@ -287,7 +287,7 @@ export function bindShellActions() {
                     roles = typeof payload.Roles === 'string' ? [payload.Roles] : payload.Roles;
                 }
                 applySidebarRbac(perms, roles.includes('SuperAdmin'));
-            } catch (err) {}
+            } catch (err) { console.error(err); }
         });
     }
 

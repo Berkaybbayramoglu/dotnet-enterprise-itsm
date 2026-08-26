@@ -175,7 +175,7 @@
         window.closeModal = closeModal;
         
         function parseJwt(token) {
-            try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; }
+            try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error(e);  return null;  }
         }
         const claims = parseJwt(window.api.token) || {};
         const roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
@@ -241,12 +241,12 @@
                     `;
                     list.appendChild(btn);
                 });
-            } catch(e) {
+            } catch (e) { console.error(e); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
                         errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
+                     } else {
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }
@@ -291,7 +291,7 @@
                     allCategories = await window.api.getKbCategories();
                     const catSelect = document.getElementById('articleCategory');
                     catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
-                } catch(e) { showToast('Kategoriler yüklenemedi', 'error'); }
+                } catch (e) { console.error(e);  showToast('Kategoriler yüklenemedi', 'error');  }
             }
             openModal('articleModal');
         });
@@ -319,7 +319,7 @@
                 }
                 closeModal('articleModal');
                 loadKb();
-            } catch(e) { showToast('Error saving article', 'error'); }
+            } catch (e) { console.error(e);  showToast('Error saving article', 'error');  }
         });
         
         window.editArticle = async function(id) {
@@ -339,7 +339,7 @@
                 }
                 document.getElementById('articleCategory').value = article.categoryId;
                 openModal('articleModal');
-            } catch(e) { showToast('Error fetching article details', 'error'); }
+            } catch (e) { console.error(e);  showToast('Error fetching article details', 'error');  }
         };
         
         window.togglePublish = async function(id, currentStatus) {
@@ -355,7 +355,7 @@
                 await window.api.updateKbArticle(id, payload);
                 showToast(payload.status === 1 ? 'Article published' : 'Article unpublished');
                 loadKb();
-            } catch(e) { showToast('Error toggling publish state', 'error'); }
+            } catch (e) { console.error(e);  showToast('Error toggling publish state', 'error');  }
         };
         
         window.deleteArticle = async function(id) {

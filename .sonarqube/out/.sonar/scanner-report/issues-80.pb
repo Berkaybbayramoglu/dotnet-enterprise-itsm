@@ -1,16 +1,4 @@
-N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-­­ :@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-®® :@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-¯¯ 6@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-°° :@e
+e
 
 javascriptS3358DExtract this nested ternary operation into an independent statement.2
 ÎÎL |e

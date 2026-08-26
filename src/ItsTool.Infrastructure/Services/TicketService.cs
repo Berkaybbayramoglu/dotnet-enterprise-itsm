@@ -305,36 +305,17 @@ public class TicketService : ITicketService
     {
         var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId && !x.IsDeleted);
         if (t == null) throw new KeyNotFoundException(TicketNotFoundMessage);
-
         if (t.StatusId == dto.NewStatusId) return;
 
-        // Verify Workflow Transition
-        var wf = await _context.Workflows
-            .Where(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted)
-            .OrderByDescending(w => w.ProjectId == t.ProjectId ? 1 : 0)
-            .FirstOrDefaultAsync();
-        if (wf == null) throw new InvalidOperationException("No workflow found for project.");
-
-        var transition = await _context.WorkflowTransitions.FirstOrDefaultAsync(wt => 
-            wt.WorkflowId == wf.Id && wt.FromStatusId == t.StatusId && wt.ToStatusId == dto.NewStatusId && !wt.IsDeleted && wt.IsActive);
-
-        if (transition == null)
-            throw new InvalidOperationException("Invalid status transition.");
-
-        if (!string.IsNullOrEmpty(transition.RequiredPermissionKey))
-        {
-            var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(dto.UserId);
-            if (!perms.Contains(transition.RequiredPermissionKey))
-                throw new UnauthorizedAccessException($"Missing required permission: {transition.RequiredPermissionKey}");
-        }
-
+        var transitionName = await ValidateTransitionAsync(t, dto.NewStatusId, dto.UserId);
+        
         var oldStatus = t.StatusId;
         t.StatusId = dto.NewStatusId;
 
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = t.Id,
-            Action = transition.TransitionName.Contains("Reopen") ? "Reopened" : "StatusChanged",
+            Action = transitionName.Contains("Reopen", StringComparison.OrdinalIgnoreCase) ? "Reopened" : "StatusChanged",
             FieldName = "StatusId",
             OldValue = oldStatus.ToString(),
             NewValue = dto.NewStatusId.ToString(),
@@ -342,7 +323,7 @@ public class TicketService : ITicketService
         });
 
         await _context.SaveChangesAsync();
-        
+
         await _slaEngine.ProcessTicketStatusChangeAsync(t.Id, oldStatus, dto.NewStatusId);
 
         // Notify for CSAT if status changes to Closed (Assuming 5 is Closed)
@@ -350,6 +331,28 @@ public class TicketService : ITicketService
         {
             await _notificationDispatcher.DispatchEventAsync("ticket.closed.survey", t.Id, dto.UserId, "Your ticket has been closed. Please fill out the satisfaction survey.");
         }
+    }
+
+    private async Task<string> ValidateTransitionAsync(Ticket t, int newStatusId, int userId)
+    {
+        var wf = await _context.Workflows
+            .Where(w => (w.ProjectId == t.ProjectId || w.ProjectId == null) && !w.IsDeleted)
+            .OrderByDescending(w => w.ProjectId == t.ProjectId ? 1 : 0)
+            .FirstOrDefaultAsync();
+        if (wf == null) throw new InvalidOperationException("No workflow found for project.");
+
+        var transition = await _context.WorkflowTransitions.FirstOrDefaultAsync(wt => 
+            wt.WorkflowId == wf.Id && wt.FromStatusId == t.StatusId && wt.ToStatusId == newStatusId && !wt.IsDeleted && wt.IsActive);
+
+        if (transition == null) throw new InvalidOperationException("Invalid status transition.");
+
+        if (!string.IsNullOrEmpty(transition.RequiredPermissionKey))
+        {
+            var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+            if (!perms.Contains(transition.RequiredPermissionKey))
+                throw new UnauthorizedAccessException($"Missing required permission: {transition.RequiredPermissionKey}");
+        }
+        return transition.TransitionName;
     }
 
     public async Task AssignTicketAsync(int ticketId, AssignTicketDto dto)

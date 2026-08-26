@@ -1,113 +1,155 @@
-ë
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
-	namespace 	
-ItsTool
+£
+`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
+	namespace		 	
+ItsTool		
  
-. 
-API 
-. 
-Security 
-; 
-public 
-class !
-PermissionRequirement "
-:# $%
-IAuthorizationRequirement% >
-{ 
-public 
-
-string 
-
-Permission 
-{ 
-get "
-;" #
-}$ %
-public 
-!
-PermissionRequirement  
-(  !
-string! '
-
-permission( 2
-)2 3
-=>4 6
-
-Permission7 A
-=B C
-
-permissionD N
-;N O
-}		 
+.		 
+API		 
+.		 
+HostedServices		 $
+;		$ %
 public 
-class *
-PermissionAuthorizationHandler +
-:, - 
-AuthorizationHandler. B
-<B C!
-PermissionRequirementC X
->X Y
-{ 
-	protected 
-override 
-Task "
-HandleRequirementAsync 2
-(2 3'
-AuthorizationHandlerContext3 N
-contextO V
-,V W!
-PermissionRequirementX m
-requirementn y
-)y z
-{ 
-var 
-hasPermission 
-= 
-context #
-.# $
-User$ (
-.( )
-HasClaim) 1
-(1 2
-c2 3
-=>4 6
-c 
-. 
-Type 
-== 
-$str "
-&&# %
-c& '
-.' (
-Value( -
-==. 0
-requirement1 <
-.< =
+class 
+SlaCheckerService 
+:  
+BackgroundService! 2
+{ 
+private 
+readonly 
+IServiceProvider %
+	_services& /
+;/ 0
+private 
+readonly 
+ILogger 
+< 
+SlaCheckerService .
+>. /
+_logger0 7
+;7 8
+public 
+
+SlaCheckerService 
+( 
+IServiceProvider -
+services. 6
+,6 7
+ILogger8 ?
+<? @
+SlaCheckerService@ Q
+>Q R
+loggerS Y
+)Y Z
+{ 
+	_services 
+= 
+services 
+; 
+_logger 
+= 
+logger 
+; 
+} 
+	protected 
+override 
+async 
+Task !
+ExecuteAsync" .
+(. /
+CancellationToken/ @
+stoppingTokenA N
+)N O
+{ 
+_logger 
+. 
+LogInformation 
+( 
+$str =
+)= >
+;> ?
+while 
+( 
+! 
+stoppingToken 
+. #
+IsCancellationRequested 5
+)5 6
+{ 	
+try 
+{ 
+using 
+( 
+var 
+scope  
+=! "
+	_services# ,
+., -
+CreateScope- 8
+(8 9
+)9 :
+): ;
+{ 
+var   
+engine   
+=    
+scope  ! &
+.  & '
+ServiceProvider  ' 6
+.  6 7
+GetRequiredService  7 I
+<  I J
 
-Permission= G
-)G H
-;H I
-if 
-
-( 
-hasPermission 
-) 
-{ 	
-context 
-. 
-Succeed 
-( 
-requirement '
-)' (
-;( )
-} 	
-return 
-Task 
-. 
-CompletedTask !
-;! "
-} 
-} Ï‰
+ISlaEngine  J T
+>  T U
+(  U V
+)  V W
+;  W X
+await!! 
+engine!!  
+.!!  !
+CheckBreachesAsync!!! 3
+(!!3 4
+DateTime!!4 <
+.!!< =
+UtcNow!!= C
+)!!C D
+;!!D E
+}"" 
+}## 
+catch$$ 
+($$ 
+	Exception$$ 
+ex$$ 
+)$$  
+{%% 
+_logger&& 
+.&& 
+LogError&&  
+(&&  !
+ex&&! #
+,&&# $
+$str&&% J
+)&&J K
+;&&K L
+}'' 
+await)) 
+Task)) 
+.)) 
+Delay)) 
+()) 
+TimeSpan)) %
+.))% &
+FromMinutes))& 1
+())1 2
+$num))2 3
+)))3 4
+,))4 5
+stoppingToken))6 C
+)))C D
+;))D E
+}** 	
+}++ 
+},, Ï‰
 G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs
 var 
 builder 
@@ -1218,7 +1260,116 @@ DataSeeder
 )
 šš 
 ;
-šš ìP
+šš ë
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Security 
+; 
+public 
+class !
+PermissionRequirement "
+:# $%
+IAuthorizationRequirement% >
+{ 
+public 
+
+string 
+
+Permission 
+{ 
+get "
+;" #
+}$ %
+public 
+!
+PermissionRequirement  
+(  !
+string! '
+
+permission( 2
+)2 3
+=>4 6
+
+Permission7 A
+=B C
+
+permissionD N
+;N O
+}		 
+public 
+class *
+PermissionAuthorizationHandler +
+:, - 
+AuthorizationHandler. B
+<B C!
+PermissionRequirementC X
+>X Y
+{ 
+	protected 
+override 
+Task "
+HandleRequirementAsync 2
+(2 3'
+AuthorizationHandlerContext3 N
+contextO V
+,V W!
+PermissionRequirementX m
+requirementn y
+)y z
+{ 
+var 
+hasPermission 
+= 
+context #
+.# $
+User$ (
+.( )
+HasClaim) 1
+(1 2
+c2 3
+=>4 6
+c 
+. 
+Type 
+== 
+$str "
+&&# %
+c& '
+.' (
+Value( -
+==. 0
+requirement1 <
+.< =
+
+Permission= G
+)G H
+;H I
+if 
+
+( 
+hasPermission 
+) 
+{ 	
+context 
+. 
+Succeed 
+( 
+requirement '
+)' (
+;( )
+} 	
+return 
+Task 
+. 
+CompletedTask !
+;! "
+} 
+} ìP
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs
 	namespace 	
 ItsTool
@@ -1804,158 +1955,7 @@ HttpDeleteRR 
 )VVC D
 ;VVD E
 }WW 
-}XX £
-`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
-	namespace		 	
-ItsTool		
- 
-.		 
-API		 
-.		 
-HostedServices		 $
-;		$ %
-public 
-class 
-SlaCheckerService 
-:  
-BackgroundService! 2
-{ 
-private 
-readonly 
-IServiceProvider %
-	_services& /
-;/ 0
-private 
-readonly 
-ILogger 
-< 
-SlaCheckerService .
->. /
-_logger0 7
-;7 8
-public 
-
-SlaCheckerService 
-( 
-IServiceProvider -
-services. 6
-,6 7
-ILogger8 ?
-<? @
-SlaCheckerService@ Q
->Q R
-loggerS Y
-)Y Z
-{ 
-	_services 
-= 
-services 
-; 
-_logger 
-= 
-logger 
-; 
-} 
-	protected 
-override 
-async 
-Task !
-ExecuteAsync" .
-(. /
-CancellationToken/ @
-stoppingTokenA N
-)N O
-{ 
-_logger 
-. 
-LogInformation 
-( 
-$str =
-)= >
-;> ?
-while 
-( 
-! 
-stoppingToken 
-. #
-IsCancellationRequested 5
-)5 6
-{ 	
-try 
-{ 
-using 
-( 
-var 
-scope  
-=! "
-	_services# ,
-., -
-CreateScope- 8
-(8 9
-)9 :
-): ;
-{ 
-var   
-engine   
-=    
-scope  ! &
-.  & '
-ServiceProvider  ' 6
-.  6 7
-GetRequiredService  7 I
-<  I J
-
-ISlaEngine  J T
->  T U
-(  U V
-)  V W
-;  W X
-await!! 
-engine!!  
-.!!  !
-CheckBreachesAsync!!! 3
-(!!3 4
-DateTime!!4 <
-.!!< =
-UtcNow!!= C
-)!!C D
-;!!D E
-}"" 
-}## 
-catch$$ 
-($$ 
-	Exception$$ 
-ex$$ 
-)$$  
-{%% 
-_logger&& 
-.&& 
-LogError&&  
-(&&  !
-ex&&! #
-,&&# $
-$str&&% J
-)&&J K
-;&&K L
-}'' 
-await)) 
-Task)) 
-.)) 
-Delay)) 
-()) 
-TimeSpan)) %
-.))% &
-FromMinutes))& 1
-())1 2
-$num))2 3
-)))3 4
-,))4 5
-stoppingToken))6 C
-)))C D
-;))D E
-}** 	
-}++ 
-},, Æ2
+}XX Æ2
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs
 	namespace 	
 ItsTool

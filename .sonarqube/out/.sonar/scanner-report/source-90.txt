@@ -154,26 +154,7 @@
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
-        async function loadDashboard() {
-            try {
-                const overview = await window.api.getDashboardOverview();
-                const dist = await window.api.getDashboardDistributions();
-                
-                let workload = [];
-                try { workload = await window.api.request('/dashboard/department-workload'); } catch(e) { console.warn("department-workload error", e); }
-                
-                let recentTickets = [];
-                try { 
-                    const res = await window.api.searchTickets({ pageSize: 5 }); 
-                    recentTickets = res.items || [];
-                } catch(e) { console.warn("searchTickets error", e); }
-                window.__recentTicketsCache = recentTickets;
-                
-                let lookup = {};
-                try { lookup = await window.api.getLookup(); } catch(e) {}
-                window.__lookupCache = lookup;
-
-                const createKpiCard = (title, val, color, iconPath) => `
+        const createKpiCard = (title, val, color, iconPath) => `
                     <div class="card" 
                          role="button" tabindex="0" 
                          style="display: flex; align-items: center; gap: 12px; height: 96px; padding: 16px; border-left: 4px solid var(--${color}); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
@@ -190,6 +171,69 @@
                         </div>
                     </div>
                 `;
+
+        
+        function buildStatusChart(dist) {
+            new Chart(document.getElementById('statusChart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: dist.byStatus.map(d => d.key),
+                            datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
+                        },
+                        options: { 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: 'bottom' } }, 
+                            cutout: '62%',
+                            onClick: (e, activeElements) => {
+                                if (activeElements.length > 0) {
+                                    const index = activeElements[0].index;
+                                    const label = dist.byStatus[index].key;
+                                    window.openDrillDown('Status: ' + label);
+                                }
+                            }
+                        }
+                    });
+        }
+        
+        function buildPriorityChart(dist) {
+            new Chart(document.getElementById('priorityChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: dist.byPriority.map(d => d.key),
+                            datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
+                        },
+                        options: { 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { display: false } },
+                            onClick: (e, activeElements) => {
+                                if (activeElements.length > 0) {
+                                    const index = activeElements[0].index;
+                                    const label = dist.byPriority[index].key;
+                                    window.openDrillDown('Priority: ' + label);
+                                }
+                            }
+                        }
+                    });
+        }
+        
+        async function loadDashboard() {
+            try {
+                const overview = await window.api.getDashboardOverview();
+                const dist = await window.api.getDashboardDistributions();
+                
+                let workload = [];
+                try { workload = await window.api.request('/dashboard/department-workload'); } catch(e) { console.warn("department-workload error", e); }
+                
+                let recentTickets = [];
+                try { 
+                    const res = await window.api.searchTickets({ pageSize: 5 }); 
+                    recentTickets = res.items || [];
+                } catch(e) { console.warn("searchTickets error", e); }
+                window.__recentTicketsCache = recentTickets;
+                
+                let lookup = {};
+                try { lookup = await window.api.getLookup(); } catch (e) { console.error(e); }
+                window.__lookupCache = lookup;
 
                 document.getElementById('overviewCards').innerHTML = `
                     ${createKpiCard('Open Tickets', overview.openTickets ?? 0, 'info', '<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>')}
@@ -250,48 +294,13 @@
                 if (!dist.byStatus || dist.byStatus.length === 0) {
                     document.getElementById('statusChartContainer').innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Henüz veri yok</div>';
                 } else {
-                    new Chart(document.getElementById('statusChart'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: dist.byStatus.map(d => d.key),
-                            datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
-                        },
-                        options: { 
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { position: 'bottom' } }, 
-                            cutout: '62%',
-                            onClick: (e, activeElements) => {
-                                if (activeElements.length > 0) {
-                                    const index = activeElements[0].index;
-                                    const label = dist.byStatus[index].key;
-                                    window.openDrillDown('Status: ' + label);
-                                }
-                            }
-                        }
-                    });
+                buildStatusChart(dist);
                 }
 
                 if (!dist.byPriority || dist.byPriority.length === 0) {
                     document.getElementById('priorityChartContainer').innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Henüz veri yok</div>';
                 } else {
-                    new Chart(document.getElementById('priorityChart'), {
-                        type: 'bar',
-                        data: {
-                            labels: dist.byPriority.map(d => d.key),
-                            datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
-                        },
-                        options: { 
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { display: false } },
-                            onClick: (e, activeElements) => {
-                                if (activeElements.length > 0) {
-                                    const index = activeElements[0].index;
-                                    const label = dist.byPriority[index].key;
-                                    window.openDrillDown('Priority: ' + label);
-                                }
-                            }
-                        }
-                    });
+                buildPriorityChart(dist);
                 }
 
             } catch (err) {
@@ -398,8 +407,7 @@
                 document.getElementById('drillDownList').innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load data.</div>';
             }
         };
-
-        loadDashboard(); // removed await for resilience
+        await loadDashboard();
     </script>
 </body>
 </html>

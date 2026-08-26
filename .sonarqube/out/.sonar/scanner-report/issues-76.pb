@@ -7,10 +7,6 @@ javascriptS77852Prefer top-level await over using a promise chain.2
 èè5 9P
 
 javascriptS2486/Handle this exception or don't catch it at all.2
-ïï
- P
-
-javascriptS2486/Handle this exception or don't catch it at all.2
 ˆˆ ?P
 
 javascriptS2486/Handle this exception or don't catch it at all.2

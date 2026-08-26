@@ -151,9 +151,9 @@
             try {
                 try {
                     lookupData = await window.api.getLookup();
-                } catch(err) {
+                } catch (err) { console.error(err); 
                     console.warn("Lookup fetching failed, using fallback empty object.", err);
-                    lookupData = {};
+                    lookupData = { };
                 }
                 
                 // Override statuses with real ones if available
@@ -215,10 +215,10 @@
                 try {
                     const res = await window.api.searchTickets({ pageSize: 100 });
                     tickets = res.items || [];
-                } catch(err) {
+                } catch (err) { console.error(err); 
                     console.warn("Tickets fetching failed.", err);
                     tickets = [];
-                }
+                 }
 
                 renderTickets();
             } catch(e) { console.error("Critical error in initKanban:", e); }
@@ -324,8 +324,7 @@
 
         window.colDrop = function(ev) {
             document.querySelectorAll('.column').forEach(c => {
-                c.classList.remove('drag-over');
-                c.classList.remove('dragging');
+                c.classList.remove('drag-over', 'dragging');
                 c.style.opacity = '1';
             });
             ev.preventDefault();
@@ -374,8 +373,7 @@
 
         window.drop = async function(ev) {
             document.querySelectorAll('.dragging, .drag-over').forEach(el => {
-                el.classList.remove('dragging');
-                el.classList.remove('drag-over');
+                el.classList.remove('dragging', 'drag-over');
             });
             ev.preventDefault();
             const data = ev.dataTransfer.getData("text");

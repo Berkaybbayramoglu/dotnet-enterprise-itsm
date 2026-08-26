@@ -216,19 +216,60 @@
                     });
         }
         
+                function renderWorkload(workload) {
+            return workload.length === 0 
+                ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
+                : workload.map(w => `
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
+                            ${w.departmentName} 
+                            <span class="badge badge-warning" style="font-size: 11px;">Total: ${w.openTicketCount}</span>
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${w.agents.map(a => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-body); border-radius: var(--radius-sm);">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="avatar" style="width: 24px; height: 24px; font-size: 11px;">${a.agentName.charAt(0)}</div>
+                                        <span style="font-size: 13px; font-weight: 500;">${a.agentName}</span>
+                                    </div>
+                                    <span style="font-size: 13px; font-weight: 600; color: var(--danger);">${a.openTicketCount} Open</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function renderRecentTickets(recentTickets, lookup) {
+            return recentTickets.length === 0 
+                ? '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">Henüz bilet yok</td></tr>'
+                : recentTickets.map(t => {
+                    const statusName = (lookup.statuses && lookup.statuses.find(x => x.id === t.statusId)?.name) || 'Bilinmiyor';
+                    const priorityName = (lookup.priorities && lookup.priorities.find(x => x.id === t.priorityId)?.name) || 'Bilinmiyor';
+                    return `
+                    <tr style="cursor: pointer;" onclick="openTicketPreview(${t.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTicketPreview(${t.id});}">
+                        <td class="text-muted" style="font-family: monospace;">#${t.id}</td>
+                        <td style="font-weight: 500;">${t.title}</td>
+                        <td><span class="badge badge-default">${statusName}</span></td>
+                        <td><span class="badge badge-warning">${priorityName}</span></td>
+                    </tr>
+                    `;
+                }).join('');
+        }
+
         async function loadDashboard() {
             try {
                 const overview = await window.api.getDashboardOverview();
                 const dist = await window.api.getDashboardDistributions();
                 
                 let workload = [];
-                try { workload = await window.api.request('/dashboard/department-workload'); } catch(e) { console.warn("department-workload error", e); }
+                try { workload = await window.api.request('/dashboard/department-workload'); } catch (e) { console.error(e);  console.warn("department-workload error", e);  }
                 
                 let recentTickets = [];
                 try { 
                     const res = await window.api.searchTickets({ pageSize: 5 }); 
                     recentTickets = res.items || [];
-                } catch(e) { console.warn("searchTickets error", e); }
+                } catch (e) { console.error(e);  console.warn("searchTickets error", e);  }
                 window.__recentTicketsCache = recentTickets;
                 
                 let lookup = {};
@@ -303,13 +344,13 @@
                 buildPriorityChart(dist);
                 }
 
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 console.warn("Defensive rendering triggered due to error:", err);
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
                         errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
+                     } else {
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }

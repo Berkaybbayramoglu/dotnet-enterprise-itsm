@@ -233,7 +233,7 @@
             </div>
             <div class="modal-body" style="text-align: center;">
                 <div id="aModalAvatar" style="margin-bottom: 16px;"></div>
-                <h3 id="aModalName" style="margin: 0 0 4px 0;" aria-label="Assignee Name"></h3>
+                <h3 id="aModalName" style="margin: 0 0 4px 0;" aria-label="Assignee Name">Assignee</h3>
                 <p id="aModalUsername" class="text-muted" style="margin: 0 0 16px 0; font-size: 13px;"></p>
                 <div style="text-align: left; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
                     <div style="margin-bottom: 8px;"><strong>Email:</strong> <span id="aModalEmail"></span></div>
@@ -285,9 +285,9 @@
                 if(currentTicket.groupId) gSelect.value = currentTicket.groupId;
 
                 openModal('transferModal');
-            } catch(e) {
+            } catch (e) { console.error(e); 
                 showToast('Failed to load transfer data', 'error');
-            }
+             }
         };
 
         document.getElementById('btnSubmitTransfer').addEventListener('click', async () => {
@@ -304,9 +304,9 @@
                 closeModal('transferModal');
                 showToast('Ticket transferred successfully');
                 window.location.reload();
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast(err.message || 'Transfer failed', 'error');
-            }
+             }
         });
 
         async function loadDynamicFieldsMeta() {
@@ -346,7 +346,7 @@
                 try { 
                     lookup = await window.api.getLookup(); 
                     users = await window.api.getUsers();
-                } catch(e) { console.warn('Lookup failed', e); }
+                } catch (e) { console.error(e);  console.warn('Lookup failed', e);  }
 
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 currentTicket = t;
@@ -389,7 +389,7 @@
                         await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(Number(selectedUserId)) });
                         showToast('Assigned successfully');
                         window.location.reload();
-                    } catch(e) { showToast('Assign failed', 'error'); }
+                    } catch (e) { console.error(e);  showToast('Assign failed', 'error');  }
                 };
 
                 try {
@@ -416,11 +416,11 @@
 
                 document.getElementById('content').style.display = 'grid';
                 loadTimeline();
-            } catch(e) {
+            } catch (e) { console.error(e); 
                 let errEl = document.querySelector('tbody') || document.querySelector('.content-area');
                 if (errEl) {
                     errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
-                }
+                 }
                 console.error(e);
                 showToast('Error loading ticket', 'error'); 
             }

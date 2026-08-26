@@ -443,7 +443,7 @@
                         const depts = await window.api.request('/Departments');
                         const d = depts.find(x => x.id === user.departmentId);
                         if (d) deptName = d.name;
-                    } catch(e) {}
+                    } catch (e) { console.error(e); }
                 }
                 document.getElementById('aModalDept').textContent = deptName;
                 document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';

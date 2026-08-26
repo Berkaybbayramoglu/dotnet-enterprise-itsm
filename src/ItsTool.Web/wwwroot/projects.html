@@ -224,12 +224,12 @@
                     `;
                     tbody.appendChild(tr);
                 });
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
                         errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
+                     } else {
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }
@@ -255,13 +255,13 @@
                 });
                 showToast('Project status updated');
                 // No need to reload all data if we just updated the select locally
-            } catch(e) { 
+            } catch (e) { console.error(e);  
                 showToast('Failed to update status', 'error');
                 // Revert color on failure
                 const oldStatusStr = item.status || 'Active';
                 selectElement.value = oldStatusStr;
                 const oldColor = oldStatusStr === 'Active' ? 'success' : (oldStatusStr === 'Inactive' ? 'default' : 'warning');
-                selectElement.className = `badge badge-${oldColor}`;
+                selectElement.className = `badge badge-${oldColor }`;
             }
         };
 
@@ -289,9 +289,9 @@
                     await window.api.deleteProject(id);
                     showToast('Silme işlemi tamamlandı');
                     loadData();
-                } catch (e) {
+                } catch (e) { console.error(e); 
                     showToast('Silme işlemi başarısız', 'error');
-                }
+                 }
             }
         };
 
@@ -313,9 +313,9 @@
                 closeModal('projectModal');
                 showToast('Project saved');
         loadData(); // removed await for resilience
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to save project', 'error');
-            }
+             }
         });
 
         loadData();

@@ -161,10 +161,10 @@
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-action]');
             if (!btn) return;
-            const action = btn.getAttribute('data-action');
-            const target = btn.getAttribute('data-target');
-            const idAttr = btn.getAttribute('data-id');
-            const flagAttr = btn.getAttribute('data-flag');
+            const action = btn.dataset.action;
+            const target = btn.dataset.target;
+            const idAttr = btn.dataset.id;
+            const flagAttr = btn.dataset.flag;
             const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
             const flag = flagAttr ? (flagAttr === 'true') : undefined;
             

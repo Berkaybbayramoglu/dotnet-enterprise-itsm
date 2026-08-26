@@ -1,16 +1,4 @@
-N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-ÂÂ :@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-ÃÃ :@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-ÄÄ 6@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
-ÅÅ :@P
+P
 
 javascriptS2486/Handle this exception or don't catch it at all.2
 ¿Á P
