@@ -1,6 +1,6 @@
-š
-i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/EmailIngestionService.cs% 8j &*01ADNYvwrb	
-!"#$%&'()*+,-.123456789:;<=>?@BEFGHIJKLOPQRTUVWZ[\]^_`abcdefhiklmnopqrtxyx‚.!"$&'*,-45789;EFGHIKLOPQRTV]^`abcdehikmpqtè
+ì
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/WorkflowService.cs* 8rP	
+ !"#$%'()*+,-/12345789:;<>?@BCDEFGHIJKLMOPQSTVWXYZ[\]_`x‚("#$)*+,/349:;@DEFGHIKLQSTVWXYZ[\_è
 e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/WebhookDispatcher.cs 8j0MUrP	
  !#%'()*+,.12345678:;<=>?@ABCEFGHIKNOPQRSVXY[\]^_`abcx‚ #%'*.135<?@BGIKNPQRVXY[`Š
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/UserService.cs# 	8rj
@@ -22,27 +22,27 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Service
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ProjectService.cs 8rK
  "#$%&'()*+,-/01245689:;=>@ABCEFGHIJKLMOPQRSTUVWXx‚&'()+,124568:=BGHJKQRTUØ
 h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/PermissionCalculator.cs 8j$9r9	 !"%&'()*+,-./0124567:;<=>@ABCEFGx‚!!%&'()*+,-./0146:;<=@BE¯
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationService.cs 8r*	 !"#$%&()*+,-./01x‚ !#$*+-/á
-h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs@ 
-8$j=eir–	 !"#$&'()*+,-/012345679:;<=?@BCDEGHIJLMNOQRSTUWYZ\]^_`bcfgjklmnpqstuvwxyz{|}~‚„…†‡‰Š‹Œ‘’“”•–—˜™šx‚L !"#()*+,1245;<=?@BDGILNQTWY^_`bcfgjlmpwxyz{~†‡‰Š‹Œ“”–—º
-k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/LocalFileStorageService.cs 8	jr(	!"$%&')*,-./012x‚!"$&)./0ì
-c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/WorkflowService.cs* 8rP	
- !"#$%'()*+,-/12345789:;<>?@BCDEFGHIJKLMOPQSTVWXYZ[\]_`x‚("#$)*+,/349:;@DEFGHIKLQSTVWXYZ[\_‹
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationService.cs 8r*	 !"#$%&()*+,-./01x‚ !#$*+-/‹
 j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs% 8j(rb
- "$&)*,-.0123456789:;<=>?@ABCDEGHIJLMOPQRSTUVWXZ[\]^_`abcefghijkmnopqrstux‚+ "$&)025689:<=?ACGILQSTUVWXZ\`aegoprÏ
+ "$&)*,-.0123456789:;<=>?@ABCDEGHIJLMOPQRSTUVWXZ[\]^_`abcefghijkmnopqrstux‚+ "$&)025689:<=?ACGILQSTUVWXZ\`aegoprº
+k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/LocalFileStorageService.cs 8	jr(	!"$%&')*,-./012x‚!"$&)./0á
+h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs@ 
+8$j=eir–	 !"#$&'()*+,-/012345679:;<=?@BCDEGHIJLMNOQRSTUWYZ\]^_`bcfgjklmnpqstuvwxyz{|}~‚„…†‡‰Š‹Œ‘’“”•–—˜™šx‚L !"#()*+,1245;<=?@BDGILNQTWY^_`bcfgjlmpwxyz{~†‡‰Š‹Œ“”–—Ï
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/GroupService.cs 8rD	
-!"#$%&'()*,-./12345789:<=>?@ABCDFGHIJKLMNOx‚%&()./12349>?ABHIKLĞ
+!"#$%&'()*,-./12345789:<=>?@ABCDFGHIJKLMNOx‚%&()./12349>?ABHIKLš
+i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/EmailIngestionService.cs% 8j &*01ADNYvwrb	
+!"#$%&'()*+,-.123456789:;<=>?@BEFGHIJKLOPQRTUVWZ[\]^_`abcdefhiklmnopqrtxyx‚.!"$&'*,-45789;EFGHIKLOPQRTV]^`abcdehikmpqtĞ
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DynamicFormService.csJ 8*rŠ	
  "#$%&')*+,.01235678:;=?@ACEFGHIKLMNOPRSTUVWYZ[\]^_acdefghjklmnoqrstuvwxz|}~‚ƒ„†‡ˆ‰Š‹Œ‘’”•x‚N$%&+,.01278:;=?@CGHMNOTUV[\]^aefglmnstuvwxz|}~ƒ„†‡ˆ‰Š‹Œ‘”µ
 e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DepartmentService.cs 8r.	 !"#$%&()*+-./0134567x‚!"$%*+-./05ò
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs4 81j&7³´µ¶»¼rØ
- !"$%'(*+,-./0234589;<=?@ABCEFHIKLMOPQRSUVWXY[\]^_abcdeghjklmnoqstuvwyz{|}~€‚ƒ„…†‡ˆŠ‹‘’“”•–—˜™š›œŸ¡¢£¥¦§©ª¬­¯°±·¹º½¾¿ÀÂÃÄÅÆÇÉÊËx ‚“ !"$'*+-./2348=?@ABCEFHMOPQRUVWX[\]^abcdglmnqstuvwyz{|}~€‚ƒ…†‡Š‘’“”•–—˜™š›Ÿ¡¢£¥¦§©ª¬±·¹½¾¿ÂÃÄÆÉğ
-b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/CatalogService.csP 8!j
->]€‡r¥	
- !"#$&'()*+-./012456789:<?@ABCEFGHIJLMNOPQSTUVWXY[^_`abdefghiklmnoprstuvwxz{|}~‚ƒ„…ˆ‰Š‹Œ‘’“•–—˜™šœŸ ¡¢¤¥x‚K"#()*/016789<ABGHINOPUVWX[`afghmnotuvw|}‚„Š‹‘’—˜™Ÿ ¡¤ç
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs4 8/j&7³´µ¶»¼rØ
+ !"$%'(*+,-./0234589;<=?@ABCEFHIKLMOPQRSUVWXY[\]^_abcdeghjklmnoqstuvwyz{|}~€‚ƒ„…†‡ˆŠ‹‘’“”•–—˜™š›œŸ¡¢£¥¦§©ª¬­¯°±·¹º½¾¿ÀÂÃÄÅÆÇÉÊËx‚“ !"$'*+-./2348=?@ABCEFHMOPQRUVWX[\]^abcdglmnqstuvwyz{|}~€‚ƒ…†‡Š‘’“”•–—˜™š›Ÿ¡¢£¥¦§©ª¬±·¹½¾¿ÂÃÄÆÉç
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs 8rP	
  !"#%&'(*+,-/1356789:;<>?@ACDFGHIKLMNPRSTUVXYZ[\]^_`abx
-‚' !"#%'*+,/13578@ACDFGHKLMPRSTUXYZ[¥
+‚' !"#%'*+,/13578@ACDFGHKLMPRSTUXYZ[ğ
+b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/CatalogService.csP 8!j
+>]€‡r¥	
+ !"#$&'()*+-./012456789:<?@ABCEFGHIJLMNOPQSTUVWXY[^_`abdefghiklmnoprstuvwxz{|}~‚ƒ„…ˆ‰Š‹Œ‘’“•–—˜™šœŸ ¡¢¤¥x‚K"#()*/016789<ABGHINOPUVWX[`afghmnotuvw|}‚„Š‹‘’—˜™Ÿ ¡¤¥
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AssignmentEngine.cs 8j!%r 
 "#&'()x‚"#&§
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Security/TokenService.cs 8r*
@@ -74,9 +74,9 @@ g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/It
 !"#$%')*+x‚
 !"$')ë
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/ItsToolDbContext.cs ,8,j$(7=DHKNRUrB	
- !"%&)*+,-./01234589:;>?@ABEFILOPSVXYZ[\]‚, !"%&)*+,-./01234589:;>?@ABEFILOPSVZ[ª
-Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.csz 88j )4@Lm{—³ÀÌß„œ¢¨®´İrß	
- !"#$%&'*+,-./01256789:;<>ABCDEFGHIJMNPQRSTUVWXY[\]^_`acefghijklmnpqrstuvwxy|}~€‚ƒ…‡ˆ‰Š‹Œ‘’“”•–—˜š›œŸ ¢£¤¥¦§¨©ª«¬­®¯°±´µ¶·¸¹º»¼½¾ÁÂÃÄÅÆÇÈÉÊÍÎÏĞÑÒÔÕÖ×ØÙÚÛÜİàáâãäæçèéëìíîïğñòóõö÷øùúûüışÿ€‚ƒ…†‡ˆ‰Š‹Œ’“”•–˜™š›Ÿ £¤¥¦©ª«¬¯°±²µ¶·¸¹»¼½¿ÀÁÂÃÄÅÆÇÈÊËÌÎÏĞÑÒÓÔÕÖ×ØÙÚÛŞßàáâãäåæèéêëìîğñòóôõö÷øùúûüışÿ€‚ƒ„…†‡ˆ‰Š‹Œ‘’“”•–—˜™š›œŸ xE‚¼ *,57<>ACDEFGIMNPRUVY]^_`ceghjklmprsuy…‡‰ŠŒ‘’“•–—šœŸ¢¤¥§©ª±´¶½ÁÂÄÅÆÇÉÍÏĞÑÒÔÕ×ØÙÛàãäæçèéëíîïğñõ÷ÿ€‚…†ˆ’“”•–˜Ÿ £¤¥¦©ª«¬¯°±²µ¶·¸»¼¿ÁÂÄÇÊËÎĞÒÓ×ÚŞàåèêëìîğò÷øùú‚ƒ„‹Œ•–—˜œ“
+ !"%&)*+,-./01234589:;>?@ABEFILOPSVXYZ[\]‚, !"%&)*+,-./01234589:;>?@ABEFILOPSVZ[½	
+Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.csˆ 8Bj".:IWbq£¿Şêú¹Ñ×İãé•rÇ
+ !"#$%&'(*,-/012345689;<=>?@ABCDEGHJKLMNOPQRSUVXYZ[\]^_acdefghijklmoprsuvwxyz{}~€‚ƒ…‡ˆ‰Š‹Œ’“”•–—˜™š›œŸ ¡¢¤¥¦§¨©ª«­¯°±²³´µ¶·¸¹º»¼½¾¿ÀÂÃÄÅÆÇÈÊËÌÍÎÏĞÑÒÓÔÕÖ×ØÙÚÜİßàáâãäåæçèéëìíîïğñòóôõ÷øùûüışÿ€‚ƒ„…†‡ˆ‰Š‹Œ‘’“”•—˜™šœŸ ¡¢£¤¦§¨©ª«¬­®¯°±³´µ·¸º»¼½¾¿ÀÁÂÃÄÅÇÈÉÊËÍÎÏĞÒÓÔÕØÙÚÛŞßàáäåæçêëìíîğñòôõö÷øùúûüıÿ€ƒ„…†‡ˆ‰Š‹Œ‘“”–—˜™š›œ ¡¢£¤¦¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ×ÙxC‚ä !"#$%&'(/1;=>?@ABJLXZ_acefghikrsuvxy{€‚…‡‰ŠŒ’”•—› ¡¢­¯±²´¶·¸¹º»½¾¿ÂÄÅÇÊÌÍÏÑÒÙßáèëìîïğñóùûışÿ€‚ƒ…†‡‰‘”•—˜™šœŸ ¡¢¦¨°±³º»½ÃÄÇÈÉÊËÍÒÓÔÕØÙÚÛŞßàáäåæçêëìíğñôö÷ùüÿ€ƒ…‡ˆŒ–˜ ¢£¤¦¨ª¯°±²¹º»¼ÃÄÅÆÍÎÏĞÔ“
 r/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs 8r	
 ‚	
 ¹

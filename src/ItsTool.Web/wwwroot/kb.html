@@ -364,7 +364,7 @@
                 await window.api.deleteKbArticle(id);
                 showToast('Article deleted successfully');
                 loadKb();
-            } catch(e) {}
+            } catch (e) { console.error(e); }
         };
         
         loadKb();

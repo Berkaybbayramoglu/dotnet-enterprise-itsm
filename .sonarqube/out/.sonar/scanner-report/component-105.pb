@@ -1,1 +1,1 @@
-i 2csX¡hr-src/ItsTool.Infrastructure/Data/DataSeeder.cs
+i 2csXÙhr-src/ItsTool.Infrastructure/Data/DataSeeder.cs

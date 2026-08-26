@@ -236,7 +236,7 @@
                     });
                 });
             }
-        } catch(e) {}
+        } catch (e) { console.error(e); }
 
         document.getElementById('btnEditArticle')?.addEventListener('click', () => {
             if(!loadedArticle) return;

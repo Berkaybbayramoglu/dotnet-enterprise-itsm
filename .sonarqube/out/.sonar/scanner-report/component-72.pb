@@ -1,0 +1,1 @@
+H 2csXhr:src/ItsTool.API/Security/PermissionAuthorizationHandler.cs

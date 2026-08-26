@@ -16,11 +16,11 @@ Adotnetenterprise.s4net.build.nuget_project_style.packagereference6%
 $dotnetenterprise.s4net.begin.runtimenetcore
 text.civendor_travisci0/
 *python.files.main.misclassified_path_based0$
-text.sensor_time_ms_community534
+text.sensor_time_ms_community492
 text.civendor_jenkins0F
 scanner.git_remote_url,git@bitbucket.org:itsm-project/itsm-tool.git2
--text.secrets.disable_known_fake_secret_filter0
-python.lines.main1673)
+-text.secrets.disable_known_fake_secret_filter0
+python.lines.main720)
 $python.test_file_heuristic.triggered1"
 text.pluginVersion2.47.0.119834
 /python.files.main.misclassified_path_based_only0?
@@ -57,8 +57,8 @@ $python.types.names.unresolved_import00
 python.files.scanned_with_cache0!
 python.packages.without_init16
 1python.files.main.misclassified_import_based_only0=
-8dotnetenterprise.s4net.build.netcore_sdk_version.8_0_1306
-python.files.count269
+8dotnetenterprise.s4net.build.netcore_sdk_version.8_0_1306
+python.files.count79
 -dotnetenterprise.s4net.scannerEngine.downloadCacheHit
 python.version.set0!
 text.civendor_azurepipelines06
@@ -66,14 +66,14 @@ $python.types.names.unresolved_import00
 >javascript.telemetry.typescript.compiler-options.noImplicitAnytrueB
 =dotnetenterprise.s4net.build.override_warnings_as_errors.true6&
 !python.packages.build_system.flit0 
-text.civendor_dockercompose0
-python.lines.total1673:
+text.civendor_dockercompose0
+python.lines.total720:
 5python.packages.namespace_packages_in_regular_package09
 2dotnetenterprise.s4net.params.sonar_verbose.sourceCLIF
-(javascript.telemetry.typescript.versions6.0.3,7.0.0-dev.20260707.2"
-python.types.symbols.unique179M
-Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
-python.files.main.total26;
+(javascript.telemetry.typescript.versions6.0.3,7.0.0-dev.20260707.2!
+python.types.symbols.unique43M
+Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
+python.files.main.total7;
 3dotnetenterprise.s4net.endstep.Sarif.v1_0_0_0.ValidTrue6
 1python.packages.resolved_via_conventional_folders0
 python.analysis.duration1#
@@ -82,16 +82,16 @@ Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
 text.civendor_buildkite0*
 %python.packages.resolved_via_base_dir05
 )javascript.runtime.node-executable-originembedded
-python.types.names.total881*
+python.types.names.total181*
 %python.packages.resolved_via_setup_py0=
 2dotnetenterprise.s4net.scannerEngine.bootstrappingEnabled!
 python.types.imports.unknown0&
-!python.notebook.databricks.python0 
-python.types.imports.total33'
+!python.notebook.databricks.python0
+python.types.imports.total6'
 "python.dependencies.format_version1@
 8javascript.telemetry.typescript.compiler-options.allowJstrue(
-!text.all_tracked_text_files_count238)
-python.importsglob,os,re,requests,sys1
+!text.all_tracked_text_files_count215!
+python.importsre,requests,sys1
 ,python.files.main.misclassified_import_based0/
 #dotnetenterprise.s4net.jre.downloadCacheHit7
 ,dotnetenterprise.s4net.build.msbuild_version17.8.49/
@@ -104,7 +104,7 @@ Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
 Kjavascript.telemetry.typescript.compiler-options.useUnknownInCatchVariablesfalse+
 &python.packages.build_system.hatchling04
 /python.lines.main.misclassified_path_based_only0 
-text.analyzed_files_count237>
+text.analyzed_files_count214>
 9dotnetenterprise.s4net.build.using_microsoft_net_sdk.true6
 text.civendor_appveyor0
 python.lines.test08
@@ -117,9 +117,9 @@ Kjavascript.telemetry.typescript.compiler-options.useUnknownInCatchVariablesfa
 text.civendor_bamboo0
 python.sonar_tests.set1M
 7dotnetenterprise.s4net.params.sonar_scm_disabled.sourceSQ_SERVER_SETTINGS"
-python.types.symbols.unknown70:
+python.types.symbols.unknown14:
 2dotnetenterprise.s4net.build.visual_studio_version17.0%
  text.civendor_bitbucketpipelines0!
-python.types.names.unknown493(
+python.types.names.unknown110(
 #text.secrets.disable_entropy_filter0U
 Ljavascript.telemetry.typescript.compiler-options.strictBuiltinIteratorReturnfalse

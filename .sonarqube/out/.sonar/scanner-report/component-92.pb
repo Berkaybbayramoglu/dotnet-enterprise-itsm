@@ -1,1 +1,1 @@
-\ 2webX•hr'src/ItsTool.Web/wwwroot/categories.html
+\ 2webX•hr'src/ItsTool.Web/wwwroot/categories.html

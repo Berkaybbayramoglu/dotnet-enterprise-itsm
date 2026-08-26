@@ -198,7 +198,7 @@
             <div class="modal-body">
                 <p class="text-muted" style="margin-top:0;">User: <strong id="rUserName"></strong></p>
                 <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    <select id="roleSelect" class="form-control" style="flex: 1;">
+                    <select id="roleSelect" class="form-control" style="flex: 1;" aria-label="Select Role">
                         <!-- populated by JS -->
                     </select>
                     <button type="button" class="btn btn-secondary" id="btnAssignRole">Assign Role</button>

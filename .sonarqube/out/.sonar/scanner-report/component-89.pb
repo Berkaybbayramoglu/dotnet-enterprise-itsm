@@ -1,1 +1,1 @@
-Y 2webXØhr#src/ItsTool.Web/wwwroot/survey.html
+Y 2webXØhr#src/ItsTool.Web/wwwroot/survey.html

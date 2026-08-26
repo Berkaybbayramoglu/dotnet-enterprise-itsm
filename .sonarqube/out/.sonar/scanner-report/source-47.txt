@@ -18,6 +18,7 @@ public class AssignmentRuleController : ControllerBase
 {
     private readonly ItsToolDbContext _context;
     private readonly ISystemAuditService _auditService;
+    private const string EntityName = "AssignmentRule";
 
     public AssignmentRuleController(ItsToolDbContext context, ISystemAuditService auditService)
     {
@@ -60,7 +61,7 @@ public class AssignmentRuleController : ControllerBase
         _context.AssignmentRules.Add(rule);
         await _context.SaveChangesAsync();
         
-        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Created", "Rule", null, rule.Name);
+        await _auditService.LogAuditAsync(EntityName, rule.Id.ToString(), "Created", "Rule", null, rule.Name);
 
         var responseDto = new AssignmentRuleDto(
             rule.Id, rule.Name, rule.ProjectId, rule.CategoryId, rule.TicketTypeId, rule.PriorityId, rule.TargetGroupId, rule.TargetUserId, rule.SortOrder, rule.IsActive);
@@ -86,7 +87,7 @@ public class AssignmentRuleController : ControllerBase
         rule.IsActive = dto.IsActive;
         
         await _context.SaveChangesAsync();
-        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Updated", "Rule", null, rule.Name);
+        await _auditService.LogAuditAsync(EntityName, rule.Id.ToString(), "Updated", "Rule", null, rule.Name);
         return NoContent();
     }
 
@@ -99,7 +100,7 @@ public class AssignmentRuleController : ControllerBase
         
         rule.IsDeleted = true;
         await _context.SaveChangesAsync();
-        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Deleted", "Rule", rule.Name, null);
+        await _auditService.LogAuditAsync(EntityName, rule.Id.ToString(), "Deleted", "Rule", rule.Name, null);
         return NoContent();
     }
 
@@ -115,7 +116,7 @@ public class AssignmentRuleController : ControllerBase
         var newStatus = rule.IsActive.ToString();
 
         await _context.SaveChangesAsync();
-        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", oldStatus, newStatus);
+        await _auditService.LogAuditAsync(EntityName, rule.Id.ToString(), "Toggled", "IsActive", oldStatus, newStatus);
         return NoContent();
     }
 }

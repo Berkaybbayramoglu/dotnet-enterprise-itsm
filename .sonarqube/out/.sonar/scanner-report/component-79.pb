@@ -1,1 +1,1 @@
-O 2webXöhrsrc/ItsTool.Web/wwwroot/kb.html
+O 2webXöhrsrc/ItsTool.Web/wwwroot/kb.html

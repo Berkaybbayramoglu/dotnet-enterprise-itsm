@@ -1218,158 +1218,7 @@ DataSeeder
 )
 öö 
 ;
-öö £
-`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
-	namespace		 	
-ItsTool		
- 
-.		 
-API		 
-.		 
-HostedServices		 $
-;		$ %
-public 
-class 
-SlaCheckerService 
-:  
-BackgroundService! 2
-{ 
-private 
-readonly 
-IServiceProvider %
-	_services& /
-;/ 0
-private 
-readonly 
-ILogger 
-< 
-SlaCheckerService .
->. /
-_logger0 7
-;7 8
-public 
-
-SlaCheckerService 
-( 
-IServiceProvider -
-services. 6
-,6 7
-ILogger8 ?
-<? @
-SlaCheckerService@ Q
->Q R
-loggerS Y
-)Y Z
-{ 
-	_services 
-= 
-services 
-; 
-_logger 
-= 
-logger 
-; 
-} 
-	protected 
-override 
-async 
-Task !
-ExecuteAsync" .
-(. /
-CancellationToken/ @
-stoppingTokenA N
-)N O
-{ 
-_logger 
-. 
-LogInformation 
-( 
-$str =
-)= >
-;> ?
-while 
-( 
-! 
-stoppingToken 
-. #
-IsCancellationRequested 5
-)5 6
-{ 	
-try 
-{ 
-using 
-( 
-var 
-scope  
-=! "
-	_services# ,
-., -
-CreateScope- 8
-(8 9
-)9 :
-): ;
-{ 
-var   
-engine   
-=    
-scope  ! &
-.  & '
-ServiceProvider  ' 6
-.  6 7
-GetRequiredService  7 I
-<  I J
-
-ISlaEngine  J T
->  T U
-(  U V
-)  V W
-;  W X
-await!! 
-engine!!  
-.!!  !
-CheckBreachesAsync!!! 3
-(!!3 4
-DateTime!!4 <
-.!!< =
-UtcNow!!= C
-)!!C D
-;!!D E
-}"" 
-}## 
-catch$$ 
-($$ 
-	Exception$$ 
-ex$$ 
-)$$  
-{%% 
-_logger&& 
-.&& 
-LogError&&  
-(&&  !
-ex&&! #
-,&&# $
-$str&&% J
-)&&J K
-;&&K L
-}'' 
-await)) 
-Task)) 
-.)) 
-Delay)) 
-()) 
-TimeSpan)) %
-.))% &
-FromMinutes))& 1
-())1 2
-$num))2 3
-)))3 4
-,))4 5
-stoppingToken))6 C
-)))C D
-;))D E
-}** 	
-}++ 
-},, ÏP
+öö ÏP
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs
 	namespace 	
 ItsTool
@@ -1955,7 +1804,158 @@ HttpDeleteRR 
 )VVC D
 ;VVD E
 }WW 
-}XX ∆2
+}XX £
+`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
+	namespace		 	
+ItsTool		
+ 
+.		 
+API		 
+.		 
+HostedServices		 $
+;		$ %
+public 
+class 
+SlaCheckerService 
+:  
+BackgroundService! 2
+{ 
+private 
+readonly 
+IServiceProvider %
+	_services& /
+;/ 0
+private 
+readonly 
+ILogger 
+< 
+SlaCheckerService .
+>. /
+_logger0 7
+;7 8
+public 
+
+SlaCheckerService 
+( 
+IServiceProvider -
+services. 6
+,6 7
+ILogger8 ?
+<? @
+SlaCheckerService@ Q
+>Q R
+loggerS Y
+)Y Z
+{ 
+	_services 
+= 
+services 
+; 
+_logger 
+= 
+logger 
+; 
+} 
+	protected 
+override 
+async 
+Task !
+ExecuteAsync" .
+(. /
+CancellationToken/ @
+stoppingTokenA N
+)N O
+{ 
+_logger 
+. 
+LogInformation 
+( 
+$str =
+)= >
+;> ?
+while 
+( 
+! 
+stoppingToken 
+. #
+IsCancellationRequested 5
+)5 6
+{ 	
+try 
+{ 
+using 
+( 
+var 
+scope  
+=! "
+	_services# ,
+., -
+CreateScope- 8
+(8 9
+)9 :
+): ;
+{ 
+var   
+engine   
+=    
+scope  ! &
+.  & '
+ServiceProvider  ' 6
+.  6 7
+GetRequiredService  7 I
+<  I J
+
+ISlaEngine  J T
+>  T U
+(  U V
+)  V W
+;  W X
+await!! 
+engine!!  
+.!!  !
+CheckBreachesAsync!!! 3
+(!!3 4
+DateTime!!4 <
+.!!< =
+UtcNow!!= C
+)!!C D
+;!!D E
+}"" 
+}## 
+catch$$ 
+($$ 
+	Exception$$ 
+ex$$ 
+)$$  
+{%% 
+_logger&& 
+.&& 
+LogError&&  
+(&&  !
+ex&&! #
+,&&# $
+$str&&% J
+)&&J K
+;&&K L
+}'' 
+await)) 
+Task)) 
+.)) 
+Delay)) 
+()) 
+TimeSpan)) %
+.))% &
+FromMinutes))& 1
+())1 2
+$num))2 3
+)))3 4
+,))4 5
+stoppingToken))6 C
+)))C D
+;))D E
+}** 	
+}++ 
+},, ∆2
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs
 	namespace 	
 ItsTool
@@ -11894,7 +11894,7 @@ GetMeAsync33, 6
 ;88! "
 }99 	
 }:: 
-};; ¶`
+};; £`
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuditLogController.cs
 	namespace		 	
 ItsTool		
@@ -12051,17 +12051,17 @@ StartsWith## $
 TryParse%%  
 (%%  !
 	ticketStr%%! *
-.%%* +
-	Substring%%+ 4
-(%%4 5
-$num%%5 6
-)%%6 7
-,%%7 8
-out%%9 <
-int%%= @
-parsedId%%A I
-)%%I J
-)%%J K
+.%%* +
+AsSpan%%+ 1
+(%%1 2
+$num%%2 3
+)%%3 4
+,%%4 5
+out%%6 9
+int%%: =
+parsedId%%> F
+)%%F G
+)%%G H
 {&& 
 ticketQuery'' 
 =''  !
@@ -12605,7 +12605,7 @@ totalCount{{2 <
 ){{[ \
 ;{{\ ]
 }|| 
-}}} Ãn
+}}} Ëo
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs
 	namespace 	
 ItsTool
@@ -12649,793 +12649,805 @@ d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/Assign
 readonly 
 ISystemAuditService (
 _auditService) 6
-;6 7
-public 
+;6 7
+private 
+const 
+string 
+
+EntityName #
+=$ %
+$str& 6
+;6 7
+public 
 $
-AssignmentRuleController #
-(# $
-ItsToolDbContext$ 4
-context5 <
-,< =
-ISystemAuditService> Q
-auditServiceR ^
-)^ _
-{ 
-_context 
-= 
-context 
-; 
-_auditService 
-= 
-auditService $
-;$ %
-} 
-[ 
-HttpGet 
-] 
-[  
-ProducesResponseType 
-( 
-typeof  
-(  !
-IEnumerable! ,
-<, -
-AssignmentRuleDto- >
->> ?
-)? @
-,@ A
-$numB E
-)E F
-]F G
-public 
+AssignmentRuleController #
+(# $
+ItsToolDbContext$ 4
+context5 <
+,< =
+ISystemAuditService> Q
+auditServiceR ^
+)^ _
+{ 
+_context 
+= 
+context 
+; 
+_auditService 
+= 
+auditService $
+;$ %
+} 
+[ 
+HttpGet 
+] 
+[  
+ProducesResponseType 
+( 
+typeof  
+(  !
+IEnumerable! ,
+<, -
+AssignmentRuleDto- >
+>> ?
+)? @
+,@ A
+$numB E
+)E F
+]F G
+public 
 
-async 
-Task 
-< 
-IActionResult #
-># $
-GetRules% -
-(- .
-). /
-{ 
-var   
-rules   
-=   
-await   
-_context   "
-.  " #
-AssignmentRules  # 2
-.!! 
-Where!! 
-(!! 
-r!! 
-=>!! 
-!!! 
-r!! 
-.!! 
-	IsDeleted!! $
-)!!$ %
-."" 
-OrderBy"" 
-("" 
-r"" 
-=>"" 
-r"" 
-."" 
-	SortOrder"" %
-)""% &
-.## 
-ToListAsync## 
-(## 
-)## 
-;## 
-var%% 
-dtos%% 
-=%% 
-rules%% 
-.%% 
-Select%% 
-(%%  
-r%%  !
-=>%%" $
-new%%% (
-AssignmentRuleDto%%) :
-(%%: ;
-r&& 
-.&& 
-Id&& 
-,&& 
-r&& 
-.&& 
-Name&& 
-,&& 
-r&& 
-.&& 
-	ProjectId&& %
-,&&% &
-r&&' (
-.&&( )
+async 
+Task 
+< 
+IActionResult #
+># $
+GetRules% -
+(- .
+). /
+{   
+var!! 
+rules!! 
+=!! 
+await!! 
+_context!! "
+.!!" #
+AssignmentRules!!# 2
+."" 
+Where"" 
+("" 
+r"" 
+=>"" 
+!"" 
+r"" 
+."" 
+	IsDeleted"" $
+)""$ %
+.## 
+OrderBy## 
+(## 
+r## 
+=>## 
+r## 
+.## 
+	SortOrder## %
+)##% &
+.$$ 
+ToListAsync$$ 
+($$ 
+)$$ 
+;$$ 
+var&& 
+dtos&& 
+=&& 
+rules&& 
+.&& 
+Select&& 
+(&&  
+r&&  !
+=>&&" $
+new&&% (
+AssignmentRuleDto&&) :
+(&&: ;
+r'' 
+.'' 
+Id'' 
+,'' 
+r'' 
+.'' 
+Name'' 
+,'' 
+r'' 
+.'' 
+	ProjectId'' %
+,''% &
+r''' (
+.''( )
 
-CategoryId&&) 3
-,&&3 4
-r&&5 6
-.&&6 7
-TicketTypeId&&7 C
-,&&C D
-r&&E F
-.&&F G
+CategoryId'') 3
+,''3 4
+r''5 6
+.''6 7
+TicketTypeId''7 C
+,''C D
+r''E F
+.''F G
 
-PriorityId&&G Q
-,&&Q R
-r&&S T
-.&&T U
-TargetGroupId&&U b
-,&&b c
-r&&d e
-.&&e f
-TargetUserId&&f r
-,&&r s
-r&&t u
-.&&u v
-	SortOrder&&v 
-,	&& Ä
+PriorityId''G Q
+,''Q R
+r''S T
+.''T U
+TargetGroupId''U b
+,''b c
+r''d e
+.''e f
+TargetUserId''f r
+,''r s
+r''t u
+.''u v
+	SortOrder''v 
+,	'' Ä
 r
-&&Å Ç
+''Å Ç
 .
-&&Ç É
+''Ç É
 IsActive
-&&É ã
+''É ã
 )
-&&ã å
+''ã å
 )
-&&å ç
+''å ç
 ;
-&&ç é
-return(( 
-Ok(( 
-((( 
-dtos(( 
-)(( 
-;(( 
-})) 
-[++ 
-HttpPost++ 
-]++ 
-[,,  
-ProducesResponseType,, 
-(,, 
-typeof,,  
-(,,  !
-AssignmentRuleDto,,! 2
-),,2 3
-,,,3 4
-$num,,5 8
-),,8 9
-],,9 :
-public-- 
+''ç é
+return)) 
+Ok)) 
+()) 
+dtos)) 
+))) 
+;)) 
+}** 
+[,, 
+HttpPost,, 
+],, 
+[--  
+ProducesResponseType-- 
+(-- 
+typeof--  
+(--  !
+AssignmentRuleDto--! 2
+)--2 3
+,--3 4
+$num--5 8
+)--8 9
+]--9 :
+public.. 
 
-async-- 
-Task-- 
-<-- 
-IActionResult-- #
->--# $
+async.. 
+Task.. 
+<.. 
+IActionResult.. #
+>..# $
 
-CreateRule--% /
-(--/ 0
-[--0 1
-FromBody--1 9
-]--9 :#
-CreateAssignmentRuleDto--; R
-dto--S V
-)--V W
-{.. 
-var// 
-rule// 
-=// 
-new// 
-AssignmentRule// %
-{00 	
-Name11 
-=11 
-dto11 
-.11 
-Name11 
-,11 
-	ProjectId22 
-=22 
-dto22 
-.22 
-	ProjectId22 %
-,22% &
+CreateRule..% /
+(../ 0
+[..0 1
+FromBody..1 9
+]..9 :#
+CreateAssignmentRuleDto..; R
+dto..S V
+)..V W
+{// 
+var00 
+rule00 
+=00 
+new00 
+AssignmentRule00 %
+{11 	
+Name22 
+=22 
+dto22 
+.22 
+Name22 
+,22 
+	ProjectId33 
+=33 
+dto33 
+.33 
+	ProjectId33 %
+,33% &
 
-CategoryId33 
-=33 
-dto33 
-.33 
+CategoryId44 
+=44 
+dto44 
+.44 
 
-CategoryId33 '
-,33' (
-TicketTypeId44 
-=44 
-dto44 
-.44 
-TicketTypeId44 +
-,44+ ,
+CategoryId44 '
+,44' (
+TicketTypeId55 
+=55 
+dto55 
+.55 
+TicketTypeId55 +
+,55+ ,
 
-PriorityId55 
-=55 
-dto55 
-.55 
+PriorityId66 
+=66 
+dto66 
+.66 
 
-PriorityId55 '
-,55' (
-TargetGroupId66 
-=66 
-dto66 
-.66  
-TargetGroupId66  -
-,66- .
-TargetUserId77 
-=77 
-dto77 
-.77 
-TargetUserId77 +
-,77+ ,
-	SortOrder88 
-=88 
-dto88 
-.88 
-	SortOrder88 %
-,88% &
-IsActive99 
-=99 
-dto99 
-.99 
-IsActive99 #
-}:: 	
-;::	 
+PriorityId66 '
+,66' (
+TargetGroupId77 
+=77 
+dto77 
+.77  
+TargetGroupId77  -
+,77- .
+TargetUserId88 
+=88 
+dto88 
+.88 
+TargetUserId88 +
+,88+ ,
+	SortOrder99 
+=99 
+dto99 
+.99 
+	SortOrder99 %
+,99% &
+IsActive:: 
+=:: 
+dto:: 
+.:: 
+IsActive:: #
+};; 	
+;;;	 
 
-_context<< 
-.<< 
-AssignmentRules<<  
-.<<  !
-Add<<! $
-(<<$ %
-rule<<% )
-)<<) *
-;<<* +
-await== 
-_context== 
-.== 
-SaveChangesAsync== '
-(==' (
-)==( )
-;==) *
-await?? 
-_auditService?? 
-.?? 
-LogAuditAsync?? )
-(??) *
-$str??* :
-,??: ;
-rule??< @
-.??@ A
-Id??A C
-.??C D
-ToString??D L
-(??L M
-)??M N
-,??N O
-$str??P Y
-,??Y Z
-$str??[ a
-,??a b
-null??c g
-,??g h
-rule??i m
-.??m n
-Name??n r
-)??r s
-;??s t
-varAA 
-responseDtoAA 
-=AA 
-newAA 
-AssignmentRuleDtoAA /
-(AA/ 0
-ruleBB 
-.BB 
-IdBB 
-,BB 
-ruleBB 
-.BB 
-NameBB 
-,BB 
-ruleBB  $
-.BB$ %
-	ProjectIdBB% .
-,BB. /
-ruleBB0 4
-.BB4 5
+_context== 
+.== 
+AssignmentRules==  
+.==  !
+Add==! $
+(==$ %
+rule==% )
+)==) *
+;==* +
+await>> 
+_context>> 
+.>> 
+SaveChangesAsync>> '
+(>>' (
+)>>( )
+;>>) *
+await@@ 
+_auditService@@ 
+.@@ 
+LogAuditAsync@@ )
+(@@) *
 
-CategoryIdBB5 ?
-,BB? @
-ruleBBA E
-.BBE F
-TicketTypeIdBBF R
-,BBR S
-ruleBBT X
-.BBX Y
+EntityName@@* 4
+,@@4 5
+rule@@6 :
+.@@: ;
+Id@@; =
+.@@= >
+ToString@@> F
+(@@F G
+)@@G H
+,@@H I
+$str@@J S
+,@@S T
+$str@@U [
+,@@[ \
+null@@] a
+,@@a b
+rule@@c g
+.@@g h
+Name@@h l
+)@@l m
+;@@m n
+varBB 
+responseDtoBB 
+=BB 
+newBB 
+AssignmentRuleDtoBB /
+(BB/ 0
+ruleCC 
+.CC 
+IdCC 
+,CC 
+ruleCC 
+.CC 
+NameCC 
+,CC 
+ruleCC  $
+.CC$ %
+	ProjectIdCC% .
+,CC. /
+ruleCC0 4
+.CC4 5
 
-PriorityIdBBY c
-,BBc d
-ruleBBe i
-.BBi j
-TargetGroupIdBBj w
-,BBw x
-ruleBBy }
-.BB} ~
-TargetUserId	BB~ ä
+CategoryIdCC5 ?
+,CC? @
+ruleCCA E
+.CCE F
+TicketTypeIdCCF R
+,CCR S
+ruleCCT X
+.CCX Y
+
+PriorityIdCCY c
+,CCc d
+ruleCCe i
+.CCi j
+TargetGroupIdCCj w
+,CCw x
+ruleCCy }
+.CC} ~
+TargetUserId	CC~ ä
 ,
-BBä ã
+CCä ã
 rule
-BBå ê
+CCå ê
 .
-BBê ë
+CCê ë
 	SortOrder
-BBë ö
+CCë ö
 ,
-BBö õ
+CCö õ
 rule
-BBú †
+CCú †
 .
-BB† °
+CC† °
 IsActive
-BB° ©
+CC° ©
 )
-BB© ™
+CC© ™
 ;
-BB™ ´
-returnDD 
-CreatedAtActionDD 
-(DD 
-nameofDD %
-(DD% &
-GetRulesDD& .
-)DD. /
-,DD/ 0
-newDD1 4
-{DD5 6
-idDD7 9
-=DD: ;
-ruleDD< @
-.DD@ A
-IdDDA C
-}DDD E
-,DDE F
-responseDtoDDG R
-)DDR S
-;DDS T
-}EE 
-[GG 
-HttpPutGG 
-(GG 
-$strGG 
-)GG 
-]GG 
-[HH  
-ProducesResponseTypeHH 
-(HH 
-$numHH 
-)HH 
-]HH 
-publicII 
+CC™ ´
+returnEE 
+CreatedAtActionEE 
+(EE 
+nameofEE %
+(EE% &
+GetRulesEE& .
+)EE. /
+,EE/ 0
+newEE1 4
+{EE5 6
+idEE7 9
+=EE: ;
+ruleEE< @
+.EE@ A
+IdEEA C
+}EED E
+,EEE F
+responseDtoEEG R
+)EER S
+;EES T
+}FF 
+[HH 
+HttpPutHH 
+(HH 
+$strHH 
+)HH 
+]HH 
+[II  
+ProducesResponseTypeII 
+(II 
+$numII 
+)II 
+]II 
+publicJJ 
 
-asyncII 
-TaskII 
-<II 
-IActionResultII #
->II# $
+asyncJJ 
+TaskJJ 
+<JJ 
+IActionResultJJ #
+>JJ# $
 
-UpdateRuleII% /
-(II/ 0
-intII0 3
-idII4 6
-,II6 7
-[II8 9
-FromBodyII9 A
-]IIA B#
-UpdateAssignmentRuleDtoIIC Z
-dtoII[ ^
-)II^ _
-{JJ 
-varKK 
-ruleKK 
-=KK 
-awaitKK 
-_contextKK !
-.KK! "
-AssignmentRulesKK" 1
-.KK1 2
-FirstOrDefaultAsyncKK2 E
-(KKE F
-rKKF G
-=>KKH J
-rKKK L
-.KKL M
-IdKKM O
-==KKP R
-idKKS U
-&&KKV X
-!KKY Z
-rKKZ [
-.KK[ \
-	IsDeletedKK\ e
-)KKe f
-;KKf g
-ifLL 
+UpdateRuleJJ% /
+(JJ/ 0
+intJJ0 3
+idJJ4 6
+,JJ6 7
+[JJ8 9
+FromBodyJJ9 A
+]JJA B#
+UpdateAssignmentRuleDtoJJC Z
+dtoJJ[ ^
+)JJ^ _
+{KK 
+varLL 
+ruleLL 
+=LL 
+awaitLL 
+_contextLL !
+.LL! "
+AssignmentRulesLL" 1
+.LL1 2
+FirstOrDefaultAsyncLL2 E
+(LLE F
+rLLF G
+=>LLH J
+rLLK L
+.LLL M
+IdLLM O
+==LLP R
+idLLS U
+&&LLV X
+!LLY Z
+rLLZ [
+.LL[ \
+	IsDeletedLL\ e
+)LLe f
+;LLf g
+ifMM 
 
-(LL 
-ruleLL 
-==LL 
-nullLL 
-)LL 
-returnLL  
-NotFoundLL! )
-(LL) *
-)LL* +
-;LL+ ,
-ruleNN 
-.NN 
-NameNN 
-=NN 
-dtoNN 
-.NN 
-NameNN 
-;NN 
+(MM 
+ruleMM 
+==MM 
+nullMM 
+)MM 
+returnMM  
+NotFoundMM! )
+(MM) *
+)MM* +
+;MM+ ,
 ruleOO 
-.OO 
-	ProjectIdOO 
-=OO 
-dtoOO 
-.OO 
-	ProjectIdOO &
-;OO& '
+.OO 
+NameOO 
+=OO 
+dtoOO 
+.OO 
+NameOO 
+;OO 
 rulePP 
-.PP 
-
-CategoryIdPP 
-=PP 
-dtoPP 
-.PP 
-
-CategoryIdPP (
-;PP( )
+.PP 
+	ProjectIdPP 
+=PP 
+dtoPP 
+.PP 
+	ProjectIdPP &
+;PP& '
 ruleQQ 
-.QQ 
-TicketTypeIdQQ 
-=QQ 
-dtoQQ 
-.QQ  
-TicketTypeIdQQ  ,
-;QQ, -
+.QQ 
+
+CategoryIdQQ 
+=QQ 
+dtoQQ 
+.QQ 
+
+CategoryIdQQ (
+;QQ( )
 ruleRR 
-.RR 
-
-PriorityIdRR 
-=RR 
-dtoRR 
-.RR 
-
-PriorityIdRR (
-;RR( )
+.RR 
+TicketTypeIdRR 
+=RR 
+dtoRR 
+.RR  
+TicketTypeIdRR  ,
+;RR, -
 ruleSS 
-.SS 
-TargetGroupIdSS 
-=SS 
-dtoSS  
-.SS  !
-TargetGroupIdSS! .
-;SS. /
+.SS 
+
+PriorityIdSS 
+=SS 
+dtoSS 
+.SS 
+
+PriorityIdSS (
+;SS( )
 ruleTT 
-.TT 
-TargetUserIdTT 
-=TT 
-dtoTT 
-.TT  
-TargetUserIdTT  ,
-;TT, -
+.TT 
+TargetGroupIdTT 
+=TT 
+dtoTT  
+.TT  !
+TargetGroupIdTT! .
+;TT. /
 ruleUU 
-.UU 
-	SortOrderUU 
-=UU 
-dtoUU 
-.UU 
-	SortOrderUU &
-;UU& '
+.UU 
+TargetUserIdUU 
+=UU 
+dtoUU 
+.UU  
+TargetUserIdUU  ,
+;UU, -
 ruleVV 
-.VV 
-IsActiveVV 
-=VV 
-dtoVV 
-.VV 
-IsActiveVV $
-;VV$ %
-awaitXX 
-_contextXX 
-.XX 
-SaveChangesAsyncXX '
-(XX' (
-)XX( )
-;XX) *
-awaitYY 
-_auditServiceYY 
-.YY 
-LogAuditAsyncYY )
-(YY) *
-$strYY* :
-,YY: ;
-ruleYY< @
-.YY@ A
-IdYYA C
-.YYC D
-ToStringYYD L
-(YYL M
-)YYM N
-,YYN O
-$strYYP Y
-,YYY Z
-$strYY[ a
-,YYa b
-nullYYc g
-,YYg h
-ruleYYi m
-.YYm n
-NameYYn r
-)YYr s
-;YYs t
-returnZZ 
-	NoContentZZ 
-(ZZ 
-)ZZ 
-;ZZ 
-}[[ 
-[]] 
+.VV 
+	SortOrderVV 
+=VV 
+dtoVV 
+.VV 
+	SortOrderVV &
+;VV& '
+ruleWW 
+.WW 
+IsActiveWW 
+=WW 
+dtoWW 
+.WW 
+IsActiveWW $
+;WW$ %
+awaitYY 
+_contextYY 
+.YY 
+SaveChangesAsyncYY '
+(YY' (
+)YY( )
+;YY) *
+awaitZZ 
+_auditServiceZZ 
+.ZZ 
+LogAuditAsyncZZ )
+(ZZ) *
 
-HttpDelete]] 
-(]] 
-$str]] 
-)]] 
-]]] 
-[^^  
-ProducesResponseType^^ 
-(^^ 
-$num^^ 
-)^^ 
-]^^ 
-public__ 
+EntityNameZZ* 4
+,ZZ4 5
+ruleZZ6 :
+.ZZ: ;
+IdZZ; =
+.ZZ= >
+ToStringZZ> F
+(ZZF G
+)ZZG H
+,ZZH I
+$strZZJ S
+,ZZS T
+$strZZU [
+,ZZ[ \
+nullZZ] a
+,ZZa b
+ruleZZc g
+.ZZg h
+NameZZh l
+)ZZl m
+;ZZm n
+return[[ 
+	NoContent[[ 
+([[ 
+)[[ 
+;[[ 
+}\\ 
+[^^ 
+
+HttpDelete^^ 
+(^^ 
+$str^^ 
+)^^ 
+]^^ 
+[__  
+ProducesResponseType__ 
+(__ 
+$num__ 
+)__ 
+]__ 
+public`` 
 
-async__ 
-Task__ 
-<__ 
-IActionResult__ #
->__# $
+async`` 
+Task`` 
+<`` 
+IActionResult`` #
+>``# $
 
-DeleteRule__% /
-(__/ 0
-int__0 3
-id__4 6
-)__6 7
-{`` 
-varaa 
-ruleaa 
-=aa 
-awaitaa 
-_contextaa !
-.aa! "
-AssignmentRulesaa" 1
-.aa1 2
-FirstOrDefaultAsyncaa2 E
-(aaE F
-raaF G
-=>aaH J
-raaK L
-.aaL M
-IdaaM O
-==aaP R
-idaaS U
-&&aaV X
-!aaY Z
-raaZ [
-.aa[ \
-	IsDeletedaa\ e
-)aae f
-;aaf g
-ifbb 
+DeleteRule``% /
+(``/ 0
+int``0 3
+id``4 6
+)``6 7
+{aa 
+varbb 
+rulebb 
+=bb 
+awaitbb 
+_contextbb !
+.bb! "
+AssignmentRulesbb" 1
+.bb1 2
+FirstOrDefaultAsyncbb2 E
+(bbE F
+rbbF G
+=>bbH J
+rbbK L
+.bbL M
+IdbbM O
+==bbP R
+idbbS U
+&&bbV X
+!bbY Z
+rbbZ [
+.bb[ \
+	IsDeletedbb\ e
+)bbe f
+;bbf g
+ifcc 
 
-(bb 
-rulebb 
-==bb 
-nullbb 
-)bb 
-returnbb  
-NotFoundbb! )
-(bb) *
-)bb* +
-;bb+ ,
-ruledd 
-.dd 
-	IsDeleteddd 
-=dd 
-truedd 
-;dd 
-awaitee 
-_contextee 
-.ee 
-SaveChangesAsyncee '
-(ee' (
-)ee( )
-;ee) *
-awaitff 
-_auditServiceff 
-.ff 
-LogAuditAsyncff )
-(ff) *
-$strff* :
-,ff: ;
-ruleff< @
-.ff@ A
-IdffA C
-.ffC D
-ToStringffD L
-(ffL M
-)ffM N
-,ffN O
-$strffP Y
-,ffY Z
-$strff[ a
-,ffa b
-ruleffc g
-.ffg h
-Nameffh l
-,ffl m
-nullffn r
-)ffr s
-;ffs t
-returngg 
-	NoContentgg 
-(gg 
-)gg 
-;gg 
-}hh 
-[jj 
-HttpPutjj 
-(jj 
-$strjj 
-)jj 
-]jj 
-[kk  
-ProducesResponseTypekk 
-(kk 
-$numkk 
-)kk 
-]kk 
-publicll 
+(cc 
+rulecc 
+==cc 
+nullcc 
+)cc 
+returncc  
+NotFoundcc! )
+(cc) *
+)cc* +
+;cc+ ,
+ruleee 
+.ee 
+	IsDeletedee 
+=ee 
+trueee 
+;ee 
+awaitff 
+_contextff 
+.ff 
+SaveChangesAsyncff '
+(ff' (
+)ff( )
+;ff) *
+awaitgg 
+_auditServicegg 
+.gg 
+LogAuditAsyncgg )
+(gg) *
+
+EntityNamegg* 4
+,gg4 5
+rulegg6 :
+.gg: ;
+Idgg; =
+.gg= >
+ToStringgg> F
+(ggF G
+)ggG H
+,ggH I
+$strggJ S
+,ggS T
+$strggU [
+,gg[ \
+rulegg] a
+.gga b
+Nameggb f
+,ggf g
+nullggh l
+)ggl m
+;ggm n
+returnhh 
+	NoContenthh 
+(hh 
+)hh 
+;hh 
+}ii 
+[kk 
+HttpPutkk 
+(kk 
+$strkk 
+)kk 
+]kk 
+[ll  
+ProducesResponseTypell 
+(ll 
+$numll 
+)ll 
+]ll 
+publicmm 
 
-asyncll 
-Taskll 
-<ll 
-IActionResultll #
->ll# $
+asyncmm 
+Taskmm 
+<mm 
+IActionResultmm #
+>mm# $
 
-ToggleRulell% /
-(ll/ 0
-intll0 3
-idll4 6
-)ll6 7
-{mm 
-varnn 
-rulenn 
-=nn 
-awaitnn 
-_contextnn !
-.nn! "
-AssignmentRulesnn" 1
-.nn1 2
-FirstOrDefaultAsyncnn2 E
-(nnE F
-rnnF G
-=>nnH J
-rnnK L
-.nnL M
-IdnnM O
-==nnP R
-idnnS U
-&&nnV X
-!nnY Z
-rnnZ [
-.nn[ \
-	IsDeletednn\ e
-)nne f
-;nnf g
-ifoo 
+ToggleRulemm% /
+(mm/ 0
+intmm0 3
+idmm4 6
+)mm6 7
+{nn 
+varoo 
+ruleoo 
+=oo 
+awaitoo 
+_contextoo !
+.oo! "
+AssignmentRulesoo" 1
+.oo1 2
+FirstOrDefaultAsyncoo2 E
+(ooE F
+rooF G
+=>ooH J
+rooK L
+.ooL M
+IdooM O
+==ooP R
+idooS U
+&&ooV X
+!ooY Z
+rooZ [
+.oo[ \
+	IsDeletedoo\ e
+)ooe f
+;oof g
+ifpp 
 
-(oo 
-ruleoo 
-==oo 
-nulloo 
-)oo 
-returnoo  
-NotFoundoo! )
-(oo) *
-)oo* +
-;oo+ ,
-varqq 
-	oldStatusqq 
-=qq 
-ruleqq 
-.qq 
-IsActiveqq %
-.qq% &
-ToStringqq& .
-(qq. /
-)qq/ 0
-;qq0 1
-rulerr 
-.rr 
-IsActiverr 
-=rr 
-!rr 
-rulerr 
-.rr 
-IsActiverr &
-;rr& '
-varss 
-	newStatusss 
-=ss 
-ruless 
-.ss 
-IsActivess %
-.ss% &
-ToStringss& .
-(ss. /
-)ss/ 0
-;ss0 1
-awaituu 
-_contextuu 
-.uu 
-SaveChangesAsyncuu '
-(uu' (
-)uu( )
-;uu) *
-awaitvv 
-_auditServicevv 
-.vv 
-LogAuditAsyncvv )
-(vv) *
-$strvv* :
-,vv: ;
-rulevv< @
-.vv@ A
-IdvvA C
-.vvC D
-ToStringvvD L
-(vvL M
-)vvM N
-,vvN O
-$strvvP Y
-,vvY Z
-$strvv[ e
-,vve f
-	oldStatusvvg p
-,vvp q
-	newStatusvvr {
-)vv{ |
-;vv| }
-returnww 
-	NoContentww 
-(ww 
-)ww 
-;ww 
-}xx 
-}yy 
+(pp 
+rulepp 
+==pp 
+nullpp 
+)pp 
+returnpp  
+NotFoundpp! )
+(pp) *
+)pp* +
+;pp+ ,
+varrr 
+	oldStatusrr 
+=rr 
+rulerr 
+.rr 
+IsActiverr %
+.rr% &
+ToStringrr& .
+(rr. /
+)rr/ 0
+;rr0 1
+ruless 
+.ss 
+IsActivess 
+=ss 
+!ss 
+ruless 
+.ss 
+IsActivess &
+;ss& '
+vartt 
+	newStatustt 
+=tt 
+rulett 
+.tt 
+IsActivett %
+.tt% &
+ToStringtt& .
+(tt. /
+)tt/ 0
+;tt0 1
+awaitvv 
+_contextvv 
+.vv 
+SaveChangesAsyncvv '
+(vv' (
+)vv( )
+;vv) *
+awaitww 
+_auditServiceww 
+.ww 
+LogAuditAsyncww )
+(ww) *
+
+EntityNameww* 4
+,ww4 5
+ruleww6 :
+.ww: ;
+Idww; =
+.ww= >
+ToStringww> F
+(wwF G
+)wwG H
+,wwH I
+$strwwJ S
+,wwS T
+$strwwU _
+,ww_ `
+	oldStatuswwa j
+,wwj k
+	newStatuswwl u
+)wwu v
+;wwv w
+returnxx 
+	NoContentxx 
+(xx 
+)xx 
+;xx 
+}yy 
+}zz 

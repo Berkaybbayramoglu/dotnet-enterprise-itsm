@@ -243,7 +243,7 @@ public class TicketService : ITicketService
             }
         }
 
-        if (historyEntries.Any())
+        if (historyEntries.Count > 0)
         {
             _context.TicketHistories.AddRange(historyEntries);
         }

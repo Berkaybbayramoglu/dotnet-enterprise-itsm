@@ -10,7 +10,7 @@
     },
     {
       "key": "sonar.scanner.bootstrapStartTime",
-      "value": "1787723287000"
+      "value": "1787724275000"
     },
     {
       "key": "sonar.projectKey",
@@ -30,7 +30,7 @@
     },
     {
       "key": "sonar.sources",
-      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/scripts/smoke.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/obj/temp_check.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/bin/Debug/net8.0/temp_check.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/bin/Debug/net8.0/temp_check.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/obj/Debug/net8.0/temp_check.sourcelink.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_kanban_modal.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_groups.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_api_lookup.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_globals.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/update_seeder_matrix.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_delete_undo.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_admin_fields.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_escapehtml.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_kanban_feedback.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_users.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_error.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/update_kb_article.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_status.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_cache.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_delegation.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_ticket.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_endpoints.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_a11y.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/login.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_seeder.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_ef_async.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_imports.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_tests.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_onclick.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/run_all.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_js_sweep.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_api.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/proof_script.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_sidebar.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/login_resp.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_hamburger.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_script.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_ui_me.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_and_verify.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_seeder_safe.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/fix_kanban_dnd.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_dashboard.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_projects.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/generate_files.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/check_admin_me.sh"
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/scripts/smoke.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/obj/temp_check.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/bin/Debug/net8.0/temp_check.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/bin/Debug/net8.0/temp_check.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/temp_check/obj/Debug/net8.0/temp_check.sourcelink.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_kanban_modal.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_api_lookup.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/update_seeder_matrix.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_admin_fields.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/update_kb_article.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_status.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_ticket.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_endpoints.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/login.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/run_all.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_api.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/proof_script.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/login_resp.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_script.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/test_and_verify.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/patch_dashboard.py,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/generate_files.sh,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/check_admin_me.sh"
     },
     {
       "key": "sonar.tests",
@@ -38,7 +38,7 @@
     },
     {
       "key": "sonar.modules",
-      "value": "D6014C93-22B5-4D0F-9E5D-19C31758BCFE,48375DC6-FDCA-48D7-8610-B14C9E0B5EEF,B7AF3D42-9BA5-43AA-B572-23204AADC386,7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2,22528CA4-22EA-4283-BFCC-AB8DD95FD4B1,36ED22A6-EF3B-431B-A203-B614D4D1FB4C"
+      "value": "D6014C93-22B5-4D0F-9E5D-19C31758BCFE,22528CA4-22EA-4283-BFCC-AB8DD95FD4B1,B7AF3D42-9BA5-43AA-B572-23204AADC386,7985F0DD-BC25-4D6C-BDA2-9C07FBE540A2,48375DC6-FDCA-48D7-8610-B14C9E0B5EEF,36ED22A6-EF3B-431B-A203-B614D4D1FB4C"
     },
     {
       "key": "D6014C93-22B5-4D0F-9E5D-19C31758BCFE.sonar.projectKey",
@@ -81,43 +81,43 @@
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/2/Telemetry.json"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectKey",
-      "value": "itsm-tool:48375DC6-FDCA-48D7-8610-B14C9E0B5EEF"
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectKey",
+      "value": "itsm-tool:22528CA4-22EA-4283-BFCC-AB8DD95FD4B1"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectName",
-      "value": "ItsTool.Web"
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectName",
+      "value": "ItsTool.Domain"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectBaseDir",
-      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web"
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.working.directory",
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.working.directory",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar/mod1"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.sourceEncoding",
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.sourceEncoding",
       "value": "utf-8"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.tests",
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.tests",
       "value": ""
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.sources",
-      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/webhooks.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/kb-article.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/login.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/roles.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/kb.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/projects.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/audit-log.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/departments.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/kanban.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/rules.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/users.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/groups.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/ticket-detail.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/index.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/survey.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/dashboard.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/admin-fields.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/categories.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/tickets.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/ticket-create.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/Properties/launchSettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/ItsTool.Web.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/css/design-system.css,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/ui.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/api.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/css/lib/bootstrap.min.css,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/lib/chart.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.staticwebassets.runtime.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.sourcelink.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.pack.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.build.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/Program.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.GlobalUsings.g.cs,\"/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs\",/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.AssemblyInfo.cs"
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/ItsTool.Domain.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/bin/Debug/net8.0/ItsTool.Domain.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/Debug/net8.0/ItsTool.Domain.sourcelink.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/BaseEntity.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/IAuditable.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/GroupRole.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/RolePermission.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserPermissionOverride.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserRole.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/CustomFields.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/SavedFilter.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Notification/NotificationEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/AssignmentRule.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Department.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Group.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/GroupMember.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/User.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/Project.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectMember.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectSequence.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/SlaEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/TicketSla.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SystemAuditLog.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Category.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Priority.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Status.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Ticket.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketComment.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketHistory.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketSurvey.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketType.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketWatcher.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Enums/ProjectStatus.cs"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.analyzer.projectOutPaths",
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.analyzer.projectOutPaths",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/0"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.roslyn.reportFilePaths",
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.roslyn.reportFilePaths",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/0/Issues.json"
     },
     {
-      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.scanner.telemetry",
+      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.scanner.telemetry",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/0/Telemetry.json"
     },
     {
@@ -201,43 +201,43 @@
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/3/Telemetry.json"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectKey",
-      "value": "itsm-tool:22528CA4-22EA-4283-BFCC-AB8DD95FD4B1"
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectKey",
+      "value": "itsm-tool:48375DC6-FDCA-48D7-8610-B14C9E0B5EEF"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectName",
-      "value": "ItsTool.Domain"
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectName",
+      "value": "ItsTool.Web"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.projectBaseDir",
-      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain"
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.projectBaseDir",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.working.directory",
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.working.directory",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/.sonar/mod4"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.sourceEncoding",
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.sourceEncoding",
       "value": "utf-8"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.tests",
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.tests",
       "value": ""
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.sources",
-      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/ItsTool.Domain.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/bin/Debug/net8.0/ItsTool.Domain.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/obj/Debug/net8.0/ItsTool.Domain.sourcelink.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/BaseEntity.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/IAuditable.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/GroupRole.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/RolePermission.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserPermissionOverride.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserRole.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/CustomFields.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/SavedFilter.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Notification/NotificationEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/AssignmentRule.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Department.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Group.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/GroupMember.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/User.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/Project.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectMember.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectSequence.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/SlaEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/TicketSla.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SystemAuditLog.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Category.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Priority.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Status.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Ticket.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketComment.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketHistory.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketSurvey.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketType.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketWatcher.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Enums/ProjectStatus.cs"
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.sources",
+      "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/webhooks.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/kb-article.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/login.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/roles.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/kb.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/projects.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/audit-log.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/departments.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/kanban.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/rules.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/users.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/groups.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/ticket-detail.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/index.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/survey.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/dashboard.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/admin-fields.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/categories.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/tickets.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/ticket-create.html,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/Properties/launchSettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/ItsTool.Web.csproj.nuget.dgspec.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/project.assets.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/css/design-system.css,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/ui.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/api.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/css/lib/bootstrap.min.css,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/lib/chart.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/appsettings.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.runtimeconfig.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.deps.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/appsettings.Development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/bin/Debug/net8.0/ItsTool.Web.staticwebassets.runtime.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.sourcelink.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.pack.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.build.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/staticwebassets.development.json,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/Program.cs,/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.GlobalUsings.g.cs,\"/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs\",/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/obj/Debug/net8.0/ItsTool.Web.AssemblyInfo.cs"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.analyzer.projectOutPaths",
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.analyzer.projectOutPaths",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/1"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.roslyn.reportFilePaths",
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.roslyn.reportFilePaths",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/1/Issues.json"
     },
     {
-      "key": "22528CA4-22EA-4283-BFCC-AB8DD95FD4B1.sonar.cs.scanner.telemetry",
+      "key": "48375DC6-FDCA-48D7-8610-B14C9E0B5EEF.sonar.cs.scanner.telemetry",
       "value": "/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/out/1/Telemetry.json"
     },
     {

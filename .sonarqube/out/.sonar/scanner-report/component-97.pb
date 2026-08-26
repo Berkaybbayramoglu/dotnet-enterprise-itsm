@@ -1,1 +1,1 @@
-a 2jsXŒhr src/ItsTool.Web/wwwroot/js/ui.js
+a 2jsXŒhr src/ItsTool.Web/wwwroot/js/ui.js
