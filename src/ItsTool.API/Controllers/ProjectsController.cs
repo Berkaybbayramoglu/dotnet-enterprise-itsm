@@ -8,7 +8,7 @@ namespace ItsTool.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = "RequirePermission:admin.manage")]
-public class ProjectsController : CrudControllerBase<ProjectDto, CreateProjectDto, UpdateProjectDto>
+public class ProjectsController : CrudControllerBase<ProjectDto>
 {
     private readonly IProjectService _service;
 
@@ -19,10 +19,31 @@ public class ProjectsController : CrudControllerBase<ProjectDto, CreateProjectDt
 
     protected override Task<IEnumerable<ProjectDto>> GetAllEntitiesAsync() => _service.GetAllAsync();
     protected override Task<ProjectDto?> GetEntityByIdAsync(int id) => _service.GetByIdAsync(id);
-    protected override Task<ProjectDto> CreateEntityAsync(CreateProjectDto dto) => _service.CreateAsync(dto);
-    protected override Task UpdateEntityAsync(int id, UpdateProjectDto dto) => _service.UpdateAsync(id, dto);
     protected override Task DeleteEntityAsync(int id) => _service.DeleteAsync(id);
-    protected override int GetEntityId(ProjectDto dto) => dto.Id;
+
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> Create([FromBody] CreateProjectDto dto)
+    {
+        var created = await _service.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectDto dto)
+    {
+        try
+        {
+            await _service.UpdateAsync(id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 
     [HttpPost("{id}/members/{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

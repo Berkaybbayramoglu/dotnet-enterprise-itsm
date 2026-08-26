@@ -1,50 +1,62 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Workflow;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ItsTool.Infrastructure.Security;
+using Microsoft.Extensions.Configuration;
+using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class WorkflowServiceTests : TestBase
+public class TokenServiceTests
 {
-    private readonly Repository<Workflow> _workflowRepo;
-    private readonly Repository<WorkflowTransition> _transitionRepo;
-    private readonly WorkflowService _service;
-
-    public WorkflowServiceTests() : base()
-    {
-        _workflowRepo = new Repository<Workflow>(_context);
-        _transitionRepo = new Repository<WorkflowTransition>(_context);
-        _service = new WorkflowService(_workflowRepo, _transitionRepo);
-    }
-
     [Fact]
-    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    public void GenerateToken_ShouldCreateValidJwtWithClaims()
     {
-        var dto = new CreateWorkflowDto("Main", "Desc", null);
-        var result = await _service.CreateWorkflowAsync(dto);
+        // Arrange
+        var inMemorySettings = new Dictionary<string, string> {
+            {"Jwt:Issuer", "TestIssuer"},
+            {"Jwt:Audience", "TestAudience"},
+            {"Jwt:Secret", "SUPER_SECRET_LONG_KEY_MUST_BE_AT_LEAST_16_CHARS"},
+            {"Jwt:ExpiryMinutes", "60"}
+        };
 
-        Assert.NotNull(result);
-        Assert.Equal("Main", result.Name);
-    }
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings!)
+            .Build();
 
-    [Fact]
-    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
-    }
+        var tokenService = new TokenService(configuration);
+        var roles = new List<string> { "Admin", "User" };
+        var permissions = new List<string> { "ticket.create", "ticket.view" };
 
-    [Fact]
-    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
-    {
-        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(t);
-        await _context.SaveChangesAsync();
+        // Act
+        var tokenString = tokenService.GenerateToken(1, "testuser", roles, permissions);
 
-        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+        // Assert
+        Assert.False(string.IsNullOrEmpty(tokenString));
+
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(tokenString);
+
+        Assert.Equal("TestIssuer", token.Issuer);
+        Assert.Equal("TestAudience", token.Audiences.First());
+        
+        // Assert Claims
+        var subClaim = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+        Assert.NotNull(subClaim);
+        Assert.Equal("1", subClaim.Value);
+        
+        var nameClaim = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+        Assert.NotNull(nameClaim);
+        Assert.Equal("testuser", nameClaim.Value);
+
+        var roleClaims = token.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+        Assert.Equal(2, roleClaims.Count);
+        Assert.Contains("Admin", roleClaims);
+        Assert.Contains("User", roleClaims);
+
+        var permClaims = token.Claims.Where(c => c.Type == "permission").Select(c => c.Value).ToList();
+        Assert.Equal(2, permClaims.Count);
+        Assert.Contains("ticket.create", permClaims);
+        Assert.Contains("ticket.view", permClaims);
     }
 }

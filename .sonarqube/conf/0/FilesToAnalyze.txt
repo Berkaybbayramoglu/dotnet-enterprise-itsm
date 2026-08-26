@@ -12,6 +12,7 @@
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/groups.html
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/index.html
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/api.js
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/crud-page.js
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/lib/chart.js
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/js/ui.js

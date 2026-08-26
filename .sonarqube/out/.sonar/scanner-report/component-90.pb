@@ -1,1 +1,1 @@
-Z 2webXÎhr&src/ItsTool.Web/wwwroot/dashboard.html
+Z 2webXØhr#src/ItsTool.Web/wwwroot/survey.html

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface INotificationDispatcher
+public interface IEmailService
 {
-    Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null);
+    Task SendEmailAsync(string to, string subject, string body);
 }

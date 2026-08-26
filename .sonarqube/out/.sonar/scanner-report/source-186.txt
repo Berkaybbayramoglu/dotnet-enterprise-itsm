@@ -1,14 +1,9 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Ticket;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IDashboardService
+public interface IAssignmentEngine
 {
-    Task<DashboardOverviewDto> GetOverviewAsync(int userId);
-    Task<DashboardDistributionsDto> GetDistributionsAsync(int userId);
-    Task<IEnumerable<DepartmentWorkloadDto>> GetDepartmentWorkloadAsync(int userId);
-    Task<SlaComplianceDto> GetSlaComplianceAsync(int userId);
-    Task<IEnumerable<TicketSurveyDto>> GetRecentSurveysAsync(int userId);
+    Task AssignTicketAsync(Ticket ticket);
 }

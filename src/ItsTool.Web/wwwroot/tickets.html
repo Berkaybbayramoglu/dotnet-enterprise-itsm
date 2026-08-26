@@ -194,12 +194,12 @@
                 if (activeFilterState === 'active') {
                     filteredItems = filteredItems.filter(t => {
                         const s = lookupData.statuses?.find(st => st.id === t.statusId);
-                        return s ? !s.isClosedStatus : true;
+                        return !(s?.isClosedStatus ?? false);
                     });
                 } else if (activeFilterState === 'closed') {
                     filteredItems = filteredItems.filter(t => {
                         const s = lookupData.statuses?.find(st => st.id === t.statusId);
-                        return s ? s.isClosedStatus : false;
+                        return s?.isClosedStatus ?? false;
                     });
                 }
 

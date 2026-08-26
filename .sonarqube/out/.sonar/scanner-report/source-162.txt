@@ -1,62 +1,58 @@
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Domain.Entities.Config;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Services;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Moq;
-using Moq.Protected;
 using Xunit;
+using ItsTool.Application.Interfaces;
 
 namespace ItsTool.UnitTests.Services;
 
-public class WebhookDispatcherTests : TestBase
+public class TicketUpdateTests : TestBase
 {
-    private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-    private readonly HttpClient _httpClient;
-    private readonly WebhookDispatcher _dispatcher;
+    private readonly TicketService _service;
 
-    public WebhookDispatcherTests() : base()
+    public TicketUpdateTests()
     {
-        _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-        
-        _httpMessageHandlerMock.Protected()
-            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        var assignMock = new Mock<IAssignmentEngine>();
+        var slaMock = new Mock<ISlaEngine>();
+        var notifMock = new Mock<INotificationDispatcher>();
+        var permMock = new Mock<IPermissionCalculator>();
+        var fileMock = new Mock<IFileStorageService>();
 
-        _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-        var loggerMock = new Mock<ILogger<WebhookDispatcher>>();
-
-        _dispatcher = new WebhookDispatcher(_context, _httpClient, loggerMock.Object);
+        _service = new TicketService(_context, fileMock.Object, permMock.Object, slaMock.Object, assignMock.Object, notifMock.Object);
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldSkipInactiveSubscriptions()
+    public async Task UpdateTicketAsync_ShouldAddHistory_WhenFieldsChange()
     {
-        _context.WebhookSubscriptions.Add(new WebhookSubscription { Url = "http://test.com", EventsCsv = "ticket.created", IsActive = false });
+        var ticket = new Ticket { Title = "Old Title", Description = "Old Desc", ProjectId = 1, CategoryId = 1, TypeId = 1, PriorityId = 1, StatusId = 1, RequesterUserId = 1 };
+        _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
-        await _dispatcher.DispatchEventAsync("ticket.created", new { id = 1 });
-        await Task.Delay(100); // Allow fire-and-forget to run
+        var dto = new UpdateTicketDto("New Title", "New Desc", 1, 1, new Dictionary<string, string>());
+        await _service.UpdateTicketAsync(ticket.Id, dto, 99);
 
-        _httpMessageHandlerMock.Protected().Verify("SendAsync", Times.Never(), ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
+        var history = await _context.TicketHistories.Where(h => h.TicketId == ticket.Id).ToListAsync();
+        Assert.Equal(2, history.Count);
+        Assert.Contains(history, h => h.FieldName == "Title" && h.OldValue == "Old Title" && h.NewValue == "New Title");
+        Assert.Contains(history, h => h.FieldName == "Description" && h.OldValue == "Old Desc" && h.NewValue == "New Desc");
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldSendPostRequestWithHmac()
+    public async Task UpdateTicketAsync_ShouldNotAddHistory_WhenNoFieldsChange()
     {
-        _context.WebhookSubscriptions.Add(new WebhookSubscription { Url = "http://test.com", EventsCsv = "ticket.created", IsActive = true, Secret = "mysecret" });
+        var ticket = new Ticket { Title = "Same Title", Description = "Same Desc", ProjectId = 1, CategoryId = 1, TypeId = 1, PriorityId = 1, StatusId = 1, RequesterUserId = 1 };
+        _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
-        await _dispatcher.DispatchEventAsync("ticket.created", new { id = 1 });
-        await Task.Delay(1000); // Allow fire-and-forget to run
+        var dto = new UpdateTicketDto("Same Title", "Same Desc", 1, 1, new Dictionary<string, string>());
+        await _service.UpdateTicketAsync(ticket.Id, dto, 99);
 
-        _httpMessageHandlerMock.Protected().Verify("SendAsync", Times.Once(), ItExpr.Is<HttpRequestMessage>(req => 
-            req.Method == HttpMethod.Post && 
-            req.Headers.Contains("X-ITSM-Signature") &&
-            req.RequestUri!.ToString() == "http://test.com/"
-        ), ItExpr.IsAny<CancellationToken>());
+        var history = await _context.TicketHistories.Where(h => h.TicketId == ticket.Id).ToListAsync();
+        Assert.Empty(history); // No-op
     }
 }

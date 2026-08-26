@@ -1,1 +1,1 @@
-[ 2webXŽhr)src/ItsTool.Web/wwwroot/admin-fields.html
+[ 2webXÏhr&src/ItsTool.Web/wwwroot/dashboard.html

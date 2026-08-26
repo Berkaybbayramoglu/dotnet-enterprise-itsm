@@ -1,92 +1,60 @@
-using System.Threading.Tasks;
-using ItsTool.Domain.Entities.Notification;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Domain.Entities.Project;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
-using ItsTool.Application.Interfaces;
-using Moq;
 
 namespace ItsTool.UnitTests.Services;
 
-public class NotificationDispatcherTests : TestBase
+public class GroupServiceTests : TestBase
 {
-    private readonly NotificationDispatcher _dispatcher;
-    private readonly Mock<IEmailService> _mockEmailService;
-    private readonly Mock<IWebhookDispatcher> _mockWebhookDispatcher;
+    private readonly Repository<Group> _repository;
+    private readonly GroupService _service;
 
-    public NotificationDispatcherTests() : base()
+    public GroupServiceTests()
     {
-        _mockEmailService = new Mock<IEmailService>();
-        _mockWebhookDispatcher = new Mock<IWebhookDispatcher>();
-        _dispatcher = new NotificationDispatcher(_context, _mockEmailService.Object, _mockWebhookDispatcher.Object);
+        _repository = new Repository<Group>(_context);
+        _service = new GroupService(_repository, _context);
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldNotifyRequester_IfRuleActive()
+    public async Task CreateAsync_ShouldCreateGroup()
     {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.created", TargetRole = "Requester", IsActive = true });
-        
-        var t = new Ticket { TicketNumber = "T1", RequesterUserId = 5 };
-        _context.Tickets.Add(t);
-        await _context.SaveChangesAsync();
+        var dto = new CreateGroupDto("Helpdesk", 1);
+        var result = await _service.CreateAsync(dto);
 
-        await _dispatcher.DispatchEventAsync("ticket.created", t.Id);
-
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Single(notifications);
-        Assert.Equal(5, notifications[0].UserId);
-        Assert.Equal("ticket.created", notifications[0].Title);
+        Assert.NotNull(result);
+        Assert.Equal("Helpdesk", result.Name);
+        Assert.Equal(1, result.DepartmentId);
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldNotNotify_IfRuleInactive()
+    public async Task UpdateAsync_ShouldUpdateGroup()
     {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.created", TargetRole = "Requester", IsActive = false });
-        
-        var t = new Ticket { TicketNumber = "T1", RequesterUserId = 5 };
-        _context.Tickets.Add(t);
+        var group = new Group { Name = "OldName", DepartmentId = 1 };
+        _context.Groups.Add(group);
         await _context.SaveChangesAsync();
 
-        await _dispatcher.DispatchEventAsync("ticket.created", t.Id);
+        var dto = new UpdateGroupDto("NewName", true, 2);
+        await _service.UpdateAsync(group.Id, dto);
 
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Empty(notifications);
+        var updated = await _context.Groups.FindAsync(group.Id);
+        Assert.Equal("NewName", updated!.Name);
+        Assert.Equal(2, updated.DepartmentId);
     }
 
     [Fact]
-    public async Task DispatchEventAsync_ShouldNotNotifyTriggerUser()
+    public async Task DeleteAsync_ShouldSoftDeleteGroup()
     {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.comment.added", TargetRole = "Requester", IsActive = true });
-        
-        var t = new Ticket { TicketNumber = "T1", RequesterUserId = 5 };
-        _context.Tickets.Add(t);
+        var group = new Group { Name = "ToDelete", DepartmentId = 1 };
+        _context.Groups.Add(group);
         await _context.SaveChangesAsync();
 
-        // Trigger user is 5 (Requester themselves commented)
-        await _dispatcher.DispatchEventAsync("ticket.comment.added", t.Id, triggerUserId: 5);
+        await _service.DeleteAsync(group.Id);
 
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Empty(notifications); // Should not notify themselves
-    }
-
-    [Fact]
-    public async Task DispatchEventAsync_ShouldNotCreateDuplicates()
-    {
-        _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.assigned", TargetRole = "Assignee", IsActive = true });
-        
-        var t = new Ticket { TicketNumber = "T1", AssignedUserId = 10 };
-        _context.Tickets.Add(t);
-        await _context.SaveChangesAsync();
-
-        // First event
-        await _dispatcher.DispatchEventAsync("ticket.assigned", t.Id);
-        
-        // Second identical event
-        await _dispatcher.DispatchEventAsync("ticket.assigned", t.Id);
-
-        var notifications = await _context.Notifications.ToListAsync();
-        Assert.Single(notifications); // Should only be 1 notification due to duplicate check
+        var deleted = await _context.Groups.FindAsync(group.Id);
+        Assert.True(deleted!.IsDeleted);
+        Assert.NotNull(deleted.DeletedAt);
     }
 }

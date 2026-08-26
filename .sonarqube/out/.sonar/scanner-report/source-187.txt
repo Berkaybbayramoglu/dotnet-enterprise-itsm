@@ -2,26 +2,13 @@ using ItsTool.Application.DTOs;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IDynamicFormService
+public interface ITokenService
 {
-    // FieldDefinition
-    Task<IEnumerable<FieldDefinitionDto>> GetFieldDefinitionsAsync();
-    Task<FieldDefinitionDto?> GetFieldDefinitionByIdAsync(int id);
-    Task<FieldDefinitionDto> CreateFieldDefinitionAsync(CreateFieldDefinitionDto dto);
-    Task UpdateFieldDefinitionAsync(int id, UpdateFieldDefinitionDto dto);
-    Task DeleteFieldDefinitionAsync(int id);
+    string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions);
+}
 
-    // FieldOption
-    Task<IEnumerable<FieldOptionDto>> GetFieldOptionsAsync(int fieldDefinitionId);
-    Task<FieldOptionDto?> GetFieldOptionByIdAsync(int id);
-    Task<FieldOptionDto> CreateFieldOptionAsync(CreateFieldOptionDto dto);
-    Task UpdateFieldOptionAsync(int id, UpdateFieldOptionDto dto);
-    Task DeleteFieldOptionAsync(int id);
-
-    // FormFieldPlacement
-    Task<IEnumerable<FormFieldPlacementDto>> GetPlacementsAsync(int? projectId, int? categoryId, int? ticketTypeId);
-    Task<FormFieldPlacementDto?> GetPlacementByIdAsync(int id);
-    Task<FormFieldPlacementDto> CreatePlacementAsync(CreateFormFieldPlacementDto dto);
-    Task UpdatePlacementAsync(int id, UpdateFormFieldPlacementDto dto);
-    Task DeletePlacementAsync(int id);
+public interface IAuthService
+{
+    Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+    Task<MeResponseDto> GetMeAsync(int userId);
 }

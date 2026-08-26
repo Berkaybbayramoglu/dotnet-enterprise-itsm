@@ -1,34 +1,11 @@
-using ItsTool.Application.DTOs;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.Interfaces;
+// Workflow
+public record WorkflowDto(int Id, string Name, string? Description, int? ProjectId, bool IsActive);
+public record CreateWorkflowDto(string Name, string? Description, int? ProjectId);
+public record UpdateWorkflowDto(string Name, string? Description, int? ProjectId, bool IsActive);
 
-public interface ICatalogService
-{
-    // Category
-    Task<IEnumerable<CategoryDto>> GetCategoriesAsync(int? projectId = null);
-    Task<CategoryDto?> GetCategoryByIdAsync(int id);
-    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
-    Task UpdateCategoryAsync(int id, UpdateCategoryDto dto);
-    Task DeleteCategoryAsync(int id);
-
-    // TicketType
-    Task<IEnumerable<TicketTypeDto>> GetTicketTypesAsync();
-    Task<TicketTypeDto?> GetTicketTypeByIdAsync(int id);
-    Task<TicketTypeDto> CreateTicketTypeAsync(CreateTicketTypeDto dto);
-    Task UpdateTicketTypeAsync(int id, UpdateTicketTypeDto dto);
-    Task DeleteTicketTypeAsync(int id);
-
-    // Status
-    Task<IEnumerable<StatusDto>> GetStatusesAsync();
-    Task<StatusDto?> GetStatusByIdAsync(int id);
-    Task<StatusDto> CreateStatusAsync(CreateStatusDto dto);
-    Task UpdateStatusAsync(int id, UpdateStatusDto dto);
-    Task DeleteStatusAsync(int id);
-
-    // Priority
-    Task<IEnumerable<PriorityDto>> GetPrioritiesAsync();
-    Task<PriorityDto?> GetPriorityByIdAsync(int id);
-    Task<PriorityDto> CreatePriorityAsync(CreatePriorityDto dto);
-    Task UpdatePriorityAsync(int id, UpdatePriorityDto dto);
-    Task DeletePriorityAsync(int id);
-}
+// WorkflowTransition
+public record WorkflowTransitionDto(int Id, int WorkflowId, int FromStatusId, int ToStatusId, string TransitionName, string? RequiredPermissionKey, int SortOrder, bool IsActive);
+public record CreateWorkflowTransitionDto(int WorkflowId, int FromStatusId, int ToStatusId, string TransitionName, string? RequiredPermissionKey, int SortOrder);
+public record UpdateWorkflowTransitionDto(int FromStatusId, int ToStatusId, string TransitionName, string? RequiredPermissionKey, int SortOrder, bool IsActive);

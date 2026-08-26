@@ -1,13 +1,24 @@
 using System;
-using ItsTool.Domain.Entities.KnowledgeBase;
+using System.Collections.Generic;
 
 namespace ItsTool.Application.DTOs;
 
-public record KbCategoryDto(int Id, string Name, int? ParentId);
-public record CreateKbCategoryDto(string Name, int? ParentId);
+public record DashboardOverviewDto(int OpenTickets, int CriticalTickets, int SlaBreachedTickets, int SlaRiskTickets, int UnassignedTickets, double CsatAverage);
 
-public record KbArticleDto(int Id, int CategoryId, string Title, string Content, int AuthorUserId, ArticleStatus Status, ArticleVisibility Visibility, int ViewCount, DateTime CreatedAt);
-public record KbArticleSummaryDto(int Id, int CategoryId, string Title, int AuthorUserId, ArticleStatus Status, ArticleVisibility Visibility, int ViewCount, DateTime CreatedAt);
+public record TicketDistributionDto(string Key, int Count);
 
-public record CreateKbArticleDto(int CategoryId, string Title, string Content, ArticleStatus Status, ArticleVisibility Visibility);
-public record UpdateKbArticleDto(int CategoryId, string Title, string Content, ArticleStatus Status, ArticleVisibility Visibility);
+public record DashboardDistributionsDto(
+    IEnumerable<TicketDistributionDto> ByStatus,
+    IEnumerable<TicketDistributionDto> ByPriority,
+    IEnumerable<TicketDistributionDto> ByProject,
+    IEnumerable<TicketDistributionDto> ByCategory
+);
+
+public record AgentWorkloadDto(int UserId, string UserName, int OpenTicketCount);
+public record DepartmentWorkloadDto(int DepartmentId, string DepartmentName, int OpenTicketCount, IEnumerable<AgentWorkloadDto> Members);
+
+public record SlaComplianceDto(
+    double FirstResponseComplianceRate,
+    double ResolutionComplianceRate,
+    double AverageResolutionTimeMinutes
+);

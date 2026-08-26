@@ -1,44 +1,67 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.Auth;
 using ItsTool.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class LocalFileStorageServiceTests
+public class EmailIngestionServiceTests : TestBase
 {
-    private readonly string _testPath = Path.Combine(Path.GetTempPath(), "ItsmTestUploads");
-
-    public LocalFileStorageServiceTests()
+    private readonly EmailIngestionService _service;
+    public EmailIngestionServiceTests() : base()
     {
-        if (Directory.Exists(_testPath)) Directory.Delete(_testPath, true);
+        _service = new EmailIngestionService(_context);
+        SeedBasicData().Wait();
+    }
+
+    private async Task SeedBasicData()
+    {
+        _context.Categories.Add(new Category { Name = "Hardware" });
+        _context.TicketTypes.Add(new TicketType { Name = "Incident" });
+        _context.Priorities.Add(new Priority { Name = "Low", SeverityLevel = 1 });
+        _context.Statuses.Add(new Status { Name = "Open", IsSystemDefault = true });
+        _context.Projects.Add(new ItsTool.Domain.Entities.Project.Project { ProjectKey = "TEST", Name = "Test Project" });
+        await _context.SaveChangesAsync();
     }
 
     [Fact]
-    public async Task SaveFileAsync_ShouldRejectInvalidMime()
+    public async Task ProcessIncomingEmailAsync_ShouldCreateExternalUser_AndRouteByProjectKey()
     {
-        var configMock = new Mock<IConfiguration>();
-        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
-        var service = new LocalFileStorageService(configMock.Object);
+        var dto = new EmailIngestionDto("msg-1", "newuser@test.com", "Help me with [TEST]", "My PC is broken");
 
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
+        await _service.ProcessIncomingEmailAsync(dto);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == "newuser@test.com");
+        Assert.NotNull(user);
+        Assert.Equal("External", user.FirstName);
+
+        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.ExternalMessageId == "msg-1");
+        Assert.NotNull(ticket);
+        Assert.Equal("My PC is broken", ticket.Description);
         
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+        var project = await _context.Projects.FindAsync(ticket.ProjectId);
+        Assert.Equal("TEST", project?.ProjectKey);
     }
 
     [Fact]
-    public async Task SaveFileAsync_ShouldRejectLargeFile()
+    public async Task ProcessIncomingEmailAsync_ShouldDedupe_WhenMessageIdAlreadyExists()
     {
-        var configMock = new Mock<IConfiguration>();
-        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
-        var service = new LocalFileStorageService(configMock.Object);
+        var dto = new EmailIngestionDto("msg-dedupe", "user@test.com", "Subject", "Body");
 
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.ContentType).Returns("application/pdf");
-        fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
-        
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+        await _service.ProcessIncomingEmailAsync(dto);
+        var initialCount = await _context.Tickets.CountAsync();
+
+        // Send again
+        await _service.ProcessIncomingEmailAsync(dto);
+        var finalCount = await _context.Tickets.CountAsync();
+
+        Assert.Equal(initialCount, finalCount);
     }
 }

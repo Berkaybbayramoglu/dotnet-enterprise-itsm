@@ -1,1 +1,1 @@
-g 2csX1hrFsrc/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs
+g 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js

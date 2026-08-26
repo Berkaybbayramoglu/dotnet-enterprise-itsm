@@ -1,62 +1,95 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ItsTool.Infrastructure.Security;
-using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading.Tasks;
+using ItsTool.Domain.Entities.SLA;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Infrastructure.Services;
+using ItsTool.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class TokenServiceTests
+public class SlaEscalationTests : TestBase
 {
-    [Fact]
-    public void GenerateToken_ShouldCreateValidJwtWithClaims()
+    private readonly SlaEngine _engine;
+    private readonly Mock<IEmailService> _mockEmailService;
+    private readonly Mock<INotificationDispatcher> _mockNotificationDispatcher;
+
+    public SlaEscalationTests() : base()
     {
-        // Arrange
-        var inMemorySettings = new Dictionary<string, string> {
-            {"Jwt:Issuer", "TestIssuer"},
-            {"Jwt:Audience", "TestAudience"},
-            {"Jwt:Secret", "SUPER_SECRET_LONG_KEY_MUST_BE_AT_LEAST_16_CHARS"},
-            {"Jwt:ExpiryMinutes", "60"}
+        _mockEmailService = new Mock<IEmailService>();
+        _mockNotificationDispatcher = new Mock<INotificationDispatcher>();
+        _engine = new SlaEngine(_context, _mockEmailService.Object, _mockNotificationDispatcher.Object);
+        SeedBasicData().Wait();
+    }
+
+    private async Task SeedBasicData()
+    {
+        var lowPriority = new Priority { Name = "Low", SeverityLevel = 1 };
+        var highPriority = new Priority { Name = "High", SeverityLevel = 2 };
+        _context.Priorities.AddRange(lowPriority, highPriority);
+
+        var policy = new SlaPolicy { Name = "Escalate Policy", EscalateOnBreach = true, IsActive = true };
+        _context.SlaPolicies.Add(policy);
+        await _context.SaveChangesAsync();
+
+        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = policy.Id, PriorityId = lowPriority.Id, FirstResponseMinutes = 60, ResolutionMinutes = 120, IsActive = true });
+        await _context.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllows()
+    {
+        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        var sla = new TicketSla
+        {
+            TicketId = ticket.Id,
+            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
+            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10)
         };
+        _context.TicketSlas.Add(sla);
+        await _context.SaveChangesAsync();
 
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
+        await _engine.CheckBreachesAsync(DateTime.UtcNow);
 
-        var tokenService = new TokenService(configuration);
-        var roles = new List<string> { "Admin", "User" };
-        var permissions = new List<string> { "ticket.create", "ticket.view" };
-
-        // Act
-        var tokenString = tokenService.GenerateToken(1, "testuser", roles, permissions);
-
-        // Assert
-        Assert.False(string.IsNullOrEmpty(tokenString));
-
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(tokenString);
-
-        Assert.Equal("TestIssuer", token.Issuer);
-        Assert.Equal("TestAudience", token.Audiences.First());
+        // Verify Escalation
+        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
+        var highPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 2)).Id;
         
-        // Assert Claims
-        var subClaim = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
-        Assert.NotNull(subClaim);
-        Assert.Equal("1", subClaim.Value);
+        Assert.Equal(highPriorityId, updatedTicket?.PriorityId); // Priority bumped
         
-        var nameClaim = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
-        Assert.NotNull(nameClaim);
-        Assert.Equal("testuser", nameClaim.Value);
+        var updatedSla = await _context.TicketSlas.FindAsync(sla.Id);
+        Assert.NotNull(updatedSla?.EscalatedAt); // EscalatedAt set
 
-        var roleClaims = token.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-        Assert.Equal(2, roleClaims.Count);
-        Assert.Contains("Admin", roleClaims);
-        Assert.Contains("User", roleClaims);
+        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breach", ticket.Id, null, It.IsAny<string>()), Times.Once);
+    }
 
-        var permClaims = token.Claims.Where(c => c.Type == "permission").Select(c => c.Value).ToList();
-        Assert.Equal(2, permClaims.Count);
-        Assert.Contains("ticket.create", permClaims);
-        Assert.Contains("ticket.view", permClaims);
+    [Fact]
+    public async Task TryEscalateAsync_ShouldBeIdempotent()
+    {
+        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        var sla = new TicketSla
+        {
+            TicketId = ticket.Id,
+            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
+            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10),
+            EscalatedAt = DateTime.UtcNow.AddDays(-1) // Already escalated
+        };
+        _context.TicketSlas.Add(sla);
+        await _context.SaveChangesAsync();
+
+        await _engine.CheckBreachesAsync(DateTime.UtcNow);
+
+        // Priority should still be low because it shouldn't escalate twice
+        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
+        var lowPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 1)).Id;
+        Assert.Equal(lowPriorityId, updatedTicket?.PriorityId); 
     }
 }

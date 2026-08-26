@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
+
 namespace ItsTool.Application.Interfaces;
 
-public interface IPermissionCalculator
+public interface INotificationDispatcher
 {
-    Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId);
+    Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null);
 }

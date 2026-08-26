@@ -1,1 +1,1 @@
-Â 2csX:hr:src/ItsTool.Application/Interfaces/IOrganizationService.cs
+Â 2csXhr;src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs

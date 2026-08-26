@@ -1,1 +1,1 @@
-½ 2csX	hr3src/ItsTool.Application/Interfaces/IEmailService.cs
+½ 2csXhr7src/ItsTool.Application/Interfaces/IDashboardService.cs

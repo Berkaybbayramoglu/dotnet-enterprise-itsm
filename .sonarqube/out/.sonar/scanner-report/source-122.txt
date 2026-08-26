@@ -1,71 +1,50 @@
 using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class PermissionCalculator : IPermissionCalculator
+public class LocalFileStorageService : IFileStorageService
 {
-    private readonly ItsToolDbContext _context;
+    private readonly string _basePath;
 
-    public PermissionCalculator(ItsToolDbContext context)
+    public LocalFileStorageService(IConfiguration configuration)
     {
-        _context = context;
+        _basePath = configuration["FileStorage:BasePath"] ?? "uploads";
+        if (!Directory.Exists(_basePath))
+        {
+            Directory.CreateDirectory(_basePath);
+        }
     }
 
-    public async Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId)
+    public async Task<string> SaveFileAsync(IFormFile file, int ticketId)
     {
-        var permissions = new HashSet<string>();
+        var allowedTypes = new[] { "image/jpeg", "image/png", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+        if (!allowedTypes.Contains(file.ContentType))
+            throw new InvalidOperationException("File type not allowed.");
 
-        // 1. Kullanıcının doğrudan rollerinden gelen yetkiler
-        var userRolePerms = await _context.UserRoles
-            .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive && !ur.Role.IsDeleted && !ur.IsDeleted)
-            .Join(_context.RolePermissions, 
-                  ur => ur.RoleId, 
-                  rp => rp.RoleId, 
-                  (ur, rp) => rp)
-            .Where(rp => !rp.IsDeleted && rp.Permission != null && rp.Permission.IsActive && !rp.Permission.IsDeleted)
-            .Select(rp => rp.Permission!.Key)
-            .ToListAsync();
-            
-        foreach (var p in userRolePerms)
+        if (file.Length > 10 * 1024 * 1024) // 10 MB
+            throw new InvalidOperationException("File size exceeds 10MB limit.");
+
+        var ticketFolder = Path.Combine(_basePath, ticketId.ToString());
+        if (!Directory.Exists(ticketFolder))
+            Directory.CreateDirectory(ticketFolder);
+
+        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        var filePath = Path.Combine(ticketFolder, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
         {
-            permissions.Add(p);
+            await file.CopyToAsync(stream);
         }
 
-        // 2. Kullanıcının dahil olduğu grupların rollerinden gelen yetkiler
-        var groupRolePerms = await _context.GroupMembers
-            .Where(gm => gm.UserId == userId && !gm.IsDeleted && gm.Group != null && gm.Group.IsActive && !gm.Group.IsDeleted)
-            .Join(_context.GroupRoles, 
-                  gm => gm.GroupId, 
-                  gr => gr.GroupId, 
-                  (gm, gr) => gr)
-            .Where(gr => !gr.IsDeleted)
-            .Join(_context.RolePermissions, 
-                  gr => gr.RoleId, 
-                  rp => rp.RoleId, 
-                  (gr, rp) => rp)
-            .Where(rp => !rp.IsDeleted && rp.Permission != null && rp.Permission.IsActive && !rp.Permission.IsDeleted)
-            .Select(rp => rp.Permission!.Key)
-            .ToListAsync();
-            
-        foreach (var p in groupRolePerms)
-        {
-            permissions.Add(p);
-        }
+        return filePath;
+    }
 
-        // 3. UserPermissionOverride tablosundaki spesifik yetkiler
-        var overrides = await _context.UserPermissionOverrides
-            .Include(o => o.Permission)
-            .Where(o => o.UserId == userId && o.IsGranted && !o.IsDeleted && o.Permission != null && o.Permission.IsActive && !o.Permission.IsDeleted)
-            .Select(o => o.Permission!.Key)
-            .ToListAsync();
-
-        foreach (var p in overrides)
-        {
-            permissions.Add(p);
-        }
-
-        return permissions;
+    public Task DeleteFileAsync(string filePath)
+    {
+        if (File.Exists(filePath))
+            File.Delete(filePath);
+        return Task.CompletedTask;
     }
 }

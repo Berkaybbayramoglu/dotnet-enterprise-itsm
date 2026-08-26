@@ -1,1 +1,1 @@
-4 2csX9hr2src/ItsTool.API/Controllers/DashboardController.cs
+4 2csX,hr1src/ItsTool.API/Controllers/CrudControllerBase.cs

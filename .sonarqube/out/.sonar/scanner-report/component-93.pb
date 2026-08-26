@@ -1,1 +1,1 @@
-] 2webXÍhr$src/ItsTool.Web/wwwroot/tickets.html
+] 2webXQhr'src/ItsTool.Web/wwwroot/categories.html

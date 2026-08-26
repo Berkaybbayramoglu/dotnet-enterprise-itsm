@@ -1,1 +1,1 @@
-\ 2webX•hr'src/ItsTool.Web/wwwroot/categories.html
+\ 2webXŽhr)src/ItsTool.Web/wwwroot/admin-fields.html

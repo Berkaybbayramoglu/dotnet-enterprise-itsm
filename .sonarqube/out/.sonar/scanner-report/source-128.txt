@@ -1,64 +1,74 @@
-using System;
-using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using MailKit.Net.Smtp;
-using MimeKit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class SmtpEmailService : IEmailService
+public class RoleService : IRoleService
 {
-    private readonly IConfiguration _config;
-    private readonly ILogger<SmtpEmailService> _logger;
+    private readonly IRepository<Role> _repository;
+    private readonly ItsToolDbContext _context;
 
-    public SmtpEmailService(IConfiguration config, ILogger<SmtpEmailService> logger)
+    public RoleService(IRepository<Role> repository, ItsToolDbContext context)
     {
-        _config = config;
-        _logger = logger;
+        _repository = repository;
+        _context = context;
     }
 
-    public async Task SendEmailAsync(string to, string subject, string body)
+    public async Task<IEnumerable<RoleDto>> GetAllAsync()
     {
-        var host = _config["Smtp:Host"];
-        var portStr = _config["Smtp:Port"];
-        var user = _config["Smtp:Username"];
-        var pass = _config["Smtp:Password"];
+        var roles = await _repository.GetAllAsync();
+        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
+    }
 
-        if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(portStr))
+    public async Task<RoleDto?> GetByIdAsync(int id)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) return null;
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
+
+    public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
+    {
+        var r = new Role { Name = dto.Name };
+        await _repository.AddAsync(r);
+        return new RoleDto(r.Id, r.Name, r.IsActive);
+    }
+
+    public async Task UpdateAsync(int id, UpdateRoleDto dto)
+    {
+        var r = await _repository.GetByIdAsync(id);
+        if (r == null) throw new KeyNotFoundException("Role not found");
+        
+        r.Name = dto.Name;
+        r.IsActive = dto.IsActive;
+        await _repository.UpdateAsync(r);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task AssignPermissionAsync(int roleId, int permissionId)
+    {
+        var exists = await _context.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
+        if (!exists)
         {
-            _logger.LogWarning("SMTP Configuration missing, skipping email to {To}", to);
-            return;
+            _context.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
+            await _context.SaveChangesAsync();
         }
+    }
 
-        try
+    public async Task RevokePermissionAsync(int roleId, int permissionId)
+    {
+        var rp = await _context.RolePermissions.FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId);
+        if (rp != null)
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("ITSM Tool", user ?? "noreply@itsm.local"));
-            message.To.Add(new MailboxAddress("", to));
-            message.Subject = subject;
-
-            message.Body = new TextPart("html")
-            {
-                Text = body
-            };
-
-            using var client = new SmtpClient();
-            await client.ConnectAsync(host, int.Parse(portStr), MailKit.Security.SecureSocketOptions.Auto);
-
-            if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pass))
-            {
-                await client.AuthenticateAsync(user, pass);
-            }
-
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-            _logger.LogInformation("Sent email to {To} with subject {Subject}", to, subject);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to send email to {To}", to);
+            _context.RolePermissions.Remove(rp);
+            await _context.SaveChangesAsync();
         }
     }
 }

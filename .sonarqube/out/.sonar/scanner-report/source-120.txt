@@ -1,117 +1,79 @@
-using System.Linq;
-using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Notification;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class NotificationDispatcher : INotificationDispatcher
+public class GroupService : IGroupService
 {
+    private readonly IRepository<Group> _repository;
     private readonly ItsToolDbContext _context;
-    private readonly IEmailService _emailService;
-    private readonly IWebhookDispatcher _webhookDispatcher;
 
-    public NotificationDispatcher(ItsToolDbContext context, IEmailService emailService, IWebhookDispatcher webhookDispatcher)
+    public GroupService(IRepository<Group> repository, ItsToolDbContext context)
     {
+        _repository = repository;
         _context = context;
-        _emailService = emailService;
-        _webhookDispatcher = webhookDispatcher;
     }
 
-    public async Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null)
+    public async Task<IEnumerable<GroupDto>> GetAllAsync()
     {
-        var rules = await _context.NotificationRules
-            .Where(r => r.EventKey == eventKey && r.IsActive && !r.IsDeleted)
-            .ToListAsync();
+        var groups = await _repository.GetAllAsync();
+        return groups.Select(g => new GroupDto(g.Id, g.Name, g.IsActive, g.DepartmentId ?? 0));
+    }
 
-        if (rules.Count == 0) return;
+    public async Task<GroupDto?> GetByIdAsync(int id)
+    {
+        var group = await _repository.GetByIdAsync(id);
+        if (group == null) return null;
+        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
+    }
 
-        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
-        if (ticket == null) return;
+    public async Task<GroupDto> CreateAsync(CreateGroupDto dto)
+    {
+        var group = new Group
+        {
+            Name = dto.Name,
+            DepartmentId = dto.DepartmentId
+        };
+        await _repository.AddAsync(group);
+        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
+    }
 
-        var targetUserIds = await GetTargetUserIdsAsync(rules, ticket, triggerUserId);
-
-        await ProcessNotificationsAsync(targetUserIds, eventKey, ticket, additionalContext);
+    public async Task UpdateAsync(int id, UpdateGroupDto dto)
+    {
+        var group = await _repository.GetByIdAsync(id);
+        if (group == null) throw new KeyNotFoundException("Group not found");
         
-        await _context.SaveChangesAsync();
-        
-        // Dispatch to Webhooks
-        await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
+        group.Name = dto.Name;
+        group.IsActive = dto.IsActive;
+        group.DepartmentId = dto.DepartmentId;
+        await _repository.UpdateAsync(group);
     }
 
-    private async Task<System.Collections.Generic.HashSet<int>> GetTargetUserIdsAsync(System.Collections.Generic.IEnumerable<NotificationRule> rules, Domain.Entities.Ticket.Ticket ticket, int? triggerUserId)
+    public async Task DeleteAsync(int id)
     {
-        var targetUserIds = new System.Collections.Generic.HashSet<int>();
-
-        foreach (var rule in rules)
-        {
-            switch (rule.TargetRole.ToLower())
-            {
-                case "requester":
-                    targetUserIds.Add(ticket.RequesterUserId);
-                    break;
-                case "assignee":
-                    if (ticket.AssignedUserId.HasValue)
-                        targetUserIds.Add(ticket.AssignedUserId.Value);
-                    break;
-                case "project_member":
-                    var members = await _context.ProjectMembers
-                        .Where(pm => pm.ProjectId == ticket.ProjectId && !pm.IsDeleted)
-                        .ToListAsync();
-                    foreach (var m in members)
-                    {
-                        targetUserIds.Add(m.UserId);
-                    }
-                    break;
-            }
-        }
-
-        if (triggerUserId.HasValue)
-        {
-            targetUserIds.Remove(triggerUserId.Value);
-        }
-
-        return targetUserIds;
+        await _repository.DeleteAsync(id);
     }
 
-    private async Task ProcessNotificationsAsync(System.Collections.Generic.HashSet<int> targetUserIds, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    public async Task AddMemberAsync(int groupId, int userId)
     {
-        foreach (var targetId in targetUserIds)
+        var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (!exists)
         {
-            var exists = await _context.Notifications.AnyAsync(n => 
-                n.UserId == targetId && 
-                n.RelatedEntityId == ticket.Id && 
-                n.RelatedEntityType == "Ticket" && 
-                n.Title == eventKey &&
-                !n.IsDeleted);
-
-            if (!exists)
-            {
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = targetId,
-                    Title = eventKey,
-                    Message = additionalContext ?? $"Event {eventKey} occurred on Ticket {ticket.TicketNumber}",
-                    RelatedEntityId = ticket.Id,
-                    RelatedEntityType = "Ticket"
-                });
-
-                if (eventKey == "ticket.assigned" || eventKey == "sla.breach")
-                {
-                    await SendEmailNotificationAsync(targetId, eventKey, ticket, additionalContext);
-                }
-            }
+            _context.GroupMembers.Add(new GroupMember { GroupId = groupId, UserId = userId });
+            await _context.SaveChangesAsync();
         }
     }
 
-    private async Task SendEmailNotificationAsync(int targetId, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    public async Task RemoveMemberAsync(int groupId, int userId)
     {
-        var u = await _context.Users.FindAsync(targetId);
-        if (u != null)
+        var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (member != null)
         {
-            await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
+            _context.GroupMembers.Remove(member);
+            await _context.SaveChangesAsync();
         }
     }
 }

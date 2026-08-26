@@ -1,1 +1,1 @@
-Å 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs
+Å 2csX:hr:src/ItsTool.Application/Interfaces/IOrganizationService.cs

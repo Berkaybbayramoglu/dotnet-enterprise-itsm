@@ -1,31 +1,50 @@
-namespace ItsTool.Application.Constants;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-public static class PermissionConstants
+namespace ItsTool.UnitTests.Services;
+
+public class WorkflowServiceTests : TestBase
 {
-    public const string TicketCreate = "ticket.create";
-    public const string TicketView = "ticket.view";
-    public const string TicketEdit = "ticket.edit";
-    public const string TicketAssign = "ticket.assign";
-    public const string TicketTransfer = "ticket.transfer";
-    public const string TicketResolve = "ticket.resolve";
-    public const string TicketClose = "ticket.close";
-    public const string TicketReopen = "ticket.reopen";
-    public const string TicketCommentInternal = "ticket.comment.internal";
-    public const string ReportView = "report.view";
-    public const string AdminManage = "admin.manage";
-    public const string ConfigManage = "config.manage";
-    public const string SlaManage = "sla.manage";
-    public const string AuditView = "audit.view";
+    private readonly Repository<Workflow> _workflowRepo;
+    private readonly Repository<WorkflowTransition> _transitionRepo;
+    private readonly WorkflowService _service;
 
-    public const string KbManage = "kb.manage";
-    public const string KbView = "kb.view";
-    public const string SurveySubmit = "survey.submit";
-    public const string TicketComment = "ticket.comment";
-
-    public static IReadOnlyList<string> AllPermissions => new[]
+    public WorkflowServiceTests() : base()
     {
-        TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
-        KbManage, KbView, SurveySubmit, TicketComment
-    };
+        _workflowRepo = new Repository<Workflow>(_context);
+        _transitionRepo = new Repository<WorkflowTransition>(_context);
+        _service = new WorkflowService(_workflowRepo, _transitionRepo);
+    }
+
+    [Fact]
+    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    {
+        var dto = new CreateWorkflowDto("Main", "Desc", null);
+        var result = await _service.CreateWorkflowAsync(dto);
+
+        Assert.NotNull(result);
+        Assert.Equal("Main", result.Name);
+    }
+
+    [Fact]
+    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    {
+        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
+    }
+
+    [Fact]
+    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    {
+        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
+        _context.WorkflowTransitions.Add(t);
+        await _context.SaveChangesAsync();
+
+        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+    }
 }

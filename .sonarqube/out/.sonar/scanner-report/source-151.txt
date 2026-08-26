@@ -1,64 +1,70 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Notification;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.KnowledgeBase;
 using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class NotificationServiceTests : TestBase
+public class KnowledgeBaseServiceTests : TestBase
 {
-    private readonly NotificationService _service;
+    private readonly KnowledgeBaseService _kbService;
+    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
 
-    public NotificationServiceTests() : base()
+    public KnowledgeBaseServiceTests() : base()
     {
-        _service = new NotificationService(_context);
+        _mockPermCalculator = new Mock<IPermissionCalculator>();
+        _kbService = new KnowledgeBaseService(_context, _mockPermCalculator.Object);
     }
 
     [Fact]
-    public async Task GetUserNotificationsAsync_ShouldReturnOnlyUserNotifications()
+    public async Task SearchArticlesAsync_ShouldHideDraftAndInternal_FromEndUser()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A" });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "B", Message = "B" });
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string>()); // End user
+
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A2", Status = ArticleStatus.Draft, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A3", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Internal });
         await _context.SaveChangesAsync();
 
-        var notifs = await _service.GetUserNotificationsAsync(1);
-        
-        Assert.Single(notifs);
-        Assert.Equal("A", notifs.First().Title);
+        var result = await _kbService.SearchArticlesAsync(1, null, null);
+
+        Assert.Single(result);
+        Assert.Equal("A1", result.First().Title);
     }
 
     [Fact]
-    public async Task MarkAsReadAsync_ShouldMarkSpecificNotification()
+    public async Task SearchArticlesAsync_ShouldShowInternal_ToStaff()
     {
-        var n = new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false };
-        _context.Notifications.Add(n);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.manage" }); // Staff
+
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A2", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Internal });
         await _context.SaveChangesAsync();
 
-        await _service.MarkAsReadAsync(n.Id, 1);
-        
-        var dbN = await _context.Notifications.FirstAsync();
-        Assert.True(dbN.IsRead);
+        var result = await _kbService.SearchArticlesAsync(1, null, null);
+
+        Assert.Equal(2, result.Count());
     }
 
     [Fact]
-    public async Task MarkAllAsReadAsync_ShouldMarkAllForUser()
+    public async Task GetArticleAsync_ShouldIncrementViewCount_ForPublished()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "B", Message = "B", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "C", Message = "C", IsRead = false });
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string>());
+
+        var article = new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public, ViewCount = 0 };
+        _context.KnowledgeArticles.Add(article);
         await _context.SaveChangesAsync();
 
-        await _service.MarkAllAsReadAsync(1);
-        
-        var user1Notifs = await _context.Notifications.Where(n => n.UserId == 1).ToListAsync();
-        Assert.All(user1Notifs, n => Assert.True(n.IsRead));
+        var result = await _kbService.GetArticleAsync(article.Id, 1);
 
-        var user2Notifs = await _context.Notifications.Where(n => n.UserId == 2).ToListAsync();
-        Assert.All(user2Notifs, n => Assert.False(n.IsRead));
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ViewCount);
+        
+        var dbArticle = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.Equal(1, dbArticle!.ViewCount);
     }
 }

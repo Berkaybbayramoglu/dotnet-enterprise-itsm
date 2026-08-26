@@ -1,14 +1,16 @@
-using ItsTool.Application.DTOs;
+using System;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.Application.DTOs;
 
-public interface ITokenService
-{
-    string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions);
-}
+public record TicketSurveyDto(
+    int Id,
+    int TicketId,
+    int Rating,
+    string? Comment,
+    DateTime SubmittedAt
+);
 
-public interface IAuthService
-{
-    Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
-    Task<MeResponseDto> GetMeAsync(int userId);
-}
+public record SubmitTicketSurveyDto(
+    int Rating,
+    string? Comment
+);

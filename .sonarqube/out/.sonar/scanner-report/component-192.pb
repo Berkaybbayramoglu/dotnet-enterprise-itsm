@@ -1,1 +1,1 @@
-À 2csX	hr=src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
+À 2csX	hr3src/ItsTool.Application/Interfaces/IEmailService.cs

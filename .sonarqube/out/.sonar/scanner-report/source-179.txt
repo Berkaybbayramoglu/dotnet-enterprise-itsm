@@ -1,19 +1,21 @@
 namespace ItsTool.Application.DTOs;
 
-public record TicketDto(int Id, string TicketNumber, string Title, string Description, int ProjectId, int CategoryId, int TypeId, int StatusId, int PriorityId, int RequesterUserId, int? AssignedUserId, int? AssignedGroupId, Dictionary<string, string>? CustomFields = null);
-public record CreateTicketDto(string Title, string Description, int ProjectId, int CategoryId, int TypeId, int PriorityId, int RequesterUserId, Dictionary<string, string> CustomFields);
-public record UpdateTicketDto(string Title, string Description, int CategoryId, int PriorityId, Dictionary<string, string> CustomFields);
+public record DepartmentDto(int Id, string Name, string? Description, bool IsActive);
+public record CreateDepartmentDto(string Name, string? Description);
+public record UpdateDepartmentDto(string Name, string? Description, bool IsActive);
 
-public record TicketHistoryDto(int Id, int TicketId, string FieldName, string? OldValue, string? NewValue, string Action, DateTime CreatedAt);
-public record TicketCommentDto(int Id, int TicketId, int AuthorUserId, string Content, bool IsInternal, DateTime CreatedAt);
-public record CreateCommentDto(string Content, bool IsInternal, int AuthorUserId);
+public record GroupDto(int Id, string Name, bool IsActive, int DepartmentId);
+public record CreateGroupDto(string Name, int DepartmentId);
+public record UpdateGroupDto(string Name, bool IsActive, int DepartmentId);
 
-public record TicketAttachmentDto(int Id, int TicketId, string FileName, string FilePath, long FileSize, string ContentType, int UploadedByUserId, DateTime CreatedAt);
+public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, int[] RoleIds, Dictionary<int, bool> PermissionOverrides, string? ProfilePhoto);
+public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId, string? ProfilePhoto);
+public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, string? ProfilePhoto);
 
-public record TicketWatcherDto(int TicketId, int UserId);
+public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, string Status);
+public record CreateProjectDto(string Name, string ProjectKey, string? Description);
+public record UpdateProjectDto(string Name, string ProjectKey, string? Description, string Status);
 
-public record TimelineEventDto(string EventType, DateTime Timestamp, object Data); // e.g. EventType: "Comment", "History", "Attachment"
-
-public record AssignTicketDto(int UserId, int AssignerUserId);
-public record TransferTicketDto(int? ProjectId, int? GroupId, int TransferrerUserId);
-public record ChangeStatusDto(int NewStatusId, int UserId);
+public record RoleDto(int Id, string Name, bool IsActive);
+public record CreateRoleDto(string Name);
+public record UpdateRoleDto(string Name, bool IsActive);

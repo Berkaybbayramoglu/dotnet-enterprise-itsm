@@ -1,2 +1,1 @@
-¼ 2csX
-hr<src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
+¼ 2csX#hr5src/ItsTool.Application/Interfaces/ICatalogService.cs

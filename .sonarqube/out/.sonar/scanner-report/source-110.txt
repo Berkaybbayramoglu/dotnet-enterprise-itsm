@@ -1,41 +1,62 @@
-using System.Linq;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class AssignmentEngine : IAssignmentEngine
+public class Repository<T> : IRepository<T> where T : BaseEntity
 {
-    private readonly ItsToolDbContext _context;
+    protected readonly ItsToolDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public AssignmentEngine(ItsToolDbContext context)
+    public Repository(ItsToolDbContext context)
     {
         _context = context;
+        _dbSet = context.Set<T>();
     }
 
-    public async Task AssignTicketAsync(Ticket ticket)
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
     {
-        var rules = await _context.AssignmentRules
-            .Where(r => r.IsActive && !r.IsDeleted)
-            .OrderBy(r => r.SortOrder)
-            .ToListAsync();
-
-        foreach (var rule in rules)
+        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
+        if (predicate != null)
         {
-            if (rule.ProjectId.HasValue && rule.ProjectId.Value != ticket.ProjectId) continue;
-            if (rule.CategoryId.HasValue && rule.CategoryId.Value != ticket.CategoryId) continue;
-            if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) continue;
-            if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) continue;
+            query = query.Where(predicate);
+        }
+        return await query.ToListAsync();
+    }
 
-            // Match found!
-            ticket.AssignedGroupId = rule.TargetGroupId;
-            ticket.AssignedUserId = rule.TargetUserId;
-            
-            // Mark the ticket as assigned in the system implicitly
-            return;
+    public async Task<T?> GetByIdAsync(int id)
+    {
+        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task UpdateAsync(T entity)
+    {
+        entity.UpdatedAt = DateTime.UtcNow;
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            entity.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"{typeof(T).Name} not found");
         }
     }
 }

@@ -3,24 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Projects</title>
+    <title>ITSM Tool - Knowledge Base</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
-        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        .kb-container { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 1000px; margin: 0 auto; }
+        .search-hero { background: linear-gradient(135deg, #0747A6 0%, #00224d 100%); padding: var(--spacing-xxl) var(--spacing-xl); border-radius: var(--radius-lg); text-align: center; color: white; margin-bottom: var(--spacing-lg); }
+        .search-hero h2 { margin-bottom: var(--spacing-md); color: white; font-size: 28px; }
+        
+        .search-bar { display: flex; gap: var(--spacing-sm); max-width: 600px; margin: 0 auto; }
+        .search-bar input { flex: 1; padding: 12px 16px; border: none; border-radius: var(--radius-md); font-size: 16px; box-shadow: var(--shadow-sm); }
+        .search-bar button { padding: 12px 24px; font-size: 16px; background: var(--bg-surface); color: var(--primary); font-weight: 600; }
+        .search-bar button:hover { background: var(--bg-hover); }
+
+        .articles { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-lg); }
+        
+        .article-card { background: var(--bg-surface); padding: var(--spacing-lg); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: 100%; height: 100%; }
+        .article-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+        
+        .article-card-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: var(--spacing-sm); }
+        .article-card h3 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 600; line-height: 1.4; }
+        
+        .meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: var(--spacing-md); margin-top: auto; padding-top: var(--spacing-md); border-top: 1px solid var(--border); width: 100%; }
+        .meta-item { display: flex; align-items: center; gap: 4px; }
+        
+
     </style>
 </head>
 <body>
-
-    <script>
-        window.addEventListener('error', function(e) {
-            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">ERROR: ' + e.message + '</div>';
-        });
-        window.addEventListener('unhandledrejection', function(e) {
-            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">PROMISE ERROR: ' + e.reason + '</div>';
-        });
-    </script>
-
     <div class="app-shell">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <aside class="sidebar">
@@ -82,155 +91,157 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Projects Management</h2>
+                    <h2>Knowledge Base</h2>
                 </div>
                 <div class="topbar-right">
+                    <button type="button" class="btn btn-primary" id="btnNewArticle" style="display: none;">+ New Article</button>
                     <div class="avatar">U</div>
                     <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
                 </div>
             </header>
 
             <div class="content-area">
-                <div class="admin-header">
-                    <div>
-                        <h3 style="margin:0; font-size: 18px;">Projects</h3>
-                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage ITSM projects and their basic details.</p>
+                <div class="kb-container">
+                    <div class="search-hero">
+                        <h2>How can we help you today?</h2>
+                        <div class="search-bar">
+                            <input type="text" id="searchInput" aria-label="Search knowledge base" placeholder="Search for articles, guides, and FAQs...">
+                            <button type="button" class="btn" id="btnSearchKb">Search</button>
+                        </div>
                     </div>
-                    <button type="button" class="btn btn-primary" data-action="openProjectModal">
-                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New Project
-                    </button>
-                </div>
-
-                <div class="table-container">
-                    <table class="table" id="dataTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Key</th>
-                                <th>Project Name</th>
-                                <th>Status</th>
-                                <th style="width: 100px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                    
+                    <div class="articles" id="articleList">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Create/Edit Modal -->
-    <div id="projectModal" class="modal-overlay">
-        <div class="modal">
-            <form id="projectForm">
-                <input type="hidden" id="pId">
-                <div class="modal-header">
-                    <h2 id="modalTitle">Project</h2>
-                    <button type="button" class="close-btn" data-action="closeModal" data-target="projectModal" aria-label="Close">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                    </button>
-                </div>
-                <div class="modal-body">
+    <!-- Article Edit/Create Modal -->
+    <div id="articleModal" class="modal-overlay">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="modalTitle">New Article</h2>
+                <button type="button" class="close-btn" onclick="closeModal('articleModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="articleForm">
+                    <input type="hidden" id="articleId" value="">
                     <div class="form-group">
-                        <label class="form-label" for="pName" for="pName">Name *</label>
-                        <input id="pName" class="form-control" required placeholder="e.g. IT Helpdesk">
+                        <label class="form-label" for="articleTitle">Title</label>
+                        <input id="articleTitle" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="pKey" for="pKey">Project Key *</label>
-                        <input id="pKey" class="form-control" required placeholder="e.g. ITS" maxlength="10">
+                        <label class="form-label" for="articleCategory">Category</label>
+                        <select id="articleCategory" class="form-control" required></select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="pStatus" for="pStatus">Status</label>
-                        <select id="pStatus" class="form-control">
-                            <option value="Active" style="color: var(--success); background-color: var(--success-light); font-weight: 600;">Active</option>
-                            <option value="Inactive" style="color: var(--text-muted); background-color: var(--bg-hover); font-weight: 600;">Inactive</option>
-                            <option value="Postponed" style="color: #B36200; background-color: var(--warning-light); font-weight: 600;">Postponed</option>
+                        <label class="form-label" for="articleVisibility">Visibility</label>
+                        <select id="articleVisibility" class="form-control" required>
+                            <option value="0">Public</option>
+                            <option value="1">Internal</option>
                         </select>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="projectModal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label class="form-label" for="articleStatus">Status</label>
+                        <select id="articleStatus" class="form-control" required>
+                            <option value="0">Draft</option>
+                            <option value="1">Published</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="articleContent">Content</label>
+                        <textarea id="articleContent" class="form-control" rows="8" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('articleModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveArticle">Save Article</button>
+            </div>
         </div>
     </div>
 
-    
-
     <script type="module">
         import './js/api.js?v=2';
-        import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
-
+        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js?v=2';
+        
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
-
-        function getProjectStatusColor(statusStr) {
-            if (statusStr === 'Active') return 'success';
-            if (statusStr === 'Inactive') return 'default';
-            return 'warning';
+        
+        window.closeModal = closeModal;
+        
+        function parseJwt(token) {
+            try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { console.error(e);  return null;  }
         }
+        const claims = parseJwt(window.api.token) || {};
+        const roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
+        const perms = claims['Permissions'] || [];
+        const hasManageKb = (Array.isArray(roles) ? roles.includes('SuperAdmin') : roles === 'SuperAdmin') || 
+                            (Array.isArray(perms) ? perms.includes('kb.manage') : perms === 'kb.manage');
+        
+        if (hasManageKb) document.getElementById('btnNewArticle').style.display = 'inline-flex';
+        
+        let allCategories = [];
 
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-action]');
-            if (!btn) return;
-            const action = btn.dataset.action;
-            const target = btn.dataset.target;
-            const idAttr = btn.dataset.id;
-            const flagAttr = btn.dataset.flag;
-            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
-            const flag = flagAttr ? (flagAttr === 'true') : undefined;
-            
-            if (action === 'closeModal' && target) {
-                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
-            } else if (typeof window[action] === 'function') {
-                if (flag !== undefined) window[action](id, flag);
-                else window[action](id);
-            }
-        });
-
-
-        let currentData = [];
-        let itemToDelete = null;
-
-        window.loadData = async function() {
+        async function loadKb(keyword = '') {
             try {
-                currentData = await window.api.getProjects();
-                const tbody = document.querySelector('#dataTable tbody');
-                tbody.innerHTML = '';
+                const articles = await window.api.getKbArticles(keyword);
+                const list = document.getElementById('articleList');
+                list.innerHTML = '';
                 
-                if (currentData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No projects found.</td></tr>`;
+                if (articles.length === 0) {
+                    list.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                            <svg viewBox="0 0 24 24" width="48" height="48" style="fill: var(--border); margin-bottom: 16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                            <h3>No articles found</h3>
+                            <p>Try adjusting your search terms.</p>
+                        </div>
+                    `;
                     return;
                 }
 
-                currentData.forEach(item => {
-                    const tr = document.createElement('tr');
-                    const statusStr = item.status || 'Active';
-                    let statusColor = getProjectStatusColor(statusStr);
+                articles.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'article-card';
+                    btn.addEventListener('click', () => window.openArticle(a.id));
                     
-                    const badge = `
-                        <select class="badge badge-${statusColor}" style="cursor:pointer; border: none; outline: none; appearance: none; padding: 4px 8px; font-weight: 600;" onchange="updateProjectStatus(${item.id}, this)">
-                            <option value="Active" style="color: var(--success); background-color: var(--success-light); font-weight: 600;" ${statusStr === 'Active' ? 'selected' : ''}>Active</option>
-                            <option value="Inactive" style="color: var(--text-muted); background-color: var(--bg-hover); font-weight: 600;" ${statusStr === 'Inactive' ? 'selected' : ''}>Inactive</option>
-                            <option value="Postponed" style="color: #B36200; background-color: var(--warning-light); font-weight: 600;" ${statusStr === 'Postponed' ? 'selected' : ''}>Postponed</option>
-                        </select>
+                    let badges = '';
+                    if (a.visibility === 1) badges += '<span class="badge badge-warning">Internal</span> ';
+                    if (a.status === 0) badges += '<span class="badge badge-default">Draft</span> ';
+
+                    let actionsHtml = '';
+                    if (hasManageKb) {
+                        actionsHtml = `
+                            <div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">
+                                <button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(${a.id})">Edit</button>
+                                <button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(${a.id}, ${a.status})">${a.status === 1 ? 'Unpublish' : 'Publish'}</button>
+                                <button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(${a.id})">Delete</button>
+                            </div>
+                        `;
+                    }
+                    
+                    btn.innerHTML = `
+                        <div class="article-card-header">
+                            <h3>${escapeHtml(a.title)}</h3>
+                            <div style="display:flex; gap: 4px;">${badges}</div>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; text-align: left; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            Read more about ${escapeHtml(a.title)}...
+                        </p>
+                        <div class="meta" style="flex-wrap: wrap;">
+                            <span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg> ${a.viewCount}</span>
+                            <span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg> ${new Date(a.createdAt).toLocaleDateString()}</span>
+                            ${actionsHtml}
+                        </div>
                     `;
-                    tr.innerHTML = `
-                        <td class="text-muted">#${item.id}</td>
-                        <td style="font-weight: 500;">${escapeHtml(item.projectKey)}</td>
-                        <td>${escapeHtml(item.name)}</td>
-                        <td>${badge}</td>
-                        <td>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openProjectModal" data-id="${item.id}">Edit</button>
-                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                    list.appendChild(btn);
                 });
-            } catch (err) { console.error(err); 
+            } catch (e) { console.error(e); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
@@ -239,92 +250,124 @@
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }
+ console.error(e); showToast('Search failed', 'error'); }
+        }
 
-                console.error(err);
-                showToast('Error loading projects', 'error');
-            }
+        window.openArticle = function(id) {
+            window.location.href = `/kb-article.html?id=${id}`;
         };
 
-        window.updateProjectStatus = async function(id, selectElement) {
-            const newStatus = selectElement.value;
-            const newColor = getProjectStatusColor(newStatus);
-            selectElement.className = `badge badge-${newColor}`;
-            
-            const item = currentData.find(x => x.id === id);
-            if (!item) return;
-            try {
-                await window.api.updateProject(id, {
-                    name: item.name,
-                    description: item.description,
-                    projectKey: item.projectKey,
-                    status: newStatus
-                });
-                showToast('Project status updated');
-                // No need to reload all data if we just updated the select locally
-            } catch (e) { console.error(e);  
-                showToast('Failed to update status', 'error');
-                // Revert color on failure
-                const oldStatusStr = item.status || 'Active';
-                selectElement.value = oldStatusStr;
-                const oldColor = getProjectStatusColor(oldStatusStr);
-                selectElement.className = `badge badge-${oldColor }`;
-            }
-        };
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
 
-        window.openProjectModal = function(id = null) {
-            const form = document.getElementById('projectForm');
-            form.reset();
-            document.getElementById('pId').value = id || '';
-            document.getElementById('modalTitle').textContent = id ? 'Edit Project' : 'New Project';
-            
-            if (id) {
-                const item = currentData.find(x => x.id === id);
-                if (item) {
-                    document.getElementById('pName').value = item.name;
-                    document.getElementById('pKey').value = item.projectKey;
-                    document.getElementById('pStatus').value = item.status || 'Active';
-                }
-            }
-            openModal('projectModal');
-        };
-
-        window.promptDelete = async function(id) {
-            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
-            if (proceed) {
-                try {
-                    await window.api.deleteProject(id);
-                    showToast('Silme işlemi tamamlandı');
-                    loadData();
-                } catch (e) { console.error(e); 
-                    showToast('Silme işlemi başarısız', 'error');
-                 }
-            }
-        };
-
+        document.getElementById('btnSearchKb').addEventListener('click', async () => {
+            const kw = document.getElementById('searchInput').value;
+        loadKb(kw); // removed await for resilience
+        });
         
+        // Allow pressing enter to search
+        document.getElementById('searchInput').addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+        loadKb(e.target.value); // removed await for resilience
+            }
+        });
 
-        document.getElementById('projectForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('pId').value;
-            const data = {
-                name: document.getElementById('pName').value.trim(),
-                projectKey: document.getElementById('pKey').value.trim(),
-                status: document.getElementById('pStatus').value
+        document.getElementById('btnNewArticle')?.addEventListener('click', async () => {
+            document.getElementById('articleId').value = '';
+            document.getElementById('articleTitle').value = '';
+            document.getElementById('articleContent').value = '';
+            document.getElementById('articleVisibility').value = '0';
+            document.getElementById('articleStatus').value = '0';
+            document.getElementById('modalTitle').textContent = 'New Article';
+            
+            if (allCategories.length === 0) {
+                try {
+                    allCategories = await window.api.getKbCategories();
+                    const catSelect = document.getElementById('articleCategory');
+                    catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+                } catch (e) { console.error(e);  showToast('Kategoriler yüklenemedi', 'error');  }
+            }
+            openModal('articleModal');
+        });
+        
+        document.getElementById('btnSaveArticle').addEventListener('click', async () => {
+            const form = document.getElementById('articleForm');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+            
+            const id = document.getElementById('articleId').value;
+            const payload = {
+                categoryId: Number.parseInt(document.getElementById('articleCategory').value),
+                title: document.getElementById('articleTitle').value,
+                content: document.getElementById('articleContent').value,
+                visibility: Number.parseInt(document.getElementById('articleVisibility').value),
+                status: Number.parseInt(document.getElementById('articleStatus').value)
             };
             
             try {
-                if (id) await window.api.updateProject(id, data);
-                else await window.api.createProject(data);
-                
-                closeModal('projectModal');
-                showToast('Project saved');
-        loadData(); // removed await for resilience
-            } catch (err) { console.error(err); 
-                showToast('Failed to save project', 'error');
-             }
+                if (id) {
+                    await window.api.updateKbArticle(id, payload);
+                    showToast('Article updated successfully');
+                } else {
+                    await window.api.createKbArticle(payload);
+                    showToast('Article created successfully');
+                }
+                closeModal('articleModal');
+                loadKb();
+            } catch (e) { console.error(e);  showToast('Error saving article', 'error');  }
         });
-
-        loadData();
+        
+        window.editArticle = async function(id) {
+            try {
+                const article = await window.api.request(`/kb/articles/${id}`);
+                document.getElementById('articleId').value = article.id;
+                document.getElementById('articleTitle').value = article.title;
+                document.getElementById('articleContent').value = article.content;
+                document.getElementById('articleVisibility').value = article.visibility;
+                document.getElementById('articleStatus').value = article.status;
+                document.getElementById('modalTitle').textContent = 'Edit Article';
+                
+                if (allCategories.length === 0) {
+                    allCategories = await window.api.getKbCategories();
+                    const catSelect = document.getElementById('articleCategory');
+                    catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+                }
+                document.getElementById('articleCategory').value = article.categoryId;
+                openModal('articleModal');
+            } catch (e) { console.error(e);  showToast('Error fetching article details', 'error');  }
+        };
+        
+        window.togglePublish = async function(id, currentStatus) {
+            try {
+                const article = await window.api.request(`/kb/articles/${id}`);
+                const payload = {
+                    categoryId: article.categoryId,
+                    title: article.title,
+                    content: article.content,
+                    visibility: article.visibility,
+                    status: currentStatus === 1 ? 0 : 1
+                };
+                await window.api.updateKbArticle(id, payload);
+                showToast(payload.status === 1 ? 'Article published' : 'Article unpublished');
+                loadKb();
+            } catch (e) { console.error(e);  showToast('Error toggling publish state', 'error');  }
+        };
+        
+        window.deleteArticle = async function(id) {
+            if (!confirm('Are you sure you want to delete this article?')) return;
+            try {
+                await window.api.deleteKbArticle(id);
+                showToast('Article deleted successfully');
+                loadKb();
+            } catch (e) { console.error(e); }
+        };
+        
+        await loadKb();
     </script>
 </body>
 </html>

@@ -1,1 +1,1 @@
-ª 2csXhr+src/ItsTool.Application/DTOs/CatalogDtos.cs
+ª 2csXhr2src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs

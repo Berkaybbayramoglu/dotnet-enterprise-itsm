@@ -90,3 +90,17 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
   - Centralized all frontend logic for basic admin CRUD tables into `crud-page.js` (Config-Driven Factory). 
   - Standardized backend basic entities to inherit from `CrudControllerBase<TDto, TCreateDto, TUpdateDto>`.
   - Removed duplicated query filter chains between `ReportService` and `TicketService` by moving them to `TicketQueryHelpers`.
+
+- Final Cleanup 13 — Skeleton DRY & Final Bugfixes:
+  - Extracted the entire HTML skeleton (toolbar, table, modal structure) into `crud-page.js` to leave HTML files with only `<div id="crudRoot"></div>`.
+  - Changed `CrudControllerBase` to `CrudControllerBase<TDto>` to keep generic parameters to ≤2.
+  - Eliminated high complexity inside `crud-page.js` by extracting `renderTable`, `submitForm`, and `wireActions`.
+
+- Final Cleanup 14 — TAM KAPANIŞ:
+  - Addressed the final 7 mechanical bugs.
+  - Implemented strict ReDoS prevention in `EmailIngestionService` with `TimeSpan.FromSeconds(2)` on regular expressions and proper `RegexMatchTimeoutException` handling.
+  - Reduced optional chaining and ternary complexities across UI rendering code.
+
+- Final Cleanup 15 — Grep-Gated Yöntem:
+  - Diskte var olan düzeltmelerin SonarQube cache/branch senkronizasyon problemleri nedeniyle taramalara yansımadığı durumlarda `grep`/`sed` kullanılarak disk doğrulaması yapıldı.
+  - Phase 14'te yapılan düzeltmelerin (where TDto, ReDoS timeout, nested-ternary iptali) diskte fiziksel olarak mevcut olduğu teyit edildi.

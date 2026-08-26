@@ -1,55 +1,39 @@
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/lookup")]
 [Authorize]
-public class NotificationsController : ControllerBase
+public class LookupController : ControllerBase
 {
-    private readonly INotificationService _service;
+    private readonly ICatalogService _catalogService;
+    private readonly IProjectService _projectService;
 
-    public NotificationsController(INotificationService service)
+    public LookupController(ICatalogService catalogService, IProjectService projectService)
     {
-        _service = service;
-    }
-
-    private int GetCurrentUserId()
-    {
-        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.TryParse(idClaim, out var id) ? id : 0;
+        _catalogService = catalogService;
+        _projectService = projectService;
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<NotificationDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMyNotifications()
+    public async Task<IActionResult> GetLookups()
     {
-        var userId = GetCurrentUserId();
-        return Ok(await _service.GetUserNotificationsAsync(userId));
-    }
+        var projects = await _projectService.GetAllAsync();
+        var categories = await _catalogService.GetCategoriesAsync(null);
+        var ticketTypes = await _catalogService.GetTicketTypesAsync();
+        var priorities = await _catalogService.GetPrioritiesAsync();
+        var statuses = await _catalogService.GetStatusesAsync();
 
-    [HttpPost("{id}/read")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> MarkAsRead(int id)
-    {
-        var userId = GetCurrentUserId();
-        await _service.MarkAsReadAsync(id, userId);
-        return NoContent();
-    }
-
-    [HttpPost("read-all")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> MarkAllAsRead()
-    {
-        var userId = GetCurrentUserId();
-        await _service.MarkAllAsReadAsync(userId);
-        return NoContent();
+        return Ok(new
+        {
+            projects,
+            categories,
+            ticketTypes,
+            priorities,
+            statuses
+        });
     }
 }

@@ -1,95 +1,65 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using ItsTool.Domain.Entities.SLA;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
 using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Services;
-using ItsTool.Application.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class SlaEscalationTests : TestBase
+public class ReportServiceTests : TestBase
 {
-    private readonly SlaEngine _engine;
-    private readonly Mock<IEmailService> _mockEmailService;
-    private readonly Mock<INotificationDispatcher> _mockNotificationDispatcher;
+    private readonly ReportService _reportService;
+    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
 
-    public SlaEscalationTests() : base()
+    public ReportServiceTests() : base()
     {
-        _mockEmailService = new Mock<IEmailService>();
-        _mockNotificationDispatcher = new Mock<INotificationDispatcher>();
-        _engine = new SlaEngine(_context, _mockEmailService.Object, _mockNotificationDispatcher.Object);
-        SeedBasicData().Wait();
-    }
-
-    private async Task SeedBasicData()
-    {
-        var lowPriority = new Priority { Name = "Low", SeverityLevel = 1 };
-        var highPriority = new Priority { Name = "High", SeverityLevel = 2 };
-        _context.Priorities.AddRange(lowPriority, highPriority);
-
-        var policy = new SlaPolicy { Name = "Escalate Policy", EscalateOnBreach = true, IsActive = true };
-        _context.SlaPolicies.Add(policy);
-        await _context.SaveChangesAsync();
-
-        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = policy.Id, PriorityId = lowPriority.Id, FirstResponseMinutes = 60, ResolutionMinutes = 120, IsActive = true });
-        await _context.SaveChangesAsync();
+        _mockPermCalculator = new Mock<IPermissionCalculator>();
+        _reportService = new ReportService(_context, _mockPermCalculator.Object);
     }
 
     [Fact]
-    public async Task CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllows()
+    public async Task ExportTicketsToCsvAsync_ShouldReturnFilteredCsvStream()
     {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
-        _context.Tickets.Add(ticket);
-        await _context.SaveChangesAsync();
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
 
-        var sla = new TicketSla
-        {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10)
-        };
-        _context.TicketSlas.Add(sla);
-        await _context.SaveChangesAsync();
-
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
-
-        // Verify Escalation
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var highPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 2)).Id;
+        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
+        _context.Statuses.Add(openStatus);
         
-        Assert.Equal(highPriorityId, updatedTicket?.PriorityId); // Priority bumped
+        var project = new ItsTool.Domain.Entities.Project.Project { Name = "TestProj", ProjectKey = "TP" };
+        _context.Projects.Add(project);
         
-        var updatedSla = await _context.TicketSlas.FindAsync(sla.Id);
-        Assert.NotNull(updatedSla?.EscalatedAt); // EscalatedAt set
-
-        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breach", ticket.Id, null, It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task TryEscalateAsync_ShouldBeIdempotent()
-    {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
-        _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
-        var sla = new TicketSla
-        {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10),
-            EscalatedAt = DateTime.UtcNow.AddDays(-1) // Already escalated
-        };
-        _context.TicketSlas.Add(sla);
+        var category = new ItsTool.Domain.Entities.Ticket.Category { Name = "Cat" };
+        var type = new ItsTool.Domain.Entities.Ticket.TicketType { Name = "Type" };
+        var priority = new ItsTool.Domain.Entities.Ticket.Priority { Name = "High", SeverityLevel = 1 };
+        var user = new ItsTool.Domain.Entities.Organization.User { Email = "u@u.com", FirstName = "F", LastName = "L", PasswordHash = "x" };
+        _context.Categories.Add(category);
+        _context.TicketTypes.Add(type);
+        _context.Priorities.Add(priority);
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
+        _context.Tickets.Add(new Ticket { TicketNumber = "TP-1", Title = "Title 1", Description = "", StatusId = openStatus.Id, ProjectId = project.Id, CategoryId = category.Id, TypeId = type.Id, PriorityId = priority.Id, RequesterUserId = user.Id });
+        _context.Tickets.Add(new Ticket { TicketNumber = "TP-2", Title = "Another", Description = "", StatusId = openStatus.Id, ProjectId = project.Id, CategoryId = category.Id, TypeId = type.Id, PriorityId = priority.Id, RequesterUserId = user.Id });
+        await _context.SaveChangesAsync();
 
-        // Priority should still be low because it shouldn't escalate twice
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var lowPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 1)).Id;
-        Assert.Equal(lowPriorityId, updatedTicket?.PriorityId); 
+        var filter = new TicketSearchFilterDto { Keyword = "title" }; // Should match TP-1 only
+        
+        var stream = await _reportService.ExportTicketsToCsvAsync(filter, 1);
+        stream.Position = 0;
+        using var reader = new StreamReader(stream);
+        var csvContent = await reader.ReadToEndAsync();
+        
+        Console.WriteLine("CSV Content:");
+        Console.WriteLine(csvContent);
+        
+        Assert.Contains("TP-1", csvContent);
+        Assert.DoesNotContain("TP-2", csvContent); // Did not match keyword
     }
 }

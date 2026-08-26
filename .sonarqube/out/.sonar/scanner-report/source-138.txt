@@ -1,53 +1,37 @@
-using System.Linq;
+using System;
 using System.Threading.Tasks;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using ItsTool.API.Controllers;
+using ItsTool.Domain.Entities.Organization;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
+using ItsTool.Application.Interfaces;
+using Moq;
 
-namespace ItsTool.UnitTests.Data;
+namespace ItsTool.UnitTests.Controllers;
 
-public class DataSeederTests : TestBase
+public class AssignmentRuleControllerTests : TestBase
 {
-    [Fact]
-    public async Task SeedAsync_ShouldUpsertFullReopenMatrix_WhenCalledMultipleTimes()
+    private readonly AssignmentRuleController _controller;
+    private readonly Mock<ISystemAuditService> _mockAudit;
+
+    public AssignmentRuleControllerTests() : base()
     {
-        var seeder = new DataSeeder(_context);
-        // First run
-        await seeder.SeedAsync();
+        _mockAudit = new Mock<ISystemAuditService>();
+        _controller = new AssignmentRuleController(_context, _mockAudit.Object);
+    }
 
-        var workflow = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
-        Assert.NotNull(workflow);
-
-        var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Kapatıldı");
-        var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Çözüldü");
-        var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Devam Ediyor");
-
-        Assert.NotNull(closedStatus);
-        Assert.NotNull(resolvedStatus);
-        Assert.NotNull(inProgressStatus);
-
-        // Verify reopened transitions exist
-        var closedToProgress = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-        
-        var resolvedToProgress = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == resolvedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-
-        Assert.True(closedToProgress, "Closed -> In Progress transition missing");
-        Assert.True(resolvedToProgress, "Resolved -> In Progress transition missing");
-
-        // Delete one to simulate drift/modification
-        var transitionToRemove = await _context.WorkflowTransitions
-            .FirstAsync(wt => wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-        _context.WorkflowTransitions.Remove(transitionToRemove);
+    [Fact]
+    public async Task ToggleRule_ShouldInvertIsActiveAndLogAudit()
+    {
+        var rule = new AssignmentRule { Name = "ToggleTest", IsActive = true };
+        _context.AssignmentRules.Add(rule);
         await _context.SaveChangesAsync();
 
-        // Second run - should upsert the missing one
-        await seeder.SeedAsync();
-
-        var missingTransitionIsBack = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-
-        Assert.True(missingTransitionIsBack, "Seeder failed to UPSERT the missing Reopen transition.");
+        var result = await _controller.ToggleRule(rule.Id);
+        
+        Assert.IsType<NoContentResult>(result);
+        Assert.False(rule.IsActive);
+        
+        _mockAudit.Verify(a => a.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", "True", "False"), Times.Once);
     }
 }

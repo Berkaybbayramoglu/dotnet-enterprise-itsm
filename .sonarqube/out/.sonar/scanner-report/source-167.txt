@@ -1,7 +1,24 @@
-namespace ItsTool.Application.DTOs;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-public record AssignmentRuleDto(int Id, string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+namespace ItsTool.UnitTests;
 
-public record CreateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+public abstract class TestBase : IDisposable
+{
+    protected readonly ItsToolDbContext _context;
 
-public record UpdateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+    protected TestBase()
+    {
+        var options = new DbContextOptionsBuilder<ItsToolDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        _context = new ItsToolDbContext(options);
+    }
+
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+        GC.SuppressFinalize(this);
+    }
+}
