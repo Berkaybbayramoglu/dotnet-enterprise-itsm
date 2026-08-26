@@ -1,54 +1,257 @@
-≤
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSearchDto.cs
+˘
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IWorkflowService.cs
 
- "
+ !
 
- 
+# 4
 
-		 
+: C
+
+		 +
+
+		0 2
 
 
 
- 
+ )
 
- 
+
+
+< ?
 
- 
+	 
 
- 
+! #
 
- 
+7 :
 
- 
+	 
 
- 
+! #
 
- 
+- L
 
- 
+Q [
 
- 
+! 7
 
- 
+< >
 
- 
+  5
 
- 
+R U
 
- 
+	 
 
- 
+# %
 
- 
-  9 :
+C F
 
- 
- ""/ 9
+	 
 
-   
-!! ""D L
+# %«
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ITicketService.cs
 
-"" ∂
+ 
+
+ %
+
+6 9
+
+		 '
+
+		, .
+
+
+
+	 
+
+
+
+ !
+
+
+
+3 6
+
+
+
+< I
+
+	 
+
+ '
+
+9 <
+
+! ;
+
+@ H
+
+N T
+
+	 
+
+ '
+
+9 <
+
+	 
+
+! )
+
+= @
+
+ *
+
+/ 7
+
+J M
+
+( 8
+
+= E
+
+L [
+
+ 0
+
+5 =
+
+I M
+
+S Y
+
++ >
+
+C K
+
+	 
+
+ %
+
++ 1
+
+	 
+
+  (
+
+. 4
+
+( 8
+
+= E
+
+( 8
+
+= E
+
+L [
+
+! 3
+
+J P
+
+V \
+
+ +
+
+0 8
+
+P S
+
+Y _ƒ
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaService.cs
+
+ 
+
+		$ 4
+
+		: C
+
+
+
+ (
+
+
+
+< ?
+
+	 
+
+ !
+
+6 9
+
+	 
+
+ !
+
+$ 3
+
+8 @
+
+ (
+
+< ?
+
+	 
+
+ !
+
+6 9
+
+	 
+
+ ! 
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISystemAuditService.cs
+
+ $
+
+	 
+
+ (
+
+1 9
+
+B H
+
+R [
+
+l t
+
+Ö çÔ
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaEngine.cs
+
+ 
+
+	 
+
+$ ,
+
+			 '
+
+		, 4
+
+		: E
+
+		K V
+
+
+
+	 "
+
+
+
+' /
+
+
+
+6 @
+
+	 
+
+% +∂
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IRepository.cs
 
  P
@@ -82,7 +285,14 @@
 
 	 
 
- ì
+ é
+h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
+
+ &
+
+ <
+
+A Gì
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IReportService.cs
 
  
@@ -91,14 +301,314 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces
 
 		? E
 
-		K Qé
-h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
+		K Qå
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IDynamicFormService.cs
 
- &
+ $
 
- <
+* B
 
-A GÕ
+		 9
+
+		> @
+
+
+
+ 7
+
+
+
+Q T
+
+	 #
+
+( *
+
+E H
+
+	 #
+
+( *
+
+& :
+
+? P
+
+ 1
+
+6 8
+
+ /
+
+E H
+
+	 
+
+$ &
+
+= @
+
+	 
+
+$ &
+
+- ?
+
+E N
+
+U _
+
+f r
+
+! 6
+
+; =
+
+  4
+
+Q T
+
+	 
+
+" $
+
+B E
+
+	 
+
+" $¥
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
+
+ (
+
+	 
+
+# +
+
+1 9
+
+@ M
+
+^ oä
+h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs
+
+ &
+
+		% 7
+
+
+
+ +
+
+
+
+@ C
+
+	 
+
+! #
+
+9 <
+
+	 
+
+! #
+
++ >
+
+C I
+
+S Z
+
+a k
+
+ '
+
+, .
+
+4 :
+
+ )
+
+= @
+
+F N
+
+	 
+
+  "
+
+7 :
+
+	 
+
+  "‚
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/OrganizationDtos.cs
+
+ 
+
+  "
+
++ /
+
+9 D
+
+K S
+
+ !
+
+) -
+
+7 B
+
+ !
+
+) -
+
+7 B
+
+I Q
+
+ 
+
+ 
+
+& *
+
+1 9
+
+? K
+
+ 
+
+$ (
+
+. :
+
+		 
+
+		$ (
+
+		/ 7
+
+		= I
+
+ 
+
+ 
+
+% -
+
+6 ;
+
+D M
+
+V ^
+
+e m
+	t Ä
+
+à è
+
+ß ∫
+
+ƒ –
+
+ 
+
+# +
+
+4 9
+
+B K
+
+T \
+
+e m
+	t Ä
+
+ä ñ
+
+ 
+
+# (
+
+1 :
+
+C K
+
+R Z
+
+a m
+	w É
+
+ 
+
+ 
+
+( ,
+
+5 ?
+
+I T
+
+] c
+
+ 
+
+& *
+
+3 =
+
+G R
+
+ 
+
+& *
+
+3 =
+
+G R
+
+[ a
+
+ 
+
+ 
+
+% )
+
+0 8
+
+ 
+
+# '
+
+ 
+
+# '
+
+. 6∞
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IFileStorageService.cs
+
+ $
+
+ 
+
+) -
+
+3 ;
+
+			 
+
+		  (è
+i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
+
+ '
+
+	 "
+
+5 8Õ
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IOrganizationService.cs
 
  #
@@ -294,157 +804,7 @@ g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces
 
 	 
 
-  &¥
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
-
- (
-
-	 
-
-# +
-
-1 9
-
-@ M
-
-^ oä
-h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs
-
- &
-
-		% 7
-
-
-
- +
-
-
-
-@ C
-
-	 
-
-! #
-
-9 <
-
-	 
-
-! #
-
-+ >
-
-C I
-
-S Z
-
-a k
-
- '
-
-, .
-
-4 :
-
- )
-
-= @
-
-F N
-
-	 
-
-  "
-
-7 :
-
-	 
-
-  "∞
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IFileStorageService.cs
-
- $
-
- 
-
-) -
-
-3 ;
-
-			 
-
-		  (û
-`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailService.cs
-
- 
-
-	 
-
- !
-
-* 1
-
-: >Í
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs
-
- 
-
-$ &
-
-/ 3
-
-: C
-
-J T
-
-[ g
-
-n x
-	 å
-
-ì ü
-
-• Æ
-
-µ Ω
-
- %
-
-- 1
-
-8 A
-
-H R
-
-Y e
-
-l v
-	} ä
-
-ë ù
-
-£ ¨
-
-≥ ª
-
- %
-
-- 1
-
-8 A
-
-H R
-
-Y e
-
-l v
-	} ä
-
-ë ù
-
-£ ¨
-
-≥ ªÍ
+  &Í
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IDashboardService.cs
 
  "
@@ -560,7 +920,39 @@ b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces
 
 !!	 
 
-!!! #∞
+!!! #Â
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAuthService.cs
+
+ 
+
+ 
+
+ #
+
+, 4
+
+J O
+
+e p
+
+
+
+ 
+
+ $
+
+5 <
+
+ "
+
+' -ä
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAssignmentEngine.cs
+
+ "
+
+	 
+
+" (∞
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/WorkflowDtos.cs
 
  
@@ -648,195 +1040,18 @@ Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/Workf
 
 Ü è
 
-ñ û˘
-c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IWorkflowService.cs
+ñ ûû
+`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailService.cs
 
- !
+ 
 
-# 4
+	 
 
-: C
+ !
 
-		 +
+* 1
 
-		0 2
-
-
-
- )
-
-
-
-< ?
-
-	 
-
-! #
-
-7 :
-
-	 
-
-! #
-
-- L
-
-Q [
-
-! 7
-
-< >
-
-  5
-
-R U
-
-	 
-
-# %
-
-C F
-
-	 
-
-# %ó
-e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IWebhookDispatcher.cs
-
- #
-
-	 
-
-# +
-
-4 ;«
-a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ITicketService.cs
-
- 
-
- %
-
-6 9
-
-		 '
-
-		, .
-
-
-
-	 
-
-
-
- !
-
-
-
-3 6
-
-
-
-< I
-
-	 
-
- '
-
-9 <
-
-! ;
-
-@ H
-
-N T
-
-	 
-
- '
-
-9 <
-
-	 
-
-! )
-
-= @
-
- *
-
-/ 7
-
-J M
-
-( 8
-
-= E
-
-L [
-
- 0
-
-5 =
-
-I M
-
-S Y
-
-+ >
-
-C K
-
-	 
-
- %
-
-+ 1
-
-	 
-
-  (
-
-. 4
-
-( 8
-
-= E
-
-( 8
-
-= E
-
-L [
-
-! 3
-
-J P
-
-V \
-
- +
-
-0 8
-
-P S
-
-Y _ 
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISystemAuditService.cs
-
- $
-
-	 
-
- (
-
-1 9
-
-B H
-
-R [
-
-l t
-
-Ö çÀ
+: >À
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSurveyDtos.cs
 
  
@@ -858,734 +1073,57 @@ f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces
 
  
 
- ƒ
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaService.cs
+ ≤
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketSearchDto.cs
 
- 
+ "
 
-		$ 4
+ 
 
-		: C
-
-
-
- (
+		 
 
 
 
-< ?
+ 
 
-	 
+ 
 
- !
+ 
 
-6 9
+ 
 
-	 
+ 
 
- !
+ 
 
-$ 3
+ 
 
-8 @
+ 
 
- (
+ 
 
-< ?
+ 
 
-	 
+ 
 
- !
+ 
 
-6 9
+ 
 
-	 
+ 
 
- !æ
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SavedFilterDtos.cs
+ 
 
- 
+ 
+  9 :
 
-! #
+ 
+ ""/ 9
 
-) /
+   
+!! ""D L
 
-8 <
-
-E N
-
- "
-
-* .
-
-7 @Ô
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/ISlaEngine.cs
-
- 
-
-	 
-
-$ ,
-
-			 '
-
-		, 4
-
-		: E
-
-		K V
-
-
-
-	 "
-
-
-
-' /
-
-
-
-6 @
-
-	 
-
-% +ˇ
-T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SlaDtos.cs
-
- 
-
- !
-
-* .
-
-8 C
-
-J S
-
-Z b
-
-  
-
-( ,
-
-6 A
-
-H Q
-
-  
-
-( ,
-
-6 A
-
-H Q
-
-X `
-
-
-
- 
-
-
-
- !
-
-
-
-' 2
-
-
-
-8 B
-
-
-
-I U
-
-
-
-[ o
-	
-
-u Ü
-
-
-
-ç ï
-
-  
-
-% 0
-
-6 @
-
-G S
-
-Y m
-	s Ñ
-
-  
-
-% /
-
-6 B
-
-H \
-
-b s
-	z Ç‚
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/OrganizationDtos.cs
-
- 
-
-  "
-
-+ /
-
-9 D
-
-K S
-
- !
-
-) -
-
-7 B
-
- !
-
-) -
-
-7 B
-
-I Q
-
- 
-
- 
-
-& *
-
-1 9
-
-? K
-
- 
-
-$ (
-
-. :
-
-		 
-
-		$ (
-
-		/ 7
-
-		= I
-
- 
-
- 
-
-% -
-
-6 ;
-
-D M
-
-V ^
-
-e m
-	t Ä
-
-à è
-
-ß ∫
-
-ƒ –
-
- 
-
-# +
-
-4 9
-
-B K
-
-T \
-
-e m
-	t Ä
-
-ä ñ
-
- 
-
-# (
-
-1 :
-
-C K
-
-R Z
-
-a m
-	w É
-
- 
-
- 
-
-( ,
-
-5 ?
-
-I T
-
-] c
-
- 
-
-& *
-
-3 =
-
-G R
-
- 
-
-& *
-
-3 =
-
-G R
-
-[ a
-
- 
-
- 
-
-% )
-
-0 8
-
- 
-
-# '
-
- 
-
-# '
-
-. 6ù
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/EmailIngestionDtos.cs
-
- 
-
- 
-
- 
-
- 
-
- Œ
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/NotificationDtos.cs
-
- 
-
-" $
-
-* 0
-
-9 >
-
-G N
-
-U [
-
-b q
-	{ å
-
-ó ††
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/DynamicFormDtos.cs
-
-  
-
-% '
-
-0 3
-
-< A
-
-J S
-
-] l
-
-s {
-
- &
-
-. 1
-
-: ?
-
-H Q
-
-[ j
-
- &
-
-. 1
-
-: ?
-
-H Q
-
-[ j
-
-q y
-
-		 
-
-		! #
-
-		) :
-
-		C H
-
-		Q V
-
-		\ e
-
-		l t
-
-
-
- "
-
-
-
-' 8
-
-
-
-A F
-
-
-
-O T
-
-
-
-Z c
-
- "
-
-* /
-
-8 =
-
-C L
-
-S [
-
- #
-
-( *
-
-0 A
-
-H Q
-
-X b
-
-i u
-	{ Ñ
-
-ã ï
-
-ú §
-
- )
-
-. ?
-
-F O
-
-V `
-
-g s
-	y Ç
-
-â ì
-
- )
-
-/ 8
-
-? I
-
-P \
-
-b k
-
-r |
-
-É ãü
-X/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/CatalogDtos.cs
-
- 
-
-  
-
-) -
-
-3 <
-
-C S
-
-] h
-	o Ö
-
-å î
-
- 
-
-' +
-
-1 :
-
-A Q
-
-[ f
-	m É
-
- 
-
-' +
-
-1 :
-
-A Q
-
-[ f
-	m É
-
-ä í
-
-		 
-
-		  "
-
-		+ /
-
-		6 >
-
-
-
- !
-
-
-
-) -
-
- !
-
-) -
-
-4 <
-
- 
-
- 
-
-' +
-
-5 =
-
-C L
-
-S a
-
-h w
-	~ Ü
-
- 
-
-% )
-
-3 ;
-
-A J
-
-Q _
-
-f u
-
- 
-
-% )
-
-3 ;
-
-A J
-
-Q _
-
-f u
-	| Ñ
-
- 
-
-  
-
-) -
-
-7 ?
-
-E K
-
-Q ^
-
-e m
-
- 
-
-' +
-
-5 =
-
-C I
-
-O \
-
- 
-
-' +
-
-5 =
-
-C I
-
-O \
-
-c kè
-i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
-
- '
-
-	 "
-
-5 8ä
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAssignmentEngine.cs
-
- "
-
-	 
-
-" (å
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IDynamicFormService.cs
-
- $
-
-* B
-
-		 9
-
-		> @
-
-
-
- 7
-
-
-
-Q T
-
-	 #
-
-( *
-
-E H
-
-	 #
-
-( *
-
-& :
-
-? P
-
- 1
-
-6 8
-
- /
-
-E H
-
-	 
-
-$ &
-
-= @
-
-	 
-
-$ &
-
-- ?
-
-E N
-
-U _
-
-f r
-
-! 6
-
-; =
-
-  4
-
-Q T
-
-	 
-
-" $
-
-B E
-
-	 
-
-" $Â
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IAuthService.cs
-
- 
-
- 
-
- #
-
-, 4
-
-J O
-
-e p
-
-
-
- 
-
- $
-
-5 <
-
- "
-
-' -Ë
+"" Ë
 W/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/TicketDtos.cs
 
  
@@ -1731,7 +1269,135 @@ W/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/Ticke
 
 " -
 
-3 9∂
+3 9ˇ
+T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SlaDtos.cs
+
+ 
+
+ !
+
+* .
+
+8 C
+
+J S
+
+Z b
+
+  
+
+( ,
+
+6 A
+
+H Q
+
+  
+
+( ,
+
+6 A
+
+H Q
+
+X `
+
+
+
+ 
+
+
+
+ !
+
+
+
+' 2
+
+
+
+8 B
+
+
+
+I U
+
+
+
+[ o
+	
+
+u Ü
+
+
+
+ç ï
+
+  
+
+% 0
+
+6 @
+
+G S
+
+Y m
+	s Ñ
+
+  
+
+% /
+
+6 B
+
+H \
+
+b s
+	z Çæ
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/SavedFilterDtos.cs
+
+ 
+
+! #
+
+) /
+
+8 <
+
+E N
+
+ "
+
+* .
+
+7 @Œ
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/NotificationDtos.cs
+
+ 
+
+" $
+
+* 0
+
+9 >
+
+G N
+
+U [
+
+b q
+	{ å
+
+ó †ó
+e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Interfaces/IWebhookDispatcher.cs
+
+ #
+
+	 
+
+# +
+
+4 ;∂
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs
 
  
@@ -1824,7 +1490,143 @@ W/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/Ticke
 F M
 
 ] c
-	w Å„
+	w Åù
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/EmailIngestionDtos.cs
+
+ 
+
+ 
+
+ 
+
+ 
+
+ †
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/DynamicFormDtos.cs
+
+  
+
+% '
+
+0 3
+
+< A
+
+J S
+
+] l
+
+s {
+
+ &
+
+. 1
+
+: ?
+
+H Q
+
+[ j
+
+ &
+
+. 1
+
+: ?
+
+H Q
+
+[ j
+
+q y
+
+		 
+
+		! #
+
+		) :
+
+		C H
+
+		Q V
+
+		\ e
+
+		l t
+
+
+
+ "
+
+
+
+' 8
+
+
+
+A F
+
+
+
+O T
+
+
+
+Z c
+
+ "
+
+* /
+
+8 =
+
+C L
+
+S [
+
+ #
+
+( *
+
+0 A
+
+H Q
+
+X b
+
+i u
+	{ Ñ
+
+ã ï
+
+ú §
+
+ )
+
+. ?
+
+F O
+
+V `
+
+g s
+	y Ç
+
+â ì
+
+ )
+
+/ 8
+
+? I
+
+P \
+
+b k
+
+r |
+
+É ã„
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/DashboardDtos.cs
 
  "
@@ -1880,45 +1682,7 @@ Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/Dashb
 
  #
 
- '£
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AuthDtos.cs
-
- 
-
-% -
-
-6 >
-
- 
-
- 
-
- 
-
- 
-
-		 
-
-
-
- #
-
- 
-
- 
-
-
- 
-
- 
-
- 
-
- 
-
- #
-
- !Ö
+ 'Ö
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AuditLogDtos.cs
 
  
@@ -1969,7 +1733,243 @@ Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/Audit
 
  
 
-   å
+   £
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AuthDtos.cs
+
+ 
+
+% -
+
+6 >
+
+ 
+
+ 
+
+ 
+
+ 
+
+		 
+
+
+
+ #
+
+ 
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ #
+
+ !ü
+X/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/CatalogDtos.cs
+
+ 
+
+  
+
+) -
+
+3 <
+
+C S
+
+] h
+	o Ö
+
+å î
+
+ 
+
+' +
+
+1 :
+
+A Q
+
+[ f
+	m É
+
+ 
+
+' +
+
+1 :
+
+A Q
+
+[ f
+	m É
+
+ä í
+
+		 
+
+		  "
+
+		+ /
+
+		6 >
+
+
+
+ !
+
+
+
+) -
+
+ !
+
+) -
+
+4 <
+
+ 
+
+ 
+
+' +
+
+5 =
+
+C L
+
+S a
+
+h w
+	~ Ü
+
+ 
+
+% )
+
+3 ;
+
+A J
+
+Q _
+
+f u
+
+ 
+
+% )
+
+3 ;
+
+A J
+
+Q _
+
+f u
+	| Ñ
+
+ 
+
+  
+
+) -
+
+7 ?
+
+E K
+
+Q ^
+
+e m
+
+ 
+
+' +
+
+5 =
+
+C I
+
+O \
+
+ 
+
+' +
+
+5 =
+
+C I
+
+O \
+
+c kÍ
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs
+
+ 
+
+$ &
+
+/ 3
+
+: C
+
+J T
+
+[ g
+
+n x
+	 å
+
+ì ü
+
+• Æ
+
+µ Ω
+
+ %
+
+- 1
+
+8 A
+
+H R
+
+Y e
+
+l v
+	} ä
+
+ë ù
+
+£ ¨
+
+≥ ª
+
+ %
+
+- 1
+
+8 A
+
+H R
+
+Y e
+
+l v
+	} ä
+
+ë ù
+
+£ ¨
+
+≥ ªå
 e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Application/Constants/PermissionConstants.cs
 
  '

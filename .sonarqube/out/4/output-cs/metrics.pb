@@ -1,9 +1,9 @@
-ë
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs 8r	xÇÃ
-G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs|8j&+CIdurí	
- !"#$'(),-./0123456789:;<=>?@ADEFGJKLMNOPQRSTUVWYZ[\]^_`abefhijklmnoqsvwxyz|}ÄÇÉÖÜáàâäãåçèëíìîïñóòöxÇ[ !"#$'(),-.024579:;<=>?@ADEFGJKMSTUYZ\^_aefhjlsvxy|}ÄÇÉÖáãèëìîïóö£
+£
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
- 8j)r&	 !"#$%&')*+,xÇ	 !&)À
+ 8j)r&	 !"#$%&')*+,xÇ	 !&)Ã
+G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs|8j&+CIdurí	
+ !"#$'(),-./0123456789:;<=>?@ADEFGJKLMNOPQRSTUVWYZ[\]^_`abefhijklmnoqsvwxyz|}ÄÇÉÖÜáàâäãåçèëíìîïñóòöxÇ[ !"#$'(),-.024579:;<=>?@ADEFGJKMSTUYZ\^_aefhjlsvxy|}ÄÇÉÖáãèëìîïóöë
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs 8r	xÇÀ
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs 	8	rM	
  !#$%&'()*,-./01345678:;<=>?@ABCDEGHIJKLMNOPRSTUVWXxÇ ()07ABDMNOV∆
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs 8
@@ -17,14 +17,13 @@ r_
  !"$%&'()*+-./0123456789:<=>?@ABDEFGHIJKLMxÇ!$%)5689<@JK√
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SlaController.cs 	8	jBrI	 !"#$&'()*+,-/012346789:;=>?@ABCEFGHIJKLNOPQRSTxÇ"#+,3:ABJKRƒ
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SavedFilterController.cs 8r?	
- !"#$%&')*,-./012345689;<>?@ABCEGHJKLxÇ$%&)04589;BCEGHJû
-[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/RolesController.cs 8r)	
- !"#$%&'()*+,-.0xÇ	'(,à
+ !"#$%&')*,-./012345689;<>?@ABCEGHJKLxÇ$%&)04589;BCEGHJ≥
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ProjectsController.cs 8r7	
+ !"#$%&'()*+,-.012345689:;<=>?xÇ'(,45<=à
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ReportsController.cs 8r	
-Ç™
-Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuthController.cs 8r5	
- !"#%&'()*+,-./123456789:;xÇ
-!+,.348â
+Çû
+[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/RolesController.cs 8r)	
+ !"#$%&'()*+,-.0xÇ	'(,â
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/PermissionsController.cs 8r	
 ÇØ
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/NotificationsController.cs 8r0
@@ -40,14 +39,15 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/Dynami
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DepartmentsController.cs 8rD	
  !"#%&'()*+-./0123456789:;=>?@ABCDEFGHIJKLxÇ !")*459DEI©
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DashboardController.cs 8	r/	
- !"$%&'()+,-./02345678Ç !'(./56Ü
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CatalogController.cs$ 8r}	
- !#$%&'()*,-./01345789:;<=?@ABCDEFHIJKLMOPQSTUVWXY[\]^_`abdefghijkmnoqrstuvwyz{|}~ÄÇÉÑÖÜáàxÇ ()05;<DELQWX`aijouv~Üú
+ !"$%&'()+,-./02345678Ç !'(./56ú
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CrudControllerBase.cs	 8r&	 !"#$%&'()*+xÇ#$(£
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CategoriesController.cs 8r)	
- !"#$%&'()*+,-.0xÇ	'(,≥
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ProjectsController.cs 8r7	
- !"#$%&'()*+,-.012345689:;<=>?xÇ'(,45<=ó
+ !"#$%&'()*+,-.0xÇ	'(,Ü
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CatalogController.cs$ 8r}	
+ !#$%&'()*,-./01345789:;<=?@ABCDEFHIJKLMOPQSTUVWXY[\]^_`abdefghijkmnoqrstuvwyz{|}~ÄÇÉÑÖÜáàxÇ ()05;<DELQWX`aijouv~Ü™
+Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuthController.cs 8r5	
+ !"#%&'()*+,-./123456789:;xÇ
+!+,.348ó
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuditLogController.cs# 8rn	 !"#$%&'()*+,-./02345689:;<=?@ABCEFGHIKLMOPQRSTUVWXYZ[\]^`abcdefghijklmnopqrsuvwxy{|}xÇ: "#%'(+-.2458:;<?ABEGHKLOPQRSTUVWXYZacdefgijklmnopuvwx{é
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs* 8rg	
  !"#$&')*,-./0123456789:;=>@BCEFHIJKLMOPQRSTUVWYZ[\^_`abcefghiklmnoprstvwxyzxÇ2!"#&')23456789:=>@CELMOPQRSTUVWYZ[bcefghoprstvwx

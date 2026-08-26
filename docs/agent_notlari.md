@@ -104,3 +104,7 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - Final Cleanup 15 — Grep-Gated Yöntem:
   - Diskte var olan düzeltmelerin SonarQube cache/branch senkronizasyon problemleri nedeniyle taramalara yansımadığı durumlarda `grep`/`sed` kullanılarak disk doğrulaması yapıldı.
   - Phase 14'te yapılan düzeltmelerin (where TDto, ReDoS timeout, nested-ternary iptali) diskte fiziksel olarak mevcut olduğu teyit edildi.
+
+- Final Cleanup 16 — `crud-page.js` Complexity:
+  - Böl-Yönet (Divide & Conquer) taktiği ile 15-20 satırlık JS metotları (`renderTable`, `submitForm`, `wireActions`) daha ufak parçalara ayrıldı (`buildCellHtml`, `populateForm`, `getFormData`, `persistData`, `performUndoableDelete`).
+  - JS içindeki kullanılmayan destructured değişkenler silindi ve empty-catch bloklarına console.error + toast error handling mekanizması kuruldu.

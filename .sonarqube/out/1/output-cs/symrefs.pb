@@ -1,22 +1,37 @@
 d
 V/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Enums/ProjectStatus.cs
 
- ¥
-[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/Project.cs
+ ™
+e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs
+  
 
- 
-
- 
-
- 
+ 
 
 		 
 
 
 
- $
+ 
 
- ž
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+ (
+
+ 
+
+ %
+
+ %
+
+ #ž
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketWatcher.cs
 
  
@@ -27,77 +42,24 @@ V/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Enums/ProjectSt
 
  !
 
- ©
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketSurvey.cs
+ ³
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketType.cs
 
- 
+ 
 
-		 
+ 
 
-
-
- 
+ 
 
- 
-
- 
-
- !Í
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/CustomFields.cs
-  (
-  """ "-- "
-
-		 
+		 
 
 
 
- 
+ 
 
- 
+ 
 
- "
-
- 
-
-  
-
- 
-
- 
-
- 
-
-$ 3
-
- 
-
- 
-
- 
-
- 
-
-  
-
- 
-
-   
-
-""$ 3
-
-%% 
-
-'' 
-
-((  
-
-)) 
-
-** 
-
-,," (
-
---$ 3¶
+ ¶
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketComment.cs
 
  
@@ -114,7 +76,65 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config
 
  !
 
- #»
+ #¶
+`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketHistory.cs
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+		 !©
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketSurvey.cs
+
+ 
+
+		 
+
+
+
+ 
+
+ 
+
+ 
+
+ !Ñ
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs
+
+ 
+
+ 
+
+		 
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ !
+
+ '{
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs
+
+ 
+
+	 
+
+ »
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Status.cs
 
  
@@ -176,18 +196,38 @@ T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/IAuditab
 
  
 
- 
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/RolePermission.cs
+ ƒ
+Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/TicketSla.cs
 
- 
+ 
 
- 
+		 
 
- 
+
+
+ '
 
- 
+ $
 
- )ã
+ 
+
+ !
+
+ '
+
+ $
+
+ #
+
+ %
+
+  
+
+ "
+
+  
+
+" (ã
 [/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/SlaEntities.cs
   
 
@@ -231,7 +271,46 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/R
 
 $$ 
 
-%% ï
+%% •
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectSequence.cs
+
+ 
+
+ 
+
+ 
+
+
+
+ #«
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectMember.cs
+
+ 
+
+ 
+
+ 
+
+ 
+
+ #
+
+		 ¥
+[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/Project.cs
+
+ 
+
+ 
+
+ 
+
+		 
+
+
+
+ $
+
+ ï
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/User.cs
 
  
@@ -258,37 +337,7 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/R
 
 F O
 
-T g™
-e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs
-  
-
- 
-
-		 
-
-
-
- 
-
- 
-
- 
-
- 
-
- 
-
-  
-
- (
-
- 
-
- %
-
- %
-
- #¢
+T g¢
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/GroupMember.cs
 
  
@@ -299,7 +348,18 @@ d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organi
 
  
 
- ¡
+ œ
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Group.cs
+
+ 
+
+ 
+
+ 
+
+ )
+
+, 3¡
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Department.cs
 
  
@@ -364,24 +424,46 @@ m/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Notifi
 
  
 
- $³
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketType.cs
-
- 
+ $Â
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs
+ 		 $ $
 
  
 
- 
+ 
 
-		 
+		& ,
+  
+  
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ '
+
+ 
+
+& .˜
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs
+
+  
+
+ 
+
+		 
 
 
 
- 
-
- 
-
- œ
+ œ
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/SavedFilter.cs
 
  
@@ -394,22 +476,122 @@ m/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Notifi
 
  
 
- ¶
-`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketHistory.cs
+ Í
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/CustomFields.cs
+  (
+  """ "-- "
 
- 
+		 
 
- 
+
+
+ 
 
- 
+ 
 
- 
+ "
 
- 
+ 
 
- 
+  
 
-		 !ã
+ 
+
+ 
+
+ 
+
+$ 3
+
+ 
+
+ 
+
+ 
+
+ 
+
+  
+
+ 
+
+   
+
+""$ 3
+
+%% 
+
+'' 
+
+((  
+
+)) 
+
+** 
+
+,," (
+
+--$ 3—
+Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserRole.cs
+
+ 
+
+ 
+
+ 
+
+ 
+
+ ±
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserPermissionOverride.cs
+
+ #
+
+ 
+
+ 
+
+ 
+
+ 
+
+		 )
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/RolePermission.cs
+
+ 
+
+ 
+
+ 
+
+ 
+
+ ){
+U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs
+
+ 
+
+ 
+
+/ >˜
+Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/GroupRole.cs
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs
+
+ 
+
+ 
+
+ ã
 Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Ticket.cs
 
  
@@ -456,20 +638,7 @@ Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket
 
  '
 
-" +±
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserPermissionOverride.cs
-
- #
-
- 
-
- 
-
- 
-
- 
-
-		 )°
+" +°
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SystemAuditLog.cs
 
  
@@ -486,176 +655,7 @@ Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/System
 
  
 
- ƒ
-Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/TicketSla.cs
-
- 
-
-		 
-
-
-
- '
-
- $
-
- 
-
- !
-
- '
-
- $
-
- #
-
- %
-
-  
-
- "
-
-  
-
-" (•
-c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectSequence.cs
-
- 
-
- 
-
- 
-
-
-
- #«
-a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectMember.cs
-
- 
-
- 
-
- 
-
- 
-
- #
-
-		 œ
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Organization/Group.cs
-
- 
-
- 
-
- 
-
- )
-
-, 3Ñ
-c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs
-
- 
-
- 
-
-		 
-
-
-
- 
-
- 
-
- 
-
- 
-
- !
-
- 'Â
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs
- 		 $ $
-
- 
-
- 
-
-		& ,
-  
-  
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- '
-
- 
-
-& .—
-Y/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/UserRole.cs
-
- 
-
- 
-
- 
-
- 
-
- 
-[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Permission.cs
-
- 
-
- 
-
- {
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/ISoftDelete.cs
-
- 
-
-	 
-
- {
-U/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/Role.cs
-
- 
-
- 
-
-/ >˜
-Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Auth/GroupRole.cs
-
- 
-
- 
-
- 
-
- 
-
- ˜
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs
-
-  
-
- 
-
-		 
-
-
-
- Â
+ Â
 T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Common/BaseEntity.cs
 
   

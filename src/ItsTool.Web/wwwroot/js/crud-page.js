@@ -51,6 +51,11 @@ export function initCrudPage(cfg) {
     let currentData = [];
 
     // Helper: renderTable
+    const buildCellHtml = (item, col) => {
+        if (col.render) return `<td>${col.render(item)}</td>`;
+        return `<td>${window.ui?.escapeHtml(item[col.key] || '')}</td>`;
+    };
+
     const renderTable = (data) => {
         if (data.length === 0) {
             tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: 20px; color: var(--text-muted);">No records found</td></tr>';
@@ -60,11 +65,7 @@ export function initCrudPage(cfg) {
         tbody.innerHTML = '';
         data.forEach(item => {
             const tr = document.createElement('tr');
-            let html = columns.map(col => {
-                if (col.render) return `<td>${col.render(item)}</td>`;
-                return `<td>${window.ui?.escapeHtml(item[col.key] || '')}</td>`;
-            }).join('');
-            
+            let html = columns.map(col => buildCellHtml(item, col)).join('');
             html += `
                 <td>
                     <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="edit" data-id="${item.id}">Edit</button>
@@ -80,13 +81,20 @@ export function initCrudPage(cfg) {
         if (!window.api.token) return;
         try {
             tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: 20px;">Loading...</td></tr>';
-            const data = await window.api.request(endpoint);
-            currentData = data || [];
+            currentData = (await window.api.request(endpoint)) || [];
             renderTable(currentData);
         } catch (err) {
             console.error(err);
-            tbody.innerHTML = `<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API'yi kontrol et</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi</td></tr>`;
             if (window.ui?.showToast) window.ui.showToast('Error loading data', 'error');
+        }
+    };
+
+    const populateForm = (item) => {
+        if (!item) return;
+        for (const key in formFields.map) {
+            const input = document.getElementById(formFields.map[key]);
+            if (input) input[input.type === 'checkbox' ? 'checked' : 'value'] = item[key] || '';
         }
     };
 
@@ -95,42 +103,74 @@ export function initCrudPage(cfg) {
         document.getElementById(formFields.id).value = id || '';
         modalTitleEl.textContent = id ? 'Edit' : (createTitle || 'New Record');
         
-        if (id) {
-            const item = currentData.find(x => x.id === id);
-            if (item) {
-                for (const key in formFields.map) {
-                    const input = document.getElementById(formFields.map[key]);
-                    if (input) {
-                        input[input.type === 'checkbox' ? 'checked' : 'value'] = item[key] || '';
-                    }
-                }
-            }
-        }
+        if (id) populateForm(currentData.find(x => x.id === id));
         if (window.ui?.openModal) window.ui.openModal(modalId);
     };
 
-    const submitForm = async (e) => {
-        e.preventDefault();
+    const getFormData = () => {
         const id = document.getElementById(formFields.id).value;
         const payload = {};
         for (const key in formFields.map) {
             const input = document.getElementById(formFields.map[key]);
             if (input) payload[key] = input.type === 'checkbox' ? input.checked : input.value;
         }
+        return { id, payload };
+    };
 
+    const persistData = async (id, payload) => {
+        if (id) {
+            await window.api.request(`${endpoint}/${id}`, 'PUT', payload);
+            if (window.ui?.showToast) window.ui.showToast('Record updated successfully');
+        } else {
+            await window.api.request(endpoint, 'POST', payload);
+            if (window.ui?.showToast) window.ui.showToast('Record created successfully');
+        }
+    };
+
+    const submitForm = async (e) => {
+        e.preventDefault();
+        const { id, payload } = getFormData();
         try {
-            if (id) {
-                await window.api.request(`${endpoint}/${id}`, 'PUT', payload);
-                if (window.ui?.showToast) window.ui.showToast('Record updated successfully');
-            } else {
-                await window.api.request(endpoint, 'POST', payload);
-                if (window.ui?.showToast) window.ui.showToast('Record created successfully');
-            }
+            await persistData(id, payload);
             if (window.ui?.closeModal) window.ui.closeModal(modalId);
             await window.loadData();
         } catch (err) {
             console.error(err);
             if (window.ui?.showToast) window.ui.showToast(err.message || 'Error saving record', 'error');
+        }
+    };
+
+    const performUndoableDelete = async (id, item, tr) => {
+        const payload = { ...item };
+        delete payload.id;
+        if (tr) tr.remove();
+        
+        await window.api.request(`${endpoint}/${id}`, 'DELETE');
+        window.ui.showUndoToast('Record deleted', async () => {
+            try {
+                await window.api.request(endpoint, 'POST', payload);
+                await window.loadData();
+                window.ui.showToast('Delete undone successfully');
+            } catch(err) {
+                console.error(err);
+                window.ui.showToast('Failed to undo', 'error');
+            }
+        });
+    };
+
+    const deleteRecord = async (id, tr) => {
+        try {
+            if (auditSafeDelete && window.ui?.showUndoToast) {
+                await performUndoableDelete(id, currentData.find(x => x.id === id), tr);
+            } else {
+                await window.api.request(`${endpoint}/${id}`, 'DELETE');
+                if (window.ui?.showToast) window.ui.showToast('Record deleted successfully');
+                await window.loadData();
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.ui?.showToast) window.ui.showToast(err.message || 'Error deleting record', 'error');
+            await window.loadData();
         }
     };
 
@@ -140,34 +180,8 @@ export function initCrudPage(cfg) {
 
         const delBtn = e.target.closest('[data-action="delete"]');
         if (delBtn) {
-            const id = Number.parseInt(delBtn.dataset.id, 10);
             if (!confirm('Are you sure you want to delete this record?')) return;
-            try {
-                if (auditSafeDelete && window.ui?.showUndoToast) {
-                    const item = currentData.find(x => x.id === id);
-                    const { id: _, ...rest } = item;
-                    const tr = delBtn.closest('tr');
-                    if (tr) tr.remove();
-                    
-                    await window.api.request(`${endpoint}/${id}`, 'DELETE');
-                    window.ui.showUndoToast('Record deleted', async () => {
-                        try {
-                            await window.api.request(endpoint, 'POST', rest);
-                            await window.loadData();
-                            if (window.ui?.showToast) window.ui.showToast('Delete undone successfully');
-                        } catch(err) {
-                            if (window.ui?.showToast) window.ui.showToast('Failed to undo', 'error');
-                        }
-                    });
-                } else {
-                    await window.api.request(`${endpoint}/${id}`, 'DELETE');
-                    if (window.ui?.showToast) window.ui.showToast('Record deleted successfully');
-                    await window.loadData();
-                }
-            } catch (err) {
-                if (window.ui?.showToast) window.ui.showToast(err.message || 'Error deleting record', 'error');
-                await window.loadData();
-            }
+            await deleteRecord(Number.parseInt(delBtn.dataset.id, 10), delBtn.closest('tr'));
         }
     };
 
