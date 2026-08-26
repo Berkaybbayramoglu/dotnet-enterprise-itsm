@@ -1,8 +1,19 @@
-”
-WebS6819|Use <address> or <details> or <fieldset> or <optgroup> instead of the group role to ensure accessibility across all devices.2ee ql
+N
 
-javascriptS7785IPrefer top-level await over an async function `loadFiltersDropdown` call.2
-ÈÈ @_
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+¤¤ :@N
 
-javascriptS7785<Prefer top-level await over an async function `search` call.2
-ÉÉ @
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+¥¥ :@N
+
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+¦¦ 6@N
+
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+§§ :@P
+
+javascriptS2486/Handle this exception or don't catch it at all.2
+õ÷ P
+
+javascriptS2486/Handle this exception or don't catch it at all.2
+ŒŽ 

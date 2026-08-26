@@ -1,47 +1,35 @@
-import re
-import glob
+using System;
+using System.Collections.Generic;
 
-files = ["src/ItsTool.Web/wwwroot/projects.html", "src/ItsTool.Web/wwwroot/categories.html", 
-         "src/ItsTool.Web/wwwroot/departments.html", "src/ItsTool.Web/wwwroot/groups.html", 
-         "src/ItsTool.Web/wwwroot/users.html", "src/ItsTool.Web/wwwroot/roles.html"]
+namespace ItsTool.Application.DTOs;
 
-for file in files:
-    with open(file, 'r', encoding='utf-8') as f:
-        content = f.read()
+public class TicketSearchFilterDto
+{
+    public int? ProjectId { get; set; }
+    public int? CategoryId { get; set; }
+    public int? TypeId { get; set; }
+    public int? StatusId { get; set; }
+    public int? PriorityId { get; set; }
+    public int? AssigneeUserId { get; set; }
+    public bool? Unassigned { get; set; }
+    public int? RequesterUserId { get; set; }
+    public int? ExcludeStatusId { get; set; }
+    public DateTime? FromDate { get; set; }
+    public DateTime? ToDate { get; set; }
+    public string? Keyword { get; set; }
+    public string? SlaStatus { get; set; } // "ontrack", "warning", "breached"
+    
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 20;
+    public string? SortBy { get; set; } // e.g. "CreatedAt", "Priority", "Status"
+    public bool SortDescending { get; set; } = true;
+}
 
-    # Find what entity it is (e.g. getCategories, getRoles)
-    entity_api = re.search(r'await window\.api\.delete([A-Za-z]+)\(', content)
-    if not entity_api: continue
-    
-    entity = entity_api.group(1) # e.g. Role, Category
-
-    # Ensure showUndoToast is imported
-    if 'showUndoToast' not in content:
-        content = re.sub(r'(import \{ [^\}]+)( \} from \'./js/ui.js\';)', r'\1, showUndoToast\2', content)
-    
-    # Replace promptDelete function
-    new_prompt_delete = f"""
-        window.promptDelete = async function(id) {{
-            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
-            if (proceed) {{
-                try {{
-                    await window.api.delete{entity}(id);
-                    showToast('Silme işlemi tamamlandı');
-                    loadData();
-                }} catch (e) {{
-                    showToast('Silme işlemi başarısız', 'error');
-                }}
-            }}
-        }};
-"""
-    
-    content = re.sub(r'window\.promptDelete\s*=\s*function\(id\)\s*\{[^}]+\};', new_prompt_delete.strip(), content, flags=re.DOTALL)
-    
-    # Remove confirm delete listener
-    content = re.sub(r'document\.getElementById\(\'btnConfirmDelete\'\)\.addEventListener\(\'click\',.*?\}\);', '', content, flags=re.DOTALL)
-    
-    # Optionally remove deleteModal HTML
-    content = re.sub(r'<!-- Delete Modal -->.*?</div>\s*</div>\s*</div>', '', content, flags=re.DOTALL)
-    
-    with open(file, 'w', encoding='utf-8') as f:
-        f.write(content)
+public class PagedResult<T>
+{
+    public IEnumerable<T> Items { get; set; } = new List<T>();
+    public int TotalCount { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
+}

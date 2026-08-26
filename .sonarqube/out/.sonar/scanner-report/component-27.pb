@@ -1,1 +1,1 @@
- 2csXhr4src/ItsTool.Domain/Entities/Project/ProjectMember.cs
+ 2csXhr.src/ItsTool.Domain/Entities/Project/Project.cs

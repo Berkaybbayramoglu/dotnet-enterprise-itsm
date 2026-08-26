@@ -1,1 +1,1 @@
- 2csXhr0src/ItsTool.Domain/Entities/Organization/User.cs
+ 2csX	hr7src/ItsTool.Domain/Entities/Organization/GroupMember.cs

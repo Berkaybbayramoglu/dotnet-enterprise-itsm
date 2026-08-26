@@ -1,50 +1,154 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using ItsTool.Domain.Entities.KnowledgeBase;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class LocalFileStorageService : IFileStorageService
+public class KnowledgeBaseService : IKnowledgeBaseService
 {
-    private readonly string _basePath;
+    private readonly ItsToolDbContext _context;
+    private readonly IPermissionCalculator _permissionCalculator;
 
-    public LocalFileStorageService(IConfiguration configuration)
+    public KnowledgeBaseService(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
     {
-        _basePath = configuration["FileStorage:BasePath"] ?? "uploads";
-        if (!Directory.Exists(_basePath))
+        _context = context;
+        _permissionCalculator = permissionCalculator;
+    }
+
+    public async Task<IEnumerable<KbCategoryDto>> GetCategoriesAsync()
+    {
+        var list = await _context.KnowledgeCategories.Where(c => !c.IsDeleted).ToListAsync();
+        return list.Select(c => new KbCategoryDto(c.Id, c.Name, c.ParentId));
+    }
+
+    public async Task<KbCategoryDto> CreateCategoryAsync(CreateKbCategoryDto dto)
+    {
+        var cat = new KnowledgeCategory { Name = dto.Name, ParentId = dto.ParentId };
+        _context.KnowledgeCategories.Add(cat);
+        await _context.SaveChangesAsync();
+        return new KbCategoryDto(cat.Id, cat.Name, cat.ParentId);
+    }
+
+    public async Task UpdateCategoryAsync(int id, CreateKbCategoryDto dto)
+    {
+        var cat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+        if (cat == null) throw new KeyNotFoundException("Category not found.");
+        cat.Name = dto.Name;
+        cat.ParentId = dto.ParentId;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteCategoryAsync(int id)
+    {
+        var cat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+        if (cat != null)
         {
-            Directory.CreateDirectory(_basePath);
+            cat.IsDeleted = true;
+            await _context.SaveChangesAsync();
         }
     }
 
-    public async Task<string> SaveFileAsync(IFormFile file, int ticketId)
+    public async Task<IEnumerable<KbArticleSummaryDto>> SearchArticlesAsync(int userId, string? keyword, int? categoryId)
     {
-        var allowedTypes = new[] { "image/jpeg", "image/png", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
-        if (!allowedTypes.Contains(file.ContentType))
-            throw new InvalidOperationException("File type not allowed.");
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+        bool canManageKb = perms.Contains("kb.manage");
+        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit"); // Determine internal visibility
 
-        if (file.Length > 10 * 1024 * 1024) // 10 MB
-            throw new InvalidOperationException("File size exceeds 10MB limit.");
+        var query = _context.KnowledgeArticles
+            .Where(a => !a.IsDeleted);
 
-        var ticketFolder = Path.Combine(_basePath, ticketId.ToString());
-        if (!Directory.Exists(ticketFolder))
-            Directory.CreateDirectory(ticketFolder);
-
-        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-        var filePath = Path.Combine(ticketFolder, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        if (!canManageKb)
         {
-            await file.CopyToAsync(stream);
+            query = query.Where(a => a.Status == ArticleStatus.Published);
         }
 
-        return filePath;
+        if (!isStaff && !canManageKb)
+        {
+            query = query.Where(a => a.Visibility == ArticleVisibility.Public);
+        }
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(a => a.CategoryId == categoryId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var kw = keyword;
+            query = query.Where(a => a.Title.ToLower().Contains(kw.ToLower()) || a.Content.ToLower().Contains(kw.ToLower()));
+        }
+
+        var list = await query.OrderByDescending(a => a.CreatedAt).ToListAsync();
+        
+        return list.Select(a => new KbArticleSummaryDto(a.Id, a.CategoryId, a.Title, a.AuthorUserId, a.Status, a.Visibility, a.ViewCount, a.CreatedAt));
     }
 
-    public Task DeleteFileAsync(string filePath)
+    public async Task<KbArticleDto?> GetArticleAsync(int id, int userId)
     {
-        if (File.Exists(filePath))
-            File.Delete(filePath);
-        return Task.CompletedTask;
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+        bool canManageKb = perms.Contains("kb.manage");
+        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit");
+
+        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+        if (article == null) return null;
+
+        // Visibility checks
+        if (article.Status == ArticleStatus.Draft && !canManageKb) return null;
+        if (article.Visibility == ArticleVisibility.Internal && !isStaff && !canManageKb) return null;
+
+        // Increment ViewCount if published
+        if (article.Status == ArticleStatus.Published)
+        {
+            article.ViewCount++;
+            await _context.SaveChangesAsync();
+        }
+
+        return new KbArticleDto(article.Id, article.CategoryId, article.Title, article.Content, article.AuthorUserId, article.Status, article.Visibility, article.ViewCount, article.CreatedAt);
+    }
+
+    public async Task<KbArticleDto> CreateArticleAsync(CreateKbArticleDto dto, int authorId)
+    {
+        var article = new KnowledgeArticle
+        {
+            CategoryId = dto.CategoryId,
+            Title = dto.Title,
+            Content = dto.Content,
+            Status = dto.Status,
+            Visibility = dto.Visibility,
+            AuthorUserId = authorId
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        return new KbArticleDto(article.Id, article.CategoryId, article.Title, article.Content, article.AuthorUserId, article.Status, article.Visibility, article.ViewCount, article.CreatedAt);
+    }
+
+    public async Task UpdateArticleAsync(int id, UpdateKbArticleDto dto)
+    {
+        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+        if (article == null) throw new KeyNotFoundException("Article not found.");
+
+        article.CategoryId = dto.CategoryId;
+        article.Title = dto.Title;
+        article.Content = dto.Content;
+        article.Status = dto.Status;
+        article.Visibility = dto.Visibility;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteArticleAsync(int id)
+    {
+        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+        if (article != null)
+        {
+            article.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
     }
 }

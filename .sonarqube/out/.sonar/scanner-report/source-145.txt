@@ -1,21 +1,54 @@
-namespace ItsTool.Application.DTOs;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-public record DepartmentDto(int Id, string Name, string? Description, bool IsActive);
-public record CreateDepartmentDto(string Name, string? Description);
-public record UpdateDepartmentDto(string Name, string? Description, bool IsActive);
+namespace ItsTool.UnitTests.Services;
 
-public record GroupDto(int Id, string Name, bool IsActive, int DepartmentId);
-public record CreateGroupDto(string Name, int DepartmentId);
-public record UpdateGroupDto(string Name, bool IsActive, int DepartmentId);
+public class DynamicFormServiceTests : TestBase
+{
+    private readonly Repository<FieldDefinition> _defRepo;
+    private readonly Repository<FieldOption> _optRepo;
+    private readonly Repository<FormFieldPlacement> _placementRepo;
+    private readonly DynamicFormService _service;
 
-public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, int[] RoleIds, Dictionary<int, bool> PermissionOverrides, string? ProfilePhoto);
-public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId, string? ProfilePhoto);
-public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, string? ProfilePhoto);
+    public DynamicFormServiceTests() : base()
+    {
+        _defRepo = new Repository<FieldDefinition>(_context);
+        _optRepo = new Repository<FieldOption>(_context);
+        _placementRepo = new Repository<FormFieldPlacement>(_context);
+        _service = new DynamicFormService(_defRepo, _optRepo, _placementRepo, _context);
+    }
 
-public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, string Status);
-public record CreateProjectDto(string Name, string ProjectKey, string? Description);
-public record UpdateProjectDto(string Name, string ProjectKey, string? Description, string Status);
+    [Fact]
+    public async Task CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUnique()
+    {
+        var f = new FieldDefinition { Key = "test.key", Label = "A", FieldType = FieldType.Text };
+        _context.FieldDefinitions.Add(f);
+        await _context.SaveChangesAsync();
 
-public record RoleDto(int Id, string Name, bool IsActive);
-public record CreateRoleDto(string Name);
-public record UpdateRoleDto(string Name, bool IsActive);
+        var dto = new CreateFieldDefinitionDto("test.key", "B", "Text", null);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateFieldDefinitionAsync(dto));
+    }
+
+    [Fact]
+    public async Task CreatePlacementAsync_ShouldThrowIfDuplicateScope()
+    {
+        var p = new FormFieldPlacement { FieldDefinitionId = 1, ProjectId = 1 };
+        _context.FormFieldPlacements.Add(p);
+        await _context.SaveChangesAsync();
+
+        var dto = new CreateFormFieldPlacementDto(1, 1, null, null, 1, true);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePlacementAsync(dto));
+    }
+
+    [Fact]
+    public async Task CreateFieldDefinitionAsync_ShouldCreate()
+    {
+        var dto = new CreateFieldDefinitionDto("uniq.key", "N", "Text", null);
+        var res = await _service.CreateFieldDefinitionAsync(dto);
+        Assert.Equal("uniq.key", res.Key);
+    }
+}

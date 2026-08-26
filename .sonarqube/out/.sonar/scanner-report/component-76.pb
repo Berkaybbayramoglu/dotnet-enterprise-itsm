@@ -1,1 +1,1 @@
-L 2webXchr"src/ItsTool.Web/wwwroot/login.html
+L 2webX²hr'src/ItsTool.Web/wwwroot/kb-article.html

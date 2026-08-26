@@ -1,1 +1,1 @@
-	 2csXhr(src/ItsTool.Domain/Common/ISoftDelete.cs
+	 2csXhr'src/ItsTool.Domain/Common/IAuditable.cs

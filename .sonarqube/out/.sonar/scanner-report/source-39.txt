@@ -1,15 +1,10 @@
-using System;
 using ItsTool.Domain.Common;
-using ItsTool.Domain.Entities.Ticket;
-
 namespace ItsTool.Domain.Entities.Ticket;
-
-public class TicketSurvey : BaseEntity
-{
+public class TicketHistory : BaseEntity {
     public int TicketId { get; set; }
-    public int Rating { get; set; } // 1-5
-    public string? Comment { get; set; }
-    public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
-    
+    public string FieldName { get; set; } = string.Empty;
+    public string? OldValue { get; set; }
+    public string? NewValue { get; set; }
+    public string Action { get; set; } = string.Empty;
     public virtual Ticket? Ticket { get; set; }
 }

@@ -1,1 +1,1 @@
-K 2webX²hr'src/ItsTool.Web/wwwroot/kb-article.html
+K 2webXÛhr%src/ItsTool.Web/wwwroot/webhooks.html

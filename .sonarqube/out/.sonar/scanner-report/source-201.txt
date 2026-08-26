@@ -1,30 +1,29 @@
-import glob
+using ItsTool.Application.DTOs;
+using Microsoft.AspNetCore.Http;
 
-button_html = """
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
-"""
+namespace ItsTool.Application.Interfaces;
 
-overlay_html = '<div class="sidebar-overlay" id="sidebarOverlay"></div>\n        <aside class="sidebar">'
-
-for file in glob.glob("src/ItsTool.Web/wwwroot/*.html"):
-    if file.endswith("login.html") or file.endswith("survey.html") or file.endswith("index.html"):
-        continue
-    with open(file, "r", encoding="utf-8") as f:
-        content = f.read()
+public interface ITicketService
+{
+    Task<TicketDto> CreateTicketAsync(CreateTicketDto dto);
+    Task<TicketDto?> GetTicketByIdAsync(int id);
+    Task UpdateTicketAsync(int id, UpdateTicketDto dto, int currentUserId);
+    Task ChangeStatusAsync(int ticketId, ChangeStatusDto dto);
+    Task<IEnumerable<StatusDto>> GetAllowedTransitionsAsync(int ticketId, int userId);
+    Task AssignTicketAsync(int ticketId, AssignTicketDto dto);
+    Task TransferTicketAsync(int ticketId, TransferTicketDto dto);
     
-    modified = False
+    Task<TicketCommentDto> AddCommentAsync(int ticketId, CreateCommentDto dto);
+    Task<IEnumerable<TicketCommentDto>> GetCommentsAsync(int ticketId, bool includeInternal);
     
-    if '<div class="topbar-left">' in content and 'id="mobileMenuBtn"' not in content:
-        content = content.replace('<div class="topbar-left">', '<div class="topbar-left">' + button_html)
-        modified = True
-        
-    if '<aside class="sidebar">' in content and 'sidebarOverlay' not in content:
-        content = content.replace('<aside class="sidebar">', overlay_html)
-        modified = True
-        
-    if modified:
-        with open(file, "w", encoding="utf-8") as f:
-            f.write(content)
-        print(f"Updated {file}")
+    Task<TicketAttachmentDto> AddAttachmentAsync(int ticketId, IFormFile file, int userId);
+    Task<IEnumerable<TicketAttachmentDto>> GetAttachmentsAsync(int ticketId);
+    
+    Task AddWatcherAsync(int ticketId, int userId);
+    Task RemoveWatcherAsync(int ticketId, int userId);
+    Task<IEnumerable<TicketWatcherDto>> GetWatchersAsync(int ticketId);
+    
+    Task<IEnumerable<TimelineEventDto>> GetTimelineAsync(int ticketId, bool includeInternal);
+    Task<PagedResult<TicketDto>> SearchTicketsAsync(TicketSearchFilterDto filter, int userId);
+    Task<TicketSurveyDto> SubmitSurveyAsync(int ticketId, SubmitTicketSurveyDto dto, int userId);
+}

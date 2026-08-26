@@ -1,1 +1,1 @@
-] 2webX®hr*src/ItsTool.Web/wwwroot/ticket-create.html
+] 2webXÌhr$src/ItsTool.Web/wwwroot/tickets.html

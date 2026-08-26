@@ -1,1 +1,1 @@
-Ž 2csX	hr2src/ItsTool.Application/DTOs/EmailIngestionDtos.cs
+Ž (2csX?hr7tests/ItsTool.UnitTests/Services/CatalogServiceTests.cs

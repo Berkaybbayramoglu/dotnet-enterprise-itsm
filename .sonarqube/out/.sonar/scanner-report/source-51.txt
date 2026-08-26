@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,50 +7,44 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
-public class DashboardController : ControllerBase
+[Authorize(Policy = "RequirePermission:config.manage")]
+public class CategoriesController : ControllerBase
 {
-    private readonly IDashboardService _dashboardService;
+    private readonly ICatalogService _service;
 
-    public DashboardController(IDashboardService dashboardService)
+    public CategoriesController(ICatalogService service)
     {
-        _dashboardService = dashboardService;
+        _service = service;
     }
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-
-    [HttpGet("overview")]
-    public async Task<IActionResult> GetOverview()
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<CategoryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCategories([FromQuery] int? projectId)
     {
-        var result = await _dashboardService.GetOverviewAsync(GetCurrentUserId());
-        return Ok(result);
+        return Ok(await _service.GetCategoriesAsync(projectId));
     }
 
-    [HttpGet("distributions")]
-    public async Task<IActionResult> GetDistributions()
+    [HttpPost]
+    [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto dto)
     {
-        var result = await _dashboardService.GetDistributionsAsync(GetCurrentUserId());
-        return Ok(result);
+        var result = await _service.CreateCategoryAsync(dto);
+        return CreatedAtAction(nameof(GetCategories), new { id = result.Id }, result);
     }
 
-    [HttpGet("department-workload")]
-    public async Task<IActionResult> GetDepartmentWorkload()
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto dto)
     {
-        var result = await _dashboardService.GetDepartmentWorkloadAsync(GetCurrentUserId());
-        return Ok(result);
+        try { await _service.UpdateCategoryAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
     }
 
-    [HttpGet("sla-compliance")]
-    public async Task<IActionResult> GetSlaCompliance()
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteCategory(int id)
     {
-        var result = await _dashboardService.GetSlaComplianceAsync(GetCurrentUserId());
-        return Ok(result);
-    }
-
-    [HttpGet("surveys")]
-    public async Task<IActionResult> GetRecentSurveys()
-    {
-        var result = await _dashboardService.GetRecentSurveysAsync(GetCurrentUserId());
-        return Ok(result);
+        await _service.DeleteCategoryAsync(id); return NoContent();
     }
 }

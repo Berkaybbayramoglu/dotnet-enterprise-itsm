@@ -1,1 +1,2 @@
-¼ 2pyXhrfix_cache.py
+¼ 2csX
+hr<src/ItsTool.Application/Interfaces/IEmailIngestionService.cs

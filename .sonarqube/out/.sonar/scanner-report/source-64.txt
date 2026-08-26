@@ -1,77 +1,84 @@
-using ItsTool.Infrastructure.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SystemController : ControllerBase
+[Authorize(Policy = "RequirePermission:sla.manage")]
+public class SlaController : ControllerBase
 {
-    private readonly DataSeeder _dataSeeder;
-    private readonly ItsToolDbContext _context;
+    private readonly ISlaService _service;
 
-    public SystemController(DataSeeder dataSeeder, ItsToolDbContext context)
+    public SlaController(ISlaService service)
     {
-        _dataSeeder = dataSeeder;
-        _context = context;
+        _service = service;
     }
 
-    public record SystemResponse(string Message);
-    public record SystemErrorResponse(string Message, string Error);
-
-    [AllowAnonymous]
-    [HttpPost("seed")]
-    [ProducesResponseType(typeof(SystemResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(SystemErrorResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SeedDatabase()
+    [HttpGet("policies")]
+    [ProducesResponseType(typeof(IEnumerable<SlaPolicyDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPolicies([FromQuery] int? projectId)
     {
-        try
-        {
-            if (_context.Users.Any())
-            {
-                return Ok(new SystemResponse("Database already seeded."));
-            }
-
-            await _dataSeeder.SeedAsync();
-            return Ok(new SystemResponse("Seed data applied successfully."));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new SystemErrorResponse("An error occurred while seeding.", ex.Message));
-        }
+        return Ok(await _service.GetPoliciesAsync(projectId));
     }
 
-    [AllowAnonymous]
-    [HttpGet("db-test")]
-    [ProducesResponseType(typeof(SystemResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(SystemErrorResponse), StatusCodes.Status500InternalServerError)]
-    public IActionResult TestDatabaseConnection()
+    [HttpPost("policies")]
+    [ProducesResponseType(typeof(SlaPolicyDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreatePolicy([FromBody] CreateSlaPolicyDto dto)
     {
-        try
-        {
-            bool canConnect = _context.Database.CanConnect();
-            if (canConnect)
-            {
-                int userCount = _context.Users.Count();
-                return Ok(new SystemResponse($"Connection OK, Table Count (Users): {userCount}"));
-            }
-            
-            return StatusCode(500, new SystemResponse("Cannot connect to the database."));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new SystemErrorResponse("An error occurred while testing connection.", ex.Message));
-        }
+        var res = await _service.CreatePolicyAsync(dto);
+        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res);
     }
 
-    [AllowAnonymous]
-    [HttpPost("ingest-email")]
-    public async Task<IActionResult> IngestEmail(
-        [FromServices] ItsTool.Application.Interfaces.IEmailIngestionService emailService,
-        [FromBody] ItsTool.Application.DTOs.EmailIngestionDto dto)
+    [HttpPut("policies/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdatePolicy(int id, [FromBody] UpdateSlaPolicyDto dto)
     {
-        await emailService.ProcessIncomingEmailAsync(dto);
-        return Ok(new SystemResponse("Email processed"));
+        try { await _service.UpdatePolicyAsync(id, dto); return NoContent(); }
+        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
+    }
+
+    [HttpDelete("policies/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeletePolicy(int id)
+    {
+        await _service.DeletePolicyAsync(id); return NoContent();
+    }
+
+    [HttpGet("policies/{id}/targets")]
+    [ProducesResponseType(typeof(IEnumerable<SlaTargetDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTargets(int id)
+    {
+        return Ok(await _service.GetTargetsAsync(id));
+    }
+
+    [HttpPost("targets")]
+    [ProducesResponseType(typeof(SlaTargetDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateTarget([FromBody] CreateSlaTargetDto dto)
+    {
+        var res = await _service.CreateTargetAsync(dto);
+        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res); // Note: Should probably point to GetTargets
+    }
+
+    [HttpPut("targets/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTarget(int id, [FromBody] UpdateSlaTargetDto dto)
+    {
+        try { await _service.UpdateTargetAsync(id, dto); return NoContent(); }
+        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
+    }
+
+    [HttpDelete("targets/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteTarget(int id)
+    {
+        await _service.DeleteTargetAsync(id); return NoContent();
     }
 }

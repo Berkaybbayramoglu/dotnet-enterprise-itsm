@@ -1,57 +1,50 @@
 using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.UnitTests.Services;
 
-public interface IDepartmentService
+public class WorkflowServiceTests : TestBase
 {
-    Task<IEnumerable<DepartmentDto>> GetAllAsync();
-    Task<DepartmentDto?> GetByIdAsync(int id);
-    Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto);
-    Task UpdateAsync(int id, UpdateDepartmentDto dto);
-    Task DeleteAsync(int id);
-}
+    private readonly Repository<Workflow> _workflowRepo;
+    private readonly Repository<WorkflowTransition> _transitionRepo;
+    private readonly WorkflowService _service;
 
-public interface IGroupService
-{
-    Task<IEnumerable<GroupDto>> GetAllAsync();
-    Task<GroupDto?> GetByIdAsync(int id);
-    Task<GroupDto> CreateAsync(CreateGroupDto dto);
-    Task UpdateAsync(int id, UpdateGroupDto dto);
-    Task DeleteAsync(int id);
-    Task AddMemberAsync(int groupId, int userId);
-    Task RemoveMemberAsync(int groupId, int userId);
-}
+    public WorkflowServiceTests() : base()
+    {
+        _workflowRepo = new Repository<Workflow>(_context);
+        _transitionRepo = new Repository<WorkflowTransition>(_context);
+        _service = new WorkflowService(_workflowRepo, _transitionRepo);
+    }
 
-public interface IUserService
-{
-    Task<IEnumerable<UserDto>> GetAllAsync();
-    Task<UserDto?> GetByIdAsync(int id);
-    Task<UserDto> CreateAsync(CreateUserDto dto);
-    Task UpdateAsync(int id, UpdateUserDto dto);
-    Task DeleteAsync(int id);
-    Task AssignRoleAsync(int userId, int roleId);
-    Task RevokeRoleAsync(int userId, int roleId);
-    Task AddPermissionOverrideAsync(int userId, int permissionId, bool isGranted);
-}
+    [Fact]
+    public async Task CreateWorkflowAsync_ShouldCreateWorkflow()
+    {
+        var dto = new CreateWorkflowDto("Main", "Desc", null);
+        var result = await _service.CreateWorkflowAsync(dto);
 
-public interface IProjectService
-{
-    Task<IEnumerable<ProjectDto>> GetAllAsync();
-    Task<ProjectDto?> GetByIdAsync(int id);
-    Task<ProjectDto> CreateAsync(CreateProjectDto dto);
-    Task UpdateAsync(int id, UpdateProjectDto dto);
-    Task DeleteAsync(int id);
-    Task AddMemberAsync(int projectId, int userId);
-    Task RemoveMemberAsync(int projectId, int userId);
-}
+        Assert.NotNull(result);
+        Assert.Equal("Main", result.Name);
+    }
 
-public interface IRoleService
-{
-    Task<IEnumerable<RoleDto>> GetAllAsync();
-    Task<RoleDto?> GetByIdAsync(int id);
-    Task<RoleDto> CreateAsync(CreateRoleDto dto);
-    Task UpdateAsync(int id, UpdateRoleDto dto);
-    Task DeleteAsync(int id);
-    Task AssignPermissionAsync(int roleId, int permissionId);
-    Task RevokePermissionAsync(int roleId, int permissionId);
+    [Fact]
+    public async Task CreateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    {
+        var dto = new CreateWorkflowTransitionDto(1, 1, 1, "t", null, 1);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateTransitionAsync(dto));
+    }
+
+    [Fact]
+    public async Task UpdateTransitionAsync_ShouldThrowIfFromEqualsTo()
+    {
+        var t = new WorkflowTransition { WorkflowId = 1, FromStatusId = 1, ToStatusId = 2, TransitionName = "t" };
+        _context.WorkflowTransitions.Add(t);
+        await _context.SaveChangesAsync();
+
+        var dto = new UpdateWorkflowTransitionDto(3, 3, "t2", null, 2, true);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.UpdateTransitionAsync(t.Id, dto));
+    }
 }

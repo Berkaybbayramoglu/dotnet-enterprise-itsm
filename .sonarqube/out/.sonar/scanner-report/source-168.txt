@@ -1,18 +1,33 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+using System;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.Application.DTOs;
 
-public interface ISlaService
-{
-    Task<IEnumerable<SlaPolicyDto>> GetPoliciesAsync(int? projectId = null);
-    Task<SlaPolicyDto> CreatePolicyAsync(CreateSlaPolicyDto dto);
-    Task UpdatePolicyAsync(int id, UpdateSlaPolicyDto dto);
-    Task DeletePolicyAsync(int id);
+public record AuditLogFilterDto(
+    int? UserId,
+    string? Action,
+    string? Ticket,
+    DateTime? FromDate,
+    DateTime? ToDate,
+    int Page = 1,
+    int PageSize = 50
+);
 
-    Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId);
-    Task<SlaTargetDto> CreateTargetAsync(CreateSlaTargetDto dto);
-    Task UpdateTargetAsync(int id, UpdateSlaTargetDto dto);
-    Task DeleteTargetAsync(int id);
-}
+public record AuditLogItemDto(
+    int Id,
+    int? TicketId,
+    string Action,
+    string FieldName,
+    string? OldValue,
+    string? NewValue,
+    string CreatedBy,
+    DateTime CreatedAt,
+    string? EntityName = null,
+    string? EntityId = null
+);
+
+public record PaginatedAuditLogDto(
+    System.Collections.Generic.IEnumerable<AuditLogItemDto> Items,
+    int TotalCount,
+    int Page,
+    int PageSize
+);

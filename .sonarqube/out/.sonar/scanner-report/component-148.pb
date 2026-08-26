@@ -1,1 +1,1 @@
-” 2csXhr*src/ItsTool.Application/DTOs/TicketDtos.cs
+” (2csXGhr=tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.cs

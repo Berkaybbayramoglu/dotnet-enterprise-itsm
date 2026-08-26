@@ -1,1 +1,1 @@
-h 2csX¡hr-src/ItsTool.Infrastructure/Data/DataSeeder.cs
+h 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs

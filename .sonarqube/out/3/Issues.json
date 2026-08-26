@@ -394,12 +394,12 @@
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
                 "region": {
-                  "startLine": 91,
-                  "startColumn": 17,
-                  "endLine": 91,
-                  "endColumn": 64
+                  "startLine": 84,
+                  "startColumn": 38,
+                  "endLine": 84,
+                  "endColumn": 78
                 }
               }
             }
@@ -420,38 +420,12 @@
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
                 "region": {
-                  "startLine": 92,
-                  "startColumn": 17,
-                  "endLine": 92,
-                  "endColumn": 57
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": "ToLower"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
-          "ruleKey": "CA1862-001",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs",
-                "region": {
-                  "startLine": 93,
-                  "startColumn": 17,
-                  "endLine": 93,
-                  "endColumn": 63
+                  "startLine": 84,
+                  "startColumn": 82,
+                  "endLine": 84,
+                  "endColumn": 124
                 }
               }
             }
@@ -659,18 +633,17 @@
         },
         {
           "ruleId": "CA1862",
-          "ruleKey": "CA1862-001",
           "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "message": "Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/EmailIngestionService.cs",
                 "region": {
-                  "startLine": 84,
-                  "startColumn": 38,
-                  "endLine": 84,
-                  "endColumn": 78
+                  "startLine": 33,
+                  "startColumn": 66,
+                  "endLine": 33,
+                  "endColumn": 105
                 }
               }
             }
@@ -691,12 +664,234 @@
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs",
                 "region": {
-                  "startLine": 84,
-                  "startColumn": 82,
-                  "endLine": 84,
-                  "endColumn": 124
+                  "startLine": 91,
+                  "startColumn": 17,
+                  "endLine": 91,
+                  "endColumn": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "ruleKey": "CA1862-001",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs",
+                "region": {
+                  "startLine": 92,
+                  "startColumn": 17,
+                  "endLine": 92,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "ruleKey": "CA1862-001",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/ReportService.cs",
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 17,
+                  "endLine": 93,
+                  "endColumn": 63
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1854",
+          "level": "note",
+          "message": "Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 28,
+                  "endLine": 126,
+                  "endColumn": 69
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 72,
+                  "endLine": 126,
+                  "endColumn": 101
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1854",
+          "level": "note",
+          "message": "Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
+                "region": {
+                  "startLine": 130,
+                  "startColumn": 21,
+                  "endLine": 130,
+                  "endColumn": 62
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
+                "region": {
+                  "startLine": 130,
+                  "startColumn": 65,
+                  "endLine": 130,
+                  "endColumn": 94
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 246,
+                  "startColumn": 13,
+                  "endLine": 246,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "ruleKey": "CA1862-001",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 597,
+                  "startColumn": 17,
+                  "endLine": 597,
+                  "endColumn": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "ruleKey": "CA1862-001",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 598,
+                  "startColumn": 17,
+                  "endLine": 598,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "ruleKey": "CA1862-001",
+          "level": "note",
+          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 599,
+                  "startColumn": 17,
+                  "endLine": 599,
+                  "endColumn": 63
                 }
               }
             }
@@ -787,9 +982,9 @@
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
                   "startLine": 65,
-                  "startColumn": 36,
+                  "startColumn": 47,
                   "endLine": 65,
-                  "endColumn": 38
+                  "endColumn": 49
                 }
               }
             },
@@ -974,9 +1169,9 @@
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
                   "startLine": 194,
-                  "startColumn": 40,
+                  "startColumn": 51,
                   "endLine": 194,
-                  "endColumn": 42
+                  "endColumn": 53
                 }
               }
             },
@@ -1275,201 +1470,6 @@
           }
         },
         {
-          "ruleId": "CA1862",
-          "ruleKey": "CA1862-001",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 597,
-                  "startColumn": 17,
-                  "endLine": 597,
-                  "endColumn": 64
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": "ToLower"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
-          "ruleKey": "CA1862-001",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 598,
-                  "startColumn": 17,
-                  "endLine": 598,
-                  "endColumn": 57
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": "ToLower"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
-          "ruleKey": "CA1862-001",
-          "level": "note",
-          "message": "Prefer the string comparison method overload of 'string.Contains(string)' that takes a 'StringComparison' enum value to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 599,
-                  "startColumn": 17,
-                  "endLine": 599,
-                  "endColumn": 63
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": "ToLower"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1862",
-          "level": "note",
-          "message": "Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/EmailIngestionService.cs",
-                "region": {
-                  "startLine": 33,
-                  "startColumn": 66,
-                  "endLine": 33,
-                  "endColumn": 105
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": "ToLower"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1854",
-          "level": "note",
-          "message": "Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
-                "region": {
-                  "startLine": 126,
-                  "startColumn": 28,
-                  "endLine": 126,
-                  "endColumn": 69
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
-                "region": {
-                  "startLine": 126,
-                  "startColumn": 72,
-                  "endLine": 126,
-                  "endColumn": 101
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1854",
-          "level": "note",
-          "message": "Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
-                "region": {
-                  "startLine": 130,
-                  "startColumn": 21,
-                  "endLine": 130,
-                  "endColumn": 62
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/DashboardService.cs",
-                "region": {
-                  "startLine": 130,
-                  "startColumn": 65,
-                  "endLine": 130,
-                  "endColumn": 94
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 246,
-                  "startColumn": 13,
-                  "endLine": 246,
-                  "endColumn": 33
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Count"
-            }
-          }
-        },
-        {
           "ruleId": "S3267",
           "level": "warning",
           "message": "Loops should be simplified using the \"Where\" LINQ method",
@@ -1600,594 +1600,6 @@
             "customProperties": {
               "paramName": "value"
             }
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 21,
-                  "startColumn": 14,
-                  "endLine": 21,
-                  "endColumn": 40
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 30,
-                  "startColumn": 14,
-                  "endLine": 30,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 42,
-                  "startColumn": 14,
-                  "endLine": 42,
-                  "endColumn": 39
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 53,
-                  "startColumn": 14,
-                  "endLine": 53,
-                  "endColumn": 40
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 62,
-                  "startColumn": 22,
-                  "endLine": 62,
-                  "endColumn": 95
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 65,
-                  "startColumn": 14,
-                  "endLine": 65,
-                  "endColumn": 35
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 180,
-                  "startColumn": 14,
-                  "endLine": 180,
-                  "endColumn": 37
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 193,
-                  "startColumn": 26,
-                  "endLine": 193,
-                  "endColumn": 86
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 194,
-                  "startColumn": 14,
-                  "endLine": 194,
-                  "endColumn": 39
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 205,
-                  "startColumn": 14,
-                  "endLine": 205,
-                  "endColumn": 45
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 212,
-                  "startColumn": 30,
-                  "endLine": 212,
-                  "endColumn": 98
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 224,
-                  "startColumn": 14,
-                  "endLine": 224,
-                  "endColumn": 40
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 230,
-                  "startColumn": 28,
-                  "endLine": 230,
-                  "endColumn": 87
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 231,
-                  "startColumn": 24,
-                  "endLine": 231,
-                  "endColumn": 83
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 232,
-                  "startColumn": 26,
-                  "endLine": 232,
-                  "endColumn": 83
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 233,
-                  "startColumn": 23,
-                  "endLine": 233,
-                  "endColumn": 81
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 274,
-                  "startColumn": 30,
-                  "endLine": 274,
-                  "endColumn": 85
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 275,
-                  "startColumn": 36,
-                  "endLine": 275,
-                  "endColumn": 99
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 276,
-                  "startColumn": 32,
-                  "endLine": 276,
-                  "endColumn": 92
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 277,
-                  "startColumn": 34,
-                  "endLine": 277,
-                  "endColumn": 92
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 278,
-                  "startColumn": 32,
-                  "endLine": 278,
-                  "endColumn": 92
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await ToListAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 330,
-                  "startColumn": 35,
-                  "endLine": 330,
-                  "endColumn": 125
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 350,
-                  "startColumn": 14,
-                  "endLine": 350,
-                  "endColumn": 48
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await AnyAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 360,
-                  "startColumn": 14,
-                  "endLine": 360,
-                  "endColumn": 46
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 362,
-                  "startColumn": 32,
-                  "endLine": 362,
-                  "endColumn": 103
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 363,
-                  "startColumn": 34,
-                  "endLine": 363,
-                  "endColumn": 107
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 364,
-                  "startColumn": 29,
-                  "endLine": 364,
-                  "endColumn": 107
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S6966",
-          "level": "warning",
-          "message": "Await FirstOrDefaultAsync instead.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 366,
-                  "startColumn": 31,
-                  "endLine": 366,
-                  "endColumn": 88
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
           }
         },
         {
@@ -2345,22 +1757,6 @@
           "properties": {
             "category": "Critical Code Smell",
             "isEnabledByDefault": false,
-            "tags": [
-              "C#",
-              "MainSourceScope",
-              "TestSourceScope",
-              "SonarWay"
-            ]
-          }
-        },
-        "S6966": {
-          "id": "S6966",
-          "shortDescription": "Awaitable method should be used",
-          "fullDescription": "In an async method, any blocking operations should be avoided.",
-          "defaultLevel": "warning",
-          "properties": {
-            "category": "Major Code Smell",
-            "isEnabledByDefault": true,
             "tags": [
               "C#",
               "MainSourceScope",

@@ -1,12 +1,7 @@
-using System;
-using System.Threading.Tasks;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.Interfaces;
+public record AssignmentRuleDto(int Id, string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
 
-public interface ISlaEngine
-{
-    Task AttachSlaToTicketAsync(int ticketId);
-    Task ProcessTicketStatusChangeAsync(int ticketId, int oldStatusId, int newStatusId);
-    Task ProcessTicketCommentAsync(int ticketId, bool isInternal);
-    Task CheckBreachesAsync(DateTime nowUtc);
-}
+public record CreateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+
+public record UpdateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);

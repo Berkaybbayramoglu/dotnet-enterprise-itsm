@@ -1,8 +1,6 @@
 using ItsTool.Domain.Common;
 namespace ItsTool.Domain.Entities.Auth;
-public class RolePermission : BaseEntity {
-    public int RoleId { get; set; }
-    public int PermissionId { get; set; }
-    public virtual Role? Role { get; set; }
-    public virtual Permission? Permission { get; set; }
+public class Role : BaseEntity {
+    public string Name { get; set; } = string.Empty;
+    public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
 }

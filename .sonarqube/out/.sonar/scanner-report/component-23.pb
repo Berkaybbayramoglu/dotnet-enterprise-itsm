@@ -1,2 +1,2 @@
  2csX
-hr1src/ItsTool.Domain/Entities/Organization/Group.cs
+hr6src/ItsTool.Domain/Entities/Organization/Department.cs

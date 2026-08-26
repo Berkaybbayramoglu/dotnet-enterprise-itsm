@@ -1,1 +1,1 @@
- 2csXhr'src/ItsTool.Domain/Common/IAuditable.cs
+ 2csXhr'src/ItsTool.Domain/Common/BaseEntity.cs

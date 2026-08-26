@@ -3,18 +3,642 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Redirecting...</title>
-    <script>
-        // Check for token and redirect accordingly
-        const token = localStorage.getItem('jwt_token');
-        if (token) {
-            window.location.replace('/dashboard.html');
-        } else {
-            window.location.replace('/login.html');
-        }
-    </script>
+    <title>ITSM Tool - Ticket Detail</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .detail-container { display: grid; grid-template-columns: minmax(0, 2fr) 300px; gap: var(--spacing-lg); }
+        .ticket-header { margin-bottom: var(--spacing-md); }
+        .ticket-number { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+        .ticket-title { font-size: 24px; color: var(--text-main); margin: var(--spacing-xs) 0 var(--spacing-md) 0; }
+        
+        .description-box { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 14px; line-height: 1.6; margin-bottom: var(--spacing-xl); }
+        
+        .comment-thread { display: flex; flex-direction: column; gap: var(--spacing-md); }
+        .comment { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+        .comment.internal { background: #FFFAE6; border-color: #FFE380; } /* Yellowish for internal */
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); font-size: 12px; color: var(--text-muted); }
+        
+        .property-group { margin-bottom: var(--spacing-md); }
+        .property-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .property-value { font-size: 14px; color: var(--text-main); display: flex; align-items: center; gap: var(--spacing-sm); }
+        
+        .sidebar-panel { background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--spacing-md); border: 1px solid var(--border); }
+        .panel-divider { height: 1px; background: var(--border); margin: var(--spacing-md) 0; border: none; }
+
+        .history-event { padding: 8px 12px; background: var(--bg-hover); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-muted); }
+        .history-event strong { color: var(--text-main); }
+    </style>
 </head>
 <body>
-    <p>Redirecting, please wait...</p>
+    <div class="app-shell">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <aside class="sidebar">
+                        <div class="sidebar-header">
+                <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+                </a>
+                <a href="/tickets.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
+                </a>
+                <a href="/kanban.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm6 14H5V5h4v12zm6 0h-4V5h4v12zm6 0h-4V5h4v12z"/></svg> Kanban
+                </a>
+                <a href="/kb.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Knowledge Base
+                </a>
+                
+                <div class="sidebar-nav-title" style="padding: 16px 20px 8px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Administration</div>
+                <a href="/projects.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2z"/></svg> Projects
+                </a>
+                <a href="/categories.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm15 0h-2v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg> Categories
+                </a>
+                <a href="/departments.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg> Departments
+                </a>
+                <a href="/groups.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Groups
+                </a>
+                <a href="/users.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Users
+                </a>
+                <a href="/roles.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> Roles
+                </a>
+                <a href="/audit-log.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Audit Log
+                </a>
+                <a href="/webhooks.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg> Webhooks
+                </a>
+                <a href="/rules.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49-.12-.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
+                </a>
+                <a href="/admin-fields.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> Custom Fields
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
+                        <h2>Ticket Detail</h2>
+                        <button class="btn btn-secondary" id="btnEditInline" onclick="toggleEditMode()" style="margin-left: 8px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Düzenle
+                        </button>
+                        <button class="btn btn-secondary" id="btnTransfer" onclick="window.openTransferModal()" style="margin-left: 8px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M16 1l-3 3h2v2c0 2.21-1.79 4-4 4s-4-1.79-4-4V4H5v2c0 3.31 2.69 6 6 6s6-2.69 6-6V4h2l-3-3zM9 23l3-3h-2v-2c0-2.21 1.79-4 4-4s4 1.79 4 4v2h2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H7l-3 3z"/></svg>Transfer
+                        </button>
+                        <div id="editActions" style="display:none; margin-left: 8px;">
+                            <button class="btn btn-ghost" onclick="cancelEditMode()">İptal</button>
+                            <button class="btn btn-primary" onclick="saveEditMode()">Kaydet</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="detail-container" id="content" style="display:none;">
+                    <div class="main-column">
+                        <div class="ticket-header">
+                            <div class="ticket-number" id="tNumber"></div>
+                            <h1 class="ticket-title" id="tTitle">Loading Title...</h1>
+                        </div>
+                        
+                        <div class="property-label">Description</div>
+                        <div class="description-box" id="tDesc"></div>
+
+                        <div id="dynamicFieldsDisplay" style="margin-bottom: var(--spacing-xl);"></div>
+
+                        <div class="property-label mb-md">Activity</div>
+                        <div class="comment-thread" id="commentsList"></div>
+                        
+                        <div style="margin-top: var(--spacing-xl);">
+                            <form id="commentForm">
+                                <textarea id="commentText" class="form-control mb-sm" rows="4" required placeholder="Add a comment..." aria-label="Comment"></textarea>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label style="font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                        <input type="checkbox" id="isInternalComment"> Internal Note
+                                    </label>
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="side-column">
+                        <div class="sidebar-panel">
+                            <div class="property-group">
+                                <div class="property-label">Status</div>
+                                <div class="property-value">
+                                    <select id="statusSelect" class="form-control" style="width:100%" aria-label="Status">
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <hr class="panel-divider">
+                            
+                            <div class="property-group">
+                                <div class="property-label">Assignee</div>
+                                <div class="property-value" id="tAssigned" style="margin-bottom: var(--spacing-sm);"></div>
+                                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                    <select id="assigneeSelect" class="form-control" style="flex: 1;" aria-label="Assign to">
+                                        <option value="">Select User...</option>
+                                    </select>
+                                    <button id="btnAssign" class="btn btn-secondary">Assign</button>
+                                </div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Requester</div>
+                                <div class="property-value" id="tReq"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Priority</div>
+                                <div class="property-value" id="tPriority"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Project</div>
+                                <div class="property-value" id="tProject"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label">Category</div>
+                                <div class="property-value" id="tCategory"></div>
+                            </div>
+
+                            <div id="csatLink" style="display:none; margin-top: var(--spacing-lg);">
+                                <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%">Fill CSAT Survey</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="transferModal" class="modal-overlay">
+        <div class="modal" style="width: min(500px, 90%);">
+            <div class="modal-header">
+                <h2>Transfer Ticket</h2>
+                <button type="button" class="close-btn" onclick="closeModal('transferModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="transferForm">
+                    <div class="form-group">
+                        <label class="form-label" for="transferProject" for="transferProject">Project</label>
+                        <select id="transferProject" class="form-control">
+                            <option value="">-- No Change --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="transferGroup" for="transferGroup">Group</label>
+                        <select id="transferGroup" class="form-control">
+                            <option value="">-- No Change --</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('transferModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitTransfer">Transfer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignee Details Modal -->
+    <div id="assigneeModal" class="modal-overlay">
+        <div class="modal" style="width: min(400px, 90%);">
+            <div class="modal-header">
+                <h2>User Details</h2>
+                <button type="button" class="close-btn" onclick="closeModal('assigneeModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div id="aModalAvatar" style="margin-bottom: 16px;"></div>
+                <h3 id="aModalName" style="margin: 0 0 4px 0;"></h3>
+                <p id="aModalUsername" class="text-muted" style="margin: 0 0 16px 0; font-size: 13px;"></p>
+                <div style="text-align: left; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                    <div style="margin-bottom: 8px;"><strong>Email:</strong> <span id="aModalEmail"></span></div>
+                    <div style="margin-bottom: 8px;"><strong>Department:</strong> <span id="aModalDept"></span></div>
+                    <div><strong>Status:</strong> <span id="aModalStatus"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/api.js?v=2';
+        import { bindShellActions, showToast } from './js/ui.js?v=2';
+
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        const getAvatar = (id, fallback, profilePhoto, size = 32) => {
+            if (profilePhoto) return `<img src="${profilePhoto}" class="avatar" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;" title="${fallback}">`;
+            if (!id || id === '-') return `<div class="avatar" style="width:${size}px;height:${size}px;background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border); display:flex;align-items:center;justify-content:center;border-radius:50%;">?</div>`;
+            const initial = String(fallback || id).charAt(0).toUpperCase();
+            return `<div class="avatar" style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:50%;" title="${fallback}">${initial}</div>`;
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('id');
+
+        let currentTicket = null;
+        let dynamicPlacements = [];
+        let isEditMode = false;
+
+        window.openTransferModal = async function() {
+            try {
+                const projects = await window.api.getProjects();
+                const groups = await window.api.getGroups();
+                
+                const pSelect = document.getElementById('transferProject');
+                pSelect.innerHTML = '<option value="">-- No Change --</option>';
+                projects.forEach(p => {
+                    pSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
+                });
+                if(currentTicket.projectId) pSelect.value = currentTicket.projectId;
+
+                const gSelect = document.getElementById('transferGroup');
+                gSelect.innerHTML = '<option value="">-- No Change --</option>';
+                groups.forEach(g => {
+                    gSelect.innerHTML += `<option value="${g.id}">${escapeHtml(g.name)}</option>`;
+                });
+                if(currentTicket.groupId) gSelect.value = currentTicket.groupId;
+
+                openModal('transferModal');
+            } catch(e) {
+                showToast('Failed to load transfer data', 'error');
+            }
+        };
+
+        document.getElementById('btnSubmitTransfer').addEventListener('click', async () => {
+            const pid = document.getElementById('transferProject').value;
+            const gid = document.getElementById('transferGroup').value;
+            
+            const dto = {
+                projectId: pid ? Number.parseInt(pid) : null,
+                groupId: gid ? Number.parseInt(gid) : null
+            };
+
+            try {
+                await window.api.request(`/Ticket/${ticketId}/transfer`, { method: 'POST', body: JSON.stringify(dto) });
+                closeModal('transferModal');
+                showToast('Ticket transferred successfully');
+                window.location.reload();
+            } catch (err) {
+                showToast(err.message || 'Transfer failed', 'error');
+            }
+        });
+
+        async function loadDynamicFieldsMeta() {
+            try {
+                const placements = await window.api.getPlacements(currentTicket.projectId, currentTicket.categoryId, currentTicket.typeId);
+                dynamicPlacements = [];
+                placements.sort((a,b) => a.sortOrder - b.sortOrder);
+                for (const place of placements) {
+                    const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
+                    let options = [];
+                    if (def.fieldType === 3 || def.fieldType === 4) {
+                        options = await window.api.getFieldOptions(def.id);
+                    }
+                    dynamicPlacements.push({ place, def, options, isRequired: place.isRequired });
+                }
+            } catch(e) { console.error("Failed to load dynamic fields meta", e); }
+        }
+
+        function renderTicketData() {
+            document.getElementById('tNumber').textContent = currentTicket.ticketNumber;
+            document.getElementById('tTitle').textContent = currentTicket.title;
+            document.getElementById('tDesc').textContent = currentTicket.description || 'No description provided.';
+            
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            dynContainer.innerHTML = '';
+            dynamicPlacements.forEach(dp => {
+                const val = currentTicket.customFields ? currentTicket.customFields[dp.def.key] : '-';
+                dynContainer.innerHTML += `<div class="property-group"><div class="property-label">${escapeHtml(dp.def.label)}</div><div class="property-value">${escapeHtml(val || '-')}</div></div>`;
+            });
+        }
+
+        async function loadTicket() {
+            if (!ticketId) return;
+            try {
+                let lookup = {};
+                let users = [];
+                try { 
+                    lookup = await window.api.getLookup(); 
+                    users = await window.api.getUsers();
+                } catch(e) { console.warn('Lookup failed', e); }
+
+                const t = await window.api.request(`/Ticket/${ticketId}`);
+                currentTicket = t;
+                
+                await loadDynamicFieldsMeta();
+                renderTicketData();
+                
+                const prioName = lookup.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
+                const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
+                const catName = lookup.categories?.find(x => x.id === t.categoryId)?.name || '-';
+                
+                document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
+                document.getElementById('tProject').textContent = projName;
+                document.getElementById('tCategory').textContent = catName;
+                
+                const reqUser = users.find(u => u.id === t.requesterUserId);
+                const assignedUser = users.find(u => u.id === t.assignedUserId);
+                const getReqName = reqUser?.username || `User ${t.requesterUserId}`;
+                const getAssignedName = assignedUser?.username || 'Atanmamış';
+
+                document.getElementById('tReq').innerHTML = `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</div>`;
+                document.getElementById('tAssigned').innerHTML = t.assignedUserId 
+                    ? `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${t.assignedUserId})">${getAvatar(t.assignedUserId, getAssignedName, assignedUser?.profilePhoto)} <span style="color:var(--primary); font-weight:500;">${escapeHtml(assignedUser?.firstName + ' ' + assignedUser?.lastName)}</span></div>` 
+                    : '<span class="text-muted">Atanmamış</span>';
+
+                const assignSelect = document.getElementById('assigneeSelect');
+                assignSelect.innerHTML = '<option value="">Select User...</option>';
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = `${u.firstName} ${u.lastName} (@${u.username})`;
+                    if(t.assignedUserId === u.id) opt.selected = true;
+                    assignSelect.appendChild(opt);
+                });
+
+                document.getElementById('btnAssign').onclick = async () => {
+                    const selectedUserId = assignSelect.value;
+                    if(!selectedUserId) return;
+                    try {
+                        await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(Number(selectedUserId)) });
+                        showToast('Assigned successfully');
+                        window.location.reload();
+                    } catch(e) { showToast('Assign failed', 'error'); }
+                };
+
+                try {
+                    const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);
+                    const select = document.getElementById('statusSelect');
+                    select.innerHTML = '';
+                    allowedStatuses.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = s.name;
+                        select.appendChild(opt);
+                    });
+                    select.value = t.statusId;
+                } catch(e) {
+                    console.error("Failed to load allowed transitions", e);
+                }
+
+                if (t.statusId === 5) {
+                    document.getElementById('csatLink').style.display = 'block';
+                    document.getElementById('surveyBtn').href = `/survey.html?id=${t.id}`;
+                } else {
+                    document.getElementById('csatLink').style.display = 'none';
+                }
+
+                document.getElementById('content').style.display = 'grid';
+                loadTimeline();
+            } catch(e) {
+                let errEl = document.querySelector('tbody') || document.querySelector('.content-area');
+                if (errEl) {
+                    errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                }
+                console.error(e);
+                showToast('Error loading ticket', 'error'); 
+            }
+        }
+
+        window.openUserDetails = async function(userId) {
+            if (!userId) return;
+            try {
+                const user = await window.api.request(`/Users/${userId}`);
+                if (!user) return;
+                
+                document.getElementById('aModalAvatar').innerHTML = getAvatar(user.id, user.firstName, user.profilePhoto, 80);
+                document.getElementById('aModalName').textContent = user.firstName + ' ' + user.lastName;
+                document.getElementById('aModalUsername').textContent = '@' + user.username;
+                document.getElementById('aModalEmail').textContent = user.email;
+                
+                let deptName = '-';
+                if (user.departmentId) {
+                    try {
+                        const depts = await window.api.request('/Departments');
+                        const d = depts.find(x => x.id === user.departmentId);
+                        if (d) deptName = d.name;
+                    } catch(e) {}
+                }
+                document.getElementById('aModalDept').textContent = deptName;
+                document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
+                
+                openModal('assigneeModal');
+            } catch(e) {
+                console.error(e);
+                showToast('Failed to load user details', 'error');
+            }
+        };
+
+        window.toggleEditMode = function() {
+            if (!currentTicket) return;
+            isEditMode = true;
+            document.getElementById('btnEditInline').style.display = 'none';
+            document.getElementById('editActions').style.display = 'flex';
+
+            const tTitle = document.getElementById('tTitle');
+            tTitle.innerHTML = `<input type="text" id="inlineEditTitle" class="form-control" style="font-size:24px; font-weight:bold; width:100%;" value="${escapeHtml(currentTicket.title)}">`;
+
+            const tDesc = document.getElementById('tDesc');
+            tDesc.innerHTML = `<textarea id="inlineEditDesc" class="form-control" rows="4" style="width:100%;">${escapeHtml(currentTicket.description || '')}</textarea>`;
+
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            dynContainer.innerHTML = '';
+            
+            for (const dp of dynamicPlacements) {
+                const def = dp.def;
+                const val = currentTicket.customFields ? currentTicket.customFields[def.key] : '';
+                const fg = document.createElement('div');
+                fg.className = 'property-group';
+                fg.innerHTML = `<div class="property-label">${escapeHtml(def.label)}${dp.isRequired ? ' *' : ''}</div>`;
+                
+                let inputStr = '';
+                if (def.fieldType === 3 || def.fieldType === 4) {
+                    inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
+                    inputStr += `<option value="">Select option...</option>`;
+                    dp.options.forEach(o => {
+                        const sel = val === o.value ? 'selected' : '';
+                        inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
+                    });
+                    inputStr += `</select>`;
+                } else {
+                    const typeMap = {0: 'text', 1: 'number', 2: 'date'};
+                    inputStr = `<input type="${typeMap[def.fieldType]}" class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} value="${escapeHtml(val || '')}">`;
+                }
+                fg.innerHTML += `<div class="property-value">${inputStr}</div>`;
+                dynContainer.appendChild(fg);
+            }
+        };
+
+        window.cancelEditMode = function() {
+            isEditMode = false;
+            document.getElementById('btnEditInline').style.display = 'inline-block';
+            document.getElementById('editActions').style.display = 'none';
+            renderTicketData();
+        };
+
+        window.saveEditMode = async function() {
+            if (!currentTicket) return;
+
+            const titleInput = document.getElementById('inlineEditTitle');
+            if(titleInput.value.trim() === '') {
+                showToast('Title is required', 'error');
+                return;
+            }
+
+            const title = titleInput.value;
+            const description = document.getElementById('inlineEditDesc').value;
+            
+            const customFields = {};
+            let validationFailed = false;
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            const inputs = dynContainer.querySelectorAll('.dyn-input');
+            inputs.forEach(inp => {
+                if (inp.hasAttribute('required') && !inp.value) {
+                    validationFailed = true;
+                }
+                if (inp.dataset.key) {
+                    customFields[inp.dataset.key] = inp.value;
+                }
+            });
+
+            if(validationFailed) {
+                showToast('Lütfen zorunlu alanları doldurun.', 'error');
+                return;
+            }
+
+            const payload = {
+                title,
+                description,
+                categoryId: currentTicket.categoryId,
+                priorityId: currentTicket.priorityId,
+                customFields
+            };
+
+            try {
+                await window.api.request(`/Ticket/${ticketId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                showToast('Talep güncellendi');
+                isEditMode = false;
+                document.getElementById('btnEditInline').style.display = 'inline-block';
+                document.getElementById('editActions').style.display = 'none';
+                loadTicket(); // full reload to get latest history
+            } catch(err) {
+                console.error(err);
+                if(err.message) {
+                    showToast(err.message, 'error'); // Usually from backend 400 Bad Request
+                } else {
+                    showToast('Update failed. Dinamik alan kurallarına dikkat edin.', 'error');
+                }
+            }
+        };
+
+        async function loadTimeline() {
+            try {
+                const events = await window.api.request(`/Ticket/${ticketId}/timeline`);
+                const list = document.getElementById('commentsList');
+                list.innerHTML = '';
+                events.forEach(e => {
+                    const div = document.createElement('div');
+                    
+                    if (e.eventType === 'Comment') {
+                        const c = e.data;
+                        div.className = `comment ${c.isInternal ? 'internal' : ''}`;
+                        div.innerHTML = `
+                            <div class="comment-header">
+                                <div class="d-flex align-items-center gap-sm">
+                                    ${getAvatar(c.authorUserId, c.authorUserId)}
+                                    <strong>User ${c.authorUserId}</strong>
+                                    <span>${new Date(e.timestamp).toLocaleString()}</span>
+                                </div>
+                                ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                            </div>
+                            <div>${escapeHtml(c.content)}</div>
+                        `;
+                    } else if (e.eventType === 'History') {
+                        const h = e.data;
+                        if(h.action === 'Updated' || h.action === 'StatusChanged' || h.action === 'Reopened') {
+                            div.className = 'history-event';
+                            div.innerHTML = `<strong>User ${h.createdBy}</strong> ${h.action} <strong>${h.fieldName}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em> at ${new Date(e.timestamp).toLocaleString()}`;
+                        }
+                    }
+                    if(div.innerHTML) list.appendChild(div);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('commentText').value;
+            const isInternal = document.getElementById('isInternalComment').checked;
+            try {
+                await window.api.request(`/Ticket/${ticketId}/comments`, {
+                    method: 'POST',
+                    body: JSON.stringify({ content: content, isInternal: isInternal })
+                });
+                document.getElementById('commentText').value = '';
+                document.getElementById('isInternalComment').checked = false;
+                showToast('Comment added');
+                loadTimeline();
+            } catch(e) { 
+                console.error(e);
+                showToast('Error adding comment', 'error'); 
+            }
+        });
+
+        document.getElementById('statusSelect').addEventListener('change', async (e) => {
+            const newStatus = Number.parseInt(e.target.value);
+            const statusName = e.target.options[e.target.selectedIndex].text;
+            try {
+                await window.api.request(`/Ticket/${ticketId}/status`, {
+                    method: 'POST',
+                    body: JSON.stringify(newStatus)
+                });
+                showToast('Status updated');
+                loadTicket(); // Refresh to update allowed transitions
+            } catch(e) { 
+                console.error(e);
+                showToast(`Geçersiz geçiş: ${statusName} durumuna geçilemez.`, 'error');
+                loadTicket(); // Reset dropdown to previous state
+            }
+        });
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+        loadTicket();
+    </script>
 </body>
 </html>

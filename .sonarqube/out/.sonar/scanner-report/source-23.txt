@@ -1,9 +1,9 @@
 using ItsTool.Domain.Common;
 using System.Collections.Generic;
 namespace ItsTool.Domain.Entities.Organization;
-public class Group : BaseEntity {
+public class Department : BaseEntity {
     public string Name { get; set; } = string.Empty;
-    public int? DepartmentId { get; set; }
-    public virtual Department? Department { get; set; }
-    public virtual ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();
+    public string? Description { get; set; }
+    public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

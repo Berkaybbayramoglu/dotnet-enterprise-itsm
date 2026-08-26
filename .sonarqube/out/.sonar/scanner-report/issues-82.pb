@@ -1,13 +1,19 @@
-P
+N
+
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+ŸŸ :@N
+
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+   :@N
+
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+¡¡ 6@N
+
+javascriptS7761+Prefer `.dataset` over `getAttribute(â€¦)`.2
+¢¢ :@P
 
 javascriptS2486/Handle this exception or don't catch it at all.2
-ÀÀ ![
+îð P
 
-javascriptS77788Do not call `Element#classList.remove()` multiple times.2
-ÈÈ "@L
-
-javascriptS7773)Prefer `Number.parseInt` over `parseInt`.2
-ÖÖ+ 3@[
-
-javascriptS77788Do not call `Element#classList.remove()` multiple times.2
-úú #@
+javascriptS2486/Handle this exception or don't catch it at all.2
+„† 

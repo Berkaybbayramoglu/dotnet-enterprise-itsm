@@ -1,1 +1,1 @@
-ª 2csXhr4src/ItsTool.Application/Interfaces/ITicketService.cs
+ª 2csXhr+src/ItsTool.Application/DTOs/CatalogDtos.cs

@@ -34,7 +34,7 @@ public class AuditLogController : ControllerBase
             var ticketStr = filter.Ticket.Trim().ToUpper();
             if (ticketStr.StartsWith("ITS-"))
             {
-                if (int.TryParse(ticketStr.Substring(4), out int parsedId))
+                if (int.TryParse(ticketStr.AsSpan(4), out int parsedId))
                 {
                     ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
                     isTicketFiltered = true;

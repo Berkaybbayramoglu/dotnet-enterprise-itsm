@@ -1,52 +1,62 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using System.Linq.Expressions;
 using ItsTool.Application.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using ItsTool.Domain.Common;
+using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.Infrastructure.Security;
+namespace ItsTool.Infrastructure.Data;
 
-public class TokenService : ITokenService
+public class Repository<T> : IRepository<T> where T : BaseEntity
 {
-    private readonly IConfiguration _configuration;
+    protected readonly ItsToolDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public TokenService(IConfiguration configuration)
+    public Repository(ItsToolDbContext context)
     {
-        _configuration = configuration;
+        _context = context;
+        _dbSet = context.Set<T>();
     }
 
-    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
     {
-        var claims = new List<Claim>
+        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
+        if (predicate != null)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(ClaimTypes.Name, username)
-        };
-
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            query = query.Where(predicate);
         }
+        return await query.ToListAsync();
+    }
 
-        foreach (var perm in permissions)
+    public async Task<T?> GetByIdAsync(int id)
+    {
+        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task UpdateAsync(T entity)
+    {
+        entity.UpdatedAt = DateTime.UtcNow;
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
         {
-            claims.Add(new Claim("permission", perm));
+            entity.IsDeleted = true;
+            entity.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
         }
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        
-        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
-
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        else
+        {
+            throw new KeyNotFoundException($"{typeof(T).Name} not found");
+        }
     }
 }

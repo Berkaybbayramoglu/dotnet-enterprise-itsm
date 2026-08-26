@@ -1,1 +1,1 @@
-k 2csX?hr-src/ItsTool.Infrastructure/Data/Repository.cs
+k 2csX,hr:src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs

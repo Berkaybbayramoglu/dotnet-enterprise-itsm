@@ -1,49 +1,117 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Notification;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class NotificationService : INotificationService
+public class NotificationDispatcher : INotificationDispatcher
 {
     private readonly ItsToolDbContext _context;
+    private readonly IEmailService _emailService;
+    private readonly IWebhookDispatcher _webhookDispatcher;
 
-    public NotificationService(ItsToolDbContext context)
+    public NotificationDispatcher(ItsToolDbContext context, IEmailService emailService, IWebhookDispatcher webhookDispatcher)
     {
         _context = context;
+        _emailService = emailService;
+        _webhookDispatcher = webhookDispatcher;
     }
 
-    public async Task<IEnumerable<NotificationDto>> GetUserNotificationsAsync(int userId)
+    public async Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null)
     {
-        var list = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsDeleted)
-            .OrderByDescending(n => n.CreatedAt)
+        var rules = await _context.NotificationRules
+            .Where(r => r.EventKey == eventKey && r.IsActive && !r.IsDeleted)
             .ToListAsync();
 
-        return list.Select(n => new NotificationDto(n.Id, n.UserId, n.Title, n.Message, n.IsRead, n.RelatedEntityId, n.RelatedEntityType, n.CreatedAt));
-    }
+        if (rules.Count == 0) return;
 
-    public async Task MarkAsReadAsync(int notificationId, int userId)
-    {
-        var notif = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId && !n.IsDeleted);
-        if (notif != null && !notif.IsRead)
-        {
-            notif.IsRead = true;
-            await _context.SaveChangesAsync();
-        }
-    }
+        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+        if (ticket == null) return;
 
-    public async Task MarkAllAsReadAsync(int userId)
-    {
-        var unread = await _context.Notifications.Where(n => n.UserId == userId && !n.IsRead && !n.IsDeleted).ToListAsync();
-        foreach (var n in unread)
-        {
-            n.IsRead = true;
-        }
+        var targetUserIds = await GetTargetUserIdsAsync(rules, ticket, triggerUserId);
+
+        await ProcessNotificationsAsync(targetUserIds, eventKey, ticket, additionalContext);
+        
         await _context.SaveChangesAsync();
+        
+        // Dispatch to Webhooks
+        await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
+    }
+
+    private async Task<System.Collections.Generic.HashSet<int>> GetTargetUserIdsAsync(System.Collections.Generic.IEnumerable<NotificationRule> rules, Domain.Entities.Ticket.Ticket ticket, int? triggerUserId)
+    {
+        var targetUserIds = new System.Collections.Generic.HashSet<int>();
+
+        foreach (var rule in rules)
+        {
+            switch (rule.TargetRole.ToLower())
+            {
+                case "requester":
+                    targetUserIds.Add(ticket.RequesterUserId);
+                    break;
+                case "assignee":
+                    if (ticket.AssignedUserId.HasValue)
+                        targetUserIds.Add(ticket.AssignedUserId.Value);
+                    break;
+                case "project_member":
+                    var members = await _context.ProjectMembers
+                        .Where(pm => pm.ProjectId == ticket.ProjectId && !pm.IsDeleted)
+                        .ToListAsync();
+                    foreach (var m in members)
+                    {
+                        targetUserIds.Add(m.UserId);
+                    }
+                    break;
+            }
+        }
+
+        if (triggerUserId.HasValue)
+        {
+            targetUserIds.Remove(triggerUserId.Value);
+        }
+
+        return targetUserIds;
+    }
+
+    private async Task ProcessNotificationsAsync(System.Collections.Generic.HashSet<int> targetUserIds, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    {
+        foreach (var targetId in targetUserIds)
+        {
+            var exists = await _context.Notifications.AnyAsync(n => 
+                n.UserId == targetId && 
+                n.RelatedEntityId == ticket.Id && 
+                n.RelatedEntityType == "Ticket" && 
+                n.Title == eventKey &&
+                !n.IsDeleted);
+
+            if (!exists)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = targetId,
+                    Title = eventKey,
+                    Message = additionalContext ?? $"Event {eventKey} occurred on Ticket {ticket.TicketNumber}",
+                    RelatedEntityId = ticket.Id,
+                    RelatedEntityType = "Ticket"
+                });
+
+                if (eventKey == "ticket.assigned" || eventKey == "sla.breach")
+                {
+                    await SendEmailNotificationAsync(targetId, eventKey, ticket, additionalContext);
+                }
+            }
+        }
+    }
+
+    private async Task SendEmailNotificationAsync(int targetId, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    {
+        var u = await _context.Users.FindAsync(targetId);
+        if (u != null)
+        {
+            await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
+        }
     }
 }

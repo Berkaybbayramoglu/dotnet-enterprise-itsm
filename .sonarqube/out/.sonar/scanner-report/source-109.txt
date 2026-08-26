@@ -1,41 +1,52 @@
-using System.Linq;
-using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Security;
 
-public class AssignmentEngine : IAssignmentEngine
+public class TokenService : ITokenService
 {
-    private readonly ItsToolDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public AssignmentEngine(ItsToolDbContext context)
+    public TokenService(IConfiguration configuration)
     {
-        _context = context;
+        _configuration = configuration;
     }
 
-    public async Task AssignTicketAsync(Ticket ticket)
+    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
-        var rules = await _context.AssignmentRules
-            .Where(r => r.IsActive && !r.IsDeleted)
-            .OrderBy(r => r.SortOrder)
-            .ToListAsync();
-
-        foreach (var rule in rules)
+        var claims = new List<Claim>
         {
-            if (rule.ProjectId.HasValue && rule.ProjectId.Value != ticket.ProjectId) continue;
-            if (rule.CategoryId.HasValue && rule.CategoryId.Value != ticket.CategoryId) continue;
-            if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) continue;
-            if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) continue;
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(ClaimTypes.Name, username)
+        };
 
-            // Match found!
-            ticket.AssignedGroupId = rule.TargetGroupId;
-            ticket.AssignedUserId = rule.TargetUserId;
-            
-            // Mark the ticket as assigned in the system implicitly
-            return;
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
+
+        foreach (var perm in permissions)
+        {
+            claims.Add(new Claim("permission", perm));
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

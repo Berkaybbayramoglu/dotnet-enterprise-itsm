@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Tickets</title>
+    <title>ITSM Tool - Categories</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
-        .filter-bar { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); align-items: center; flex-wrap: wrap; }
-        .search-input { width: 300px; }
-        .ticket-title { font-weight: 600; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: var(--spacing-sm); }
-        .ticket-title:hover { color: var(--primary); text-decoration: underline; }
-        .ticket-number { color: var(--text-muted); font-size: 12px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
     </style>
 </head>
-
 <body>
+
+    <script>
+        window.addEventListener('error', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">ERROR: ' + e.message + '</div>';
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">PROMISE ERROR: ' + e.reason + '</div>';
+        });
+    </script>
+
     <div class="app-shell">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <aside class="sidebar">
@@ -77,7 +82,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Tickets</h2>
+                    <h2>Categories Management</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="avatar">U</div>
@@ -86,44 +91,27 @@
             </header>
 
             <div class="content-area">
-                <div class="filter-bar">
-                    <input type="text" id="searchInput" class="form-control search-input" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description...">
-                    <button type="button" id="btnSearch" class="btn btn-secondary">Search</button>
-                    <button type="button" id="btnSaveFilter" class="btn btn-secondary">Save Filter</button>
-                    <select id="savedFilters" class="form-control" style="width: 200px;" aria-label="Saved Filters">
-                        <option value="">Saved Filters...</option>
-                    </select>
-                    <button type="button" id="btnExportCsv" class="btn btn-ghost">Export CSV</button>
-                    <a href="/ticket-create.html" class="btn btn-primary ml-auto">+ New Ticket</a>
-                </div>
-
-                <div class="filter-bar" style="margin-top: 12px; margin-bottom: 24px;">
-                    <div class="btn-group" id="statusFilterGroup" role="group" aria-label="Ticket Status Filter">
-                        <button type="button" class="btn btn-secondary active" id="filterActive" aria-pressed="true">Aktif</button>
-                        <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false">Kapalı</button>
-                        <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false">Tümü</button>
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;">Ticket Categories</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage categories for classifying tickets.</p>
                     </div>
+                    <button type="button" class="btn btn-primary" data-action="openCategoryModal">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New Category
+                    </button>
                 </div>
 
                 <div class="table-container">
-                    <table class="table" style="table-layout: fixed; width: 100%;">
-                        <colgroup>
-                            <col style="width: 45%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 10%;">
-                        </colgroup>
+                    <table class="table" id="dataTable">
                         <thead>
                             <tr>
-                                <th>Ticket</th>
-                                <th>Status</th>
-                                <th>Priority</th>
-                                <th>Assignee</th>
-                                <th></th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Project ID</th>
+                                <th style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="ticketList">
+                        <tbody>
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
@@ -132,156 +120,91 @@
         </main>
     </div>
 
+    <!-- Create/Edit Modal -->
+    <div id="categoryModal" class="modal-overlay">
+        <div class="modal">
+            <form id="categoryForm">
+                <input type="hidden" id="cId">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Category</h2>
+                    <button type="button" class="close-btn" data-action="closeModal" data-target="categoryModal" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="cName" for="cName">Name *</label>
+                        <input id="cName" class="form-control" required placeholder="e.g. Hardware">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="cProject" for="cProject">Project ID</label>
+                        <input id="cProject" class="form-control" placeholder="Optional">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="categoryModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+
     <script type="module">
         import './js/api.js?v=2';
-        import { bindShellActions, showToast } from './js/ui.js?v=2';
-        
+        import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
+
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
-        let activeFilterState = 'active'; // 'active', 'closed', 'all'
-
-        document.getElementById('statusFilterGroup').addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                const stateMap = { 'filterActive': 'active', 'filterClosed': 'closed', 'filterAll': 'all' };
-                const state = stateMap[e.target.id];
-                if (state) {
-                    activeFilterState = state;
-                    document.querySelectorAll('#statusFilterGroup .btn').forEach(b => {
-                        b.classList.remove('active');
-                        b.setAttribute('aria-pressed', 'false');
-                    });
-                    e.target.classList.add('active');
-                    e.target.setAttribute('aria-pressed', 'true');
-                    search();
-                }
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const target = btn.getAttribute('data-target');
+            const idAttr = btn.getAttribute('data-id');
+            const flagAttr = btn.getAttribute('data-flag');
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
+            const flag = flagAttr ? (flagAttr === 'true') : undefined;
+            
+            if (action === 'closeModal' && target) {
+                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
+            } else if (typeof window[action] === 'function') {
+                if (flag !== undefined) window[action](id, flag);
+                else window[action](id);
             }
         });
 
-        const getStatusBadge = (status) => {
-            const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
-            const label = status === 'Closed' ? 'KAPALI' : status;
-            return `<span class="badge badge-${map[status] || 'default'}">${label}</span>`;
-        };
 
-        const getPriorityBadge = (priority) => {
-            const map = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
-            return `<span class="badge badge-${map[priority] || 'default'}">${priority}</span>`;
-        };
+        let currentData = [];
+        let itemToDelete = null;
 
-        const getAvatar = (id, fallback) => {
-            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border); visibility: hidden;"></div>`;
-            const initial = String(fallback || id).charAt(0).toUpperCase();
-            return `<div class="avatar" title="${fallback}">${initial}</div>`;
-        };
-
-        let lookupData = {};
-        async function loadLookup() {
-            try { lookupData = await window.api.getLookup(); } catch(e) { console.warn('Lookup failed', e); }
-        }
-
-        async function search() {
-            if (!lookupData.statuses) await loadLookup();
-            const keyword = document.getElementById('searchInput').value;
+        window.loadData = async function() {
             try {
-                const res = await window.api.searchTickets({ keyword, pageSize: 50 });
-                const tbody = document.getElementById('ticketList');
+                currentData = await window.api.getCategories();
+                const tbody = document.querySelector('#dataTable tbody');
                 tbody.innerHTML = '';
                 
-                // Apply front-end filter for active/closed/all
-                let filteredItems = res.items;
-                if (activeFilterState === 'active') {
-                    filteredItems = filteredItems.filter(t => {
-                        const s = lookupData.statuses?.find(st => st.id === t.statusId);
-                        return s ? !s.isClosedStatus : true;
-                    });
-                } else if (activeFilterState === 'closed') {
-                    filteredItems = filteredItems.filter(t => {
-                        const s = lookupData.statuses?.find(st => st.id === t.statusId);
-                        return s ? s.isClosedStatus : false;
-                    });
-                }
-
-                if (filteredItems.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5">
-                        <div class="empty-state">
-                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
-                            <h3>No tickets found</h3>
-                            <p>Try adjusting your search filters or create a new ticket.</p>
-                        </div>
-                    </td></tr>`;
+                if (currentData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No categories found.</td></tr>`;
                     return;
                 }
 
-                filteredItems.forEach(t => {
-                    const statusName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || 'Unknown';
-                    const prioName = lookupData.priorities?.find(p => p.id === t.priorityId)?.name || 'Normal';
-                    const assigneeName = t.assignedUserId ? `User ${t.assignedUserId}` : 'Atanmamış';
-
+                currentData.forEach(item => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
+                        <td class="text-muted">#${item.id}</td>
+                        <td style="font-weight: 500;">${escapeHtml(item.name)}</td>
+                        <td class="text-muted">${item.projectId || '-'}</td>
                         <td>
-                            <a href="/ticket-detail.html?id=${t.id}" class="ticket-title">
-                                <div>
-                                    <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(t.ticketNumber)}</span>
-                                    <span style="font-size: 11px; color: var(--text-muted);">#${t.id}</span>
-                                </div>
-                                <span style="margin-left: 8px;">${escapeHtml(t.title)}</span>
-                            </a>
-                        </td>
-                        <td>${getStatusBadge(statusName)}</td>
-                        <td>${getPriorityBadge(prioName)}</td>
-                        <td><div class="d-flex align-items-center gap-sm">${getAvatar(t.assignedUserId, assigneeName)} ${escapeHtml(assigneeName)}</div></td>
-                        <td>
-                            <div class="row-actions">
-                                <a href="/ticket-detail.html?id=${t.id}" class="btn btn-ghost">View</a>
-                                <a href="/ticket-detail.html?id=${t.id}" class="btn btn-ghost" style="color: var(--primary);">Edit</a>
-                            </div>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openCategoryModal" data-id="${item.id}">Edit</button>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
-            } catch (e) { console.error(e); showToast('Search failed', 'error'); }
-        }
-
-        async function exportCsv() {
-            const keyword = document.getElementById('searchInput').value;
-            try {
-                const blob = await window.api.exportTickets({ keyword });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'tickets.csv';
-                a.click();
-            } catch (e) {
-                console.error(e);
-                showToast('Export failed', 'error');
-            }
-        }
-
-        function escapeHtml(unsafe) {
-            return (unsafe || '').toString()
-                .replaceAll('&', "&amp;")
-                .replaceAll('<', "&lt;")
-                .replaceAll('>', "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        let savedFiltersList = [];
-
-        async function loadFiltersDropdown() {
-            try {
-                savedFiltersList = await window.api.getSavedFilters();
-                const sel = document.getElementById('savedFilters');
-                sel.innerHTML = '<option value="">Saved Filters...</option>';
-                savedFiltersList.forEach(f => {
-                    const opt = document.createElement('option');
-                    opt.value = f.id;
-                    opt.textContent = f.name;
-                    sel.appendChild(opt);
-                });
-            } catch (e) {
+            } catch (err) {
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
@@ -290,43 +213,64 @@
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }
- console.error(e); }
-        }
 
-        async function saveFilter() {
-            // Can't easily replace prompt with modal without adding HTML, will keep prompt for simplicity as custom modal requires extra HTML
-            // Wait, instruction says: alert()/confirm() yerine .toast ve .modal kullanımı. prompt() is similar.
-            // But prompt is simple. Let's keep it for now unless requested otherwise, wait the instruction says alert/confirm.
-            const name = prompt("Enter filter name:");
-            if (!name) return;
-            const queryJson = JSON.stringify({ keyword: document.getElementById('searchInput').value });
+                console.error(err);
+                showToast('Error loading categories', 'error');
+            }
+        };
+
+        window.openCategoryModal = function(id = null) {
+            const form = document.getElementById('categoryForm');
+            form.reset();
+            document.getElementById('cId').value = id || '';
+            document.getElementById('modalTitle').textContent = id ? 'Edit Category' : 'New Category';
+            
+            if (id) {
+                const item = currentData.find(x => x.id === id);
+                if (item) {
+                    document.getElementById('cName').value = item.name;
+                    document.getElementById('cProject').value = item.projectId || '';
+                }
+            }
+            openModal('categoryModal');
+        };
+
+        window.promptDelete = async function(id) {
+            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
+            if (proceed) {
+                try {
+                    await window.api.deleteCategory(id);
+                    showToast('Silme işlemi tamamlandı');
+                    loadData();
+                } catch (e) {
+                    showToast('Silme işlemi başarısız', 'error');
+                }
+            }
+        };
+
+        
+
+        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('cId').value;
+            const data = {
+                name: document.getElementById('cName').value.trim(),
+                projectId: document.getElementById('cProject').value ? Number.parseInt(document.getElementById('cProject').value) : null
+            };
+            
             try {
-                await window.api.createSavedFilter({ name, queryJson });
-                loadFiltersDropdown();
-                showToast('Filter saved');
-            } catch (e) {
-                console.error(e);
-                showToast("Failed to save filter.", 'error');
+                if (id) await window.api.updateCategory(id, data);
+                else await window.api.createCategory(data);
+                
+                closeModal('categoryModal');
+                showToast('Category saved');
+        loadData(); // removed await for resilience
+            } catch (err) {
+                showToast('Failed to save category', 'error');
             }
-        }
+        });
 
-        function loadFilter() {
-            const id = document.getElementById('savedFilters').value;
-            if (!id) return;
-            const filter = savedFiltersList.find(f => f.id == id);
-            if (filter) {
-                const q = JSON.parse(filter.queryJson);
-                document.getElementById('searchInput').value = q.keyword || '';
-                search();
-            }
-        }
-
-        document.getElementById('btnSearch').addEventListener('click', search);
-        document.getElementById('btnSaveFilter').addEventListener('click', saveFilter);
-        document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
-        document.getElementById('savedFilters').addEventListener('change', loadFilter);
-        loadFiltersDropdown(); // removed await for resilience
-        search(); // removed await for resilience
+        loadData();
     </script>
 </body>
 </html>

@@ -1,1 +1,1 @@
-c 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js
+c 2cssXhr1src/ItsTool.Web/wwwroot/css/lib/bootstrap.min.css

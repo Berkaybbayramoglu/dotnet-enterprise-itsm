@@ -123,11 +123,11 @@ public class DashboardService : IDashboardService
             .Select(g => new DepartmentWorkloadDto(
                 g.Key.DepartmentId,
                 g.Key.DepartmentName,
-                g.Sum(u => openTicketsCountPerUser.ContainsKey(u.Id) ? openTicketsCountPerUser[u.Id] : 0),
+                g.Sum(u => openTicketsCountPerUser.GetValueOrDefault(u.Id, 0)),
                 g.Select(u => new AgentWorkloadDto(
                     u.Id,
                     $"{u.FirstName} {u.LastName}",
-                    openTicketsCountPerUser.ContainsKey(u.Id) ? openTicketsCountPerUser[u.Id] : 0
+                    openTicketsCountPerUser.GetValueOrDefault(u.Id, 0)
                 )).OrderByDescending(a => a.OpenTicketCount).ToList()
             ))
             .Where(w => w.DepartmentId != 0 || w.OpenTicketCount > 0)

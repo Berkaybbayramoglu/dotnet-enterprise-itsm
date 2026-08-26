@@ -1,25 +1,7 @@
-N
+ä
 
-javascriptS7761+Prefer `.dataset` over `getAttribute(‚Ä¶)`.2
-§§ :@N
+javascriptS4165iReview this redundant assignment: "selectVal" already holds the assigned value along all execution paths.2
+ßßJ Mc
 
-javascriptS7761+Prefer `.dataset` over `getAttribute(‚Ä¶)`.2
-•• :@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(‚Ä¶)`.2
-¶¶ 6@N
-
-javascriptS7761+Prefer `.dataset` over `getAttribute(‚Ä¶)`.2
-ßß :@L
-
-javascriptS7773)Prefer `Number.parseInt` over `parseInt`.2
-®®: B@P
-
-javascriptS2486/Handle this exception or don't catch it at all.2
-ı˜ L
-
-javascriptS7773)Prefer `Number.parseInt` over `parseInt`.2
-ÇÇG O@P
-
-javascriptS2486/Handle this exception or don't catch it at all.2
-åé 
+javascriptS7785@Prefer top-level await over an async function `loadFields` call.2
+èè @

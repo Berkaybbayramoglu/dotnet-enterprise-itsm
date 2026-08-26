@@ -3,13 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Assignment Rules</title>
+    <title>ITSM Tool - Kanban</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
-        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
+        .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
+        .column-header { padding: var(--spacing-md); font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; }
+        .column-body { padding: var(--spacing-sm); flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); min-height: 200px; }
         
+        .card { background: var(--bg-surface); padding: var(--spacing-md); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-sm); border-left: 3px solid transparent; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card:active { cursor: grabbing; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-weight: 500; font-size: 14px; color: var(--text-main); }
+        .card-number { font-size: 12px; color: var(--text-muted); font-weight: 600; text-decoration: none; }
+        .card-number:hover { text-decoration: underline; color: var(--primary); }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-xs); }
+        
+        /* Priorites mapping to border */
+        .priority-Critical { border-left-color: var(--danger); }
+        .priority-High { border-left-color: var(--warning); }
+        .priority-Medium { border-left-color: var(--info); }
+        .priority-Low { border-left-color: var(--success); }
 
+        /* Column Status Header Strips */
+        .col-1 .column-header { border-bottom-color: var(--info); }
+        .col-2 .column-header { border-bottom-color: var(--warning); }
+        .col-3 .column-header { border-bottom-color: var(--text-muted); }
+        .col-4 .column-header { border-bottom-color: var(--success); }
+        .col-5 .column-header { border-bottom-color: var(--danger); }
     </style>
 </head>
 <body>
@@ -74,7 +98,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Assignment Rules</h2>
+                    <h2>Kanban Board</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="avatar">U</div>
@@ -83,279 +107,316 @@
             </header>
 
             <div class="content-area">
-                <div class="admin-header">
-                    <div>
-                        <h3 style="margin:0; font-size: 18px;">Auto-Assignment Rules</h3>
-                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage rules for automatically assigning incoming tickets.</p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="background: var(--bg-hover); padding: 8px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.
                     </div>
-                    <button type="button" class="btn btn-primary" id="btnCreateRuleModal">
-                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Create New Rule
-                    </button>
+                    <button class="btn btn-ghost" onclick="window.resetColumnOrder()">Sırayı Sıfırla</button>
                 </div>
 
-                <div class="table-container">
-                    <table class="table" id="rulesTable">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px;">Sort</th>
-                                <th>Name</th>
-                                <th>Project</th>
-                                <th>Category</th>
-                                <th>Type</th>
-                                <th>Target Group</th>
-                                <th>Target User</th>
-                                <th>Status</th>
-                                <th style="width: 100px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                <div class="kanban-board" id="board">
+                    <!-- Columns will be injected here -->
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Rule Modal (Create/Edit) -->
-    <div id="createModal" class="modal-overlay">
-        <div class="modal">
-            <form id="createForm">
-                <div class="modal-header">
-                    <h2 id="ruleModalTitle">Create Assignment Rule</h2>
-                    <button type="button" class="close-btn" onclick="closeModal('createModal')" aria-label="Close">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="form-label" for="rName">Rule Name *</label>
-                        <input type="text" id="rName" class="form-control" required placeholder="e.g. VIP Incident Routing">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="rSort">Sort Order</label>
-                        <input type="number" id="rSort" class="form-control" value="10" required>
-                        <small class="text-muted" style="display:block; margin-top: 4px;">Lower numbers execute first.</small>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="rProject">Project</label>
-                        <select id="rProject" class="form-control"><option value="">-- Any --</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="rCategory">Category</label>
-                        <select id="rCategory" class="form-control"><option value="">-- Any --</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="rType">Type</label>
-                        <select id="rType" class="form-control"><option value="">-- Any --</option></select>
-                    </div>
-                    <div class="form-group" style="margin-top: var(--spacing-md); border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
-                        <label class="form-label" for="rGroup">Target Group</label>
-                        <select id="rGroup" class="form-control"><option value="">-- Unassigned --</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="rUser">Target User</label>
-                        <select id="rUser" class="form-control"><option value="">-- Unassigned --</option></select>
-                    </div>
-                    <div class="form-group" style="margin-top: var(--spacing-md);">
-                        <label style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" id="rActive" checked>
-                            <span>Is Active</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="btnSubmitRule">Create Rule</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Confirm Delete Modal -->
-    <div id="confirmModal" class="modal-overlay">
-        <div class="modal" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Confirm Delete</h2>
-                <button type="button" class="close-btn" onclick="closeModal('confirmModal')" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this assignment rule? Tickets will no longer be routed automatically.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
-            </div>
-        </div>
-    </div>
+    <!-- Shared Preview Modal is dynamically injected by ui.js -->
 
     <script type="module">
-        import './js/api.js';
-        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
-
+        import './js/api.js?v=2';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=2';
+        
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
-        let ruleToDelete = null;
-        let ruleToEdit = null;
+        let statuses = [];
+        let tickets = [];
+
+        const getAvatar = (id, fallback) => {
+            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
+            const initial = String(fallback || id).charAt(0).toUpperCase();
+            return `<div class="avatar" title="${fallback}">${initial}</div>`;
+        };
+
+        const getPriorityIcon = (priority) => {
+            const colors = { 'Critical': 'var(--danger)', 'High': 'var(--warning)', 'Medium': 'var(--info)', 'Low': 'var(--success)' };
+            return `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: ${colors[priority] || 'var(--text-muted)'}"><path d="M16 11V3H8v6H2v12h20V11h-6zM10 5h4v14h-4V5zM4 11h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg>`;
+        };
+
         let lookupData = {};
-        let rulesList = [];
-
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-
-        async function loadRules() {
+        async function initKanban() {
             try {
-                const rules = await window.api.getAssignmentRules();
-                rulesList = rules;
-                const tbody = document.querySelector('#rulesTable tbody');
-                tbody.innerHTML = '';
+                try {
+                    lookupData = await window.api.getLookup();
+                } catch(err) {
+                    console.warn("Lookup fetching failed, using fallback empty object.", err);
+                    lookupData = {};
+                }
                 
-                if (rules.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No assignment rules found.</td></tr>`;
-                    return;
+                // Override statuses with real ones if available
+                if (lookupData.statuses && lookupData.statuses.length > 0) {
+                    statuses = lookupData.statuses;
+                } else {
+                    statuses = [
+                        { id: 1, name: 'Open' },
+                        { id: 2, name: 'In Progress' },
+                        { id: 3, name: 'Pending' },
+                        { id: 4, name: 'Resolved' },
+                        { id: 5, name: 'Closed' }
+                    ];
                 }
 
-                rules.forEach(r => {
-                    const tr = document.createElement('tr');
-                    
-                    const statusBadge = r.isActive 
-                        ? `<span class="badge badge-success btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to disable">Active</span>`
-                        : `<span class="badge badge-default btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to enable">Inactive</span>`;
-                    
-                    const projName = lookupData.projects?.find(x => x.id === r.projectId)?.name || 'Herhangi';
-                    const catName = lookupData.categories?.find(x => x.id === r.categoryId)?.name || 'Herhangi';
-                    const typeName = lookupData.ticketTypes?.find(x => x.id === r.ticketTypeId)?.name || 'Herhangi';
-                    const groupName = lookupData.groups?.find(x => x.id === r.targetGroupId)?.name || '—';
-                    const userName = lookupData.users?.find(x => x.id === r.targetUserId)?.username || '—';
 
-                    tr.innerHTML = `
-                        <td style="font-family: monospace;">${r.sortOrder}</td>
-                        <td style="font-weight: 500;">${escapeHtml(r.name)}</td>
-                        <td class="text-muted">${escapeHtml(projName)}</td>
-                        <td class="text-muted">${escapeHtml(catName)}</td>
-                        <td class="text-muted">${escapeHtml(typeName)}</td>
-                        <td class="text-muted">${escapeHtml(groupName)}</td>
-                        <td class="text-muted">${escapeHtml(userName)}</td>
-                        <td>${statusBadge}</td>
-                        <td>
-                            <button type="button" class="btn btn-ghost btn-edit" style="color: var(--primary); padding: 4px 8px;" data-id="${r.id}">
-                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            </button>
-                            <button type="button" class="btn btn-ghost btn-delete" style="color: var(--danger); padding: 4px 8px;" data-id="${r.id}">
-                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                            </button>
-                        </td>
+                let payload = { sub: 'unknown' };
+                try {
+                    payload = JSON.parse(atob(window.api.token.split('.')[1]));
+                } catch(e) {}
+                const userId = payload.sub;
+                
+                let savedOrder = localStorage.getItem(`kanban.colorder.${userId}`);
+                if (savedOrder) {
+                    try {
+                        savedOrder = JSON.parse(savedOrder);
+                        const sortedStatuses = [];
+                        savedOrder.forEach(id => {
+                            const st = statuses.find(s => s.id === id);
+                            if (st) sortedStatuses.push(st);
+                        });
+                        statuses.forEach(st => {
+                            if (!savedOrder.includes(st.id)) sortedStatuses.push(st);
+                        });
+                        statuses = sortedStatuses;
+                    } catch(e) {}
+                }
+
+                const board = document.getElementById('board');
+                board.innerHTML = '';
+                statuses.forEach(s => {
+                    const col = document.createElement('div');
+                    col.className = `column col-${s.id}`;
+                    col.dataset.colId = s.id;
+                    col.ondragover = window.allowColDrop;
+                    col.ondrop = window.colDrop;
+                    
+                    col.innerHTML = `
+                        <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
+                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${s.name}</span>
+                            <span class="badge badge-default" id="count-${s.id}">0</span>
+                        </div>
+                        <div class="column-body" data-status-id="${s.id}" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
                     `;
-                    tbody.appendChild(tr);
+                    board.appendChild(col);
                 });
-            } catch (err) {
-                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
-                if (errEl) {
-                    if (errEl.tagName === 'TBODY') {
-                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
-                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
-                    }
+
+
+                try {
+                    const res = await window.api.searchTickets({ pageSize: 100 });
+                    tickets = res.items || [];
+                } catch(err) {
+                    console.warn("Tickets fetching failed.", err);
+                    tickets = [];
                 }
 
-                console.error(err);
-                showToast('Error loading rules', 'error');
-            }
+                renderTickets();
+            } catch(e) { console.error("Critical error in initKanban:", e); }
         }
 
-        document.querySelector('#rulesTable tbody').addEventListener('click', async (e) => {
-            const deleteBtn = e.target.closest('.btn-delete');
-            const editBtn = e.target.closest('.btn-edit');
-            const toggleBtn = e.target.closest('.btn-toggle');
-            
-            if (deleteBtn) {
-                ruleToDelete = Number.parseInt(deleteBtn.dataset.id);
-                openModal('confirmModal');
-            } else if (editBtn) {
-                ruleToEdit = Number.parseInt(editBtn.dataset.id);
-                const r = rulesList.find(x => x.id === ruleToEdit);
-                if (r) {
-                    document.getElementById('rName').value = r.name;
-                    document.getElementById('rSort').value = r.sortOrder;
-                    document.getElementById('rProject').value = r.projectId || '';
-                    document.getElementById('rCategory').value = r.categoryId || '';
-                    document.getElementById('rType').value = r.ticketTypeId || '';
-                    document.getElementById('rGroup').value = r.targetGroupId || '';
-                    document.getElementById('rUser').value = r.targetUserId || '';
-                    document.getElementById('rActive').checked = r.isActive;
-                    document.getElementById('ruleModalTitle').textContent = 'Edit Assignment Rule';
-                    document.getElementById('btnSubmitRule').textContent = 'Save Changes';
-                    openModal('createModal');
+        function renderTickets() {
+            document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
+            const counts = {};
+
+            tickets.forEach(t => {
+                // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
+                let sId = t.statusId;
+                if(typeof sId === 'string') {
+                    // Try to map name to id for demo if it returns string
+                    const found = statuses.find(x => x.name === sId);
+                    if(found) sId = found.id; else sId = 1;
                 }
-            } else if (toggleBtn) {
-                const id = Number.parseInt(toggleBtn.dataset.id);
-                toggleBtn.style.opacity = '0.5';
-                try {
-                    await window.api.toggleAssignmentRule(id);
-                    showToast('Rule status updated');
-                    loadRules();
-                } catch (err) {
-                    console.error(err);
-                    showToast('Failed to toggle rule', 'error');
-                    toggleBtn.style.opacity = '1';
+
+                counts[sId] = (counts[sId] || 0) + 1;
+
+                const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
+                if (colBody) {
+                    const card = document.createElement('div');
+                    card.className = `card priority-${t.priorityId || 'Medium'}`;
+                    card.draggable = true;
+                    card.id = `ticket-${t.id}`;
+                    let isDragging = false;
+                    card.ondragstart = (ev) => { isDragging = true; window.drag(ev); };
+                    card.ondragend = () => { setTimeout(() => isDragging = false, 150); };
+                    card.onclick = (e) => {
+                        if (e.target.closest('.card-number')) return;
+                        if (!isDragging) openTicketPreview(t, lookupData);
+                    };
+                    card.tabIndex = 0;
+                    card.onkeydown = (e) => {
+                        if (e.key === 'Enter') openTicketPreview(t, lookupData);
+                    };
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <a href="/ticket-detail.html?id=${t.id}" class="card-number" target="_blank">${escapeHtml(t.ticketNumber)}</a>
+                            ${getPriorityIcon(t.priorityId)}
+                        </div>
+                        <div class="card-title">${escapeHtml(t.title)}</div>
+                        <div class="card-footer">
+                            ${getAvatar(t.assignedUserId, t.assignedUserId)}
+                        </div>
+                    `;
+                    colBody.appendChild(card);
                 }
-            }
-        });
+            });
 
-        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
-            if (!ruleToDelete) return;
-            try {
-                await window.api.deleteAssignmentRule(ruleToDelete);
-                closeModal('confirmModal');
-                showToast('Rule deleted successfully');
-        loadRules(); // removed await for resilience
-            } catch (e) {
-                console.error(e);
-                showToast('Failed to delete rule', 'error');
-            } finally {
-                ruleToDelete = null;
-            }
-        });
+            // Update counts
+            statuses.forEach(s => {
+                const countBadge = document.getElementById(`count-${s.id}`);
+                if(countBadge) countBadge.textContent = counts[s.id] || 0;
+            });
+        }
 
-        document.getElementById('btnCreateRuleModal').addEventListener('click', () => {
-            ruleToEdit = null;
-            document.getElementById('createForm').reset();
-            document.getElementById('ruleModalTitle').textContent = 'Create Assignment Rule';
-            document.getElementById('btnSubmitRule').textContent = 'Create Rule';
-            openModal('createModal');
-        });
 
-        document.getElementById('createForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                name: document.getElementById('rName').value.trim(),
-                sortOrder: Number.parseInt(document.getElementById('rSort').value) || 10,
-                isActive: document.getElementById('rActive').checked,
-                projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value) : null,
-                categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value) : null,
-                ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value) : null,
-                targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value) : null,
-                targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value) : null
-            };
+        window.allowColDrop = function(ev) {
+            ev.preventDefault();
+            const targetCol = ev.target.closest('.column');
+            const draggingCol = document.querySelector('.column.dragging');
             
-            try {
-                if (ruleToEdit) {
-                    await window.api.updateAssignmentRule(ruleToEdit, payload);
-                    showToast('Rule updated successfully');
+            if (targetCol && draggingCol && targetCol !== draggingCol) {
+                // Determine whether to place before or after based on mouse position
+                const rect = targetCol.getBoundingClientRect();
+                const mid = rect.left + rect.width / 2;
+                if (ev.clientX < mid) {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol);
                 } else {
-                    await window.api.createAssignmentRule(payload);
-                    showToast('Rule created successfully');
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol.nextSibling);
                 }
-                closeModal('createModal');
-                loadRules();
-            } catch (e) {
-                console.error(e);
-                showToast(ruleToEdit ? 'Failed to update rule' : 'Failed to create rule', 'error');
             }
-        });
+        };
+
+        window.colDrag = function(ev) {
+            ev.dataTransfer.setData("type", "column");
+            const col = ev.target.closest('.column');
+            if (col) {
+                ev.dataTransfer.setData("columnId", col.dataset.colId);
+                col.classList.add('dragging');
+                // Optional: make the dragged original element slightly transparent
+                col.style.opacity = '0.4';
+            }
+            
+            // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
+            if (ev.dataTransfer.setDragImage) {
+                const img = new Image();
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // transparent pixel
+                ev.dataTransfer.setDragImage(img, 0, 0);
+            }
+        };
+
+        window.dragEnd = function(ev) {
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+                el.style.opacity = '1';
+            });
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        };
+
+        window.colDrop = function(ev) {
+            document.querySelectorAll('.column').forEach(c => {
+                c.classList.remove('drag-over');
+                c.classList.remove('dragging');
+                c.style.opacity = '1';
+            });
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") return;
+            
+            // Since the DOM is already reordered by allowColDrop, we just save it.
+            saveColumnOrder();
+        };
+        
+        function saveColumnOrder() {
+            const board = document.getElementById('board');
+            const cols = Array.from(board.children);
+            const newOrder = cols.map(c => Number.parseInt(c.dataset.colId));
+            
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let userId = payload.sub || 'unknown';
+            localStorage.setItem(`kanban.colorder.${userId}`, JSON.stringify(newOrder));
+            
+            showToast('Sütun sırası kaydedildi.', 'success');
+        }
+        
+        window.resetColumnOrder = function() {
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let userId = payload.sub || 'unknown';
+            localStorage.removeItem(`kanban.colorder.${userId}`);
+            showToast('Sütun sırası sıfırlandı.', 'success');
+            window.location.reload();
+        };
+
+        window.allowDrop = function(ev) {
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") {
+                document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+                const colBody = ev.target.closest('.column-body');
+                if (colBody) colBody.classList.add('drag-over');
+            }
+        };
+
+        window.drag = function(ev) {
+            let el = ev.target;
+            while(el && !el.classList.contains('card')) el = el.parentElement;
+            if(el) ev.dataTransfer.setData("text", el.id);
+        };
+
+        window.drop = async function(ev) {
+            document.querySelectorAll('.dragging, .drag-over').forEach(el => {
+                el.classList.remove('dragging');
+                el.classList.remove('drag-over');
+            });
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const card = document.getElementById(data);
+            
+            let target = ev.target;
+            while(target && !target.classList.contains('column-body')) {
+                target = target.parentElement;
+            }
+
+            if (target && card) {
+                const newStatusId = Number.parseInt(target.dataset.statusId);
+                const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
+
+                try {
+                    // Actual API expects string status if we are mapping it, check mock API logic, normally ID
+                    await window.api.request(`/Ticket/${ticketId}/status`, {
+                        method: 'POST',
+                        body: JSON.stringify(newStatusId)
+                    });
+                    
+                    target.appendChild(card);
+                    
+                    // Re-calculate counts
+                    document.querySelectorAll('.column-body').forEach(c => {
+                        const sId = c.dataset.statusId;
+                        const count = c.querySelectorAll('.card').length;
+                        document.getElementById(`count-${sId}`).textContent = count;
+                    });
+
+                    if (newStatusId === 5) {
+                        showToast("Ticket closed. Sending CSAT survey notification...");
+                    } else {
+                        showToast("Ticket moved successfully");
+                    }
+                } catch(e) {
+                    console.error(e);
+                    showToast('Geçersiz geçiş: Bu aşamaya geçilemez.', 'error');
+                }
+            }
+        };
 
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
@@ -366,40 +427,7 @@
                 .replaceAll("'", "&#039;");
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = "none";
-            }
-        }
-        async function initRules() {
-            try {
-                lookupData = await window.api.request('/lookup');
-                const usersList = await window.api.getUsers();
-                const groupsList = await window.api.getGroups();
-                lookupData.users = usersList;
-                lookupData.groups = groupsList;
-
-                const populate = (id, arr) => {
-                    const el = document.getElementById(id);
-                    arr.forEach(x => {
-                        const opt = document.createElement('option');
-                        opt.value = x.id; opt.textContent = x.name || x.username || x.id;
-                        el.appendChild(opt);
-                    });
-                };
-                populate('rProject', lookupData.projects || []);
-                populate('rCategory', lookupData.categories || []);
-                populate('rType', lookupData.ticketTypes || []);
-                populate('rGroup', lookupData.groups || []);
-                populate('rUser', lookupData.users || []);
-            } catch(e) {
-                console.error("Failed to load lookups", e);
-            }
-            loadRules();
-        }
-
-        document.addEventListener('DOMContentLoaded', initRules);
+        await initKanban();
     </script>
 </body>
 </html>

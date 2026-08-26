@@ -1,31 +1,37 @@
-namespace ItsTool.Application.Constants;
+using System;
+using System.Threading.Tasks;
+using ItsTool.API.Controllers;
+using ItsTool.Domain.Entities.Organization;
+using Microsoft.AspNetCore.Mvc;
+using Xunit;
+using ItsTool.Application.Interfaces;
+using Moq;
 
-public static class PermissionConstants
+namespace ItsTool.UnitTests.Controllers;
+
+public class AssignmentRuleControllerTests : TestBase
 {
-    public const string TicketCreate = "ticket.create";
-    public const string TicketView = "ticket.view";
-    public const string TicketEdit = "ticket.edit";
-    public const string TicketAssign = "ticket.assign";
-    public const string TicketTransfer = "ticket.transfer";
-    public const string TicketResolve = "ticket.resolve";
-    public const string TicketClose = "ticket.close";
-    public const string TicketReopen = "ticket.reopen";
-    public const string TicketCommentInternal = "ticket.comment.internal";
-    public const string ReportView = "report.view";
-    public const string AdminManage = "admin.manage";
-    public const string ConfigManage = "config.manage";
-    public const string SlaManage = "sla.manage";
-    public const string AuditView = "audit.view";
+    private readonly AssignmentRuleController _controller;
+    private readonly Mock<ISystemAuditService> _mockAudit;
 
-    public const string KbManage = "kb.manage";
-    public const string KbView = "kb.view";
-    public const string SurveySubmit = "survey.submit";
-    public const string TicketComment = "ticket.comment";
-
-    public static IReadOnlyList<string> AllPermissions => new[]
+    public AssignmentRuleControllerTests() : base()
     {
-        TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
-        KbManage, KbView, SurveySubmit, TicketComment
-    };
+        _mockAudit = new Mock<ISystemAuditService>();
+        _controller = new AssignmentRuleController(_context, _mockAudit.Object);
+    }
+
+    [Fact]
+    public async Task ToggleRule_ShouldInvertIsActiveAndLogAudit()
+    {
+        var rule = new AssignmentRule { Name = "ToggleTest", IsActive = true };
+        _context.AssignmentRules.Add(rule);
+        await _context.SaveChangesAsync();
+
+        var result = await _controller.ToggleRule(rule.Id);
+        
+        Assert.IsType<NoContentResult>(result);
+        Assert.False(rule.IsActive);
+        
+        _mockAudit.Verify(a => a.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", "True", "False"), Times.Once);
+    }
 }

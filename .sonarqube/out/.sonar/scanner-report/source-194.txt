@@ -1,23 +1,57 @@
-import glob
-import re
+using ItsTool.Application.DTOs;
 
-files = ["src/ItsTool.Web/wwwroot/projects.html", "src/ItsTool.Web/wwwroot/categories.html", 
-         "src/ItsTool.Web/wwwroot/departments.html", "src/ItsTool.Web/wwwroot/groups.html", 
-         "src/ItsTool.Web/wwwroot/users.html", "src/ItsTool.Web/wwwroot/roles.html"]
+namespace ItsTool.Application.Interfaces;
 
-for file in files:
-    with open(file, 'r', encoding='utf-8') as f:
-        content = f.read()
+public interface IDepartmentService
+{
+    Task<IEnumerable<DepartmentDto>> GetAllAsync();
+    Task<DepartmentDto?> GetByIdAsync(int id);
+    Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto);
+    Task UpdateAsync(int id, UpdateDepartmentDto dto);
+    Task DeleteAsync(int id);
+}
 
-    # The current import might look like: import { bindShellActions, showToast, escapeHtml, showUndoToast } from './js/ui.js?v=2';
-    # Or without ?v=2. We just want to ensure openModal and closeModal are in there.
-    
-    # We will use regex to find the ui.js import and replace it completely with a full set of imports
-    content = re.sub(
-        r"import \{[^\}]+\} from '\./js/ui\.js(\?v=\d+)?';",
-        "import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';",
-        content
-    )
-    
-    with open(file, 'w', encoding='utf-8') as f:
-        f.write(content)
+public interface IGroupService
+{
+    Task<IEnumerable<GroupDto>> GetAllAsync();
+    Task<GroupDto?> GetByIdAsync(int id);
+    Task<GroupDto> CreateAsync(CreateGroupDto dto);
+    Task UpdateAsync(int id, UpdateGroupDto dto);
+    Task DeleteAsync(int id);
+    Task AddMemberAsync(int groupId, int userId);
+    Task RemoveMemberAsync(int groupId, int userId);
+}
+
+public interface IUserService
+{
+    Task<IEnumerable<UserDto>> GetAllAsync();
+    Task<UserDto?> GetByIdAsync(int id);
+    Task<UserDto> CreateAsync(CreateUserDto dto);
+    Task UpdateAsync(int id, UpdateUserDto dto);
+    Task DeleteAsync(int id);
+    Task AssignRoleAsync(int userId, int roleId);
+    Task RevokeRoleAsync(int userId, int roleId);
+    Task AddPermissionOverrideAsync(int userId, int permissionId, bool isGranted);
+}
+
+public interface IProjectService
+{
+    Task<IEnumerable<ProjectDto>> GetAllAsync();
+    Task<ProjectDto?> GetByIdAsync(int id);
+    Task<ProjectDto> CreateAsync(CreateProjectDto dto);
+    Task UpdateAsync(int id, UpdateProjectDto dto);
+    Task DeleteAsync(int id);
+    Task AddMemberAsync(int projectId, int userId);
+    Task RemoveMemberAsync(int projectId, int userId);
+}
+
+public interface IRoleService
+{
+    Task<IEnumerable<RoleDto>> GetAllAsync();
+    Task<RoleDto?> GetByIdAsync(int id);
+    Task<RoleDto> CreateAsync(CreateRoleDto dto);
+    Task UpdateAsync(int id, UpdateRoleDto dto);
+    Task DeleteAsync(int id);
+    Task AssignPermissionAsync(int roleId, int permissionId);
+    Task RevokePermissionAsync(int roleId, int permissionId);
+}

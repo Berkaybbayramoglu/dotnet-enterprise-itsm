@@ -1,1 +1,1 @@
-e 2csXhrsrc/ItsTool.Web/Program.cs
+e 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js

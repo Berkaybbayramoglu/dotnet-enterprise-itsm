@@ -1,4 +1,5 @@
-­
+?
+roslynCS8602)Dereference of a possibly null reference.(0­
 roslynCA1854=Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method"×Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check. 'ContainsKey' and the indexer both would lookup the key under the hood, so using 'TryGetValue' removes the extra lookup.(0›
 roslynCA1860/Avoid using 'Enumerable.Any()' extension method"ÓPrefer using 'IsEmpty', 'Count' or 'Length' properties whichever available, rather than calling 'Enumerable.Any()'. The intent is clearer and it is more performant than using 'Enumerable.Any()' extension method.(0¾
 roslynCA1861"Avoid constant arrays as arguments"ƒConstant arrays passed as arguments are not reused when called repeatedly, which implies a new array is created each time. Consider extracting them to 'static readonly' fields to improve performance if the passed array is not mutated within the called method.(0Ï

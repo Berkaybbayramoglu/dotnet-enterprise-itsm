@@ -4,7 +4,18 @@ using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Domain.Entities.SLA;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using ItsTool.Application.Constants;
 namespace ItsTool.Infrastructure.Data;
+
+public static class StatusConstants
+{
+    public const string Open = "Açık";
+    public const string InProgress = "Devam Ediyor";
+    public const string OnHold = "Beklemede";
+    public const string Resolved = "Çözüldü";
+    public const string Closed = "Kapatıldı";
+}
+
 
 public class DataSeeder
 {
@@ -16,8 +27,23 @@ public class DataSeeder
     }
 
     public async Task SeedAsync()
+    {        await SeedTicketTypesAsync();
+        await SeedStatusesAsync();
+        await SeedPrioritiesAsync();
+        await SeedDepartmentsAndGroupsAsync();
+        await SeedRolesAndPermissionsAsync();
+        await SeedUsersAsync();
+        await SeedProjectsAndCategoriesAsync();
+        await SeedDynamicFieldsAsync();
+        await SeedSlaPoliciesAsync();
+        await SeedWorkflowTransitionsAsync();
+        await SeedKnowledgeBaseAsync();
+
+    }
+
+    private async Task SeedTicketTypesAsync()
     {
-        // 1. Ticket Types
+        // Ticket Types
         if (!await _context.TicketTypes.AnyAsync())
         {
             _context.TicketTypes.AddRange(
@@ -25,20 +51,26 @@ public class DataSeeder
                 new TicketType { Name = "Service Request" }
             );
         }
+    }
 
-        // 2. Statuses
+    private async Task SeedStatusesAsync()
+    {
+        // Statuses
         if (!await _context.Statuses.AnyAsync())
         {
             _context.Statuses.AddRange(
-                new Status { Name = "Açık", SortOrder = 1, IsSystemDefault = true },
-                new Status { Name = "Devam Ediyor", SortOrder = 2 },
-                new Status { Name = "Beklemede", SortOrder = 3, PausesSla = true },
-                new Status { Name = "Çözüldü", SortOrder = 4, IsClosedStatus = true },
-                new Status { Name = "Kapatıldı", SortOrder = 5, IsClosedStatus = true }
+                new Status { Name = StatusConstants.Open, SortOrder = 1, IsSystemDefault = true },
+                new Status { Name = StatusConstants.InProgress, SortOrder = 2 },
+                new Status { Name = StatusConstants.OnHold, SortOrder = 3, PausesSla = true },
+                new Status { Name = StatusConstants.Resolved, SortOrder = 4, IsClosedStatus = true },
+                new Status { Name = StatusConstants.Closed, SortOrder = 5, IsClosedStatus = true }
             );
         }
+    }
 
-        // 3. Priorities
+    private async Task SeedPrioritiesAsync()
+    {
+        // Priorities
         if (!await _context.Priorities.AnyAsync())
         {
             _context.Priorities.AddRange(
@@ -48,8 +80,11 @@ public class DataSeeder
                 new Priority { Name = "Düşük", Weight = 25, SeverityLevel = 4 }
             );
         }
+    }
 
-        // 4. Departments
+    private async Task SeedDepartmentsAndGroupsAsync()
+    {
+        // Departments
         if (!await _context.Departments.AnyAsync())
         {
             _context.Departments.AddRange(
@@ -60,8 +95,7 @@ public class DataSeeder
         await _context.SaveChangesAsync();
 
         var itDept = await _context.Departments.FirstOrDefaultAsync(d => d.Name == "Bilgi Teknolojileri");
-
-        // 5. Groups
+        // Groups
         if (!await _context.Groups.AnyAsync() && itDept != null)
         {
             _context.Groups.AddRange(
@@ -72,19 +106,19 @@ public class DataSeeder
             );
             await _context.SaveChangesAsync();
         }
+    }
 
-        // 6. Roles & Permissions Setup
+    private async Task SeedRolesAndPermissionsAsync()
+    {
+        // Roles & Permissions Setup
         var allPermissions = ItsTool.Application.Constants.PermissionConstants.AllPermissions;
         var existingPermissions = await _context.Permissions.ToListAsync();
         
-        foreach (var pKey in allPermissions)
+        var missingPermissions = allPermissions.Where(pKey => !existingPermissions.Any(p => p.Key == pKey)).Select(pKey => new Permission { Name = pKey, Key = pKey }).ToList();
+        if (missingPermissions.Count > 0)
         {
-            if (!existingPermissions.Any(p => p.Key == pKey))
-            {
-                var p = new Permission { Name = pKey, Key = pKey };
-                _context.Permissions.Add(p);
-                existingPermissions.Add(p);
-            }
+            _context.Permissions.AddRange(missingPermissions);
+            existingPermissions.AddRange(missingPermissions);
         }
         await _context.SaveChangesAsync();
 
@@ -92,7 +126,7 @@ public class DataSeeder
         {
             { "SuperAdmin", allPermissions.ToArray() },
             { "Manager", new[] { "report.view", "audit.view", "ticket.view", "ticket.assign", "kb.manage" } },
-            { "Agent", new[] { "ticket.view", "ticket.edit", "ticket.resolve", "ticket.comment", "kb.view" } },
+            { "Agent", new[] { "ticket.view", PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "kb.view" } },
             { "EndUser", new[] { "ticket.create", "ticket.view", "survey.submit", "kb.view" } }
         };
 
@@ -119,8 +153,14 @@ public class DataSeeder
             }
         }
         await _context.SaveChangesAsync();
+    }
 
-        // 7. Users
+    private async Task SeedUsersAsync()
+    {
+        var itDept = await _context.Departments.FirstOrDefaultAsync(d => d.Name == "Bilgi Teknolojileri");
+        var existingRoles = await _context.Roles.ToListAsync();
+        var existingPermissions = await _context.Permissions.ToListAsync();
+        // Users
         var usersToSeed = new List<(string Username, string Password, string Role, string FirstName, string LastName)>
         {
             ("admin", "Admin123!", "SuperAdmin", "System", "Admin"),
@@ -161,7 +201,7 @@ public class DataSeeder
 
                 if (u.Username == "agent2")
                 {
-                    var closePerm = existingPermissions.First(p => p.Key == "ticket.close");
+                    var closePerm = existingPermissions.First(p => p.Key == PermissionConstants.TicketClose);
                     if (!user.PermissionOverrides.Any(po => po.PermissionId == closePerm.Id))
                     {
                         _context.UserPermissionOverrides.Add(new UserPermissionOverride
@@ -175,8 +215,11 @@ public class DataSeeder
             }
         }
         await _context.SaveChangesAsync();
+    }
 
-        // 9. 5 Adet Default Proje (Doküman Madde 3.3)
+    private async Task SeedProjectsAndCategoriesAsync()
+    {
+        // 5 Adet Default Proje (Doküman Madde 3.3)
         if (!await _context.Projects.AnyAsync())
         {
             _context.Projects.AddRange(
@@ -188,8 +231,7 @@ public class DataSeeder
             );
             await _context.SaveChangesAsync();
         }
-
-        // 10. Default Categories for ITS project
+        // Default Categories for ITS project
         var itsProject = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectKey == "ITS");
         if (!await _context.Categories.AnyAsync() && itsProject != null)
         {
@@ -200,8 +242,12 @@ public class DataSeeder
             );
             await _context.SaveChangesAsync();
         }
+    }
 
-        // 11. Dynamic Fields Demo
+    private async Task SeedDynamicFieldsAsync()
+    {
+        var itsProject = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectKey == "ITS");
+        // Dynamic Fields Demo
         if (!await _context.FieldDefinitions.AnyAsync())
         {
             var serverNameField = new ItsTool.Domain.Entities.Config.FieldDefinition { Key = "sunucu_adi", Label = "Sunucu Adı", FieldType = ItsTool.Domain.Entities.Config.FieldType.Text };
@@ -219,8 +265,11 @@ public class DataSeeder
                 await _context.SaveChangesAsync();
             }
         }
+    }
 
-        // 12. SLA Seed Data
+    private async Task SeedSlaPoliciesAsync()
+    {
+        // SLA Seed Data
         if (!await _context.SlaPolicies.AnyAsync())
         {
             var policy = new SlaPolicy { Name = "Default SLA Policy", Description = "Varsayılan hizmet seviyesi sözleşmesi" };
@@ -257,7 +306,11 @@ public class DataSeeder
 
             await _context.SaveChangesAsync();
         }
-        // 13. Default Workflow & Transitions
+    }
+
+    private async Task SeedWorkflowTransitionsAsync()
+    {
+        // Default Workflow & Transitions
         var defaultWorkflow = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
         if (defaultWorkflow == null)
         {
@@ -271,11 +324,11 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-            var openStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Açık");
-            var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Devam Ediyor");
-            var onHoldStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Beklemede");
-            var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Çözüldü");
-            var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Kapatıldı");
+            var openStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Open);
+            var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.InProgress);
+            var onHoldStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.OnHold);
+            var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Resolved);
+            var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Closed);
 
         if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
         {
@@ -284,32 +337,32 @@ public class DataSeeder
                 // Open -> {InProgress,Pending,Resolved,Closed}
                 new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Start Progress" },
                 new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Put on Hold" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = "ticket.resolve" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = "ticket.close" },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = PermissionConstants.TicketClose },
 
                 // In Progress -> {Open,Pending,Resolved,Closed}
                 new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Move to Open" },
                 new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Put on Hold" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = "ticket.resolve" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = "ticket.close" },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = PermissionConstants.TicketClose },
 
                 // Pending (On Hold) -> {Open,InProgress,Resolved,Closed}
                 new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Move to Open" },
                 new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Resume Progress" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = "ticket.resolve" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = "ticket.close" },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = PermissionConstants.TicketClose },
 
                 // Resolved -> {Open,InProgress,Pending,Closed}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = "ticket.reopen" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = "ticket.reopen" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = "ticket.reopen" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = "ticket.close" },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = PermissionConstants.TicketReopen },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = PermissionConstants.TicketReopen },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = PermissionConstants.TicketReopen },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = "Close", RequiredPermissionKey = PermissionConstants.TicketClose },
 
                 // Closed -> {Open,InProgress,Pending,Resolved}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = "ticket.reopen" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = "ticket.reopen" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = "ticket.reopen" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Reopen to Resolved", RequiredPermissionKey = "ticket.reopen" }
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = PermissionConstants.TicketReopen },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = PermissionConstants.TicketReopen },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = PermissionConstants.TicketReopen },
+                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Reopen to Resolved", RequiredPermissionKey = PermissionConstants.TicketReopen }
             };
 
             var currentTransitions = await _context.WorkflowTransitions
@@ -328,7 +381,7 @@ public class DataSeeder
         }
 
         var existingTransitions = await _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToListAsync();
-        if (existingTransitions.Any())
+        if (existingTransitions.Count > 0)
         {
 
             foreach (var et in existingTransitions)
@@ -336,7 +389,7 @@ public class DataSeeder
                 if ((et.FromStatusId == resolvedStatus?.Id || et.FromStatusId == closedStatus?.Id) && et.ToStatusId == inProgressStatus?.Id)
                 {
                     et.TransitionName = "Reopen";
-                    et.RequiredPermissionKey = "ticket.reopen";
+                    et.RequiredPermissionKey = PermissionConstants.TicketReopen;
                 }
                 else
                 {
@@ -345,8 +398,11 @@ public class DataSeeder
             }
             await _context.SaveChangesAsync();
         }
+    }
 
-        // 14. Knowledge Base Categories & Articles
+    private async Task SeedKnowledgeBaseAsync()
+    {
+        // Knowledge Base Categories & Articles
         if (!await _context.KnowledgeCategories.AnyAsync())
         {
             _context.KnowledgeCategories.AddRange(
@@ -413,4 +469,5 @@ public class DataSeeder
             }
         }
     }
+
 }

@@ -1,34 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Infrastructure.Services;
+using Moq;
+using Xunit;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.UnitTests.Services;
 
-public interface ICatalogService
+public class ReportServiceTests : TestBase
 {
-    // Category
-    Task<IEnumerable<CategoryDto>> GetCategoriesAsync(int? projectId = null);
-    Task<CategoryDto?> GetCategoryByIdAsync(int id);
-    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
-    Task UpdateCategoryAsync(int id, UpdateCategoryDto dto);
-    Task DeleteCategoryAsync(int id);
+    private readonly ReportService _reportService;
+    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
 
-    // TicketType
-    Task<IEnumerable<TicketTypeDto>> GetTicketTypesAsync();
-    Task<TicketTypeDto?> GetTicketTypeByIdAsync(int id);
-    Task<TicketTypeDto> CreateTicketTypeAsync(CreateTicketTypeDto dto);
-    Task UpdateTicketTypeAsync(int id, UpdateTicketTypeDto dto);
-    Task DeleteTicketTypeAsync(int id);
+    public ReportServiceTests() : base()
+    {
+        _mockPermCalculator = new Mock<IPermissionCalculator>();
+        _reportService = new ReportService(_context, _mockPermCalculator.Object);
+    }
 
-    // Status
-    Task<IEnumerable<StatusDto>> GetStatusesAsync();
-    Task<StatusDto?> GetStatusByIdAsync(int id);
-    Task<StatusDto> CreateStatusAsync(CreateStatusDto dto);
-    Task UpdateStatusAsync(int id, UpdateStatusDto dto);
-    Task DeleteStatusAsync(int id);
+    [Fact]
+    public async Task ExportTicketsToCsvAsync_ShouldReturnFilteredCsvStream()
+    {
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
 
-    // Priority
-    Task<IEnumerable<PriorityDto>> GetPrioritiesAsync();
-    Task<PriorityDto?> GetPriorityByIdAsync(int id);
-    Task<PriorityDto> CreatePriorityAsync(CreatePriorityDto dto);
-    Task UpdatePriorityAsync(int id, UpdatePriorityDto dto);
-    Task DeletePriorityAsync(int id);
+        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
+        _context.Statuses.Add(openStatus);
+        
+        var project = new ItsTool.Domain.Entities.Project.Project { Name = "TestProj", ProjectKey = "TP" };
+        _context.Projects.Add(project);
+        
+        await _context.SaveChangesAsync();
+
+        var category = new ItsTool.Domain.Entities.Ticket.Category { Name = "Cat" };
+        var type = new ItsTool.Domain.Entities.Ticket.TicketType { Name = "Type" };
+        var priority = new ItsTool.Domain.Entities.Ticket.Priority { Name = "High", SeverityLevel = 1 };
+        var user = new ItsTool.Domain.Entities.Organization.User { Email = "u@u.com", FirstName = "F", LastName = "L", PasswordHash = "x" };
+        _context.Categories.Add(category);
+        _context.TicketTypes.Add(type);
+        _context.Priorities.Add(priority);
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        _context.Tickets.Add(new Ticket { TicketNumber = "TP-1", Title = "Title 1", Description = "", StatusId = openStatus.Id, ProjectId = project.Id, CategoryId = category.Id, TypeId = type.Id, PriorityId = priority.Id, RequesterUserId = user.Id });
+        _context.Tickets.Add(new Ticket { TicketNumber = "TP-2", Title = "Another", Description = "", StatusId = openStatus.Id, ProjectId = project.Id, CategoryId = category.Id, TypeId = type.Id, PriorityId = priority.Id, RequesterUserId = user.Id });
+        await _context.SaveChangesAsync();
+
+        var filter = new TicketSearchFilterDto { Keyword = "title" }; // Should match TP-1 only
+        
+        var stream = await _reportService.ExportTicketsToCsvAsync(filter, 1);
+        stream.Position = 0;
+        using var reader = new StreamReader(stream);
+        var csvContent = await reader.ReadToEndAsync();
+        
+        Console.WriteLine("CSV Content:");
+        Console.WriteLine(csvContent);
+        
+        Assert.Contains("TP-1", csvContent);
+        Assert.DoesNotContain("TP-2", csvContent); // Did not match keyword
+    }
 }

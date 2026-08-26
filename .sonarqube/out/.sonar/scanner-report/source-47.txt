@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
+using ItsTool.Application.Interfaces;
 using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,117 +12,110 @@ using Microsoft.EntityFrameworkCore;
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/audit-log")]
-[Authorize(Policy = "RequirePermission:audit.view")]
-public class AuditLogController : ControllerBase
+[Route("api/rules/assignment")]
+[Authorize(Policy = "RequirePermission:config.manage")]
+public class AssignmentRuleController : ControllerBase
 {
     private readonly ItsToolDbContext _context;
+    private readonly ISystemAuditService _auditService;
 
-    public AuditLogController(ItsToolDbContext context)
+    public AssignmentRuleController(ItsToolDbContext context, ISystemAuditService auditService)
     {
         _context = context;
+        _auditService = auditService;
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(PaginatedAuditLogDto), 200)]
-    public async Task<IActionResult> GetAuditLogs([FromQuery] AuditLogFilterDto filter)
+    [ProducesResponseType(typeof(IEnumerable<AssignmentRuleDto>), 200)]
+    public async Task<IActionResult> GetRules()
     {
-        var ticketQuery = _context.TicketHistories.AsQueryable();
-        var systemQuery = _context.SystemAuditLogs.AsQueryable();
-        
-        bool isTicketFiltered = false;
-
-        if (!string.IsNullOrEmpty(filter.Ticket))
-        {
-            var ticketStr = filter.Ticket.Trim().ToUpper();
-            if (ticketStr.StartsWith("ITS-"))
-            {
-                if (int.TryParse(ticketStr.Substring(4), out int parsedId))
-                {
-                    ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
-                    isTicketFiltered = true;
-                }
-            }
-            else if (int.TryParse(ticketStr, out int parsedId))
-            {
-                ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
-                isTicketFiltered = true;
-            }
-        }
-
-        if (!string.IsNullOrEmpty(filter.Action))
-        {
-            ticketQuery = ticketQuery.Where(h => h.Action == filter.Action);
-            systemQuery = systemQuery.Where(h => h.Action == filter.Action);
-        }
-
-        if (filter.UserId.HasValue)
-        {
-            var userIdStr = filter.UserId.Value.ToString();
-            ticketQuery = ticketQuery.Where(h => h.CreatedBy == userIdStr);
-            systemQuery = systemQuery.Where(h => h.CreatedBy == userIdStr);
-        }
-
-        if (filter.FromDate.HasValue)
-        {
-            ticketQuery = ticketQuery.Where(h => h.CreatedAt >= filter.FromDate.Value);
-            systemQuery = systemQuery.Where(h => h.CreatedAt >= filter.FromDate.Value);
-        }
-
-        if (filter.ToDate.HasValue)
-        {
-            ticketQuery = ticketQuery.Where(h => h.CreatedAt <= filter.ToDate.Value);
-            systemQuery = systemQuery.Where(h => h.CreatedAt <= filter.ToDate.Value);
-        }
-
-        var ticketCount = await ticketQuery.CountAsync();
-        var systemCount = isTicketFiltered ? 0 : await systemQuery.CountAsync();
-        var totalCount = ticketCount + systemCount;
-
-        var ticketItems = await ticketQuery
-            .OrderByDescending(h => h.CreatedAt)
-            .Take(filter.PageSize * filter.Page)
-            .Select(h => new AuditLogItemDto(
-                h.Id,
-                h.TicketId,
-                h.Action,
-                h.FieldName,
-                h.OldValue,
-                h.NewValue,
-                h.CreatedBy ?? "system",
-                h.CreatedAt,
-                null,
-                null
-            ))
+        var rules = await _context.AssignmentRules
+            .Where(r => !r.IsDeleted)
+            .OrderBy(r => r.SortOrder)
             .ToListAsync();
+            
+        var dtos = rules.Select(r => new AssignmentRuleDto(
+            r.Id, r.Name, r.ProjectId, r.CategoryId, r.TicketTypeId, r.PriorityId, r.TargetGroupId, r.TargetUserId, r.SortOrder, r.IsActive));
+            
+        return Ok(dtos);
+    }
 
-        var systemItems = new System.Collections.Generic.List<AuditLogItemDto>();
-        if (!isTicketFiltered)
+    [HttpPost]
+    [ProducesResponseType(typeof(AssignmentRuleDto), 201)]
+    public async Task<IActionResult> CreateRule([FromBody] CreateAssignmentRuleDto dto)
+    {
+        var rule = new AssignmentRule
         {
-            systemItems = await systemQuery
-                .OrderByDescending(h => h.CreatedAt)
-                .Take(filter.PageSize * filter.Page)
-                .Select(h => new AuditLogItemDto(
-                    h.Id,
-                    null,
-                    h.Action,
-                    h.FieldName ?? "",
-                    h.OldValue,
-                    h.NewValue,
-                    h.CreatedBy ?? "system",
-                    h.CreatedAt,
-                    h.EntityName,
-                    h.EntityId
-                ))
-                .ToListAsync();
-        }
+            Name = dto.Name,
+            ProjectId = dto.ProjectId,
+            CategoryId = dto.CategoryId,
+            TicketTypeId = dto.TicketTypeId,
+            PriorityId = dto.PriorityId,
+            TargetGroupId = dto.TargetGroupId,
+            TargetUserId = dto.TargetUserId,
+            SortOrder = dto.SortOrder,
+            IsActive = dto.IsActive
+        };
+        
+        _context.AssignmentRules.Add(rule);
+        await _context.SaveChangesAsync();
+        
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Created", "Rule", null, rule.Name);
 
-        var items = ticketItems.Concat(systemItems)
-            .OrderByDescending(h => h.CreatedAt)
-            .Skip((filter.Page - 1) * filter.PageSize)
-            .Take(filter.PageSize)
-            .ToList();
+        var responseDto = new AssignmentRuleDto(
+            rule.Id, rule.Name, rule.ProjectId, rule.CategoryId, rule.TicketTypeId, rule.PriorityId, rule.TargetGroupId, rule.TargetUserId, rule.SortOrder, rule.IsActive);
+            
+        return CreatedAtAction(nameof(GetRules), new { id = rule.Id }, responseDto);
+    }
 
-        return Ok(new PaginatedAuditLogDto(items, totalCount, filter.Page, filter.PageSize));
+    [HttpPut("{id}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> UpdateRule(int id, [FromBody] UpdateAssignmentRuleDto dto)
+    {
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+        
+        rule.Name = dto.Name;
+        rule.ProjectId = dto.ProjectId;
+        rule.CategoryId = dto.CategoryId;
+        rule.TicketTypeId = dto.TicketTypeId;
+        rule.PriorityId = dto.PriorityId;
+        rule.TargetGroupId = dto.TargetGroupId;
+        rule.TargetUserId = dto.TargetUserId;
+        rule.SortOrder = dto.SortOrder;
+        rule.IsActive = dto.IsActive;
+        
+        await _context.SaveChangesAsync();
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Updated", "Rule", null, rule.Name);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> DeleteRule(int id)
+    {
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+        
+        rule.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Deleted", "Rule", rule.Name, null);
+        return NoContent();
+    }
+
+    [HttpPut("{id}/toggle")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> ToggleRule(int id)
+    {
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+
+        var oldStatus = rule.IsActive.ToString();
+        rule.IsActive = !rule.IsActive;
+        var newStatus = rule.IsActive.ToString();
+
+        await _context.SaveChangesAsync();
+        await _auditService.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", oldStatus, newStatus);
+        return NoContent();
     }
 }

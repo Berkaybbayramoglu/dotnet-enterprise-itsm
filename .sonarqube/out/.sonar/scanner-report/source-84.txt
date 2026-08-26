@@ -3,31 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Users</title>
+    <title>ITSM Tool - Assignment Rules</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
         .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
-        .role-list { margin-top: 8px; font-size: 13px; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
-        .role-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }
-        .role-item:last-child { border-bottom: none; }
-        .avatar-upload { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-        .avatar-preview { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background-color: var(--bg-body); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 24px; color: var(--text-muted); font-weight: bold; }
-        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .mini-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background-color: var(--primary); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; margin-right: 8px; vertical-align: middle; }
+        
+
     </style>
 </head>
 <body>
-
-    <script>
-        window.addEventListener('error', function(e) {
-            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">ERROR: ' + e.message + '</div>';
-        });
-        window.addEventListener('unhandledrejection', function(e) {
-            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">PROMISE ERROR: ' + e.reason + '</div>';
-        });
-    </script>
-
     <div class="app-shell">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <aside class="sidebar">
@@ -89,7 +74,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Users Management</h2>
+                    <h2>Assignment Rules</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="avatar">U</div>
@@ -100,23 +85,27 @@
             <div class="content-area">
                 <div class="admin-header">
                     <div>
-                        <h3 style="margin:0; font-size: 18px;">Users</h3>
-                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage system users and access.</p>
+                        <h3 style="margin:0; font-size: 18px;">Auto-Assignment Rules</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage rules for automatically assigning incoming tickets.</p>
                     </div>
-                    <button type="button" class="btn btn-primary" data-action="openUserModal">
-                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New User
+                    <button type="button" class="btn btn-primary" id="btnCreateRuleModal">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Create New Rule
                     </button>
                 </div>
 
                 <div class="table-container">
-                    <table class="table" id="dataTable">
+                    <table class="table" id="rulesTable">
                         <thead>
                             <tr>
+                                <th style="width: 80px;">Sort</th>
                                 <th>Name</th>
-                                <th>Username</th>
-                                <th>Email</th>
+                                <th>Project</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Target Group</th>
+                                <th>Target User</th>
                                 <th>Status</th>
-                                <th style="width: 150px;">Actions</th>
+                                <th style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,171 +117,136 @@
         </main>
     </div>
 
-    <!-- Create/Edit Modal -->
-    <div id="userModal" class="modal-overlay">
+    <!-- Rule Modal (Create/Edit) -->
+    <div id="createModal" class="modal-overlay">
         <div class="modal">
-            <form id="userForm">
-                <input type="hidden" id="uId">
+            <form id="createForm">
                 <div class="modal-header">
-                    <h2 id="modalTitle">User</h2>
-                    <button type="button" class="close-btn" data-action="closeModal" data-target="userModal" aria-label="Close">
+                    <h2 id="ruleModalTitle">Create Assignment Rule</h2>
+                    <button type="button" class="close-btn" onclick="closeModal('createModal')" aria-label="Close">
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="avatar-upload">
-                        <div class="avatar-preview" id="uAvatarPreview">
-                            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        </div>
-                        <div>
-                            <label class="btn btn-secondary" for="uAvatarFile" style="cursor: pointer; padding: 6px 12px; font-size: 13px;">Upload Photo</label>
-                            <input type="file" id="uAvatarFile" accept="image/*" style="display: none;">
-                            <input type="hidden" id="uProfilePhotoBase64">
-                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Max 200x200 (Auto-resized)</div>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div class="form-group">
-                            <label class="form-label" for="uFirst">First Name *</label>
-                            <input type="text" id="uFirst" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="uLast">Last Name *</label>
-                            <input type="text" id="uLast" class="form-control" required>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rName" for="rName">Rule Name *</label>
+                        <input id="rName" class="form-control" required placeholder="e.g. VIP Incident Routing">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="uUsername">Username *</label>
-                        <input type="text" id="uUsername" class="form-control" required>
+                        <label class="form-label" for="rSort" for="rSort">Sort Order</label>
+                        <input id="rSort" class="form-control" value="10" required>
+                        <small class="text-muted" style="display:block; margin-top: 4px;">Lower numbers execute first.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="uEmail">Email *</label>
-                        <input type="email" id="uEmail" class="form-control" required>
+                        <label class="form-label" for="rProject" for="rProject">Project</label>
+                        <select id="rProject" class="form-control"><option value="">-- Any --</option></select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="uPassword">Password</label>
-                        <input type="password" id="uPassword" class="form-control" placeholder="Leave blank to keep existing (if edit)">
+                        <label class="form-label" for="rCategory" for="rCategory">Category</label>
+                        <select id="rCategory" class="form-control"><option value="">-- Any --</option></select>
                     </div>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="uActive" checked>
-                        <label class="form-label" for="uActive" style="margin: 0;">Is Active</label>
+                    <div class="form-group">
+                        <label class="form-label" for="rType" for="rType">Type</label>
+                        <select id="rType" class="form-control"><option value="">-- Any --</option></select>
+                    </div>
+                    <div class="form-group" style="margin-top: var(--spacing-md); border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+                        <label class="form-label" for="rGroup" for="rGroup">Target Group</label>
+                        <select id="rGroup" class="form-control"><option value="">-- Unassigned --</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rUser" for="rUser">Target User</label>
+                        <select id="rUser" class="form-control"><option value="">-- Unassigned --</option></select>
+                    </div>
+                    <div class="form-group" style="margin-top: var(--spacing-md);">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="rActive" checked>
+                            <span>Is Active</span>
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="userModal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('createModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitRule">Create Rule</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Manage Roles Modal -->
-    <div id="rolesModal" class="modal-overlay">
-        <div class="modal" style="width: min(600px, 90%);">
+    <!-- Confirm Delete Modal -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal" style="max-width: 400px;">
             <div class="modal-header">
-                <h2>Manage Roles</h2>
-                <button type="button" class="close-btn" data-action="closeModal" data-target="rolesModal" aria-label="Close">
+                <h2>Confirm Delete</h2>
+                <button type="button" class="close-btn" onclick="closeModal('confirmModal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
             <div class="modal-body">
-                <p class="text-muted" style="margin-top:0;">User: <strong id="rUserName"></strong></p>
-                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    <select id="roleSelect" class="form-control" style="flex: 1;">
-                        <!-- populated by JS -->
-                    </select>
-                    <button type="button" class="btn btn-secondary" id="btnAssignRole">Assign Role</button>
-                </div>
-                
-                <h4>Current Roles</h4>
-                <div class="role-list" id="roleList">
-                    <!-- populated by JS -->
-                </div>
+                <p>Are you sure you want to delete this assignment rule? Tickets will no longer be routed automatically.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
             </div>
         </div>
     </div>
-
-    <!-- Manage Overrides Modal -->
-    <div id="overridesModal" class="modal-overlay">
-        <div class="modal" style="width: min(800px, 90%);">
-            <div class="modal-header">
-                <h2>Manage Permission Overrides</h2>
-                <button type="button" class="close-btn" data-action="closeModal" data-target="overridesModal" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted" style="margin-top:0;">User: <strong id="oUserName"></strong></p>
-                <div class="perm-list" id="overrideList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 400px; padding: 12px; border-radius: 8px;">
-                    <!-- populated by JS -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    
 
     <script type="module">
-        import './js/api.js?v=2';
-        import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
+        import './js/api.js';
+        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-action]');
-            if (!btn) return;
-            const action = btn.getAttribute('data-action');
-            const target = btn.getAttribute('data-target');
-            const idAttr = btn.getAttribute('data-id');
-            const flagAttr = btn.getAttribute('data-flag');
-            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
-            const flag = flagAttr ? (flagAttr === 'true') : undefined;
-            
-            if (action === 'closeModal' && target) {
-                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
-            } else if (typeof window[action] === 'function') {
-                if (flag !== undefined) window[action](id, flag);
-                else window[action](id);
-            }
-        });
+        let ruleToDelete = null;
+        let ruleToEdit = null;
+        let lookupData = {};
+        let rulesList = [];
 
+        window.openModal = openModal;
+        window.closeModal = closeModal;
 
-        let currentData = [];
-        let allRoles = [];
-        let allPermissions = [];
-        let itemToDelete = null;
-        let activeUserId = null;
-
-        window.loadData = async function() {
+        async function loadRules() {
             try {
-                currentData = await window.api.getUsers();
-                allRoles = await window.api.getRoles();
-                try { allPermissions = await window.api.getPermissions(); } catch (e) { console.error('Failed to load perms', e); }
-                const tbody = document.querySelector('#dataTable tbody');
+                const rules = await window.api.getAssignmentRules();
+                rulesList = rules;
+                const tbody = document.querySelector('#rulesTable tbody');
                 tbody.innerHTML = '';
                 
-                if (currentData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No users found.</td></tr>`;
+                if (rules.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No assignment rules found.</td></tr>`;
                     return;
                 }
 
-                currentData.forEach(item => {
+                rules.forEach(r => {
                     const tr = document.createElement('tr');
-                    const badge = item.isActive ? `<span class="badge badge-success" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="false">Active</span>` : `<span class="badge badge-default" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="true">Inactive</span>`;
+                    
+                    const statusBadge = r.isActive 
+                        ? `<span class="badge badge-success btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to disable">Active</span>`
+                        : `<span class="badge badge-default btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to enable">Inactive</span>`;
+                    
+                    const projName = lookupData.projects?.find(x => x.id === r.projectId)?.name || 'Herhangi';
+                    const catName = lookupData.categories?.find(x => x.id === r.categoryId)?.name || 'Herhangi';
+                    const typeName = lookupData.ticketTypes?.find(x => x.id === r.ticketTypeId)?.name || 'Herhangi';
+                    const groupName = lookupData.groups?.find(x => x.id === r.targetGroupId)?.name || '—';
+                    const userName = lookupData.users?.find(x => x.id === r.targetUserId)?.username || '—';
+
                     tr.innerHTML = `
-                        <td style="font-weight: 500;">
-                            ${item.profilePhoto ? `<img src="${item.profilePhoto}" class="mini-avatar" alt="Avatar">` : `<div class="mini-avatar">${item.firstName.charAt(0).toUpperCase()}</div>`}
-                            ${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}
-                        </td>
-                        <td>${escapeHtml(item.username)}</td>
-                        <td class="text-muted">${escapeHtml(item.email)}</td>
-                        <td>${badge}</td>
+                        <td style="font-family: monospace;">${r.sortOrder}</td>
+                        <td style="font-weight: 500;">${escapeHtml(r.name)}</td>
+                        <td class="text-muted">${escapeHtml(projName)}</td>
+                        <td class="text-muted">${escapeHtml(catName)}</td>
+                        <td class="text-muted">${escapeHtml(typeName)}</td>
+                        <td class="text-muted">${escapeHtml(groupName)}</td>
+                        <td class="text-muted">${escapeHtml(userName)}</td>
+                        <td>${statusBadge}</td>
                         <td>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">Roles</button>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">Overrides</button>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">Edit</button>
-                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
+                            <button type="button" class="btn btn-ghost btn-edit" style="color: var(--primary); padding: 4px 8px;" data-id="${r.id}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
+                            <button type="button" class="btn btn-ghost btn-delete" style="color: var(--danger); padding: 4px 8px;" data-id="${r.id}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            </button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -308,243 +262,144 @@
                 }
 
                 console.error(err);
-                showToast('Error loading users', 'error');
+                showToast('Error loading rules', 'error');
             }
-        };
+        }
 
-        window.toggleUserStatus = async function(id, newStatus) {
-            const item = currentData.find(x => x.id === id);
-            if (!item) return;
-            try {
-                await window.api.updateUser(id, {
-                    firstName: item.firstName,
-                    lastName: item.lastName,
-                    email: item.email,
-                    departmentId: item.departmentId,
-                    isActive: newStatus,
-                    profilePhoto: item.profilePhoto
-                });
-                showToast('User status updated');
-                loadData();
-            } catch(e) { 
-                showToast('Failed to update status', 'error'); 
-            }
-        };
-
-        window.openUserModal = function(id = null) {
-            const form = document.getElementById('userForm');
-            form.reset();
-            document.getElementById('uId').value = id || '';
-            document.getElementById('modalTitle').textContent = id ? 'Edit User' : 'New User';
+        document.querySelector('#rulesTable tbody').addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.btn-delete');
+            const editBtn = e.target.closest('.btn-edit');
+            const toggleBtn = e.target.closest('.btn-toggle');
             
-            if (id) {
-                const item = currentData.find(x => x.id === id);
-                if (item) {
-                    document.getElementById('uFirst').value = item.firstName;
-                    document.getElementById('uLast').value = item.lastName;
-                    document.getElementById('uUsername').value = item.username;
-                    document.getElementById('uEmail').value = item.email;
-                    document.getElementById('uActive').checked = item.isActive;
-                    document.getElementById('uProfilePhotoBase64').value = item.profilePhoto || '';
-                    if (item.profilePhoto) {
-                        document.getElementById('uAvatarPreview').innerHTML = `<img src="${item.profilePhoto}">`;
-                    } else {
-                        document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-                    }
+            if (deleteBtn) {
+                ruleToDelete = Number.parseInt(deleteBtn.dataset.id);
+                openModal('confirmModal');
+            } else if (editBtn) {
+                ruleToEdit = Number.parseInt(editBtn.dataset.id);
+                const r = rulesList.find(x => x.id === ruleToEdit);
+                if (r) {
+                    document.getElementById('rName').value = r.name;
+                    document.getElementById('rSort').value = r.sortOrder;
+                    document.getElementById('rProject').value = r.projectId || '';
+                    document.getElementById('rCategory').value = r.categoryId || '';
+                    document.getElementById('rType').value = r.ticketTypeId || '';
+                    document.getElementById('rGroup').value = r.targetGroupId || '';
+                    document.getElementById('rUser').value = r.targetUserId || '';
+                    document.getElementById('rActive').checked = r.isActive;
+                    document.getElementById('ruleModalTitle').textContent = 'Edit Assignment Rule';
+                    document.getElementById('btnSubmitRule').textContent = 'Save Changes';
+                    openModal('createModal');
                 }
-                document.getElementById('uPassword').required = false;
-            } else {
-                document.getElementById('uPassword').required = true;
-                document.getElementById('uProfilePhotoBase64').value = '';
-                document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-            }
-            openModal('userModal');
-        };
-
-        window.openRolesModal = function(id) {
-            activeUserId = id;
-            const item = currentData.find(x => x.id === id);
-            if (!item) return;
-            
-            document.getElementById('rUserName').textContent = item.username;
-            
-            // Populate select
-            const select = document.getElementById('roleSelect');
-            select.innerHTML = '<option value="">-- Select Role --</option>';
-            allRoles.forEach(r => {
-                if (!item.roleIds || !item.roleIds.includes(r.id)) {
-                    select.innerHTML += `<option value="${r.id}">${escapeHtml(r.name)}</option>`;
-                }
-            });
-
-            // Populate list
-            const list = document.getElementById('roleList');
-            list.innerHTML = '';
-            if (!item.roleIds || item.roleIds.length === 0) {
-                list.innerHTML = '<div class="text-muted" style="padding: 8px;">No roles assigned.</div>';
-            } else {
-                item.roleIds.forEach(rId => {
-                    const r = allRoles.find(x => x.id === rId);
-                    const label = r ? escapeHtml(r.name) : `Role #${rId}`;
-                    list.innerHTML += `
-                        <div class="role-item">
-                            <span>${label}</span>
-                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" data-action="revokeRole" data-id="${rId}">Revoke</button>
-                        </div>
-                    `;
-                });
-            }
-
-            openModal('rolesModal');
-        };
-
-        window.openOverridesModal = function(id) {
-            activeUserId = id;
-            const item = currentData.find(x => x.id === id);
-            if (!item) return;
-            
-            document.getElementById('oUserName').textContent = item.username;
-
-            const list = document.getElementById('overrideList');
-            list.innerHTML = '';
-            
-            allPermissions.forEach(p => {
-                const overrideValue = item.permissionOverrides ? item.permissionOverrides[p.id] : undefined;
-                const isGranted = overrideValue === true;
-                const isRevoked = overrideValue === false;
-                
-                list.innerHTML += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
-                        <span>${p.key} <small class="text-muted" style="display:block;">${p.name}</small></span>
-                        <div style="display: flex; gap: 4px;">
-                            <button type="button" class="btn ${isGranted ? 'btn-success' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" data-action="setOverride" data-id="${p.id}" data-flag="true">Allow</button>
-                            <button type="button" class="btn ${isRevoked ? 'btn-danger' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" data-action="setOverride" data-id="${p.id}" data-flag="false">Deny</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            openModal('overridesModal');
-        };
-
-        window.setOverride = async function(permId, isGranted) {
-            if (!activeUserId) return;
-            try {
-                await window.api.setPermissionOverride(activeUserId, permId, isGranted);
-                showToast('Override saved');
-                loadData();
-            } catch (err) {
-                showToast('Failed to save override', 'error');
-                loadData();
-            }
-        };
-
-        document.getElementById('btnAssignRole').addEventListener('click', async () => {
-            const roleId = document.getElementById('roleSelect').value;
-            if (!roleId || !activeUserId) return;
-            try {
-                await window.api.assignRole(activeUserId, roleId);
-                showToast('Role assigned');
-                await loadData();
-                window.openRolesModal(activeUserId);
-            } catch (err) {
-                showToast('Failed to assign role', 'error');
-            }
-        });
-
-        window.revokeRole = async function(roleId) {
-            if (!activeUserId) return;
-            try {
-                await window.api.revokeRole(activeUserId, roleId);
-                showToast('Role revoked');
-                await loadData();
-                window.openRolesModal(activeUserId);
-            } catch (err) {
-                showToast('Failed to revoke role', 'error');
-            }
-        };
-
-        window.promptDelete = async function(id) {
-            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
-            if (proceed) {
+            } else if (toggleBtn) {
+                const id = Number.parseInt(toggleBtn.dataset.id);
+                toggleBtn.style.opacity = '0.5';
                 try {
-                    await window.api.deleteUser(id);
-                    showToast('Silme işlemi tamamlandı');
-                    loadData();
-                } catch (e) {
-                    showToast('Silme işlemi başarısız', 'error');
+                    await window.api.toggleAssignmentRule(id);
+                    showToast('Rule status updated');
+                    loadRules();
+                } catch (err) {
+                    console.error(err);
+                    showToast('Failed to toggle rule', 'error');
+                    toggleBtn.style.opacity = '1';
                 }
             }
-        };
-
-        
-
-        document.getElementById('uAvatarFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 200;
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    if (width > height) {
-                        if (width > MAX_SIZE) {
-                            height *= MAX_SIZE / width;
-                            width = MAX_SIZE;
-                        }
-                    } else {
-                        if (height > MAX_SIZE) {
-                            width *= MAX_SIZE / height;
-                            height = MAX_SIZE;
-                        }
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    
-                    document.getElementById('uProfilePhotoBase64').value = dataUrl;
-                    document.getElementById('uAvatarPreview').innerHTML = `<img src="${dataUrl}">`;
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
         });
 
-        document.getElementById('userForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('uId').value;
-            const data = {
-                firstName: document.getElementById('uFirst').value.trim(),
-                lastName: document.getElementById('uLast').value.trim(),
-                username: document.getElementById('uUsername').value.trim(),
-                email: document.getElementById('uEmail').value.trim(),
-                isActive: document.getElementById('uActive').checked,
-                profilePhoto: document.getElementById('uProfilePhotoBase64').value || null
-            };
-            
-            const pwd = document.getElementById('uPassword').value;
-            if (pwd) data.password = pwd; // DTO usually expects password
-            
+        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+            if (!ruleToDelete) return;
             try {
-                if (id) await window.api.updateUser(id, data);
-                else await window.api.createUser(data);
-                
-                closeModal('userModal');
-                showToast('User saved');
-        loadData(); // removed await for resilience
-            } catch (err) {
-                showToast('Failed to save user', 'error');
+                await window.api.deleteAssignmentRule(ruleToDelete);
+                closeModal('confirmModal');
+                showToast('Rule deleted successfully');
+        loadRules(); // removed await for resilience
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to delete rule', 'error');
+            } finally {
+                ruleToDelete = null;
             }
         });
 
-        loadData();
+        document.getElementById('btnCreateRuleModal').addEventListener('click', () => {
+            ruleToEdit = null;
+            document.getElementById('createForm').reset();
+            document.getElementById('ruleModalTitle').textContent = 'Create Assignment Rule';
+            document.getElementById('btnSubmitRule').textContent = 'Create Rule';
+            openModal('createModal');
+        });
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('rName').value.trim(),
+                sortOrder: Number.parseInt(document.getElementById('rSort').value) || 10,
+                isActive: document.getElementById('rActive').checked,
+                projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value) : null,
+                categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value) : null,
+                ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value) : null,
+                targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value) : null,
+                targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value) : null
+            };
+            
+            try {
+                if (ruleToEdit) {
+                    await window.api.updateAssignmentRule(ruleToEdit, payload);
+                    showToast('Rule updated successfully');
+                } else {
+                    await window.api.createAssignmentRule(payload);
+                    showToast('Rule created successfully');
+                }
+                closeModal('createModal');
+                loadRules();
+            } catch (e) {
+                console.error(e);
+                showToast(ruleToEdit ? 'Failed to update rule' : 'Failed to create rule', 'error');
+            }
+        });
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+        async function initRules() {
+            try {
+                lookupData = await window.api.request('/lookup');
+                const usersList = await window.api.getUsers();
+                const groupsList = await window.api.getGroups();
+                lookupData.users = usersList;
+                lookupData.groups = groupsList;
+
+                const populate = (id, arr) => {
+                    const el = document.getElementById(id);
+                    arr.forEach(x => {
+                        const opt = document.createElement('option');
+                        opt.value = x.id; opt.textContent = x.name || x.username || x.id;
+                        el.appendChild(opt);
+                    });
+                };
+                populate('rProject', lookupData.projects || []);
+                populate('rCategory', lookupData.categories || []);
+                populate('rType', lookupData.ticketTypes || []);
+                populate('rGroup', lookupData.groups || []);
+                populate('rUser', lookupData.users || []);
+            } catch(e) {
+                console.error("Failed to load lookups", e);
+            }
+            loadRules();
+        }
+
+        document.addEventListener('DOMContentLoaded', initRules);
     </script>
 </body>
 </html>

@@ -1,62 +1,43 @@
-using System.Linq.Expressions;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Common;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 
 namespace ItsTool.Infrastructure.Data;
 
-public class Repository<T> : IRepository<T> where T : BaseEntity
+public class ItsToolDbContextFactory : IDesignTimeDbContextFactory<ItsToolDbContext>
 {
-    protected readonly ItsToolDbContext _context;
-    protected readonly DbSet<T> _dbSet;
-
-    public Repository(ItsToolDbContext context)
+    public ItsToolDbContext CreateDbContext(string[] args)
     {
-        _context = context;
-        _dbSet = context.Set<T>();
-    }
+        // Get the environment variable or default to Development
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
-    {
-        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
-        if (predicate != null)
+        // Build config reading from the API project
+        var basePath = Path.Combine(Directory.GetCurrentDirectory(), "../ItsTool.API");
+        
+        // If not running from Infrastructure folder (e.g., from solution root), adjust path
+        if (!Directory.Exists(basePath))
         {
-            query = query.Where(predicate);
+            basePath = Path.Combine(Directory.GetCurrentDirectory(), "src/ItsTool.API");
         }
-        return await query.ToListAsync();
-    }
+        
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
 
-    public async Task<T?> GetByIdAsync(int id)
-    {
-        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
-    }
-
-    public async Task<T> AddAsync(T entity)
-    {
-        _dbSet.Add(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task UpdateAsync(T entity)
-    {
-        entity.UpdatedAt = DateTime.UtcNow;
-        _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var entity = await GetByIdAsync(id);
-        if (entity != null)
+        var optionsBuilder = new DbContextOptionsBuilder<ItsToolDbContext>();
+        
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrEmpty(connectionString))
         {
-            entity.IsDeleted = true;
-            entity.DeletedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
-        else
-        {
-            throw new KeyNotFoundException($"{typeof(T).Name} not found");
-        }
+
+        optionsBuilder.UseNpgsql(connectionString);
+
+        return new ItsToolDbContext(optionsBuilder.Options);
     }
 }

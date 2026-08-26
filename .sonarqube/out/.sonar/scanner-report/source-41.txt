@@ -1,13 +1,13 @@
 using ItsTool.Domain.Common;
-using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.Domain.Entities.Ticket;
 
-public class TicketWatcher : BaseEntity
+public class TicketType : BaseEntity
 {
-    public int TicketId { get; set; }
-    public int UserId { get; set; }
-
-    public virtual Ticket? Ticket { get; set; }
-    public virtual User? User { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int ProjectId { get; set; }
+    public string? Description { get; set; }
+    public string? Icon { get; set; }
+    public string? ColorHex { get; set; }
+    public bool IsSystemDefault { get; set; }
 }

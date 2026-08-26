@@ -3,10 +3,10 @@
 python.analysis.threads.actual6
 text.civendor_semaphore0"
 jre_provisioning_disabledfalseS
-Ndotnetenterprise.s4net.build.target_framework_moniker._netcoreapp_version_v8_05*
+Ndotnetenterprise.s4net.build.target_framework_moniker._netcoreapp_version_v8_06*
 %python.packages.build_system.uv_build06
 )dotnetenterprise.s4net.serverInfo.product	SQ_ServerF
-Adotnetenterprise.s4net.build.nuget_project_style.packagereference5%
+Adotnetenterprise.s4net.build.nuget_project_style.packagereference6%
  text.analyzed_hidden_files_count0F
 =javascript.telemetry.typescript.compiler-options.alwaysStrictfalse#
 javascript.runtime.version24.11H
@@ -16,16 +16,16 @@ Adotnetenterprise.s4net.build.nuget_project_style.packagereference5%
 $dotnetenterprise.s4net.begin.runtimenetcore
 text.civendor_travisci0/
 *python.files.main.misclassified_path_based0$
-text.sensor_time_ms_community595
+text.sensor_time_ms_community534
 text.civendor_jenkins0F
 scanner.git_remote_url,git@bitbucket.org:itsm-project/itsm-tool.git2
 -text.secrets.disable_known_fake_secret_filter0
-python.lines.main1544)
+python.lines.main1673)
 $python.test_file_heuristic.triggered1"
 text.pluginVersion2.47.0.119834
 /python.files.main.misclassified_path_based_only0?
 :javascript.telemetry.typescript.program-creation.attempted14
-/dotnetenterprise.s4net.build.deterministic.true5!
+/dotnetenterprise.s4net.build.deterministic.true6!
 iac.pluginVersion2.13.0.219334
 /javascript.telemetry.module-type.esm-file-count0
 python.dependenciesB
@@ -45,7 +45,7 @@ $python.types.names.unresolved_import00
 1python.lines.main.misclassified_import_based_only01
 ,python.lines.main.misclassified_import_based0?
 :javascript.telemetry.typescript.program-creation.succeeded1(
-#csharp.cs.language_version.csharp125
+#csharp.cs.language_version.csharp126
 text.civendor_gitlab0+
 &python.packages.duplicate_without_init0
 python.nosonar.comments;
@@ -57,23 +57,23 @@ $python.types.names.unresolved_import00
 python.files.scanned_with_cache0!
 python.packages.without_init16
 1python.files.main.misclassified_import_based_only0=
-8dotnetenterprise.s4net.build.netcore_sdk_version.8_0_1305
-python.files.count229
+8dotnetenterprise.s4net.build.netcore_sdk_version.8_0_1306
+python.files.count269
 -dotnetenterprise.s4net.scannerEngine.downloadCacheHit
 python.version.set0!
 text.civendor_azurepipelines06
 .javascript.telemetry.typescript.native-previewtrueF
 >javascript.telemetry.typescript.compiler-options.noImplicitAnytrueB
-=dotnetenterprise.s4net.build.override_warnings_as_errors.true5&
+=dotnetenterprise.s4net.build.override_warnings_as_errors.true6&
 !python.packages.build_system.flit0 
 text.civendor_dockercompose0
-python.lines.total1544:
+python.lines.total1673:
 5python.packages.namespace_packages_in_regular_package09
 2dotnetenterprise.s4net.params.sonar_verbose.sourceCLIF
 (javascript.telemetry.typescript.versions6.0.3,7.0.0-dev.20260707.2"
-python.types.symbols.unique136M
+python.types.symbols.unique179M
 Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
-python.files.main.total22;
+python.files.main.total26;
 3dotnetenterprise.s4net.endstep.Sarif.v1_0_0_0.ValidTrue6
 1python.packages.resolved_via_conventional_folders0
 python.analysis.duration1#
@@ -82,15 +82,15 @@ Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
 text.civendor_buildkite0*
 %python.packages.resolved_via_base_dir05
 )javascript.runtime.node-executable-originembedded
-python.types.names.total692*
+python.types.names.total881*
 %python.packages.resolved_via_setup_py0=
 2dotnetenterprise.s4net.scannerEngine.bootstrappingEnabled!
 python.types.imports.unknown0&
 !python.notebook.databricks.python0 
-python.types.imports.total24'
+python.types.imports.total33'
 "python.dependencies.format_version1@
 8javascript.telemetry.typescript.compiler-options.allowJstrue(
-!text.all_tracked_text_files_count202)
+!text.all_tracked_text_files_count238)
 python.importsglob,os,re,requests,sys1
 ,python.files.main.misclassified_import_based0/
 #dotnetenterprise.s4net.jre.downloadCacheHit7
@@ -104,8 +104,8 @@ Djavascript.telemetry.typescript.compiler-options.strictBindCallApplyfalse
 Kjavascript.telemetry.typescript.compiler-options.useUnknownInCatchVariablesfalse+
 &python.packages.build_system.hatchling04
 /python.lines.main.misclassified_path_based_only0 
-text.analyzed_files_count200>
-9dotnetenterprise.s4net.build.using_microsoft_net_sdk.true5
+text.analyzed_files_count237>
+9dotnetenterprise.s4net.build.using_microsoft_net_sdk.true6
 text.civendor_appveyor0
 python.lines.test08
 (javascript.telemetry.ecmascript.versionsnot-detected5
@@ -117,9 +117,9 @@ Kjavascript.telemetry.typescript.compiler-options.useUnknownInCatchVariablesfa
 text.civendor_bamboo0
 python.sonar_tests.set1M
 7dotnetenterprise.s4net.params.sonar_scm_disabled.sourceSQ_SERVER_SETTINGS"
-python.types.symbols.unknown49:
+python.types.symbols.unknown70:
 2dotnetenterprise.s4net.build.visual_studio_version17.0%
  text.civendor_bitbucketpipelines0!
-python.types.names.unknown390(
+python.types.names.unknown493(
 #text.secrets.disable_entropy_filter0U
 Ljavascript.telemetry.typescript.compiler-options.strictBuiltinIteratorReturnfalse

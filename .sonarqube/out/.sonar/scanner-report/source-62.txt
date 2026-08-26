@@ -1,76 +1,92 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/saved-filters")]
-[Authorize]
-public class SavedFilterController : ControllerBase
+[Route("api/[controller]")]
+[Authorize(Policy = "RequirePermission:admin.manage")]
+public class RolesController : ControllerBase
 {
-    private readonly ItsToolDbContext _context;
+    private readonly IRoleService _service;
 
-    public SavedFilterController(ItsToolDbContext context)
+    public RolesController(IRoleService service)
     {
-        _context = context;
-    }
-
-    private int GetCurrentUserId()
-    {
-        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.Parse(idClaim ?? "0");
+        _service = service;
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<SavedFilterDto>), 200)]
-    public async Task<IActionResult> GetMyFilters()
+    [ProducesResponseType(typeof(IEnumerable<RoleDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
     {
-        var userId = GetCurrentUserId();
-        var filters = await _context.SavedFilters
-            .Where(f => f.UserId == userId && !f.IsDeleted)
-            .ToListAsync();
-            
-        return Ok(filters.Select(f => new SavedFilterDto(f.Id, f.UserId, f.Name, f.QueryJson)));
+        return Ok(await _service.GetAllAsync());
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(RoleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var role = await _service.GetByIdAsync(id);
+        if (role == null) return NotFound();
+        return Ok(role);
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(SavedFilterDto), 201)]
-    public async Task<IActionResult> CreateFilter([FromBody] CreateSavedFilterDto dto)
+    [ProducesResponseType(typeof(RoleDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> Create([FromBody] CreateRoleDto dto)
     {
-        var userId = GetCurrentUserId();
-        var filter = new SavedFilter
+        var created = await _service.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto dto)
+    {
+        try
         {
-            UserId = userId,
-            Name = dto.Name,
-            QueryJson = dto.QueryJson
-        };
-        
-        _context.SavedFilters.Add(filter);
-        await _context.SaveChangesAsync();
-        
-        return CreatedAtAction(nameof(GetMyFilters), new { id = filter.Id }, new SavedFilterDto(filter.Id, filter.UserId, filter.Name, filter.QueryJson));
+            await _service.UpdateAsync(id, dto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteFilter(int id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
     {
-        var userId = GetCurrentUserId();
-        var filter = await _context.SavedFilters.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId && !f.IsDeleted);
-        
-        if (filter == null) return NotFound();
-        
-        filter.IsDeleted = true;
-        await _context.SaveChangesAsync();
-        
+        try
+        {
+            await _service.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost("{id}/permissions/{permissionId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> AssignPermission(int id, int permissionId)
+    {
+        await _service.AssignPermissionAsync(id, permissionId);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/permissions/{permissionId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RevokePermission(int id, int permissionId)
+    {
+        await _service.RevokePermissionAsync(id, permissionId);
         return NoContent();
     }
 }

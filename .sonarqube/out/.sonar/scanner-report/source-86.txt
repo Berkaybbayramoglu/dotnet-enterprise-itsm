@@ -3,33 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Ticket Detail</title>
+    <title>ITSM Tool - Groups</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
-        .detail-container { display: grid; grid-template-columns: minmax(0, 2fr) 300px; gap: var(--spacing-lg); }
-        .ticket-header { margin-bottom: var(--spacing-md); }
-        .ticket-number { color: var(--text-muted); font-size: 14px; font-weight: 500; }
-        .ticket-title { font-size: 24px; color: var(--text-main); margin: var(--spacing-xs) 0 var(--spacing-md) 0; }
-        
-        .description-box { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 14px; line-height: 1.6; margin-bottom: var(--spacing-xl); }
-        
-        .comment-thread { display: flex; flex-direction: column; gap: var(--spacing-md); }
-        .comment { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
-        .comment.internal { background: #FFFAE6; border-color: #FFE380; } /* Yellowish for internal */
-        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); font-size: 12px; color: var(--text-muted); }
-        
-        .property-group { margin-bottom: var(--spacing-md); }
-        .property-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .property-value { font-size: 14px; color: var(--text-main); display: flex; align-items: center; gap: var(--spacing-sm); }
-        
-        .sidebar-panel { background: var(--bg-surface); border-radius: var(--radius-md); padding: var(--spacing-md); border: 1px solid var(--border); }
-        .panel-divider { height: 1px; background: var(--border); margin: var(--spacing-md) 0; border: none; }
-
-        .history-event { padding: 8px 12px; background: var(--bg-hover); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-muted); }
-        .history-event strong { color: var(--text-main); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        .member-list { margin-top: 8px; font-size: 13px; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+        .member-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
+
+    <script>
+        window.addEventListener('error', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">ERROR: ' + e.message + '</div>';
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">PROMISE ERROR: ' + e.reason + '</div>';
+        });
+    </script>
+
     <div class="app-shell">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <aside class="sidebar">
@@ -91,20 +85,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <div style="display:flex; align-items:center; gap: 8px;">
-                        <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
-                        <h2>Ticket Detail</h2>
-                        <button class="btn btn-secondary" id="btnEditInline" onclick="toggleEditMode()" style="margin-left: 8px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Düzenle
-                        </button>
-                        <button class="btn btn-secondary" id="btnTransfer" onclick="window.openTransferModal()" style="margin-left: 8px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M16 1l-3 3h2v2c0 2.21-1.79 4-4 4s-4-1.79-4-4V4H5v2c0 3.31 2.69 6 6 6s6-2.69 6-6V4h2l-3-3zM9 23l3-3h-2v-2c0-2.21 1.79-4 4-4s4 1.79 4 4v2h2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H7l-3 3z"/></svg>Transfer
-                        </button>
-                        <div id="editActions" style="display:none; margin-left: 8px;">
-                            <button class="btn btn-ghost" onclick="cancelEditMode()">İptal</button>
-                            <button class="btn btn-primary" onclick="saveEditMode()">Kaydet</button>
-                        </div>
-                    </div>
+                    <h2>Groups Management</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="avatar">U</div>
@@ -113,532 +94,281 @@
             </header>
 
             <div class="content-area">
-                <div class="detail-container" id="content" style="display:none;">
-                    <div class="main-column">
-                        <div class="ticket-header">
-                            <div class="ticket-number" id="tNumber"></div>
-                            <h1 class="ticket-title" id="tTitle">Loading Title...</h1>
-                        </div>
-                        
-                        <div class="property-label">Description</div>
-                        <div class="description-box" id="tDesc"></div>
-
-                        <div id="dynamicFieldsDisplay" style="margin-bottom: var(--spacing-xl);"></div>
-
-                        <div class="property-label mb-md">Activity</div>
-                        <div class="comment-thread" id="commentsList"></div>
-                        
-                        <div style="margin-top: var(--spacing-xl);">
-                            <form id="commentForm">
-                                <textarea id="commentText" class="form-control mb-sm" rows="4" required placeholder="Add a comment..." aria-label="Comment"></textarea>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <label style="font-size: 12px; display: flex; align-items: center; gap: 4px;">
-                                        <input type="checkbox" id="isInternalComment"> Internal Note
-                                    </label>
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </form>
-                        </div>
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;">Groups</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage teams and their members.</p>
                     </div>
+                    <button type="button" class="btn btn-primary" data-action="openGroupModal">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New Group
+                    </button>
+                </div>
 
-                    <div class="side-column">
-                        <div class="sidebar-panel">
-                            <div class="property-group">
-                                <div class="property-label">Status</div>
-                                <div class="property-value">
-                                    <select id="statusSelect" class="form-control" style="width:100%" aria-label="Status">
-                                        <!-- Options will be populated dynamically -->
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <hr class="panel-divider">
-                            
-                            <div class="property-group">
-                                <div class="property-label">Assignee</div>
-                                <div class="property-value" id="tAssigned" style="margin-bottom: var(--spacing-sm);"></div>
-                                <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                    <select id="assigneeSelect" class="form-control" style="flex: 1;" aria-label="Assign to">
-                                        <option value="">Select User...</option>
-                                    </select>
-                                    <button id="btnAssign" class="btn btn-secondary">Assign</button>
-                                </div>
-                            </div>
-                            <div class="property-group">
-                                <div class="property-label">Requester</div>
-                                <div class="property-value" id="tReq"></div>
-                            </div>
-                            <div class="property-group">
-                                <div class="property-label">Priority</div>
-                                <div class="property-value" id="tPriority"></div>
-                            </div>
-                            <div class="property-group">
-                                <div class="property-label">Project</div>
-                                <div class="property-value" id="tProject"></div>
-                            </div>
-                            <div class="property-group">
-                                <div class="property-label">Category</div>
-                                <div class="property-value" id="tCategory"></div>
-                            </div>
-
-                            <div id="csatLink" style="display:none; margin-top: var(--spacing-lg);">
-                                <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%">Fill CSAT Survey</a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="table-container">
+                    <table class="table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Department ID</th>
+                                <th>Members</th>
+                                <th style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="transferModal" class="modal-overlay">
-        <div class="modal" style="width: min(500px, 90%);">
+    <!-- Create/Edit Group Modal -->
+    <div id="groupModal" class="modal-overlay">
+        <div class="modal">
+            <form id="groupForm">
+                <input type="hidden" id="gId">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Group</h2>
+                    <button type="button" class="close-btn" data-action="closeModal" data-target="groupModal" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="gName" for="gName">Name *</label>
+                        <input id="gName" class="form-control" required placeholder="e.g. Helpdesk">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="gDept" for="gDept">Department ID</label>
+                        <input id="gDept" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="groupModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Members Modal -->
+    <div id="membersModal" class="modal-overlay">
+        <div class="modal" style="width: min(600px, 90%);">
             <div class="modal-header">
-                <h2>Transfer Ticket</h2>
-                <button type="button" class="close-btn" onclick="closeModal('transferModal')" aria-label="Close">
+                <h2>Manage Members</h2>
+                <button type="button" class="close-btn" data-action="closeModal" data-target="membersModal" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="transferForm">
-                    <div class="form-group">
-                        <label class="form-label" for="transferProject">Project</label>
-                        <select id="transferProject" class="form-control">
-                            <option value="">-- No Change --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="transferGroup">Group</label>
-                        <select id="transferGroup" class="form-control">
-                            <option value="">-- No Change --</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('transferModal')">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btnSubmitTransfer">Transfer</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Assignee Details Modal -->
-    <div id="assigneeModal" class="modal-overlay">
-        <div class="modal" style="width: min(400px, 90%);">
-            <div class="modal-header">
-                <h2>User Details</h2>
-                <button type="button" class="close-btn" onclick="closeModal('assigneeModal')" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <div class="modal-body" style="text-align: center;">
-                <div id="aModalAvatar" style="margin-bottom: 16px;"></div>
-                <h3 id="aModalName" style="margin: 0 0 4px 0;"></h3>
-                <p id="aModalUsername" class="text-muted" style="margin: 0 0 16px 0; font-size: 13px;"></p>
-                <div style="text-align: left; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                    <div style="margin-bottom: 8px;"><strong>Email:</strong> <span id="aModalEmail"></span></div>
-                    <div style="margin-bottom: 8px;"><strong>Department:</strong> <span id="aModalDept"></span></div>
-                    <div><strong>Status:</strong> <span id="aModalStatus"></span></div>
+                <p class="text-muted" style="margin-top:0;">Group: <strong id="mGroupName"></strong></p>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <select id="userSelect" class="form-control" aria-label="Select User" style="flex: 1;">
+                        <!-- populated by JS -->
+                    </select>
+                    <button type="button" class="btn btn-secondary" id="btnAddMember">Add Member</button>
+                </div>
+                
+                <h4>Current Members</h4>
+                <div class="member-list" id="memberList">
+                    <!-- populated by JS -->
                 </div>
             </div>
         </div>
     </div>
 
+    
+
     <script type="module">
         import './js/api.js?v=2';
-        import { bindShellActions, showToast } from './js/ui.js?v=2';
+        import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
-        const getAvatar = (id, fallback, profilePhoto, size = 32) => {
-            if (profilePhoto) return `<img src="${profilePhoto}" class="avatar" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;" title="${fallback}">`;
-            if (!id || id === '-') return `<div class="avatar" style="width:${size}px;height:${size}px;background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border); display:flex;align-items:center;justify-content:center;border-radius:50%;">?</div>`;
-            const initial = String(fallback || id).charAt(0).toUpperCase();
-            return `<div class="avatar" style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:50%;" title="${fallback}">${initial}</div>`;
-        };
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const ticketId = urlParams.get('id');
-
-        let currentTicket = null;
-        let dynamicPlacements = [];
-        let isEditMode = false;
-
-        window.openTransferModal = async function() {
-            try {
-                const projects = await window.api.getProjects();
-                const groups = await window.api.getGroups();
-                
-                const pSelect = document.getElementById('transferProject');
-                pSelect.innerHTML = '<option value="">-- No Change --</option>';
-                projects.forEach(p => {
-                    pSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
-                });
-                if(currentTicket.projectId) pSelect.value = currentTicket.projectId;
-
-                const gSelect = document.getElementById('transferGroup');
-                gSelect.innerHTML = '<option value="">-- No Change --</option>';
-                groups.forEach(g => {
-                    gSelect.innerHTML += `<option value="${g.id}">${escapeHtml(g.name)}</option>`;
-                });
-                if(currentTicket.groupId) gSelect.value = currentTicket.groupId;
-
-                openModal('transferModal');
-            } catch(e) {
-                showToast('Failed to load transfer data', 'error');
-            }
-        };
-
-        document.getElementById('btnSubmitTransfer').addEventListener('click', async () => {
-            const pid = document.getElementById('transferProject').value;
-            const gid = document.getElementById('transferGroup').value;
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const target = btn.getAttribute('data-target');
+            const idAttr = btn.getAttribute('data-id');
+            const flagAttr = btn.getAttribute('data-flag');
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
+            const flag = flagAttr ? (flagAttr === 'true') : undefined;
             
-            const dto = {
-                projectId: pid ? parseInt(pid) : null,
-                groupId: gid ? parseInt(gid) : null
-            };
+            if (action === 'closeModal' && target) {
+                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
+            } else if (typeof window[action] === 'function') {
+                if (flag !== undefined) window[action](id, flag);
+                else window[action](id);
+            }
+        });
 
+
+        let currentData = [];
+        let allUsers = [];
+        let itemToDelete = null;
+        let activeGroupId = null;
+
+        window.loadData = async function() {
             try {
-                await window.api.request(`/Ticket/${ticketId}/transfer`, { method: 'POST', body: JSON.stringify(dto) });
-                closeModal('transferModal');
-                showToast('Ticket transferred successfully');
-                window.location.reload();
+                currentData = await window.api.getGroups();
+                allUsers = await window.api.getUsers();
+                const tbody = document.querySelector('#dataTable tbody');
+                tbody.innerHTML = '';
+                
+                if (currentData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No groups found.</td></tr>`;
+                    return;
+                }
+
+                currentData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const memCount = item.memberIds ? item.memberIds.length : 0;
+                    tr.innerHTML = `
+                        <td class="text-muted">#${item.id}</td>
+                        <td style="font-weight: 500;">${escapeHtml(item.name)}</td>
+                        <td class="text-muted">${item.departmentId || '-'}</td>
+                        <td>${memCount} members</td>
+                        <td>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openMembersModal" data-id="${item.id}">Members</button>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openGroupModal" data-id="${item.id}">Edit</button>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             } catch (err) {
-                showToast(err.message || 'Transfer failed', 'error');
-            }
-        });
-
-        async function loadDynamicFieldsMeta() {
-            try {
-                const placements = await window.api.getPlacements(currentTicket.projectId, currentTicket.categoryId, currentTicket.typeId);
-                dynamicPlacements = [];
-                placements.sort((a,b) => a.sortOrder - b.sortOrder);
-                for (const place of placements) {
-                    const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
-                    let options = [];
-                    if (def.fieldType === 3 || def.fieldType === 4) {
-                        options = await window.api.getFieldOptions(def.id);
-                    }
-                    dynamicPlacements.push({ place, def, options, isRequired: place.isRequired });
-                }
-            } catch(e) { console.error("Failed to load dynamic fields meta", e); }
-        }
-
-        function renderTicketData() {
-            document.getElementById('tNumber').textContent = currentTicket.ticketNumber;
-            document.getElementById('tTitle').textContent = currentTicket.title;
-            document.getElementById('tDesc').textContent = currentTicket.description || 'No description provided.';
-            
-            const dynContainer = document.getElementById('dynamicFieldsDisplay');
-            dynContainer.innerHTML = '';
-            dynamicPlacements.forEach(dp => {
-                const val = currentTicket.customFields ? currentTicket.customFields[dp.def.key] : '-';
-                dynContainer.innerHTML += `<div class="property-group"><div class="property-label">${escapeHtml(dp.def.label)}</div><div class="property-value">${escapeHtml(val || '-')}</div></div>`;
-            });
-        }
-
-        async function loadTicket() {
-            if (!ticketId) return;
-            try {
-                let lookup = {};
-                let users = [];
-                try { 
-                    lookup = await window.api.getLookup(); 
-                    users = await window.api.getUsers();
-                } catch(e) { console.warn('Lookup failed', e); }
-
-                const t = await window.api.request(`/Ticket/${ticketId}`);
-                currentTicket = t;
-                
-                await loadDynamicFieldsMeta();
-                renderTicketData();
-                
-                const prioName = lookup.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
-                const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
-                const catName = lookup.categories?.find(x => x.id === t.categoryId)?.name || '-';
-                
-                document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
-                document.getElementById('tProject').textContent = projName;
-                document.getElementById('tCategory').textContent = catName;
-                
-                const reqUser = users.find(u => u.id === t.requesterUserId);
-                const assignedUser = users.find(u => u.id === t.assignedUserId);
-                const getReqName = reqUser?.username || `User ${t.requesterUserId}`;
-                const getAssignedName = assignedUser?.username || 'Atanmamış';
-
-                document.getElementById('tReq').innerHTML = `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</div>`;
-                document.getElementById('tAssigned').innerHTML = t.assignedUserId 
-                    ? `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${t.assignedUserId})">${getAvatar(t.assignedUserId, getAssignedName, assignedUser?.profilePhoto)} <span style="color:var(--primary); font-weight:500;">${escapeHtml(assignedUser?.firstName + ' ' + assignedUser?.lastName)}</span></div>` 
-                    : '<span class="text-muted">Atanmamış</span>';
-
-                const assignSelect = document.getElementById('assigneeSelect');
-                assignSelect.innerHTML = '<option value="">Select User...</option>';
-                users.forEach(u => {
-                    const opt = document.createElement('option');
-                    opt.value = u.id;
-                    opt.textContent = `${u.firstName} ${u.lastName} (@${u.username})`;
-                    if(t.assignedUserId === u.id) opt.selected = true;
-                    assignSelect.appendChild(opt);
-                });
-
-                document.getElementById('btnAssign').onclick = async () => {
-                    const selectedUserId = assignSelect.value;
-                    if(!selectedUserId) return;
-                    try {
-                        await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(Number(selectedUserId)) });
-                        showToast('Assigned successfully');
-                        window.location.reload();
-                    } catch(e) { showToast('Assign failed', 'error'); }
-                };
-
-                try {
-                    const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);
-                    const select = document.getElementById('statusSelect');
-                    select.innerHTML = '';
-                    allowedStatuses.forEach(s => {
-                        const opt = document.createElement('option');
-                        opt.value = s.id;
-                        opt.textContent = s.name;
-                        select.appendChild(opt);
-                    });
-                    select.value = t.statusId;
-                } catch(e) {
-                    console.error("Failed to load allowed transitions", e);
-                }
-
-                if (t.statusId === 5) {
-                    document.getElementById('csatLink').style.display = 'block';
-                    document.getElementById('surveyBtn').href = `/survey.html?id=${t.id}`;
-                } else {
-                    document.getElementById('csatLink').style.display = 'none';
-                }
-
-                document.getElementById('content').style.display = 'grid';
-                loadTimeline();
-            } catch(e) {
-                let errEl = document.querySelector('tbody') || document.querySelector('.content-area');
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
-                    errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
                 }
-                console.error(e);
-                showToast('Error loading ticket', 'error'); 
-            }
-        }
 
-        window.openUserDetails = async function(userId) {
-            if (!userId) return;
-            try {
-                const user = await window.api.request(`/Users/${userId}`);
-                if (!user) return;
-                
-                document.getElementById('aModalAvatar').innerHTML = getAvatar(user.id, user.firstName, user.profilePhoto, 80);
-                document.getElementById('aModalName').textContent = user.firstName + ' ' + user.lastName;
-                document.getElementById('aModalUsername').textContent = '@' + user.username;
-                document.getElementById('aModalEmail').textContent = user.email;
-                
-                let deptName = '-';
-                if (user.departmentId) {
-                    try {
-                        const depts = await window.api.request('/Departments');
-                        const d = depts.find(x => x.id === user.departmentId);
-                        if (d) deptName = d.name;
-                    } catch(e) {}
-                }
-                document.getElementById('aModalDept').textContent = deptName;
-                document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
-                
-                openModal('assigneeModal');
-            } catch(e) {
-                console.error(e);
-                showToast('Failed to load user details', 'error');
+                console.error(err);
+                showToast('Error loading groups', 'error');
             }
         };
 
-        window.toggleEditMode = function() {
-            if (!currentTicket) return;
-            isEditMode = true;
-            document.getElementById('btnEditInline').style.display = 'none';
-            document.getElementById('editActions').style.display = 'flex';
-
-            const tTitle = document.getElementById('tTitle');
-            tTitle.innerHTML = `<input type="text" id="inlineEditTitle" class="form-control" style="font-size:24px; font-weight:bold; width:100%;" value="${escapeHtml(currentTicket.title)}">`;
-
-            const tDesc = document.getElementById('tDesc');
-            tDesc.innerHTML = `<textarea id="inlineEditDesc" class="form-control" rows="4" style="width:100%;">${escapeHtml(currentTicket.description || '')}</textarea>`;
-
-            const dynContainer = document.getElementById('dynamicFieldsDisplay');
-            dynContainer.innerHTML = '';
+        window.openGroupModal = function(id = null) {
+            const form = document.getElementById('groupForm');
+            form.reset();
+            document.getElementById('gId').value = id || '';
+            document.getElementById('modalTitle').textContent = id ? 'Edit Group' : 'New Group';
             
-            for (const dp of dynamicPlacements) {
-                const def = dp.def;
-                const val = currentTicket.customFields ? currentTicket.customFields[def.key] : '';
-                const fg = document.createElement('div');
-                fg.className = 'property-group';
-                fg.innerHTML = `<div class="property-label">${escapeHtml(def.label)}${dp.isRequired ? ' *' : ''}</div>`;
-                
-                let inputStr = '';
-                if (def.fieldType === 3 || def.fieldType === 4) {
-                    inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
-                    inputStr += `<option value="">Select option...</option>`;
-                    dp.options.forEach(o => {
-                        const sel = val === o.value ? 'selected' : '';
-                        inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
-                    });
-                    inputStr += `</select>`;
-                } else {
-                    const typeMap = {0: 'text', 1: 'number', 2: 'date'};
-                    inputStr = `<input type="${typeMap[def.fieldType]}" class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} value="${escapeHtml(val || '')}">`;
+            if (id) {
+                const item = currentData.find(x => x.id === id);
+                if (item) {
+                    document.getElementById('gName').value = item.name;
+                    document.getElementById('gDept').value = item.departmentId || '';
                 }
-                fg.innerHTML += `<div class="property-value">${inputStr}</div>`;
-                dynContainer.appendChild(fg);
             }
+            openModal('groupModal');
         };
 
-        window.cancelEditMode = function() {
-            isEditMode = false;
-            document.getElementById('btnEditInline').style.display = 'inline-block';
-            document.getElementById('editActions').style.display = 'none';
-            renderTicketData();
-        };
-
-        window.saveEditMode = async function() {
-            if (!currentTicket) return;
-
-            const titleInput = document.getElementById('inlineEditTitle');
-            if(titleInput.value.trim() === '') {
-                showToast('Title is required', 'error');
-                return;
-            }
-
-            const title = titleInput.value;
-            const description = document.getElementById('inlineEditDesc').value;
+        window.openMembersModal = function(id) {
+            activeGroupId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
             
-            const customFields = {};
-            let validationFailed = false;
-            const dynContainer = document.getElementById('dynamicFieldsDisplay');
-            const inputs = dynContainer.querySelectorAll('.dyn-input');
-            inputs.forEach(inp => {
-                if (inp.hasAttribute('required') && !inp.value) {
-                    validationFailed = true;
-                }
-                if (inp.dataset.key) {
-                    customFields[inp.dataset.key] = inp.value;
+            document.getElementById('mGroupName').textContent = item.name;
+            
+            // Populate select
+            const select = document.getElementById('userSelect');
+            select.innerHTML = '<option value="">-- Select User --</option>';
+            allUsers.forEach(u => {
+                if (!item.memberIds || !item.memberIds.includes(u.id)) {
+                    select.innerHTML += `<option value="${u.id}">${escapeHtml(u.firstName + ' ' + u.lastName)} (${escapeHtml(u.username)})</option>`;
                 }
             });
 
-            if(validationFailed) {
-                showToast('Lütfen zorunlu alanları doldurun.', 'error');
-                return;
+            // Populate list
+            const list = document.getElementById('memberList');
+            list.innerHTML = '';
+            if (!item.memberIds || item.memberIds.length === 0) {
+                list.innerHTML = '<div class="text-muted" style="padding: 8px;">No members yet.</div>';
+            } else {
+                item.memberIds.forEach(uId => {
+                    const u = allUsers.find(x => x.id === uId);
+                    const label = u ? escapeHtml(`${u.firstName} ${u.lastName} (${u.username})`) : `User #${uId}`;
+                    list.innerHTML += `
+                        <div class="member-item">
+                            <span>${label}</span>
+                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" data-action="removeMember" data-id="${uId}">Remove</button>
+                        </div>
+                    `;
+                });
             }
 
-            const payload = {
-                title,
-                description,
-                categoryId: currentTicket.categoryId,
-                priorityId: currentTicket.priorityId,
-                customFields
-            };
+            openModal('membersModal');
+        };
 
+        document.getElementById('btnAddMember').addEventListener('click', async () => {
+            const userId = document.getElementById('userSelect').value;
+            if (!userId || !activeGroupId) return;
             try {
-                await window.api.request(`/Ticket/${ticketId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(payload)
-                });
-                showToast('Talep güncellendi');
-                isEditMode = false;
-                document.getElementById('btnEditInline').style.display = 'inline-block';
-                document.getElementById('editActions').style.display = 'none';
-                loadTicket(); // full reload to get latest history
-            } catch(err) {
-                console.error(err);
-                if(err.message) {
-                    showToast(err.message, 'error'); // Usually from backend 400 Bad Request
-                } else {
-                    showToast('Update failed. Dinamik alan kurallarına dikkat edin.', 'error');
+                await window.api.addGroupMember(activeGroupId, userId);
+                showToast('Member added');
+        loadData(); // removed await for resilience
+                window.openMembersModal(activeGroupId);
+            } catch (err) {
+                showToast('Failed to add member', 'error');
+            }
+        });
+
+        window.removeMember = async function(userId) {
+            if (!activeGroupId) return;
+            try {
+                await window.api.removeGroupMember(activeGroupId, userId);
+                showToast('Member removed');
+        loadData(); // removed await for resilience
+                window.openMembersModal(activeGroupId);
+            } catch (err) {
+                showToast('Failed to remove member', 'error');
+            }
+        };
+
+        window.promptDelete = async function(id) {
+            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
+            if (proceed) {
+                try {
+                    await window.api.deleteGroup(id);
+                    showToast('Silme işlemi tamamlandı');
+                    loadData();
+                } catch (e) {
+                    showToast('Silme işlemi başarısız', 'error');
                 }
             }
         };
 
-        async function loadTimeline() {
-            try {
-                const events = await window.api.request(`/Ticket/${ticketId}/timeline`);
-                const list = document.getElementById('commentsList');
-                list.innerHTML = '';
-                events.forEach(e => {
-                    const div = document.createElement('div');
-                    
-                    if (e.eventType === 'Comment') {
-                        const c = e.data;
-                        div.className = `comment ${c.isInternal ? 'internal' : ''}`;
-                        div.innerHTML = `
-                            <div class="comment-header">
-                                <div class="d-flex align-items-center gap-sm">
-                                    ${getAvatar(c.authorUserId, c.authorUserId)}
-                                    <strong>User ${c.authorUserId}</strong>
-                                    <span>${new Date(e.timestamp).toLocaleString()}</span>
-                                </div>
-                                ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
-                            </div>
-                            <div>${escapeHtml(c.content)}</div>
-                        `;
-                    } else if (e.eventType === 'History') {
-                        const h = e.data;
-                        if(h.action === 'Updated' || h.action === 'StatusChanged' || h.action === 'Reopened') {
-                            div.className = 'history-event';
-                            div.innerHTML = `<strong>User ${h.createdBy}</strong> ${h.action} <strong>${h.fieldName}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em> at ${new Date(e.timestamp).toLocaleString()}`;
-                        }
-                    }
-                    if(div.innerHTML) list.appendChild(div);
-                });
-            } catch(e) { console.error(e); }
-        }
+        
 
-        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+        document.getElementById('groupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const content = document.getElementById('commentText').value;
-            const isInternal = document.getElementById('isInternalComment').checked;
+            const id = document.getElementById('gId').value;
+            const data = {
+                name: document.getElementById('gName').value.trim(),
+                departmentId: document.getElementById('gDept').value ? Number.parseInt(document.getElementById('gDept').value) : null
+            };
+            
             try {
-                await window.api.request(`/Ticket/${ticketId}/comments`, {
-                    method: 'POST',
-                    body: JSON.stringify({ content: content, isInternal: isInternal })
-                });
-                document.getElementById('commentText').value = '';
-                document.getElementById('isInternalComment').checked = false;
-                showToast('Comment added');
-                loadTimeline();
-            } catch(e) { 
-                console.error(e);
-                showToast('Error adding comment', 'error'); 
+                if (id) await window.api.updateGroup(id, data);
+                else await window.api.createGroup(data);
+                
+                closeModal('groupModal');
+                showToast('Group saved');
+        loadData(); // removed await for resilience
+            } catch (err) {
+                showToast('Failed to save group', 'error');
             }
         });
 
-        document.getElementById('statusSelect').addEventListener('change', async (e) => {
-            const newStatus = Number.parseInt(e.target.value);
-            const statusName = e.target.options[e.target.selectedIndex].text;
-            try {
-                await window.api.request(`/Ticket/${ticketId}/status`, {
-                    method: 'POST',
-                    body: JSON.stringify(newStatus)
-                });
-                showToast('Status updated');
-                loadTicket(); // Refresh to update allowed transitions
-            } catch(e) { 
-                console.error(e);
-                showToast(`Geçersiz geçiş: ${statusName} durumuna geçilemez.`, 'error');
-                loadTicket(); // Reset dropdown to previous state
-            }
-        });
-
-        function escapeHtml(unsafe) {
-            return (unsafe || '').toString()
-                .replaceAll('&', "&amp;")
-                .replaceAll('<', "&lt;")
-                .replaceAll('>', "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-        loadTicket();
+        loadData();
     </script>
 </body>
 </html>

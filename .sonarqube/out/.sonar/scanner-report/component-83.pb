@@ -1,1 +1,1 @@
-S 2webX–hr"src/ItsTool.Web/wwwroot/rules.html
+S 2webX²hr#src/ItsTool.Web/wwwroot/kanban.html

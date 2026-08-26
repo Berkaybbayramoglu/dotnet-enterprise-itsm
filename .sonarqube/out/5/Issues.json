@@ -12,60 +12,6 @@
       },
       "results": [
         {
-          "ruleId": "CS7036",
-          "level": "error",
-          "message": "There is no argument given that corresponds to the required parameter 'ProfilePhoto' of 'CreateUserDto.CreateUserDto(string, string, string, string, string, int?, string?)'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/UserServiceTests.cs",
-                "region": {
-                  "startLine": 25,
-                  "startColumn": 23,
-                  "endLine": 25,
-                  "endColumn": 36
-                }
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "CS1503",
-          "level": "error",
-          "message": "Argument 4: cannot convert from 'bool' to 'string'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.cs",
-                "region": {
-                  "startLine": 39,
-                  "startColumn": 60,
-                  "endLine": 39,
-                  "endColumn": 64
-                }
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "CS7036",
-          "level": "error",
-          "message": "There is no argument given that corresponds to the required parameter 'ProfilePhoto' of 'UpdateUserDto.UpdateUserDto(string, string, string, bool, int?, string?)'",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/UserServiceTests.cs",
-                "region": {
-                  "startLine": 40,
-                  "startColumn": 23,
-                  "endLine": 40,
-                  "endColumn": 36
-                }
-              }
-            }
-          ]
-        },
-        {
           "ruleId": "CS8602",
           "level": "warning",
           "message": "Dereference of a possibly null reference.",
@@ -235,34 +181,6 @@
         }
       ],
       "rules": {
-        "CS1503": {
-          "id": "CS1503",
-          "defaultLevel": "error",
-          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS1503)",
-          "properties": {
-            "category": "Compiler",
-            "isEnabledByDefault": true,
-            "tags": [
-              "Compiler",
-              "Telemetry",
-              "NotConfigurable"
-            ]
-          }
-        },
-        "CS7036": {
-          "id": "CS7036",
-          "defaultLevel": "error",
-          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS7036)",
-          "properties": {
-            "category": "Compiler",
-            "isEnabledByDefault": true,
-            "tags": [
-              "Compiler",
-              "Telemetry",
-              "NotConfigurable"
-            ]
-          }
-        },
         "CS8602": {
           "id": "CS8602",
           "shortDescription": "Dereference of a possibly null reference.",

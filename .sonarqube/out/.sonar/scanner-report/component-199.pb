@@ -1,1 +1,1 @@
-Ç 2pyXDhrfix_sidebar.py
+Ç 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs

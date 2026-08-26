@@ -1,153 +1,78 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.KnowledgeBase;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class KnowledgeBaseService : IKnowledgeBaseService
+public class GroupService : IGroupService
 {
+    private readonly IRepository<Group> _repository;
     private readonly ItsToolDbContext _context;
-    private readonly IPermissionCalculator _permissionCalculator;
 
-    public KnowledgeBaseService(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
+    public GroupService(IRepository<Group> repository, ItsToolDbContext context)
     {
+        _repository = repository;
         _context = context;
-        _permissionCalculator = permissionCalculator;
     }
 
-    public async Task<IEnumerable<KbCategoryDto>> GetCategoriesAsync()
+    public async Task<IEnumerable<GroupDto>> GetAllAsync()
     {
-        var list = await _context.KnowledgeCategories.Where(c => !c.IsDeleted).ToListAsync();
-        return list.Select(c => new KbCategoryDto(c.Id, c.Name, c.ParentId));
+        var groups = await _repository.GetAllAsync();
+        return groups.Select(g => new GroupDto(g.Id, g.Name, g.IsActive, g.DepartmentId ?? 0));
     }
 
-    public async Task<KbCategoryDto> CreateCategoryAsync(CreateKbCategoryDto dto)
+    public async Task<GroupDto?> GetByIdAsync(int id)
     {
-        var cat = new KnowledgeCategory { Name = dto.Name, ParentId = dto.ParentId };
-        _context.KnowledgeCategories.Add(cat);
-        await _context.SaveChangesAsync();
-        return new KbCategoryDto(cat.Id, cat.Name, cat.ParentId);
+        var group = await _repository.GetByIdAsync(id);
+        if (group == null) return null;
+        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
     }
 
-    public async Task UpdateCategoryAsync(int id, CreateKbCategoryDto dto)
+    public async Task<GroupDto> CreateAsync(CreateGroupDto dto)
     {
-        var cat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-        if (cat == null) throw new KeyNotFoundException("Category not found.");
-        cat.Name = dto.Name;
-        cat.ParentId = dto.ParentId;
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteCategoryAsync(int id)
-    {
-        var cat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-        if (cat != null)
+        var group = new Group
         {
-            cat.IsDeleted = true;
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task<IEnumerable<KbArticleSummaryDto>> SearchArticlesAsync(int userId, string? keyword, int? categoryId)
-    {
-        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        bool canManageKb = perms.Contains("kb.manage");
-        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit"); // Determine internal visibility
-
-        var query = _context.KnowledgeArticles
-            .Where(a => !a.IsDeleted);
-
-        if (!canManageKb)
-        {
-            query = query.Where(a => a.Status == ArticleStatus.Published);
-        }
-
-        if (!isStaff && !canManageKb)
-        {
-            query = query.Where(a => a.Visibility == ArticleVisibility.Public);
-        }
-
-        if (categoryId.HasValue)
-        {
-            query = query.Where(a => a.CategoryId == categoryId.Value);
-        }
-
-        if (!string.IsNullOrWhiteSpace(keyword))
-        {
-            var kw = keyword;
-            query = query.Where(a => a.Title.ToLower().Contains(kw.ToLower()) || a.Content.ToLower().Contains(kw.ToLower()));
-        }
-
-        var list = await query.OrderByDescending(a => a.CreatedAt).ToListAsync();
-        
-        return list.Select(a => new KbArticleSummaryDto(a.Id, a.CategoryId, a.Title, a.AuthorUserId, a.Status, a.Visibility, a.ViewCount, a.CreatedAt));
-    }
-
-    public async Task<KbArticleDto?> GetArticleAsync(int id, int userId)
-    {
-        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        bool canManageKb = perms.Contains("kb.manage");
-        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit");
-
-        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
-        if (article == null) return null;
-
-        // Visibility checks
-        if (article.Status == ArticleStatus.Draft && !canManageKb) return null;
-        if (article.Visibility == ArticleVisibility.Internal && !isStaff && !canManageKb) return null;
-
-        // Increment ViewCount if published
-        if (article.Status == ArticleStatus.Published)
-        {
-            article.ViewCount++;
-            await _context.SaveChangesAsync();
-        }
-
-        return new KbArticleDto(article.Id, article.CategoryId, article.Title, article.Content, article.AuthorUserId, article.Status, article.Visibility, article.ViewCount, article.CreatedAt);
-    }
-
-    public async Task<KbArticleDto> CreateArticleAsync(CreateKbArticleDto dto, int authorId)
-    {
-        var article = new KnowledgeArticle
-        {
-            CategoryId = dto.CategoryId,
-            Title = dto.Title,
-            Content = dto.Content,
-            Status = dto.Status,
-            Visibility = dto.Visibility,
-            AuthorUserId = authorId
+            Name = dto.Name,
+            DepartmentId = dto.DepartmentId
         };
-        _context.KnowledgeArticles.Add(article);
-        await _context.SaveChangesAsync();
-
-        return new KbArticleDto(article.Id, article.CategoryId, article.Title, article.Content, article.AuthorUserId, article.Status, article.Visibility, article.ViewCount, article.CreatedAt);
+        await _repository.AddAsync(group);
+        return new GroupDto(group.Id, group.Name, group.IsActive, group.DepartmentId ?? 0);
     }
 
-    public async Task UpdateArticleAsync(int id, UpdateKbArticleDto dto)
+    public async Task UpdateAsync(int id, UpdateGroupDto dto)
     {
-        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
-        if (article == null) throw new KeyNotFoundException("Article not found.");
-
-        article.CategoryId = dto.CategoryId;
-        article.Title = dto.Title;
-        article.Content = dto.Content;
-        article.Status = dto.Status;
-        article.Visibility = dto.Visibility;
-        await _context.SaveChangesAsync();
+        var group = await _repository.GetByIdAsync(id);
+        if (group == null) throw new KeyNotFoundException("Group not found");
+        
+        group.Name = dto.Name;
+        group.IsActive = dto.IsActive;
+        group.DepartmentId = dto.DepartmentId;
+        await _repository.UpdateAsync(group);
     }
 
-    public async Task DeleteArticleAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
-        if (article != null)
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task AddMemberAsync(int groupId, int userId)
+    {
+        var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (!exists)
         {
-            article.IsDeleted = true;
+            _context.GroupMembers.Add(new GroupMember { GroupId = groupId, UserId = userId });
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task RemoveMemberAsync(int groupId, int userId)
+    {
+        var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (member != null)
+        {
+            _context.GroupMembers.Remove(member);
             await _context.SaveChangesAsync();
         }
     }

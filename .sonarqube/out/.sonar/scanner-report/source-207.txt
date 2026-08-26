@@ -1,210 +1,187 @@
-import re
+        import './js/api.js';
+        import { bindShellActions, showToast, escapeHtml, showUndoToast } from './js/ui.js';
 
-with open("src/ItsTool.Web/wwwroot/dashboard.html", "r") as f:
-    content = f.read()
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
 
-# Replace the HTML content area
-html_old = """            <div class="content-area">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);" id="overviewCards">
-                    <!-- Populated by JS -->
-                </div>
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const target = btn.getAttribute('data-target');
+            const idAttr = btn.getAttribute('data-id');
+            const flagAttr = btn.getAttribute('data-flag');
+            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
+            const flag = flagAttr ? (flagAttr === 'true') : undefined;
+            
+            if (action === 'closeModal' && target) {
+                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
+            } else if (typeof window[action] === 'function') {
+                if (flag !== undefined) window[action](id, flag);
+                else window[action](id);
+            }
+        });
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--spacing-lg);">
-                    <div class="card">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                    <div class="card">
-                        <canvas id="priorityChart"></canvas>
-                    </div>
-                </div>
-            </div>"""
 
-html_new = """            <div class="content-area" style="max-width: 1440px; margin: 0 auto; padding: 20px;">
-                <!-- KPI Row -->
-                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 16px;" id="overviewCards">
-                    <!-- Populated by JS -->
-                </div>
+        let currentData = [];
+        let allUsers = [];
+        let itemToDelete = null;
+        let activeGroupId = null;
 
-                <!-- Charts Row -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Tickets by Status</div>
-                        <div style="height: 260px; position: relative;" id="statusChartContainer">
-                            <canvas id="statusChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Tickets by Priority</div>
-                        <div style="height: 260px; position: relative;" id="priorityChartContainer">
-                            <canvas id="priorityChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New Row: Team Workload & Recent Tickets -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Takım Yükü</div>
-                        <div id="workloadList" style="display: flex; flex-direction: column; gap: 12px;">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                    <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Son Talepler</div>
-                        <div id="recentTicketsList" style="display: flex; flex-direction: column; gap: 8px;">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>"""
-content = content.replace(html_old, html_new)
-
-# Replace the JS logic
-js_old = """        async function loadDashboard() {
+        window.loadData = async function() {
             try {
-                const overview = await window.api.getDashboardOverview();
-                const dist = await window.api.getDashboardDistributions();
-
-                const cardsHtml = `
-                    <div class="card" style="border-left: 4px solid var(--info);">
-                        <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Open Tickets</div>
-                        <div style="font-size: 32px; font-weight: 700; margin-top: var(--spacing-xs);">${overview.openTickets ?? 0}</div>
-                    </div>
-                    <div class="card" style="border-left: 4px solid var(--danger);">
-                        <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Critical</div>
-                        <div style="font-size: 32px; font-weight: 700; color: var(--danger); margin-top: var(--spacing-xs);">${overview.criticalTickets ?? 0}</div>
-                    </div>
-                    <div class="card" style="border-left: 4px solid var(--warning);">
-                        <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">SLA Risk</div>
-                        <div style="font-size: 32px; font-weight: 700; color: var(--warning); margin-top: var(--spacing-xs);">${overview.slaRiskTickets ?? 0}</div>
-                    </div>
-                    <div class="card" style="border-left: 4px solid var(--danger);">
-                        <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">SLA Breached</div>
-                        <div style="font-size: 32px; font-weight: 700; color: var(--danger); margin-top: var(--spacing-xs);">${overview.slaBreachedTickets ?? 0}</div>
-                    </div>
-                    <div class="card" style="border-left: 4px solid var(--text-muted);">
-                        <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Unassigned</div>
-                        <div style="font-size: 32px; font-weight: 700; margin-top: var(--spacing-xs);">${overview.unassignedTickets ?? 0}</div>
-                    </div>
-                    <div class="card" style="border-left: 4px solid var(--success);">
-                        <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Avg CSAT</div>
-                        <div style="font-size: 32px; font-weight: 700; color: var(--success); margin-top: var(--spacing-xs);">${overview.csatAverage ?? 0}</div>
-                    </div>
-                `;
-                document.getElementById('overviewCards').innerHTML = cardsHtml;
-
-                new Chart(document.getElementById('statusChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: dist.byStatus.map(d => d.key),
-                        datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
-                    },
-                    options: { plugins: { title: { display: true, text: 'Tickets by Status', font: { size: 16 } } }, cutout: '70%' }
-                });
-
-                new Chart(document.getElementById('priorityChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: dist.byPriority.map(d => d.key),
-                        datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
-                    },
-                    options: { plugins: { title: { display: true, text: 'Tickets by Priority', font: { size: 16 } } } }
-                });"""
-
-js_new = """        async function loadDashboard() {
-            try {
-                const overview = await window.api.getDashboardOverview();
-                const dist = await window.api.getDashboardDistributions();
+                currentData = await window.api.getGroups();
+                allUsers = await window.api.getUsers();
+                const tbody = document.querySelector('#dataTable tbody');
+                tbody.innerHTML = '';
                 
-                let workload = [];
-                try { workload = await window.api.request('/dashboard/agent-workload'); } catch(e) { console.warn("agent-workload error", e); }
-                
-                let recentTickets = [];
-                try { 
-                    const res = await window.api.searchTickets({ pageSize: 5 }); 
-                    recentTickets = res.items || [];
-                } catch(e) { console.warn("searchTickets error", e); }
-                
-                let lookup = {};
-                try { lookup = await window.api.getLookup(); } catch(e) {}
-
-                const createKpiCard = (title, val, color, iconPath) => `
-                    <div class="card" style="display: flex; align-items: center; gap: 12px; height: 96px; padding: 16px; border-left: 4px solid var(--${color});">
-                        <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(var(--${color}-rgb), 0.1); display: flex; align-items: center; justify-content: center; color: var(--${color});">
-                            <svg viewBox="0 0 24 24" width="24" height="24" style="fill: currentColor;">${iconPath}</svg>
-                        </div>
-                        <div>
-                            <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">${title}</div>
-                            <div style="font-size: 28px; font-weight: 700; color: var(--${title === 'Avg CSAT' || title === 'Open Tickets' || title === 'Unassigned' ? 'text' : color}); line-height: 1.2;">${val}</div>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('overviewCards').innerHTML = `
-                    ${createKpiCard('Open Tickets', overview.openTickets ?? 0, 'info', '<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>')}
-                    ${createKpiCard('Critical', overview.criticalTickets ?? 0, 'danger', '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>')}
-                    ${createKpiCard('SLA Risk', overview.slaRiskTickets ?? 0, 'warning', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>')}
-                    ${createKpiCard('SLA Breached', overview.slaBreachedTickets ?? 0, 'danger', '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>')}
-                    ${createKpiCard('Unassigned', overview.unassignedTickets ?? 0, 'default', '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>')}
-                    ${createKpiCard('Avg CSAT', overview.csatAverage ?? 0, 'success', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>')}
-                `;
-
-                // Workload List
-                const workloadHtml = workload.length === 0 
-                    ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
-                    : workload.map(w => `
-                        <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
-                            <div class="avatar" style="width:32px; height:32px; font-size:14px;">${w.userName ? w.userName.charAt(0).toUpperCase() : 'U'}</div>
-                            <div style="flex:1;">
-                                <div style="font-weight: 500;">${w.userName || 'User ' + w.userId}</div>
-                                <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden;">
-                                    <div style="height: 100%; background: var(--primary); width: ${Math.min(w.openTicketCount * 10, 100)}%;"></div>
-                                </div>
-                            </div>
-                            <div style="font-weight: 600;">${w.openTicketCount}</div>
-                        </div>
-                    `).join('');
-                document.getElementById('workloadList').innerHTML = workloadHtml;
-
-                // Recent Tickets List
-                const getStatusName = (id) => lookup.statuses?.find(s => s.id === id)?.name || 'Unknown';
-                const recentHtml = recentTickets.length === 0
-                    ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
-                    : recentTickets.map(t => `
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.location.href='/ticket-detail.html?id=${t.id}'" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
-                            <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
-                            <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
-                            <span class="badge badge-default" style="font-size: 11px;">${getStatusName(t.statusId)}</span>
-                        </div>
-                    `).join('');
-                document.getElementById('recentTicketsList').innerHTML = recentHtml;
-
-                if (!dist.byStatus || dist.byStatus.length === 0) {
-                    document.getElementById('statusChartContainer').innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Henüz veri yok</div>';
-                } else {
-                    new Chart(document.getElementById('statusChart'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: dist.byStatus.map(d => d.key),
-                            datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
-                        },
-                        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '62%' }
-                    });
+                if (currentData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No groups found.</td></tr>`;
+                    return;
                 }
 
-                if (!dist.byPriority || dist.byPriority.length === 0) {
-                    document.getElementById('priorityChartContainer').innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Henüz veri yok</div>';
-                } else {
-                    new Chart(document.getElementById('priorityChart'), {
-                        type: 'bar',
-                        data: {
-                            labels: dist.byPriority.map(d => d.key),
-                            datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
-                        },
-                        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-                    });
-                }"""
-content = content.replace(js_old, js_new)
+                currentData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const memCount = item.memberIds ? item.memberIds.length : 0;
+                    tr.innerHTML = `
+                        <td class="text-muted">#${item.id}</td>
+                        <td style="font-weight: 500;">${escapeHtml(item.name)}</td>
+                        <td class="text-muted">${item.departmentId || '-'}</td>
+                        <td>${memCount} members</td>
+                        <td>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openMembersModal" data-id="${item.id}">Members</button>
+                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openGroupModal" data-id="${item.id}">Edit</button>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                    } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
 
-with open("src/ItsTool.Web/wwwroot/dashboard.html", "w") as f:
-    f.write(content)
+                console.error(err);
+                showToast('Error loading groups', 'error');
+            }
+        };
+
+        window.openGroupModal = function(id = null) {
+            const form = document.getElementById('groupForm');
+            form.reset();
+            document.getElementById('gId').value = id || '';
+            document.getElementById('modalTitle').textContent = id ? 'Edit Group' : 'New Group';
+            
+            if (id) {
+                const item = currentData.find(x => x.id === id);
+                if (item) {
+                    document.getElementById('gName').value = item.name;
+                    document.getElementById('gDept').value = item.departmentId || '';
+                }
+            }
+            openModal('groupModal');
+        };
+
+        window.openMembersModal = function(id) {
+            activeGroupId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            
+            document.getElementById('mGroupName').textContent = item.name;
+            
+            // Populate select
+            const select = document.getElementById('userSelect');
+            select.innerHTML = '<option value="">-- Select User --</option>';
+            allUsers.forEach(u => {
+                if (!item.memberIds || !item.memberIds.includes(u.id)) {
+                    select.innerHTML += `<option value="${u.id}">${escapeHtml(u.firstName + ' ' + u.lastName)} (${escapeHtml(u.username)})</option>`;
+                }
+            });
+
+            // Populate list
+            const list = document.getElementById('memberList');
+            list.innerHTML = '';
+            if (!item.memberIds || item.memberIds.length === 0) {
+                list.innerHTML = '<div class="text-muted" style="padding: 8px;">No members yet.</div>';
+            } else {
+                item.memberIds.forEach(uId => {
+                    const u = allUsers.find(x => x.id === uId);
+                    const label = u ? escapeHtml(`${u.firstName} ${u.lastName} (${u.username})`) : `User #${uId}`;
+                    list.innerHTML += `
+                        <div class="member-item">
+                            <span>${label}</span>
+                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" data-action="removeMember" data-id="${uId}">Remove</button>
+                        </div>
+                    `;
+                });
+            }
+
+            openModal('membersModal');
+        };
+
+        document.getElementById('btnAddMember').addEventListener('click', async () => {
+            const userId = document.getElementById('userSelect').value;
+            if (!userId || !activeGroupId) return;
+            try {
+                await window.api.addGroupMember(activeGroupId, userId);
+                showToast('Member added');
+        loadData(); // removed await for resilience
+                window.openMembersModal(activeGroupId);
+            } catch (err) {
+                showToast('Failed to add member', 'error');
+            }
+        });
+
+        window.removeMember = async function(userId) {
+            if (!activeGroupId) return;
+            try {
+                await window.api.removeGroupMember(activeGroupId, userId);
+                showToast('Member removed');
+        loadData(); // removed await for resilience
+                window.openMembersModal(activeGroupId);
+            } catch (err) {
+                showToast('Failed to remove member', 'error');
+            }
+        };
+
+        window.promptDelete = async function(id) {
+            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
+            if (proceed) {
+                try {
+                    await window.api.deleteGroup(id);
+                    showToast('Silme işlemi tamamlandı');
+                    loadData();
+                } catch (e) {
+                    showToast('Silme işlemi başarısız', 'error');
+                }
+            }
+        };
+
+        
+
+        document.getElementById('groupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('gId').value;
+            const data = {
+                name: document.getElementById('gName').value.trim(),
+                departmentId: document.getElementById('gDept').value ? parseInt(document.getElementById('gDept').value) : null
+            };
+            
+            try {
+                if (id) await window.api.updateGroup(id, data);
+                else await window.api.createGroup(data);
+                
+                closeModal('groupModal');
+                showToast('Group saved');
+        loadData(); // removed await for resilience
+            } catch (err) {
+                showToast('Failed to save group', 'error');
+            }
+        });
+
+        loadData();

@@ -1,1 +1,1 @@
-T 2webX§hr"src/ItsTool.Web/wwwroot/users.html
+T 2webX–hr"src/ItsTool.Web/wwwroot/rules.html

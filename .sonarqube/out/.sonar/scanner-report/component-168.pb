@@ -1,1 +1,1 @@
-¨ 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs
+¨ 2csX"hr,src/ItsTool.Application/DTOs/AuditLogDtos.cs

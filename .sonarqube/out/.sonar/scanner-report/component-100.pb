@@ -1,1 +1,1 @@
-d 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js
+d 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js

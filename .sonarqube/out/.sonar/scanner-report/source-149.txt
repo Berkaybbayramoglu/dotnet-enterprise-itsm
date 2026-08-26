@@ -1,35 +1,44 @@
-using System;
-using System.Collections.Generic;
+using ItsTool.Infrastructure.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using Xunit;
 
-namespace ItsTool.Application.DTOs;
+namespace ItsTool.UnitTests.Services;
 
-public class TicketSearchFilterDto
+public class LocalFileStorageServiceTests
 {
-    public int? ProjectId { get; set; }
-    public int? CategoryId { get; set; }
-    public int? TypeId { get; set; }
-    public int? StatusId { get; set; }
-    public int? PriorityId { get; set; }
-    public int? AssigneeUserId { get; set; }
-    public bool? Unassigned { get; set; }
-    public int? RequesterUserId { get; set; }
-    public int? ExcludeStatusId { get; set; }
-    public DateTime? FromDate { get; set; }
-    public DateTime? ToDate { get; set; }
-    public string? Keyword { get; set; }
-    public string? SlaStatus { get; set; } // "ontrack", "warning", "breached"
-    
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 20;
-    public string? SortBy { get; set; } // e.g. "CreatedAt", "Priority", "Status"
-    public bool SortDescending { get; set; } = true;
-}
+    private readonly string _testPath = Path.Combine(Path.GetTempPath(), "ItsmTestUploads");
 
-public class PagedResult<T>
-{
-    public IEnumerable<T> Items { get; set; } = new List<T>();
-    public int TotalCount { get; set; }
-    public int Page { get; set; }
-    public int PageSize { get; set; }
-    public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
+    public LocalFileStorageServiceTests()
+    {
+        if (Directory.Exists(_testPath)) Directory.Delete(_testPath, true);
+    }
+
+    [Fact]
+    public async Task SaveFileAsync_ShouldRejectInvalidMime()
+    {
+        var configMock = new Mock<IConfiguration>();
+        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
+        var service = new LocalFileStorageService(configMock.Object);
+
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+    }
+
+    [Fact]
+    public async Task SaveFileAsync_ShouldRejectLargeFile()
+    {
+        var configMock = new Mock<IConfiguration>();
+        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
+        var service = new LocalFileStorageService(configMock.Object);
+
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.ContentType).Returns("application/pdf");
+        fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+    }
 }

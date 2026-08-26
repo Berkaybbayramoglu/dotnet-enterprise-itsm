@@ -1,1 +1,1 @@
-© 2csX	hr9src/ItsTool.Application/Interfaces/ISystemAuditService.cs
+© 2csXhr(src/ItsTool.Application/DTOs/AuthDtos.cs

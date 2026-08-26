@@ -1,1 +1,1 @@
-f 2csX1hrFsrc/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs
+f 2csXhrsrc/ItsTool.Web/Program.cs

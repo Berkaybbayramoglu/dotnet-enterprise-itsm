@@ -1,99 +1,119 @@
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Security.Cryptography;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Polly;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class WebhookDispatcher : IWebhookDispatcher
+public class UserService : IUserService
 {
+    private readonly IRepository<User> _repository;
     private readonly ItsToolDbContext _context;
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<WebhookDispatcher> _logger;
 
-    public WebhookDispatcher(ItsToolDbContext context, HttpClient httpClient, ILogger<WebhookDispatcher> logger)
+    public UserService(IRepository<User> repository, ItsToolDbContext context)
     {
+        _repository = repository;
         _context = context;
-        _httpClient = httpClient;
-        _logger = logger;
     }
 
-    public async Task DispatchEventAsync(string eventKey, object payload)
+    public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
-        var subscriptions = await _context.WebhookSubscriptions
-            .Where(w => w.IsActive && !w.IsDeleted)
-            .ToListAsync();
+        var users = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
+        return users.Select(u => new UserDto(
+            u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId,
+            u.UserRoles.Select(ur => ur.RoleId).ToArray(),
+            u.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
+            u.ProfilePhoto
+        ));
+    }
 
-        var activeSubs = subscriptions.Where(w => w.EventsCsv.Split(',').Select(e => e.Trim()).Contains(eventKey)).ToList();
+    public async Task<UserDto?> GetByIdAsync(int id)
+    {
+        var user = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null) return null;
+        return new UserDto(
+            user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId,
+            user.UserRoles.Select(ur => ur.RoleId).ToArray(),
+            user.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
+            user.ProfilePhoto
+        );
+    }
 
-        if (activeSubs.Count == 0) return;
-
-        var jsonPayload = JsonSerializer.Serialize(new
+    public async Task<UserDto> CreateAsync(CreateUserDto dto)
+    {
+        var user = new User
         {
-            @event = eventKey,
-            timestamp = DateTime.UtcNow,
-            data = payload
-        });
+            Username = dto.Username,
+            Email = dto.Email,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            DepartmentId = dto.DepartmentId,
+            ProfilePhoto = dto.ProfilePhoto
+        };
+        await _repository.AddAsync(user);
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto);
+    }
+
+    public async Task UpdateAsync(int id, UpdateUserDto dto)
+    {
+        var user = await _repository.GetByIdAsync(id);
+        if (user == null) throw new KeyNotFoundException("User not found");
         
-        var contentBytes = Encoding.UTF8.GetBytes(jsonPayload);
-
-        // Fire-and-forget logic so it doesn't block main thread
-        _ = Task.Run(async () =>
-        {
-            foreach (var sub in activeSubs)
-            {
-                await SendWebhookAsync(sub, contentBytes, jsonPayload);
-            }
-        });
+        user.Email = dto.Email;
+        user.FirstName = dto.FirstName;
+        user.LastName = dto.LastName;
+        user.IsActive = dto.IsActive;
+        user.DepartmentId = dto.DepartmentId;
+        user.ProfilePhoto = dto.ProfilePhoto;
+        await _repository.UpdateAsync(user);
     }
 
-    private async Task SendWebhookAsync(Domain.Entities.Config.WebhookSubscription sub, byte[] contentBytes, string jsonPayload)
+    public async Task DeleteAsync(int id)
     {
-        var retryPolicy = Policy
-            .Handle<HttpRequestException>()
-            .Or<TaskCanceledException>()
-            .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(2), 
-            (exception, timeSpan, retryCount, context) =>
-            {
-                _logger.LogWarning("Webhook retry {RetryCount} for {Url}", retryCount, sub.Url);
-            });
+        await _repository.DeleteAsync(id);
+    }
 
-        try
+    public async Task AssignRoleAsync(int userId, int roleId)
+    {
+        var exists = await _context.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId);
+        if (!exists)
         {
-            await retryPolicy.ExecuteAsync(async () =>
-            {
-                using var request = new HttpRequestMessage(HttpMethod.Post, sub.Url);
-                
-                request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+            _context.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
+            await _context.SaveChangesAsync();
+        }
+    }
 
-                // Generate HMAC-SHA256 signature
-                using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(sub.Secret)))
-                {
-                    var hash = hmac.ComputeHash(contentBytes);
-                    var signature = BitConverter.ToString(hash).Replace("-", "").ToLower();
-                    request.Headers.Add("X-ITSM-Signature", signature);
-                }
-                
-                // 5 seconds timeout for webhook
-                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(5));
-                
-                var response = await _httpClient.SendAsync(request, cts.Token);
-                response.EnsureSuccessStatusCode();
-                
-                _logger.LogInformation("Webhook sent successfully to {Url}", sub.Url);
+    public async Task RevokeRoleAsync(int userId, int roleId)
+    {
+        var ur = await _context.UserRoles.FirstOrDefaultAsync(x => x.UserId == userId && x.RoleId == roleId);
+        if (ur != null)
+        {
+            _context.UserRoles.Remove(ur);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task AddPermissionOverrideAsync(int userId, int permissionId, bool isGranted)
+    {
+        var over = await _context.UserPermissionOverrides
+            .FirstOrDefaultAsync(o => o.UserId == userId && o.PermissionId == permissionId);
+            
+        if (over != null)
+        {
+            over.IsGranted = isGranted;
+        }
+        else
+        {
+            _context.UserPermissionOverrides.Add(new UserPermissionOverride
+            {
+                UserId = userId,
+                PermissionId = permissionId,
+                IsGranted = isGranted
             });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Webhook failed for {Url} after retries", sub.Url);
-        }
+        await _context.SaveChangesAsync();
     }
 }

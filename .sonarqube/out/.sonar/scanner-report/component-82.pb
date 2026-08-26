@@ -1,1 +1,1 @@
-R 2webX≤hr#src/ItsTool.Web/wwwroot/kanban.html
+R 2webXçhr(src/ItsTool.Web/wwwroot/departments.html
