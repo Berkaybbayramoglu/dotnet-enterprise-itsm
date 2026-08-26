@@ -22,19 +22,23 @@ public class DataSeederTests : TestBase
         var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Çözüldü");
         var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Devam Ediyor");
 
+        Assert.NotNull(closedStatus);
+        Assert.NotNull(resolvedStatus);
+        Assert.NotNull(inProgressStatus);
+
         // Verify reopened transitions exist
         var closedToProgress = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow.Id && wt.FromStatusId == closedStatus.Id && wt.ToStatusId == inProgressStatus.Id);
+            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
         
         var resolvedToProgress = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow.Id && wt.FromStatusId == resolvedStatus.Id && wt.ToStatusId == inProgressStatus.Id);
+            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == resolvedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
 
         Assert.True(closedToProgress, "Closed -> In Progress transition missing");
         Assert.True(resolvedToProgress, "Resolved -> In Progress transition missing");
 
         // Delete one to simulate drift/modification
         var transitionToRemove = await _context.WorkflowTransitions
-            .FirstAsync(wt => wt.FromStatusId == closedStatus.Id && wt.ToStatusId == inProgressStatus.Id);
+            .FirstAsync(wt => wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
         _context.WorkflowTransitions.Remove(transitionToRemove);
         await _context.SaveChangesAsync();
 
@@ -42,7 +46,7 @@ public class DataSeederTests : TestBase
         await seeder.SeedAsync();
 
         var missingTransitionIsBack = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow.Id && wt.FromStatusId == closedStatus.Id && wt.ToStatusId == inProgressStatus.Id);
+            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
 
         Assert.True(missingTransitionIsBack, "Seeder failed to UPSERT the missing Reopen transition.");
     }

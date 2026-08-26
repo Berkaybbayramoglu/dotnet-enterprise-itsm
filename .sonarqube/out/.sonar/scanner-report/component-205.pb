@@ -1,1 +1,0 @@
-Í 2pyX|hrpatch_kanban_modal.py

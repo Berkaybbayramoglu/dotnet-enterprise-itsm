@@ -1,3 +1,4 @@
 ?
 roslynCS8602)Dereference of a possibly null reference.(0æ
+roslynCA1822Mark members as static"èMembers that do not access instance data or call instance methods can be marked as static. After you mark the methods as static, the compiler will emit nonvirtual call sites to these members. This can give you a measurable performance gain for performance-sensitive code.(0æ
 roslynCA1861"Avoid constant arrays as arguments"ÉConstant arrays passed as arguments are not reused when called repeatedly, which implies a new array is created each time. Consider extracting them to 'static readonly' fields to improve performance if the passed array is not mutated within the called method.(0

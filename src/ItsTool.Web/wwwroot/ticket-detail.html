@@ -352,7 +352,7 @@
                 currentTicket = t;
                 
                 await loadDynamicFieldsMeta();
-                renderTicketData();
+        await renderTicketData();
                 
                 const prioName = lookup.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
                 const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
@@ -455,51 +455,17 @@
             }
         };
 
-        window.toggleEditMode = function() {
-            if (!currentTicket) return;
-            isEditMode = true;
-            document.getElementById('btnEditInline').style.display = 'none';
-            document.getElementById('editActions').style.display = 'flex';
+        function buildEditDynamicFields(currentTicket, dynamicPlacements) {
+            let html = '';
+            dynContainer.innerHTML = buildEditDynamicFields(currentTicket, dynamicPlacements);
 
-            const tTitle = document.getElementById('tTitle');
-            tTitle.innerHTML = `<input type="text" id="inlineEditTitle" class="form-control" style="font-size:24px; font-weight:bold; width:100%;" value="${escapeHtml(currentTicket.title)}">`;
-
-            const tDesc = document.getElementById('tDesc');
-            tDesc.innerHTML = `<textarea id="inlineEditDesc" class="form-control" rows="4" style="width:100%;">${escapeHtml(currentTicket.description || '')}</textarea>`;
-
-            const dynContainer = document.getElementById('dynamicFieldsDisplay');
-            dynContainer.innerHTML = '';
-            
-            for (const dp of dynamicPlacements) {
-                const def = dp.def;
-                const val = currentTicket.customFields ? currentTicket.customFields[def.key] : '';
-                const fg = document.createElement('div');
-                fg.className = 'property-group';
-                fg.innerHTML = `<div class="property-label">${escapeHtml(def.label)}${dp.isRequired ? ' *' : ''}</div>`;
-                
-                let inputStr = '';
-                if (def.fieldType === 3 || def.fieldType === 4) {
-                    inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
-                    inputStr += `<option value="">Select option...</option>`;
-                    dp.options.forEach(o => {
-                        const sel = val === o.value ? 'selected' : '';
-                        inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
-                    });
-                    inputStr += `</select>`;
-                } else {
-                    const typeMap = {0: 'text', 1: 'number', 2: 'date'};
-                    inputStr = `<input type="${typeMap[def.fieldType]}" class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} value="${escapeHtml(val || '')}">`;
-                }
-                fg.innerHTML += `<div class="property-value">${inputStr}</div>`;
-                dynContainer.appendChild(fg);
-            }
         };
 
         window.cancelEditMode = function() {
             isEditMode = false;
             document.getElementById('btnEditInline').style.display = 'inline-block';
             document.getElementById('editActions').style.display = 'none';
-            renderTicketData();
+        await renderTicketData();
         };
 
         window.saveEditMode = async function() {
@@ -638,7 +604,7 @@
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
-        loadTicket();
+        await loadTicket();
     </script>
 </body>
 </html>

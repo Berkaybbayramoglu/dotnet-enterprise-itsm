@@ -1,3 +1,0 @@
-Û
-ÑYour code is analyzed as compatible with all Python 3 versions by default. You can get a more precise analysis by setting the exact Python version in your configuration via the parameter "sonar.python.version"Î“ýçƒ4õ
-ëSonarPython detected files that look like test code but 'sonar.tests' is not configured. Rules targeting production code were not executed on these files. Configure 'sonar.tests' in your project properties for a more accurate analysis.…¢ýçƒ4

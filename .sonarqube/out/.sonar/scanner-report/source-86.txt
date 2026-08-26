@@ -240,12 +240,12 @@
                     `;
                     tbody.appendChild(tr);
                 });
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {
                     if (errEl.tagName === 'TBODY') {
                         errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
-                    } else {
+                     } else {
                         errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
                     }
                 }
@@ -316,9 +316,9 @@
                 showToast('Member added');
         loadData(); // removed await for resilience
                 window.openMembersModal(activeGroupId);
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to add member', 'error');
-            }
+             }
         });
 
         window.removeMember = async function(userId) {
@@ -328,9 +328,9 @@
                 showToast('Member removed');
         loadData(); // removed await for resilience
                 window.openMembersModal(activeGroupId);
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to remove member', 'error');
-            }
+             }
         };
 
         window.promptDelete = async function(id) {
@@ -340,9 +340,9 @@
                     await window.api.deleteGroup(id);
                     showToast('Silme işlemi tamamlandı');
                     loadData();
-                } catch (e) {
+                } catch (e) { console.error(e); 
                     showToast('Silme işlemi başarısız', 'error');
-                }
+                 }
             }
         };
 
@@ -363,9 +363,9 @@
                 closeModal('groupModal');
                 showToast('Group saved');
         loadData(); // removed await for resilience
-            } catch (err) {
+            } catch (err) { console.error(err); 
                 showToast('Failed to save group', 'error');
-            }
+             }
         });
 
         loadData();

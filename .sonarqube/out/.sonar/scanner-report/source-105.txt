@@ -16,6 +16,19 @@ public static class StatusConstants
     public const string Closed = "Kapatıldı";
 }
 
+public static class TransitionConstants
+{
+    public const string StartProgress = "Start Progress";
+    public const string PutOnHold = "Put on Hold";
+    public const string Resolve = "Resolve";
+    public const string MoveToOpen = "Move to Open";
+    public const string ResumeProgress = "Resume Progress";
+    public const string ReopenToOpen = "Reopen to Open";
+    public const string ReopenToProgress = "Reopen to Progress";
+    public const string ReopenToPending = "Reopen to Pending";
+    public const string ReopenToResolved = "Reopen to Resolved";
+}
+
 
 public class DataSeeder
 {
@@ -275,60 +288,17 @@ public class DataSeeder
 
     private async Task SeedWorkflowTransitionsAsync()
     {
-        // Default Workflow & Transitions
-        var defaultWorkflow = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
-        if (defaultWorkflow == null)
-        {
-            defaultWorkflow = new ItsTool.Domain.Entities.Workflow.Workflow 
-            { 
-                Name = "Default Global Workflow", 
-                Description = "Sistem varsayılan iş akışı", 
-                IsActive = true 
-            };
-            _context.Workflows.Add(defaultWorkflow);
-            await _context.SaveChangesAsync();
-        }
-
-            var openStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Open);
-            var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.InProgress);
-            var onHoldStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.OnHold);
-            var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Resolved);
-            var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Closed);
+        var defaultWorkflow = await GetOrCreateDefaultWorkflowAsync();
+        
+        var openStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Open);
+        var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.InProgress);
+        var onHoldStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.OnHold);
+        var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Resolved);
+        var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == StatusConstants.Closed);
 
         if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
         {
-            var desiredTransitions = new List<ItsTool.Domain.Entities.Workflow.WorkflowTransition>
-            {
-                // Open -> {InProgress,Pending,Resolved,Closed}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Start Progress" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Put on Hold" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-                // In Progress -> {Open,Pending,Resolved,Closed}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Move to Open" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Put on Hold" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-                // Pending (On Hold) -> {Open,InProgress,Resolved,Closed}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Move to Open" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Resume Progress" },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-                // Resolved -> {Open,InProgress,Pending,Closed}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = PermissionConstants.TicketReopen },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = PermissionConstants.TicketReopen },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = PermissionConstants.TicketReopen },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-                // Closed -> {Open,InProgress,Pending,Resolved}
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = PermissionConstants.TicketReopen },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = PermissionConstants.TicketReopen },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = PermissionConstants.TicketReopen },
-                new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Reopen to Resolved", RequiredPermissionKey = PermissionConstants.TicketReopen }
-            };
+            var desiredTransitions = BuildDesiredTransitions(defaultWorkflow.Id, openStatus.Id, inProgressStatus.Id, onHoldStatus.Id, resolvedStatus.Id, closedStatus.Id);
 
             var currentTransitions = await _context.WorkflowTransitions
                 .Where(wt => wt.WorkflowId == defaultWorkflow.Id)
@@ -484,49 +454,49 @@ public class DataSeeder
         }
     }
 
-    private async Task AddDefaultTransitionsAsync(ItsTool.Domain.Entities.Workflow.Workflow defaultWorkflow, 
-        ItsTool.Domain.Entities.Ticket.Status openStatus, ItsTool.Domain.Entities.Ticket.Status inProgressStatus, 
-        ItsTool.Domain.Entities.Ticket.Status onHoldStatus, ItsTool.Domain.Entities.Ticket.Status resolvedStatus, 
-        ItsTool.Domain.Entities.Ticket.Status closedStatus)
+
+
+    private List<ItsTool.Domain.Entities.Workflow.WorkflowTransition> BuildDesiredTransitions(int workflowId, int openId, int inProgressId, int onHoldId, int resolvedId, int closedId)
     {
-        var desiredTransitions = new List<ItsTool.Domain.Entities.Workflow.WorkflowTransition>
+        return new List<ItsTool.Domain.Entities.Workflow.WorkflowTransition>
         {
-            // Open -> {InProgress,Pending,Resolved,Closed}
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Start Progress" },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Put on Hold" },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = openStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-            // In Progress -> {Open,Pending,Resolved,Closed}
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Move to Open" },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Put on Hold" },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = inProgressStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-            // Pending (On Hold) -> {Open,InProgress,Resolved,Closed}
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Move to Open" },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Resume Progress" },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = onHoldStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-            // Resolved -> {Open,InProgress,Pending,Closed}
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = PermissionConstants.TicketReopen },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = PermissionConstants.TicketReopen },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = PermissionConstants.TicketReopen },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = resolvedStatus.Id, ToStatusId = closedStatus.Id, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
-
-            // Closed -> {Open,InProgress,Pending,Resolved}
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = openStatus.Id, IsActive = true, TransitionName = "Reopen to Open", RequiredPermissionKey = PermissionConstants.TicketReopen },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = inProgressStatus.Id, IsActive = true, TransitionName = "Reopen to Progress", RequiredPermissionKey = PermissionConstants.TicketReopen },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = onHoldStatus.Id, IsActive = true, TransitionName = "Reopen to Pending", RequiredPermissionKey = PermissionConstants.TicketReopen },
-            new() { WorkflowId = defaultWorkflow.Id, FromStatusId = closedStatus.Id, ToStatusId = resolvedStatus.Id, IsActive = true, TransitionName = "Resolve", RequiredPermissionKey = PermissionConstants.TicketResolve }
+            new() { WorkflowId = workflowId, FromStatusId = openId, ToStatusId = inProgressId, IsActive = true, TransitionName = TransitionConstants.StartProgress },
+            new() { WorkflowId = workflowId, FromStatusId = openId, ToStatusId = onHoldId, IsActive = true, TransitionName = TransitionConstants.PutOnHold },
+            new() { WorkflowId = workflowId, FromStatusId = openId, ToStatusId = resolvedId, IsActive = true, TransitionName = TransitionConstants.Resolve, RequiredPermissionKey = PermissionConstants.TicketResolve },
+            new() { WorkflowId = workflowId, FromStatusId = openId, ToStatusId = closedId, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
+            new() { WorkflowId = workflowId, FromStatusId = inProgressId, ToStatusId = openId, IsActive = true, TransitionName = TransitionConstants.MoveToOpen },
+            new() { WorkflowId = workflowId, FromStatusId = inProgressId, ToStatusId = onHoldId, IsActive = true, TransitionName = TransitionConstants.PutOnHold },
+            new() { WorkflowId = workflowId, FromStatusId = inProgressId, ToStatusId = resolvedId, IsActive = true, TransitionName = TransitionConstants.Resolve, RequiredPermissionKey = PermissionConstants.TicketResolve },
+            new() { WorkflowId = workflowId, FromStatusId = inProgressId, ToStatusId = closedId, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
+            new() { WorkflowId = workflowId, FromStatusId = onHoldId, ToStatusId = openId, IsActive = true, TransitionName = TransitionConstants.MoveToOpen },
+            new() { WorkflowId = workflowId, FromStatusId = onHoldId, ToStatusId = inProgressId, IsActive = true, TransitionName = TransitionConstants.ResumeProgress },
+            new() { WorkflowId = workflowId, FromStatusId = onHoldId, ToStatusId = resolvedId, IsActive = true, TransitionName = TransitionConstants.Resolve, RequiredPermissionKey = PermissionConstants.TicketResolve },
+            new() { WorkflowId = workflowId, FromStatusId = onHoldId, ToStatusId = closedId, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
+            new() { WorkflowId = workflowId, FromStatusId = resolvedId, ToStatusId = openId, IsActive = true, TransitionName = TransitionConstants.ReopenToOpen, RequiredPermissionKey = PermissionConstants.TicketReopen },
+            new() { WorkflowId = workflowId, FromStatusId = resolvedId, ToStatusId = inProgressId, IsActive = true, TransitionName = TransitionConstants.ReopenToProgress, RequiredPermissionKey = PermissionConstants.TicketReopen },
+            new() { WorkflowId = workflowId, FromStatusId = resolvedId, ToStatusId = onHoldId, IsActive = true, TransitionName = TransitionConstants.ReopenToPending, RequiredPermissionKey = PermissionConstants.TicketReopen },
+            new() { WorkflowId = workflowId, FromStatusId = resolvedId, ToStatusId = closedId, IsActive = true, TransitionName = StatusConstants.Closed, RequiredPermissionKey = PermissionConstants.TicketClose },
+            new() { WorkflowId = workflowId, FromStatusId = closedId, ToStatusId = openId, IsActive = true, TransitionName = TransitionConstants.ReopenToOpen, RequiredPermissionKey = PermissionConstants.TicketReopen },
+            new() { WorkflowId = workflowId, FromStatusId = closedId, ToStatusId = inProgressId, IsActive = true, TransitionName = TransitionConstants.ReopenToProgress, RequiredPermissionKey = PermissionConstants.TicketReopen },
+            new() { WorkflowId = workflowId, FromStatusId = closedId, ToStatusId = onHoldId, IsActive = true, TransitionName = TransitionConstants.ReopenToPending, RequiredPermissionKey = PermissionConstants.TicketReopen },
+            new() { WorkflowId = workflowId, FromStatusId = closedId, ToStatusId = resolvedId, IsActive = true, TransitionName = TransitionConstants.ReopenToResolved, RequiredPermissionKey = PermissionConstants.TicketReopen }
         };
+    }
 
-        var existingTransitions = await _context.WorkflowTransitions.Where(wt => wt.WorkflowId == defaultWorkflow.Id).ToListAsync();
-        if (existingTransitions.Count == 0)
+    private async Task<ItsTool.Domain.Entities.Workflow.Workflow> GetOrCreateDefaultWorkflowAsync()
+    {
+        var wf = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
+        if (wf == null)
         {
-            _context.WorkflowTransitions.AddRange(desiredTransitions);
+            wf = new ItsTool.Domain.Entities.Workflow.Workflow 
+            { 
+                Name = "Default Global Workflow", 
+                Description = "Sistem varsayılan iş akışı", 
+                IsActive = true 
+            };
+            _context.Workflows.Add(wf);
             await _context.SaveChangesAsync();
         }
+        return wf;
     }
 }

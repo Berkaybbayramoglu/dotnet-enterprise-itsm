@@ -241,9 +241,9 @@ export function bindShellActions() {
                             </div>
                         `;
                         loaded = true;
-                    } catch(err) {
+                    } catch (err) { console.error(err); 
                         panel.innerHTML = '<div class="text-danger">Failed to load profile details.</div>';
-                    }
+                     }
                 }
             } else {
                 panel.style.display = 'none';
@@ -271,7 +271,7 @@ export function bindShellActions() {
     });
 
     // RBAC Sidebar rendering
-    if (window.api && window.api.token) {
+    if (window.api?.token) {
         window.api.getMe().then(me => {
             applySidebarRbac(me.permissions || [], (me.roles || []).includes('SuperAdmin'));
         }).catch(e => {

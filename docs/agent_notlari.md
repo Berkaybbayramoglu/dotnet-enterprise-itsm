@@ -78,3 +78,7 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - One-Off Script Rule: Helper/one-off Python scripts for refactoring (like fix_*.py or sweep.py) MUST NOT be kept in the repository because they trigger SonarQube issues and pollute the codebase. Execute them from outside the repo (e.g., /tmp/) or delete them immediately after use.
 - Clean Code Sweeps: Empty catch blocks must not exist; always log the error or use a user toast.
 - Accessibility: Ensure all heading tags (e.g., `<h3>`) contain meaningful text, not just aria-labels on empty tags.
+
+- Complexity Management: Nested ternaries inside loops are anti-patterns. Always extract mapping/conditional logic to static helpers or independent functions.
+- HTML Semantics: Do not use `div role="group"`. Always use `<fieldset>` with an `<legend>` element (even if visually hidden via `.sr-only` or CSS) for better screen-reader accessibility.
+- Top-Level Await: Always use `<script type="module">` for top-level scripts when calling async functions to avoid unhandled promises at page load.

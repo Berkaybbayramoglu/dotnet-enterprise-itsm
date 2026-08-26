@@ -1,4 +1,4 @@
-¨êüçƒ4	itsm-tool(:R
+ÀŸ½èƒ4	itsm-tool(:R
 
 kubernetesD
 $2daa1f33-83a1-4e12-838a-aba088d54e3e	Sonar way
@@ -56,9 +56,7 @@ $1304c19e-65c9-4be8-99b3-62c76feeb81f	Sonar wayazureresourcemanager ¸ö…õ€4:B
 ts<
 $729fefe2-6301-4f82-9ce1-c1bb97cc27ca	Sonar wayts ¸ö…õ€4B
 csharp
-csharpÌü…õ€4B
-python
-pythonÇü…õ€4B
+csharpÌü…õ€4B
 web
 webÌü…õ€4B
 cayc
@@ -72,12 +70,11 @@ $729fefe2-6301-4f82-9ce1-c1bb97cc27ca	Sonar wayts ¸ö…õ€4B
 
 javascript
 
-javascriptËü…õ€4j(2016fa994916eea3dab4647aa389456e046b3955²
+javascriptËü…õ€4j(38bc85a1b0b9002035c120fbe5f2b886d549a48a²
 cs¤²
 css²
 web²
 xml²
-py²
 js²
 jsonº	
 otherº	

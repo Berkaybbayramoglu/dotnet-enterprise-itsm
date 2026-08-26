@@ -98,11 +98,12 @@
                 </div>
 
                 <div class="filter-bar" style="margin-top: 12px; margin-bottom: 24px;">
-                    <div class="btn-group" id="statusFilterGroup" role="group" aria-label="Ticket Status Filter">
+                    <fieldset class="btn-group" id="statusFilterGroup" style="border:none; padding:0; margin:0;">
+                        <legend style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;">Ticket Status Filter</legend>
                         <button type="button" class="btn btn-secondary active" id="filterActive" aria-pressed="true">Aktif</button>
                         <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false">Kapalı</button>
                         <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false">Tümü</button>
-                    </div>
+                    </fieldset>
                 </div>
 
                 <div class="table-container">
@@ -325,8 +326,8 @@
         document.getElementById('btnSaveFilter').addEventListener('click', saveFilter);
         document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
         document.getElementById('savedFilters').addEventListener('change', loadFilter);
-        loadFiltersDropdown(); // removed await for resilience
-        search(); // removed await for resilience
+        await loadFiltersDropdown();
+        await search();
     </script>
 </body>
 </html>

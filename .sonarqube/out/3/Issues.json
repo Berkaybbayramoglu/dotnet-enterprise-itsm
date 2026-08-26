@@ -12,429 +12,6 @@
       },
       "results": [
         {
-          "ruleId": "S1144",
-          "level": "warning",
-          "message": "Remove the unused private method 'AddDefaultTransitionsAsync'.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 487,
-                  "startColumn": 24,
-                  "endLine": 487,
-                  "endColumn": 50
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Put on Hold' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 304,
-                  "startColumn": 152,
-                  "endLine": 304,
-                  "endColumn": 165
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 310,
-                  "startColumn": 158,
-                  "endLine": 310,
-                  "endColumn": 171
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 496,
-                  "startColumn": 148,
-                  "endLine": 496,
-                  "endColumn": 161
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 502,
-                  "startColumn": 154,
-                  "endLine": 502,
-                  "endColumn": 167
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Resolve' 7 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 305,
-                  "startColumn": 154,
-                  "endLine": 305,
-                  "endColumn": 163
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 311,
-                  "startColumn": 160,
-                  "endLine": 311,
-                  "endColumn": 169
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 317,
-                  "startColumn": 156,
-                  "endLine": 317,
-                  "endColumn": 165
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 497,
-                  "startColumn": 150,
-                  "endLine": 497,
-                  "endColumn": 159
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 503,
-                  "startColumn": 156,
-                  "endLine": 503,
-                  "endColumn": 165
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 509,
-                  "startColumn": 152,
-                  "endLine": 509,
-                  "endColumn": 161
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 522,
-                  "startColumn": 152,
-                  "endLine": 522,
-                  "endColumn": 161
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null,
-              "3": null,
-              "4": null,
-              "5": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Move to Open' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 309,
-                  "startColumn": 156,
-                  "endLine": 309,
-                  "endColumn": 170
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 315,
-                  "startColumn": 152,
-                  "endLine": 315,
-                  "endColumn": 166
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 501,
-                  "startColumn": 152,
-                  "endLine": 501,
-                  "endColumn": 166
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 507,
-                  "startColumn": 148,
-                  "endLine": 507,
-                  "endColumn": 162
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Reopen to Open' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 321,
-                  "startColumn": 154,
-                  "endLine": 321,
-                  "endColumn": 170
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 327,
-                  "startColumn": 152,
-                  "endLine": 327,
-                  "endColumn": 168
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 513,
-                  "startColumn": 150,
-                  "endLine": 513,
-                  "endColumn": 166
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 519,
-                  "startColumn": 148,
-                  "endLine": 519,
-                  "endColumn": 164
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Reopen to Progress' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 322,
-                  "startColumn": 160,
-                  "endLine": 322,
-                  "endColumn": 180
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 328,
-                  "startColumn": 158,
-                  "endLine": 328,
-                  "endColumn": 178
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 514,
-                  "startColumn": 156,
-                  "endLine": 514,
-                  "endColumn": 176
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 520,
-                  "startColumn": 154,
-                  "endLine": 520,
-                  "endColumn": 174
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
-          "ruleId": "S1192",
-          "level": "warning",
-          "message": "Define a constant instead of using this literal 'Reopen to Pending' 4 times.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 323,
-                  "startColumn": 156,
-                  "endLine": 323,
-                  "endColumn": 175
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 329,
-                  "startColumn": 154,
-                  "endLine": 329,
-                  "endColumn": 173
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 515,
-                  "startColumn": 152,
-                  "endLine": 515,
-                  "endColumn": 171
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 521,
-                  "startColumn": 150,
-                  "endLine": 521,
-                  "endColumn": 169
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null
-            }
-          }
-        },
-        {
           "ruleId": "S1186",
           "level": "warning",
           "message": "Add a nested comment explaining why this method is empty, throw a 'NotSupportedException' or complete the implementation.",
@@ -458,208 +35,15 @@
         {
           "ruleId": "S3776",
           "level": "warning",
-          "message": "Refactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 304,
-                  "startColumn": 23,
-                  "endLine": 304,
-                  "endColumn": 40
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 306,
-                  "startColumn": 82,
-                  "endLine": 306,
-                  "endColumn": 84
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 307,
-                  "startColumn": 9,
-                  "endLine": 307,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 309,
-                  "startColumn": 9,
-                  "endLine": 309,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 313,
-                  "startColumn": 77,
-                  "endLine": 313,
-                  "endColumn": 79
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 313,
-                  "startColumn": 53,
-                  "endLine": 313,
-                  "endColumn": 55
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 314,
-                  "startColumn": 64,
-                  "endLine": 314,
-                  "endColumn": 65
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 316,
-                  "startColumn": 9,
-                  "endLine": 316,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 319,
-                  "startColumn": 36,
-                  "endLine": 319,
-                  "endColumn": 38
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 321,
-                  "startColumn": 9,
-                  "endLine": 321,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 324,
-                  "startColumn": 9,
-                  "endLine": 324,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 327,
-                  "startColumn": 13,
-                  "endLine": 327,
-                  "endColumn": 15
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 337,
-                  "startColumn": 67,
-                  "endLine": 337,
-                  "endColumn": 68
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 349,
-                  "startColumn": 9,
-                  "endLine": 349,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 349,
-                  "startColumn": 34,
-                  "endLine": 349,
-                  "endColumn": 36
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": "+1",
-              "1": "+1",
-              "10": "+2 (incl 1 for nesting)",
-              "11": "+1",
-              "12": "+1",
-              "13": "+1",
-              "2": "+1",
-              "3": "+1",
-              "4": "+1",
-              "5": "+2 (incl 1 for nesting)",
-              "6": "+1",
-              "7": "+1",
-              "8": "+1",
-              "9": "+1"
-            }
-          }
-        },
-        {
-          "ruleId": "S3776",
-          "level": "warning",
-          "message": "Refactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.",
+          "message": "Refactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.",
           "locations": [
             {
               "resultFile": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 276,
+                  "startLine": 289,
                   "startColumn": 24,
-                  "endLine": 276,
+                  "endLine": 289,
                   "endColumn": 52
                 }
               }
@@ -670,9 +54,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 280,
+                  "startLine": 299,
                   "startColumn": 9,
-                  "endLine": 280,
+                  "endLine": 299,
                   "endColumn": 11
                 }
               }
@@ -681,20 +65,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 298,
-                  "startColumn": 9,
-                  "endLine": 298,
-                  "endColumn": 11
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 298,
+                  "startLine": 299,
                   "startColumn": 32,
-                  "endLine": 298,
+                  "endLine": 299,
                   "endColumn": 34
                 }
               }
@@ -703,9 +76,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 337,
+                  "startLine": 307,
                   "startColumn": 13,
-                  "endLine": 337,
+                  "endLine": 307,
                   "endColumn": 20
                 }
               }
@@ -714,9 +87,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 339,
+                  "startLine": 309,
                   "startColumn": 94,
-                  "endLine": 339,
+                  "endLine": 309,
                   "endColumn": 96
                 }
               }
@@ -725,9 +98,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 340,
+                  "startLine": 310,
                   "startColumn": 17,
-                  "endLine": 340,
+                  "endLine": 310,
                   "endColumn": 19
                 }
               }
@@ -736,9 +109,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 349,
+                  "startLine": 319,
                   "startColumn": 9,
-                  "endLine": 349,
+                  "endLine": 319,
                   "endColumn": 11
                 }
               }
@@ -747,9 +120,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 352,
+                  "startLine": 322,
                   "startColumn": 13,
-                  "endLine": 352,
+                  "endLine": 322,
                   "endColumn": 20
                 }
               }
@@ -758,9 +131,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 354,
+                  "startLine": 324,
                   "startColumn": 17,
-                  "endLine": 354,
+                  "endLine": 324,
                   "endColumn": 19
                 }
               }
@@ -769,9 +142,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 354,
+                  "startLine": 324,
                   "startColumn": 100,
-                  "endLine": 354,
+                  "endLine": 324,
                   "endColumn": 102
                 }
               }
@@ -780,9 +153,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 354,
+                  "startLine": 324,
                   "startColumn": 60,
-                  "endLine": 354,
+                  "endLine": 324,
                   "endColumn": 62
                 }
               }
@@ -791,9 +164,9 @@
               "physicalLocation": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 359,
+                  "startLine": 329,
                   "startColumn": 17,
-                  "endLine": 359,
+                  "endLine": 329,
                   "endColumn": 21
                 }
               }
@@ -805,16 +178,36 @@
               "0": "+1",
               "1": "+1",
               "10": "+1",
-              "11": "+1",
-              "2": "+1",
-              "3": "+2 (incl 1 for nesting)",
-              "4": "+1",
-              "5": "+3 (incl 2 for nesting)",
-              "6": "+1",
-              "7": "+2 (incl 1 for nesting)",
-              "8": "+3 (incl 2 for nesting)",
+              "2": "+2 (incl 1 for nesting)",
+              "3": "+1",
+              "4": "+3 (incl 2 for nesting)",
+              "5": "+1",
+              "6": "+2 (incl 1 for nesting)",
+              "7": "+3 (incl 2 for nesting)",
+              "8": "+1",
               "9": "+1"
             }
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Member 'BuildDesiredTransitions' does not access instance data and can be marked as static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
+                "region": {
+                  "startLine": 459,
+                  "startColumn": 71,
+                  "endLine": 459,
+                  "endColumn": 94
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
           }
         },
         {
@@ -843,6 +236,22 @@
         }
       ],
       "rules": {
+        "CA1822": {
+          "id": "CA1822",
+          "shortDescription": "Mark members as static",
+          "fullDescription": "Members that do not access instance data or call instance methods can be marked as static. After you mark the methods as static, the compiler will emit nonvirtual call sites to these members. This can give you a measurable performance gain for performance-sensitive code.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "PortedFromFxCop",
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
         "CA1861": {
           "id": "CA1861",
           "shortDescription": "Avoid constant arrays as arguments",
@@ -858,22 +267,6 @@
             ]
           }
         },
-        "S1144": {
-          "id": "S1144",
-          "shortDescription": "Unused private types or members should be removed",
-          "fullDescription": "This rule raises an issue when a private/internal type or member is never referenced in the code.",
-          "defaultLevel": "warning",
-          "properties": {
-            "category": "Major Code Smell",
-            "isEnabledByDefault": true,
-            "tags": [
-              "C#",
-              "MainSourceScope",
-              "TestSourceScope",
-              "SonarWay"
-            ]
-          }
-        },
         "S1186": {
           "id": "S1186",
           "shortDescription": "Methods should not be empty",
@@ -886,21 +279,6 @@
               "C#",
               "MainSourceScope",
               "TestSourceScope",
-              "SonarWay"
-            ]
-          }
-        },
-        "S1192": {
-          "id": "S1192",
-          "shortDescription": "String literals should not be duplicated",
-          "fullDescription": "Duplicated string literals make the process of refactoring complex and error-prone, as any change would need to be propagated on all occurrences.",
-          "defaultLevel": "warning",
-          "properties": {
-            "category": "Minor Code Smell",
-            "isEnabledByDefault": false,
-            "tags": [
-              "C#",
-              "MainSourceScope",
               "SonarWay"
             ]
           }

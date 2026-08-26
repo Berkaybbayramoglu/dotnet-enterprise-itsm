@@ -66,3 +66,10 @@ Bu desen, hem şık (hover effect) hem de engelsiz bir Dashboard sunar.
 - **One-off Script Politikası:** Toplu düzeltmeler (bulk-fix) için yazılan geçici Python veya JS betiklerinin repo içerisinde tutulmaması kritik bir kuraldır. Geçmişte bu tarz `fix_*.py` scriptleri SonarQube bulgularına ve gereksiz kod kirliliğine neden oldu. Bu betikler artık ya `/tmp` gibi repo dışı bir alanda çalıştırılmalı ya da çalıştırıldıktan hemen sonra (ör. `&& rm script.py`) silinmelidir.
 - **Empty Catch Disiplini:** Arayüz (UI) katmanında ve `wwwroot` altındaki tüm API isteklerinde oluşabilecek hataların yutulmasını (swallow) önlemek için tüm boş `catch(e) {}` bloklarına `console.error(e)` eklendi.
 - **DataSeeder Constants:** `StatusConstants` ve geçiş isimleri (TransitionName) gibi "magic string" (sihirli metin) değerlerinin merkezileştirilmesi SOLID prensiplerine tam uyum sağlar.
+
+### Öğrenme Notu - Final Sweep ve Modül Yapısı (FAZ 10)
+- **Top-Level Await (v11.5 Deseni):** Sayfa yüklenme anında çağrılan `init()`, `loadLookups()` gibi asenkron metotların yutulmasını (swallow) önlemek için tüm ana `<script>` etiketleri `<script type="module">` yapısına geçirildi ve fonksiyon çağrıları `await` ile önceliklendirildi.
+- **Test Null-Safety Deseni:** `Assert.NotNull(x);` kullanımından sonra C# 8+ compiler'ının nullable uyarısı vermemesi için değişkenler `x!.Property` şeklinde null-forgiving (bang) operatörü ile çağrıldı. Bu, test kodlarında "Zaten NotNull ile guardladım, buraya geldiyse null değildir" anlamına gelir.
+- **UI Complexity ve A11y:**
+  - `projects.html` içerisinde üç defa tekrar eden statü-renk eşleştirme ternarileri (içiçe geçmiş - nested ternary) `getProjectStatusColor` adlı bir yardımcı metoda çıkarılarak karmaşıklık düşürüldü.
+  - A11y (Erişilebilirlik) standartları gereği filtre butonlarını gruplayan `role="group"` div'leri, anlamsal (semantic) HTML etiketi olan `<fieldset>` ve `<legend>` yapısına dönüştürüldü.

@@ -1,1 +1,0 @@
-Ö 2pyXGhrsweep.py
