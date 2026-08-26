@@ -82,6 +82,7 @@ export function initCrudPage(cfg) {
         try {
             tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: 20px;">Loading...</td></tr>';
             currentData = (await window.api.request(endpoint)) || [];
+            window.currentData = currentData;
             renderTable(currentData);
         } catch (err) {
             console.error(err);

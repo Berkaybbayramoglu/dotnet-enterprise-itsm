@@ -44,8 +44,15 @@ export const adminConfigs = {
                 const statusStr = item.status || 'Active';
                 let color = 'default';
                 if (statusStr === 'Active') color = 'success';
-                if (statusStr === 'Warning') color = 'warning';
-                return `<span class="badge badge-${color}">${statusStr}</span>`;
+                if (statusStr === 'Warning' || statusStr === 'Inactive') color = 'warning';
+                if (statusStr === 'Postponed') color = 'info';
+                
+                return `
+                <select class="badge badge-${color}" style="border:none; cursor:pointer; outline:none; font-weight:bold; appearance:none; padding-right:12px; text-align:center;" onchange="window.updateProjectStatusInline(${item.id}, this.value)">
+                    <option value="Active" ${statusStr === 'Active' ? 'selected' : ''} style="background: var(--success-light); color: var(--success); font-weight: bold;">Active</option>
+                    <option value="Inactive" ${statusStr === 'Inactive' ? 'selected' : ''} style="background: var(--warning-light); color: #B36200; font-weight: bold;">Inactive</option>
+                    <option value="Postponed" ${statusStr === 'Postponed' ? 'selected' : ''} style="background: var(--primary-light); color: var(--primary-hover); font-weight: bold;">Postponed</option>
+                </select>`;
             }}
         ],
         formHtml: `
@@ -62,6 +69,7 @@ export const adminConfigs = {
                 <select id="pStatus" class="form-control">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
+                    <option value="Postponed">Postponed</option>
                 </select>
             </div>`
     },
@@ -108,3 +116,29 @@ export const adminConfigs = {
             </div>`
     }
 };
+
+if (!window.updateProjectStatusInline) {
+    window.updateProjectStatusInline = async function(id, newStatus) {
+        if(!window.currentData) return;
+        const proj = window.currentData.find(x => x.id === id);
+        if (!proj) return;
+        
+        try {
+            await window.api.request(`/Projects/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    name: proj.name,
+                    projectKey: proj.projectKey,
+                    description: proj.description,
+                    status: newStatus
+                })
+            });
+            if (window.ui?.showToast) window.ui.showToast('Status updated to ' + newStatus);
+            if (window.loadData) window.loadData();
+        } catch(e) {
+            console.error(e);
+            if (window.ui?.showToast) window.ui.showToast('Error updating status', 'error');
+            if (window.loadData) window.loadData(); // revert UI change
+        }
+    };
+}
