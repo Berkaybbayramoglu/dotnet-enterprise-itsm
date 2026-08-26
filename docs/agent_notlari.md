@@ -85,3 +85,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 
 - Final Cleanup 11 — Kapanış: Functions generating HTML must return it. Never leak DOM updates into mapping/building functions if they are supposed to return strings. Consistent return contracts are necessary for clean architecture. 
 - Top-level await is standard for modern ES modules in `wwwroot`.
+
+- Final Cleanup 12 — DRY & Zero Complexity: 
+  - Centralized all frontend logic for basic admin CRUD tables into `crud-page.js` (Config-Driven Factory). 
+  - Standardized backend basic entities to inherit from `CrudControllerBase<TDto, TCreateDto, TUpdateDto>`.
+  - Removed duplicated query filter chains between `ReportService` and `TicketService` by moving them to `TicketQueryHelpers`.

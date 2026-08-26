@@ -7,8 +7,8 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:config.manage")]
-public class CategoriesController : ControllerBase
+[Authorize(Policy = "RequirePermission:admin.manage")]
+public class CategoriesController : CrudControllerBase<CategoryDto, CreateCategoryDto, UpdateCategoryDto>
 {
     private readonly ICatalogService _service;
 
@@ -17,34 +17,11 @@ public class CategoriesController : ControllerBase
         _service = service;
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<CategoryDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCategories([FromQuery] int? projectId)
-    {
-        return Ok(await _service.GetCategoriesAsync(projectId));
-    }
+    protected override Task<IEnumerable<CategoryDto>> GetAllEntitiesAsync() => _service.GetCategoriesAsync();
+    protected override Task<CategoryDto?> GetEntityByIdAsync(int id) => _service.GetCategoryByIdAsync(id);
+    protected override Task<CategoryDto> CreateEntityAsync(CreateCategoryDto dto) => _service.CreateCategoryAsync(dto);
+    protected override Task UpdateEntityAsync(int id, UpdateCategoryDto dto) => _service.UpdateCategoryAsync(id, dto);
+    protected override Task DeleteEntityAsync(int id) => _service.DeleteCategoryAsync(id);
+    protected override int GetEntityId(CategoryDto dto) => dto.Id;
 
-    [HttpPost]
-    [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto dto)
-    {
-        var result = await _service.CreateCategoryAsync(dto);
-        return CreatedAtAction(nameof(GetCategories), new { id = result.Id }, result);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto dto)
-    {
-        try { await _service.UpdateCategoryAsync(id, dto); return NoContent(); }
-        catch (KeyNotFoundException) { return NotFound(); }
-    }
-
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteCategory(int id)
-    {
-        await _service.DeleteCategoryAsync(id); return NoContent();
-    }
 }

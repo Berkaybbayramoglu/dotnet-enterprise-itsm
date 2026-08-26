@@ -457,8 +457,41 @@
 
         function buildEditDynamicFields(currentTicket, dynamicPlacements) {
             let html = '';
-            dynContainer.innerHTML = buildEditDynamicFields(currentTicket, dynamicPlacements);
+            for (const dp of dynamicPlacements) {
+                const def = dp.def;
+                const val = currentTicket.customFields ? currentTicket.customFields[def.key] : '';
+                let inputStr = '';
+                if (def.fieldType === 3 || def.fieldType === 4) {
+                    inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
+                    inputStr += `<option value="">Select option...</option>`;
+                    dp.options.forEach(o => {
+                        const sel = val === o.value ? 'selected' : '';
+                        inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
+                    });
+                    inputStr += `</select>`;
+                } else {
+                    const typeMap = {0: 'text', 1: 'number', 2: 'date'};
+                    inputStr = `<input type="${typeMap[def.fieldType]}" class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} value="${escapeHtml(val || '')}">`;
+                }
+                html += `<div class="property-group"><div class="property-label">${escapeHtml(def.label)}${dp.isRequired ? ' *' : ''}</div><div class="property-value">${inputStr}</div></div>`;
+            }
+            return html;
+        }
 
+        window.toggleEditMode = function() {
+            if (!currentTicket) return;
+            isEditMode = true;
+            document.getElementById('btnEditInline').style.display = 'none';
+            document.getElementById('editActions').style.display = 'flex';
+
+            const tTitle = document.getElementById('tTitle');
+            tTitle.innerHTML = `<input type="text" id="inlineEditTitle" class="form-control" style="font-size:24px; font-weight:bold; width:100%;" value="${escapeHtml(currentTicket.title)}">`;
+
+            const tDesc = document.getElementById('tDesc');
+            tDesc.innerHTML = `<textarea id="inlineEditDesc" class="form-control" rows="4" style="width:100%;">${escapeHtml(currentTicket.description || '')}</textarea>`;
+
+            const dynContainer = document.getElementById('dynamicFieldsDisplay');
+            dynContainer.innerHTML = buildEditDynamicFields(currentTicket, dynamicPlacements);
         };
 
         window.cancelEditMode = function() {

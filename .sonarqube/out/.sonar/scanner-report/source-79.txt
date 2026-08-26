@@ -367,7 +367,7 @@
             } catch (e) { console.error(e); }
         };
         
-        loadKb();
+        await loadKb();
     </script>
 </body>
 </html>

@@ -405,31 +405,32 @@
             }
         }
 
+        function applyLookupFilter(filter, lookupArray, itemName, filterKey) {
+            const obj = window.__lookupCache?.[lookupArray]?.find(s => s.name === itemName);
+            if (obj) filter[filterKey] = obj.id;
+        }
+
         function buildDrillDownFilter(type) {
             let filter = { pageSize: 50 };
             const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+            const excludeClosed = () => { if (closedStatus) filter.excludeStatusId = closedStatus.id; };
             
             if (type === 'Open Tickets') {
-                if (closedStatus) filter.excludeStatusId = closedStatus.id; 
+                excludeClosed();
             } else if (type === 'Critical') {
-                const critPrio = window.__lookupCache?.priorities?.find(p => p.name === 'Critical');
-                if (critPrio) filter.priorityId = critPrio.id;
-                if (closedStatus) filter.excludeStatusId = closedStatus.id;
+                applyLookupFilter(filter, 'priorities', 'Critical', 'priorityId');
+                excludeClosed();
             } else if (type === 'SLA Risk') {
                 filter.slaStatus = 'warning';
             } else if (type === 'SLA Breached') {
                 filter.slaStatus = 'breached';
             } else if (type === 'Unassigned') {
                 filter.unassigned = true;
-                if (closedStatus) filter.excludeStatusId = closedStatus.id;
+                excludeClosed();
             } else if (type.startsWith('Status: ')) {
-                const statusName = type.replace('Status: ', '');
-                const statusObj = window.__lookupCache?.statuses?.find(s => s.name === statusName);
-                if (statusObj) filter.statusId = statusObj.id;
+                applyLookupFilter(filter, 'statuses', type.replace('Status: ', ''), 'statusId');
             } else if (type.startsWith('Priority: ')) {
-                const priorityName = type.replace('Priority: ', '');
-                const priorityObj = window.__lookupCache?.priorities?.find(s => s.name === priorityName);
-                if (priorityObj) filter.priorityId = priorityObj.id;
+                applyLookupFilter(filter, 'priorities', type.replace('Priority: ', ''), 'priorityId');
             }
             return filter;
         }

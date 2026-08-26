@@ -455,6 +455,17 @@
             }
         };
 
+        function renderDynamicSelect(def, dp, val) {
+            let inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
+            inputStr += `<option value="">Select option...</option>`;
+            dp.options.forEach(o => {
+                const sel = val === o.value ? 'selected' : '';
+                inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
+            });
+            inputStr += `</select>`;
+            return inputStr;
+        }
+
         function buildEditDynamicFields(currentTicket, dynamicPlacements) {
             let html = '';
             for (const dp of dynamicPlacements) {
@@ -462,13 +473,7 @@
                 const val = currentTicket.customFields ? currentTicket.customFields[def.key] : '';
                 let inputStr = '';
                 if (def.fieldType === 3 || def.fieldType === 4) {
-                    inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;
-                    inputStr += `<option value="">Select option...</option>`;
-                    dp.options.forEach(o => {
-                        const sel = val === o.value ? 'selected' : '';
-                        inputStr += `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
-                    });
-                    inputStr += `</select>`;
+                    inputStr = renderDynamicSelect(def, dp, val);
                 } else {
                     const typeMap = {0: 'text', 1: 'number', 2: 'date'};
                     inputStr = `<input type="${typeMap[def.fieldType]}" class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} value="${escapeHtml(val || '')}">`;

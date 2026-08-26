@@ -8,7 +8,7 @@ namespace ItsTool.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = "RequirePermission:admin.manage")]
-public class GroupsController : ControllerBase
+public class GroupsController : CrudControllerBase<GroupDto, CreateGroupDto, UpdateGroupDto>
 {
     private readonly IGroupService _service;
 
@@ -17,62 +17,12 @@ public class GroupsController : ControllerBase
         _service = service;
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<GroupDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
-    {
-        return Ok(await _service.GetAllAsync());
-    }
-
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(GroupDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var group = await _service.GetByIdAsync(id);
-        if (group == null) return NotFound();
-        return Ok(group);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(typeof(GroupDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> Create([FromBody] CreateGroupDto dto)
-    {
-        var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateGroupDto dto)
-    {
-        try
-        {
-            await _service.UpdateAsync(id, dto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            await _service.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
+    protected override Task<IEnumerable<GroupDto>> GetAllEntitiesAsync() => _service.GetAllAsync();
+    protected override Task<GroupDto?> GetEntityByIdAsync(int id) => _service.GetByIdAsync(id);
+    protected override Task<GroupDto> CreateEntityAsync(CreateGroupDto dto) => _service.CreateAsync(dto);
+    protected override Task UpdateEntityAsync(int id, UpdateGroupDto dto) => _service.UpdateAsync(id, dto);
+    protected override Task DeleteEntityAsync(int id) => _service.DeleteAsync(id);
+    protected override int GetEntityId(GroupDto dto) => dto.Id;
 
     [HttpPost("{id}/members/{userId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
