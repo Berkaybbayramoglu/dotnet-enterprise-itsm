@@ -1,5 +1,7 @@
-﻿/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.cs
+﻿/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AssignmentRuleControllerTests.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/SavedFilterControllerTests.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Data/DataSeederTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/GlobalUsings.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AssignmentEngineTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AuthServiceTests.cs
@@ -20,6 +22,7 @@
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEngineTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEscalationTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TicketServiceTests.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TicketUpdateTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TokenServiceTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/UserServiceTests.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WebhookDispatcherTests.cs

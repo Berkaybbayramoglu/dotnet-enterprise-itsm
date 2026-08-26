@@ -1,65 +1,84 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:config.manage")]
-public class WebhookController : ControllerBase
+[Authorize(Policy = "RequirePermission:sla.manage")]
+public class SlaController : ControllerBase
 {
-    private readonly ItsToolDbContext _context;
+    private readonly ISlaService _service;
 
-    public WebhookController(ItsToolDbContext context)
+    public SlaController(ISlaService service)
     {
-        _context = context;
+        _service = service;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetWebhooks()
+    [HttpGet("policies")]
+    [ProducesResponseType(typeof(IEnumerable<SlaPolicyDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPolicies([FromQuery] int? projectId)
     {
-        var subs = await _context.WebhookSubscriptions.Where(w => !w.IsDeleted).ToListAsync();
-        return Ok(subs);
+        return Ok(await _service.GetPoliciesAsync(projectId));
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateWebhook([FromBody] WebhookSubscription sub)
+    [HttpPost("policies")]
+    [ProducesResponseType(typeof(SlaPolicyDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreatePolicy([FromBody] CreateSlaPolicyDto dto)
     {
-        _context.WebhookSubscriptions.Add(sub);
-        await _context.SaveChangesAsync();
-        return Ok(sub);
+        var res = await _service.CreatePolicyAsync(dto);
+        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateWebhook(int id, [FromBody] WebhookSubscription sub)
+    [HttpPut("policies/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdatePolicy(int id, [FromBody] UpdateSlaPolicyDto dto)
     {
-        var existing = await _context.WebhookSubscriptions.FindAsync(id);
-        if (existing == null) return NotFound();
-
-        existing.Url = sub.Url;
-        existing.EventsCsv = sub.EventsCsv;
-        existing.Secret = sub.Secret;
-        existing.IsActive = sub.IsActive;
-
-        await _context.SaveChangesAsync();
-        return Ok(existing);
+        try { await _service.UpdatePolicyAsync(id, dto); return NoContent(); }
+        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteWebhook(int id)
+    [HttpDelete("policies/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeletePolicy(int id)
     {
-        var existing = await _context.WebhookSubscriptions.FindAsync(id);
-        if (existing == null) return NotFound();
+        await _service.DeletePolicyAsync(id); return NoContent();
+    }
 
-        existing.IsDeleted = true;
-        await _context.SaveChangesAsync();
-        return NoContent();
+    [HttpGet("policies/{id}/targets")]
+    [ProducesResponseType(typeof(IEnumerable<SlaTargetDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTargets(int id)
+    {
+        return Ok(await _service.GetTargetsAsync(id));
+    }
+
+    [HttpPost("targets")]
+    [ProducesResponseType(typeof(SlaTargetDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateTarget([FromBody] CreateSlaTargetDto dto)
+    {
+        var res = await _service.CreateTargetAsync(dto);
+        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res); // Note: Should probably point to GetTargets
+    }
+
+    [HttpPut("targets/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTarget(int id, [FromBody] UpdateSlaTargetDto dto)
+    {
+        try { await _service.UpdateTargetAsync(id, dto); return NoContent(); }
+        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
+    }
+
+    [HttpDelete("targets/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteTarget(int id)
+    {
+        await _service.DeleteTargetAsync(id); return NoContent();
     }
 }

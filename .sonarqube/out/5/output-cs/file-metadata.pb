@@ -7,7 +7,8 @@ P/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/TestBase.c
 e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WorkflowServiceTests.csutf-8p
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WebhookDispatcherTests.csutf-8j
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/UserServiceTests.csutf-8k
-b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TokenServiceTests.csutf-8l
+b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TokenServiceTests.csutf-8k
+b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TicketUpdateTests.csutf-8l
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TicketServiceTests.csutf-8l
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEscalationTests.csutf-8h
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEngineTests.csutf-8j
@@ -23,10 +24,12 @@ b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/G
 k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/EmailIngestionServiceTests.csutf-8q
 h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DynamicFormServiceTests.csutf-8p
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DepartmentServiceTests.csutf-8o
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DashboardServiceTests.csutf-8j
-a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AuthServiceTests.csutf-8m
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.csutf-8o
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DashboardServiceTests.csutf-8m
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.csutf-8j
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AuthServiceTests.csutf-8o
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AssignmentEngineTests.csutf-8]
-T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/GlobalUsings.csutf-8w
+T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/GlobalUsings.csutf-8e
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Data/DataSeederTests.csutf-8w
 n/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/SavedFilterControllerTests.csutf-8t
-k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.csutf-8
+k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.csutf-8z
+q/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AssignmentRuleControllerTests.csutf-8

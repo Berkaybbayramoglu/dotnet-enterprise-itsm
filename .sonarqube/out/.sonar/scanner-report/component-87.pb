@@ -1,1 +1,1 @@
-W 2cssXhr1src/ItsTool.Web/wwwroot/css/lib/bootstrap.min.css
+W 2webXhr"src/ItsTool.Web/wwwroot/index.html

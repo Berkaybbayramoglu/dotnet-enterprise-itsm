@@ -1,8 +1,9 @@
-namespace ItsTool.Application.DTOs;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 
-public record EmailIngestionDto(
-    string MessageId,
-    string From,
-    string Subject,
-    string Body
-);
+namespace ItsTool.Application.Interfaces;
+
+public interface IEmailIngestionService
+{
+    Task ProcessIncomingEmailAsync(EmailIngestionDto dto);
+}

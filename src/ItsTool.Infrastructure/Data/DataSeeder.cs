@@ -18,7 +18,7 @@ public class DataSeeder
     public async Task SeedAsync()
     {
         // 1. Ticket Types
-        if (!_context.TicketTypes.Any())
+        if (!await _context.TicketTypes.AnyAsync())
         {
             _context.TicketTypes.AddRange(
                 new TicketType { Name = "Incident" },
@@ -27,7 +27,7 @@ public class DataSeeder
         }
 
         // 2. Statuses
-        if (!_context.Statuses.Any())
+        if (!await _context.Statuses.AnyAsync())
         {
             _context.Statuses.AddRange(
                 new Status { Name = "Açık", SortOrder = 1, IsSystemDefault = true },
@@ -39,7 +39,7 @@ public class DataSeeder
         }
 
         // 3. Priorities
-        if (!_context.Priorities.Any())
+        if (!await _context.Priorities.AnyAsync())
         {
             _context.Priorities.AddRange(
                 new Priority { Name = "Kritik", Weight = 100, SeverityLevel = 1 },
@@ -50,7 +50,7 @@ public class DataSeeder
         }
 
         // 4. Departments
-        if (!_context.Departments.Any())
+        if (!await _context.Departments.AnyAsync())
         {
             _context.Departments.AddRange(
                 new Department { Name = "Bilgi Teknolojileri" },
@@ -59,10 +59,10 @@ public class DataSeeder
         }
         await _context.SaveChangesAsync();
 
-        var itDept = _context.Departments.FirstOrDefault(d => d.Name == "Bilgi Teknolojileri");
+        var itDept = await _context.Departments.FirstOrDefaultAsync(d => d.Name == "Bilgi Teknolojileri");
 
         // 5. Groups
-        if (!_context.Groups.Any() && itDept != null)
+        if (!await _context.Groups.AnyAsync() && itDept != null)
         {
             _context.Groups.AddRange(
                 new Group { Name = "Helpdesk Ekibi", DepartmentId = itDept.Id },
@@ -177,7 +177,7 @@ public class DataSeeder
         await _context.SaveChangesAsync();
 
         // 9. 5 Adet Default Proje (Doküman Madde 3.3)
-        if (!_context.Projects.Any())
+        if (!await _context.Projects.AnyAsync())
         {
             _context.Projects.AddRange(
                 new ItsTool.Domain.Entities.Project.Project { Name = "IT Destek", ProjectKey = "ITS" },
@@ -190,8 +190,8 @@ public class DataSeeder
         }
 
         // 10. Default Categories for ITS project
-        var itsProject = _context.Projects.FirstOrDefault(p => p.ProjectKey == "ITS");
-        if (!_context.Categories.Any() && itsProject != null)
+        var itsProject = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectKey == "ITS");
+        if (!await _context.Categories.AnyAsync() && itsProject != null)
         {
             _context.Categories.AddRange(
                 new ItsTool.Domain.Entities.Ticket.Category { Name = "Donanım Arızası", ProjectId = itsProject.Id },
@@ -202,14 +202,14 @@ public class DataSeeder
         }
 
         // 11. Dynamic Fields Demo
-        if (!_context.FieldDefinitions.Any())
+        if (!await _context.FieldDefinitions.AnyAsync())
         {
             var serverNameField = new ItsTool.Domain.Entities.Config.FieldDefinition { Key = "sunucu_adi", Label = "Sunucu Adı", FieldType = ItsTool.Domain.Entities.Config.FieldType.Text };
             var impactedUsersField = new ItsTool.Domain.Entities.Config.FieldDefinition { Key = "etkilenen_kullanicilar", Label = "Etkilenen Kullanıcı Sayısı", FieldType = ItsTool.Domain.Entities.Config.FieldType.Number };
             _context.FieldDefinitions.AddRange(serverNameField, impactedUsersField);
             await _context.SaveChangesAsync();
 
-            var hwCategory = _context.Categories.FirstOrDefault(c => c.Name == "Donanım Arızası");
+            var hwCategory = await _context.Categories.FirstOrDefaultAsync(c => c.Name == "Donanım Arızası");
             if (hwCategory != null)
             {
                 _context.FormFieldPlacements.AddRange(
@@ -221,16 +221,16 @@ public class DataSeeder
         }
 
         // 12. SLA Seed Data
-        if (!_context.SlaPolicies.Any())
+        if (!await _context.SlaPolicies.AnyAsync())
         {
             var policy = new SlaPolicy { Name = "Default SLA Policy", Description = "Varsayılan hizmet seviyesi sözleşmesi" };
             _context.SlaPolicies.Add(policy);
             await _context.SaveChangesAsync();
 
-            var critical = _context.Priorities.FirstOrDefault(p => p.Name == "Kritik");
-            var high = _context.Priorities.FirstOrDefault(p => p.Name == "Yüksek");
-            var medium = _context.Priorities.FirstOrDefault(p => p.Name == "Orta");
-            var low = _context.Priorities.FirstOrDefault(p => p.Name == "Düşük");
+            var critical = await _context.Priorities.FirstOrDefaultAsync(p => p.Name == "Kritik");
+            var high = await _context.Priorities.FirstOrDefaultAsync(p => p.Name == "Yüksek");
+            var medium = await _context.Priorities.FirstOrDefaultAsync(p => p.Name == "Orta");
+            var low = await _context.Priorities.FirstOrDefaultAsync(p => p.Name == "Düşük");
 
             if (critical != null && high != null && medium != null && low != null)
             {
@@ -271,11 +271,11 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-            var openStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Açık");
-            var inProgressStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Devam Ediyor");
-            var onHoldStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Beklemede");
-            var resolvedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Çözüldü");
-            var closedStatus = _context.Statuses.FirstOrDefault(s => s.Name == "Kapatıldı");
+            var openStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Açık");
+            var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Devam Ediyor");
+            var onHoldStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Beklemede");
+            var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Çözüldü");
+            var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Kapatıldı");
 
         if (openStatus != null && inProgressStatus != null && onHoldStatus != null && resolvedStatus != null && closedStatus != null)
         {
@@ -327,7 +327,7 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-        var existingTransitions = _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToList();
+        var existingTransitions = await _context.WorkflowTransitions.Where(wt => string.IsNullOrEmpty(wt.TransitionName)).ToListAsync();
         if (existingTransitions.Any())
         {
 
@@ -347,7 +347,7 @@ public class DataSeeder
         }
 
         // 14. Knowledge Base Categories & Articles
-        if (!_context.KnowledgeCategories.Any())
+        if (!await _context.KnowledgeCategories.AnyAsync())
         {
             _context.KnowledgeCategories.AddRange(
                 new ItsTool.Domain.Entities.KnowledgeBase.KnowledgeCategory { Name = "Rehberler" },
@@ -357,13 +357,13 @@ public class DataSeeder
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.KnowledgeArticles.Any())
+        if (!await _context.KnowledgeArticles.AnyAsync())
         {
-            var rehberlerCat = _context.KnowledgeCategories.FirstOrDefault(c => c.Name == "Rehberler");
-            var prosedurlerCat = _context.KnowledgeCategories.FirstOrDefault(c => c.Name == "Prosedürler");
-            var sistemCat = _context.KnowledgeCategories.FirstOrDefault(c => c.Name == "Sistem & Altyapı");
+            var rehberlerCat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Name == "Rehberler");
+            var prosedurlerCat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Name == "Prosedürler");
+            var sistemCat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Name == "Sistem & Altyapı");
 
-            var adminAuthor = _context.Users.FirstOrDefault(u => u.Username == "admin");
+            var adminAuthor = await _context.Users.FirstOrDefaultAsync(u => u.Username == "admin");
             
             if (adminAuthor != null && rehberlerCat != null && prosedurlerCat != null && sistemCat != null)
             {

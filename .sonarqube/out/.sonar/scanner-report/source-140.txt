@@ -1,59 +1,24 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
+using System;
+using System.Collections.Generic;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Application.DTOs;
 
-public class RoleServiceTests : TestBase
-{
-    private readonly Repository<Role> _repository;
-    private readonly RoleService _service;
+public record DashboardOverviewDto(int OpenTickets, int CriticalTickets, int SlaBreachedTickets, int SlaRiskTickets, int UnassignedTickets, double CsatAverage);
 
-    public RoleServiceTests()
-    {
-        _repository = new Repository<Role>(_context);
-        _service = new RoleService(_repository, _context);
-    }
+public record TicketDistributionDto(string Key, int Count);
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateRole()
-    {
-        var dto = new CreateRoleDto("Manager");
-        var result = await _service.CreateAsync(dto);
+public record DashboardDistributionsDto(
+    IEnumerable<TicketDistributionDto> ByStatus,
+    IEnumerable<TicketDistributionDto> ByPriority,
+    IEnumerable<TicketDistributionDto> ByProject,
+    IEnumerable<TicketDistributionDto> ByCategory
+);
 
-        Assert.NotNull(result);
-        Assert.Equal("Manager", result.Name);
-    }
+public record AgentWorkloadDto(int UserId, string UserName, int OpenTicketCount);
+public record DepartmentWorkloadDto(int DepartmentId, string DepartmentName, int OpenTicketCount, IEnumerable<AgentWorkloadDto> Members);
 
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateRole()
-    {
-        var role = new Role { Name = "Old" };
-        _context.Roles.Add(role);
-        await _context.SaveChangesAsync();
-
-        var dto = new UpdateRoleDto("New", true);
-        await _service.UpdateAsync(role.Id, dto);
-
-        var updated = await _context.Roles.FindAsync(role.Id);
-        Assert.Equal("New", updated!.Name);
-    }
-
-    [Fact]
-    public async Task AssignPermissionAsync_ShouldAssignPermission()
-    {
-        var role = new Role { Name = "R1" };
-        var perm = new Permission { Name = "P1", Key = "p1" };
-        _context.Roles.Add(role);
-        _context.Permissions.Add(perm);
-        await _context.SaveChangesAsync();
-
-        await _service.AssignPermissionAsync(role.Id, perm.Id);
-
-        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
-        Assert.NotNull(assigned);
-    }
-}
+public record SlaComplianceDto(
+    double FirstResponseComplianceRate,
+    double ResolutionComplianceRate,
+    double AverageResolutionTimeMinutes
+);

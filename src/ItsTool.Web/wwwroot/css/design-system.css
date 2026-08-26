@@ -503,7 +503,7 @@ h1, h2, h3, h4, h5, h6 {
     
     .sidebar {
         position: absolute;
-        left: -var(--sidebar-width);
+        left: calc(var(--sidebar-width) * -1);
         top: 0;
         bottom: 0;
         transition: left 0.3s ease;

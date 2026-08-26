@@ -11,7 +11,121 @@
         "language": "en-US"
       },
       "results": [
-      ]
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'AssignmentRule' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs",
+                "region": {
+                  "startLine": 63,
+                  "startColumn": 43,
+                  "endLine": 63,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs",
+                "region": {
+                  "startLine": 89,
+                  "startColumn": 43,
+                  "endLine": 89,
+                  "endColumn": 59
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs",
+                "region": {
+                  "startLine": 102,
+                  "startColumn": 43,
+                  "endLine": 102,
+                  "endColumn": 59
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs",
+                "region": {
+                  "startLine": 118,
+                  "startColumn": 43,
+                  "endLine": 118,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1846",
+          "level": "note",
+          "message": "Prefer 'AsSpan' over 'Substring' when span-based overloads are available",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuditLogController.cs",
+                "region": {
+                  "startLine": 37,
+                  "startColumn": 21,
+                  "endLine": 37,
+                  "endColumn": 75
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        }
+      ],
+      "rules": {
+        "CA1846": {
+          "id": "CA1846",
+          "shortDescription": "Prefer 'AsSpan' over 'Substring'",
+          "fullDescription": "'AsSpan' is more efficient then 'Substring'. 'Substring' performs an O(n) string copy, while 'AsSpan' does not and has a constant cost.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1846",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "S1192": {
+          "id": "S1192",
+          "shortDescription": "String literals should not be duplicated",
+          "fullDescription": "Duplicated string literals make the process of refactoring complex and error-prone, as any change would need to be propagated on all occurrences.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": false,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        }
+      }
     }
   ]
 }

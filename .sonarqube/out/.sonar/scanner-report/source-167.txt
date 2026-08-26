@@ -1,9 +1,12 @@
+using System;
 using System.Threading.Tasks;
-using ItsTool.Domain.Entities.Ticket;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IAssignmentEngine
+public interface ISlaEngine
 {
-    Task AssignTicketAsync(Ticket ticket);
+    Task AttachSlaToTicketAsync(int ticketId);
+    Task ProcessTicketStatusChangeAsync(int ticketId, int oldStatusId, int newStatusId);
+    Task ProcessTicketCommentAsync(int ticketId, bool isInternal);
+    Task CheckBreachesAsync(DateTime nowUtc);
 }

@@ -1,60 +1,99 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Organization;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Security.Cryptography;
+using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
+using Microsoft.Extensions.Logging;
+using Polly;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class GroupServiceTests : TestBase
+public class WebhookDispatcher : IWebhookDispatcher
 {
-    private readonly Repository<Group> _repository;
-    private readonly GroupService _service;
+    private readonly ItsToolDbContext _context;
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<WebhookDispatcher> _logger;
 
-    public GroupServiceTests()
+    public WebhookDispatcher(ItsToolDbContext context, HttpClient httpClient, ILogger<WebhookDispatcher> logger)
     {
-        _repository = new Repository<Group>(_context);
-        _service = new GroupService(_repository, _context);
+        _context = context;
+        _httpClient = httpClient;
+        _logger = logger;
     }
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateGroup()
+    public async Task DispatchEventAsync(string eventKey, object payload)
     {
-        var dto = new CreateGroupDto("Helpdesk", 1);
-        var result = await _service.CreateAsync(dto);
+        var subscriptions = await _context.WebhookSubscriptions
+            .Where(w => w.IsActive && !w.IsDeleted)
+            .ToListAsync();
 
-        Assert.NotNull(result);
-        Assert.Equal("Helpdesk", result.Name);
-        Assert.Equal(1, result.DepartmentId);
+        var activeSubs = subscriptions.Where(w => w.EventsCsv.Split(',').Select(e => e.Trim()).Contains(eventKey)).ToList();
+
+        if (activeSubs.Count == 0) return;
+
+        var jsonPayload = JsonSerializer.Serialize(new
+        {
+            @event = eventKey,
+            timestamp = DateTime.UtcNow,
+            data = payload
+        });
+        
+        var contentBytes = Encoding.UTF8.GetBytes(jsonPayload);
+
+        // Fire-and-forget logic so it doesn't block main thread
+        _ = Task.Run(async () =>
+        {
+            foreach (var sub in activeSubs)
+            {
+                await SendWebhookAsync(sub, contentBytes, jsonPayload);
+            }
+        });
     }
 
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateGroup()
+    private async Task SendWebhookAsync(Domain.Entities.Config.WebhookSubscription sub, byte[] contentBytes, string jsonPayload)
     {
-        var group = new Group { Name = "OldName", DepartmentId = 1 };
-        _context.Groups.Add(group);
-        await _context.SaveChangesAsync();
+        var retryPolicy = Policy
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(2), 
+            (exception, timeSpan, retryCount, context) =>
+            {
+                _logger.LogWarning("Webhook retry {RetryCount} for {Url}", retryCount, sub.Url);
+            });
 
-        var dto = new UpdateGroupDto("NewName", true, 2);
-        await _service.UpdateAsync(group.Id, dto);
+        try
+        {
+            await retryPolicy.ExecuteAsync(async () =>
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, sub.Url);
+                
+                request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-        var updated = await _context.Groups.FindAsync(group.Id);
-        Assert.Equal("NewName", updated!.Name);
-        Assert.Equal(2, updated.DepartmentId);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldSoftDeleteGroup()
-    {
-        var group = new Group { Name = "ToDelete", DepartmentId = 1 };
-        _context.Groups.Add(group);
-        await _context.SaveChangesAsync();
-
-        await _service.DeleteAsync(group.Id);
-
-        var deleted = await _context.Groups.FindAsync(group.Id);
-        Assert.True(deleted!.IsDeleted);
-        Assert.NotNull(deleted.DeletedAt);
+                // Generate HMAC-SHA256 signature
+                using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(sub.Secret)))
+                {
+                    var hash = hmac.ComputeHash(contentBytes);
+                    var signature = BitConverter.ToString(hash).Replace("-", "").ToLower();
+                    request.Headers.Add("X-ITSM-Signature", signature);
+                }
+                
+                // 5 seconds timeout for webhook
+                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(5));
+                
+                var response = await _httpClient.SendAsync(request, cts.Token);
+                response.EnsureSuccessStatusCode();
+                
+                _logger.LogInformation("Webhook sent successfully to {Url}", sub.Url);
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Webhook failed for {Url} after retries", sub.Url);
+        }
     }
 }

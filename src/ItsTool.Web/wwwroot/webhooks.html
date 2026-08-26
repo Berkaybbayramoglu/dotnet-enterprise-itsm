@@ -126,17 +126,17 @@
                 <div class="modal-body">
                     <input type="hidden" id="webhookId">
                     <div class="form-group">
-                        <label class="form-label" for="url">Endpoint URL *</label>
-                        <input type="url" class="form-control" id="url" required placeholder="https://api.example.com/webhook">
+                        <label class="form-label" for="url" for="url">Endpoint URL *</label>
+                        <input id="url" required placeholder="https://api.example.com/webhook">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="eventsCsv">Events *</label>
-                        <input type="text" class="form-control" id="eventsCsv" placeholder="ticket.created, sla.breach" required>
+                        <label class="form-label" for="eventsCsv" for="eventsCsv">Events *</label>
+                        <input id="eventsCsv" placeholder="ticket.created, sla.breach" required>
                         <small class="text-muted" style="display:block; margin-top:4px;">Comma separated list of events.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="secret">Secret Key *</label>
-                        <input type="text" class="form-control" id="secret" required placeholder="Authentication secret">
+                        <label class="form-label" for="secret" for="secret">Secret Key *</label>
+                        <input id="secret" required placeholder="Authentication secret">
                     </div>
                     <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="isActive" checked>

@@ -1,1 +1,1 @@
-d 2csX¦hr5src/ItsTool.Infrastructure/Services/CatalogService.cs
+d 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js

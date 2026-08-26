@@ -3,25 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Create Ticket</title>
+    <title>ITSM Tool - Kanban</title>
     <link rel="stylesheet" href="css/design-system.css">
     <style>
-        .form-section { background: var(--bg-surface); padding: var(--spacing-lg); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-lg); border: 1px solid var(--border); }
-        .form-section h3 { font-size: 16px; margin-bottom: var(--spacing-md); color: var(--primary); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
+        .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
+        .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
+        .column-header { padding: var(--spacing-md); font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; }
+        .column-body { padding: var(--spacing-sm); flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); min-height: 200px; }
+        
+        .card { background: var(--bg-surface); padding: var(--spacing-md); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-sm); border-left: 3px solid transparent; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card:active { cursor: grabbing; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-weight: 500; font-size: 14px; color: var(--text-main); }
+        .card-number { font-size: 12px; color: var(--text-muted); font-weight: 600; text-decoration: none; }
+        .card-number:hover { text-decoration: underline; color: var(--primary); }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-xs); }
+        
+        /* Priorites mapping to border */
+        .priority-Critical { border-left-color: var(--danger); }
+        .priority-High { border-left-color: var(--warning); }
+        .priority-Medium { border-left-color: var(--info); }
+        .priority-Low { border-left-color: var(--success); }
+
+        /* Column Status Header Strips */
+        .col-1 .column-header { border-bottom-color: var(--info); }
+        .col-2 .column-header { border-bottom-color: var(--warning); }
+        .col-3 .column-header { border-bottom-color: var(--text-muted); }
+        .col-4 .column-header { border-bottom-color: var(--success); }
+        .col-5 .column-header { border-bottom-color: var(--danger); }
     </style>
 </head>
 <body>
     <div class="app-shell">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <aside class="sidebar">
-            <div class="sidebar-header">
+                        <div class="sidebar-header">
                 <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
             </div>
             <nav class="sidebar-nav">
                 <a href="/dashboard.html" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
                 </a>
-                <a href="/tickets.html" class="sidebar-nav-item active">
+                <a href="/tickets.html" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg> Tickets
                 </a>
                 <a href="/kanban.html" class="sidebar-nav-item">
@@ -30,6 +56,26 @@
                 <a href="/kb.html" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Knowledge Base
                 </a>
+                
+                <div class="sidebar-nav-title" style="padding: 16px 20px 8px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">Administration</div>
+                <a href="/projects.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2z"/></svg> Projects
+                </a>
+                <a href="/categories.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm15 0h-2v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg> Categories
+                </a>
+                <a href="/departments.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg> Departments
+                </a>
+                <a href="/groups.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Groups
+                </a>
+                <a href="/users.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Users
+                </a>
+                <a href="/roles.html" class="sidebar-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> Roles
+                </a>
                 <a href="/audit-log.html" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> Audit Log
                 </a>
@@ -37,7 +83,7 @@
                     <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg> Webhooks
                 </a>
                 <a href="/rules.html" class="sidebar-nav-item">
-                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49-.12-.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg> Rules
                 </a>
                 <a href="/admin-fields.html" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> Custom Fields
@@ -48,10 +94,11 @@
         <main class="main-content">
             <header class="topbar">
                 <div class="topbar-left">
-                    <div style="display:flex; align-items:center; gap: 8px;">
-                        <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
-                        <h2>Create New Ticket</h2>
-                    </div>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+
+                    <h2>Kanban Board</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="avatar">U</div>
@@ -60,221 +107,327 @@
             </header>
 
             <div class="content-area">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <form id="createForm">
-                        <div class="form-section">
-                            <h3>Basic Details</h3>
-                            <div class="form-group">
-                                <label class="form-label" for="title">Title *</label>
-                                <input class="form-control" type="text" id="title" required placeholder="Brief summary of the issue">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="desc">Description *</label>
-                                <textarea class="form-control" id="desc" rows="5" required placeholder="Detailed description..."></textarea>
-                            </div>
-                        </div>
 
-                        <div class="form-section">
-                            <h3>Categorization</h3>
-                            <div class="grid-2">
-                                <div class="form-group">
-                                    <label class="form-label" for="projectId">Project *</label>
-                                    <select class="form-control" id="projectId" required><option value="">Select Project</option></select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="categoryId">Category *</label>
-                                    <select class="form-control" id="categoryId" required><option value="">Select Category</option></select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="typeId">Ticket Type *</label>
-                                    <select class="form-control" id="typeId" required><option value="">Select Type</option></select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="priorityId">Priority *</label>
-                                    <select class="form-control" id="priorityId" required><option value="">Select Priority</option></select>
-                                </div>
-                            </div>
-                        </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="background: var(--bg-hover); padding: 8px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.
+                    </div>
+                    <button class="btn btn-ghost" onclick="window.resetColumnOrder()">Sırayı Sıfırla</button>
+                </div>
 
-                        <div class="form-section">
-                            <h3>Additional Information</h3>
-                            <div id="dynamicFields">
-                                <div class="empty-state" style="padding: var(--spacing-md);">
-                                    <p style="margin: 0; font-size: 13px;">Select Project, Category, and Type to load custom fields.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; justify-content: flex-end; gap: var(--spacing-sm);">
-                            <a href="/tickets.html" class="btn btn-ghost">Cancel</a>
-                            <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Create Ticket</button>
-                        </div>
-                    </form>
+                <div class="kanban-board" id="board">
+                    <!-- Columns will be injected here -->
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Shared Preview Modal is dynamically injected by ui.js -->
+
     <script type="module">
-        import './js/api.js';
-        import { bindShellActions, showToast } from './js/ui.js';
+        import './js/api.js?v=2';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=2';
         
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
-        
-        let currentPlacements = [];
 
-        async function loadLookups() {
+        let statuses = [];
+        let tickets = [];
+
+        const getAvatar = (id, fallback) => {
+            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
+            const initial = String(fallback || id).charAt(0).toUpperCase();
+            return `<div class="avatar" title="${fallback}">${initial}</div>`;
+        };
+
+        const getPriorityIcon = (priority) => {
+            const colors = { 'Critical': 'var(--danger)', 'High': 'var(--warning)', 'Medium': 'var(--info)', 'Low': 'var(--success)' };
+            return `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: ${colors[priority] || 'var(--text-muted)'}"><path d="M16 11V3H8v6H2v12h20V11h-6zM10 5h4v14h-4V5zM4 11h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg>`;
+        };
+
+        let lookupData = {};
+        async function initKanban() {
             try {
-                const cats = await window.api.request('/catalog/categories');
-                const projs = await window.api.request('/projects');
-                const types = await window.api.request('/catalog/types');
-                const prios = await window.api.request('/catalog/priorities');
+                try {
+                    lookupData = await window.api.getLookup();
+                } catch(err) {
+                    console.warn("Lookup fetching failed, using fallback empty object.", err);
+                    lookupData = {};
+                }
+                
+                // Override statuses with real ones if available
+                if (lookupData.statuses && lookupData.statuses.length > 0) {
+                    statuses = lookupData.statuses;
+                } else {
+                    statuses = [
+                        { id: 1, name: 'Open' },
+                        { id: 2, name: 'In Progress' },
+                        { id: 3, name: 'Pending' },
+                        { id: 4, name: 'Resolved' },
+                        { id: 5, name: 'Closed' }
+                    ];
+                }
 
-                const populate = (id, data) => {
-                    const sel = document.getElementById(id);
-                    data.forEach(d => {
-                        const opt = document.createElement('option');
-                        opt.value = d.id;
-                        opt.textContent = d.name;
-                        sel.appendChild(opt);
-                    });
-                };
 
-                populate('projectId', projs);
-                populate('categoryId', cats);
-                populate('typeId', types);
-                populate('priorityId', prios);
-            } catch (err) {
-                console.error(err);
-                showToast('Failed to load lookup data', 'error');
-            }
+                let payload = { sub: 'unknown' };
+                try {
+                    payload = JSON.parse(atob(window.api.token.split('.')[1]));
+                } catch(e) {}
+                const userId = payload.sub;
+                
+                let savedOrder = localStorage.getItem(`kanban.colorder.${userId}`);
+                if (savedOrder) {
+                    try {
+                        savedOrder = JSON.parse(savedOrder);
+                        const sortedStatuses = [];
+                        savedOrder.forEach(id => {
+                            const st = statuses.find(s => s.id === id);
+                            if (st) sortedStatuses.push(st);
+                        });
+                        statuses.forEach(st => {
+                            if (!savedOrder.includes(st.id)) sortedStatuses.push(st);
+                        });
+                        statuses = sortedStatuses;
+                    } catch(e) {}
+                }
+
+                const board = document.getElementById('board');
+                board.innerHTML = '';
+                statuses.forEach(s => {
+                    const col = document.createElement('div');
+                    col.className = `column col-${s.id}`;
+                    col.dataset.colId = s.id;
+                    col.ondragover = window.allowColDrop;
+                    col.ondrop = window.colDrop;
+                    
+                    col.innerHTML = `
+                        <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
+                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${s.name}</span>
+                            <span class="badge badge-default" id="count-${s.id}">0</span>
+                        </div>
+                        <div class="column-body" data-status-id="${s.id}" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+                    `;
+                    board.appendChild(col);
+                });
+
+
+                try {
+                    const res = await window.api.searchTickets({ pageSize: 100 });
+                    tickets = res.items || [];
+                } catch(err) {
+                    console.warn("Tickets fetching failed.", err);
+                    tickets = [];
+                }
+
+                renderTickets();
+            } catch(e) { console.error("Critical error in initKanban:", e); }
         }
 
-        async function renderSelectField(def, place) {
-            const input = document.createElement('select');
-            input.className = 'form-control';
-            if (def.fieldType === 4) input.multiple = true;
-            
-            const opts = await window.api.getFieldOptions(def.id);
-            opts.forEach(o => {
-                const opt = document.createElement('option');
-                opt.value = o.value;
-                opt.textContent = o.label;
-                input.appendChild(opt);
+        function renderTickets() {
+            document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
+            const counts = {};
+
+            tickets.forEach(t => {
+                // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
+                let sId = t.statusId;
+                if(typeof sId === 'string') {
+                    // Try to map name to id for demo if it returns string
+                    const found = statuses.find(x => x.name === sId);
+                    if(found) sId = found.id; else sId = 1;
+                }
+
+                counts[sId] = (counts[sId] || 0) + 1;
+
+                const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
+                if (colBody) {
+                    const card = document.createElement('div');
+                    card.className = `card priority-${t.priorityId || 'Medium'}`;
+                    card.draggable = true;
+                    card.id = `ticket-${t.id}`;
+                    let isDragging = false;
+                    card.ondragstart = (ev) => { isDragging = true; window.drag(ev); };
+                    card.ondragend = () => { setTimeout(() => isDragging = false, 150); };
+                    card.onclick = (e) => {
+                        if (e.target.closest('.card-number')) return;
+                        if (!isDragging) openTicketPreview(t, lookupData);
+                    };
+                    card.tabIndex = 0;
+                    card.onkeydown = (e) => {
+                        if (e.key === 'Enter') openTicketPreview(t, lookupData);
+                    };
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <a href="/ticket-detail.html?id=${t.id}" class="card-number" target="_blank">${escapeHtml(t.ticketNumber)}</a>
+                            ${getPriorityIcon(t.priorityId)}
+                        </div>
+                        <div class="card-title">${escapeHtml(t.title)}</div>
+                        <div class="card-footer">
+                            ${getAvatar(t.assignedUserId, t.assignedUserId)}
+                        </div>
+                    `;
+                    colBody.appendChild(card);
+                }
             });
-            return input;
+
+            // Update counts
+            statuses.forEach(s => {
+                const countBadge = document.getElementById(`count-${s.id}`);
+                if(countBadge) countBadge.textContent = counts[s.id] || 0;
+            });
         }
 
-        function renderInputField(def) {
-            const input = document.createElement('input');
-            input.className = 'form-control';
-            if (def.fieldType === 0) input.type = 'text';
-            else if (def.fieldType === 1) input.type = 'number';
-            else if (def.fieldType === 2) input.type = 'date';
-            return input;
-        }
 
-        async function renderDynamicField(place, container) {
-            const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
-            const fg = document.createElement('div');
-            fg.className = 'form-group';
+        window.allowColDrop = function(ev) {
+            ev.preventDefault();
+            const targetCol = ev.target.closest('.column');
+            const draggingCol = document.querySelector('.column.dragging');
             
-            const lbl = document.createElement('label');
-            lbl.className = 'form-label';
-            lbl.textContent = def.label + (place.isRequired ? ' *' : '');
-            lbl.setAttribute('for', 'cf_' + def.key);
-            fg.appendChild(lbl);
-
-            let input;
-            if (def.fieldType === 3 || def.fieldType === 4) {
-                input = await renderSelectField(def, place);
-            } else {
-                input = renderInputField(def);
-            }
-
-            input.id = 'cf_' + def.key;
-            if (place.isRequired) input.required = true;
-            
-            fg.appendChild(input);
-            container.appendChild(fg);
-        }
-
-        window.loadDynamicFields = async function() {
-            const pId = document.getElementById('projectId').value;
-            const cId = document.getElementById('categoryId').value;
-            const tId = document.getElementById('typeId').value;
-            
-            if (!pId || !cId || !tId) return;
-
-            const container = document.getElementById('dynamicFields');
-            container.innerHTML = '<p class="text-muted" style="text-align: center; font-size: 13px;">Loading fields...</p>';
-
-            try {
-                currentPlacements = await window.api.getPlacements(pId, cId, tId);
-                container.innerHTML = '';
-                
-                if (currentPlacements.length === 0) {
-                    container.innerHTML = '<div class="empty-state" style="padding: var(--spacing-sm);"><p style="margin: 0; font-size: 13px;">No custom fields configured for this selection.</p></div>';
-                    return;
+            if (targetCol && draggingCol && targetCol !== draggingCol) {
+                // Determine whether to place before or after based on mouse position
+                const rect = targetCol.getBoundingClientRect();
+                const mid = rect.left + rect.width / 2;
+                if (ev.clientX < mid) {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol);
+                } else {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol.nextSibling);
                 }
-
-                currentPlacements.sort((a,b) => a.sortOrder - b.sortOrder);
-                
-                for (const place of currentPlacements) {
-                    await renderDynamicField(place, container);
-                }
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = '<span class="text-danger">Failed to load fields.</span>';
             }
         };
 
-        ['projectId', 'categoryId', 'typeId'].forEach(id => {
-            document.getElementById(id).addEventListener('change', window.loadDynamicFields);
-        });
-
-        document.getElementById('createForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const customFields = {};
-            
-            const inputs = document.querySelectorAll('#dynamicFields [id^="cf_"]');
-            inputs.forEach(inp => {
-                const key = inp.id.substring(3);
-                if (inp.multiple) {
-                    const vals = Array.from(inp.selectedOptions).map(o => o.value);
-                    customFields[key] = vals.join(',');
-                } else {
-                    customFields[key] = inp.value;
-                }
-            });
-
-            const payload = {
-                title: document.getElementById('title').value,
-                description: document.getElementById('desc').value,
-                projectId: Number.parseInt(document.getElementById('projectId').value),
-                categoryId: Number.parseInt(document.getElementById('categoryId').value),
-                typeId: Number.parseInt(document.getElementById('typeId').value),
-                priorityId: Number.parseInt(document.getElementById('priorityId').value),
-                requesterUserId: 1, // simplified for demo
-                customFields: customFields
-            };
-
-            try {
-                const res = await window.api.request('/ticket', {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                showToast('Ticket created successfully!');
-                setTimeout(() => window.location.href = `/ticket-detail.html?id=${res.id}`, 1000);
-            } catch (err) {
-                console.error(err);
-                showToast('Failed to create ticket', 'error');
+        window.colDrag = function(ev) {
+            ev.dataTransfer.setData("type", "column");
+            const col = ev.target.closest('.column');
+            if (col) {
+                ev.dataTransfer.setData("columnId", col.dataset.colId);
+                col.classList.add('dragging');
+                // Optional: make the dragged original element slightly transparent
+                col.style.opacity = '0.4';
             }
-        });
+            
+            // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
+            if (ev.dataTransfer.setDragImage) {
+                const img = new Image();
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // transparent pixel
+                ev.dataTransfer.setDragImage(img, 0, 0);
+            }
+        };
 
-        await loadLookups();
+        window.dragEnd = function(ev) {
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+                el.style.opacity = '1';
+            });
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        };
+
+        window.colDrop = function(ev) {
+            document.querySelectorAll('.column').forEach(c => {
+                c.classList.remove('drag-over');
+                c.classList.remove('dragging');
+                c.style.opacity = '1';
+            });
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") return;
+            
+            // Since the DOM is already reordered by allowColDrop, we just save it.
+            saveColumnOrder();
+        };
+        
+        function saveColumnOrder() {
+            const board = document.getElementById('board');
+            const cols = Array.from(board.children);
+            const newOrder = cols.map(c => parseInt(c.dataset.colId));
+            
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let userId = payload.sub || 'unknown';
+            localStorage.setItem(`kanban.colorder.${userId}`, JSON.stringify(newOrder));
+            
+            showToast('Sütun sırası kaydedildi.', 'success');
+        }
+        
+        window.resetColumnOrder = function() {
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let userId = payload.sub || 'unknown';
+            localStorage.removeItem(`kanban.colorder.${userId}`);
+            showToast('Sütun sırası sıfırlandı.', 'success');
+            window.location.reload();
+        };
+
+        window.allowDrop = function(ev) {
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") {
+                document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+                const colBody = ev.target.closest('.column-body');
+                if (colBody) colBody.classList.add('drag-over');
+            }
+        };
+
+        window.drag = function(ev) {
+            let el = ev.target;
+            while(el && !el.classList.contains('card')) el = el.parentElement;
+            if(el) ev.dataTransfer.setData("text", el.id);
+        };
+
+        window.drop = async function(ev) {
+            document.querySelectorAll('.dragging, .drag-over').forEach(el => {
+                el.classList.remove('dragging');
+                el.classList.remove('drag-over');
+            });
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const card = document.getElementById(data);
+            
+            let target = ev.target;
+            while(target && !target.classList.contains('column-body')) {
+                target = target.parentElement;
+            }
+
+            if (target && card) {
+                const newStatusId = Number.parseInt(target.dataset.statusId);
+                const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
+
+                try {
+                    // Actual API expects string status if we are mapping it, check mock API logic, normally ID
+                    await window.api.request(`/Ticket/${ticketId}/status`, {
+                        method: 'POST',
+                        body: JSON.stringify(newStatusId)
+                    });
+                    
+                    target.appendChild(card);
+                    
+                    // Re-calculate counts
+                    document.querySelectorAll('.column-body').forEach(c => {
+                        const sId = c.dataset.statusId;
+                        const count = c.querySelectorAll('.card').length;
+                        document.getElementById(`count-${sId}`).textContent = count;
+                    });
+
+                    if (newStatusId === 5) {
+                        showToast("Ticket closed. Sending CSAT survey notification...");
+                    } else {
+                        showToast("Ticket moved successfully");
+                    }
+                } catch(e) {
+                    console.error(e);
+                    showToast('Geçersiz geçiş: Bu aşamaya geçilemez.', 'error');
+                }
+            }
+        };
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        await initKanban();
     </script>
 </body>
 </html>

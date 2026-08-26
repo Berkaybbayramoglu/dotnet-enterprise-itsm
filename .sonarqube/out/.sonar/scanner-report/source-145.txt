@@ -1,62 +1,21 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Domain.Entities.Organization;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.UnitTests.Services;
+public record DepartmentDto(int Id, string Name, string? Description, bool IsActive);
+public record CreateDepartmentDto(string Name, string? Description);
+public record UpdateDepartmentDto(string Name, string? Description, bool IsActive);
 
-public class UserServiceTests : TestBase
-{
-    private readonly Repository<User> _repository;
-    private readonly UserService _service;
+public record GroupDto(int Id, string Name, bool IsActive, int DepartmentId);
+public record CreateGroupDto(string Name, int DepartmentId);
+public record UpdateGroupDto(string Name, bool IsActive, int DepartmentId);
 
-    public UserServiceTests()
-    {
-        _repository = new Repository<User>(_context);
-        _service = new UserService(_repository, _context);
-    }
+public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, int[] RoleIds, Dictionary<int, bool> PermissionOverrides, string? ProfilePhoto);
+public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId, string? ProfilePhoto);
+public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, string? ProfilePhoto);
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateUser()
-    {
-        var dto = new CreateUserDto("john", "j@j.com", "John", "Doe", "pass", 1);
-        var result = await _service.CreateAsync(dto);
+public record ProjectDto(int Id, string Name, string ProjectKey, string? Description, string Status);
+public record CreateProjectDto(string Name, string ProjectKey, string? Description);
+public record UpdateProjectDto(string Name, string ProjectKey, string? Description, string Status);
 
-        Assert.NotNull(result);
-        Assert.Equal("john", result.Username);
-        Assert.Equal("j@j.com", result.Email);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateUser()
-    {
-        var user = new User { Username = "old", Email = "old@j.com", FirstName = "a", LastName = "b", PasswordHash = "c" };
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var dto = new UpdateUserDto("new@j.com", "NewA", "NewB", true, 2);
-        await _service.UpdateAsync(user.Id, dto);
-
-        var updated = await _context.Users.FindAsync(user.Id);
-        Assert.Equal("new@j.com", updated!.Email);
-        Assert.Equal("NewA", updated.FirstName);
-    }
-
-    [Fact]
-    public async Task AssignRoleAsync_ShouldAssignRole()
-    {
-        var user = new User { Username = "u", Email = "e", FirstName = "a", LastName = "b", PasswordHash = "c" };
-        var role = new Role { Name = "Admin" };
-        _context.Users.Add(user);
-        _context.Roles.Add(role);
-        await _context.SaveChangesAsync();
-
-        await _service.AssignRoleAsync(user.Id, role.Id);
-
-        var assigned = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.RoleId == role.Id);
-        Assert.NotNull(assigned);
-    }
-}
+public record RoleDto(int Id, string Name, bool IsActive);
+public record CreateRoleDto(string Name);
+public record UpdateRoleDto(string Name, bool IsActive);

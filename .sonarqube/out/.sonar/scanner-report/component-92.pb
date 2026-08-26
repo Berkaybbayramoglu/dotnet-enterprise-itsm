@@ -1,1 +1,1 @@
-\ 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs
+\ 2webXÌhr$src/ItsTool.Web/wwwroot/tickets.html

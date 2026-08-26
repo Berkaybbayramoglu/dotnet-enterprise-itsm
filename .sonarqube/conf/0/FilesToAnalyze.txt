@@ -22,6 +22,7 @@
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Project/ProjectSequence.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/SlaEntities.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SLA/TicketSla.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/SystemAuditLog.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Category.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Priority.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/Status.cs
@@ -33,3 +34,4 @@
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketType.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Ticket/TicketWatcher.cs
 /home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs
+/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/Enums/ProjectStatus.cs

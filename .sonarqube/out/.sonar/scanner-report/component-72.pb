@@ -1,1 +1,0 @@
-H 2webX×hrsrc/ItsTool.Web/wwwroot/kb.html

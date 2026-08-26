@@ -1,25 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.API.Security;
+namespace ItsTool.API.Controllers;
 
-public class PermissionRequirement : IAuthorizationRequirement
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Policy = "RequirePermission:config.manage")]
+public class WebhookController : ControllerBase
 {
-    public string Permission { get; }
-    public PermissionRequirement(string permission) => Permission = permission;
-}
+    private readonly ItsToolDbContext _context;
 
-public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
-{
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    public WebhookController(ItsToolDbContext context)
     {
-        var hasPermission = context.User.HasClaim(c => 
-            c.Type == "permission" && c.Value == requirement.Permission);
+        _context = context;
+    }
 
-        if (hasPermission)
-        {
-            context.Succeed(requirement);
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetWebhooks()
+    {
+        var subs = await _context.WebhookSubscriptions.Where(w => !w.IsDeleted).ToListAsync();
+        return Ok(subs);
+    }
 
-        return Task.CompletedTask;
+    [HttpPost]
+    public async Task<IActionResult> CreateWebhook([FromBody] WebhookSubscription sub)
+    {
+        _context.WebhookSubscriptions.Add(sub);
+        await _context.SaveChangesAsync();
+        return Ok(sub);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateWebhook(int id, [FromBody] WebhookSubscription sub)
+    {
+        var existing = await _context.WebhookSubscriptions.FindAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Url = sub.Url;
+        existing.EventsCsv = sub.EventsCsv;
+        existing.Secret = sub.Secret;
+        existing.IsActive = sub.IsActive;
+
+        await _context.SaveChangesAsync();
+        return Ok(existing);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteWebhook(int id)
+    {
+        var existing = await _context.WebhookSubscriptions.FindAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpPut("{id}/toggle")]
+    public async Task<IActionResult> ToggleWebhook(int id)
+    {
+        var existing = await _context.WebhookSubscriptions.FindAsync(id);
+        if (existing == null || existing.IsDeleted) return NotFound();
+
+        existing.IsActive = !existing.IsActive;
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }

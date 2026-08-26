@@ -22,7 +22,7 @@ public class UserServiceTests : TestBase
     [Fact]
     public async Task CreateAsync_ShouldCreateUser()
     {
-        var dto = new CreateUserDto("john", "j@j.com", "John", "Doe", "pass", 1);
+        var dto = new CreateUserDto("john", "j@j.com", "John", "Doe", "pass", 1, null);
         var result = await _service.CreateAsync(dto);
 
         Assert.NotNull(result);
@@ -37,7 +37,7 @@ public class UserServiceTests : TestBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateUserDto("new@j.com", "NewA", "NewB", true, 2);
+        var dto = new UpdateUserDto("new@j.com", "NewA", "NewB", true, 2, null);
         await _service.UpdateAsync(user.Id, dto);
 
         var updated = await _context.Users.FindAsync(user.Id);

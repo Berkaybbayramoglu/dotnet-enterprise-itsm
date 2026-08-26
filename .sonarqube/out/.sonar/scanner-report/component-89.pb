@@ -1,1 +1,1 @@
-Y 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js
+Y 2webX–hr&src/ItsTool.Web/wwwroot/dashboard.html

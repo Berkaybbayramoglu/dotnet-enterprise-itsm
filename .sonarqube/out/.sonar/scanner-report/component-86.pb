@@ -1,1 +1,1 @@
-V 2jsX†hr!src/ItsTool.Web/wwwroot/js/api.js
+V 2webX…hr*src/ItsTool.Web/wwwroot/ticket-detail.html

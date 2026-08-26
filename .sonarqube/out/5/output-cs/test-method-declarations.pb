@@ -11,7 +11,10 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/U
 +ItsTool.UnitTests.Services.UserServiceTestsUpdateAsync_ShouldUpdateUserO
 +ItsTool.UnitTests.Services.UserServiceTests AssignRoleAsync_ShouldAssignRole’
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TokenServiceTests.csItsTool.UnitTests\
-,ItsTool.UnitTests.Services.TokenServiceTests,GenerateToken_ShouldCreateValidJwtWithClaims¯
+,ItsTool.UnitTests.Services.TokenServiceTests,GenerateToken_ShouldCreateValidJwtWithClaims∆
+b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TicketUpdateTests.csItsTool.UnitTestsc
+,ItsTool.UnitTests.Services.TicketUpdateTests3UpdateTicketAsync_ShouldAddHistory_WhenFieldsChangeh
+,ItsTool.UnitTests.Services.TicketUpdateTests8UpdateTicketAsync_ShouldNotAddHistory_WhenNoFieldsChange¯
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/TicketServiceTests.csItsTool.UnitTests_
 -ItsTool.UnitTests.Services.TicketServiceTests.CreateTicketAsync_ShouldGenerateSequenceNumberd
 -ItsTool.UnitTests.Services.TicketServiceTests3ChangeStatusAsync_ShouldThrowIfTransitionNotAlloweda
@@ -39,10 +42,11 @@ c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/R
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.csItsTool.UnitTestsQ
 .ItsTool.UnitTests.Services.ProjectServiceTestsCreateAsync_ShouldCreateProjectQ
 .ItsTool.UnitTests.Services.ProjectServiceTestsUpdateAsync_ShouldUpdateProjectU
-.ItsTool.UnitTests.Services.ProjectServiceTests#DeleteAsync_ShouldSoftDeleteProjectÖ
+.ItsTool.UnitTests.Services.ProjectServiceTests#DeleteAsync_ShouldSoftDeleteProjectÅ
 j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.csItsTool.UnitTests|
 4ItsTool.UnitTests.Services.PermissionCalculatorTestsDCalculateEffectivePermissionsAsync_ShouldReturnUnionOfAllPermissionsÖ
-4ItsTool.UnitTests.Services.PermissionCalculatorTestsMCalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverridesπ
+4ItsTool.UnitTests.Services.PermissionCalculatorTestsMCalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverridesz
+4ItsTool.UnitTests.Services.PermissionCalculatorTestsBCalculateEffectivePermissionsAsync_ShouldIgnoreSoftDeletedEntitiesπ
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/NotificationServiceTests.csItsTool.UnitTestsr
 3ItsTool.UnitTests.Services.NotificationServiceTests;GetUserNotificationsAsync_ShouldReturnOnlyUserNotificationse
 3ItsTool.UnitTests.Services.NotificationServiceTests.MarkAsReadAsync_ShouldMarkSpecificNotification^
@@ -78,21 +82,26 @@ f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/D
 0ItsTool.UnitTests.Services.DashboardServiceTests3GetOverviewAsync_ShouldReturnCorrectCounts_ForAdmini
 0ItsTool.UnitTests.Services.DashboardServiceTests5GetOverviewAsync_ShouldOnlyCountAgentTickets_ForAgento
 0ItsTool.UnitTests.Services.DashboardServiceTests;GetOverviewAsync_ShouldOnlyCountRequestedTickets_ForEndUser_
-0ItsTool.UnitTests.Services.DashboardServiceTests+GetOverviewAsync_ShouldCalculateCsatAverageç
+0ItsTool.UnitTests.Services.DashboardServiceTests+GetOverviewAsync_ShouldCalculateCsatAverageâ
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.csItsTool.UnitTestsZ
+.ItsTool.UnitTests.Services.CatalogServiceTests(CreateCategoryAsync_ShouldCreateCategoryZ
+.ItsTool.UnitTests.Services.CatalogServiceTests(GetCategoriesAsync_ShouldFilterByProjectV
+.ItsTool.UnitTests.Services.CatalogServiceTests$DeleteStatusAsync_ShouldThrowIfInUseç
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AuthServiceTests.csItsTool.UnitTests\
 +ItsTool.UnitTests.Services.AuthServiceTests-LoginAsync_ValidCredentials_ShouldReturnTokenp
 +ItsTool.UnitTests.Services.AuthServiceTestsALoginAsync_InvalidPassword_ShouldThrowUnauthorizedAccessExceptionm
 +ItsTool.UnitTests.Services.AuthServiceTests>LoginAsync_InactiveUser_ShouldThrowUnauthorizedAccessExceptionV
-+ItsTool.UnitTests.Services.AuthServiceTests'LoginAsync_ValidEmail_ShouldReturnTokenâ
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/CatalogServiceTests.csItsTool.UnitTestsZ
-.ItsTool.UnitTests.Services.CatalogServiceTests(CreateCategoryAsync_ShouldCreateCategoryZ
-.ItsTool.UnitTests.Services.CatalogServiceTests(GetCategoriesAsync_ShouldFilterByProjectV
-.ItsTool.UnitTests.Services.CatalogServiceTests$DeleteStatusAsync_ShouldThrowIfInUse•
++ItsTool.UnitTests.Services.AuthServiceTests'LoginAsync_ValidEmail_ShouldReturnToken•
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AssignmentEngineTests.csItsTool.UnitTestsb
 0ItsTool.UnitTests.Services.AssignmentEngineTests.AssignTicketAsync_ShouldAssign_WhenRuleMatches]
 0ItsTool.UnitTests.Services.AssignmentEngineTests)AssignTicketAsync_ShouldSkipInactiveRulese
-0ItsTool.UnitTests.Services.AssignmentEngineTests1AssignTicketAsync_ShouldPickFirstMatchBySortOrderÈ
+0ItsTool.UnitTests.Services.AssignmentEngineTests1AssignTicketAsync_ShouldPickFirstMatchBySortOrder€
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Data/DataSeederTests.csItsTool.UnitTestsh
+&ItsTool.UnitTests.Data.DataSeederTests>SeedAsync_ShouldUpsertFullReopenMatrix_WhenCalledMultipleTimesÈ
 n/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/SavedFilterControllerTests.csItsTool.UnitTestsd
-8ItsTool.UnitTests.Controllers.SavedFilterControllerTests(GetMyFilters_ShouldReturnOnlyUserFiltersﬂ
+8ItsTool.UnitTests.Controllers.SavedFilterControllerTests(GetMyFilters_ShouldReturnOnlyUserFilters÷
 k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.csItsTool.UnitTests]
-5ItsTool.UnitTests.Controllers.AuditLogControllerTests$GetAuditLogs_ShouldFilterByDateRange
+5ItsTool.UnitTests.Controllers.AuditLogControllerTests$GetAuditLogs_ShouldFilterByDateRangeu
+5ItsTool.UnitTests.Controllers.AuditLogControllerTests<GetAuditLogs_ShouldHandleNullFields_WhenTicketAndUserAreNullÒ
+q/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AssignmentRuleControllerTests.csItsTool.UnitTestsi
+;ItsTool.UnitTests.Controllers.AssignmentRuleControllerTests*ToggleRule_ShouldInvertIsActiveAndLogAudit

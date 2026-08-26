@@ -1,1 +1,1 @@
- 2csXhr9src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs
+ 2csXhr7src/ItsTool.Domain/Entities/KnowledgeBase/KbEntities.cs

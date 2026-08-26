@@ -1,49 +1,41 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class NotificationService : INotificationService
+public class AssignmentEngine : IAssignmentEngine
 {
     private readonly ItsToolDbContext _context;
 
-    public NotificationService(ItsToolDbContext context)
+    public AssignmentEngine(ItsToolDbContext context)
     {
         _context = context;
     }
 
-    public async Task<IEnumerable<NotificationDto>> GetUserNotificationsAsync(int userId)
+    public async Task AssignTicketAsync(Ticket ticket)
     {
-        var list = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsDeleted)
-            .OrderByDescending(n => n.CreatedAt)
+        var rules = await _context.AssignmentRules
+            .Where(r => r.IsActive && !r.IsDeleted)
+            .OrderBy(r => r.SortOrder)
             .ToListAsync();
 
-        return list.Select(n => new NotificationDto(n.Id, n.UserId, n.Title, n.Message, n.IsRead, n.RelatedEntityId, n.RelatedEntityType, n.CreatedAt));
-    }
-
-    public async Task MarkAsReadAsync(int notificationId, int userId)
-    {
-        var notif = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId && !n.IsDeleted);
-        if (notif != null && !notif.IsRead)
+        foreach (var rule in rules)
         {
-            notif.IsRead = true;
-            await _context.SaveChangesAsync();
-        }
-    }
+            if (rule.ProjectId.HasValue && rule.ProjectId.Value != ticket.ProjectId) continue;
+            if (rule.CategoryId.HasValue && rule.CategoryId.Value != ticket.CategoryId) continue;
+            if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) continue;
+            if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) continue;
 
-    public async Task MarkAllAsReadAsync(int userId)
-    {
-        var unread = await _context.Notifications.Where(n => n.UserId == userId && !n.IsRead && !n.IsDeleted).ToListAsync();
-        foreach (var n in unread)
-        {
-            n.IsRead = true;
+            // Match found!
+            ticket.AssignedGroupId = rule.TargetGroupId;
+            ticket.AssignedUserId = rule.TargetUserId;
+            
+            // Mark the ticket as assigned in the system implicitly
+            return;
         }
-        await _context.SaveChangesAsync();
     }
 }

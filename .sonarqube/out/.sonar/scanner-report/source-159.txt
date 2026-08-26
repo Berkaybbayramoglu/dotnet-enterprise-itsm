@@ -1,5 +1,10 @@
-using System;
+using Microsoft.AspNetCore.Http;
+using ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.DTOs;
+namespace ItsTool.Application.Interfaces;
 
-public record NotificationDto(int Id, int UserId, string Title, string Message, bool IsRead, int? RelatedEntityId, string? RelatedEntityType, DateTime CreatedAt);
+public interface IFileStorageService
+{
+    Task<string> SaveFileAsync(IFormFile file, int ticketId);
+    Task DeleteFileAsync(string filePath);
+}

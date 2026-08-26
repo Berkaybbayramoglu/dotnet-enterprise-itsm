@@ -1,0 +1,1 @@
+S 2webX–hr"src/ItsTool.Web/wwwroot/rules.html

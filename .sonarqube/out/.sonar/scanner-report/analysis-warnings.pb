@@ -1,2 +1,4 @@
-ª
-±Missing blame information for 6 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href="https://docs.sonarsource.com/sonarqube-community-build/analyzing-source-code/scm-integration/" rel="noopener noreferrer" target="_blank">the documentation</a>.˛©º£Å4
+€
+—Your code is analyzed as compatible with all Python 3 versions by default. You can get a more precise analysis by setting the exact Python version in your configuration via the parameter "sonar.python.version"Ò√∆‰É4ı
+ÎSonarPython detected files that look like test code but 'sonar.tests' is not configured. Rules targeting production code were not executed on these files. Configure 'sonar.tests' in your project properties for a more accurate analysis.ÚÃ∆‰É4º
+≤Missing blame information for 23 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href="https://docs.sonarsource.com/sonarqube-community-build/analyzing-source-code/scm-integration/" rel="noopener noreferrer" target="_blank">the documentation</a>.Ëê«‰É4

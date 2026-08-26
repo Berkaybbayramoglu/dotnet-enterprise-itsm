@@ -137,12 +137,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label" for="gName">Name *</label>
-                        <input type="text" id="gName" class="form-control" required placeholder="e.g. Helpdesk">
+                        <label class="form-label" for="gName" for="gName">Name *</label>
+                        <input id="gName" class="form-control" required placeholder="e.g. Helpdesk">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="gDept">Department ID</label>
-                        <input type="number" id="gDept" class="form-control">
+                        <label class="form-label" for="gDept" for="gDept">Department ID</label>
+                        <input id="gDept" class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -165,7 +165,7 @@
             <div class="modal-body">
                 <p class="text-muted" style="margin-top:0;">Group: <strong id="mGroupName"></strong></p>
                 <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    <select id="userSelect" class="form-control" style="flex: 1;">
+                    <select id="userSelect" class="form-control" aria-label="Select User" style="flex: 1;">
                         <!-- populated by JS -->
                     </select>
                     <button type="button" class="btn btn-secondary" id="btnAddMember">Add Member</button>
@@ -195,7 +195,7 @@
             const target = btn.getAttribute('data-target');
             const idAttr = btn.getAttribute('data-id');
             const flagAttr = btn.getAttribute('data-flag');
-            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
             const flag = flagAttr ? (flagAttr === 'true') : undefined;
             
             if (action === 'closeModal' && target) {
@@ -353,7 +353,7 @@
             const id = document.getElementById('gId').value;
             const data = {
                 name: document.getElementById('gName').value.trim(),
-                departmentId: document.getElementById('gDept').value ? parseInt(document.getElementById('gDept').value) : null
+                departmentId: document.getElementById('gDept').value ? Number.parseInt(document.getElementById('gDept').value) : null
             };
             
             try {

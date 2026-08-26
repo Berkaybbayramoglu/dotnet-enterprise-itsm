@@ -1,1 +1,1 @@
-è (2csX°hr6tests/ItsTool.UnitTests/Services/TicketServiceTests.cs
+è 2csXhr1src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs

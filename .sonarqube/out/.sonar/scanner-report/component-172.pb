@@ -1,2 +1,1 @@
-¬ 2csX
-hr<src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
+¬ 2csXhr6src/ItsTool.Application/Interfaces/IWorkflowService.cs

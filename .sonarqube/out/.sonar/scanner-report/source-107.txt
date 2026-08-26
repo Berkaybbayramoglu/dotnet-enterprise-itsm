@@ -1,50 +1,62 @@
+using System.Linq.Expressions;
 using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using ItsTool.Domain.Common;
+using Microsoft.EntityFrameworkCore;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class LocalFileStorageService : IFileStorageService
+public class Repository<T> : IRepository<T> where T : BaseEntity
 {
-    private readonly string _basePath;
+    protected readonly ItsToolDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public LocalFileStorageService(IConfiguration configuration)
+    public Repository(ItsToolDbContext context)
     {
-        _basePath = configuration["FileStorage:BasePath"] ?? "uploads";
-        if (!Directory.Exists(_basePath))
-        {
-            Directory.CreateDirectory(_basePath);
-        }
+        _context = context;
+        _dbSet = context.Set<T>();
     }
 
-    public async Task<string> SaveFileAsync(IFormFile file, int ticketId)
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
     {
-        var allowedTypes = new[] { "image/jpeg", "image/png", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
-        if (!allowedTypes.Contains(file.ContentType))
-            throw new InvalidOperationException("File type not allowed.");
-
-        if (file.Length > 10 * 1024 * 1024) // 10 MB
-            throw new InvalidOperationException("File size exceeds 10MB limit.");
-
-        var ticketFolder = Path.Combine(_basePath, ticketId.ToString());
-        if (!Directory.Exists(ticketFolder))
-            Directory.CreateDirectory(ticketFolder);
-
-        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-        var filePath = Path.Combine(ticketFolder, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
+        if (predicate != null)
         {
-            await file.CopyToAsync(stream);
+            query = query.Where(predicate);
         }
-
-        return filePath;
+        return await query.ToListAsync();
     }
 
-    public Task DeleteFileAsync(string filePath)
+    public async Task<T?> GetByIdAsync(int id)
     {
-        if (File.Exists(filePath))
-            File.Delete(filePath);
-        return Task.CompletedTask;
+        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
+    }
+
+    public async Task UpdateAsync(T entity)
+    {
+        entity.UpdatedAt = DateTime.UtcNow;
+        _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            entity.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"{typeof(T).Name} not found");
+        }
     }
 }

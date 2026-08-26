@@ -1,1 +1,1 @@
-› 2csXhr-src/ItsTool.Application/DTOs/DashboardDtos.cs
+› 2csXhr7src/ItsTool.Application/Interfaces/IDashboardService.cs

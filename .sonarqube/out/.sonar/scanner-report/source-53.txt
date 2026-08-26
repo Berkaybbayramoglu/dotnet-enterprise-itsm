@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -7,86 +6,116 @@ using Microsoft.AspNetCore.Mvc;
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/kb")]
+[Route("api/[controller]")]
 [Authorize]
-public class KnowledgeBaseController : ControllerBase
+public class DynamicFormController : ControllerBase
 {
-    private readonly IKnowledgeBaseService _kbService;
+    private readonly IDynamicFormService _service;
 
-    public KnowledgeBaseController(IKnowledgeBaseService kbService)
+    public DynamicFormController(IDynamicFormService service)
     {
-        _kbService = kbService;
+        _service = service;
     }
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+    [HttpGet("definitions")]
+    [ProducesResponseType(typeof(IEnumerable<FieldDefinitionDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDefinitions() => Ok(await _service.GetFieldDefinitionsAsync());
 
-    [HttpGet("categories")]
-    public async Task<IActionResult> GetCategories()
+    [HttpPost("definitions")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(typeof(FieldDefinitionDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateDefinition([FromBody] CreateFieldDefinitionDto dto)
     {
-        var result = await _kbService.GetCategoriesAsync();
-        return Ok(result);
+        try { var result = await _service.CreateFieldDefinitionAsync(dto); return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
     }
 
-    [HttpPost("categories")]
-    [Authorize(Policy = "RequireKbManage")]
-    public async Task<IActionResult> CreateCategory(CreateKbCategoryDto dto)
+    [HttpPut("definitions/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateDefinition(int id, [FromBody] UpdateFieldDefinitionDto dto)
     {
-        var result = await _kbService.CreateCategoryAsync(dto);
-        return Ok(result);
+        try { await _service.UpdateFieldDefinitionAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
     }
 
-    [HttpPut("categories/{id}")]
-    [Authorize(Policy = "RequireKbManage")]
-    public async Task<IActionResult> UpdateCategory(int id, CreateKbCategoryDto dto)
+    [HttpDelete("definitions/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteDefinition(int id)
     {
-        await _kbService.UpdateCategoryAsync(id, dto);
-        return NoContent();
+        await _service.DeleteFieldDefinitionAsync(id); return NoContent();
     }
 
-    [HttpDelete("categories/{id}")]
-    [Authorize(Policy = "RequireKbManage")]
-    public async Task<IActionResult> DeleteCategory(int id)
+    [HttpGet("definitions/{id}/options")]
+    [ProducesResponseType(typeof(IEnumerable<FieldOptionDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetOptions(int id) => Ok(await _service.GetFieldOptionsAsync(id));
+
+    [HttpPost("options")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(typeof(FieldOptionDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateOption([FromBody] CreateFieldOptionDto dto)
     {
-        await _kbService.DeleteCategoryAsync(id);
-        return NoContent();
+        var result = await _service.CreateFieldOptionAsync(dto);
+        return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result);
     }
 
-    [HttpGet("articles")]
-    public async Task<IActionResult> SearchArticles([FromQuery] string? search, [FromQuery] int? category)
+    [HttpPut("options/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateOption(int id, [FromBody] UpdateFieldOptionDto dto)
     {
-        var result = await _kbService.SearchArticlesAsync(GetCurrentUserId(), search, category);
-        return Ok(result);
+        try { await _service.UpdateFieldOptionAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
     }
 
-    [HttpGet("articles/{id}")]
-    public async Task<IActionResult> GetArticle(int id)
+    [HttpDelete("options/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteOption(int id)
     {
-        var result = await _kbService.GetArticleAsync(id, GetCurrentUserId());
-        if (result == null) return NotFound();
-        return Ok(result);
+        await _service.DeleteFieldOptionAsync(id); return NoContent();
     }
 
-    [HttpPost("articles")]
-    [Authorize(Policy = "RequireKbManage")]
-    public async Task<IActionResult> CreateArticle(CreateKbArticleDto dto)
+    [HttpGet("placements")]
+    [ProducesResponseType(typeof(IEnumerable<FormFieldPlacementDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPlacements([FromQuery] int? projectId, [FromQuery] int? categoryId, [FromQuery] int? ticketTypeId)
     {
-        var result = await _kbService.CreateArticleAsync(dto, GetCurrentUserId());
-        return Ok(result);
+        return Ok(await _service.GetPlacementsAsync(projectId, categoryId, ticketTypeId));
     }
 
-    [HttpPut("articles/{id}")]
-    [Authorize(Policy = "RequireKbManage")]
-    public async Task<IActionResult> UpdateArticle(int id, UpdateKbArticleDto dto)
+    [HttpPost("placements")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(typeof(FormFieldPlacementDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreatePlacement([FromBody] CreateFormFieldPlacementDto dto)
     {
-        await _kbService.UpdateArticleAsync(id, dto);
-        return NoContent();
+        try { var result = await _service.CreatePlacementAsync(dto); return CreatedAtAction(nameof(GetDefinitions), new { id = result.Id }, result); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
     }
 
-    [HttpDelete("articles/{id}")]
-    [Authorize(Policy = "RequireKbManage")]
-    public async Task<IActionResult> DeleteArticle(int id)
+    [HttpPut("placements/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdatePlacement(int id, [FromBody] UpdateFormFieldPlacementDto dto)
     {
-        await _kbService.DeleteArticleAsync(id);
-        return NoContent();
+        try { await _service.UpdatePlacementAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpDelete("placements/{id}")]
+    [Authorize(Policy = "RequirePermission:config.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeletePlacement(int id)
+    {
+        await _service.DeletePlacementAsync(id); return NoContent();
     }
 }

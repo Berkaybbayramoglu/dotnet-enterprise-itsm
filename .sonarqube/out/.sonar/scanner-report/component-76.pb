@@ -1,1 +1,1 @@
-L 2webX“hr*src/ItsTool.Web/wwwroot/ticket-detail.html
+L 2webXchr"src/ItsTool.Web/wwwroot/login.html

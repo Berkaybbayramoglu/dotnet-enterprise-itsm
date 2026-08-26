@@ -1,1 +1,1 @@
-ª 2csXhr7src/ItsTool.Application/Interfaces/IDashboardService.cs
+ª 2csXhr4src/ItsTool.Application/Interfaces/ITicketService.cs

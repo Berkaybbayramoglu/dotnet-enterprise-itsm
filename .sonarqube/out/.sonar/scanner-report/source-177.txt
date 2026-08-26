@@ -1,12 +1,10 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+with open("src/ItsTool.Web/wwwroot/js/api.js", "r") as f:
+    content = f.read()
 
-namespace ItsTool.Application.Interfaces;
-
-public interface INotificationService
-{
-    Task<IEnumerable<NotificationDto>> GetUserNotificationsAsync(int userId);
-    Task MarkAsReadAsync(int notificationId, int userId);
-    Task MarkAllAsReadAsync(int userId);
-}
+if "async getLookup()" not in content:
+    old_str = "    // Tickets\n    async searchTickets(filter = {}) {"
+    new_str = "    // Lookup\n    async getLookup() { return this.request('/lookup'); }\n\n    // Tickets\n    async searchTickets(filter = {}) {"
+    content = content.replace(old_str, new_str)
+    
+    with open("src/ItsTool.Web/wwwroot/js/api.js", "w") as f:
+        f.write(content)

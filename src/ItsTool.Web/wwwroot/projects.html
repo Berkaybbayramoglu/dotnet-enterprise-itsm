@@ -134,15 +134,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label" for="pName">Name *</label>
-                        <input type="text" id="pName" class="form-control" required placeholder="e.g. IT Helpdesk">
+                        <label class="form-label" for="pName" for="pName">Name *</label>
+                        <input id="pName" class="form-control" required placeholder="e.g. IT Helpdesk">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="pKey">Project Key *</label>
-                        <input type="text" id="pKey" class="form-control" required placeholder="e.g. ITS" maxlength="10">
+                        <label class="form-label" for="pKey" for="pKey">Project Key *</label>
+                        <input id="pKey" class="form-control" required placeholder="e.g. ITS" maxlength="10">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="pStatus">Status</label>
+                        <label class="form-label" for="pStatus" for="pStatus">Status</label>
                         <select id="pStatus" class="form-control">
                             <option value="Active" style="color: var(--success); background-color: var(--success-light); font-weight: 600;">Active</option>
                             <option value="Inactive" style="color: var(--text-muted); background-color: var(--bg-hover); font-weight: 600;">Inactive</option>
@@ -174,7 +174,7 @@
             const target = btn.getAttribute('data-target');
             const idAttr = btn.getAttribute('data-id');
             const flagAttr = btn.getAttribute('data-flag');
-            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
             const flag = flagAttr ? (flagAttr === 'true') : undefined;
             
             if (action === 'closeModal' && target) {

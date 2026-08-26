@@ -116,14 +116,14 @@
             <div class="rating-group">
                 <div class="rating">
                     <input type="radio" id="star5" name="rating" value="5" required />
-                    <label for="star5" title="Excellent">★</label>
-                    <input type="radio" id="star4" name="rating" value="4" />
-                    <label for="star4" title="Good">★</label>
-                    <input type="radio" id="star3" name="rating" value="3" />
-                    <label for="star3" title="Average">★</label>
-                    <input type="radio" id="star2" name="rating" value="2" />
-                    <label for="star2" title="Poor">★</label>
-                    <input type="radio" id="star1" name="rating" value="1" />
+                    <label for="star5" title="Excellent" for="star4">★</label>
+                    <input id="star4" name="rating" value="4" />
+                    <label for="star4" title="Good" for="star3">★</label>
+                    <input id="star3" name="rating" value="3" />
+                    <label for="star3" title="Average" for="star2">★</label>
+                    <input id="star2" name="rating" value="2" />
+                    <label for="star2" title="Poor" for="star1">★</label>
+                    <input id="star1" name="rating" value="1" />
                     <label for="star1" title="Terrible">★</label>
                 </div>
                 <div class="rating-labels">
@@ -133,7 +133,7 @@
             </div>
             
             <div class="form-group">
-                <label for="comment" class="form-label" style="text-align: center; display: block; margin-bottom: var(--spacing-sm);">Additional comments (optional)</label>
+                <label for="comment" class="form-label" style="text-align: center; display: block; margin-bottom: var(--spacing-sm);" for="comment">Additional comments (optional)</label>
                 <textarea id="comment" class="form-control" placeholder="Tell us more about your experience..."></textarea>
             </div>
             

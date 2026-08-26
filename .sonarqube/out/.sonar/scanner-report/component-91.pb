@@ -1,1 +1,1 @@
-[ 2csX1hrFsrc/ItsTool.Infrastructure/Data/Configurations/Phase2BConfiguration.cs
+[ 2webX•hr'src/ItsTool.Web/wwwroot/categories.html

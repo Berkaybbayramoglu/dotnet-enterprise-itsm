@@ -36,7 +36,7 @@ public class ProjectServiceTests : TestBase
         _context.Projects.Add(proj);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateProjectDto("New", "NEW", null, true);
+        var dto = new UpdateProjectDto("New", "NEW", null, "Active");
         await _service.UpdateAsync(proj.Id, dto);
 
         var updated = await _context.Projects.FindAsync(proj.Id);

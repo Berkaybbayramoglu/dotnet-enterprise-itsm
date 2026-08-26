@@ -1,1 +1,1 @@
-Q 2webXÏhr$src/ItsTool.Web/wwwroot/tickets.html
+Q 2webXçhr(src/ItsTool.Web/wwwroot/departments.html

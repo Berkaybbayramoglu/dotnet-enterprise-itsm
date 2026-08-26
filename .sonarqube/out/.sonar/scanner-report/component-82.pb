@@ -1,1 +1,1 @@
-R 2webX™hr*src/ItsTool.Web/wwwroot/ticket-create.html
+R 2webX²hr#src/ItsTool.Web/wwwroot/kanban.html

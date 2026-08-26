@@ -1,1 +1,1 @@
-¯ 2csXhr;src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs
+¯ 2pyX|hrpatch_kanban_modal.py

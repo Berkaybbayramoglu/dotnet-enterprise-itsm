@@ -1,1 +1,1 @@
-_ 2csX,hr:src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs
+_ 2cssXÔhr-src/ItsTool.Web/wwwroot/css/design-system.css

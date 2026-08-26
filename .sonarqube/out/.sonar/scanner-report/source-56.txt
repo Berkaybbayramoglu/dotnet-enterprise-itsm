@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,23 +5,35 @@ using Microsoft.AspNetCore.Mvc;
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/reports")]
+[Route("api/lookup")]
 [Authorize]
-public class ReportsController : ControllerBase
+public class LookupController : ControllerBase
 {
-    private readonly IReportService _reportService;
+    private readonly ICatalogService _catalogService;
+    private readonly IProjectService _projectService;
 
-    public ReportsController(IReportService reportService)
+    public LookupController(ICatalogService catalogService, IProjectService projectService)
     {
-        _reportService = reportService;
+        _catalogService = catalogService;
+        _projectService = projectService;
     }
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst("UserId")?.Value ?? "0");
-
-    [HttpGet("tickets/csv")]
-    public async Task<IActionResult> ExportTicketsCsv([FromQuery] TicketSearchFilterDto filter)
+    [HttpGet]
+    public async Task<IActionResult> GetLookups()
     {
-        var stream = await _reportService.ExportTicketsToCsvAsync(filter, GetCurrentUserId());
-        return File(stream, "text/csv", $"tickets_export_{System.DateTime.UtcNow:yyyyMMdd_HHmmss}.csv");
+        var projects = await _projectService.GetAllAsync();
+        var categories = await _catalogService.GetCategoriesAsync(null);
+        var ticketTypes = await _catalogService.GetTicketTypesAsync();
+        var priorities = await _catalogService.GetPrioritiesAsync();
+        var statuses = await _catalogService.GetStatusesAsync();
+
+        return Ok(new
+        {
+            projects,
+            categories,
+            ticketTypes,
+            priorities,
+            statuses
+        });
     }
 }

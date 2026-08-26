@@ -1,55 +1,48 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Config;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Data.Configurations;
 
-public class DepartmentService : IDepartmentService
+public class CustomFieldConfiguration : IEntityTypeConfiguration<FieldDefinition>
 {
-    private readonly IRepository<Department> _repository;
-
-    public DepartmentService(IRepository<Department> repository)
+    public void Configure(EntityTypeBuilder<FieldDefinition> builder)
     {
-        _repository = repository;
+        builder.HasIndex(f => f.Key).IsUnique();
     }
+}
 
-    public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
+public class TicketFieldValueConfiguration : IEntityTypeConfiguration<TicketFieldValue>
+{
+    public void Configure(EntityTypeBuilder<TicketFieldValue> builder)
     {
-        var depts = await _repository.GetAllAsync();
-        return depts.Select(d => new DepartmentDto(d.Id, d.Name, d.Description, d.IsActive));
-    }
-
-    public async Task<DepartmentDto?> GetByIdAsync(int id)
-    {
-        var dept = await _repository.GetByIdAsync(id);
-        if (dept == null) return null;
-        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
-    }
-
-    public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
-    {
-        var dept = new Department
-        {
-            Name = dto.Name,
-            Description = dto.Description
-        };
-        await _repository.AddAsync(dept);
-        return new DepartmentDto(dept.Id, dept.Name, dept.Description, dept.IsActive);
-    }
-
-    public async Task UpdateAsync(int id, UpdateDepartmentDto dto)
-    {
-        var dept = await _repository.GetByIdAsync(id);
-        if (dept == null) throw new KeyNotFoundException("Department not found");
+        builder.HasIndex(tfv => new { tfv.TicketId, tfv.FieldDefinitionId }).IsUnique();
         
-        dept.Name = dto.Name;
-        dept.Description = dto.Description;
-        dept.IsActive = dto.IsActive;
-        await _repository.UpdateAsync(dept);
+        builder.HasOne(tfv => tfv.Ticket)
+               .WithMany()
+               .HasForeignKey(tfv => tfv.TicketId)
+               .OnDelete(DeleteBehavior.Cascade);
+               
+        builder.HasOne(tfv => tfv.FieldDefinition)
+               .WithMany()
+               .HasForeignKey(tfv => tfv.FieldDefinitionId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
+}
 
-    public async Task DeleteAsync(int id)
+public class WorkflowTransitionConfiguration : IEntityTypeConfiguration<WorkflowTransition>
+{
+    public void Configure(EntityTypeBuilder<WorkflowTransition> builder)
     {
-        await _repository.DeleteAsync(id);
+        builder.HasOne(wt => wt.FromStatus)
+               .WithMany()
+               .HasForeignKey(wt => wt.FromStatusId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(wt => wt.ToStatus)
+               .WithMany()
+               .HasForeignKey(wt => wt.ToStatusId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }

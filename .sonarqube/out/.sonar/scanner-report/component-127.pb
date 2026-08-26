@@ -1,1 +1,1 @@
- (2csX?hr7tests/ItsTool.UnitTests/Services/CatalogServiceTests.cs
+ 2csXAhr7src/ItsTool.Infrastructure/Services/SmtpEmailService.cs

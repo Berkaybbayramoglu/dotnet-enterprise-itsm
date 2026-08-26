@@ -1,53 +1,41 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Organization;
+using System;
+using System.Threading.Tasks;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities;
 using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class DepartmentServiceTests : TestBase
+public class SystemAuditService : ISystemAuditService
 {
-    private readonly Repository<Department> _repository;
-    private readonly DepartmentService _service;
+    private readonly ItsToolDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DepartmentServiceTests() : base()
+    public SystemAuditService(ItsToolDbContext context, IHttpContextAccessor httpContextAccessor)
     {
-        _repository = new Repository<Department>(_context);
-        _service = new DepartmentService(_repository);
+        _context = context;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateDepartment()
+    public async Task LogAuditAsync(string entityName, string entityId, string action, string? fieldName = null, string? oldValue = null, string? newValue = null)
     {
-        // Arrange
-        var dto = new CreateDepartmentDto("IT", "IT Dept");
+        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "system";
+        
+        var log = new SystemAuditLog
+        {
+            EntityName = entityName,
+            EntityId = entityId,
+            Action = action,
+            FieldName = fieldName,
+            OldValue = oldValue,
+            NewValue = newValue,
+            CreatedBy = userIdStr,
+            CreatedAt = DateTime.UtcNow
+        };
 
-        // Act
-        var result = await _service.CreateAsync(dto);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("IT", result.Name);
-        var dbDept = await _context.Departments.FirstOrDefaultAsync(d => d.Id == result.Id);
-        Assert.NotNull(dbDept);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_ShouldReturnDepartment()
-    {
-        // Arrange
-        var dept = new Department { Name = "HR" };
-        _context.Departments.Add(dept);
+        _context.SystemAuditLogs.Add(log);
         await _context.SaveChangesAsync();
-
-        // Act
-        var result = await _service.GetByIdAsync(dept.Id);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("HR", result.Name);
     }
-
 }

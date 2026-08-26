@@ -1,2 +1,1 @@
-§ 2csX
-hr7src/ItsTool.Application/Interfaces/IAssignmentEngine.cs
+§ 2csXhr0src/ItsTool.Application/Interfaces/ISlaEngine.cs

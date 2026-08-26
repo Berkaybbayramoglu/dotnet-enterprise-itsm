@@ -1,62 +1,64 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
+using System;
+using System.Threading.Tasks;
+using ItsTool.Application.Interfaces;
+using MailKit.Net.Smtp;
+using MimeKit;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Services;
 
-public class CatalogServiceTests : TestBase
+public class SmtpEmailService : IEmailService
 {
-    private readonly Repository<Category> _categoryRepo;
-    private readonly Repository<TicketType> _ticketTypeRepo;
-    private readonly Repository<Status> _statusRepo;
-    private readonly Repository<Priority> _priorityRepo;
-    private readonly CatalogService _service;
+    private readonly IConfiguration _config;
+    private readonly ILogger<SmtpEmailService> _logger;
 
-    public CatalogServiceTests() : base()
+    public SmtpEmailService(IConfiguration config, ILogger<SmtpEmailService> logger)
     {
-        _categoryRepo = new Repository<Category>(_context);
-        _ticketTypeRepo = new Repository<TicketType>(_context);
-        _statusRepo = new Repository<Status>(_context);
-        _priorityRepo = new Repository<Priority>(_context);
-        _service = new CatalogService(_categoryRepo, _ticketTypeRepo, _statusRepo, _priorityRepo, _context);
+        _config = config;
+        _logger = logger;
     }
 
-    [Fact]
-    public async Task CreateCategoryAsync_ShouldCreateCategory()
+    public async Task SendEmailAsync(string to, string subject, string body)
     {
-        var dto = new CreateCategoryDto("Network", 1, null, "Desc", null);
-        var result = await _service.CreateCategoryAsync(dto);
+        var host = _config["Smtp:Host"];
+        var portStr = _config["Smtp:Port"];
+        var user = _config["Smtp:Username"];
+        var pass = _config["Smtp:Password"];
 
-        Assert.NotNull(result);
-        Assert.Equal("Network", result.Name);
-    }
+        if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(portStr))
+        {
+            _logger.LogWarning("SMTP Configuration missing, skipping email to {To}", to);
+            return;
+        }
 
-    [Fact]
-    public async Task GetCategoriesAsync_ShouldFilterByProject()
-    {
-        _context.Categories.Add(new Category { Name = "Cat1", ProjectId = 1 });
-        _context.Categories.Add(new Category { Name = "Cat2", ProjectId = 2 });
-        await _context.SaveChangesAsync();
+        try
+        {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("ITSM Tool", user ?? "noreply@itsm.local"));
+            message.To.Add(new MailboxAddress("", to));
+            message.Subject = subject;
 
-        var list = await _service.GetCategoriesAsync(1);
-        Assert.Single(list);
-        Assert.Equal("Cat1", list.First().Name);
-    }
+            message.Body = new TextPart("html")
+            {
+                Text = body
+            };
 
-    [Fact]
-    public async Task DeleteStatusAsync_ShouldThrowIfInUse()
-    {
-        var s = new Status { Name = "S1" };
-        _context.Statuses.Add(s);
-        await _context.SaveChangesAsync();
+            using var client = new SmtpClient();
+            await client.ConnectAsync(host, int.Parse(portStr), MailKit.Security.SecureSocketOptions.Auto);
 
-        var wt = new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = 1, FromStatusId = s.Id, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(wt);
-        await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pass))
+            {
+                await client.AuthenticateAsync(user, pass);
+            }
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteStatusAsync(s.Id));
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
+            _logger.LogInformation("Sent email to {To} with subject {Subject}", to, subject);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send email to {To}", to);
+        }
     }
 }

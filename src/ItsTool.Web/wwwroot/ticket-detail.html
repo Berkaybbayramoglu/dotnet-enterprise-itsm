@@ -202,13 +202,13 @@
             <div class="modal-body">
                 <form id="transferForm">
                     <div class="form-group">
-                        <label class="form-label" for="transferProject">Project</label>
+                        <label class="form-label" for="transferProject" for="transferProject">Project</label>
                         <select id="transferProject" class="form-control">
                             <option value="">-- No Change --</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="transferGroup">Group</label>
+                        <label class="form-label" for="transferGroup" for="transferGroup">Group</label>
                         <select id="transferGroup" class="form-control">
                             <option value="">-- No Change --</option>
                         </select>
@@ -295,8 +295,8 @@
             const gid = document.getElementById('transferGroup').value;
             
             const dto = {
-                projectId: pid ? parseInt(pid) : null,
-                groupId: gid ? parseInt(gid) : null
+                projectId: pid ? Number.parseInt(pid) : null,
+                groupId: gid ? Number.parseInt(gid) : null
             };
 
             try {

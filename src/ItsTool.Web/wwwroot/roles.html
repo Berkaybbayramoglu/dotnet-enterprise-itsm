@@ -135,8 +135,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label" for="rName">Name *</label>
-                        <input type="text" id="rName" class="form-control" required placeholder="e.g. IT_Agent">
+                        <label class="form-label" for="rName" for="rName">Name *</label>
+                        <input id="rName" class="form-control" required placeholder="e.g. IT_Agent">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -181,7 +181,7 @@
             const target = btn.getAttribute('data-target');
             const idAttr = btn.getAttribute('data-id');
             const flagAttr = btn.getAttribute('data-flag');
-            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
             const flag = flagAttr ? (flagAttr === 'true') : undefined;
             
             if (action === 'closeModal' && target) {

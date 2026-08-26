@@ -1,1 +1,1 @@
-• (2xmlX©—hr.tests/ItsTool.UnitTests/coverage.opencover.xml
+• 2csX$hr/src/ItsTool.Application/DTOs/TicketSearchDto.cs

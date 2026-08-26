@@ -1,31 +1,9 @@
-using System;
+using System.Threading.Tasks;
+using ItsTool.Domain.Entities.Ticket;
 
-namespace ItsTool.Application.DTOs;
+namespace ItsTool.Application.Interfaces;
 
-public record AuditLogFilterDto(
-    int? UserId,
-    string? Action,
-    int? TicketId,
-    DateTime? FromDate,
-    DateTime? ToDate,
-    int Page = 1,
-    int PageSize = 50
-);
-
-public record AuditLogItemDto(
-    int Id,
-    int TicketId,
-    string Action,
-    string FieldName,
-    string? OldValue,
-    string? NewValue,
-    string CreatedBy,
-    DateTime CreatedAt
-);
-
-public record PaginatedAuditLogDto(
-    System.Collections.Generic.IEnumerable<AuditLogItemDto> Items,
-    int TotalCount,
-    int Page,
-    int PageSize
-);
+public interface IAssignmentEngine
+{
+    Task AssignTicketAsync(Ticket ticket);
+}

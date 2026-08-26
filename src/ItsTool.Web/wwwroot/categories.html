@@ -133,12 +133,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label" for="cName">Name *</label>
-                        <input type="text" id="cName" class="form-control" required placeholder="e.g. Hardware">
+                        <label class="form-label" for="cName" for="cName">Name *</label>
+                        <input id="cName" class="form-control" required placeholder="e.g. Hardware">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="cProject">Project ID</label>
-                        <input type="number" id="cProject" class="form-control" placeholder="Optional">
+                        <label class="form-label" for="cProject" for="cProject">Project ID</label>
+                        <input id="cProject" class="form-control" placeholder="Optional">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -165,7 +165,7 @@
             const target = btn.getAttribute('data-target');
             const idAttr = btn.getAttribute('data-id');
             const flagAttr = btn.getAttribute('data-flag');
-            const id = idAttr && idAttr !== 'undefined' ? parseInt(idAttr) : undefined;
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
             const flag = flagAttr ? (flagAttr === 'true') : undefined;
             
             if (action === 'closeModal' && target) {
@@ -255,7 +255,7 @@
             const id = document.getElementById('cId').value;
             const data = {
                 name: document.getElementById('cName').value.trim(),
-                projectId: document.getElementById('cProject').value ? parseInt(document.getElementById('cProject').value) : null
+                projectId: document.getElementById('cProject').value ? Number.parseInt(document.getElementById('cProject').value) : null
             };
             
             try {

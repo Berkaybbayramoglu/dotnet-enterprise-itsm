@@ -1,117 +1,52 @@
-using System.Linq;
-using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Notification;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.Infrastructure.Security;
 
-public class NotificationDispatcher : INotificationDispatcher
+public class TokenService : ITokenService
 {
-    private readonly ItsToolDbContext _context;
-    private readonly IEmailService _emailService;
-    private readonly IWebhookDispatcher _webhookDispatcher;
+    private readonly IConfiguration _configuration;
 
-    public NotificationDispatcher(ItsToolDbContext context, IEmailService emailService, IWebhookDispatcher webhookDispatcher)
+    public TokenService(IConfiguration configuration)
     {
-        _context = context;
-        _emailService = emailService;
-        _webhookDispatcher = webhookDispatcher;
+        _configuration = configuration;
     }
 
-    public async Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null)
+    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
-        var rules = await _context.NotificationRules
-            .Where(r => r.EventKey == eventKey && r.IsActive && !r.IsDeleted)
-            .ToListAsync();
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(ClaimTypes.Name, username)
+        };
 
-        if (rules.Count == 0) return;
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
 
-        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
-        if (ticket == null) return;
+        foreach (var perm in permissions)
+        {
+            claims.Add(new Claim("permission", perm));
+        }
 
-        var targetUserIds = await GetTargetUserIdsAsync(rules, ticket, triggerUserId);
-
-        await ProcessNotificationsAsync(targetUserIds, eventKey, ticket, additionalContext);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         
-        await _context.SaveChangesAsync();
-        
-        // Dispatch to Webhooks
-        await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
-    }
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
 
-    private async Task<System.Collections.Generic.HashSet<int>> GetTargetUserIdsAsync(System.Collections.Generic.IEnumerable<NotificationRule> rules, Domain.Entities.Ticket.Ticket ticket, int? triggerUserId)
-    {
-        var targetUserIds = new System.Collections.Generic.HashSet<int>();
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            signingCredentials: creds
+        );
 
-        foreach (var rule in rules)
-        {
-            switch (rule.TargetRole.ToLower())
-            {
-                case "requester":
-                    targetUserIds.Add(ticket.RequesterUserId);
-                    break;
-                case "assignee":
-                    if (ticket.AssignedUserId.HasValue)
-                        targetUserIds.Add(ticket.AssignedUserId.Value);
-                    break;
-                case "project_member":
-                    var members = await _context.ProjectMembers
-                        .Where(pm => pm.ProjectId == ticket.ProjectId && !pm.IsDeleted)
-                        .ToListAsync();
-                    foreach (var m in members)
-                    {
-                        targetUserIds.Add(m.UserId);
-                    }
-                    break;
-            }
-        }
-
-        if (triggerUserId.HasValue)
-        {
-            targetUserIds.Remove(triggerUserId.Value);
-        }
-
-        return targetUserIds;
-    }
-
-    private async Task ProcessNotificationsAsync(System.Collections.Generic.HashSet<int> targetUserIds, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
-    {
-        foreach (var targetId in targetUserIds)
-        {
-            var exists = await _context.Notifications.AnyAsync(n => 
-                n.UserId == targetId && 
-                n.RelatedEntityId == ticket.Id && 
-                n.RelatedEntityType == "Ticket" && 
-                n.Title == eventKey &&
-                !n.IsDeleted);
-
-            if (!exists)
-            {
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = targetId,
-                    Title = eventKey,
-                    Message = additionalContext ?? $"Event {eventKey} occurred on Ticket {ticket.TicketNumber}",
-                    RelatedEntityId = ticket.Id,
-                    RelatedEntityType = "Ticket"
-                });
-
-                if (eventKey == "ticket.assigned" || eventKey == "sla.breach")
-                {
-                    await SendEmailNotificationAsync(targetId, eventKey, ticket, additionalContext);
-                }
-            }
-        }
-    }
-
-    private async Task SendEmailNotificationAsync(int targetId, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
-    {
-        var u = await _context.Users.FindAsync(targetId);
-        if (u != null)
-        {
-            await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
-        }
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

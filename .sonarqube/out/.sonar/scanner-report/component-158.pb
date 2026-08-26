@@ -1,1 +1,1 @@
-ž 2csXhr1src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs
+ž 2csX	hr3src/ItsTool.Application/Interfaces/IEmailService.cs

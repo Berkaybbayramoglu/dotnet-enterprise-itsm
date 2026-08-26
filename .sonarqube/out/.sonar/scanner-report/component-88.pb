@@ -1,1 +1,1 @@
-X 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js
+X 2webXØhr#src/ItsTool.Web/wwwroot/survey.html

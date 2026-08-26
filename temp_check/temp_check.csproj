@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Npgsql" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\ItsTool.Infrastructure\ItsTool.Infrastructure.csproj" />
+    <ProjectReference Include="..\src\ItsTool.Domain\ItsTool.Domain.csproj" />
+    <ProjectReference Include="..\src\ItsTool.Application\ItsTool.Application.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -339,7 +339,7 @@
         function saveColumnOrder() {
             const board = document.getElementById('board');
             const cols = Array.from(board.children);
-            const newOrder = cols.map(c => parseInt(c.dataset.colId));
+            const newOrder = cols.map(c => Number.parseInt(c.dataset.colId));
             
             const payload = JSON.parse(atob(window.api.token.split('.')[1]));
             let userId = payload.sub || 'unknown';

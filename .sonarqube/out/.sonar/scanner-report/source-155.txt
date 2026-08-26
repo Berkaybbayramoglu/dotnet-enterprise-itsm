@@ -1,23 +1,14 @@
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.DTOs;
+namespace ItsTool.Application.Interfaces;
 
-public record DashboardOverviewDto(int OpenTickets, int CriticalTickets, int SlaBreachedTickets, int SlaRiskTickets, int UnassignedTickets, double CsatAverage);
-
-public record TicketDistributionDto(string Key, int Count);
-
-public record DashboardDistributionsDto(
-    IEnumerable<TicketDistributionDto> ByStatus,
-    IEnumerable<TicketDistributionDto> ByPriority,
-    IEnumerable<TicketDistributionDto> ByProject,
-    IEnumerable<TicketDistributionDto> ByCategory
-);
-
-public record AgentWorkloadDto(int UserId, string UserName, int OpenTicketCount);
-
-public record SlaComplianceDto(
-    double FirstResponseComplianceRate,
-    double ResolutionComplianceRate,
-    double AverageResolutionTimeMinutes
-);
+public interface IDashboardService
+{
+    Task<DashboardOverviewDto> GetOverviewAsync(int userId);
+    Task<DashboardDistributionsDto> GetDistributionsAsync(int userId);
+    Task<IEnumerable<DepartmentWorkloadDto>> GetDepartmentWorkloadAsync(int userId);
+    Task<SlaComplianceDto> GetSlaComplianceAsync(int userId);
+    Task<IEnumerable<TicketSurveyDto>> GetRecentSurveysAsync(int userId);
+}
