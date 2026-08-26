@@ -1,1 +1,1 @@
-b 2jsX¿hr'src/ItsTool.Web/wwwroot/js/crud-page.js
+b 2jsXÊhr!src/ItsTool.Web/wwwroot/js/api.js

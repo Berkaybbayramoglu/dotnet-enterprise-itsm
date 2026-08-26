@@ -1,1 +1,1 @@
-Q 2webX_hr%src/ItsTool.Web/wwwroot/projects.html
+Q 2webXûhr#src/ItsTool.Web/wwwroot/kanban.html

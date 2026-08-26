@@ -1,1 +1,1 @@
-± 2csXhr1src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs
+± 2csXhr0src/ItsTool.Application/DTOs/OrganizationDtos.cs

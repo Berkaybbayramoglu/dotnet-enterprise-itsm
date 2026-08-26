@@ -1,37 +1,48 @@
-using System;
 using System.Threading.Tasks;
 using ItsTool.API.Controllers;
-using ItsTool.Domain.Entities.Organization;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Config;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using Xunit;
-using ItsTool.Application.Interfaces;
-using Moq;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace ItsTool.UnitTests.Controllers;
 
-public class AssignmentRuleControllerTests : TestBase
+public class SavedFilterControllerTests : TestBase
 {
-    private readonly AssignmentRuleController _controller;
-    private readonly Mock<ISystemAuditService> _mockAudit;
+    private readonly SavedFilterController _controller;
 
-    public AssignmentRuleControllerTests() : base()
+    public SavedFilterControllerTests() : base()
     {
-        _mockAudit = new Mock<ISystemAuditService>();
-        _controller = new AssignmentRuleController(_context, _mockAudit.Object);
+        _controller = new SavedFilterController(_context);
+        
+        // Mock User Claims
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "mock"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
     }
 
     [Fact]
-    public async Task ToggleRule_ShouldInvertIsActiveAndLogAudit()
+    public async Task GetMyFilters_ShouldReturnOnlyUserFilters()
     {
-        var rule = new AssignmentRule { Name = "ToggleTest", IsActive = true };
-        _context.AssignmentRules.Add(rule);
+        _context.SavedFilters.Add(new SavedFilter { UserId = 1, Name = "F1", QueryJson = "{}" });
+        _context.SavedFilters.Add(new SavedFilter { UserId = 2, Name = "F2", QueryJson = "{}" });
         await _context.SaveChangesAsync();
 
-        var result = await _controller.ToggleRule(rule.Id);
-        
-        Assert.IsType<NoContentResult>(result);
-        Assert.False(rule.IsActive);
-        
-        _mockAudit.Verify(a => a.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", "True", "False"), Times.Once);
+        var result = await _controller.GetMyFilters();
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var dtos = Assert.IsAssignableFrom<System.Collections.Generic.IEnumerable<SavedFilterDto>>(okResult.Value);
+
+        Assert.Single(dtos);
+        Assert.Equal("F1", dtos.First().Name);
     }
 }

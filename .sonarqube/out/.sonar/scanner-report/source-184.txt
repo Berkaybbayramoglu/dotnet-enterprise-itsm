@@ -1,16 +1,9 @@
-using System;
+using System.Threading.Tasks;
+using ItsTool.Domain.Entities.Ticket;
 
-namespace ItsTool.Application.DTOs;
+namespace ItsTool.Application.Interfaces;
 
-public record TicketSurveyDto(
-    int Id,
-    int TicketId,
-    int Rating,
-    string? Comment,
-    DateTime SubmittedAt
-);
-
-public record SubmitTicketSurveyDto(
-    int Rating,
-    string? Comment
-);
+public interface IAssignmentEngine
+{
+    Task AssignTicketAsync(Ticket ticket);
+}

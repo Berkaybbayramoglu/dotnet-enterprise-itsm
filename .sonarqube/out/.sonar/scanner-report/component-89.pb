@@ -1,1 +1,1 @@
-Y 2webXhr"src/ItsTool.Web/wwwroot/index.html
+Y 2webXÙhr)src/ItsTool.Web/wwwroot/admin-fields.html

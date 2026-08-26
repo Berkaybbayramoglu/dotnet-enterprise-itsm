@@ -1,117 +1,109 @@
-using ItsTool.Application.DTOs;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Organization;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
+using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.UnitTests.Services;
 
-public class AuthServiceTests : TestBase
+public class DashboardServiceTests : TestBase
 {
-    private readonly AuthService _authService;
-    private readonly Mock<ITokenService> _tokenServiceMock;
-    private readonly Mock<IPermissionCalculator> _permissionCalculatorMock;
+    private readonly DashboardService _dashboardService;
+    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
 
-    public AuthServiceTests() : base()
+    public DashboardServiceTests() : base()
     {
-        _tokenServiceMock = new Mock<ITokenService>();
-        _permissionCalculatorMock = new Mock<IPermissionCalculator>();
-
-        var inMemorySettings = new Dictionary<string, string> {
-            {"Jwt:ExpiryMinutes", "60"}
-        };
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
-
-        _authService = new AuthService(_context, _tokenServiceMock.Object, _permissionCalculatorMock.Object, configuration);
+        _mockPermCalculator = new Mock<IPermissionCalculator>();
+        _dashboardService = new DashboardService(_context, _mockPermCalculator.Object);
     }
 
     [Fact]
-    public async Task LoginAsync_ValidCredentials_ShouldReturnToken()
+    public async Task GetOverviewAsync_ShouldReturnZeros_WhenNoTickets()
     {
-        // Arrange
-        var password = "password123";
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
-        _context.Users.Add(user);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
+
+        var result = await _dashboardService.GetOverviewAsync(1);
+
+        Assert.Equal(0, result.OpenTickets);
+        Assert.Equal(0, result.CriticalTickets);
+        Assert.Equal(0, result.SlaBreachedTickets);
+        Assert.Equal(0, result.SlaRiskTickets);
+        Assert.Equal(0, result.UnassignedTickets);
+    }
+
+
+    [Fact]
+    public async Task GetOverviewAsync_ShouldReturnCorrectCounts_ForAdmin()
+    {
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
+
+        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
+        var closedStatus = new Status { Name = "Closed", IsClosedStatus = true };
+        _context.Statuses.AddRange(openStatus, closedStatus);
         await _context.SaveChangesAsync();
 
-        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
-            .ReturnsAsync(new HashSet<string> { "test.perm" });
+        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id });
+        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = closedStatus.Id });
+        _context.Tickets.Add(new Ticket { TicketNumber = "T3", StatusId = openStatus.Id, Priority = new Priority { SeverityLevel = 1 } });
+        await _context.SaveChangesAsync();
 
-        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-            .Returns("fake_jwt_token");
+        var result = await _dashboardService.GetOverviewAsync(1);
 
-        var request = new LoginRequestDto("testuser", password);
-
-        // Act
-        var result = await _authService.LoginAsync(request);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("fake_jwt_token", result.Token);
-        Assert.Equal("testuser", result.Username);
-        Assert.Contains("test.perm", result.Permissions);
+        Assert.Equal(2, result.OpenTickets); // T1 and T3 are open
+        Assert.Equal(1, result.CriticalTickets); // T3
     }
 
     [Fact]
-    public async Task LoginAsync_InvalidPassword_ShouldThrowUnauthorizedAccessException()
+    public async Task GetOverviewAsync_ShouldOnlyCountAgentTickets_ForAgent()
     {
-        // Arrange
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword");
-        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
-        _context.Users.Add(user);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(2)).ReturnsAsync(new HashSet<string> { "ticket.manage" });
+
+        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
+        _context.Statuses.Add(openStatus);
         await _context.SaveChangesAsync();
 
-        var request = new LoginRequestDto("testuser", "wrongpassword");
+        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id, AssignedUserId = 2 }); // Assigned to agent
+        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = openStatus.Id, AssignedUserId = 99 }); // Assigned to someone else
+        await _context.SaveChangesAsync();
 
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
+        var result = await _dashboardService.GetOverviewAsync(2);
+
+        Assert.Equal(1, result.OpenTickets); // Only T1
     }
 
     [Fact]
-    public async Task LoginAsync_InactiveUser_ShouldThrowUnauthorizedAccessException()
+    public async Task GetOverviewAsync_ShouldOnlyCountRequestedTickets_ForEndUser()
     {
-        // Arrange
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword");
-        var user = new User { Username = "inactiveuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = false };
-        _context.Users.Add(user);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(3)).ReturnsAsync(new HashSet<string>());
+
+        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
+        _context.Statuses.Add(openStatus);
         await _context.SaveChangesAsync();
 
-        var request = new LoginRequestDto("inactiveuser", "correctpassword");
+        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id, RequesterUserId = 3 }); // Requested by user
+        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = openStatus.Id, RequesterUserId = 99 }); // Requested by someone else
+        await _context.SaveChangesAsync();
 
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(request));
+        var result = await _dashboardService.GetOverviewAsync(3);
+
+        Assert.Equal(1, result.OpenTickets); // Only T1
     }
+
     [Fact]
-    public async Task LoginAsync_ValidEmail_ShouldReturnToken()
+    public async Task GetOverviewAsync_ShouldCalculateCsatAverage()
     {
-        // Arrange
-        var password = "password123";
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-        var user = new User { Username = "testuser", Email = "test@test.com", PasswordHash = passwordHash, IsActive = true };
-        _context.Users.Add(user);
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
+
+        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 1, Rating = 4 });
+        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 2, Rating = 5 });
         await _context.SaveChangesAsync();
 
-        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
-            .ReturnsAsync(new HashSet<string> { "test.perm" });
-
-        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
-            .Returns("fake_jwt_token");
-
-        var request = new LoginRequestDto("test@test.com", password); // Login with email
-
-        // Act
-        var result = await _authService.LoginAsync(request);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("fake_jwt_token", result.Token);
-        Assert.Equal("testuser", result.Username);
+        var result = await _dashboardService.GetOverviewAsync(1);
+        
+        Assert.Equal(4.5, result.CsatAverage);
     }
 }

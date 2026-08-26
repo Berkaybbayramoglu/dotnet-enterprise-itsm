@@ -1,1 +1,1 @@
-Ê 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs
+Ê 2csXhr4src/ItsTool.Application/Interfaces/ITicketService.cs

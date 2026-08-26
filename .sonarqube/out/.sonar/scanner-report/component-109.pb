@@ -1,1 +1,1 @@
-m 2csX,hr:src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs
+m 2csXMhr8src/ItsTool.Infrastructure/Helpers/TicketQueryHelpers.cs

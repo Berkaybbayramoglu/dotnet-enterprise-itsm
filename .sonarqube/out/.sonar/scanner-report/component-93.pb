@@ -1,1 +1,1 @@
-] 2webXQhr'src/ItsTool.Web/wwwroot/categories.html
+] 2cssXÔhr-src/ItsTool.Web/wwwroot/css/design-system.css

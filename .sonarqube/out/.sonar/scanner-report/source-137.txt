@@ -1,96 +1,78 @@
+using System;
+using System.Threading.Tasks;
+using ItsTool.API.Controllers;
 using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Workflow;
-using ItsTool.Infrastructure.Data;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Xunit;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
-namespace ItsTool.Infrastructure.Services;
+namespace ItsTool.UnitTests.Controllers;
 
-public class WorkflowService : IWorkflowService
+public class AuditLogControllerTests : TestBase
 {
-    private readonly IRepository<Workflow> _workflowRepo;
-    private readonly IRepository<WorkflowTransition> _transitionRepo;
+    private readonly AuditLogController _controller;
 
-    public WorkflowService(IRepository<Workflow> workflowRepo, IRepository<WorkflowTransition> transitionRepo)
+    public AuditLogControllerTests() : base()
     {
-        _workflowRepo = workflowRepo;
-        _transitionRepo = transitionRepo;
-    }
-
-    public async Task<IEnumerable<WorkflowDto>> GetWorkflowsAsync(int? projectId = null)
-    {
-        var list = await _workflowRepo.GetAllAsync(w => projectId == null || w.ProjectId == projectId);
-        return list.Select(w => new WorkflowDto(w.Id, w.Name, w.Description, w.ProjectId, w.IsActive));
-    }
-
-    public async Task<WorkflowDto?> GetWorkflowByIdAsync(int id)
-    {
-        var w = await _workflowRepo.GetByIdAsync(id);
-        if (w == null) return null;
-        return new WorkflowDto(w.Id, w.Name, w.Description, w.ProjectId, w.IsActive);
-    }
-
-    public async Task<WorkflowDto> CreateWorkflowAsync(CreateWorkflowDto dto)
-    {
-        var w = new Workflow { Name = dto.Name, Description = dto.Description, ProjectId = dto.ProjectId };
-        await _workflowRepo.AddAsync(w);
-        return new WorkflowDto(w.Id, w.Name, w.Description, w.ProjectId, w.IsActive);
-    }
-
-    public async Task UpdateWorkflowAsync(int id, UpdateWorkflowDto dto)
-    {
-        var w = await _workflowRepo.GetByIdAsync(id);
-        if (w == null) throw new KeyNotFoundException("Workflow not found");
-        w.Name = dto.Name; w.Description = dto.Description; w.ProjectId = dto.ProjectId; w.IsActive = dto.IsActive;
-        await _workflowRepo.UpdateAsync(w);
-    }
-
-    public async Task DeleteWorkflowAsync(int id) => await _workflowRepo.DeleteAsync(id);
-
-    public async Task<IEnumerable<WorkflowTransitionDto>> GetTransitionsByWorkflowIdAsync(int workflowId)
-    {
-        var list = await _transitionRepo.GetAllAsync(t => t.WorkflowId == workflowId);
-        return list.Select(t => new WorkflowTransitionDto(t.Id, t.WorkflowId, t.FromStatusId, t.ToStatusId, t.TransitionName, t.RequiredPermissionKey, t.SortOrder, t.IsActive));
-    }
-
-    public async Task<WorkflowTransitionDto?> GetTransitionByIdAsync(int id)
-    {
-        var t = await _transitionRepo.GetByIdAsync(id);
-        if (t == null) return null;
-        return new WorkflowTransitionDto(t.Id, t.WorkflowId, t.FromStatusId, t.ToStatusId, t.TransitionName, t.RequiredPermissionKey, t.SortOrder, t.IsActive);
-    }
-
-    public async Task<WorkflowTransitionDto> CreateTransitionAsync(CreateWorkflowTransitionDto dto)
-    {
-        if (dto.FromStatusId == dto.ToStatusId) throw new InvalidOperationException("FromStatus and ToStatus cannot be the same.");
+        _controller = new AuditLogController(_context);
         
-        var t = new WorkflowTransition
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {
-            WorkflowId = dto.WorkflowId,
-            FromStatusId = dto.FromStatusId,
-            ToStatusId = dto.ToStatusId,
-            TransitionName = dto.TransitionName,
-            RequiredPermissionKey = dto.RequiredPermissionKey,
-            SortOrder = dto.SortOrder
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "mock"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
         };
-        await _transitionRepo.AddAsync(t);
-        return new WorkflowTransitionDto(t.Id, t.WorkflowId, t.FromStatusId, t.ToStatusId, t.TransitionName, t.RequiredPermissionKey, t.SortOrder, t.IsActive);
     }
 
-    public async Task UpdateTransitionAsync(int id, UpdateWorkflowTransitionDto dto)
+    [Fact]
+    public async Task GetAuditLogs_ShouldFilterByDateRange()
     {
-        if (dto.FromStatusId == dto.ToStatusId) throw new InvalidOperationException("FromStatus and ToStatus cannot be the same.");
-
-        var t = await _transitionRepo.GetByIdAsync(id);
-        if (t == null) throw new KeyNotFoundException("Transition not found");
+        _context.TicketHistories.Add(new TicketHistory { TicketId = 1, Action = "A", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 10, 0, 0, 0, DateTimeKind.Utc) });
+        _context.TicketHistories.Add(new TicketHistory { TicketId = 2, Action = "B", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 15, 0, 0, 0, DateTimeKind.Utc) });
+        _context.TicketHistories.Add(new TicketHistory { TicketId = 3, Action = "C", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 20, 0, 0, 0, DateTimeKind.Utc) });
         
-        t.FromStatusId = dto.FromStatusId;
-        t.ToStatusId = dto.ToStatusId;
-        t.TransitionName = dto.TransitionName;
-        t.RequiredPermissionKey = dto.RequiredPermissionKey;
-        t.SortOrder = dto.SortOrder;
-        t.IsActive = dto.IsActive;
-        await _transitionRepo.UpdateAsync(t);
+        _context.SystemAuditLogs.Add(new SystemAuditLog { EntityName = "AssignmentRule", EntityId = "1", Action = "Created", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 16, 0, 0, 0, DateTimeKind.Utc) });
+        
+        await _context.SaveChangesAsync();
+
+        var filter = new AuditLogFilterDto(
+            UserId: null, 
+            Action: null, 
+            Ticket: null, 
+            FromDate: new DateTime(2023, 1, 12, 0, 0, 0, DateTimeKind.Utc), 
+            ToDate: new DateTime(2023, 1, 18, 0, 0, 0, DateTimeKind.Utc), 
+            Page: 1, 
+            PageSize: 10
+        );
+
+        var result = await _controller.GetAuditLogs(filter);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var pagedData = Assert.IsType<PaginatedAuditLogDto>(okResult.Value);
+
+        Assert.Equal(2, pagedData.Items.Count());
+        Assert.Contains(pagedData.Items, i => i.Action == "B");
+        Assert.Contains(pagedData.Items, i => i.Action == "Created" && i.TicketId == null);
     }
 
-    public async Task DeleteTransitionAsync(int id) => await _transitionRepo.DeleteAsync(id);
+    [Fact]
+    public async Task GetAuditLogs_ShouldHandleNullFields_WhenTicketAndUserAreNull()
+    {
+        _context.SystemAuditLogs.Add(new SystemAuditLog { EntityName = "Config", EntityId = "1", Action = "NullTest", CreatedBy = null, CreatedAt = DateTime.UtcNow });
+        await _context.SaveChangesAsync();
+
+        var filter = new AuditLogFilterDto(null, null, null, null, null, 1, 10);
+        var result = await _controller.GetAuditLogs(filter);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var pagedData = Assert.IsType<PaginatedAuditLogDto>(okResult.Value);
+
+        Assert.Contains(pagedData.Items, i => i.Action == "NullTest" && i.CreatedBy == "system" && i.TicketId == null);
+    }
 }

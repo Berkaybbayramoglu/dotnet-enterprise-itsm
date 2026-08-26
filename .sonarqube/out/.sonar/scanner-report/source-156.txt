@@ -1,5 +1,5 @@
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Project;
+using ItsTool.Domain.Entities.Auth;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,54 +7,53 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class ProjectServiceTests : TestBase
+public class RoleServiceTests : TestBase
 {
-    private readonly Repository<Project> _repository;
-    private readonly ProjectService _service;
+    private readonly Repository<Role> _repository;
+    private readonly RoleService _service;
 
-    public ProjectServiceTests()
+    public RoleServiceTests()
     {
-        _repository = new Repository<Project>(_context);
-        _service = new ProjectService(_repository, _context);
+        _repository = new Repository<Role>(_context);
+        _service = new RoleService(_repository, _context);
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldCreateProject()
+    public async Task CreateAsync_ShouldCreateRole()
     {
-        var dto = new CreateProjectDto("App", "APP", null);
+        var dto = new CreateRoleDto("Manager");
         var result = await _service.CreateAsync(dto);
 
         Assert.NotNull(result);
-        Assert.Equal("App", result.Name);
-        Assert.Equal("APP", result.ProjectKey);
+        Assert.Equal("Manager", result.Name);
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateProject()
+    public async Task UpdateAsync_ShouldUpdateRole()
     {
-        var proj = new Project { Name = "Old", ProjectKey = "OLD" };
-        _context.Projects.Add(proj);
+        var role = new Role { Name = "Old" };
+        _context.Roles.Add(role);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateProjectDto("New", "NEW", null, "Active");
-        await _service.UpdateAsync(proj.Id, dto);
+        var dto = new UpdateRoleDto("New", true);
+        await _service.UpdateAsync(role.Id, dto);
 
-        var updated = await _context.Projects.FindAsync(proj.Id);
+        var updated = await _context.Roles.FindAsync(role.Id);
         Assert.Equal("New", updated!.Name);
-        Assert.Equal("NEW", updated.ProjectKey);
     }
 
     [Fact]
-    public async Task DeleteAsync_ShouldSoftDeleteProject()
+    public async Task AssignPermissionAsync_ShouldAssignPermission()
     {
-        var proj = new Project { Name = "ToDelete", ProjectKey = "TD" };
-        _context.Projects.Add(proj);
+        var role = new Role { Name = "R1" };
+        var perm = new Permission { Name = "P1", Key = "p1" };
+        _context.Roles.Add(role);
+        _context.Permissions.Add(perm);
         await _context.SaveChangesAsync();
 
-        await _service.DeleteAsync(proj.Id);
+        await _service.AssignPermissionAsync(role.Id, perm.Id);
 
-        var deleted = await _context.Projects.FindAsync(proj.Id);
-        Assert.True(deleted!.IsDeleted);
-        Assert.NotNull(deleted.DeletedAt);
+        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
+        Assert.NotNull(assigned);
     }
 }

@@ -1,1 +1,1 @@
-R 2webXˆhr&src/ItsTool.Web/wwwroot/audit-log.html
+R 2webXáhr"src/ItsTool.Web/wwwroot/rules.html

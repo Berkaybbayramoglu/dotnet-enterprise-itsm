@@ -1,1 +1,1 @@
-_ 2webX®hr*src/ItsTool.Web/wwwroot/ticket-create.html
+_ 2jsXohr+src/ItsTool.Web/wwwroot/js/admin-configs.js

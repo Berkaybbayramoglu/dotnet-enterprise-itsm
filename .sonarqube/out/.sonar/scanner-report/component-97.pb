@@ -1,1 +1,1 @@
-a 2cssXÔhr-src/ItsTool.Web/wwwroot/css/design-system.css
+a 2jsXŒhr src/ItsTool.Web/wwwroot/js/ui.js

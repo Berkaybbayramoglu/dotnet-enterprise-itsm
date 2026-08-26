@@ -1,64 +1,41 @@
 using System;
 using System.Threading.Tasks;
 using ItsTool.Application.Interfaces;
-using MailKit.Net.Smtp;
-using MimeKit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using ItsTool.Domain.Entities;
+using ItsTool.Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class SmtpEmailService : IEmailService
+public class SystemAuditService : ISystemAuditService
 {
-    private readonly IConfiguration _config;
-    private readonly ILogger<SmtpEmailService> _logger;
+    private readonly ItsToolDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public SmtpEmailService(IConfiguration config, ILogger<SmtpEmailService> logger)
+    public SystemAuditService(ItsToolDbContext context, IHttpContextAccessor httpContextAccessor)
     {
-        _config = config;
-        _logger = logger;
+        _context = context;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task SendEmailAsync(string to, string subject, string body)
+    public async Task LogAuditAsync(string entityName, string entityId, string action, string? fieldName = null, string? oldValue = null, string? newValue = null)
     {
-        var host = _config["Smtp:Host"];
-        var portStr = _config["Smtp:Port"];
-        var user = _config["Smtp:Username"];
-        var pass = _config["Smtp:Password"];
-
-        if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(portStr))
+        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "system";
+        
+        var log = new SystemAuditLog
         {
-            _logger.LogWarning("SMTP Configuration missing, skipping email to {To}", to);
-            return;
-        }
+            EntityName = entityName,
+            EntityId = entityId,
+            Action = action,
+            FieldName = fieldName,
+            OldValue = oldValue,
+            NewValue = newValue,
+            CreatedBy = userIdStr,
+            CreatedAt = DateTime.UtcNow
+        };
 
-        try
-        {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("ITSM Tool", user ?? "noreply@itsm.local"));
-            message.To.Add(new MailboxAddress("", to));
-            message.Subject = subject;
-
-            message.Body = new TextPart("html")
-            {
-                Text = body
-            };
-
-            using var client = new SmtpClient();
-            await client.ConnectAsync(host, int.Parse(portStr), MailKit.Security.SecureSocketOptions.Auto);
-
-            if (!string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pass))
-            {
-                await client.AuthenticateAsync(user, pass);
-            }
-
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-            _logger.LogInformation("Sent email to {To} with subject {Subject}", to, subject);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to send email to {To}", to);
-        }
+        _context.SystemAuditLogs.Add(log);
+        await _context.SaveChangesAsync();
     }
 }

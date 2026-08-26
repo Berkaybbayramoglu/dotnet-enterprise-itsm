@@ -1,95 +1,58 @@
-using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Domain.Entities.SLA;
+using ItsTool.Application.DTOs;
 using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Services;
-using ItsTool.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
+using ItsTool.Application.Interfaces;
 
 namespace ItsTool.UnitTests.Services;
 
-public class SlaEscalationTests : TestBase
+public class TicketUpdateTests : TestBase
 {
-    private readonly SlaEngine _engine;
-    private readonly Mock<IEmailService> _mockEmailService;
-    private readonly Mock<INotificationDispatcher> _mockNotificationDispatcher;
+    private readonly TicketService _service;
 
-    public SlaEscalationTests() : base()
+    public TicketUpdateTests()
     {
-        _mockEmailService = new Mock<IEmailService>();
-        _mockNotificationDispatcher = new Mock<INotificationDispatcher>();
-        _engine = new SlaEngine(_context, _mockEmailService.Object, _mockNotificationDispatcher.Object);
-        SeedBasicData().Wait();
-    }
+        var assignMock = new Mock<IAssignmentEngine>();
+        var slaMock = new Mock<ISlaEngine>();
+        var notifMock = new Mock<INotificationDispatcher>();
+        var permMock = new Mock<IPermissionCalculator>();
+        var fileMock = new Mock<IFileStorageService>();
 
-    private async Task SeedBasicData()
-    {
-        var lowPriority = new Priority { Name = "Low", SeverityLevel = 1 };
-        var highPriority = new Priority { Name = "High", SeverityLevel = 2 };
-        _context.Priorities.AddRange(lowPriority, highPriority);
-
-        var policy = new SlaPolicy { Name = "Escalate Policy", EscalateOnBreach = true, IsActive = true };
-        _context.SlaPolicies.Add(policy);
-        await _context.SaveChangesAsync();
-
-        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = policy.Id, PriorityId = lowPriority.Id, FirstResponseMinutes = 60, ResolutionMinutes = 120, IsActive = true });
-        await _context.SaveChangesAsync();
+        _service = new TicketService(_context, fileMock.Object, permMock.Object, slaMock.Object, assignMock.Object, notifMock.Object);
     }
 
     [Fact]
-    public async Task CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllows()
+    public async Task UpdateTicketAsync_ShouldAddHistory_WhenFieldsChange()
     {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
+        var ticket = new Ticket { Title = "Old Title", Description = "Old Desc", ProjectId = 1, CategoryId = 1, TypeId = 1, PriorityId = 1, StatusId = 1, RequesterUserId = 1 };
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
-        var sla = new TicketSla
-        {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10)
-        };
-        _context.TicketSlas.Add(sla);
-        await _context.SaveChangesAsync();
+        var dto = new UpdateTicketDto("New Title", "New Desc", 1, 1, new Dictionary<string, string>());
+        await _service.UpdateTicketAsync(ticket.Id, dto, 99);
 
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
-
-        // Verify Escalation
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var highPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 2)).Id;
-        
-        Assert.Equal(highPriorityId, updatedTicket?.PriorityId); // Priority bumped
-        
-        var updatedSla = await _context.TicketSlas.FindAsync(sla.Id);
-        Assert.NotNull(updatedSla?.EscalatedAt); // EscalatedAt set
-
-        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breach", ticket.Id, null, It.IsAny<string>()), Times.Once);
+        var history = await _context.TicketHistories.Where(h => h.TicketId == ticket.Id).ToListAsync();
+        Assert.Equal(2, history.Count);
+        Assert.Contains(history, h => h.FieldName == "Title" && h.OldValue == "Old Title" && h.NewValue == "New Title");
+        Assert.Contains(history, h => h.FieldName == "Description" && h.OldValue == "Old Desc" && h.NewValue == "New Desc");
     }
 
     [Fact]
-    public async Task TryEscalateAsync_ShouldBeIdempotent()
+    public async Task UpdateTicketAsync_ShouldNotAddHistory_WhenNoFieldsChange()
     {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
+        var ticket = new Ticket { Title = "Same Title", Description = "Same Desc", ProjectId = 1, CategoryId = 1, TypeId = 1, PriorityId = 1, StatusId = 1, RequesterUserId = 1 };
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
-        var sla = new TicketSla
-        {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10),
-            EscalatedAt = DateTime.UtcNow.AddDays(-1) // Already escalated
-        };
-        _context.TicketSlas.Add(sla);
-        await _context.SaveChangesAsync();
+        var dto = new UpdateTicketDto("Same Title", "Same Desc", 1, 1, new Dictionary<string, string>());
+        await _service.UpdateTicketAsync(ticket.Id, dto, 99);
 
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
-
-        // Priority should still be low because it shouldn't escalate twice
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var lowPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 1)).Id;
-        Assert.Equal(lowPriorityId, updatedTicket?.PriorityId); 
+        var history = await _context.TicketHistories.Where(h => h.TicketId == ticket.Id).ToListAsync();
+        Assert.Empty(history); // No-op
     }
 }

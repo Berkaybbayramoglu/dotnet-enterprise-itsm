@@ -1,1 +1,1 @@
-h 2csXhrsrc/ItsTool.Web/Program.cs
+h 2csXhrEsrc/ItsTool.Infrastructure/Data/Configurations/TicketConfiguration.cs

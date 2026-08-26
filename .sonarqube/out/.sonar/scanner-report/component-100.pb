@@ -1,1 +1,1 @@
-d 2jsXÊhr!src/ItsTool.Web/wwwroot/js/api.js
+d 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js

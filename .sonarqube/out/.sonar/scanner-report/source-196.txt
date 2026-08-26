@@ -1,12 +1,6 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
-
 namespace ItsTool.Application.Interfaces;
 
-public interface INotificationService
+public interface IPermissionCalculator
 {
-    Task<IEnumerable<NotificationDto>> GetUserNotificationsAsync(int userId);
-    Task MarkAsReadAsync(int notificationId, int userId);
-    Task MarkAllAsReadAsync(int userId);
+    Task<HashSet<string>> CalculateEffectivePermissionsAsync(int userId);
 }

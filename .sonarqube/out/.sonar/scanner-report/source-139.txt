@@ -1,78 +1,53 @@
-using System;
-using System.Threading.Tasks;
-using ItsTool.API.Controllers;
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using Xunit;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading.Tasks;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
 
-namespace ItsTool.UnitTests.Controllers;
+namespace ItsTool.UnitTests.Data;
 
-public class AuditLogControllerTests : TestBase
+public class DataSeederTests : TestBase
 {
-    private readonly AuditLogController _controller;
-
-    public AuditLogControllerTests() : base()
-    {
-        _controller = new AuditLogController(_context);
-        
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, "1")
-        }, "mock"));
-
-        _controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext { User = user }
-        };
-    }
-
     [Fact]
-    public async Task GetAuditLogs_ShouldFilterByDateRange()
+    public async Task SeedAsync_ShouldUpsertFullReopenMatrix_WhenCalledMultipleTimes()
     {
-        _context.TicketHistories.Add(new TicketHistory { TicketId = 1, Action = "A", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 10, 0, 0, 0, DateTimeKind.Utc) });
-        _context.TicketHistories.Add(new TicketHistory { TicketId = 2, Action = "B", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 15, 0, 0, 0, DateTimeKind.Utc) });
-        _context.TicketHistories.Add(new TicketHistory { TicketId = 3, Action = "C", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 20, 0, 0, 0, DateTimeKind.Utc) });
+        var seeder = new DataSeeder(_context);
+        // First run
+        await seeder.SeedAsync();
+
+        var workflow = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
+        Assert.NotNull(workflow);
+
+        var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Kapatıldı");
+        var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Çözüldü");
+        var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Devam Ediyor");
+
+        Assert.NotNull(closedStatus);
+        Assert.NotNull(resolvedStatus);
+        Assert.NotNull(inProgressStatus);
+
+        // Verify reopened transitions exist
+        var closedToProgress = await _context.WorkflowTransitions
+            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
         
-        _context.SystemAuditLogs.Add(new SystemAuditLog { EntityName = "AssignmentRule", EntityId = "1", Action = "Created", CreatedBy = "1", CreatedAt = new DateTime(2023, 1, 16, 0, 0, 0, DateTimeKind.Utc) });
-        
+        var resolvedToProgress = await _context.WorkflowTransitions
+            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == resolvedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
+
+        Assert.True(closedToProgress, "Closed -> In Progress transition missing");
+        Assert.True(resolvedToProgress, "Resolved -> In Progress transition missing");
+
+        // Delete one to simulate drift/modification
+        var transitionToRemove = await _context.WorkflowTransitions
+            .FirstAsync(wt => wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
+        _context.WorkflowTransitions.Remove(transitionToRemove);
         await _context.SaveChangesAsync();
 
-        var filter = new AuditLogFilterDto(
-            UserId: null, 
-            Action: null, 
-            Ticket: null, 
-            FromDate: new DateTime(2023, 1, 12, 0, 0, 0, DateTimeKind.Utc), 
-            ToDate: new DateTime(2023, 1, 18, 0, 0, 0, DateTimeKind.Utc), 
-            Page: 1, 
-            PageSize: 10
-        );
+        // Second run - should upsert the missing one
+        await seeder.SeedAsync();
 
-        var result = await _controller.GetAuditLogs(filter);
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var pagedData = Assert.IsType<PaginatedAuditLogDto>(okResult.Value);
+        var missingTransitionIsBack = await _context.WorkflowTransitions
+            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
 
-        Assert.Equal(2, pagedData.Items.Count());
-        Assert.Contains(pagedData.Items, i => i.Action == "B");
-        Assert.Contains(pagedData.Items, i => i.Action == "Created" && i.TicketId == null);
-    }
-
-    [Fact]
-    public async Task GetAuditLogs_ShouldHandleNullFields_WhenTicketAndUserAreNull()
-    {
-        _context.SystemAuditLogs.Add(new SystemAuditLog { EntityName = "Config", EntityId = "1", Action = "NullTest", CreatedBy = null, CreatedAt = DateTime.UtcNow });
-        await _context.SaveChangesAsync();
-
-        var filter = new AuditLogFilterDto(null, null, null, null, null, 1, 10);
-        var result = await _controller.GetAuditLogs(filter);
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var pagedData = Assert.IsType<PaginatedAuditLogDto>(okResult.Value);
-
-        Assert.Contains(pagedData.Items, i => i.Action == "NullTest" && i.CreatedBy == "system" && i.TicketId == null);
+        Assert.True(missingTransitionIsBack, "Seeder failed to UPSERT the missing Reopen transition.");
     }
 }

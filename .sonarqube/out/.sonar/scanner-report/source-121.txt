@@ -1,154 +1,117 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.KnowledgeBase;
+using ItsTool.Domain.Entities.Notification;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.Infrastructure.Services;
 
-public class KnowledgeBaseService : IKnowledgeBaseService
+public class NotificationDispatcher : INotificationDispatcher
 {
     private readonly ItsToolDbContext _context;
-    private readonly IPermissionCalculator _permissionCalculator;
+    private readonly IEmailService _emailService;
+    private readonly IWebhookDispatcher _webhookDispatcher;
 
-    public KnowledgeBaseService(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
+    public NotificationDispatcher(ItsToolDbContext context, IEmailService emailService, IWebhookDispatcher webhookDispatcher)
     {
         _context = context;
-        _permissionCalculator = permissionCalculator;
+        _emailService = emailService;
+        _webhookDispatcher = webhookDispatcher;
     }
 
-    public async Task<IEnumerable<KbCategoryDto>> GetCategoriesAsync()
+    public async Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null)
     {
-        var list = await _context.KnowledgeCategories.Where(c => !c.IsDeleted).ToListAsync();
-        return list.Select(c => new KbCategoryDto(c.Id, c.Name, c.ParentId));
-    }
+        var rules = await _context.NotificationRules
+            .Where(r => r.EventKey == eventKey && r.IsActive && !r.IsDeleted)
+            .ToListAsync();
 
-    public async Task<KbCategoryDto> CreateCategoryAsync(CreateKbCategoryDto dto)
-    {
-        var cat = new KnowledgeCategory { Name = dto.Name, ParentId = dto.ParentId };
-        _context.KnowledgeCategories.Add(cat);
-        await _context.SaveChangesAsync();
-        return new KbCategoryDto(cat.Id, cat.Name, cat.ParentId);
-    }
+        if (rules.Count == 0) return;
 
-    public async Task UpdateCategoryAsync(int id, CreateKbCategoryDto dto)
-    {
-        var cat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-        if (cat == null) throw new KeyNotFoundException("Category not found.");
-        cat.Name = dto.Name;
-        cat.ParentId = dto.ParentId;
-        await _context.SaveChangesAsync();
-    }
+        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+        if (ticket == null) return;
 
-    public async Task DeleteCategoryAsync(int id)
-    {
-        var cat = await _context.KnowledgeCategories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-        if (cat != null)
-        {
-            cat.IsDeleted = true;
-            await _context.SaveChangesAsync();
-        }
-    }
+        var targetUserIds = await GetTargetUserIdsAsync(rules, ticket, triggerUserId);
 
-    public async Task<IEnumerable<KbArticleSummaryDto>> SearchArticlesAsync(int userId, string? keyword, int? categoryId)
-    {
-        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        bool canManageKb = perms.Contains("kb.manage");
-        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit"); // Determine internal visibility
-
-        var query = _context.KnowledgeArticles
-            .Where(a => !a.IsDeleted);
-
-        if (!canManageKb)
-        {
-            query = query.Where(a => a.Status == ArticleStatus.Published);
-        }
-
-        if (!isStaff && !canManageKb)
-        {
-            query = query.Where(a => a.Visibility == ArticleVisibility.Public);
-        }
-
-        if (categoryId.HasValue)
-        {
-            query = query.Where(a => a.CategoryId == categoryId.Value);
-        }
-
-        if (!string.IsNullOrWhiteSpace(keyword))
-        {
-            var kw = keyword;
-            query = query.Where(a => a.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || a.Content.Contains(kw, StringComparison.OrdinalIgnoreCase));
-        }
-
-        var list = await query.OrderByDescending(a => a.CreatedAt).ToListAsync();
+        await ProcessNotificationsAsync(targetUserIds, eventKey, ticket, additionalContext);
         
-        return list.Select(a => new KbArticleSummaryDto(a.Id, a.CategoryId, a.Title, a.AuthorUserId, a.Status, a.Visibility, a.ViewCount, a.CreatedAt));
+        await _context.SaveChangesAsync();
+        
+        // Dispatch to Webhooks
+        await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
     }
 
-    public async Task<KbArticleDto?> GetArticleAsync(int id, int userId)
+    private async Task<System.Collections.Generic.HashSet<int>> GetTargetUserIdsAsync(System.Collections.Generic.IEnumerable<NotificationRule> rules, Domain.Entities.Ticket.Ticket ticket, int? triggerUserId)
     {
-        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        bool canManageKb = perms.Contains("kb.manage");
-        bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit");
+        var targetUserIds = new System.Collections.Generic.HashSet<int>();
 
-        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
-        if (article == null) return null;
-
-        // Visibility checks
-        if (article.Status == ArticleStatus.Draft && !canManageKb) return null;
-        if (article.Visibility == ArticleVisibility.Internal && !isStaff && !canManageKb) return null;
-
-        // Increment ViewCount if published
-        if (article.Status == ArticleStatus.Published)
+        foreach (var rule in rules)
         {
-            article.ViewCount++;
-            await _context.SaveChangesAsync();
+            switch (rule.TargetRole.ToLower())
+            {
+                case "requester":
+                    targetUserIds.Add(ticket.RequesterUserId);
+                    break;
+                case "assignee":
+                    if (ticket.AssignedUserId.HasValue)
+                        targetUserIds.Add(ticket.AssignedUserId.Value);
+                    break;
+                case "project_member":
+                    var members = await _context.ProjectMembers
+                        .Where(pm => pm.ProjectId == ticket.ProjectId && !pm.IsDeleted)
+                        .ToListAsync();
+                    foreach (var m in members)
+                    {
+                        targetUserIds.Add(m.UserId);
+                    }
+                    break;
+            }
         }
 
-        return new KbArticleDto(article.Id, article.CategoryId, article.Title, article.Content, article.AuthorUserId, article.Status, article.Visibility, article.ViewCount, article.CreatedAt);
-    }
-
-    public async Task<KbArticleDto> CreateArticleAsync(CreateKbArticleDto dto, int authorId)
-    {
-        var article = new KnowledgeArticle
+        if (triggerUserId.HasValue)
         {
-            CategoryId = dto.CategoryId,
-            Title = dto.Title,
-            Content = dto.Content,
-            Status = dto.Status,
-            Visibility = dto.Visibility,
-            AuthorUserId = authorId
-        };
-        _context.KnowledgeArticles.Add(article);
-        await _context.SaveChangesAsync();
+            targetUserIds.Remove(triggerUserId.Value);
+        }
 
-        return new KbArticleDto(article.Id, article.CategoryId, article.Title, article.Content, article.AuthorUserId, article.Status, article.Visibility, article.ViewCount, article.CreatedAt);
+        return targetUserIds;
     }
 
-    public async Task UpdateArticleAsync(int id, UpdateKbArticleDto dto)
+    private async Task ProcessNotificationsAsync(System.Collections.Generic.HashSet<int> targetUserIds, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
     {
-        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
-        if (article == null) throw new KeyNotFoundException("Article not found.");
-
-        article.CategoryId = dto.CategoryId;
-        article.Title = dto.Title;
-        article.Content = dto.Content;
-        article.Status = dto.Status;
-        article.Visibility = dto.Visibility;
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteArticleAsync(int id)
-    {
-        var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
-        if (article != null)
+        foreach (var targetId in targetUserIds)
         {
-            article.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            var exists = await _context.Notifications.AnyAsync(n => 
+                n.UserId == targetId && 
+                n.RelatedEntityId == ticket.Id && 
+                n.RelatedEntityType == "Ticket" && 
+                n.Title == eventKey &&
+                !n.IsDeleted);
+
+            if (!exists)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = targetId,
+                    Title = eventKey,
+                    Message = additionalContext ?? $"Event {eventKey} occurred on Ticket {ticket.TicketNumber}",
+                    RelatedEntityId = ticket.Id,
+                    RelatedEntityType = "Ticket"
+                });
+
+                if (eventKey == "ticket.assigned" || eventKey == "sla.breach")
+                {
+                    await SendEmailNotificationAsync(targetId, eventKey, ticket, additionalContext);
+                }
+            }
+        }
+    }
+
+    private async Task SendEmailNotificationAsync(int targetId, string eventKey, Domain.Entities.Ticket.Ticket ticket, string? additionalContext)
+    {
+        var u = await _context.Users.FindAsync(targetId);
+        if (u != null)
+        {
+            await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
         }
     }
 }

@@ -1,2 +1,1 @@
-º 2csX
-hr7src/ItsTool.Application/Interfaces/IAssignmentEngine.cs
+º 2csX#hr5src/ItsTool.Application/Interfaces/ICatalogService.cs

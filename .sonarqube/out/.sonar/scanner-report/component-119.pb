@@ -1,1 +1,1 @@
-w 2csXzhr<src/ItsTool.Infrastructure/Services/EmailIngestionService.cs
+w 2csX›hr;src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs

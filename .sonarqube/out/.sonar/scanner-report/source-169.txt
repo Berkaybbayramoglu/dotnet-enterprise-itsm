@@ -1,31 +1,33 @@
-namespace ItsTool.Application.Constants;
+using System;
 
-public static class PermissionConstants
-{
-    public const string TicketCreate = "ticket.create";
-    public const string TicketView = "ticket.view";
-    public const string TicketEdit = "ticket.edit";
-    public const string TicketAssign = "ticket.assign";
-    public const string TicketTransfer = "ticket.transfer";
-    public const string TicketResolve = "ticket.resolve";
-    public const string TicketClose = "ticket.close";
-    public const string TicketReopen = "ticket.reopen";
-    public const string TicketCommentInternal = "ticket.comment.internal";
-    public const string ReportView = "report.view";
-    public const string AdminManage = "admin.manage";
-    public const string ConfigManage = "config.manage";
-    public const string SlaManage = "sla.manage";
-    public const string AuditView = "audit.view";
+namespace ItsTool.Application.DTOs;
 
-    public const string KbManage = "kb.manage";
-    public const string KbView = "kb.view";
-    public const string SurveySubmit = "survey.submit";
-    public const string TicketComment = "ticket.comment";
+public record AuditLogFilterDto(
+    int? UserId,
+    string? Action,
+    string? Ticket,
+    DateTime? FromDate,
+    DateTime? ToDate,
+    int Page = 1,
+    int PageSize = 50
+);
 
-    public static IReadOnlyList<string> AllPermissions => new[]
-    {
-        TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
-        KbManage, KbView, SurveySubmit, TicketComment
-    };
-}
+public record AuditLogItemDto(
+    int Id,
+    int? TicketId,
+    string Action,
+    string FieldName,
+    string? OldValue,
+    string? NewValue,
+    string CreatedBy,
+    DateTime CreatedAt,
+    string? EntityName = null,
+    string? EntityId = null
+);
+
+public record PaginatedAuditLogDto(
+    System.Collections.Generic.IEnumerable<AuditLogItemDto> Items,
+    int TotalCount,
+    int Page,
+    int PageSize
+);

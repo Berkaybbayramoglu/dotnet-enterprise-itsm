@@ -1,1 +1,1 @@
-È 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs
+È 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs

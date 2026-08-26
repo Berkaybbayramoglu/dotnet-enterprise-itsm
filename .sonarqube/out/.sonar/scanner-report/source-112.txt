@@ -1,52 +1,98 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
+using ItsTool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
-namespace ItsTool.Infrastructure.Security;
+namespace ItsTool.Infrastructure.Services;
 
-public class TokenService : ITokenService
+public class AuthService : IAuthService
 {
+    private readonly ItsToolDbContext _context;
+    private readonly ITokenService _tokenService;
+    private readonly IPermissionCalculator _permissionCalculator;
     private readonly IConfiguration _configuration;
 
-    public TokenService(IConfiguration configuration)
+    public AuthService(
+        ItsToolDbContext context, 
+        ITokenService tokenService, 
+        IPermissionCalculator permissionCalculator,
+        IConfiguration configuration)
     {
+        _context = context;
+        _tokenService = tokenService;
+        _permissionCalculator = permissionCalculator;
         _configuration = configuration;
     }
 
-    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
+    public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(ClaimTypes.Name, username)
-        };
 
-        foreach (var role in roles)
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => 
+                (string.Equals(u.Username, request.Username, StringComparison.OrdinalIgnoreCase) || 
+                 string.Equals(u.Email, request.Username, StringComparison.OrdinalIgnoreCase)) && 
+                u.IsActive && !u.IsDeleted);
+
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            throw new UnauthorizedAccessException("Invalid credentials.");
         }
 
-        foreach (var perm in permissions)
-        {
-            claims.Add(new Claim("permission", perm));
-        }
+        var roles = await _context.UserRoles
+            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
+            .Select(ur => ur.Role!.Name)
+            .ToListAsync();
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        
+        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+
+        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+
         var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
-            signingCredentials: creds
+        return new AuthResponseDto(
+            Token: token,
+            ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            Username: user.Username,
+            Roles: roles,
+            Permissions: permissions
         );
+    }
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+    public async Task<MeResponseDto> GetMeAsync(int userId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && !u.IsDeleted);
+
+        if (user == null)
+            throw new UnauthorizedAccessException("User not found.");
+
+        var roles = await _context.UserRoles
+            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive)
+            .Select(ur => ur.Role!.Name)
+            .ToListAsync();
+
+        var groups = await _context.GroupMembers
+            .Where(gm => gm.UserId == user.Id && gm.Group != null && gm.Group.IsActive)
+            .Select(gm => gm.Group!.Name)
+            .ToListAsync();
+
+        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+
+        var overrides = await _context.UserPermissionOverrides
+            .Include(o => o.Permission)
+            .Where(o => o.UserId == user.Id && o.IsGranted && !o.IsDeleted && o.Permission != null && o.Permission.IsActive && !o.Permission.IsDeleted)
+            .Select(o => o.Permission!.Key)
+            .ToListAsync();
+
+        return new MeResponseDto(
+            Id: user.Id,
+            Username: user.Username,
+            Email: user.Email,
+            Groups: groups,
+            Roles: roles,
+            Permissions: permissions,
+            Overrides: overrides
+        );
     }
 }

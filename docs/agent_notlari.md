@@ -108,3 +108,9 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
 - Final Cleanup 16 — `crud-page.js` Complexity:
   - Böl-Yönet (Divide & Conquer) taktiği ile 15-20 satırlık JS metotları (`renderTable`, `submitForm`, `wireActions`) daha ufak parçalara ayrıldı (`buildCellHtml`, `populateForm`, `getFormData`, `persistData`, `performUndoableDelete`).
   - JS içindeki kullanılmayan destructured değişkenler silindi ve empty-catch bloklarına console.error + toast error handling mekanizması kuruldu.
+
+- Final Cleanup 17 — Structural DRY & Single Admin Page:
+  - Extracted the entire `app-shell` (sidebar, topbar, overlay) into `js/layout.js`.
+  - Injected `<div data-shell></div>` across all ~15 pages to drastically reduce HTML duplication.
+  - Consolidated 5 admin CRUD pages (`departments`, `categories`, `projects`, `groups`, `roles`) into a single `admin-crud.html` page driven by `admin-configs.js` registry.
+  - Justified keeping `AddMember` in concrete controllers due to Interface Segregation Principle (ISP).

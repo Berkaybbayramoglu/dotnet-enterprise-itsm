@@ -1,109 +1,54 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
-using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.UnitTests.Services;
 
-public class DashboardServiceTests : TestBase
+public class DynamicFormServiceTests : TestBase
 {
-    private readonly DashboardService _dashboardService;
-    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
+    private readonly Repository<FieldDefinition> _defRepo;
+    private readonly Repository<FieldOption> _optRepo;
+    private readonly Repository<FormFieldPlacement> _placementRepo;
+    private readonly DynamicFormService _service;
 
-    public DashboardServiceTests() : base()
+    public DynamicFormServiceTests() : base()
     {
-        _mockPermCalculator = new Mock<IPermissionCalculator>();
-        _dashboardService = new DashboardService(_context, _mockPermCalculator.Object);
+        _defRepo = new Repository<FieldDefinition>(_context);
+        _optRepo = new Repository<FieldOption>(_context);
+        _placementRepo = new Repository<FormFieldPlacement>(_context);
+        _service = new DynamicFormService(_defRepo, _optRepo, _placementRepo, _context);
     }
 
     [Fact]
-    public async Task GetOverviewAsync_ShouldReturnZeros_WhenNoTickets()
+    public async Task CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUnique()
     {
-        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
-
-        var result = await _dashboardService.GetOverviewAsync(1);
-
-        Assert.Equal(0, result.OpenTickets);
-        Assert.Equal(0, result.CriticalTickets);
-        Assert.Equal(0, result.SlaBreachedTickets);
-        Assert.Equal(0, result.SlaRiskTickets);
-        Assert.Equal(0, result.UnassignedTickets);
-    }
-
-
-    [Fact]
-    public async Task GetOverviewAsync_ShouldReturnCorrectCounts_ForAdmin()
-    {
-        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
-
-        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
-        var closedStatus = new Status { Name = "Closed", IsClosedStatus = true };
-        _context.Statuses.AddRange(openStatus, closedStatus);
+        var f = new FieldDefinition { Key = "test.key", Label = "A", FieldType = FieldType.Text };
+        _context.FieldDefinitions.Add(f);
         await _context.SaveChangesAsync();
 
-        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id });
-        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = closedStatus.Id });
-        _context.Tickets.Add(new Ticket { TicketNumber = "T3", StatusId = openStatus.Id, Priority = new Priority { SeverityLevel = 1 } });
-        await _context.SaveChangesAsync();
-
-        var result = await _dashboardService.GetOverviewAsync(1);
-
-        Assert.Equal(2, result.OpenTickets); // T1 and T3 are open
-        Assert.Equal(1, result.CriticalTickets); // T3
+        var dto = new CreateFieldDefinitionDto("test.key", "B", "Text", null);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateFieldDefinitionAsync(dto));
     }
 
     [Fact]
-    public async Task GetOverviewAsync_ShouldOnlyCountAgentTickets_ForAgent()
+    public async Task CreatePlacementAsync_ShouldThrowIfDuplicateScope()
     {
-        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(2)).ReturnsAsync(new HashSet<string> { "ticket.manage" });
-
-        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
-        _context.Statuses.Add(openStatus);
+        var p = new FormFieldPlacement { FieldDefinitionId = 1, ProjectId = 1 };
+        _context.FormFieldPlacements.Add(p);
         await _context.SaveChangesAsync();
 
-        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id, AssignedUserId = 2 }); // Assigned to agent
-        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = openStatus.Id, AssignedUserId = 99 }); // Assigned to someone else
-        await _context.SaveChangesAsync();
-
-        var result = await _dashboardService.GetOverviewAsync(2);
-
-        Assert.Equal(1, result.OpenTickets); // Only T1
+        var dto = new CreateFormFieldPlacementDto(1, 1, null, null, 1, true);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePlacementAsync(dto));
     }
 
     [Fact]
-    public async Task GetOverviewAsync_ShouldOnlyCountRequestedTickets_ForEndUser()
+    public async Task CreateFieldDefinitionAsync_ShouldCreate()
     {
-        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(3)).ReturnsAsync(new HashSet<string>());
-
-        var openStatus = new Status { Name = "Open", IsClosedStatus = false };
-        _context.Statuses.Add(openStatus);
-        await _context.SaveChangesAsync();
-
-        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id, RequesterUserId = 3 }); // Requested by user
-        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = openStatus.Id, RequesterUserId = 99 }); // Requested by someone else
-        await _context.SaveChangesAsync();
-
-        var result = await _dashboardService.GetOverviewAsync(3);
-
-        Assert.Equal(1, result.OpenTickets); // Only T1
-    }
-
-    [Fact]
-    public async Task GetOverviewAsync_ShouldCalculateCsatAverage()
-    {
-        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "report.view" });
-
-        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 1, Rating = 4 });
-        _context.TicketSurveys.Add(new TicketSurvey { TicketId = 2, Rating = 5 });
-        await _context.SaveChangesAsync();
-
-        var result = await _dashboardService.GetOverviewAsync(1);
-        
-        Assert.Equal(4.5, result.CsatAverage);
+        var dto = new CreateFieldDefinitionDto("uniq.key", "N", "Text", null);
+        var res = await _service.CreateFieldDefinitionAsync(dto);
+        Assert.Equal("uniq.key", res.Key);
     }
 }

@@ -1,8 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Notification;
+using ItsTool.Domain.Entities.Project;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -10,55 +7,54 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class NotificationServiceTests : TestBase
+public class ProjectServiceTests : TestBase
 {
-    private readonly NotificationService _service;
+    private readonly Repository<Project> _repository;
+    private readonly ProjectService _service;
 
-    public NotificationServiceTests() : base()
+    public ProjectServiceTests()
     {
-        _service = new NotificationService(_context);
+        _repository = new Repository<Project>(_context);
+        _service = new ProjectService(_repository, _context);
     }
 
     [Fact]
-    public async Task GetUserNotificationsAsync_ShouldReturnOnlyUserNotifications()
+    public async Task CreateAsync_ShouldCreateProject()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A" });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "B", Message = "B" });
-        await _context.SaveChangesAsync();
+        var dto = new CreateProjectDto("App", "APP", null);
+        var result = await _service.CreateAsync(dto);
 
-        var notifs = await _service.GetUserNotificationsAsync(1);
-        
-        Assert.Single(notifs);
-        Assert.Equal("A", notifs.First().Title);
+        Assert.NotNull(result);
+        Assert.Equal("App", result.Name);
+        Assert.Equal("APP", result.ProjectKey);
     }
 
     [Fact]
-    public async Task MarkAsReadAsync_ShouldMarkSpecificNotification()
+    public async Task UpdateAsync_ShouldUpdateProject()
     {
-        var n = new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false };
-        _context.Notifications.Add(n);
+        var proj = new Project { Name = "Old", ProjectKey = "OLD" };
+        _context.Projects.Add(proj);
         await _context.SaveChangesAsync();
 
-        await _service.MarkAsReadAsync(n.Id, 1);
-        
-        var dbN = await _context.Notifications.FirstAsync();
-        Assert.True(dbN.IsRead);
+        var dto = new UpdateProjectDto("New", "NEW", null, "Active");
+        await _service.UpdateAsync(proj.Id, dto);
+
+        var updated = await _context.Projects.FindAsync(proj.Id);
+        Assert.Equal("New", updated!.Name);
+        Assert.Equal("NEW", updated.ProjectKey);
     }
 
     [Fact]
-    public async Task MarkAllAsReadAsync_ShouldMarkAllForUser()
+    public async Task DeleteAsync_ShouldSoftDeleteProject()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "B", Message = "B", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "C", Message = "C", IsRead = false });
+        var proj = new Project { Name = "ToDelete", ProjectKey = "TD" };
+        _context.Projects.Add(proj);
         await _context.SaveChangesAsync();
 
-        await _service.MarkAllAsReadAsync(1);
-        
-        var user1Notifs = await _context.Notifications.Where(n => n.UserId == 1).ToListAsync();
-        Assert.All(user1Notifs, n => Assert.True(n.IsRead));
+        await _service.DeleteAsync(proj.Id);
 
-        var user2Notifs = await _context.Notifications.Where(n => n.UserId == 2).ToListAsync();
-        Assert.All(user2Notifs, n => Assert.False(n.IsRead));
+        var deleted = await _context.Projects.FindAsync(proj.Id);
+        Assert.True(deleted!.IsDeleted);
+        Assert.NotNull(deleted.DeletedAt);
     }
 }

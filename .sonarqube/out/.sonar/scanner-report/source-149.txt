@@ -1,67 +1,70 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.KnowledgeBase;
 using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
-public class EmailIngestionServiceTests : TestBase
+public class KnowledgeBaseServiceTests : TestBase
 {
-    private readonly EmailIngestionService _service;
-    public EmailIngestionServiceTests() : base()
+    private readonly KnowledgeBaseService _kbService;
+    private readonly Mock<IPermissionCalculator> _mockPermCalculator;
+
+    public KnowledgeBaseServiceTests() : base()
     {
-        _service = new EmailIngestionService(_context);
-        SeedBasicData().Wait();
+        _mockPermCalculator = new Mock<IPermissionCalculator>();
+        _kbService = new KnowledgeBaseService(_context, _mockPermCalculator.Object);
     }
 
-    private async Task SeedBasicData()
+    [Fact]
+    public async Task SearchArticlesAsync_ShouldHideDraftAndInternal_FromEndUser()
     {
-        _context.Categories.Add(new Category { Name = "Hardware" });
-        _context.TicketTypes.Add(new TicketType { Name = "Incident" });
-        _context.Priorities.Add(new Priority { Name = "Low", SeverityLevel = 1 });
-        _context.Statuses.Add(new Status { Name = "Open", IsSystemDefault = true });
-        _context.Projects.Add(new ItsTool.Domain.Entities.Project.Project { ProjectKey = "TEST", Name = "Test Project" });
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string>()); // End user
+
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A2", Status = ArticleStatus.Draft, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A3", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Internal });
         await _context.SaveChangesAsync();
+
+        var result = await _kbService.SearchArticlesAsync(1, null, null);
+
+        Assert.Single(result);
+        Assert.Equal("A1", result.First().Title);
     }
 
     [Fact]
-    public async Task ProcessIncomingEmailAsync_ShouldCreateExternalUser_AndRouteByProjectKey()
+    public async Task SearchArticlesAsync_ShouldShowInternal_ToStaff()
     {
-        var dto = new EmailIngestionDto("msg-1", "newuser@test.com", "Help me with [TEST]", "My PC is broken");
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.manage" }); // Staff
 
-        await _service.ProcessIncomingEmailAsync(dto);
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public });
+        _context.KnowledgeArticles.Add(new KnowledgeArticle { Title = "A2", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Internal });
+        await _context.SaveChangesAsync();
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == "newuser@test.com");
-        Assert.NotNull(user);
-        Assert.Equal("External", user.FirstName);
+        var result = await _kbService.SearchArticlesAsync(1, null, null);
 
-        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.ExternalMessageId == "msg-1");
-        Assert.NotNull(ticket);
-        Assert.Equal("My PC is broken", ticket.Description);
+        Assert.Equal(2, result.Count());
+    }
+
+    [Fact]
+    public async Task GetArticleAsync_ShouldIncrementViewCount_ForPublished()
+    {
+        _mockPermCalculator.Setup(x => x.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string>());
+
+        var article = new KnowledgeArticle { Title = "A1", Status = ArticleStatus.Published, Visibility = ArticleVisibility.Public, ViewCount = 0 };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        var result = await _kbService.GetArticleAsync(article.Id, 1);
+
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ViewCount);
         
-        var project = await _context.Projects.FindAsync(ticket.ProjectId);
-        Assert.Equal("TEST", project?.ProjectKey);
-    }
-
-    [Fact]
-    public async Task ProcessIncomingEmailAsync_ShouldDedupe_WhenMessageIdAlreadyExists()
-    {
-        var dto = new EmailIngestionDto("msg-dedupe", "user@test.com", "Subject", "Body");
-
-        await _service.ProcessIncomingEmailAsync(dto);
-        var initialCount = await _context.Tickets.CountAsync();
-
-        // Send again
-        await _service.ProcessIncomingEmailAsync(dto);
-        var finalCount = await _context.Tickets.CountAsync();
-
-        Assert.Equal(initialCount, finalCount);
+        var dbArticle = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.Equal(1, dbArticle!.ViewCount);
     }
 }

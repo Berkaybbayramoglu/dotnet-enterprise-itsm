@@ -1,10 +1,12 @@
-using System.IO;
+using System;
 using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IReportService
+public interface ISlaEngine
 {
-    Task<Stream> ExportTicketsToCsvAsync(TicketSearchFilterDto filter, int userId);
+    Task AttachSlaToTicketAsync(int ticketId);
+    Task ProcessTicketStatusChangeAsync(int ticketId, int oldStatusId, int newStatusId);
+    Task ProcessTicketCommentAsync(int ticketId, bool isInternal);
+    Task CheckBreachesAsync(DateTime nowUtc);
 }

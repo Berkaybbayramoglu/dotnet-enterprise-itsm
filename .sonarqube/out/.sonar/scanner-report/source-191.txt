@@ -1,9 +1,10 @@
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using ItsTool.Application.DTOs;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IEmailIngestionService
+public interface IFileStorageService
 {
-    Task ProcessIncomingEmailAsync(EmailIngestionDto dto);
+    Task<string> SaveFileAsync(IFormFile file, int ticketId);
+    Task DeleteFileAsync(string filePath);
 }

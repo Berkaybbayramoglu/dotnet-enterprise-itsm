@@ -1,1 +1,1 @@
-Ç 2csXhr4src/ItsTool.Application/Interfaces/IReportService.cs
+Ç 2csXhr0src/ItsTool.Application/Interfaces/ISlaEngine.cs

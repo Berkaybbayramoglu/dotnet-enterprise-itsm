@@ -1,1 +1,1 @@
-U 2webX–hr"src/ItsTool.Web/wwwroot/rules.html
+U 2webX0hr'src/ItsTool.Web/wwwroot/admin-crud.html

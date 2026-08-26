@@ -1,53 +1,60 @@
-using System.Linq;
 using System.Threading.Tasks;
-using ItsTool.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Infrastructure.Services;
 using Xunit;
 
-namespace ItsTool.UnitTests.Data;
+namespace ItsTool.UnitTests.Services;
 
-public class DataSeederTests : TestBase
+public class AssignmentEngineTests : TestBase
 {
-    [Fact]
-    public async Task SeedAsync_ShouldUpsertFullReopenMatrix_WhenCalledMultipleTimes()
+    private readonly AssignmentEngine _engine;
+
+    public AssignmentEngineTests() : base()
     {
-        var seeder = new DataSeeder(_context);
-        // First run
-        await seeder.SeedAsync();
+        _engine = new AssignmentEngine(_context);
+    }
 
-        var workflow = await _context.Workflows.FirstOrDefaultAsync(w => w.Name == "Default Global Workflow");
-        Assert.NotNull(workflow);
-
-        var closedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Kapatıldı");
-        var resolvedStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Çözüldü");
-        var inProgressStatus = await _context.Statuses.FirstOrDefaultAsync(s => s.Name == "Devam Ediyor");
-
-        Assert.NotNull(closedStatus);
-        Assert.NotNull(resolvedStatus);
-        Assert.NotNull(inProgressStatus);
-
-        // Verify reopened transitions exist
-        var closedToProgress = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-        
-        var resolvedToProgress = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == resolvedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-
-        Assert.True(closedToProgress, "Closed -> In Progress transition missing");
-        Assert.True(resolvedToProgress, "Resolved -> In Progress transition missing");
-
-        // Delete one to simulate drift/modification
-        var transitionToRemove = await _context.WorkflowTransitions
-            .FirstAsync(wt => wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
-        _context.WorkflowTransitions.Remove(transitionToRemove);
+    [Fact]
+    public async Task AssignTicketAsync_ShouldAssign_WhenRuleMatches()
+    {
+        var rule1 = new AssignmentRule { Name = "R1", SortOrder = 10, ProjectId = 1, TargetUserId = 99, IsActive = true };
+        _context.AssignmentRules.Add(rule1);
         await _context.SaveChangesAsync();
 
-        // Second run - should upsert the missing one
-        await seeder.SeedAsync();
+        var ticket = new Ticket { ProjectId = 1, CategoryId = 2 };
+        
+        await _engine.AssignTicketAsync(ticket);
+        
+        Assert.Equal(99, ticket.AssignedUserId);
+    }
 
-        var missingTransitionIsBack = await _context.WorkflowTransitions
-            .AnyAsync(wt => wt.WorkflowId == workflow!.Id && wt.FromStatusId == closedStatus!.Id && wt.ToStatusId == inProgressStatus!.Id);
+    [Fact]
+    public async Task AssignTicketAsync_ShouldSkipInactiveRules()
+    {
+        var rule1 = new AssignmentRule { Name = "R1", SortOrder = 10, ProjectId = 1, TargetUserId = 99, IsActive = false };
+        _context.AssignmentRules.Add(rule1);
+        await _context.SaveChangesAsync();
 
-        Assert.True(missingTransitionIsBack, "Seeder failed to UPSERT the missing Reopen transition.");
+        var ticket = new Ticket { ProjectId = 1 };
+        
+        await _engine.AssignTicketAsync(ticket);
+        
+        Assert.Null(ticket.AssignedUserId); // Remained unassigned
+    }
+
+    [Fact]
+    public async Task AssignTicketAsync_ShouldPickFirstMatchBySortOrder()
+    {
+        var rule1 = new AssignmentRule { Name = "R1", SortOrder = 20, ProjectId = 1, TargetUserId = 99, IsActive = true };
+        var rule2 = new AssignmentRule { Name = "R2", SortOrder = 10, ProjectId = 1, TargetUserId = 88, IsActive = true };
+        _context.AssignmentRules.AddRange(rule1, rule2);
+        await _context.SaveChangesAsync();
+
+        var ticket = new Ticket { ProjectId = 1 };
+        
+        await _engine.AssignTicketAsync(ticket);
+        
+        Assert.Equal(88, ticket.AssignedUserId); // 10 comes before 20
     }
 }

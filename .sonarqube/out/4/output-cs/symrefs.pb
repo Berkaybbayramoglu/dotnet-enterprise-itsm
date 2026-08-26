@@ -1,4 +1,77 @@
-Ð
+Í
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
+ "C XX m
+ 7 A= G
+( 2D N
+
+ +
+
+ 2
+O V # 
+n y1 < '
+  
+2 3 & 'ö
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CatalogController.cs
+
+ ¶
+% -    #(( 00 55B J;; #DD LL QQ? GWW #`` ii ooA Iuu #~~ 
+†† 
+- 4 
+
+% 2
+D M4 =
+
+% 3
+Q T8 ;
+   A G  N T
+
+&&% 3
+&&8 :((1 3
+&&Y \((5 8
+
+..% 3
+..8 :00+ -
+
+55% 3
+
+99% 5
+99U X;;: =
+;; <<B H<<O U
+
+BB% 5
+BB: <DD3 5
+BB] `DD7 :
+
+JJ% 5
+JJ: <LL- /
+
+QQ% 0
+
+UU% 1
+UUM PWW6 9
+WW XX? EXXL R
+
+^^% 1
+^^6 8``/ 1
+^^U X``3 6
+
+gg% 1
+gg6 8ii/ 1
+
+oo% 2
+
+ss% 3
+ssQ Tuu8 ;
+uu vvA GvvN T
+
+||% 3
+||8 :~~1 3
+||Y \~~5 8
+
+„„% 3
+
+„„8 :
+††+ -Ð
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
   .@ Q
 & / # ,(
@@ -41,52 +114,7 @@ G/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Program.cs”
 
 –– 
 ——
- Í
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
- "C XX m
- 7 A= G
-( 2D N
-
- +
-
- 2
-O V # 
-n y1 < '
-  
-2 3 & 'ä
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs
-
- d
-& .    #(( 00 77  AA 'MM VV 
-/ 6 
-
-% 1
-C L3 <
-
-% 3
-Q T8 ;
-   @ F  M S
-
-&&% 3
-&&8 :((1 3
-&&Y \((5 8
-
-..% 3
-..8 :00+ -
-
-55% 3
-558 B77A K
-
-==% 5
-==] `AA> A
-AA BBD JBBQ W
-
-KK% 5
-KK: <MM3 5
-KKe hMM7 :
-
-TT% 5
-TT: <VV- /‹
+ ‹
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs
 
  n
@@ -357,7 +385,38 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SavedF
 @@6 8CCR T
 BB CCd j
 CC EE GG (
-CCE FCCJ KCCX YCCo p˜
+CCE FCCJ KCCX YCCo p³
+_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DashboardController.cs
+
+  F
+' 8  ,   ,'' ,.. ,55 ,
+1 A ,<
+  > N  C S''H X..C S55C S
+
+% 0
+  
+
+% 5
+   !! 
+
+%%% :
+'' (( 
+
+,,% 5
+.. // 
+
+33% 5
+55 66 ï
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ReportsController.cs
+
+ 
+$ 2  )
+, 9 &
+  J Z
+
+% 5
+X ^B H
+  ˜
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ProjectsController.cs
 
  Z
@@ -386,38 +445,7 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/SavedF
 
 ::% 1
 ::6 8<<) +
-::> D<<- 3ï
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ReportsController.cs
-
- 
-$ 2  )
-, 9 &
-  J Z
-
-% 5
-X ^B H
-  ‘
-[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/RolesController.cs
-
- F
-" * K SD L9 A $'' 
-( / 
-
-2 E
-
-& 8
-= ?Z \
-
- -
-2 4N P
-
-% +
-E H1 4
- ; BI P
-
-##% +
-##0 2''' )
-##M P''+ .ñ
+::> D<<- 3ñ
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/PermissionsController.cs
 
  "
@@ -529,7 +557,124 @@ c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/Knowle
 
 ::% 1
 ::6 8<<) +
-::> D<<- 3ì
+::> D<<- 3ä
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs
+
+ d
+& .    #(( 00 77  AA 'MM VV 
+/ 6 
+
+% 1
+C L3 <
+
+% 3
+Q T8 ;
+   @ F  M S
+
+&&% 3
+&&8 :((1 3
+&&Y \((5 8
+
+..% 3
+..8 :00+ -
+
+55% 3
+558 B77A K
+
+==% 5
+==] `AA> A
+AA BBD JBBQ W
+
+KK% 5
+KK: <MM3 5
+KKe hMM7 :
+
+TT% 5
+TT: <VV- /·
+a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DepartmentsController.cs
+
+ "F
+( 0      !)) $44 DD 
+4 ; 
+
+% +
+
+% ,
+1 3  / 1
+   !! "" 
+
+''% +
+''K N))1 4
+)) **; B**I P
+
+00% +
+000 244' )
+00S V44+ .
+
+@@% +
+@@0 2DD' )‘
+[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/RolesController.cs
+
+ F
+" * K SD L9 A $'' 
+( / 
+
+2 E
+
+& 8
+= ?Z \
+
+ -
+2 4N P
+
+% +
+E H1 4
+ ; BI P
+
+##% +
+##0 2''' )
+##M P''+ .à
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CrudControllerBase.cs
+
+ ((
+) -F J( ,  
+/ B +
+# 5 -
+
+: <
+		 -## #
+
+		2 4
+
+% +
+
+% ,
+1 3. 0
+   
+
+% +
+0 2##$ &–
+`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CategoriesController.cs
+
+ !F
+% - O WH P9 A $'' 
+0 7 
+
+6 I
+
+* <
+A Cf h
+
+ -
+2 4V X
+
+% +
+I L9 <
+ ; BI P
+
+##% +
+##0 2''/ 1
+##Q T''3 6ì
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DynamicFormController.cs
 
  "Œ
@@ -580,152 +725,7 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/Dynami
 kkd gmm6 9
 
 uu% 4
-uu9 ;ww, .·
-a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DepartmentsController.cs
-
- "F
-( 0      !)) $44 DD 
-4 ; 
-
-% +
-
-% ,
-1 3  / 1
-   !! "" 
-
-''% +
-''K N))1 4
-)) **; B**I P
-
-00% +
-000 244' )
-00S V44+ .
-
-@@% +
-@@0 2DD' )³
-_/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/DashboardController.cs
-
-  F
-' 8  ,   ,'' ,.. ,55 ,
-1 A ,<
-  > N  C S''H X..C S55C S
-
-% 0
-  
-
-% 5
-   !! 
-
-%%% :
-'' (( 
-
-,,% 5
-.. // 
-
-33% 5
-55 66 à
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CrudControllerBase.cs
-
- ((
-) -F J( ,  
-/ B +
-# 5 -
-
-: <
-		 -## #
-
-		2 4
-
-% +
-
-% ,
-1 3. 0
-   
-
-% +
-0 2##$ &–
-`/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CategoriesController.cs
-
- !F
-% - O WH P9 A $'' 
-0 7 
-
-6 I
-
-* <
-A Cf h
-
- -
-2 4V X
-
-% +
-I L9 <
- ; BI P
-
-##% +
-##0 2''/ 1
-##Q T''3 6ö
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/CatalogController.cs
-
- ¶
-% -    #(( 00 55B J;; #DD LL QQ? GWW #`` ii ooA Iuu #~~ 
-†† 
-- 4 
-
-% 2
-D M4 =
-
-% 3
-Q T8 ;
-   A G  N T
-
-&&% 3
-&&8 :((1 3
-&&Y \((5 8
-
-..% 3
-..8 :00+ -
-
-55% 3
-
-99% 5
-99U X;;: =
-;; <<B H<<O U
-
-BB% 5
-BB: <DD3 5
-BB] `DD7 :
-
-JJ% 5
-JJ: <LL- /
-
-QQ% 0
-
-UU% 1
-UUM PWW6 9
-WW XX? EXXL R
-
-^^% 1
-^^6 8``/ 1
-^^U X``3 6
-
-gg% 1
-gg6 8ii/ 1
-
-oo% 2
-
-ss% 3
-ssQ Tuu8 ;
-uu vvA GvvN T
-
-||% 3
-||8 :~~1 3
-||Y \~~5 8
-
-„„% 3
-
-„„8 :
-††+ -®
+uu9 ;ww, .®
 Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuthController.cs
 
  (

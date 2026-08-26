@@ -3,93 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects - ITSM Tool</title>
-    <link rel="stylesheet" href="./css/index.css?v=2">
+    <title>ITSM Tool - Kanban</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
+        .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
+        .column-header { padding: var(--spacing-md); font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; }
+        .column-body { padding: var(--spacing-sm); flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); min-height: 200px; }
+        
+        .card { background: var(--bg-surface); padding: var(--spacing-md); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-sm); border-left: 3px solid transparent; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card:active { cursor: grabbing; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-weight: 500; font-size: 14px; color: var(--text-main); }
+        .card-number { font-size: 12px; color: var(--text-muted); font-weight: 600; text-decoration: none; }
+        .card-number:hover { text-decoration: underline; color: var(--primary); }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-xs); }
+        
+        /* Priorites mapping to border */
+        .priority-Critical { border-left-color: var(--danger); }
+        .priority-High { border-left-color: var(--warning); }
+        .priority-Medium { border-left-color: var(--info); }
+        .priority-Low { border-left-color: var(--success); }
+
+        /* Column Status Header Strips */
+        .col-1 .column-header { border-bottom-color: var(--info); }
+        .col-2 .column-header { border-bottom-color: var(--warning); }
+        .col-3 .column-header { border-bottom-color: var(--text-muted); }
+        .col-4 .column-header { border-bottom-color: var(--success); }
+        .col-5 .column-header { border-bottom-color: var(--danger); }
+    </style>
 </head>
 <body>
-    <div class="app-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>ITSM Tool</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="/dashboard.html" class="nav-item">Dashboard</a>
-                <a href="/tickets.html" class="nav-item">Tickets</a>
-                <a href="/kb.html" class="nav-item">Knowledge Base</a>
-                <div class="nav-group">
-                    <div class="nav-group-title">ADMIN</div>
-                    <a href="/users.html" class="nav-item">Users</a>
-                    <a href="/departments.html" class="nav-item">Departments</a>
-                    <a href="/groups.html" class="nav-item">Groups</a>
-                    <a href="/roles.html" class="nav-item">Roles</a>
-                    <a href="/projects.html" class="nav-item">Projects</a>
-                    <a href="/categories.html" class="nav-item">Categories</a>
-                    <a href="/webhooks.html" class="nav-item">Webhooks</a>
+    <div class="app-layout" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+
+                    <h2>Kanban Board</h2>
                 </div>
-            </nav>
-        </aside>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
 
-        <!-- Topbar -->
-        <header class="topbar">
-            <div class="search-bar">
-                <!-- Search input can go here -->
-            </div>
-            <div class="user-menu">
-                <span id="currentUser" style="margin-right: 12px;"></span>
-                <button class="btn btn-ghost" data-action="logout">Logout</button>
-            </div>
-        </header>
+            <div class="content-area">
 
-        <!-- Main Content -->
-        <main class="main-content" style="padding: var(--spacing-xl);">
-            <div id="crudRoot"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="background: var(--bg-hover); padding: 8px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.
+                    </div>
+                    <button class="btn btn-ghost" onclick="window.resetColumnOrder()">Sırayı Sıfırla</button>
+                </div>
+
+                <div class="kanban-board" id="board">
+                    <!-- Columns will be injected here -->
+                </div>
+            </div>
         </main>
     </div>
 
-    <script type="module">
-        import './js/api.js?v=2';
-        import { bindShellActions } from './js/ui.js?v=3';
-        import { initCrudPage } from './js/crud-page.js';
+    <!-- Shared Preview Modal is dynamically injected by ui.js -->
 
+    <script type="module">
+        import './js/api.js?v=2';\n        import { injectShell } from './js/layout.js';\n        injectShell();
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=2';
+        
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
 
-        initCrudPage({
-            endpoint: '/Projects', pageTitle: 'Projects', rootId: 'crudRoot',
-            modalId: 'projectModal', createTitle: 'New Project', auditSafeDelete: true,
-            formFields: { id: 'pId', map: { 'name': 'pName', 'projectKey': 'pKey', 'status': 'pStatus' } },
-            columns: [
-                { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-                { key: 'projectKey', label: 'Key', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.projectKey || '')}</span>` },
-                { key: 'name', label: 'Name' },
-                { key: 'status', label: 'Status', render: (item) => {
-                    const statusStr = item.status || 'Active';
-                    let color = 'default';
-                    if (statusStr === 'Active') color = 'success';
-                    if (statusStr === 'Warning') color = 'warning';
-                    return `<span class="badge badge-${color}">${statusStr}</span>`;
-                }}
-            ],
-            formHtml: `
-                <div class="form-group">
-                    <label class="form-label" for="pName">Name *</label>
-                    <input id="pName" class="form-control" required placeholder="e.g. Customer Portal">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="pKey">Project Key *</label>
-                    <input id="pKey" class="form-control" required placeholder="e.g. CP" style="text-transform: uppercase;">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="pStatus">Status</label>
-                    <select id="pStatus" class="form-control">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>`
-        });
+        let statuses = [];
+        let tickets = [];
 
-        await window.loadData();
+        const getAvatar = (id, fallback) => {
+            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
+            const initial = String(fallback || id).charAt(0).toUpperCase();
+            return `<div class="avatar" title="${fallback}">${initial}</div>`;
+        };
+
+        const getPriorityIcon = (priority) => {
+            const colors = { 'Critical': 'var(--danger)', 'High': 'var(--warning)', 'Medium': 'var(--info)', 'Low': 'var(--success)' };
+            return `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: ${colors[priority] || 'var(--text-muted)'}"><path d="M16 11V3H8v6H2v12h20V11h-6zM10 5h4v14h-4V5zM4 11h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg>`;
+        };
+
+        let lookupData = {};
+        async function initKanban() {
+            try {
+                try {
+                    lookupData = await window.api.getLookup();
+                } catch (err) { console.error(err); 
+                    console.warn("Lookup fetching failed, using fallback empty object.", err);
+                    lookupData = { };
+                }
+                
+                // Override statuses with real ones if available
+                if (lookupData.statuses && lookupData.statuses.length > 0) {
+                    statuses = lookupData.statuses;
+                } else {
+                    statuses = [
+                        { id: 1, name: 'Open' },
+                        { id: 2, name: 'In Progress' },
+                        { id: 3, name: 'Pending' },
+                        { id: 4, name: 'Resolved' },
+                        { id: 5, name: 'Closed' }
+                    ];
+                }
+
+
+                let payload = { sub: 'unknown' };
+                try {
+                    payload = JSON.parse(atob(window.api.token.split('.')[1]));
+                } catch (e) { console.error(e); }
+                const userId = payload.sub;
+                
+                let savedOrder = localStorage.getItem(`kanban.colorder.${userId}`);
+                if (savedOrder) {
+                    try {
+                        savedOrder = JSON.parse(savedOrder);
+                        const sortedStatuses = [];
+                        savedOrder.forEach(id => {
+                            const st = statuses.find(s => s.id === id);
+                            if (st) sortedStatuses.push(st);
+                        });
+                        statuses.forEach(st => {
+                            if (!savedOrder.includes(st.id)) sortedStatuses.push(st);
+                        });
+                        statuses = sortedStatuses;
+                    } catch (e) { console.error(e); }
+                }
+
+                const board = document.getElementById('board');
+                board.innerHTML = '';
+                statuses.forEach(s => {
+                    const col = document.createElement('div');
+                    col.className = `column col-${s.id}`;
+                    col.dataset.colId = s.id;
+                    col.ondragover = window.allowColDrop;
+                    col.ondrop = window.colDrop;
+                    
+                    col.innerHTML = `
+                        <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
+                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${s.name}</span>
+                            <span class="badge badge-default" id="count-${s.id}">0</span>
+                        </div>
+                        <div class="column-body" data-status-id="${s.id}" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+                    `;
+                    board.appendChild(col);
+                });
+
+
+                try {
+                    const res = await window.api.searchTickets({ pageSize: 100 });
+                    tickets = res.items || [];
+                } catch (err) { console.error(err); 
+                    console.warn("Tickets fetching failed.", err);
+                    tickets = [];
+                 }
+
+                renderTickets();
+            } catch(e) { console.error("Critical error in initKanban:", e); }
+        }
+
+        function renderTickets() {
+            document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
+            const counts = {};
+
+            tickets.forEach(t => {
+                // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
+                let sId = t.statusId;
+                if(typeof sId === 'string') {
+                    // Try to map name to id for demo if it returns string
+                    const found = statuses.find(x => x.name === sId);
+                    if(found) sId = found.id; else sId = 1;
+                }
+
+                counts[sId] = (counts[sId] || 0) + 1;
+
+                const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
+                if (colBody) {
+                    const card = document.createElement('div');
+                    card.className = `card priority-${t.priorityId || 'Medium'}`;
+                    card.draggable = true;
+                    card.id = `ticket-${t.id}`;
+                    let isDragging = false;
+                    card.ondragstart = (ev) => { isDragging = true; window.drag(ev); };
+                    card.ondragend = () => { setTimeout(() => isDragging = false, 150); };
+                    card.onclick = (e) => {
+                        if (e.target.closest('.card-number')) return;
+                        if (!isDragging) openTicketPreview(t, lookupData);
+                    };
+                    card.tabIndex = 0;
+                    card.onkeydown = (e) => {
+                        if (e.key === 'Enter') openTicketPreview(t, lookupData);
+                    };
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <a href="/ticket-detail.html?id=${t.id}" class="card-number" target="_blank">${escapeHtml(t.ticketNumber)}</a>
+                            ${getPriorityIcon(t.priorityId)}
+                        </div>
+                        <div class="card-title">${escapeHtml(t.title)}</div>
+                        <div class="card-footer">
+                            ${getAvatar(t.assignedUserId, t.assignedUserId)}
+                        </div>
+                    `;
+                    colBody.appendChild(card);
+                }
+            });
+
+            // Update counts
+            statuses.forEach(s => {
+                const countBadge = document.getElementById(`count-${s.id}`);
+                if(countBadge) countBadge.textContent = counts[s.id] || 0;
+            });
+        }
+
+
+        window.allowColDrop = function(ev) {
+            ev.preventDefault();
+            const targetCol = ev.target.closest('.column');
+            const draggingCol = document.querySelector('.column.dragging');
+            
+            if (targetCol && draggingCol && targetCol !== draggingCol) {
+                // Determine whether to place before or after based on mouse position
+                const rect = targetCol.getBoundingClientRect();
+                const mid = rect.left + rect.width / 2;
+                if (ev.clientX < mid) {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol);
+                } else {
+                    targetCol.parentNode.insertBefore(draggingCol, targetCol.nextSibling);
+                }
+            }
+        };
+
+        window.colDrag = function(ev) {
+            ev.dataTransfer.setData("type", "column");
+            const col = ev.target.closest('.column');
+            if (col) {
+                ev.dataTransfer.setData("columnId", col.dataset.colId);
+                col.classList.add('dragging');
+                // Optional: make the dragged original element slightly transparent
+                col.style.opacity = '0.4';
+            }
+            
+            // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
+            if (ev.dataTransfer.setDragImage) {
+                const img = new Image();
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // transparent pixel
+                ev.dataTransfer.setDragImage(img, 0, 0);
+            }
+        };
+
+        window.dragEnd = function(ev) {
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+                el.style.opacity = '1';
+            });
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        };
+
+        window.colDrop = function(ev) {
+            document.querySelectorAll('.column').forEach(c => {
+                c.classList.remove('drag-over', 'dragging');
+                c.style.opacity = '1';
+            });
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") return;
+            
+            // Since the DOM is already reordered by allowColDrop, we just save it.
+            saveColumnOrder();
+        };
+        
+        function saveColumnOrder() {
+            const board = document.getElementById('board');
+            const cols = Array.from(board.children);
+            const newOrder = cols.map(c => Number.parseInt(c.dataset.colId));
+            
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let userId = payload.sub || 'unknown';
+            localStorage.setItem(`kanban.colorder.${userId}`, JSON.stringify(newOrder));
+            
+            showToast('Sütun sırası kaydedildi.', 'success');
+        }
+        
+        window.resetColumnOrder = function() {
+            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let userId = payload.sub || 'unknown';
+            localStorage.removeItem(`kanban.colorder.${userId}`);
+            showToast('Sütun sırası sıfırlandı.', 'success');
+            window.location.reload();
+        };
+
+        window.allowDrop = function(ev) {
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            if (type !== "column") {
+                document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+                const colBody = ev.target.closest('.column-body');
+                if (colBody) colBody.classList.add('drag-over');
+            }
+        };
+
+        window.drag = function(ev) {
+            let el = ev.target;
+            while(el && !el.classList.contains('card')) el = el.parentElement;
+            if(el) ev.dataTransfer.setData("text", el.id);
+        };
+
+        window.drop = async function(ev) {
+            document.querySelectorAll('.dragging, .drag-over').forEach(el => {
+                el.classList.remove('dragging', 'drag-over');
+            });
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const card = document.getElementById(data);
+            
+            let target = ev.target;
+            while(target && !target.classList.contains('column-body')) {
+                target = target.parentElement;
+            }
+
+            if (target && card) {
+                const newStatusId = Number.parseInt(target.dataset.statusId);
+                const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
+
+                try {
+                    // Actual API expects string status if we are mapping it, check mock API logic, normally ID
+                    await window.api.request(`/Ticket/${ticketId}/status`, {
+                        method: 'POST',
+                        body: JSON.stringify(newStatusId)
+                    });
+                    
+                    target.appendChild(card);
+                    
+                    // Re-calculate counts
+                    document.querySelectorAll('.column-body').forEach(c => {
+                        const sId = c.dataset.statusId;
+                        const count = c.querySelectorAll('.card').length;
+                        document.getElementById(`count-${sId}`).textContent = count;
+                    });
+
+                    if (newStatusId === 5) {
+                        showToast("Ticket closed. Sending CSAT survey notification...");
+                    } else {
+                        showToast("Ticket moved successfully");
+                    }
+                } catch(e) {
+                    console.error(e);
+                    showToast('Geçersiz geçiş: Bu aşamaya geçilemez.', 'error');
+                }
+            }
+        };
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        await initKanban();
     </script>
 </body>
 </html>

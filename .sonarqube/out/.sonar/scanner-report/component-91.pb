@@ -1,1 +1,1 @@
-[ 2webXÏhr&src/ItsTool.Web/wwwroot/dashboard.html
+[ 2webXùhr*src/ItsTool.Web/wwwroot/ticket-create.html

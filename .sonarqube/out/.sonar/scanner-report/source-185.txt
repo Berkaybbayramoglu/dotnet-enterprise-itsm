@@ -1,11 +1,14 @@
-namespace ItsTool.Application.DTOs;
+using ItsTool.Application.DTOs;
 
-// Workflow
-public record WorkflowDto(int Id, string Name, string? Description, int? ProjectId, bool IsActive);
-public record CreateWorkflowDto(string Name, string? Description, int? ProjectId);
-public record UpdateWorkflowDto(string Name, string? Description, int? ProjectId, bool IsActive);
+namespace ItsTool.Application.Interfaces;
 
-// WorkflowTransition
-public record WorkflowTransitionDto(int Id, int WorkflowId, int FromStatusId, int ToStatusId, string TransitionName, string? RequiredPermissionKey, int SortOrder, bool IsActive);
-public record CreateWorkflowTransitionDto(int WorkflowId, int FromStatusId, int ToStatusId, string TransitionName, string? RequiredPermissionKey, int SortOrder);
-public record UpdateWorkflowTransitionDto(int FromStatusId, int ToStatusId, string TransitionName, string? RequiredPermissionKey, int SortOrder, bool IsActive);
+public interface ITokenService
+{
+    string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions);
+}
+
+public interface IAuthService
+{
+    Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+    Task<MeResponseDto> GetMeAsync(int userId);
+}

@@ -1,190 +1,201 @@
-export function initCrudPage(cfg) {
-    const { endpoint, formFields, modalId, createTitle, auditSafeDelete, columns, rootId, pageTitle, formHtml } = cfg;
+import { showToast } from './ui.js';
+
+const API_BASE_URL = 'http://localhost:5246/api';
+
+class ApiClient {
+    constructor() {
+        this.token = localStorage.getItem('jwt_token');
+    }
+
+    setToken(token) {
+        this.token = token;
+        localStorage.setItem('jwt_token', token);
+    }
+
+    clearToken() {
+        this.token = null;
+        localStorage.removeItem('jwt_token');
+    }
+
+    async request(endpoint, options = {}) {
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        if (this.token) {
+            headers['Authorization'] = `Bearer ${this.token}`;
+        }
+
+        const config = {
+            ...options,
+            headers
+        };
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        if (response.status === 401) {
+            this.clearToken();
+            window.location.href = '/login.html';
+            throw new Error('Unauthorized');
+        }
+
+        if (response.status === 403) {
+            const errorText = await response.text();
+            console.error(`API Error 403:`, errorText);
+            showToast('Yetkiniz yok veya oturum bilgileri güncel değil — yeniden giriş yapmayı deneyin (403)', 'error');
+            throw new Error('Forbidden');
+        }
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API Error ${response.status}:`, errorText);
+            showToast(`İşlem başarısız (${response.status})`, 'error');
+            throw new Error(errorText || 'API Error');
+        }
+
+        // Return empty for 204 No Content
+        if (response.status === 204) return null;
+
+        // Handle blob/csv
+        if (config.responseType === 'blob') {
+            return await response.blob();
+        }
+
+        return await response.json();
+    }
+
+    // Auth
+    async login(username, password) {
+        const res = await this.request('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ username, password })
+        });
+        this.setToken(res.token);
+        return res;
+    }
+
+    async getMe() {
+        return this.request('/auth/me');
+    }
+
+    // Dashboard
+    async getDashboardOverview() {
+        return this.request('/dashboard/overview');
+    }
     
-    // 1. RENDER SKELETON
-    const root = document.getElementById(rootId || 'crudRoot');
-    root.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
-            <h1 style="font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0;">${pageTitle}</h1>
-            <button class="btn btn-primary" onclick="window.openCrudModal()">+ New ${pageTitle}</button>
-        </div>
-        <div class="card" style="padding: 0;">
-            <div style="overflow-x: auto;">
-                <table class="table" id="dataTable">
-                    <thead>
-                        <tr>
-                            ${columns.map(c => `<th>${c.label || (c.key.charAt(0).toUpperCase() + c.key.slice(1))}</th>`).join('')}
-                            <th style="width: 100px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Modal -->
-        <div id="${modalId}" class="modal-overlay">
-            <div class="modal">
-                <form id="${modalId}Form">
-                    <input type="hidden" id="${formFields.id}">
-                    <div class="modal-header">
-                        <h2 id="${modalId}Title">New Record</h2>
-                        <button type="button" class="close-btn" data-action="closeModal" data-target="${modalId}" aria-label="Close">
-                            <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="modalFormBody">
-                        ${formHtml || ''}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="${modalId}">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
+    async getDashboardDistributions() {
+        return this.request('/dashboard/distributions');
+    }
 
-    const tbody = document.getElementById('dataTableBody');
-    const form = document.getElementById(`${modalId}Form`);
-    const modalTitleEl = document.getElementById(`${modalId}Title`);
-    let currentData = [];
+    async getDashboardSurveys() {
+        return this.request('/dashboard/surveys');
+    }
 
-    // Helper: renderTable
-    const buildCellHtml = (item, col) => {
-        if (col.render) return `<td>${col.render(item)}</td>`;
-        return `<td>${window.ui?.escapeHtml(item[col.key] || '')}</td>`;
-    };
+    // Lookup
+    async getLookup() { return this.request('/lookup'); }
 
-    const renderTable = (data) => {
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: 20px; color: var(--text-muted);">No records found</td></tr>';
-            return;
+    // Tickets
+    async searchTickets(filter = {}) {
+        const queryParams = new URLSearchParams();
+        for (const key in filter) {
+            if (filter[key]) queryParams.append(key, filter[key]);
         }
-        
-        tbody.innerHTML = '';
-        data.forEach(item => {
-            const tr = document.createElement('tr');
-            let html = columns.map(col => buildCellHtml(item, col)).join('');
-            html += `
-                <td>
-                    <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="edit" data-id="${item.id}">Edit</button>
-                    <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="delete" data-id="${item.id}">Del</button>
-                </td>
-            `;
-            tr.innerHTML = html;
-            tbody.appendChild(tr);
-        });
-    };
+        return this.request(`/ticket/search?${queryParams.toString()}`);
+    }
 
-    window.loadData = async function() {
-        if (!window.api.token) return;
-        try {
-            tbody.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: 20px;">Loading...</td></tr>';
-            currentData = (await window.api.request(endpoint)) || [];
-            renderTable(currentData);
-        } catch (err) {
-            console.error(err);
-            tbody.innerHTML = `<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi</td></tr>`;
-            if (window.ui?.showToast) window.ui.showToast('Error loading data', 'error');
+    // Knowledge Base
+    async getKbCategories() { return this.request('/kb/categories'); }
+    async getKbArticles(search = '', categoryId = '') {
+        const queryParams = new URLSearchParams();
+        if (search) queryParams.append('search', search);
+        if (categoryId) queryParams.append('category', categoryId);
+        return this.request(`/kb/articles?${queryParams.toString()}`);
+    }
+    async createKbArticle(data) { return this.request('/kb/articles', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateKbArticle(id, data) { return this.request(`/kb/articles/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteKbArticle(id) { return this.request(`/kb/articles/${id}`, { method: 'DELETE' }); }
+
+    // Reports
+    async exportTickets(filter = {}) {
+        const queryParams = new URLSearchParams();
+        for (const key in filter) {
+            if (filter[key]) queryParams.append(key, filter[key]);
         }
-    };
+        return this.request(`/reports/tickets/csv?${queryParams.toString()}`, { responseType: 'blob' });
+    }
+    // Dynamic Form
+    async getFieldDefinitions() { return this.request('/DynamicForm/definitions'); }
+    async getFieldOptions(defId) { return this.request(`/DynamicForm/definitions/${defId}/options`); }
+    async getPlacements(projectId, categoryId, typeId) {
+        const queryParams = new URLSearchParams();
+        if (projectId) queryParams.append('projectId', projectId);
+        if (categoryId) queryParams.append('categoryId', categoryId);
+        if (typeId) queryParams.append('ticketTypeId', typeId);
+        return this.request(`/DynamicForm/placements?${queryParams.toString()}`);
+    }
 
-    const populateForm = (item) => {
-        if (!item) return;
-        for (const key in formFields.map) {
-            const input = document.getElementById(formFields.map[key]);
-            if (input) input[input.type === 'checkbox' ? 'checked' : 'value'] = item[key] || '';
+    // Assignment Rules
+    async getAssignmentRules() { return this.request('/rules/assignment'); }
+    async createAssignmentRule(data) { return this.request('/rules/assignment', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateAssignmentRule(id, data) { return this.request(`/rules/assignment/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async toggleAssignmentRule(id) { return this.request(`/rules/assignment/${id}/toggle`, { method: 'PUT' }); }
+    async deleteAssignmentRule(id) { return this.request(`/rules/assignment/${id}`, { method: 'DELETE' }); }
+
+    // Saved Filters
+    async getSavedFilters() { return this.request('/saved-filters'); }
+    async createSavedFilter(data) { return this.request('/saved-filters', { method: 'POST', body: JSON.stringify(data) }); }
+    async deleteSavedFilter(id) { return this.request(`/saved-filters/${id}`, { method: 'DELETE' }); }
+
+    // Audit Log
+    async getAuditLogs(filter = {}) {
+        const queryParams = new URLSearchParams();
+        for (const key in filter) {
+            if (filter[key]) queryParams.append(key, filter[key]);
         }
-    };
+        return this.request(`/audit-log?${queryParams.toString()}`);
+    }
+    // Organization & Admin
+    async getProjects() { return this.request('/projects'); }
+    async createProject(data) { return this.request('/projects', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateProject(id, data) { return this.request(`/projects/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteProject(id) { return this.request(`/projects/${id}`, { method: 'DELETE' }); }
 
-    window.openCrudModal = function(id = null) {
-        form.reset();
-        document.getElementById(formFields.id).value = id || '';
-        modalTitleEl.textContent = id ? 'Edit' : (createTitle || 'New Record');
-        
-        if (id) populateForm(currentData.find(x => x.id === id));
-        if (window.ui?.openModal) window.ui.openModal(modalId);
-    };
+    async getDepartments() { return this.request('/departments'); }
+    async createDepartment(data) { return this.request('/departments', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateDepartment(id, data) { return this.request(`/departments/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteDepartment(id) { return this.request(`/departments/${id}`, { method: 'DELETE' }); }
 
-    const getFormData = () => {
-        const id = document.getElementById(formFields.id).value;
-        const payload = {};
-        for (const key in formFields.map) {
-            const input = document.getElementById(formFields.map[key]);
-            if (input) payload[key] = input.type === 'checkbox' ? input.checked : input.value;
-        }
-        return { id, payload };
-    };
+    async getGroups() { return this.request('/groups'); }
+    async createGroup(data) { return this.request('/groups', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateGroup(id, data) { return this.request(`/groups/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteGroup(id) { return this.request(`/groups/${id}`, { method: 'DELETE' }); }
+    async addGroupMember(groupId, userId) { return this.request(`/groups/${groupId}/members/${userId}`, { method: 'POST' }); }
+    async removeGroupMember(groupId, userId) { return this.request(`/groups/${groupId}/members/${userId}`, { method: 'DELETE' }); }
 
-    const persistData = async (id, payload) => {
-        if (id) {
-            await window.api.request(`${endpoint}/${id}`, 'PUT', payload);
-            if (window.ui?.showToast) window.ui.showToast('Record updated successfully');
-        } else {
-            await window.api.request(endpoint, 'POST', payload);
-            if (window.ui?.showToast) window.ui.showToast('Record created successfully');
-        }
-    };
+    async getUsers() { return this.request('/users'); }
+    async createUser(data) { return this.request('/users', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateUser(id, data) { return this.request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteUser(id) { return this.request(`/users/${id}`, { method: 'DELETE' }); }
+    async assignRole(userId, roleId) { return this.request(`/users/${userId}/roles/${roleId}`, { method: 'POST' }); }
+    async revokeRole(userId, roleId) { return this.request(`/users/${userId}/roles/${roleId}`, { method: 'DELETE' }); }
+    async setPermissionOverride(userId, permId, isGranted) { return this.request(`/users/${userId}/permissions/${permId}?isGranted=${isGranted}`, { method: 'POST' }); }
+    
+    async getPermissions() { return this.request('/permissions'); }
 
-    const submitForm = async (e) => {
-        e.preventDefault();
-        const { id, payload } = getFormData();
-        try {
-            await persistData(id, payload);
-            if (window.ui?.closeModal) window.ui.closeModal(modalId);
-            await window.loadData();
-        } catch (err) {
-            console.error(err);
-            if (window.ui?.showToast) window.ui.showToast(err.message || 'Error saving record', 'error');
-        }
-    };
+    async getRoles() { return this.request('/roles'); }
+    async createRole(data) { return this.request('/roles', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateRole(id, data) { return this.request(`/roles/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteRole(id) { return this.request(`/roles/${id}`, { method: 'DELETE' }); }
+    async assignPermission(roleId, permId) { return this.request(`/roles/${roleId}/permissions/${permId}`, { method: 'POST' }); }
+    async revokePermission(roleId, permId) { return this.request(`/roles/${roleId}/permissions/${permId}`, { method: 'DELETE' }); }
 
-    const performUndoableDelete = async (id, item, tr) => {
-        const payload = { ...item };
-        delete payload.id;
-        if (tr) tr.remove();
-        
-        await window.api.request(`${endpoint}/${id}`, 'DELETE');
-        window.ui.showUndoToast('Record deleted', async () => {
-            try {
-                await window.api.request(endpoint, 'POST', payload);
-                await window.loadData();
-                window.ui.showToast('Delete undone successfully');
-            } catch(err) {
-                console.error(err);
-                window.ui.showToast('Failed to undo', 'error');
-            }
-        });
-    };
-
-    const deleteRecord = async (id, tr) => {
-        try {
-            if (auditSafeDelete && window.ui?.showUndoToast) {
-                await performUndoableDelete(id, currentData.find(x => x.id === id), tr);
-            } else {
-                await window.api.request(`${endpoint}/${id}`, 'DELETE');
-                if (window.ui?.showToast) window.ui.showToast('Record deleted successfully');
-                await window.loadData();
-            }
-        } catch (err) {
-            console.error(err);
-            if (window.ui?.showToast) window.ui.showToast(err.message || 'Error deleting record', 'error');
-            await window.loadData();
-        }
-    };
-
-    const wireActions = async (e) => {
-        const editBtn = e.target.closest('[data-action="edit"]');
-        if (editBtn) window.openCrudModal(Number.parseInt(editBtn.dataset.id, 10));
-
-        const delBtn = e.target.closest('[data-action="delete"]');
-        if (delBtn) {
-            if (!confirm('Are you sure you want to delete this record?')) return;
-            await deleteRecord(Number.parseInt(delBtn.dataset.id, 10), delBtn.closest('tr'));
-        }
-    };
-
-    form.addEventListener('submit', submitForm);
-    document.addEventListener('click', wireActions);
+    async getCategories(projectId = '') { 
+        return this.request(`/catalog/categories${projectId ? '?projectId=' + projectId : ''}`); 
+    }
+    async createCategory(data) { return this.request('/catalog/categories', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateCategory(id, data) { return this.request(`/catalog/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteCategory(id) { return this.request(`/catalog/categories/${id}`, { method: 'DELETE' }); }
 }
+
+window.api = new ApiClient();

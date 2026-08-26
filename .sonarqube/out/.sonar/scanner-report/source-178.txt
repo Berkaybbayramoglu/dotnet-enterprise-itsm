@@ -1,5 +1,5 @@
-using System;
-
 namespace ItsTool.Application.DTOs;
 
-public record NotificationDto(int Id, int UserId, string Title, string Message, bool IsRead, int? RelatedEntityId, string? RelatedEntityType, DateTime CreatedAt);
+public record SavedFilterDto(int Id, int UserId, string Name, string QueryJson);
+
+public record CreateSavedFilterDto(string Name, string QueryJson);

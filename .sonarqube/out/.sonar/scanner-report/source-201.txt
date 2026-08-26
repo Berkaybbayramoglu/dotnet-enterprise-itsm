@@ -1,12 +1,8 @@
-using System;
 using System.Threading.Tasks;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface ISlaEngine
+public interface ISystemAuditService
 {
-    Task AttachSlaToTicketAsync(int ticketId);
-    Task ProcessTicketStatusChangeAsync(int ticketId, int oldStatusId, int newStatusId);
-    Task ProcessTicketCommentAsync(int ticketId, bool isInternal);
-    Task CheckBreachesAsync(DateTime nowUtc);
+    Task LogAuditAsync(string entityName, string entityId, string action, string? fieldName = null, string? oldValue = null, string? newValue = null);
 }

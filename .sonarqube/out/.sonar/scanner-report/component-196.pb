@@ -1,1 +1,1 @@
-Ä 2csXhr:src/ItsTool.Application/Interfaces/INotificationService.cs
+Ä 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs

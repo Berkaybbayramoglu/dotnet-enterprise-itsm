@@ -1,1 +1,1 @@
-¨ (2xmlX—ähr.tests/ItsTool.UnitTests/coverage.opencover.xml
+¨ 2csXhr2src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs

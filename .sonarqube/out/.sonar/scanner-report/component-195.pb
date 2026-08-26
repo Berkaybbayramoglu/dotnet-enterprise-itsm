@@ -1,1 +1,1 @@
-Ã 2csX	hr=src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
+Ã 2csX:hr:src/ItsTool.Application/Interfaces/IOrganizationService.cs

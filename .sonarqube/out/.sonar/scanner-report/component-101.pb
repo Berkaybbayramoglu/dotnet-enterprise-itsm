@@ -1,1 +1,1 @@
-e 2cssXhr1src/ItsTool.Web/wwwroot/css/lib/bootstrap.min.css
+e 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js

@@ -23,10 +23,11 @@ c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/T
 -ItsTool.UnitTests.Services.TicketServiceTests0AddCommentAsync_InternalCommentsShouldBeFilteredS
 -ItsTool.UnitTests.Services.TicketServiceTests"AssignTicketAsync_ShouldAddHistory[
 -ItsTool.UnitTests.Services.TicketServiceTests*SubmitSurveyAsync_ShouldOnlyAllowRequesterZ
--ItsTool.UnitTests.Services.TicketServiceTests)SubmitSurveyAsync_ShouldPreventDuplicatesæ
-c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEscalationTests.csItsTool.UnitTestsn
--ItsTool.UnitTests.Services.SlaEscalationTests=CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllowsT
--ItsTool.UnitTests.Services.SlaEscalationTests#TryEscalateAsync_ShouldBeIdempotentÏ
+-ItsTool.UnitTests.Services.TicketServiceTests)SubmitSurveyAsync_ShouldPreventDuplicatesˆ
+d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.csItsTool.UnitTestsQ
+.ItsTool.UnitTests.Services.ProjectServiceTestsCreateAsync_ShouldCreateProjectQ
+.ItsTool.UnitTests.Services.ProjectServiceTestsUpdateAsync_ShouldUpdateProjectU
+.ItsTool.UnitTests.Services.ProjectServiceTests#DeleteAsync_ShouldSoftDeleteProjectÏ
 _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEngineTests.csItsTool.UnitTestsd
 )ItsTool.UnitTests.Services.SlaEngineTests7AttachSlaToTicketAsync_ShouldCalculateDueDatesCorrectlyc
 )ItsTool.UnitTests.Services.SlaEngineTests6ProcessTicketStatusChangeAsync_ShouldPauseAndResumeSla_
@@ -36,13 +37,14 @@ _/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/S
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/RoleServiceTests.csItsTool.UnitTestsK
 +ItsTool.UnitTests.Services.RoleServiceTestsCreateAsync_ShouldCreateRoleK
 +ItsTool.UnitTests.Services.RoleServiceTestsUpdateAsync_ShouldUpdateRole[
-+ItsTool.UnitTests.Services.RoleServiceTests,AssignPermissionAsync_ShouldAssignPermission‡
-c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ReportServiceTests.csItsTool.UnitTestsf
--ItsTool.UnitTests.Services.ReportServiceTests5ExportTicketsToCsvAsync_ShouldReturnFilteredCsvStreamˆ
-d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ProjectServiceTests.csItsTool.UnitTestsQ
-.ItsTool.UnitTests.Services.ProjectServiceTestsCreateAsync_ShouldCreateProjectQ
-.ItsTool.UnitTests.Services.ProjectServiceTestsUpdateAsync_ShouldUpdateProjectU
-.ItsTool.UnitTests.Services.ProjectServiceTests#DeleteAsync_ShouldSoftDeleteProjectÅ
++ItsTool.UnitTests.Services.RoleServiceTests,AssignPermissionAsync_ShouldAssignPermission 
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.csItsTool.UnitTestsr
+4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests:SearchArticlesAsync_ShouldHideDraftAndInternal_FromEndUserf
+4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests.SearchArticlesAsync_ShouldShowInternal_ToStaffm
+4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests5GetArticleAsync_ShouldIncrementViewCount_ForPublishedæ
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/SlaEscalationTests.csItsTool.UnitTestsn
+-ItsTool.UnitTests.Services.SlaEscalationTests=CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllowsT
+-ItsTool.UnitTests.Services.SlaEscalationTests#TryEscalateAsync_ShouldBeIdempotentÅ
 j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.csItsTool.UnitTests|
 4ItsTool.UnitTests.Services.PermissionCalculatorTestsDCalculateEffectivePermissionsAsync_ShouldReturnUnionOfAllPermissionsÖ
 4ItsTool.UnitTests.Services.PermissionCalculatorTestsMCalculateEffectivePermissionsAsync_UsersInSameGroup_CanHaveDifferentOverridesz
@@ -58,22 +60,20 @@ l/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/N
 6ItsTool.UnitTests.Services.NotificationDispatcherTests,DispatchEventAsync_ShouldNotCreateDuplicatesƒ
 m/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/LocalFileStorageServiceTests.csItsTool.UnitTests`
 7ItsTool.UnitTests.Services.LocalFileStorageServiceTests%SaveFileAsync_ShouldRejectInvalidMime^
-7ItsTool.UnitTests.Services.LocalFileStorageServiceTests#SaveFileAsync_ShouldRejectLargeFile∞
-h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DynamicFormServiceTests.csItsTool.UnitTestsj
-2ItsTool.UnitTests.Services.DynamicFormServiceTests4CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUniquef
-2ItsTool.UnitTests.Services.DynamicFormServiceTests0CreatePlacementAsync_ShouldThrowIfDuplicateScope]
-2ItsTool.UnitTests.Services.DynamicFormServiceTests'CreateFieldDefinitionAsync_ShouldCreateË
+7ItsTool.UnitTests.Services.LocalFileStorageServiceTests#SaveFileAsync_ShouldRejectLargeFile‡
+c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/ReportServiceTests.csItsTool.UnitTestsf
+-ItsTool.UnitTests.Services.ReportServiceTests5ExportTicketsToCsvAsync_ShouldReturnFilteredCsvStreamË
 b/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/GroupServiceTests.csItsTool.UnitTestsM
 ,ItsTool.UnitTests.Services.GroupServiceTestsCreateAsync_ShouldCreateGroupM
 ,ItsTool.UnitTests.Services.GroupServiceTestsUpdateAsync_ShouldUpdateGroupQ
 ,ItsTool.UnitTests.Services.GroupServiceTests!DeleteAsync_ShouldSoftDeleteGroupˇ
 k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/EmailIngestionServiceTests.csItsTool.UnitTestsÄ
 5ItsTool.UnitTests.Services.EmailIngestionServiceTestsGProcessIncomingEmailAsync_ShouldCreateExternalUser_AndRouteByProjectKeyz
-5ItsTool.UnitTests.Services.EmailIngestionServiceTestsAProcessIncomingEmailAsync_ShouldDedupe_WhenMessageIdAlreadyExists 
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/KnowledgeBaseServiceTests.csItsTool.UnitTestsr
-4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests:SearchArticlesAsync_ShouldHideDraftAndInternal_FromEndUserf
-4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests.SearchArticlesAsync_ShouldShowInternal_ToStaffm
-4ItsTool.UnitTests.Services.KnowledgeBaseServiceTests5GetArticleAsync_ShouldIncrementViewCount_ForPublishedØ
+5ItsTool.UnitTests.Services.EmailIngestionServiceTestsAProcessIncomingEmailAsync_ShouldDedupe_WhenMessageIdAlreadyExists∞
+h/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DynamicFormServiceTests.csItsTool.UnitTestsj
+2ItsTool.UnitTests.Services.DynamicFormServiceTests4CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUniquef
+2ItsTool.UnitTests.Services.DynamicFormServiceTests0CreatePlacementAsync_ShouldThrowIfDuplicateScope]
+2ItsTool.UnitTests.Services.DynamicFormServiceTests'CreateFieldDefinitionAsync_ShouldCreateØ
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DepartmentServiceTests.csItsTool.UnitTestsW
 1ItsTool.UnitTests.Services.DepartmentServiceTests"CreateAsync_ShouldCreateDepartmentX
 1ItsTool.UnitTests.Services.DepartmentServiceTests#GetByIdAsync_ShouldReturnDepartmentá

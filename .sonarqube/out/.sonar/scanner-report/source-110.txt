@@ -1,62 +1,52 @@
-using System.Linq.Expressions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Common;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-namespace ItsTool.Infrastructure.Data;
+namespace ItsTool.Infrastructure.Security;
 
-public class Repository<T> : IRepository<T> where T : BaseEntity
+public class TokenService : ITokenService
 {
-    protected readonly ItsToolDbContext _context;
-    protected readonly DbSet<T> _dbSet;
+    private readonly IConfiguration _configuration;
 
-    public Repository(ItsToolDbContext context)
+    public TokenService(IConfiguration configuration)
     {
-        _context = context;
-        _dbSet = context.Set<T>();
+        _configuration = configuration;
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
+    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
-        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
-        if (predicate != null)
+        var claims = new List<Claim>
         {
-            query = query.Where(predicate);
-        }
-        return await query.ToListAsync();
-    }
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(ClaimTypes.Name, username)
+        };
 
-    public async Task<T?> GetByIdAsync(int id)
-    {
-        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
-    }
-
-    public async Task<T> AddAsync(T entity)
-    {
-        _dbSet.Add(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task UpdateAsync(T entity)
-    {
-        entity.UpdatedAt = DateTime.UtcNow;
-        _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var entity = await GetByIdAsync(id);
-        if (entity != null)
+        foreach (var role in roles)
         {
-            entity.IsDeleted = true;
-            entity.DeletedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
-        else
+
+        foreach (var perm in permissions)
         {
-            throw new KeyNotFoundException($"{typeof(T).Name} not found");
+            claims.Add(new Claim("permission", perm));
         }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

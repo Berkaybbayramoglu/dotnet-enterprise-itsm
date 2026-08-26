@@ -1,1 +1,1 @@
-T 2webX°hr#src/ItsTool.Web/wwwroot/kanban.html
+T 2webXÔhr*src/ItsTool.Web/wwwroot/ticket-detail.html

@@ -1,4 +1,699 @@
-£
+ë
+g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Security 
+; 
+public 
+class !
+PermissionRequirement "
+:# $%
+IAuthorizationRequirement% >
+{ 
+public 
+
+string 
+
+Permission 
+{ 
+get "
+;" #
+}$ %
+public 
+!
+PermissionRequirement  
+(  !
+string! '
+
+permission( 2
+)2 3
+=>4 6
+
+Permission7 A
+=B C
+
+permissionD N
+;N O
+}		 
+public 
+class *
+PermissionAuthorizationHandler +
+:, - 
+AuthorizationHandler. B
+<B C!
+PermissionRequirementC X
+>X Y
+{ 
+	protected 
+override 
+Task "
+HandleRequirementAsync 2
+(2 3'
+AuthorizationHandlerContext3 N
+contextO V
+,V W!
+PermissionRequirementX m
+requirementn y
+)y z
+{ 
+var 
+hasPermission 
+= 
+context #
+.# $
+User$ (
+.( )
+HasClaim) 1
+(1 2
+c2 3
+=>4 6
+c 
+. 
+Type 
+== 
+$str "
+&&# %
+c& '
+.' (
+Value( -
+==. 0
+requirement1 <
+.< =
+
+Permission= G
+)G H
+;H I
+if 
+
+( 
+hasPermission 
+) 
+{ 	
+context 
+. 
+Succeed 
+( 
+requirement '
+)' (
+;( )
+} 	
+return 
+Task 
+. 
+CompletedTask !
+;! "
+} 
+} ìP
+^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[ 
+ApiController 
+] 
+[		 
+Route		 
+(		 
+$str		 
+)		 
+]		 
+[
+
+ 
+	Authorize
+
+ 
+
+(
+
+
+ 
+Policy
+
+ 
+=
+
+ 
+$str
+
+ 5
+)
+
+5 6
+]
+
+6 7
+public 
+class 
+WorkflowController 
+:  !
+ControllerBase" 0
+{ 
+private 
+readonly 
+IWorkflowService %
+_service& .
+;. /
+public 
+
+WorkflowController 
+( 
+IWorkflowService .
+service/ 6
+)6 7
+{ 
+_service 
+= 
+service 
+; 
+} 
+[ 
+HttpGet 
+] 
+[  
+ProducesResponseType 
+( 
+typeof  
+(  !
+IEnumerable! ,
+<, -
+WorkflowDto- 8
+>8 9
+)9 :
+,: ;
+StatusCodes< G
+.G H
+Status200OKH S
+)S T
+]T U
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+GetWorkflows% 1
+(1 2
+[2 3
+	FromQuery3 <
+]< =
+int> A
+?A B
+	projectIdC L
+)L M
+{ 
+return 
+Ok 
+( 
+await 
+_service  
+.  !
+GetWorkflowsAsync! 2
+(2 3
+	projectId3 <
+)< =
+)= >
+;> ?
+} 
+[ 
+HttpPost 
+] 
+[  
+ProducesResponseType 
+( 
+typeof  
+(  !
+WorkflowDto! ,
+), -
+,- .
+StatusCodes/ :
+.: ;
+Status201Created; K
+)K L
+]L M
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+CreateWorkflow% 3
+(3 4
+[4 5
+FromBody5 =
+]= >
+CreateWorkflowDto? P
+dtoQ T
+)T U
+{ 
+var 
+result 
+= 
+await 
+_service #
+.# $
+CreateWorkflowAsync$ 7
+(7 8
+dto8 ;
+); <
+;< =
+return   
+CreatedAtAction   
+(   
+nameof   %
+(  % &
+GetWorkflows  & 2
+)  2 3
+,  3 4
+new  5 8
+{  9 :
+id  ; =
+=  > ?
+result  @ F
+.  F G
+Id  G I
+}  J K
+,  K L
+result  M S
+)  S T
+;  T U
+}!! 
+[## 
+HttpPut## 
+(## 
+$str## 
+)## 
+]## 
+[$$  
+ProducesResponseType$$ 
+($$ 
+StatusCodes$$ %
+.$$% &
+Status204NoContent$$& 8
+)$$8 9
+]$$9 :
+[%%  
+ProducesResponseType%% 
+(%% 
+StatusCodes%% %
+.%%% &
+Status404NotFound%%& 7
+)%%7 8
+]%%8 9
+public&& 
+
+async&& 
+Task&& 
+<&& 
+IActionResult&& #
+>&&# $
+UpdateWorkflow&&% 3
+(&&3 4
+int&&4 7
+id&&8 :
+,&&: ;
+[&&< =
+FromBody&&= E
+]&&E F
+UpdateWorkflowDto&&G X
+dto&&Y \
+)&&\ ]
+{'' 
+try(( 
+{(( 
+await(( 
+_service(( 
+.(( 
+UpdateWorkflowAsync(( 0
+(((0 1
+id((1 3
+,((3 4
+dto((5 8
+)((8 9
+;((9 :
+return((; A
+	NoContent((B K
+(((K L
+)((L M
+;((M N
+}((O P
+catch)) 
+())  
+KeyNotFoundException)) #
+)))# $
+{))% &
+return))' -
+NotFound)). 6
+())6 7
+)))7 8
+;))8 9
+})): ;
+}** 
+[,, 
+
+HttpDelete,, 
+(,, 
+$str,, 
+),, 
+],, 
+[--  
+ProducesResponseType-- 
+(-- 
+StatusCodes-- %
+.--% &
+Status204NoContent--& 8
+)--8 9
+]--9 :
+public.. 
+
+async.. 
+Task.. 
+<.. 
+IActionResult.. #
+>..# $
+DeleteWorkflow..% 3
+(..3 4
+int..4 7
+id..8 :
+)..: ;
+{// 
+await00 
+_service00 
+.00 
+DeleteWorkflowAsync00 *
+(00* +
+id00+ -
+)00- .
+;00. /
+return000 6
+	NoContent007 @
+(00@ A
+)00A B
+;00B C
+}11 
+[33 
+HttpGet33 
+(33 
+$str33 '
+)33' (
+]33( )
+[44  
+ProducesResponseType44 
+(44 
+typeof44  
+(44  !
+IEnumerable44! ,
+<44, -!
+WorkflowTransitionDto44- B
+>44B C
+)44C D
+,44D E
+StatusCodes44F Q
+.44Q R
+Status200OK44R ]
+)44] ^
+]44^ _
+public55 
+
+async55 
+Task55 
+<55 
+IActionResult55 #
+>55# $
+GetTransitions55% 3
+(553 4
+int554 7
+
+workflowId558 B
+)55B C
+{66 
+return77 
+Ok77 
+(77 
+await77 
+_service77  
+.77  !+
+GetTransitionsByWorkflowIdAsync77! @
+(77@ A
+
+workflowId77A K
+)77K L
+)77L M
+;77M N
+}88 
+[:: 
+HttpPost:: 
+(:: 
+$str:: 
+):: 
+]:: 
+[;;  
+ProducesResponseType;; 
+(;; 
+typeof;;  
+(;;  !!
+WorkflowTransitionDto;;! 6
+);;6 7
+,;;7 8
+StatusCodes;;9 D
+.;;D E
+Status201Created;;E U
+);;U V
+];;V W
+[<<  
+ProducesResponseType<< 
+(<< 
+StatusCodes<< %
+.<<% &
+Status400BadRequest<<& 9
+)<<9 :
+]<<: ;
+public== 
+
+async== 
+Task== 
+<== 
+IActionResult== #
+>==# $
+CreateTransition==% 5
+(==5 6
+[==6 7
+FromBody==7 ?
+]==? @'
+CreateWorkflowTransitionDto==A \
+dto==] `
+)==` a
+{>> 
+try?? 
+{@@ 	
+varAA 
+resultAA 
+=AA 
+awaitAA 
+_serviceAA '
+.AA' (!
+CreateTransitionAsyncAA( =
+(AA= >
+dtoAA> A
+)AAA B
+;AAB C
+returnBB 
+CreatedAtActionBB "
+(BB" #
+nameofBB# )
+(BB) *
+GetWorkflowsBB* 6
+)BB6 7
+,BB7 8
+newBB9 <
+{BB= >
+idBB? A
+=BBB C
+resultBBD J
+.BBJ K
+IdBBK M
+}BBN O
+,BBO P
+resultBBQ W
+)BBW X
+;BBX Y
+}CC 	
+catchDD 
+(DD %
+InvalidOperationExceptionDD (
+exDD) +
+)DD+ ,
+{DD- .
+returnDD/ 5
+
+BadRequestDD6 @
+(DD@ A
+newDDA D
+{DDE F
+errorDDG L
+=DDM N
+exDDO Q
+.DDQ R
+MessageDDR Y
+}DDZ [
+)DD[ \
+;DD\ ]
+}DD^ _
+}EE 
+[GG 
+HttpPutGG 
+(GG 
+$strGG 
+)GG  
+]GG  !
+[HH  
+ProducesResponseTypeHH 
+(HH 
+StatusCodesHH %
+.HH% &
+Status204NoContentHH& 8
+)HH8 9
+]HH9 :
+[II  
+ProducesResponseTypeII 
+(II 
+StatusCodesII %
+.II% &
+Status400BadRequestII& 9
+)II9 :
+]II: ;
+[JJ  
+ProducesResponseTypeJJ 
+(JJ 
+StatusCodesJJ %
+.JJ% &
+Status404NotFoundJJ& 7
+)JJ7 8
+]JJ8 9
+publicKK 
+
+asyncKK 
+TaskKK 
+<KK 
+IActionResultKK #
+>KK# $
+UpdateTransitionKK% 5
+(KK5 6
+intKK6 9
+idKK: <
+,KK< =
+[KK> ?
+FromBodyKK? G
+]KKG H'
+UpdateWorkflowTransitionDtoKKI d
+dtoKKe h
+)KKh i
+{LL 
+tryMM 
+{MM 
+awaitMM 
+_serviceMM 
+.MM !
+UpdateTransitionAsyncMM 2
+(MM2 3
+idMM3 5
+,MM5 6
+dtoMM7 :
+)MM: ;
+;MM; <
+returnMM= C
+	NoContentMMD M
+(MMM N
+)MMN O
+;MMO P
+}MMQ R
+catchNN 
+(NN  
+KeyNotFoundExceptionNN #
+)NN# $
+{NN% &
+returnNN' -
+NotFoundNN. 6
+(NN6 7
+)NN7 8
+;NN8 9
+}NN: ;
+catchOO 
+(OO %
+InvalidOperationExceptionOO (
+exOO) +
+)OO+ ,
+{OO- .
+returnOO/ 5
+
+BadRequestOO6 @
+(OO@ A
+newOOA D
+{OOE F
+errorOOG L
+=OOM N
+exOOO Q
+.OOQ R
+MessageOOR Y
+}OOZ [
+)OO[ \
+;OO\ ]
+}OO^ _
+}PP 
+[RR 
+
+HttpDeleteRR 
+(RR 
+$strRR "
+)RR" #
+]RR# $
+[SS  
+ProducesResponseTypeSS 
+(SS 
+StatusCodesSS %
+.SS% &
+Status204NoContentSS& 8
+)SS8 9
+]SS9 :
+publicTT 
+
+asyncTT 
+TaskTT 
+<TT 
+IActionResultTT #
+>TT# $
+DeleteTransitionTT% 5
+(TT5 6
+intTT6 9
+idTT: <
+)TT< =
+{UU 
+awaitVV 
+_serviceVV 
+.VV !
+DeleteTransitionAsyncVV ,
+(VV, -
+idVV- /
+)VV/ 0
+;VV0 1
+returnVV2 8
+	NoContentVV9 B
+(VVB C
+)VVC D
+;VVD E
+}WW 
+}XX £
 `/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/HostedServices/SlaCheckerService.cs
 	namespace		 	
 ItsTool		
@@ -1260,702 +1955,7 @@ DataSeeder
 )
 šš 
 ;
-šš ë
-g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Security 
-; 
-public 
-class !
-PermissionRequirement "
-:# $%
-IAuthorizationRequirement% >
-{ 
-public 
-
-string 
-
-Permission 
-{ 
-get "
-;" #
-}$ %
-public 
-!
-PermissionRequirement  
-(  !
-string! '
-
-permission( 2
-)2 3
-=>4 6
-
-Permission7 A
-=B C
-
-permissionD N
-;N O
-}		 
-public 
-class *
-PermissionAuthorizationHandler +
-:, - 
-AuthorizationHandler. B
-<B C!
-PermissionRequirementC X
->X Y
-{ 
-	protected 
-override 
-Task "
-HandleRequirementAsync 2
-(2 3'
-AuthorizationHandlerContext3 N
-contextO V
-,V W!
-PermissionRequirementX m
-requirementn y
-)y z
-{ 
-var 
-hasPermission 
-= 
-context #
-.# $
-User$ (
-.( )
-HasClaim) 1
-(1 2
-c2 3
-=>4 6
-c 
-. 
-Type 
-== 
-$str "
-&&# %
-c& '
-.' (
-Value( -
-==. 0
-requirement1 <
-.< =
-
-Permission= G
-)G H
-;H I
-if 
-
-( 
-hasPermission 
-) 
-{ 	
-context 
-. 
-Succeed 
-( 
-requirement '
-)' (
-;( )
-} 	
-return 
-Task 
-. 
-CompletedTask !
-;! "
-} 
-} ìP
-^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WorkflowController.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Controllers !
-;! "
-[ 
-ApiController 
-] 
-[		 
-Route		 
-(		 
-$str		 
-)		 
-]		 
-[
-
- 
-	Authorize
-
- 
-
-(
-
-
- 
-Policy
-
- 
-=
-
- 
-$str
-
- 5
-)
-
-5 6
-]
-
-6 7
-public 
-class 
-WorkflowController 
-:  !
-ControllerBase" 0
-{ 
-private 
-readonly 
-IWorkflowService %
-_service& .
-;. /
-public 
-
-WorkflowController 
-( 
-IWorkflowService .
-service/ 6
-)6 7
-{ 
-_service 
-= 
-service 
-; 
-} 
-[ 
-HttpGet 
-] 
-[  
-ProducesResponseType 
-( 
-typeof  
-(  !
-IEnumerable! ,
-<, -
-WorkflowDto- 8
->8 9
-)9 :
-,: ;
-StatusCodes< G
-.G H
-Status200OKH S
-)S T
-]T U
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-GetWorkflows% 1
-(1 2
-[2 3
-	FromQuery3 <
-]< =
-int> A
-?A B
-	projectIdC L
-)L M
-{ 
-return 
-Ok 
-( 
-await 
-_service  
-.  !
-GetWorkflowsAsync! 2
-(2 3
-	projectId3 <
-)< =
-)= >
-;> ?
-} 
-[ 
-HttpPost 
-] 
-[  
-ProducesResponseType 
-( 
-typeof  
-(  !
-WorkflowDto! ,
-), -
-,- .
-StatusCodes/ :
-.: ;
-Status201Created; K
-)K L
-]L M
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-CreateWorkflow% 3
-(3 4
-[4 5
-FromBody5 =
-]= >
-CreateWorkflowDto? P
-dtoQ T
-)T U
-{ 
-var 
-result 
-= 
-await 
-_service #
-.# $
-CreateWorkflowAsync$ 7
-(7 8
-dto8 ;
-); <
-;< =
-return   
-CreatedAtAction   
-(   
-nameof   %
-(  % &
-GetWorkflows  & 2
-)  2 3
-,  3 4
-new  5 8
-{  9 :
-id  ; =
-=  > ?
-result  @ F
-.  F G
-Id  G I
-}  J K
-,  K L
-result  M S
-)  S T
-;  T U
-}!! 
-[## 
-HttpPut## 
-(## 
-$str## 
-)## 
-]## 
-[$$  
-ProducesResponseType$$ 
-($$ 
-StatusCodes$$ %
-.$$% &
-Status204NoContent$$& 8
-)$$8 9
-]$$9 :
-[%%  
-ProducesResponseType%% 
-(%% 
-StatusCodes%% %
-.%%% &
-Status404NotFound%%& 7
-)%%7 8
-]%%8 9
-public&& 
-
-async&& 
-Task&& 
-<&& 
-IActionResult&& #
->&&# $
-UpdateWorkflow&&% 3
-(&&3 4
-int&&4 7
-id&&8 :
-,&&: ;
-[&&< =
-FromBody&&= E
-]&&E F
-UpdateWorkflowDto&&G X
-dto&&Y \
-)&&\ ]
-{'' 
-try(( 
-{(( 
-await(( 
-_service(( 
-.(( 
-UpdateWorkflowAsync(( 0
-(((0 1
-id((1 3
-,((3 4
-dto((5 8
-)((8 9
-;((9 :
-return((; A
-	NoContent((B K
-(((K L
-)((L M
-;((M N
-}((O P
-catch)) 
-())  
-KeyNotFoundException)) #
-)))# $
-{))% &
-return))' -
-NotFound)). 6
-())6 7
-)))7 8
-;))8 9
-})): ;
-}** 
-[,, 
-
-HttpDelete,, 
-(,, 
-$str,, 
-),, 
-],, 
-[--  
-ProducesResponseType-- 
-(-- 
-StatusCodes-- %
-.--% &
-Status204NoContent--& 8
-)--8 9
-]--9 :
-public.. 
-
-async.. 
-Task.. 
-<.. 
-IActionResult.. #
->..# $
-DeleteWorkflow..% 3
-(..3 4
-int..4 7
-id..8 :
-)..: ;
-{// 
-await00 
-_service00 
-.00 
-DeleteWorkflowAsync00 *
-(00* +
-id00+ -
-)00- .
-;00. /
-return000 6
-	NoContent007 @
-(00@ A
-)00A B
-;00B C
-}11 
-[33 
-HttpGet33 
-(33 
-$str33 '
-)33' (
-]33( )
-[44  
-ProducesResponseType44 
-(44 
-typeof44  
-(44  !
-IEnumerable44! ,
-<44, -!
-WorkflowTransitionDto44- B
->44B C
-)44C D
-,44D E
-StatusCodes44F Q
-.44Q R
-Status200OK44R ]
-)44] ^
-]44^ _
-public55 
-
-async55 
-Task55 
-<55 
-IActionResult55 #
->55# $
-GetTransitions55% 3
-(553 4
-int554 7
-
-workflowId558 B
-)55B C
-{66 
-return77 
-Ok77 
-(77 
-await77 
-_service77  
-.77  !+
-GetTransitionsByWorkflowIdAsync77! @
-(77@ A
-
-workflowId77A K
-)77K L
-)77L M
-;77M N
-}88 
-[:: 
-HttpPost:: 
-(:: 
-$str:: 
-):: 
-]:: 
-[;;  
-ProducesResponseType;; 
-(;; 
-typeof;;  
-(;;  !!
-WorkflowTransitionDto;;! 6
-);;6 7
-,;;7 8
-StatusCodes;;9 D
-.;;D E
-Status201Created;;E U
-);;U V
-];;V W
-[<<  
-ProducesResponseType<< 
-(<< 
-StatusCodes<< %
-.<<% &
-Status400BadRequest<<& 9
-)<<9 :
-]<<: ;
-public== 
-
-async== 
-Task== 
-<== 
-IActionResult== #
->==# $
-CreateTransition==% 5
-(==5 6
-[==6 7
-FromBody==7 ?
-]==? @'
-CreateWorkflowTransitionDto==A \
-dto==] `
-)==` a
-{>> 
-try?? 
-{@@ 	
-varAA 
-resultAA 
-=AA 
-awaitAA 
-_serviceAA '
-.AA' (!
-CreateTransitionAsyncAA( =
-(AA= >
-dtoAA> A
-)AAA B
-;AAB C
-returnBB 
-CreatedAtActionBB "
-(BB" #
-nameofBB# )
-(BB) *
-GetWorkflowsBB* 6
-)BB6 7
-,BB7 8
-newBB9 <
-{BB= >
-idBB? A
-=BBB C
-resultBBD J
-.BBJ K
-IdBBK M
-}BBN O
-,BBO P
-resultBBQ W
-)BBW X
-;BBX Y
-}CC 	
-catchDD 
-(DD %
-InvalidOperationExceptionDD (
-exDD) +
-)DD+ ,
-{DD- .
-returnDD/ 5
-
-BadRequestDD6 @
-(DD@ A
-newDDA D
-{DDE F
-errorDDG L
-=DDM N
-exDDO Q
-.DDQ R
-MessageDDR Y
-}DDZ [
-)DD[ \
-;DD\ ]
-}DD^ _
-}EE 
-[GG 
-HttpPutGG 
-(GG 
-$strGG 
-)GG  
-]GG  !
-[HH  
-ProducesResponseTypeHH 
-(HH 
-StatusCodesHH %
-.HH% &
-Status204NoContentHH& 8
-)HH8 9
-]HH9 :
-[II  
-ProducesResponseTypeII 
-(II 
-StatusCodesII %
-.II% &
-Status400BadRequestII& 9
-)II9 :
-]II: ;
-[JJ  
-ProducesResponseTypeJJ 
-(JJ 
-StatusCodesJJ %
-.JJ% &
-Status404NotFoundJJ& 7
-)JJ7 8
-]JJ8 9
-publicKK 
-
-asyncKK 
-TaskKK 
-<KK 
-IActionResultKK #
->KK# $
-UpdateTransitionKK% 5
-(KK5 6
-intKK6 9
-idKK: <
-,KK< =
-[KK> ?
-FromBodyKK? G
-]KKG H'
-UpdateWorkflowTransitionDtoKKI d
-dtoKKe h
-)KKh i
-{LL 
-tryMM 
-{MM 
-awaitMM 
-_serviceMM 
-.MM !
-UpdateTransitionAsyncMM 2
-(MM2 3
-idMM3 5
-,MM5 6
-dtoMM7 :
-)MM: ;
-;MM; <
-returnMM= C
-	NoContentMMD M
-(MMM N
-)MMN O
-;MMO P
-}MMQ R
-catchNN 
-(NN  
-KeyNotFoundExceptionNN #
-)NN# $
-{NN% &
-returnNN' -
-NotFoundNN. 6
-(NN6 7
-)NN7 8
-;NN8 9
-}NN: ;
-catchOO 
-(OO %
-InvalidOperationExceptionOO (
-exOO) +
-)OO+ ,
-{OO- .
-returnOO/ 5
-
-BadRequestOO6 @
-(OO@ A
-newOOA D
-{OOE F
-errorOOG L
-=OOM N
-exOOO Q
-.OOQ R
-MessageOOR Y
-}OOZ [
-)OO[ \
-;OO\ ]
-}OO^ _
-}PP 
-[RR 
-
-HttpDeleteRR 
-(RR 
-$strRR "
-)RR" #
-]RR# $
-[SS  
-ProducesResponseTypeSS 
-(SS 
-StatusCodesSS %
-.SS% &
-Status204NoContentSS& 8
-)SS8 9
-]SS9 :
-publicTT 
-
-asyncTT 
-TaskTT 
-<TT 
-IActionResultTT #
->TT# $
-DeleteTransitionTT% 5
-(TT5 6
-intTT6 9
-idTT: <
-)TT< =
-{UU 
-awaitVV 
-_serviceVV 
-.VV !
-DeleteTransitionAsyncVV ,
-(VV, -
-idVV- /
-)VV/ 0
-;VV0 1
-returnVV2 8
-	NoContentVV9 B
-(VVB C
-)VVC D
-;VVD E
-}WW 
-}XX Æ2
+šš Æ2
 ]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/WebhookController.cs
 	namespace 	
 ItsTool
@@ -6100,7 +6100,407 @@ HttpDelete>> 
 )JJ 
 ;JJ 
 }KK 
-}LL ™/
+}LL “"
+[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/RolesController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[ 
+ApiController 
+] 
+[		 
+Route		 
+(		 
+$str		 
+)		 
+]		 
+[
+
+ 
+	Authorize
+
+ 
+
+(
+
+
+ 
+Policy
+
+ 
+=
+
+ 
+$str
+
+ 4
+)
+
+4 5
+]
+
+5 6
+public 
+class 
+RolesController 
+: 
+CrudControllerBase 1
+<1 2
+RoleDto2 9
+>9 :
+{ 
+private 
+readonly 
+IRoleService !
+_service" *
+;* +
+public 
+
+RolesController 
+( 
+IRoleService '
+service( /
+)/ 0
+{ 
+_service 
+= 
+service 
+; 
+} 
+	protected 
+override 
+Task 
+< 
+IEnumerable '
+<' (
+RoleDto( /
+>/ 0
+>0 1
+GetAllEntitiesAsync2 E
+(E F
+)F G
+=>H J
+_serviceK S
+.S T
+GetAllAsyncT _
+(_ `
+)` a
+;a b
+	protected 
+override 
+Task 
+< 
+RoleDto #
+?# $
+>$ %
+GetEntityByIdAsync& 8
+(8 9
+int9 <
+id= ?
+)? @
+=>A C
+_serviceD L
+.L M
+GetByIdAsyncM Y
+(Y Z
+idZ \
+)\ ]
+;] ^
+	protected 
+override 
+Task 
+DeleteEntityAsync -
+(- .
+int. 1
+id2 4
+)4 5
+=>6 8
+_service9 A
+.A B
+DeleteAsyncB M
+(M N
+idN P
+)P Q
+;Q R
+[ 
+HttpPost 
+] 
+[  
+ProducesResponseType 
+( 
+StatusCodes %
+.% &
+Status201Created& 6
+)6 7
+]7 8
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+Create% +
+(+ ,
+[, -
+FromBody- 5
+]5 6
+CreateRoleDto7 D
+dtoE H
+)H I
+{ 
+var 
+created 
+= 
+await 
+_service $
+.$ %
+CreateAsync% 0
+(0 1
+dto1 4
+)4 5
+;5 6
+return 
+CreatedAtAction 
+( 
+nameof %
+(% &
+GetById& -
+)- .
+,. /
+new0 3
+{4 5
+id6 8
+=9 :
+created; B
+.B C
+IdC E
+}F G
+,G H
+createdI P
+)P Q
+;Q R
+} 
+[   
+HttpPut   
+(   
+$str   
+)   
+]   
+[!!  
+ProducesResponseType!! 
+(!! 
+StatusCodes!! %
+.!!% &
+Status204NoContent!!& 8
+)!!8 9
+]!!9 :
+[""  
+ProducesResponseType"" 
+("" 
+StatusCodes"" %
+.""% &
+Status404NotFound""& 7
+)""7 8
+]""8 9
+public## 
+
+async## 
+Task## 
+<## 
+IActionResult## #
+>### $
+Update##% +
+(##+ ,
+int##, /
+id##0 2
+,##2 3
+[##4 5
+FromBody##5 =
+]##= >
+UpdateRoleDto##? L
+dto##M P
+)##P Q
+{$$ 
+try%% 
+{&& 	
+await'' 
+_service'' 
+.'' 
+UpdateAsync'' &
+(''& '
+id''' )
+,'') *
+dto''+ .
+)''. /
+;''/ 0
+return(( 
+	NoContent(( 
+((( 
+)(( 
+;(( 
+})) 	
+catch** 
+(**  
+KeyNotFoundException** #
+)**# $
+{++ 	
+return,, 
+NotFound,, 
+(,, 
+),, 
+;,, 
+}-- 	
+}.. 
+}00 ß
+]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ReportsController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[		 
+ApiController		 
+]		 
+[
+
+ 
+Route
+
+ 
+(
+
+ 
+$str
+
+ 
+)
+
+ 
+]
+
+ 
+[ 
+	Authorize 
+
+]
+ 
+public 
+class 
+ReportsController 
+:  
+ControllerBase! /
+{ 
+private 
+readonly 
+IReportService #
+_reportService$ 2
+;2 3
+public 
+
+ReportsController 
+( 
+IReportService +
+reportService, 9
+)9 :
+{ 
+_reportService 
+= 
+reportService &
+;& '
+} 
+private 
+int 
+GetCurrentUserId  
+(  !
+)! "
+=># %
+int& )
+.) *
+Parse* /
+(/ 0
+User0 4
+.4 5
+	FindFirst5 >
+(> ?
+$str? G
+)G H
+?H I
+.I J
+ValueJ O
+??P R
+$strS V
+)V W
+;W X
+[ 
+HttpGet 
+( 
+$str 
+) 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+ExportTicketsCsv% 5
+(5 6
+[6 7
+	FromQuery7 @
+]@ A!
+TicketSearchFilterDtoB W
+filterX ^
+)^ _
+{ 
+var 
+stream 
+= 
+await 
+_reportService )
+.) *#
+ExportTicketsToCsvAsync* A
+(A B
+filterB H
+,H I
+GetCurrentUserIdJ Z
+(Z [
+)[ \
+)\ ]
+;] ^
+return 
+File 
+( 
+stream 
+, 
+$str &
+,& '
+$"( *
+$str* 9
+{9 :
+System: @
+.@ A
+DateTimeA I
+.I J
+UtcNowJ P
+:P Q
+$strQ `
+}` a
+$stra e
+"e f
+)f g
+;g h
+} 
+} ™/
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ProjectsController.cs
 	namespace 	
 ItsTool
@@ -6453,407 +6853,7 @@ HttpDelete88 
 )== 
 ;== 
 }>> 
-}?? ß
-]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/ReportsController.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Controllers !
-;! "
-[		 
-ApiController		 
-]		 
-[
-
- 
-Route
-
- 
-(
-
- 
-$str
-
- 
-)
-
- 
-]
-
- 
-[ 
-	Authorize 
-
-]
- 
-public 
-class 
-ReportsController 
-:  
-ControllerBase! /
-{ 
-private 
-readonly 
-IReportService #
-_reportService$ 2
-;2 3
-public 
-
-ReportsController 
-( 
-IReportService +
-reportService, 9
-)9 :
-{ 
-_reportService 
-= 
-reportService &
-;& '
-} 
-private 
-int 
-GetCurrentUserId  
-(  !
-)! "
-=># %
-int& )
-.) *
-Parse* /
-(/ 0
-User0 4
-.4 5
-	FindFirst5 >
-(> ?
-$str? G
-)G H
-?H I
-.I J
-ValueJ O
-??P R
-$strS V
-)V W
-;W X
-[ 
-HttpGet 
-( 
-$str 
-) 
-] 
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-ExportTicketsCsv% 5
-(5 6
-[6 7
-	FromQuery7 @
-]@ A!
-TicketSearchFilterDtoB W
-filterX ^
-)^ _
-{ 
-var 
-stream 
-= 
-await 
-_reportService )
-.) *#
-ExportTicketsToCsvAsync* A
-(A B
-filterB H
-,H I
-GetCurrentUserIdJ Z
-(Z [
-)[ \
-)\ ]
-;] ^
-return 
-File 
-( 
-stream 
-, 
-$str &
-,& '
-$"( *
-$str* 9
-{9 :
-System: @
-.@ A
-DateTimeA I
-.I J
-UtcNowJ P
-:P Q
-$strQ `
-}` a
-$stra e
-"e f
-)f g
-;g h
-} 
-} “"
-[/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/RolesController.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Controllers !
-;! "
-[ 
-ApiController 
-] 
-[		 
-Route		 
-(		 
-$str		 
-)		 
-]		 
-[
-
- 
-	Authorize
-
- 
-
-(
-
-
- 
-Policy
-
- 
-=
-
- 
-$str
-
- 4
-)
-
-4 5
-]
-
-5 6
-public 
-class 
-RolesController 
-: 
-CrudControllerBase 1
-<1 2
-RoleDto2 9
->9 :
-{ 
-private 
-readonly 
-IRoleService !
-_service" *
-;* +
-public 
-
-RolesController 
-( 
-IRoleService '
-service( /
-)/ 0
-{ 
-_service 
-= 
-service 
-; 
-} 
-	protected 
-override 
-Task 
-< 
-IEnumerable '
-<' (
-RoleDto( /
->/ 0
->0 1
-GetAllEntitiesAsync2 E
-(E F
-)F G
-=>H J
-_serviceK S
-.S T
-GetAllAsyncT _
-(_ `
-)` a
-;a b
-	protected 
-override 
-Task 
-< 
-RoleDto #
-?# $
->$ %
-GetEntityByIdAsync& 8
-(8 9
-int9 <
-id= ?
-)? @
-=>A C
-_serviceD L
-.L M
-GetByIdAsyncM Y
-(Y Z
-idZ \
-)\ ]
-;] ^
-	protected 
-override 
-Task 
-DeleteEntityAsync -
-(- .
-int. 1
-id2 4
-)4 5
-=>6 8
-_service9 A
-.A B
-DeleteAsyncB M
-(M N
-idN P
-)P Q
-;Q R
-[ 
-HttpPost 
-] 
-[  
-ProducesResponseType 
-( 
-StatusCodes %
-.% &
-Status201Created& 6
-)6 7
-]7 8
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-Create% +
-(+ ,
-[, -
-FromBody- 5
-]5 6
-CreateRoleDto7 D
-dtoE H
-)H I
-{ 
-var 
-created 
-= 
-await 
-_service $
-.$ %
-CreateAsync% 0
-(0 1
-dto1 4
-)4 5
-;5 6
-return 
-CreatedAtAction 
-( 
-nameof %
-(% &
-GetById& -
-)- .
-,. /
-new0 3
-{4 5
-id6 8
-=9 :
-created; B
-.B C
-IdC E
-}F G
-,G H
-createdI P
-)P Q
-;Q R
-} 
-[   
-HttpPut   
-(   
-$str   
-)   
-]   
-[!!  
-ProducesResponseType!! 
-(!! 
-StatusCodes!! %
-.!!% &
-Status204NoContent!!& 8
-)!!8 9
-]!!9 :
-[""  
-ProducesResponseType"" 
-("" 
-StatusCodes"" %
-.""% &
-Status404NotFound""& 7
-)""7 8
-]""8 9
-public## 
-
-async## 
-Task## 
-<## 
-IActionResult## #
->### $
-Update##% +
-(##+ ,
-int##, /
-id##0 2
-,##2 3
-[##4 5
-FromBody##5 =
-]##= >
-UpdateRoleDto##? L
-dto##M P
-)##P Q
-{$$ 
-try%% 
-{&& 	
-await'' 
-_service'' 
-.'' 
-UpdateAsync'' &
-(''& '
-id''' )
-,'') *
-dto''+ .
-)''. /
-;''/ 0
-return(( 
-	NoContent(( 
-((( 
-)(( 
-;(( 
-})) 	
-catch** 
-(**  
-KeyNotFoundException** #
-)**# $
-{++ 	
-return,, 
-NotFound,, 
-(,, 
-),, 
-;,, 
-}-- 	
-}.. 
-}00 ƒ
+}?? ƒ
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/PermissionsController.cs
 	namespace 	
 ItsTool
