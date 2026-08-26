@@ -20,7 +20,7 @@ export const adminConfigs = {
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
             { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description' }
+            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">
@@ -72,7 +72,7 @@ export const adminConfigs = {
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
             { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description' }
+            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">
@@ -91,7 +91,7 @@ export const adminConfigs = {
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
             { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description' }
+            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">

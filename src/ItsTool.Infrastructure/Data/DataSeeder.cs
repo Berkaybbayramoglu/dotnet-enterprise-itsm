@@ -432,6 +432,13 @@ public class DataSeeder
             existingUsers.Add(user);
             await _context.SaveChangesAsync(); // get Id
         }
+        else if (user != null)
+        {
+            // Force reset password hash for demo accounts to ensure they match *123!
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(u.Password);
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
 
         if (user != null)
         {

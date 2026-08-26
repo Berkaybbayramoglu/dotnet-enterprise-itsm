@@ -4,16 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - ITSM Tool</title>
-    <link rel="stylesheet" href="./css/index.css?v=2">
+    <link rel="stylesheet" href="css/design-system.css">
 </head>
 <body>
-    <div class="app-layout" data-shell>
-        <main class="main-content" style="padding: var(--spacing-xl);">
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+                    <h2 id="topbarTitle">Administration</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                </div>
+            </header>
+            <div class="content-area" style="padding: var(--spacing-xl);">
             <div id="crudRoot"></div>
             <div id="emptyState" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
                 <svg viewBox="0 0 24 24" width="48" height="48" style="fill: var(--text-muted); opacity: 0.5; margin-bottom: 16px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
                 <h2>Unknown Administration Module</h2>
                 <p>Please select a valid module from the sidebar.</p>
+            </div>
             </div>
         </main>
     </div>
@@ -24,9 +38,9 @@
         import { injectShell } from './js/layout.js';
         import { initCrudPage } from './js/crud-page.js';
         import { adminConfigs } from './js/admin-configs.js';
+        injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
-        injectShell();
         bindShellActions();
 
         const urlParams = new URLSearchParams(window.location.search);

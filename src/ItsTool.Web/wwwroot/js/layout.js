@@ -53,16 +53,7 @@ export function injectShell() {
             </nav>
         </aside>
 
-        <!-- Topbar -->
-        <header class="topbar">
-            <div class="search-bar">
-                <!-- Search input can go here -->
-            </div>
-            <div class="user-menu">
-                <span id="currentUser" style="margin-right: 12px; font-weight: 500; font-size: 14px;"></span>
-                <button class="btn btn-ghost" data-action="logout" style="padding: 6px 12px;">Logout</button>
-            </div>
-        </header>
+        
     `;
 
     const shellContainer = document.querySelector('[data-shell]');

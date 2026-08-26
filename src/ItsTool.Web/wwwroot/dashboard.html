@@ -8,7 +8,7 @@
     <script src="js/lib/chart.js"></script>
 </head>
 <body>
-    <div class="app-layout" data-shell>
+    <div class="app-shell" data-shell>
         <main class="main-content">
             <header class="topbar">
                 <div class="topbar-left">
@@ -84,8 +84,10 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=2';\n        import { injectShell } from './js/layout.js';\n        injectShell();
+        import './js/api.js?v=2';
+        import { injectShell } from './js/layout.js';
         import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js?v=2';
+        injectShell();
         
         window.openModal = openModal;
         window.closeModal = closeModal;

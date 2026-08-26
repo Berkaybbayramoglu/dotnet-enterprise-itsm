@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <div class="app-layout" data-shell>
+    <div class="app-shell" data-shell>
         <main class="main-content">
             <header class="topbar">
                 <div class="topbar-left">
@@ -118,8 +118,10 @@
     </div>
 
     <script type="module">
+        import { injectShell } from './js/layout.js';
         import './js/api.js';
         import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
+        injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();

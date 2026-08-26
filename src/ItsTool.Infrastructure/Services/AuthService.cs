@@ -28,10 +28,11 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
 
+        var requestUsername = request.Username.ToLower();
         var user = await _context.Users
             .FirstOrDefaultAsync(u => 
-                (string.Equals(u.Username, request.Username, StringComparison.OrdinalIgnoreCase) || 
-                 string.Equals(u.Email, request.Username, StringComparison.OrdinalIgnoreCase)) && 
+                (u.Username.ToLower() == requestUsername || 
+                 u.Email.ToLower() == requestUsername) && 
                 u.IsActive && !u.IsDeleted);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))

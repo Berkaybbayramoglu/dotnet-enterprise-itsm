@@ -114,3 +114,5 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
   - Injected `<div data-shell></div>` across all ~15 pages to drastically reduce HTML duplication.
   - Consolidated 5 admin CRUD pages (`departments`, `categories`, `projects`, `groups`, `roles`) into a single `admin-crud.html` page driven by `admin-configs.js` registry.
   - Justified keeping `AddMember` in concrete controllers due to Interface Segregation Principle (ISP).
+
+- **Hotfix (Login Translation Error):** Fixed a 500 Internal Server Error in `AuthService.cs` where `string.Equals(..., StringComparison.OrdinalIgnoreCase)` could not be translated by EF Core Postgres provider. Replaced with `.ToLower() == .ToLower()`.

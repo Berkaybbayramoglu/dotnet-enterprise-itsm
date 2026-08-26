@@ -28,7 +28,7 @@
         });
     </script>
 
-    <div class="app-layout" data-shell>
+    <div class="app-shell" data-shell>
         <main class="main-content">
             <header class="topbar">
                 <div class="topbar-left">
@@ -180,8 +180,10 @@
     
 
     <script type="module">
-        import './js/api.js?v=2';\n        import { injectShell } from './js/layout.js';\n        injectShell();
+        import './js/api.js?v=2';
+        import { injectShell } from './js/layout.js';
         import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
+        injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();

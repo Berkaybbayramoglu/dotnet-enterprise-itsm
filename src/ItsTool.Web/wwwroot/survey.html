@@ -142,8 +142,10 @@
     </div>
 
     <script type="module">
+        import { injectShell } from './js/layout.js';
         import './js/api.js';
         import { showToast } from './js/ui.js';
+        injectShell();
         
         // Survey might be public or require token depending on implementation
         // For now we keep the existing logic where it redirects if no token, 

@@ -183,6 +183,12 @@ export function initCrudPage(cfg) {
             if (!confirm('Are you sure you want to delete this record?')) return;
             await deleteRecord(Number.parseInt(delBtn.dataset.id, 10), delBtn.closest('tr'));
         }
+
+        const closeBtn = e.target.closest('[data-action="closeModal"]');
+        if (closeBtn) {
+            const target = closeBtn.dataset.target;
+            if (target && window.ui?.closeModal) window.ui.closeModal(target);
+        }
     };
 
     form.addEventListener('submit', submitForm);

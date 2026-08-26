@@ -389,7 +389,14 @@ export function openTicketPreview(t, lookupData) {
 }
 
 window.openModal = openModal;
+window.closeModal = closeModal;
 window.showToast = showToast;
 window.showUndoToast = showUndoToast;
 
-window.closeModal = closeModal;
+window.ui = {
+    escapeHtml,
+    showToast,
+    showUndoToast,
+    openModal,
+    closeModal
+};
