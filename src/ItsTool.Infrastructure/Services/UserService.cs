@@ -57,13 +57,22 @@ public class UserService : IUserService
             DepartmentId = dto.DepartmentId,
             ProfilePhoto = dto.ProfilePhoto
         };
+        
+        if (dto.GroupIds != null && dto.GroupIds.Any())
+        {
+            foreach (var groupId in dto.GroupIds)
+            {
+                user.GroupMemberships.Add(new GroupMember { GroupId = groupId });
+            }
+        }
+        
         await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto, Array.Empty<int>());
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto, user.GroupMemberships.Select(g => g.GroupId).ToArray());
     }
 
     public async Task UpdateAsync(int id, UpdateUserDto dto)
     {
-        var user = await _repository.GetByIdAsync(id);
+        var user = await _context.Users.Include(u => u.GroupMemberships).FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) throw new KeyNotFoundException("User not found");
         
         user.Email = dto.Email;
@@ -93,7 +102,23 @@ public class UserService : IUserService
         }
         
         user.ProfilePhoto = dto.ProfilePhoto;
-        await _repository.UpdateAsync(user);
+        
+        if (dto.GroupIds != null)
+        {
+            var existingGroupIds = user.GroupMemberships.Select(g => g.GroupId).ToList();
+            var newGroupIds = dto.GroupIds.ToList();
+            
+            var toRemove = user.GroupMemberships.Where(g => !newGroupIds.Contains(g.GroupId)).ToList();
+            foreach (var rm in toRemove) user.GroupMemberships.Remove(rm);
+            
+            var toAdd = newGroupIds.Where(gid => !existingGroupIds.Contains(gid)).ToList();
+            foreach (var addId in toAdd)
+            {
+                user.GroupMemberships.Add(new GroupMember { GroupId = addId });
+            }
+        }
+        
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)

@@ -224,7 +224,11 @@
                     }
 
                     // Determine detail sentence
-                    const detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
+                    let detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
+                    
+                    if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
+                        detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;
+                    }
 
                     tr.innerHTML = `
                         <td style="font-size: 13px; color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</td>

@@ -172,7 +172,11 @@ public class TicketService : ITicketService
     public async Task<TicketDto?> GetTicketByIdAsync(int id)
     {
         var t = await _context.Tickets
+            .IgnoreQueryFilters()
             .Include(x => x.Assignments)
+                .ThenInclude(a => a.AssignedUser)
+            .Include(x => x.Assignments)
+                .ThenInclude(a => a.AssignedGroup)
             .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (t == null) return null;
 
@@ -181,7 +185,11 @@ public class TicketService : ITicketService
             .Where(tfv => tfv.TicketId == id)
             .ToDictionaryAsync(tfv => tfv.FieldDefinition!.Key, tfv => tfv.ValueString);
 
-        var assignees = t.Assignments.Where(a => a.IsActive).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt)).ToList();
+        var assignees = t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(
+            a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt,
+            a.AssignedUserId != null ? (a.AssignedUser?.FirstName + " " + a.AssignedUser?.LastName) : a.AssignedGroup?.Name,
+            a.AssignedUserId != null ? (a.AssignedUser?.IsDeleted ?? false) : (a.AssignedGroup?.IsDeleted ?? false)
+        )).ToList();
         return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields);
     }
 
@@ -476,10 +484,18 @@ public class TicketService : ITicketService
     public async Task<IEnumerable<TicketAssigneeDto>> GetAssignmentTreeAsync(int ticketId)
     {
         var assignments = await _context.TicketAssignments
+            .IgnoreQueryFilters()
+            .Include(a => a.AssignedUser)
+            .Include(a => a.AssignedGroup)
             .Where(a => a.TicketId == ticketId)
+            .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
             
-        return assignments.Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt));
+        return assignments.Select(a => new TicketAssigneeDto(
+            a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt,
+            a.AssignedUserId != null ? (a.AssignedUser?.FirstName + " " + a.AssignedUser?.LastName) : a.AssignedGroup?.Name,
+            a.AssignedUserId != null ? (a.AssignedUser?.IsDeleted ?? false) : (a.AssignedGroup?.IsDeleted ?? false)
+        ));
     }
 
     public async Task<TicketCommentDto> AddCommentAsync(int ticketId, CreateCommentDto dto)
@@ -696,7 +712,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt)).ToList(), null))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, null, false)).ToList(), null))
             .ToListAsync();
 
         return new PagedResult<TicketDto>

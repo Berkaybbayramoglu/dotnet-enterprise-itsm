@@ -10,11 +10,13 @@ public class GroupService : IGroupService
 {
     private readonly IRepository<Group> _repository;
     private readonly ItsToolDbContext _context;
+    private readonly Microsoft.AspNetCore.Http.IHttpContextAccessor _httpContextAccessor;
 
-    public GroupService(IRepository<Group> repository, ItsToolDbContext context)
+    public GroupService(IRepository<Group> repository, ItsToolDbContext context, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
     {
         _repository = repository;
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IEnumerable<GroupDto>> GetAllAsync()
@@ -46,6 +48,30 @@ public class GroupService : IGroupService
         var group = await _repository.GetByIdAsync(id);
         if (group == null) throw new KeyNotFoundException("Group not found");
         
+        if (group.DepartmentId != dto.DepartmentId)
+        {
+            var oldDept = group.DepartmentId.HasValue 
+                ? await _context.Departments.FirstOrDefaultAsync(d => d.Id == group.DepartmentId) 
+                : null;
+            var newDept = dto.DepartmentId != 0 
+                ? await _context.Departments.FirstOrDefaultAsync(d => d.Id == dto.DepartmentId) 
+                : null;
+                
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+            
+            _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+            {
+                EntityType = "Group",
+                EntityId = group.Id.ToString(),
+                EntityName = group.Name,
+                Action = "Moved",
+                FieldName = "DepartmentId",
+                OldValue = oldDept?.Name ?? "None",
+                NewValue = newDept?.Name ?? "None",
+                CreatedBy = currentUserId
+            });
+        }
+        
         group.Name = dto.Name;
         group.IsActive = dto.IsActive;
         group.DepartmentId = dto.DepartmentId;
@@ -54,6 +80,13 @@ public class GroupService : IGroupService
 
     public async Task DeleteAsync(int id)
     {
+        var assignments = await _context.TicketAssignments.Where(a => a.AssignedGroupId == id && !a.IsDeleted).ToListAsync();
+        foreach (var assignment in assignments)
+        {
+            assignment.IsDeleted = true;
+            assignment.IsActive = false;
+        }
+        await _context.SaveChangesAsync();
         await _repository.DeleteAsync(id);
     }
 

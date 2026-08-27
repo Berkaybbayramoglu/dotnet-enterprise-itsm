@@ -2,15 +2,81 @@ export const adminConfigs = {
     departments: {
         endpoint: '/Departments', pageTitle: 'Departments',
         modalId: 'deptModal', createTitle: 'New Department', auditSafeDelete: true,
-        formFields: { id: 'dId', map: { 'name': 'dName' } },
+        expandable: true,
+        onExpand: async (item, container) => {
+            try {
+                // Fetch groups and users lazily
+                if (!window._groupsCache) window._groupsCache = (await window.api.request('/Groups')) || [];
+                if (!window._usersCache) window._usersCache = (await window.api.getUsers()).items || [];
+                
+                const deptGroups = window._groupsCache.filter(g => g.departmentId === item.id);
+                
+                if (deptGroups.length === 0) {
+                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Bu departmana bağlı grup bulunamadı.</div>';
+                    return;
+                }
+                
+                let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+                deptGroups.forEach(g => {
+                    const groupUsers = window._usersCache.filter(u => u.groupIds && u.groupIds.includes(g.id));
+                    
+                    html += `
+                        <div class="card" style="padding: 12px; margin: 0; background: white; border: 1px solid var(--border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: #f59e0b;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                    ${window.ui?.escapeHtml(g.name)} <span class="badge badge-default" style="font-size: 11px;">${groupUsers.length} üye</span>
+                                </div>
+                                <button type="button" class="btn btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--primary);" data-action="moveGroup" data-group-id="${g.id}">Departman Değiştir</button>
+                            </div>
+                    `;
+                    
+                    if (groupUsers.length > 0) {
+                        html += '<div style="display: flex; flex-direction: column; gap: 4px; padding-left: 24px;">';
+                        groupUsers.forEach(u => {
+                            const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
+                            html += `
+                                <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0;">
+                                    <div class="avatar" style="width: 24px; height: 24px; font-size: 11px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${initial}</div>
+                                    <div style="font-size: 13px; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">${window.ui?.escapeHtml(u.email)}</div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div style="padding-left: 24px; font-size: 12px; color: var(--text-muted);">Kullanıcı atanmamış.</div>';
+                    }
+                    
+                    html += '</div>';
+                });
+                html += '</div>';
+                
+                container.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div style="color: var(--danger); font-size: 13px;">Gruplar yüklenirken bir hata oluştu.</div>';
+            }
+        },
+        formFields: { id: 'dId', map: { 'name': 'dName', 'description': 'dDesc', 'color': 'dColor' } },
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` }
+            { key: 'color', label: 'Color', render: (item) => item.color ? `<div style="width:16px; height:16px; border-radius:50%; background:${item.color}; border:1px solid var(--border);"></div>` : '-' },
+            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
+            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">
                 <label class="form-label" for="dName">Name *</label>
                 <input id="dName" class="form-control" required placeholder="e.g. IT, HR, Finance">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="dColor">Folder Color</label>
+                <input id="dColor" type="color" class="form-control" style="width: 60px; padding: 2px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="dDesc">Description</label>
+                <textarea id="dDesc" class="form-control" rows="3" placeholder="Departman açıklaması..."></textarea>
             </div>`
     },
     categories: {
@@ -76,11 +142,51 @@ export const adminConfigs = {
     groups: {
         endpoint: '/Groups', pageTitle: 'Groups',
         modalId: 'groupModal', createTitle: 'New Group', auditSafeDelete: true,
-        formFields: { id: 'gId', map: { 'name': 'gName', 'description': 'gDesc' } },
+        expandable: true,
+        onExpand: async (item, container) => {
+            try {
+                if (!window._usersCache) window._usersCache = (await window.api.getUsers()).items || [];
+                const groupUsers = window._usersCache.filter(u => u.groupIds && u.groupIds.includes(item.id));
+                
+                if (groupUsers.length === 0) {
+                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Bu gruba atanmış kullanıcı bulunamadı.</div>';
+                    return;
+                }
+                
+                let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+                html += '<div style="font-weight: 600; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">Grup Üyeleri</div>';
+                
+                groupUsers.forEach(u => {
+                    const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
+                    html += `
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px;">
+                            <div class="avatar" style="width: 32px; height: 32px; font-size: 14px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${initial}</div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${window.ui?.escapeHtml(u.email)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div style="color: var(--danger); font-size: 13px;">Kullanıcılar yüklenirken bir hata oluştu.</div>';
+            }
+        },
+        formFields: { id: 'gId', map: { 'name': 'gName', 'departmentId': 'gDept' } },
+        onModalOpen: async () => {
+            const select = document.getElementById('gDept');
+            if (select && select.options.length === 0) {
+                const depts = (await window.api.request('/Departments')) || [];
+                select.innerHTML = '<option value="">Select a Department...</option>' + 
+                    depts.map(d => `<option value="${d.id}">${window.ui?.escapeHtml(d.name)}</option>`).join('');
+            }
+        },
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
+            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` }
         ],
         formHtml: `
             <div class="form-group">
@@ -88,8 +194,8 @@ export const adminConfigs = {
                 <input id="gName" class="form-control" required placeholder="e.g. L1 Support">
             </div>
             <div class="form-group">
-                <label class="form-label" for="gDesc">Description</label>
-                <textarea id="gDesc" class="form-control" rows="3"></textarea>
+                <label class="form-label" for="gDept">Department *</label>
+                <select id="gDept" class="form-control" required></select>
             </div>`
     },
     roles: {
@@ -170,4 +276,91 @@ if (!window.updateProjectStatusInline) {
             if (window.loadData) window.loadData(); // revert UI change
         }
     };
+}
+
+// Move Group Modal Injection
+if (window.location.pathname.includes('admin-crud.html') && new URLSearchParams(window.location.search).get('page') === 'departments') {
+    document.addEventListener('click', async (e) => {
+        const moveBtn = e.target.closest('[data-action="moveGroup"]');
+        if (moveBtn) {
+            const groupId = moveBtn.dataset.groupId;
+            const currentGroup = window._groupsCache?.find(g => g.id == groupId);
+            if (!currentGroup) return;
+            
+            // Re-use ui.js modal or just prompt/create inline modal. 
+            // Better: use an ad-hoc modal for Move Group
+            let modal = document.getElementById('moveGroupModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'moveGroupModal';
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal">
+                        <form id="moveGroupForm">
+                            <input type="hidden" id="moveGroupId">
+                            <div class="modal-header">
+                                <h2>Departman Değiştir</h2>
+                                <button type="button" class="close-btn" onclick="document.getElementById('moveGroupModal').classList.remove('open')" aria-label="Close">
+                                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="form-label">Grup</label>
+                                    <input type="text" class="form-control" id="moveGroupName" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="moveTargetDept">Hedef Departman</label>
+                                    <select id="moveTargetDept" class="form-control" required></select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-ghost" onclick="document.getElementById('moveGroupModal').classList.remove('open')">İptal</button>
+                                <button type="submit" class="btn btn-primary">Taşı</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                document.getElementById('moveGroupForm').addEventListener('submit', async (ev) => {
+                    ev.preventDefault();
+                    const gId = document.getElementById('moveGroupId').value;
+                    const newDeptId = document.getElementById('moveTargetDept').value;
+                    
+                    const g = window._groupsCache?.find(x => x.id == gId);
+                    if (!g) return;
+                    
+                    try {
+                        await window.api.request(`/Groups/${gId}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                name: g.name,
+                                isActive: g.isActive,
+                                departmentId: Number.parseInt(newDeptId, 10)
+                            })
+                        });
+                        
+                        document.getElementById('moveGroupModal').classList.remove('open');
+                        window.ui?.showToast('Grup başarıyla taşındı.');
+                        
+                        // Invalidate caches and reload
+                        window._groupsCache = null;
+                        if (window.loadData) window.loadData();
+                    } catch(err) {
+                        console.error(err);
+                        window.ui?.showToast('Grup taşınırken hata oluştu', 'error');
+                    }
+                });
+            }
+            
+            document.getElementById('moveGroupId').value = currentGroup.id;
+            document.getElementById('moveGroupName').value = currentGroup.name;
+            
+            const deptSelect = document.getElementById('moveTargetDept');
+            deptSelect.innerHTML = window.currentData.map(d => `<option value="${d.id}" ${d.id == currentGroup.departmentId ? 'selected' : ''}>${window.ui?.escapeHtml(d.name)}</option>`).join('');
+            
+            modal.classList.add('open');
+        }
+    });
 }

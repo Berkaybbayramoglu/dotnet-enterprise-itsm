@@ -127,11 +127,11 @@ public class TicketServiceTests : TestBase
 
         _permissionMock.Setup(p => p.CalculateEffectivePermissionsAsync(1)).ReturnsAsync(new HashSet<string> { "ticket.assign" });
 
-        await _service.AssignTicketAsync(t.Id, new AssignTicketDto(2, 1));
+        await _service.AssignTicketAsync(t.Id, new AssignTicketDto(new List<int> { 2 }, new List<int>(), 1, 1));
 
         var history = await _context.TicketHistories.FirstOrDefaultAsync(h => h.TicketId == t.Id && h.Action == "Assigned");
         Assert.NotNull(history);
-        Assert.Equal("2", history.NewValue);
+        Assert.Equal("Users:2,Groups:", history.NewValue);
     }
 
     [Fact]

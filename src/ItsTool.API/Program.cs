@@ -169,4 +169,25 @@ if (app.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("Aut
     await seeder.SeedAsync();
 }
 
+// One-off cleanup for orphaned group assignments
+using (var scope = app.Services.CreateScope())
+{
+    var ctx = scope.ServiceProvider.GetRequiredService<ItsTool.Infrastructure.Data.ItsToolDbContext>();
+    var orphanedAssignments = await ctx.TicketAssignments
+        .Where(a => a.AssignedGroupId.HasValue && !a.IsDeleted)
+        .ToListAsync();
+    
+    var deletedGroupIds = await ctx.Groups.Where(g => g.IsDeleted).Select(g => g.Id).ToListAsync();
+    
+    foreach(var a in orphanedAssignments) 
+    {
+        if (deletedGroupIds.Contains(a.AssignedGroupId.Value)) 
+        {
+            a.IsDeleted = true;
+            a.IsActive = false;
+        }
+    }
+    await ctx.SaveChangesAsync();
+}
+
 await app.RunAsync();

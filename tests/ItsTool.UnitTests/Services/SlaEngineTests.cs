@@ -96,7 +96,7 @@ public class SlaEngineTests : TestBase
     [Fact]
     public async Task CheckBreachesAsync_ShouldNotDuplicateNotifications()
     {
-        var t = new Ticket { TicketNumber = "1", AssignedUserId = 1 };
+        var t = new Ticket { TicketNumber = "1", Assignments = new List<ItsTool.Domain.Entities.Ticket.TicketAssignment> { new ItsTool.Domain.Entities.Ticket.TicketAssignment { AssignedUserId = 1, IsActive = true } } };
         _context.Tickets.Add(t);
         
         var sla = new TicketSla 

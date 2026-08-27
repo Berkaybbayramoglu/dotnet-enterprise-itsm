@@ -252,6 +252,62 @@ export function showInfoModal(title, text) {
     openModal(modalId);
 }
 
+export function showConfirmModal(title, text) {
+    return new Promise((resolve) => {
+        let modalId = 'globalConfirmModal';
+        let overlay = document.getElementById(modalId);
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = modalId;
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal" style="width: min(400px, 90%);">
+                    <div class="modal-header">
+                        <h2 id="${modalId}-title">Confirm</h2>
+                        <button type="button" class="close-btn" id="${modalId}-close" aria-label="Close">
+                            <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="${modalId}-text" style="font-size: 14px; line-height: 1.5; color: var(--text-main); white-space: pre-wrap;"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" id="${modalId}-cancel">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="${modalId}-ok" style="background-color: var(--danger); border-color: var(--danger);">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        document.getElementById(`${modalId}-title`).textContent = title;
+        document.getElementById(`${modalId}-text`).textContent = text;
+        
+        const closeBtn = document.getElementById(`${modalId}-close`);
+        const cancelBtn = document.getElementById(`${modalId}-cancel`);
+        const okBtn = document.getElementById(`${modalId}-ok`);
+        
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        const newOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+        
+        const closeAndResolve = (val) => {
+            closeModal(modalId);
+            resolve(val);
+        };
+        
+        newCloseBtn.addEventListener('click', () => closeAndResolve(false));
+        newCancelBtn.addEventListener('click', () => closeAndResolve(false));
+        newOkBtn.addEventListener('click', () => closeAndResolve(true));
+        
+        openModal(modalId);
+    });
+}
+
 export function bindShellActions() {
     const logoutBtn = document.getElementById('shellLogoutBtn');
     if (logoutBtn) {
@@ -445,6 +501,7 @@ export function bindShellActions() {
     window.showUndoToast = showUndoToast;
     window.openTicketPreview = openTicketPreview;
     window.showInfoModal = showInfoModal;
+    window.showConfirmModal = showConfirmModal;
     window.showAssigneesModal = showAssigneesModal;
 }
 
@@ -522,6 +579,7 @@ window.ui = {
     escapeHtml,
     showToast,
     showUndoToast,
+    showConfirmModal,
     openModal,
     closeModal
 };

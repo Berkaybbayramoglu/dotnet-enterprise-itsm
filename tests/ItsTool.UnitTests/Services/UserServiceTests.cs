@@ -16,7 +16,7 @@ public class UserServiceTests : TestBase
     public UserServiceTests()
     {
         _repository = new Repository<User>(_context);
-        _service = new UserService(_repository, _context);
+        _service = new UserService(_repository, _context, new Moq.Mock<Microsoft.AspNetCore.Http.IHttpContextAccessor>().Object);
     }
 
     [Fact]

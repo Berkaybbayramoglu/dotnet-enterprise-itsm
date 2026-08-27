@@ -34,10 +34,10 @@
 
     <script type="module">
         import './js/api.js?v=2';
-        import { bindShellActions } from './js/ui.js?v=3';
+        import { bindShellActions } from './js/ui.js?v=4';
         import { injectShell } from './js/layout.js';
-        import { initCrudPage } from './js/crud-page.js';
-        import { adminConfigs } from './js/admin-configs.js';
+        import { initCrudPage } from './js/crud-page.js?v=4';
+        import { adminConfigs } from './js/admin-configs.js?v=3';
         injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';

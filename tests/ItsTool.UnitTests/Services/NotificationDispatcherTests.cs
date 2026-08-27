@@ -76,7 +76,7 @@ public class NotificationDispatcherTests : TestBase
     {
         _context.NotificationRules.Add(new NotificationRule { EventKey = "ticket.assigned", TargetRole = "Assignee", IsActive = true });
         
-        var t = new Ticket { TicketNumber = "T1", AssignedUserId = 10 };
+        var t = new Ticket { TicketNumber = "T1", Assignments = new List<ItsTool.Domain.Entities.Ticket.TicketAssignment> { new ItsTool.Domain.Entities.Ticket.TicketAssignment { AssignedUserId = 10, IsActive = true } } };
         _context.Tickets.Add(t);
         await _context.SaveChangesAsync();
 

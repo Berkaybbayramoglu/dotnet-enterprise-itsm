@@ -117,6 +117,20 @@
                         <label class="form-label" for="uEmail" for="uEmail">Email *</label>
                         <input id="uEmail" class="form-control" required>
                     </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="uDepartment">Department</label>
+                            <select id="uDepartment" class="form-control">
+                                <option value="">-- None --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Groups</label>
+                            <div id="uGroupsList" style="max-height: 120px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px;">
+                                <!-- Checkboxes populated by JS -->
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="form-label" for="uPassword" for="uPassword">Password</label>
                         <input id="uPassword" class="form-control" placeholder="Leave blank to keep existing (if edit)">
@@ -211,6 +225,8 @@
         let currentData = [];
         let allRoles = [];
         let allPermissions = [];
+        let allDepartments = [];
+        let allGroups = [];
         let itemToDelete = null;
         let activeUserId = null;
 
@@ -219,6 +235,8 @@
                 currentData = await window.api.getUsers();
                 allRoles = await window.api.getRoles();
                 try { allPermissions = await window.api.getPermissions(); } catch (e) { console.error('Failed to load perms', e); }
+                try { allDepartments = await window.api.request('/Departments'); } catch (e) { console.error('Failed to load departments', e); }
+                try { allGroups = await window.api.request('/Groups'); } catch (e) { console.error('Failed to load groups', e); }
                 const tbody = document.querySelector('#dataTable tbody');
                 tbody.innerHTML = '';
                 
@@ -287,6 +305,25 @@
             document.getElementById('uId').value = id || '';
             document.getElementById('modalTitle').textContent = id ? 'Edit User' : 'New User';
             
+            // Populate department dropdown
+            const deptSelect = document.getElementById('uDepartment');
+            deptSelect.innerHTML = '<option value="">-- None --</option>';
+            allDepartments.forEach(d => {
+                deptSelect.innerHTML += `<option value="${d.id}">${escapeHtml(d.name)}</option>`;
+            });
+            
+            // Populate groups checkboxes
+            const groupsList = document.getElementById('uGroupsList');
+            groupsList.innerHTML = '';
+            allGroups.forEach(g => {
+                groupsList.innerHTML += `
+                    <label style="display: flex; align-items: center; gap: 8px; padding: 4px; font-size: 13px; cursor: pointer;">
+                        <input type="checkbox" name="uGroups" value="${g.id}">
+                        ${escapeHtml(g.name)}
+                    </label>
+                `;
+            });
+            
             if (id) {
                 const item = currentData.find(x => x.id === id);
                 if (item) {
@@ -295,6 +332,12 @@
                     document.getElementById('uUsername').value = item.username;
                     document.getElementById('uEmail').value = item.email;
                     document.getElementById('uActive').checked = item.isActive;
+                    document.getElementById('uDepartment').value = item.departmentId || '';
+                    if (item.groupIds) {
+                        Array.from(document.querySelectorAll('input[name="uGroups"]')).forEach(cb => {
+                            if (item.groupIds.includes(Number.parseInt(cb.value))) cb.checked = true;
+                        });
+                    }
                     document.getElementById('uProfilePhotoBase64').value = item.profilePhoto || '';
                     if (item.profilePhoto) {
                         document.getElementById('uAvatarPreview').innerHTML = `<img src="${item.profilePhoto}">`;
@@ -480,6 +523,8 @@
                 username: document.getElementById('uUsername').value.trim(),
                 email: document.getElementById('uEmail').value.trim(),
                 isActive: document.getElementById('uActive').checked,
+                departmentId: document.getElementById('uDepartment').value ? Number.parseInt(document.getElementById('uDepartment').value) : null,
+                groupIds: Array.from(document.querySelectorAll('input[name="uGroups"]:checked')).map(cb => Number.parseInt(cb.value)),
                 profilePhoto: document.getElementById('uProfilePhotoBase64').value || null
             };
             

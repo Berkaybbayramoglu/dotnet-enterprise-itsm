@@ -247,6 +247,12 @@
                         card.draggable = true;
                         card.ondragstart = window.drag;
                         card.dataset.id = t.id;
+                        card.onclick = (e) => {
+                            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
+                            if (typeof window.openTicketPreview === 'function') {
+                                window.openTicketPreview(t, lookupData);
+                            }
+                        };
                         
                         card.innerHTML = `
                         <div class="card-header">

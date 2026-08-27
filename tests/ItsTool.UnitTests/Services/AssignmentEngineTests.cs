@@ -26,7 +26,7 @@ public class AssignmentEngineTests : TestBase
         
         await _engine.AssignTicketAsync(ticket);
         
-        Assert.Equal(99, ticket.AssignedUserId);
+        Assert.Equal(99, ticket.Assignments.FirstOrDefault()?.AssignedUserId);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class AssignmentEngineTests : TestBase
         
         await _engine.AssignTicketAsync(ticket);
         
-        Assert.Null(ticket.AssignedUserId); // Remained unassigned
+        Assert.Null(ticket.Assignments.FirstOrDefault()?.AssignedUserId); // Remained unassigned
     }
 
     [Fact]
@@ -55,6 +55,6 @@ public class AssignmentEngineTests : TestBase
         
         await _engine.AssignTicketAsync(ticket);
         
-        Assert.Equal(88, ticket.AssignedUserId); // 10 comes before 20
+        Assert.Equal(88, ticket.Assignments.FirstOrDefault()?.AssignedUserId); // 10 comes before 20
     }
 }

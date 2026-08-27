@@ -66,8 +66,8 @@ public class DashboardServiceTests : TestBase
         _context.Statuses.Add(openStatus);
         await _context.SaveChangesAsync();
 
-        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id, AssignedUserId = 2 }); // Assigned to agent
-        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = openStatus.Id, AssignedUserId = 99 }); // Assigned to someone else
+        _context.Tickets.Add(new Ticket { TicketNumber = "T1", StatusId = openStatus.Id, Assignments = new List<ItsTool.Domain.Entities.Ticket.TicketAssignment> { new ItsTool.Domain.Entities.Ticket.TicketAssignment { AssignedUserId = 2, IsActive = true } } }); // Assigned to agent
+        _context.Tickets.Add(new Ticket { TicketNumber = "T2", StatusId = openStatus.Id, Assignments = new List<ItsTool.Domain.Entities.Ticket.TicketAssignment> { new ItsTool.Domain.Entities.Ticket.TicketAssignment { AssignedUserId = 99, IsActive = true } } }); // Assigned to someone else
         await _context.SaveChangesAsync();
 
         var result = await _dashboardService.GetOverviewAsync(2);

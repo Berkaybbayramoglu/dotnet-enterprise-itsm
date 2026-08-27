@@ -21,7 +21,7 @@ public class RoleServiceTests : TestBase
     [Fact]
     public async Task CreateAsync_ShouldCreateRole()
     {
-        var dto = new CreateRoleDto("Manager");
+        var dto = new CreateRoleDto("Manager", "Desc");
         var result = await _service.CreateAsync(dto);
 
         Assert.NotNull(result);
@@ -35,7 +35,7 @@ public class RoleServiceTests : TestBase
         _context.Roles.Add(role);
         await _context.SaveChangesAsync();
 
-        var dto = new UpdateRoleDto("New", true);
+        var dto = new UpdateRoleDto("New", "Desc", true);
         await _service.UpdateAsync(role.Id, dto);
 
         var updated = await _context.Roles.FindAsync(role.Id);

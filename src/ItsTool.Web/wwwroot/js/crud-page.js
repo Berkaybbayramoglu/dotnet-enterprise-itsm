@@ -64,8 +64,21 @@ export function initCrudPage(cfg) {
         
         tbody.innerHTML = '';
         data.forEach(item => {
+            const hasExpand = cfg.expandable === true;
             const tr = document.createElement('tr');
-            let html = columns.map(col => buildCellHtml(item, col)).join('');
+            tr.dataset.id = item.id;
+            
+            let html = columns.map((col, index) => {
+                if (index === 0 && hasExpand) {
+                    return `<td style="white-space: nowrap;">
+                        <button type="button" class="btn btn-ghost expand-btn" style="padding: 2px 4px; margin-right: 8px; vertical-align: middle;" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" width="18" height="18" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </button>
+                        ${buildCellHtml(item, col).replace('<td>', '').replace('</td>', '')}
+                    </td>`;
+                }
+                return buildCellHtml(item, col);
+            }).join('');
             html += `
                 <td>
                     <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="edit" data-id="${item.id}">Edit</button>
@@ -113,10 +126,12 @@ export function initCrudPage(cfg) {
         }
     };
 
-    window.openCrudModal = function(id = null) {
+    window.openCrudModal = async function(id = null) {
         form.reset();
         document.getElementById(formFields.id).value = id || '';
         modalTitleEl.textContent = id ? 'Edit' : (createTitle || 'New Record');
+        
+        if (cfg.onModalOpen) await cfg.onModalOpen(id);
         
         if (id) populateForm(currentData.find(x => x.id === id));
         if (window.ui?.openModal) window.ui.openModal(modalId);
@@ -156,21 +171,31 @@ export function initCrudPage(cfg) {
     };
 
     const performUndoableDelete = async (id, item, tr) => {
-        const payload = { ...item };
-        delete payload.id;
-        if (tr) tr.remove();
+        if (tr) {
+            tr.style.opacity = '0.5';
+            tr.style.pointerEvents = 'none';
+        }
         
-        await window.api.request(`${endpoint}/${id}`, { method: 'DELETE' });
-        window.ui.showUndoToast('Record deleted', async () => {
-            try {
-                await window.api.request(endpoint, { method: 'POST', body: JSON.stringify(payload) });
-                await window.loadData();
-                window.ui.showToast('Delete undone successfully');
-            } catch(err) {
-                console.error(err);
-                window.ui.showToast('Failed to undo', 'error');
+        const confirmed = await window.ui.showUndoToast('Kayıt silinecek...', async () => {
+            if (tr) {
+                tr.style.opacity = '1';
+                tr.style.pointerEvents = 'auto';
             }
         });
+        
+        if (confirmed) {
+            try {
+                await window.api.request(`${endpoint}/${id}`, { method: 'DELETE' });
+                if (tr) tr.remove();
+            } catch(err) {
+                console.error(err);
+                if (window.ui?.showToast) window.ui.showToast(err.message || 'Error deleting record', 'error');
+                if (tr) {
+                    tr.style.opacity = '1';
+                    tr.style.pointerEvents = 'auto';
+                }
+            }
+        }
     };
 
     const deleteRecord = async (id, tr) => {
@@ -190,12 +215,50 @@ export function initCrudPage(cfg) {
     };
 
     const wireActions = async (e) => {
+        const expandBtn = e.target.closest('.expand-btn');
+        if (expandBtn && cfg.expandable) {
+            const tr = expandBtn.closest('tr');
+            const isExpanded = expandBtn.getAttribute('aria-expanded') === 'true';
+            const itemId = Number.parseInt(tr.dataset.id, 10);
+            const item = currentData.find(x => x.id === itemId);
+            
+            if (isExpanded) {
+                expandBtn.setAttribute('aria-expanded', 'false');
+                expandBtn.querySelector('svg').style.transform = 'rotate(0deg)';
+                const expandTr = tr.nextElementSibling;
+                if (expandTr && expandTr.classList.contains('expandable-content')) {
+                    expandTr.remove();
+                }
+            } else {
+                expandBtn.setAttribute('aria-expanded', 'true');
+                expandBtn.querySelector('svg').style.transform = 'rotate(90deg)';
+                
+                const expandTr = document.createElement('tr');
+                expandTr.className = 'expandable-content';
+                expandTr.innerHTML = `<td colspan="100" style="padding: 0; background: rgba(0,0,0,0.02); border-bottom: 2px solid var(--border);">
+                    <div style="padding: var(--spacing-lg) var(--spacing-xl); padding-left: 48px;" class="expand-container">
+                        <div style="text-align: center; color: var(--text-muted);"><span class="spinner" style="width: 20px; height: 20px; display: inline-block;"></span> Yükleniyor...</div>
+                    </div>
+                </td>`;
+                tr.parentNode.insertBefore(expandTr, tr.nextSibling);
+                
+                if (cfg.onExpand) {
+                    await cfg.onExpand(item, expandTr.querySelector('.expand-container'));
+                }
+            }
+            return;
+        }
+
         const editBtn = e.target.closest('[data-action="edit"]');
         if (editBtn) window.openCrudModal(Number.parseInt(editBtn.dataset.id, 10));
 
         const delBtn = e.target.closest('[data-action="delete"]');
         if (delBtn) {
-            if (!confirm('Are you sure you want to delete this record?')) return;
+            const isConfirmed = window.ui?.showConfirmModal 
+                ? await window.ui.showConfirmModal('Emin misiniz?', 'Bu kaydı silmek istediğinize emin misiniz?')
+                : confirm('Are you sure you want to delete this record?');
+                
+            if (!isConfirmed) return;
             await deleteRecord(Number.parseInt(delBtn.dataset.id, 10), delBtn.closest('tr'));
         }
 
