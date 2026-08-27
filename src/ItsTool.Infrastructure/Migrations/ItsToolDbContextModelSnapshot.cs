@@ -1167,7 +1167,7 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -1704,7 +1704,7 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<int>("PriorityId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("integer");
 
                     b.Property<int>("RequesterUserId")
@@ -2421,9 +2421,7 @@ namespace ItsTool.Infrastructure.Migrations
                 {
                     b.HasOne("ItsTool.Domain.Entities.Project.Project", "Project")
                         .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.Navigation("Project");
                 });
@@ -2475,9 +2473,7 @@ namespace ItsTool.Infrastructure.Migrations
 
                     b.HasOne("ItsTool.Domain.Entities.Project.Project", "Project")
                         .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.HasOne("ItsTool.Domain.Entities.Organization.User", "RequesterUser")
                         .WithMany()

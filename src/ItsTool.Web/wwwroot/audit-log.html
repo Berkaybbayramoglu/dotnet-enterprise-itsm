@@ -162,6 +162,31 @@
                     } else if (a.fieldName === 'PriorityId') {
                         mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
                         mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'CategoryId') {
+                        mappedOld = lookup.categories?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.categories?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'ProjectId') {
+                        mappedOld = lookup.projects?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.projects?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'AssignedUserId') {
+                        mappedOld = users?.find(s => String(s.id) === a.oldValue)?.firstName ? (users.find(s => String(s.id) === a.oldValue).firstName + ' ' + users.find(s => String(s.id) === a.oldValue).lastName) : a.oldValue;
+                        mappedNew = users?.find(s => String(s.id) === a.newValue)?.firstName ? (users.find(s => String(s.id) === a.newValue).firstName + ' ' + users.find(s => String(s.id) === a.newValue).lastName) : a.newValue;
+                    } else if (a.fieldName === 'AssignedGroupId') {
+                        mappedOld = lookup.groups?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.groups?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'Transfer') {
+                        const parseTransfer = (val) => {
+                            if (!val || val === 'Proj:,Grp:' || val === 'none') return val;
+                            const mProj = val.match(/Proj:(-?\d*)/);
+                            const mGrp = val.match(/Grp:(-?\d*)/);
+                            const pId = mProj && mProj[1] ? mProj[1] : null;
+                            const gId = mGrp && mGrp[1] ? mGrp[1] : null;
+                            const pName = pId && pId !== '-1' ? (lookup.projects?.find(x => String(x.id) === pId)?.name || `Project ${pId}`) : 'No Project';
+                            const gName = gId && gId !== '-1' ? (lookup.groups?.find(x => String(x.id) === gId)?.name || `Group ${gId}`) : 'No Group';
+                            return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
+                        };
+                        mappedOld = parseTransfer(a.oldValue);
+                        mappedNew = parseTransfer(a.newValue);
                     }
                     
                     const oldVal = mappedOld ? `<span class="value-cell" title="${escapeHtml(mappedOld)}">${escapeHtml(mappedOld)}</span>` : '<span class="text-muted">-</span>';
@@ -185,7 +210,7 @@
                     
                     if (et === 'ticket') {
                         deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
-                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited') {
+                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied' || a.action === 'CommentDeleted') {
                             deepLink += `&commentId=${a.oldValue}`;
                         }
                     }

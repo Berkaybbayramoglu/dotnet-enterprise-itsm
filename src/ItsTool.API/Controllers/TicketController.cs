@@ -151,6 +151,20 @@ public class TicketController : ControllerBase
         catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
     }
 
+    [HttpDelete("{id}/comments/{commentId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteComment(int id, int commentId)
+    {
+        bool hasDeletePerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.delete");
+        try
+        {
+            await _service.DeleteCommentAsync(id, commentId, GetCurrentUserId(), hasDeletePerm);
+            return NoContent();
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+    }
+
     [HttpGet("{id}/comments")]
     [ProducesResponseType(typeof(IEnumerable<TicketCommentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetComments(int id)

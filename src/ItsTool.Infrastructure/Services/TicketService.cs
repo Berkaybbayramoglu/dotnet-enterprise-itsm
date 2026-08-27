@@ -32,10 +32,15 @@ public class TicketService : ITicketService
         _notificationDispatcher = notificationDispatcher;
     }
 
-    private async Task<string> GenerateTicketNumberAsync(int projectId)
+    private async Task<string> GenerateTicketNumberAsync(int? projectId)
     {
-        var project = await _context.Projects.FindAsync(projectId);
-        if (project == null) throw new KeyNotFoundException("Project not found.");
+        string prefix = "GEN";
+        if (projectId.HasValue)
+        {
+            var project = await _context.Projects.FindAsync(projectId.Value);
+            if (project == null) throw new KeyNotFoundException("Project not found.");
+            prefix = project.ProjectKey;
+        }
 
         var sequence = await _context.ProjectSequences.FirstOrDefaultAsync(ps => ps.ProjectId == projectId);
         if (sequence == null)
@@ -49,10 +54,10 @@ public class TicketService : ITicketService
         }
 
         await _context.SaveChangesAsync();
-        return $"{project.ProjectKey}-{sequence.CurrentValue}";
+        return $"{prefix}-{sequence.CurrentValue}";
     }
 
-    private async Task ValidateDynamicFieldsAsync(int projectId, int categoryId, int typeId, Dictionary<string, string> customFields)
+    private async Task ValidateDynamicFieldsAsync(int? projectId, int categoryId, int typeId, Dictionary<string, string> customFields)
     {
         var placements = await _context.FormFieldPlacements
             .Include(p => p.FieldDefinition)
@@ -392,8 +397,8 @@ public class TicketService : ITicketService
         var oldProj = t.ProjectId;
         var oldGroup = t.AssignedGroupId;
 
-        if (dto.ProjectId.HasValue) t.ProjectId = dto.ProjectId.Value;
-        if (dto.GroupId.HasValue) t.AssignedGroupId = dto.GroupId.Value;
+        if (dto.ProjectId.HasValue) t.ProjectId = dto.ProjectId.Value == -1 ? null : dto.ProjectId.Value;
+        if (dto.GroupId.HasValue) t.AssignedGroupId = dto.GroupId.Value == -1 ? null : dto.GroupId.Value;
 
         _context.TicketHistories.Add(new TicketHistory
         {
@@ -424,8 +429,8 @@ public class TicketService : ITicketService
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = ticketId,
-            Action = dto.IsInternal ? "InternalNoteAdded" : "CommentAdded",
-            FieldName = dto.IsInternal ? "Internal Note" : "Comment",
+            Action = dto.ParentCommentId.HasValue ? "CommentReplied" : (dto.IsInternal ? "InternalNoteAdded" : "CommentAdded"),
+            FieldName = dto.ParentCommentId.HasValue ? "Reply" : (dto.IsInternal ? "Internal Note" : "Comment"),
             OldValue = c.Id.ToString(), // Store CommentId for deep linking
             NewValue = c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content,
             CreatedBy = dto.AuthorUserId.ToString()
@@ -466,6 +471,29 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
         
         return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited);
+    }
+
+    public async Task DeleteCommentAsync(int ticketId, int commentId, int userId, bool hasDeletePerm)
+    {
+        var c = await _context.TicketComments.FirstOrDefaultAsync(x => x.Id == commentId && x.TicketId == ticketId && !x.IsDeleted);
+        if (c == null) throw new KeyNotFoundException("Comment not found");
+
+        if (c.AuthorUserId != userId && !hasDeletePerm)
+            throw new UnauthorizedAccessException("You don't have permission to delete this comment.");
+
+        c.IsDeleted = true;
+
+        _context.TicketHistories.Add(new TicketHistory
+        {
+            TicketId = ticketId,
+            Action = "CommentDeleted",
+            FieldName = "Comment",
+            OldValue = c.Id.ToString(),
+            NewValue = c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content,
+            CreatedBy = userId.ToString()
+        });
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<TicketCommentDto>> GetCommentsAsync(int ticketId, bool includeInternal)

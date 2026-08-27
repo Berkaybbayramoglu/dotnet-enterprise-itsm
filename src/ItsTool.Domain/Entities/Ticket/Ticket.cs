@@ -5,7 +5,7 @@ public class Ticket : BaseEntity {
     public string TicketNumber { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public int ProjectId { get; set; }
+    public int? ProjectId { get; set; }
     public int CategoryId { get; set; }
     public int TypeId { get; set; }
     public int StatusId { get; set; }
