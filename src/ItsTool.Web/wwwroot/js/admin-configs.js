@@ -7,7 +7,10 @@ export const adminConfigs = {
             try {
                 // Fetch groups and users lazily
                 if (!window._groupsCache) window._groupsCache = (await window.api.request('/Groups')) || [];
-                if (!window._usersCache) window._usersCache = (await window.api.getUsers()).items || [];
+                if (!window._usersCache) {
+                    const uRes = await window.api.getUsers();
+                    window._usersCache = Array.isArray(uRes) ? uRes : (uRes.items || []);
+                }
                 
                 const deptGroups = window._groupsCache.filter(g => g.departmentId === item.id);
                 
@@ -36,7 +39,7 @@ export const adminConfigs = {
                         groupUsers.forEach(u => {
                             const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
                             html += `
-                                <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0;">
+                                <div class="user-hover-link" data-user-id="${u.id}" style="display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; width: fit-content;">
                                     <div class="avatar" style="width: 24px; height: 24px; font-size: 11px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${initial}</div>
                                     <div style="font-size: 13px; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</div>
                                     <div style="font-size: 12px; color: var(--text-muted);">${window.ui?.escapeHtml(u.email)}</div>
@@ -53,6 +56,8 @@ export const adminConfigs = {
                 html += '</div>';
                 
                 container.innerHTML = html;
+
+
             } catch (err) {
                 console.error(err);
                 container.innerHTML = '<div style="color: var(--danger); font-size: 13px;">Gruplar yüklenirken bir hata oluştu.</div>';
@@ -145,7 +150,10 @@ export const adminConfigs = {
         expandable: true,
         onExpand: async (item, container) => {
             try {
-                if (!window._usersCache) window._usersCache = (await window.api.getUsers()).items || [];
+                if (!window._usersCache) {
+                    const uRes = await window.api.getUsers();
+                    window._usersCache = Array.isArray(uRes) ? uRes : (uRes.items || []);
+                }
                 const groupUsers = window._usersCache.filter(u => u.groupIds && u.groupIds.includes(item.id));
                 
                 if (groupUsers.length === 0) {
@@ -159,7 +167,7 @@ export const adminConfigs = {
                 groupUsers.forEach(u => {
                     const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
                     html += `
-                        <div style="display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px;">
+                        <div class="user-hover-link" data-user-id="${u.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px; cursor: pointer;">
                             <div class="avatar" style="width: 32px; height: 32px; font-size: 14px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${initial}</div>
                             <div>
                                 <div style="font-size: 14px; font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</div>
@@ -279,13 +287,12 @@ if (!window.updateProjectStatusInline) {
 }
 
 // Move Group Modal Injection
-if (window.location.pathname.includes('admin-crud.html') && new URLSearchParams(window.location.search).get('page') === 'departments') {
-    document.addEventListener('click', async (e) => {
-        const moveBtn = e.target.closest('[data-action="moveGroup"]');
-        if (moveBtn) {
-            const groupId = moveBtn.dataset.groupId;
-            const currentGroup = window._groupsCache?.find(g => g.id == groupId);
-            if (!currentGroup) return;
+document.addEventListener('click', async (e) => {
+    const moveBtn = e.target.closest('[data-action="moveGroup"]');
+    if (moveBtn) {
+        const groupId = moveBtn.dataset.groupId;
+        const currentGroup = window._groupsCache?.find(g => g.id == groupId);
+        if (!currentGroup) return;
             
             // Re-use ui.js modal or just prompt/create inline modal. 
             // Better: use an ad-hoc modal for Move Group
@@ -300,7 +307,7 @@ if (window.location.pathname.includes('admin-crud.html') && new URLSearchParams(
                             <input type="hidden" id="moveGroupId">
                             <div class="modal-header">
                                 <h2>Departman Değiştir</h2>
-                                <button type="button" class="close-btn" onclick="document.getElementById('moveGroupModal').classList.remove('open')" aria-label="Close">
+                                <button type="button" class="close-btn" onclick="document.getElementById('moveGroupModal').classList.remove('active')" aria-label="Close">
                                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                                 </button>
                             </div>
@@ -315,7 +322,7 @@ if (window.location.pathname.includes('admin-crud.html') && new URLSearchParams(
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-ghost" onclick="document.getElementById('moveGroupModal').classList.remove('open')">İptal</button>
+                                <button type="button" class="btn btn-ghost" onclick="document.getElementById('moveGroupModal').classList.remove('active')">İptal</button>
                                 <button type="submit" class="btn btn-primary">Taşı</button>
                             </div>
                         </form>
@@ -341,7 +348,7 @@ if (window.location.pathname.includes('admin-crud.html') && new URLSearchParams(
                             })
                         });
                         
-                        document.getElementById('moveGroupModal').classList.remove('open');
+                        document.getElementById('moveGroupModal').classList.remove('active');
                         window.ui?.showToast('Grup başarıyla taşındı.');
                         
                         // Invalidate caches and reload
@@ -360,7 +367,79 @@ if (window.location.pathname.includes('admin-crud.html') && new URLSearchParams(
             const deptSelect = document.getElementById('moveTargetDept');
             deptSelect.innerHTML = window.currentData.map(d => `<option value="${d.id}" ${d.id == currentGroup.departmentId ? 'selected' : ''}>${window.ui?.escapeHtml(d.name)}</option>`).join('');
             
-            modal.classList.add('open');
+            modal.classList.add('active');
+        }
+    });
+
+// --- Global User Tooltip Logic for Admin Configs ---
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        let userTooltip = document.getElementById('adminUserTooltip');
+        if (!userTooltip) {
+            userTooltip = document.createElement('div');
+            userTooltip.id = 'adminUserTooltip';
+            userTooltip.className = 'user-hover-tooltip';
+            userTooltip.style.cssText = 'position:absolute; display:none; background:var(--bg-surface); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,0.15); padding:12px; border-radius:8px; z-index:10000; width:260px; pointer-events:none;';
+            document.body.appendChild(userTooltip);
+
+            document.addEventListener('mouseover', async (e) => {
+                const target = e.target.closest('.user-hover-link');
+                if (target && window._usersCache) {
+                    const userId = target.getAttribute('data-user-id');
+                    const user = window._usersCache.find(u => u.id == userId);
+                    if (user) {
+                        // Ensure we have depts and groups loaded globally if missing
+                        if (!window._deptsCache && window.api) {
+                            try { window._deptsCache = await window.api.request('/Departments'); } catch(err) { window._deptsCache = []; }
+                        }
+                        if (!window._groupsCache && window.api) {
+                            try { window._groupsCache = await window.api.request('/Groups'); } catch(err) { window._groupsCache = []; }
+                        }
+                        
+                        const dept = window._deptsCache?.find(d => d.id == user.departmentId)?.name || 'No Department';
+                        const userGroups = user.groupIds && user.groupIds.length > 0 
+                            ? user.groupIds.map(gid => window._groupsCache?.find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
+                            : 'No Groups';
+                        const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
+
+                        const initial = (user.firstName + ' ' + user.lastName).charAt(0).toUpperCase();
+                        const avatarHtml = user.profilePhoto 
+                            ? `<img src="${user.profilePhoto}" class="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`
+                            : `<div class="avatar" style="width:32px;height:32px;font-size:14px;background:rgba(var(--primary-rgb),0.1);color:var(--primary);display:flex;align-items:center;justify-content:center;border-radius:50%;">${initial}</div>`;
+
+                        userTooltip.innerHTML = `
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                                ${avatarHtml}
+                                <div>
+                                    <div style="font-weight:600; font-size:14px;">${window.ui?.escapeHtml(user.firstName + ' ' + user.lastName)}</div>
+                                    <div style="font-size:11px; color:var(--text-muted);">@${window.ui?.escapeHtml(user.username)}</div>
+                                </div>
+                            </div>
+                            <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                                <div><strong style="color:var(--text-muted);">Joined:</strong> ${createdAt}</div>
+                                <div><strong style="color:var(--text-muted);">Dept:</strong> ${window.ui?.escapeHtml(dept)}</div>
+                                <div><strong style="color:var(--text-muted);">Groups:</strong> ${window.ui?.escapeHtml(userGroups)}</div>
+                            </div>
+                        `;
+                        
+                        const rect = target.getBoundingClientRect();
+                        userTooltip.style.display = 'block';
+                        
+                        let top = rect.bottom + window.scrollY + 8;
+                        let left = rect.left + window.scrollX;
+                        if (top + userTooltip.offsetHeight > window.scrollY + window.innerHeight) top = rect.top + window.scrollY - userTooltip.offsetHeight - 8;
+                        if (left + userTooltip.offsetWidth > window.scrollX + window.innerWidth) left = window.scrollX + window.innerWidth - userTooltip.offsetWidth - 12;
+                        
+                        userTooltip.style.top = top + 'px';
+                        userTooltip.style.left = left + 'px';
+                    }
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                const target = e.target.closest('.user-hover-link');
+                if (target) userTooltip.style.display = 'none';
+            });
         }
     });
 }

@@ -1,6 +1,7 @@
 using ItsTool.Domain.Common;
 using ItsTool.Domain.Entities;
 using ItsTool.Domain.Entities.Config;
+using ItsTool.Domain.Entities.Organization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -49,7 +50,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
                 continue;
 
             var entityType = entry.Entity.GetType().Name;
-            var entityName = GetEntityName(entry);
+            var entityName = GetEntityName(entry, context);
             var entityId = entry.Entity.Id.ToString();
 
             if (entry.State == EntityState.Added)
@@ -60,6 +61,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
                     EntityName = entityName,
                     EntityId = entityId,
                     Action = "Created",
+                    NewValue = entityType == "GroupMember" ? entityName : null,
                     CreatedBy = userId,
                     CreatedAt = now
                 });
@@ -72,6 +74,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
                     EntityName = entityName,
                     EntityId = entityId,
                     Action = "Deleted",
+                    OldValue = entityType == "GroupMember" ? entityName : null,
                     CreatedBy = userId,
                     CreatedAt = now
                 });
@@ -130,8 +133,38 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         }
     }
 
-    private string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    private string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
     {
+        if (entry.Entity.GetType().Name.Contains("GroupMember"))
+        {
+            try 
+            {
+                var uidProp = entry.Property("UserId");
+                var gidProp = entry.Property("GroupId");
+                var uid = (entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? uidProp.CurrentValue : uidProp.OriginalValue)?.ToString();
+                var gid = (entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? gidProp.CurrentValue : gidProp.OriginalValue)?.ToString();
+
+                string uName = uid ?? "?";
+                string gName = gid ?? "?";
+
+                if (context != null && uid != null && int.TryParse(uid, out int userId))
+                {
+                    var u = context.Set<User>().Local.FirstOrDefault(x => x.Id == userId) ?? context.Set<User>().FirstOrDefault(x => x.Id == userId);
+                    if (u != null) uName = u.Username ?? uName;
+                }
+                if (context != null && gid != null && int.TryParse(gid, out int groupId))
+                {
+                    var g = context.Set<Group>().Local.FirstOrDefault(x => x.Id == groupId) ?? context.Set<Group>().FirstOrDefault(x => x.Id == groupId);
+                    if (g != null) gName = g.Name ?? gName;
+                }
+                return $"User: {uName} -> Group: {gName}";
+            }
+            catch (Exception ex)
+            {
+                return $"GroupMember (Err: {ex.Message})";
+            }
+        }
+
         // Try to find a Name property, Title property, or just fallback to Type
         var nameProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "Name" || p.Metadata.Name == "Title" || p.Metadata.Name == "Username");
         if (nameProp != null && nameProp.CurrentValue != null)
