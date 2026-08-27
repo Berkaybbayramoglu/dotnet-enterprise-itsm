@@ -169,6 +169,7 @@
 
                 rules.forEach(r => {
                     const tr = document.createElement('tr');
+                    tr.dataset.id = r.id;
                     
                     const statusBadge = r.isActive 
                         ? `<span class="badge badge-success btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to disable">Active</span>`
@@ -200,6 +201,19 @@
                     `;
                     tbody.appendChild(tr);
                 });
+                
+                // Highlight logic
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId) {
+                    setTimeout(() => {
+                        const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                        if (row) {
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            row.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
             } catch (err) { console.error(err); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {

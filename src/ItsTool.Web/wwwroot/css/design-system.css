@@ -595,9 +595,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes pulse-highlight {
-    0% { background-color: var(--primary-light); outline: 2px solid var(--primary); }
-    50% { background-color: var(--bg-surface); outline: 2px solid transparent; }
-    100% { background-color: var(--primary-light); outline: 2px solid var(--primary); }
+    0% { background-color: transparent; outline: 2px solid transparent; }
+    50% { background-color: var(--primary-light); outline: 2px solid var(--primary); }
+    100% { background-color: transparent; outline: 2px solid transparent; }
 }
 
 .row-highlight {

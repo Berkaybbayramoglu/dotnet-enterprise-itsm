@@ -194,6 +194,7 @@
 
                 fields.forEach(f => {
                     const tr = document.createElement('tr');
+                    tr.dataset.id = f.id;
                     const badgeClass = `badge badge-${typeColorsMap[f.fieldType] || 'default'}`;
                     
                     tr.innerHTML = `
@@ -212,6 +213,19 @@
                     `;
                     tbody.appendChild(tr);
                 });
+                
+                // Highlight logic
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId) {
+                    setTimeout(() => {
+                        const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                        if (row) {
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            row.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
             } catch (err) { console.error(err); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {

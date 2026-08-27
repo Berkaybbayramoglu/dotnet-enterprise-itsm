@@ -595,9 +595,9 @@
                         `;
                     } else if (e.eventType === 'History') {
                         const h = e.data;
-                        if(h.action === 'Updated' || h.action === 'StatusChanged' || h.action === 'Reopened') {
+                        if(h.action !== 'CommentAdded') {
                             div.className = 'history-event';
-                            div.innerHTML = `<strong>User ${h.createdBy}</strong> ${h.action} <strong>${h.fieldName}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em> at ${new Date(e.timestamp).toLocaleString()}`;
+                            div.innerHTML = `<strong>User ${h.createdBy}</strong> ${h.action} <strong>${h.fieldName || ''}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em> at ${new Date(e.timestamp).toLocaleString()}`;
                         }
                     }
                     if(div.innerHTML) list.appendChild(div);
