@@ -43,6 +43,7 @@ public class ItsToolDbContext : DbContext
     public DbSet<Status> Statuses => Set<Status>();
     public DbSet<Priority> Priorities => Set<Priority>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<TicketAssignment> TicketAssignments => Set<TicketAssignment>();
     public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
     public DbSet<SystemAuditLog> SystemAuditLogs => Set<SystemAuditLog>();
     public DbSet<Workflow> Workflows => Set<Workflow>();

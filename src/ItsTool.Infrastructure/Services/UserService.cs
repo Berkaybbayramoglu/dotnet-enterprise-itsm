@@ -11,33 +11,37 @@ public class UserService : IUserService
 {
     private readonly IRepository<User> _repository;
     private readonly ItsToolDbContext _context;
+    private readonly Microsoft.AspNetCore.Http.IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(IRepository<User> repository, ItsToolDbContext context)
+    public UserService(IRepository<User> repository, ItsToolDbContext context, Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
     {
         _repository = repository;
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
-        var users = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
+        var users = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).Include(u => u.GroupMemberships).ToListAsync();
         return users.Select(u => new UserDto(
             u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.IsActive, u.DepartmentId,
             u.UserRoles.Select(ur => ur.RoleId).ToArray(),
             u.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
-            u.ProfilePhoto
+            u.ProfilePhoto,
+            u.GroupMemberships.Select(gm => gm.GroupId).ToArray()
         ));
     }
 
     public async Task<UserDto?> GetByIdAsync(int id)
     {
-        var user = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.Where(u => !u.IsDeleted).Include(u => u.UserRoles).Include(u => u.PermissionOverrides).Include(u => u.GroupMemberships).FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return null;
         return new UserDto(
             user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId,
             user.UserRoles.Select(ur => ur.RoleId).ToArray(),
             user.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
-            user.ProfilePhoto
+            user.ProfilePhoto,
+            user.GroupMemberships.Select(gm => gm.GroupId).ToArray()
         );
     }
 
@@ -54,7 +58,7 @@ public class UserService : IUserService
             ProfilePhoto = dto.ProfilePhoto
         };
         await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto);
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto, Array.Empty<int>());
     }
 
     public async Task UpdateAsync(int id, UpdateUserDto dto)
@@ -67,6 +71,27 @@ public class UserService : IUserService
         user.LastName = dto.LastName;
         user.IsActive = dto.IsActive;
         user.DepartmentId = dto.DepartmentId;
+        
+        if (user.ProfilePhoto != dto.ProfilePhoto)
+        {
+            var oldPhotoStr = string.IsNullOrEmpty(user.ProfilePhoto) ? "None" : "Photo Present";
+            var newPhotoStr = string.IsNullOrEmpty(dto.ProfilePhoto) ? "None" : "Photo Present";
+            
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+            
+            _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+            {
+                EntityType = "User",
+                EntityId = user.Id.ToString(),
+                EntityName = user.Username,
+                Action = "ProfilePhotoUpdated",
+                FieldName = "ProfilePhoto",
+                OldValue = oldPhotoStr,
+                NewValue = newPhotoStr,
+                CreatedBy = currentUserId
+            });
+        }
+        
         user.ProfilePhoto = dto.ProfilePhoto;
         await _repository.UpdateAsync(user);
     }

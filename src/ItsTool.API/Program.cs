@@ -12,7 +12,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+var currentDir = Directory.GetCurrentDirectory();
+var webRootPath = Path.Combine(currentDir, "src", "ItsTool.Web", "wwwroot");
+if (!Directory.Exists(webRootPath))
+{
+    webRootPath = Path.Combine(currentDir, "..", "ItsTool.Web", "wwwroot");
+}
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = Path.GetFullPath(webRootPath)
+});
 
 // Add services to the container.
 builder.Services.AddControllers();

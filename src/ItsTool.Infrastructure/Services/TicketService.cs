@@ -166,12 +166,14 @@ public class TicketService : ITicketService
         await _slaEngine.AttachSlaToTicketAsync(t.Id);
         await _notificationDispatcher.DispatchEventAsync("ticket.created", t.Id, dto.RequesterUserId, "A new ticket has been created.");
 
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, null);
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, new List<TicketAssigneeDto>(), null);
     }
 
     public async Task<TicketDto?> GetTicketByIdAsync(int id)
     {
-        var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        var t = await _context.Tickets
+            .Include(x => x.Assignments)
+            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (t == null) return null;
 
         var customFields = await _context.TicketFieldValues
@@ -179,7 +181,8 @@ public class TicketService : ITicketService
             .Where(tfv => tfv.TicketId == id)
             .ToDictionaryAsync(tfv => tfv.FieldDefinition!.Key, tfv => tfv.ValueString);
 
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, customFields);
+        var assignees = t.Assignments.Where(a => a.IsActive).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt)).ToList();
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields);
     }
 
     public async Task UpdateTicketAsync(int id, UpdateTicketDto dto, int currentUserId)
@@ -363,27 +366,76 @@ public class TicketService : ITicketService
 
     public async Task AssignTicketAsync(int ticketId, AssignTicketDto dto)
     {
-        var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == ticketId && !x.IsDeleted);
+        var t = await _context.Tickets
+            .Include(x => x.Assignments)
+            .FirstOrDefaultAsync(x => x.Id == ticketId && !x.IsDeleted);
         if (t == null) throw new KeyNotFoundException(TicketNotFoundMessage);
 
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(dto.AssignerUserId);
         if (!perms.Contains("ticket.assign")) throw new UnauthorizedAccessException("Missing ticket.assign permission.");
+        
+        // Strict hierarchy check
+        var assigner = await _context.Users.FindAsync(dto.AssignerUserId);
+        bool isSuperAdmin = perms.Contains("admin.manage");
+        
+        if (!isSuperAdmin && dto.ParentAssignmentId.HasValue)
+        {
+            var parentAssignment = t.Assignments.FirstOrDefault(a => a.Id == dto.ParentAssignmentId);
+            if (parentAssignment != null && parentAssignment.AssignedUserId != dto.AssignerUserId)
+            {
+                // Verify if assigner is in the assigned group
+                bool isGroupMember = parentAssignment.AssignedGroupId.HasValue && 
+                    await _context.Groups.AnyAsync(g => g.Id == parentAssignment.AssignedGroupId && g.DepartmentId == assigner.DepartmentId);
+                
+                if (!isGroupMember)
+                    throw new UnauthorizedAccessException("You can only delegate your own assignments or group assignments.");
+            }
+        }
+        
+        if (!isSuperAdmin)
+        {
+            // Verify targets are in the same department if not super admin
+            foreach (var uId in dto.UserIds)
+            {
+                var targetUser = await _context.Users.FindAsync(uId);
+                if (targetUser != null && targetUser.DepartmentId != assigner?.DepartmentId)
+                    throw new UnauthorizedAccessException($"Target user {targetUser.Username} is not in your department.");
+            }
+        }
 
-        var oldAssignee = t.AssignedUserId;
-        t.AssignedUserId = dto.UserId;
+        // We only deactivate previous assignments if they are not explicitly in the new list, or maybe we just deactivate all and re-assign?
+        // Let's deactivate all active assignments for simplicity if no parent assignment is provided (root level reassignment).
+        if (dto.ParentAssignmentId == null) {
+            foreach (var a in t.Assignments.Where(x => x.IsActive))
+            {
+                a.IsActive = false;
+            }
+        }
+
+        foreach (var uId in dto.UserIds)
+        {
+            var assignment = new TicketAssignment { TicketId = ticketId, AssignedUserId = uId, AssignedByUserId = dto.AssignerUserId, ParentAssignmentId = dto.ParentAssignmentId };
+            _context.TicketAssignments.Add(assignment);
+        }
+
+        foreach (var gId in dto.GroupIds)
+        {
+            var assignment = new TicketAssignment { TicketId = ticketId, AssignedGroupId = gId, AssignedByUserId = dto.AssignerUserId, ParentAssignmentId = dto.ParentAssignmentId };
+            _context.TicketAssignments.Add(assignment);
+        }
 
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = t.Id,
             Action = "Assigned",
-            FieldName = "AssignedUserId",
-            OldValue = oldAssignee?.ToString(),
-            NewValue = dto.UserId.ToString(),
+            FieldName = "Assignments",
+            OldValue = "Multiple",
+            NewValue = $"Users:{string.Join(",", dto.UserIds)},Groups:{string.Join(",", dto.GroupIds)}",
             CreatedBy = dto.AssignerUserId.ToString()
         });
 
         await _context.SaveChangesAsync();
-        await _notificationDispatcher.DispatchEventAsync("ticket.assigned", t.Id, dto.AssignerUserId, $"Ticket assigned to {dto.UserId}");
+        await _notificationDispatcher.DispatchEventAsync("ticket.assigned", t.Id, dto.AssignerUserId, $"Ticket assigned to multiple entities");
     }
 
     public async Task TransferTicketAsync(int ticketId, TransferTicketDto dto)
@@ -393,24 +445,41 @@ public class TicketService : ITicketService
 
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(dto.TransferrerUserId);
         if (!perms.Contains("ticket.transfer")) throw new UnauthorizedAccessException("Missing ticket.transfer permission.");
+        
+        bool isSuperAdmin = perms.Contains("admin.manage");
+        if (!isSuperAdmin && dto.ProjectId.HasValue && dto.ProjectId != t.ProjectId)
+        {
+            throw new UnauthorizedAccessException("Only administrators can transfer tickets across projects.");
+        }
 
         var oldProj = t.ProjectId;
-        var oldGroup = t.AssignedGroupId;
 
         if (dto.ProjectId.HasValue) t.ProjectId = dto.ProjectId.Value == -1 ? null : dto.ProjectId.Value;
-        if (dto.GroupId.HasValue) t.AssignedGroupId = dto.GroupId.Value == -1 ? null : dto.GroupId.Value;
+        
+        if (dto.GroupId.HasValue && dto.GroupId.Value != -1) {
+            _context.TicketAssignments.Add(new TicketAssignment { TicketId = ticketId, AssignedGroupId = dto.GroupId.Value, AssignedByUserId = dto.TransferrerUserId });
+        }
 
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = t.Id,
             Action = "Transferred",
             FieldName = "Transfer",
-            OldValue = $"Proj:{oldProj},Grp:{oldGroup}",
-            NewValue = $"Proj:{t.ProjectId},Grp:{t.AssignedGroupId}",
+            OldValue = $"Proj:{oldProj},Grp:-",
+            NewValue = $"Proj:{t.ProjectId},Grp:{dto.GroupId}",
             CreatedBy = dto.TransferrerUserId.ToString()
         });
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<TicketAssigneeDto>> GetAssignmentTreeAsync(int ticketId)
+    {
+        var assignments = await _context.TicketAssignments
+            .Where(a => a.TicketId == ticketId)
+            .ToListAsync();
+            
+        return assignments.Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt));
     }
 
     public async Task<TicketCommentDto> AddCommentAsync(int ticketId, CreateCommentDto dto)
@@ -430,9 +499,9 @@ public class TicketService : ITicketService
         {
             TicketId = ticketId,
             Action = dto.ParentCommentId.HasValue ? "CommentReplied" : (dto.IsInternal ? "InternalNoteAdded" : "CommentAdded"),
-            FieldName = dto.ParentCommentId.HasValue ? "Reply" : (dto.IsInternal ? "Internal Note" : "Comment"),
-            OldValue = c.Id.ToString(), // Store CommentId for deep linking
-            NewValue = c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content,
+            FieldName = c.Id.ToString(),
+            OldValue = null,
+            NewValue = c.Content,
             CreatedBy = dto.AuthorUserId.ToString()
         });
         await _context.SaveChangesAsync();
@@ -440,7 +509,7 @@ public class TicketService : ITicketService
         await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
         await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, "A new comment was added.");
         
-        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited);
+        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited, c.UpdatedAt);
     }
 
     public async Task<TicketCommentDto> UpdateCommentAsync(int ticketId, int commentId, UpdateCommentDto dto, int userId, bool hasEditPerm)
@@ -462,15 +531,15 @@ public class TicketService : ITicketService
         {
             TicketId = ticketId,
             Action = "CommentEdited",
-            FieldName = "Comment",
-            OldValue = c.Id.ToString(),
-            NewValue = $"Edited by User {userId}",
+            FieldName = c.Id.ToString(),
+            OldValue = oldContent,
+            NewValue = c.Content,
             CreatedBy = userId.ToString()
         });
 
         await _context.SaveChangesAsync();
         
-        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited);
+        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited, c.UpdatedAt);
     }
 
     public async Task DeleteCommentAsync(int ticketId, int commentId, int userId, bool hasDeletePerm)
@@ -487,11 +556,35 @@ public class TicketService : ITicketService
         {
             TicketId = ticketId,
             Action = "CommentDeleted",
-            FieldName = "Comment",
-            OldValue = c.Id.ToString(),
-            NewValue = c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content,
+            FieldName = c.Id.ToString(),
+            OldValue = c.Content,
+            NewValue = null,
             CreatedBy = userId.ToString()
         });
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RestoreCommentAsync(int ticketId, int commentId, int userId, bool hasDeletePerm)
+    {
+        var c = await _context.TicketComments.FirstOrDefaultAsync(x => x.Id == commentId && x.TicketId == ticketId && x.IsDeleted);
+        if (c == null) throw new KeyNotFoundException("Comment not found or not deleted");
+
+        if (c.AuthorUserId != userId && !hasDeletePerm)
+            throw new UnauthorizedAccessException("You don't have permission to restore this comment.");
+
+        c.IsDeleted = false;
+
+        // Remove the accidental CommentDeleted history entry so it disappears from logs
+        var deletedHistory = await _context.TicketHistories
+            .Where(h => h.TicketId == ticketId && h.Action == "CommentDeleted" && h.FieldName == c.Id.ToString())
+            .OrderByDescending(h => h.CreatedAt)
+            .FirstOrDefaultAsync();
+            
+        if (deletedHistory != null)
+        {
+            _context.TicketHistories.Remove(deletedHistory);
+        }
 
         await _context.SaveChangesAsync();
     }
@@ -502,7 +595,7 @@ public class TicketService : ITicketService
         if (!includeInternal) q = q.Where(c => !c.IsInternal);
         
         var list = await q.OrderBy(c => c.CreatedAt).ToListAsync();
-        return list.Select(c => new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited));
+        return list.Select(c => new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited, c.UpdatedAt));
     }
 
     public async Task<TicketAttachmentDto> AddAttachmentAsync(int ticketId, IFormFile file, int userId)
@@ -603,7 +696,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.AssignedUserId, t.AssignedGroupId, null))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt)).ToList(), null))
             .ToListAsync();
 
         return new PagedResult<TicketDto>

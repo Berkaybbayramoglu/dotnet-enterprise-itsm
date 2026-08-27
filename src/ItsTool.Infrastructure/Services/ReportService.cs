@@ -34,7 +34,10 @@ public class ReportService : IReportService
             .Include(t => t.Status)
             .Include(t => t.Priority)
             .Include(t => t.RequesterUser)
-            .Include(t => t.AssignedUser)
+            .Include(t => t.Assignments)
+                .ThenInclude(a => a.AssignedUser)
+            .Include(t => t.Assignments)
+                .ThenInclude(a => a.AssignedGroup)
             .Include(t => t.TicketSla)
             .Where(t => !t.IsDeleted);
 
@@ -59,7 +62,7 @@ public class ReportService : IReportService
         var ms = new MemoryStream();
         var sw = new StreamWriter(ms, Encoding.UTF8);
 
-        await sw.WriteLineAsync("TicketNumber,Title,Project,Category,Type,Status,Priority,Requester,Assignee,CreatedAt,SLA Status");
+        await sw.WriteLineAsync("TicketNumber,Title,Project,Category,Type,Status,Priority,Requester,Assignees,CreatedAt,SLA Status");
 
         foreach (var t in tickets)
         {
@@ -70,7 +73,8 @@ public class ReportService : IReportService
                 else if (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) slaStatus = "Warning";
             }
 
-            var line = $"\"{EscapeCsv(t.TicketNumber)}\",\"{EscapeCsv(t.Title)}\",\"{EscapeCsv(t.Project?.Name)}\",\"{EscapeCsv(t.Category?.Name)}\",\"{EscapeCsv(t.Type?.Name)}\",\"{EscapeCsv(t.Status?.Name)}\",\"{EscapeCsv(t.Priority?.Name)}\",\"{EscapeCsv(t.RequesterUser?.FirstName + " " + t.RequesterUser?.LastName)}\",\"{EscapeCsv(t.AssignedUser?.FirstName + " " + t.AssignedUser?.LastName)}\",\"{t.CreatedAt:yyyy-MM-dd HH:mm:ss}\",\"{slaStatus}\"";
+            var assigneesStr = string.Join(" | ", t.Assignments.Where(a => a.IsActive).Select(a => a.AssignedUserId != null ? $"{a.AssignedUser?.FirstName} {a.AssignedUser?.LastName}" : a.AssignedGroup?.Name));
+            var line = $"\"{EscapeCsv(t.TicketNumber)}\",\"{EscapeCsv(t.Title)}\",\"{EscapeCsv(t.Project?.Name)}\",\"{EscapeCsv(t.Category?.Name)}\",\"{EscapeCsv(t.Type?.Name)}\",\"{EscapeCsv(t.Status?.Name)}\",\"{EscapeCsv(t.Priority?.Name)}\",\"{EscapeCsv(t.RequesterUser?.FirstName + " " + t.RequesterUser?.LastName)}\",\"{EscapeCsv(assigneesStr)}\",\"{t.CreatedAt:yyyy-MM-dd HH:mm:ss}\",\"{slaStatus}\"";
             await sw.WriteLineAsync(line);
         }
 

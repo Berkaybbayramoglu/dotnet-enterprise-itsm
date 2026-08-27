@@ -83,6 +83,9 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -879,6 +882,9 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("ManagerUserId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -890,6 +896,8 @@ namespace ItsTool.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ManagerUserId");
 
                     b.ToTable("Departments");
                 });
@@ -1670,12 +1678,6 @@ namespace ItsTool.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssignedGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("AssignedUserId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
@@ -1733,10 +1735,6 @@ namespace ItsTool.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedGroupId");
-
-                    b.HasIndex("AssignedUserId");
-
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("PriorityId");
@@ -1753,6 +1751,65 @@ namespace ItsTool.Infrastructure.Migrations
                     b.HasIndex("TypeId");
 
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("AssignedGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("AssignedUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ParentAssignmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByUserId");
+
+                    b.HasIndex("AssignedGroupId");
+
+                    b.HasIndex("AssignedUserId");
+
+                    b.HasIndex("ParentAssignmentId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketAssignments");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketAttachment", b =>
@@ -2361,6 +2418,16 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Navigation("TicketType");
                 });
 
+            modelBuilder.Entity("ItsTool.Domain.Entities.Organization.Department", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "ManagerUser")
+                        .WithMany()
+                        .HasForeignKey("ManagerUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ManagerUser");
+                });
+
             modelBuilder.Entity("ItsTool.Domain.Entities.Organization.Group", b =>
                 {
                     b.HasOne("ItsTool.Domain.Entities.Organization.Department", "Department")
@@ -2450,15 +2517,6 @@ namespace ItsTool.Infrastructure.Migrations
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.Ticket", b =>
                 {
-                    b.HasOne("ItsTool.Domain.Entities.Organization.Group", "AssignedGroup")
-                        .WithMany()
-                        .HasForeignKey("AssignedGroupId");
-
-                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "AssignedUser")
-                        .WithMany()
-                        .HasForeignKey("AssignedUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("ItsTool.Domain.Entities.Ticket.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
@@ -2493,10 +2551,6 @@ namespace ItsTool.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AssignedGroup");
-
-                    b.Navigation("AssignedUser");
-
                     b.Navigation("Category");
 
                     b.Navigation("Priority");
@@ -2508,6 +2562,46 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Navigation("Status");
 
                     b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketAssignment", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "AssignedByUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.Group", "AssignedGroup")
+                        .WithMany()
+                        .HasForeignKey("AssignedGroupId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "AssignedUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.TicketAssignment", "ParentAssignment")
+                        .WithMany()
+                        .HasForeignKey("ParentAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
+                        .WithMany("Assignments")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByUser");
+
+                    b.Navigation("AssignedGroup");
+
+                    b.Navigation("AssignedUser");
+
+                    b.Navigation("ParentAssignment");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.TicketAttachment", b =>
@@ -2650,6 +2744,8 @@ namespace ItsTool.Infrastructure.Migrations
 
             modelBuilder.Entity("ItsTool.Domain.Entities.Ticket.Ticket", b =>
                 {
+                    b.Navigation("Assignments");
+
                     b.Navigation("TicketSla");
                 });
 #pragma warning restore 612, 618

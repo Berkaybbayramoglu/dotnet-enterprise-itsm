@@ -30,7 +30,7 @@ public class DashboardService : IDashboardService
             .Include(t => t.Priority)
             .Include(t => t.Project)
             .Include(t => t.Category)
-            .Include(t => t.AssignedUser)
+            .Include(t => t.Assignments)
             .Where(t => !t.IsDeleted);
 
         if (perms.Contains("report.view"))
@@ -47,8 +47,7 @@ public class DashboardService : IDashboardService
                 .Select(gm => gm.GroupId)
                 .ToListAsync();
 
-            return query.Where(t => t.AssignedUserId == userId || 
-                                    (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
+            return query.Where(t => t.Assignments.Any(a => a.IsActive && (a.AssignedUserId == userId || (a.AssignedGroupId.HasValue && userGroupIds.Contains(a.AssignedGroupId.Value)))) ||
                                     t.RequesterUserId == userId);
         }
 
@@ -64,7 +63,7 @@ public class DashboardService : IDashboardService
         var criticalTicketsCount = await query.CountAsync(t => t.Priority != null && t.Priority.SeverityLevel == 1 && t.Status != null && !t.Status.IsClosedStatus);
         var slaBreachedCount = await query.CountAsync(t => t.TicketSla != null && (t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached) && t.Status != null && !t.Status.IsClosedStatus);
         var slaRiskCount = await query.CountAsync(t => t.TicketSla != null && (t.TicketSla.FirstResponseWarned || t.TicketSla.ResolutionWarned) && !(t.TicketSla.FirstResponseBreached || t.TicketSla.ResolutionBreached) && t.Status != null && !t.Status.IsClosedStatus);
-        var unassignedCount = await query.CountAsync(t => t.AssignedUserId == null && t.Status != null && !t.Status.IsClosedStatus);
+        var unassignedCount = await query.CountAsync(t => !t.Assignments.Any(a => a.IsActive) && t.Status != null && !t.Status.IsClosedStatus);
 
         var csatQuery = _context.TicketSurveys.AsQueryable();
         var csatAverage = await csatQuery.AnyAsync() ? await csatQuery.AverageAsync(s => s.Rating) : 0.0;
@@ -113,8 +112,9 @@ public class DashboardService : IDashboardService
         var query = await GetScopedTicketsQueryAsync(userId);
         
         var openTicketsCountPerUser = await query
-            .Where(t => t.AssignedUserId != null && t.Status != null && !t.Status.IsClosedStatus)
-            .GroupBy(t => t.AssignedUserId)
+            .Where(t => t.Status != null && !t.Status.IsClosedStatus)
+            .SelectMany(t => t.Assignments.Where(a => a.IsActive && a.AssignedUserId != null))
+            .GroupBy(a => a.AssignedUserId)
             .Select(g => new { UserId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(k => k.UserId ?? 0, v => v.Count);
 

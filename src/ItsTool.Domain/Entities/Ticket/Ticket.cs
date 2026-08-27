@@ -11,8 +11,7 @@ public class Ticket : BaseEntity {
     public int StatusId { get; set; }
     public int PriorityId { get; set; }
     public int RequesterUserId { get; set; }
-    public int? AssignedUserId { get; set; }
-    public int? AssignedGroupId { get; set; }
+    public virtual ICollection<TicketAssignment> Assignments { get; set; } = new List<TicketAssignment>();
     public string? ExternalMessageId { get; set; } // Phase 11: Inbound Email Dedupe
 
     public virtual Project.Project? Project { get; set; }
@@ -21,7 +20,5 @@ public class Ticket : BaseEntity {
     public virtual Status? Status { get; set; }
     public virtual Priority? Priority { get; set; }
     public virtual User? RequesterUser { get; set; }
-    public virtual User? AssignedUser { get; set; }
-    public virtual Group? AssignedGroup { get; set; }
     public virtual SLA.TicketSla? TicketSla { get; set; }
 }

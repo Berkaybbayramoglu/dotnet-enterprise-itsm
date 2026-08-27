@@ -12,10 +12,12 @@ public interface ITicketService
     Task<IEnumerable<StatusDto>> GetAllowedTransitionsAsync(int ticketId, int userId);
     Task AssignTicketAsync(int ticketId, AssignTicketDto dto);
     Task TransferTicketAsync(int ticketId, TransferTicketDto dto);
+    Task<IEnumerable<TicketAssigneeDto>> GetAssignmentTreeAsync(int ticketId);
     
     Task<TicketCommentDto> AddCommentAsync(int ticketId, CreateCommentDto dto);
     Task<TicketCommentDto> UpdateCommentAsync(int ticketId, int commentId, UpdateCommentDto dto, int userId, bool hasEditPerm);
     Task DeleteCommentAsync(int ticketId, int commentId, int userId, bool hasDeletePerm);
+    Task RestoreCommentAsync(int ticketId, int commentId, int userId, bool hasDeletePerm);
     Task<IEnumerable<TicketCommentDto>> GetCommentsAsync(int ticketId, bool includeInternal);
     
     Task<TicketAttachmentDto> AddAttachmentAsync(int ticketId, IFormFile file, int userId);

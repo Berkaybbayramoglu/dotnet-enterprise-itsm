@@ -8,6 +8,10 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket> {
         builder.Property(t => t.TicketNumber).IsRequired().HasMaxLength(50);
         builder.HasIndex(t => t.TicketNumber).IsUnique();
         builder.HasOne(t => t.RequesterUser).WithMany().HasForeignKey(t => t.RequesterUserId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(t => t.AssignedUser).WithMany().HasForeignKey(t => t.AssignedUserId).OnDelete(DeleteBehavior.SetNull);
+        
+        builder.HasMany(t => t.Assignments)
+               .WithOne(a => a.Ticket)
+               .HasForeignKey(a => a.TicketId)
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }

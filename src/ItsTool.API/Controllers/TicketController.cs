@@ -100,18 +100,32 @@ public class TicketController : ControllerBase
         catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
     }
 
+    public record AssignTicketRequest(List<int> UserIds, List<int> GroupIds, int? ParentAssignmentId = null);
+
     [HttpPost("{id}/assign")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> AssignTicket(int id, [FromBody] int userId)
+    public async Task<IActionResult> AssignTicket(int id, [FromBody] AssignTicketRequest req)
     {
         try
         {
-            var dto = new AssignTicketDto(userId, GetCurrentUserId());
+            var dto = new AssignTicketDto(req.UserIds ?? new List<int>(), req.GroupIds ?? new List<int>(), GetCurrentUserId(), req.ParentAssignmentId);
             await _service.AssignTicketAsync(id, dto);
             return NoContent();
         }
         catch (KeyNotFoundException) { return NotFound(); }
         catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+    }
+
+    [HttpGet("{id}/assignments/tree")]
+    [ProducesResponseType(typeof(IEnumerable<TicketAssigneeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAssignmentTree(int id)
+    {
+        try
+        {
+            var tree = await _service.GetAssignmentTreeAsync(id);
+            return Ok(tree);
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
     }
 
     [HttpPost("{id}/transfer")]
@@ -165,6 +179,20 @@ public class TicketController : ControllerBase
         catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
     }
 
+    [HttpPost("{id}/comments/{commentId}/restore")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RestoreComment(int id, int commentId)
+    {
+        bool hasDeletePerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.delete");
+        try
+        {
+            await _service.RestoreCommentAsync(id, commentId, GetCurrentUserId(), hasDeletePerm);
+            return NoContent();
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
+    }
+
     [HttpGet("{id}/comments")]
     [ProducesResponseType(typeof(IEnumerable<TicketCommentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetComments(int id)
@@ -198,7 +226,8 @@ public class TicketController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<TimelineEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTimeline(int id)
     {
-        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal");
+        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal") || 
+                               User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
         return Ok(await _service.GetTimelineAsync(id, hasInternalPerm));
     }
 

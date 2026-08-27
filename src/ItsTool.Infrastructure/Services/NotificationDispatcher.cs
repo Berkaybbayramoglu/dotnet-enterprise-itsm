@@ -28,7 +28,9 @@ public class NotificationDispatcher : INotificationDispatcher
 
         if (rules.Count == 0) return;
 
-        var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+        var ticket = await _context.Tickets
+            .Include(t => t.Assignments)
+            .FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
         if (ticket == null) return;
 
         var targetUserIds = await GetTargetUserIdsAsync(rules, ticket, triggerUserId);
@@ -53,8 +55,8 @@ public class NotificationDispatcher : INotificationDispatcher
                     targetUserIds.Add(ticket.RequesterUserId);
                     break;
                 case "assignee":
-                    if (ticket.AssignedUserId.HasValue)
-                        targetUserIds.Add(ticket.AssignedUserId.Value);
+                    var assigneeIds = ticket.Assignments.Where(a => a.IsActive && a.AssignedUserId.HasValue).Select(a => a.AssignedUserId!.Value);
+                    foreach(var id in assigneeIds) targetUserIds.Add(id);
                     break;
                 case "project_member":
                     var members = await _context.ProjectMembers

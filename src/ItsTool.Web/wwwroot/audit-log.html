@@ -207,11 +207,13 @@
                     let deepLink = '#';
                     const et = entityType.toLowerCase();
                     const en = (a.entityName || '').toLowerCase(); // For old logs where entityType is Config and name is AssignmentRule
-                    
                     if (et === 'ticket') {
                         deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
-                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied' || a.action === 'CommentDeleted') {
-                            deepLink += `&commentId=${a.oldValue}`;
+                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied') {
+                            const cid = (!isNaN(a.fieldName) && a.fieldName) ? a.fieldName : a.oldValue;
+                            deepLink += `&commentId=${cid}`;
+                        } else if (a.action === 'CommentDeleted') {
+                            deepLink += `&historyId=${a.id}`;
                         }
                     }
                     else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;

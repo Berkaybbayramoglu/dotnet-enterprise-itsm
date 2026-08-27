@@ -183,22 +183,27 @@ public class SlaEngine : ISlaEngine
     {
         var activeSlas = await _context.TicketSlas
             .Include(s => s.Ticket)
+                .ThenInclude(t => t.Assignments)
             .Where(s => s.PausedAt == null && (!s.ResolutionMetAt.HasValue || !s.FirstResponseMetAt.HasValue))
             .ToListAsync();
 
         foreach (var sla in activeSlas)
         {
             if (sla.Ticket == null) continue;
-            var targetUserId = sla.Ticket.AssignedUserId ?? sla.Ticket.RequesterUserId;
+            var targetUserIds = sla.Ticket.Assignments
+                .Where(a => a.IsActive && a.AssignedUserId.HasValue)
+                .Select(a => a.AssignedUserId!.Value)
+                .ToList();
+            if (targetUserIds.Count == 0) targetUserIds.Add(sla.Ticket.RequesterUserId);
 
-            await CheckFirstResponseAsync(sla, targetUserId, nowUtc);
-            await CheckResolutionAsync(sla, targetUserId, nowUtc);
+            await CheckFirstResponseAsync(sla, targetUserIds, nowUtc);
+            await CheckResolutionAsync(sla, targetUserIds, nowUtc);
         }
 
         await _context.SaveChangesAsync();
     }
 
-    private async Task CheckFirstResponseAsync(TicketSla sla, int targetUserId, DateTime nowUtc)
+    private async Task CheckFirstResponseAsync(TicketSla sla, List<int> targetUserIds, DateTime nowUtc)
     {
         if (sla.FirstResponseMetAt.HasValue || !sla.FirstResponseDueAt.HasValue) return;
 
@@ -213,11 +218,13 @@ public class SlaEngine : ISlaEngine
         else if (warn)
         {
             sla.FirstResponseWarned = true;
-            await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "First Response SLA approaching breach.");
+            foreach (var targetUserId in targetUserIds) {
+                await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "First Response SLA approaching breach.");
+            }
         }
     }
 
-    private async Task CheckResolutionAsync(TicketSla sla, int targetUserId, DateTime nowUtc)
+    private async Task CheckResolutionAsync(TicketSla sla, List<int> targetUserIds, DateTime nowUtc)
     {
         if (sla.ResolutionMetAt.HasValue || !sla.ResolutionDueAt.HasValue) return;
 
@@ -232,7 +239,9 @@ public class SlaEngine : ISlaEngine
         else if (warn)
         {
             sla.ResolutionWarned = true;
-            await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "Resolution SLA approaching breach.");
+            foreach (var targetUserId in targetUserIds) {
+                await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "Resolution SLA approaching breach.");
+            }
         }
     }
 

@@ -32,8 +32,8 @@ public static class TransitionConstants
 
 public class DataSeeder
 {
-    private static readonly string[] ManagerPermissions = new[] { "report.view", "audit.view", "ticket.view", "ticket.assign", "kb.manage" };
-    private static readonly string[] AgentPermissions = new[] { "ticket.view", PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "kb.view" };
+    private static readonly string[] ManagerPermissions = new[] { "report.view", "audit.view", "ticket.view", "ticket.assign", "ticket.transfer", "kb.manage" };
+    private static readonly string[] AgentPermissions = new[] { "ticket.view", PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "ticket.assign", "ticket.transfer", "kb.view" };
     private static readonly string[] EndUserPermissions = new[] { "ticket.create", "ticket.view", "survey.submit", "kb.view" };
 
     private readonly ItsToolDbContext _context;
@@ -131,11 +131,47 @@ public class DataSeeder
         var allPermissions = ItsTool.Application.Constants.PermissionConstants.AllPermissions;
         var existingPermissions = await _context.Permissions.ToListAsync();
         
-        var missingPermissions = allPermissions.Where(pKey => !existingPermissions.Any(p => p.Key == pKey)).Select(pKey => new Permission { Name = pKey, Key = pKey }).ToList();
+        var missingPermissions = allPermissions.Where(pKey => !existingPermissions.Any(p => p.Key == pKey)).Select(pKey => new Permission { Name = pKey, Key = pKey, Description = "Sistem tarafından otomatik oluşturuldu." }).ToList();
         if (missingPermissions.Count > 0)
         {
             _context.Permissions.AddRange(missingPermissions);
             existingPermissions.AddRange(missingPermissions);
+        }
+        await _context.SaveChangesAsync();
+        
+        // Add default descriptions to permissions if missing
+        var permDescriptions = new Dictionary<string, string>
+        {
+            { "ticket.create", "Yeni bilet oluşturma yetkisi sağlar." },
+            { "ticket.view", "Tüm biletleri veya yetkili olunan biletleri görüntüleme yetkisi sağlar." },
+            { "ticket.edit", "Bilet detaylarını düzenleme yetkisi sağlar." },
+            { "ticket.assign", "Biletleri kişilere veya gruplara atama yetkisi sağlar." },
+            { "ticket.transfer", "Biletleri farklı projelere veya departmanlara transfer etme yetkisi sağlar." },
+            { "ticket.resolve", "Biletleri çözüldü olarak işaretleme yetkisi sağlar." },
+            { "ticket.close", "Çözülmüş biletleri tamamen kapatma yetkisi sağlar." },
+            { "ticket.reopen", "Kapanmış biletleri yeniden açma yetkisi sağlar." },
+            { "ticket.comment", "Biletlere yorum ekleme yetkisi sağlar." },
+            { "ticket.comment.internal", "Biletlere sadece personelin görebileceği iç not (internal note) ekleme yetkisi sağlar." },
+            { "ticket.comment.edit", "Biletlerdeki yorumları düzenleme yetkisi sağlar." },
+            { "ticket.comment.reply", "Biletlerdeki yorumlara cevap verme yetkisi sağlar." },
+            { "ticket.comment.delete", "Biletlerdeki yorumları silme yetkisi sağlar." },
+            { "report.view", "Sistem raporlarını ve analitikleri görüntüleme yetkisi sağlar." },
+            { "admin.manage", "Sistem genelinde tam yetkili (SuperAdmin) yönetici hakları sağlar." },
+            { "config.manage", "Sistem yapılandırmalarını, kuralları ve webhook'ları yönetme yetkisi sağlar." },
+            { "sla.manage", "SLA (Hizmet Seviyesi) politikalarını yönetme yetkisi sağlar." },
+            { "audit.view", "Sistem denetim kayıtlarını (Audit Logs) görüntüleme yetkisi sağlar." },
+            { "kb.manage", "Bilgi bankası makalelerini oluşturma ve düzenleme yetkisi sağlar." },
+            { "kb.view", "Bilgi bankası makalelerini okuma yetkisi sağlar." },
+            { "survey.submit", "Müşteri memnuniyet anketlerini doldurma yetkisi sağlar." },
+            { "user.manage", "Kullanıcıları ve rolleri yönetme yetkisi sağlar." }
+        };
+        
+        foreach (var ep in existingPermissions)
+        {
+            if (string.IsNullOrEmpty(ep.Description) && permDescriptions.ContainsKey(ep.Key))
+            {
+                ep.Description = permDescriptions[ep.Key];
+            }
         }
         await _context.SaveChangesAsync();
 

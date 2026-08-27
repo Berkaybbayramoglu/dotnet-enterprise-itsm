@@ -27,8 +27,7 @@ public static class TicketQueryHelpers
                     .Select(gm => gm.GroupId)
                     .ToListAsync();
 
-                return query.Where(t => t.AssignedUserId == userId || 
-                                        (t.AssignedGroupId.HasValue && userGroupIds.Contains(t.AssignedGroupId.Value)) ||
+                return query.Where(t => t.Assignments.Any(a => a.IsActive && (a.AssignedUserId == userId || (a.AssignedGroupId.HasValue && userGroupIds.Contains(a.AssignedGroupId.Value)))) ||
                                         t.RequesterUserId == userId);
             }
             return query.Where(t => t.RequesterUserId == userId);
@@ -43,7 +42,7 @@ public static class TicketQueryHelpers
         if (filter.TypeId.HasValue) query = query.Where(t => t.TypeId == filter.TypeId.Value);
         if (filter.StatusId.HasValue) query = query.Where(t => t.StatusId == filter.StatusId.Value);
         if (filter.PriorityId.HasValue) query = query.Where(t => t.PriorityId == filter.PriorityId.Value);
-        if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.AssignedUserId == filter.AssigneeUserId.Value);
+        if (filter.AssigneeUserId.HasValue) query = query.Where(t => t.Assignments.Any(a => a.IsActive && a.AssignedUserId == filter.AssigneeUserId.Value));
         if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
         if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
         if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);

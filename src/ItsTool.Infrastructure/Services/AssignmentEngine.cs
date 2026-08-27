@@ -30,10 +30,16 @@ public class AssignmentEngine : IAssignmentEngine
             if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) continue;
             if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) continue;
 
-            // Match found!
-            ticket.AssignedGroupId = rule.TargetGroupId;
-            ticket.AssignedUserId = rule.TargetUserId;
-            
+            if (rule.TargetGroupId.HasValue || rule.TargetUserId.HasValue)
+            {
+                ticket.Assignments.Add(new TicketAssignment 
+                { 
+                    TicketId = ticket.Id, 
+                    AssignedGroupId = rule.TargetGroupId, 
+                    AssignedUserId = rule.TargetUserId,
+                    AssignedByUserId = ticket.RequesterUserId
+                });
+            }
             // Mark the ticket as assigned in the system implicitly
             return;
         }

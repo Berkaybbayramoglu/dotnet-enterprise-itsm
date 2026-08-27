@@ -142,6 +142,116 @@ export function closeModal(modalId) {
     }
 }
 
+
+export function showAssigneesModal(encodedData) {
+    let data;
+    try {
+        data = JSON.parse(decodeURIComponent(encodedData));
+    } catch(e) {
+        console.error("Failed to parse assignees data", e);
+        return;
+    }
+
+    let modalId = 'assigneesModal';
+    let overlay = document.getElementById(modalId);
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = modalId;
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+            <div class="modal" style="width: min(450px, 95%); padding: 0; overflow: hidden;">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: var(--spacing-md) var(--spacing-lg); background: var(--bg-hover);">
+                    <h2 style="font-size: 16px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--primary)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        Atananlar Listesi
+                    </h2>
+                    <button type="button" class="close-btn" onclick="closeModal('${modalId}')" aria-label="Close" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body" id="${modalId}-body" style="padding: 0; max-height: 400px; overflow-y: auto;">
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    
+    const body = document.getElementById(`${modalId}-body`);
+    if (data.length === 0) {
+        body.innerHTML = `<div style="padding: var(--spacing-xl); text-align: center; color: var(--text-muted);">Bu kayda kimse atanmamış.</div>`;
+    } else {
+        const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+                const listHtml = data.map(item => {
+            const isUser = item.type === 'user';
+            const isSub = item.isSubItem;
+            
+            const iconSize = isSub ? 28 : 36;
+            const iconFontSize = isSub ? 12 : 14;
+            
+            const icon = isUser 
+                ? `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${escapeHtml(item.initial)}</div>`
+                : `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                     <svg viewBox="0 0 24 24" width="${isSub?14:18}" height="${isSub?14:18}" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                   </div>`;
+                   
+            const extraInfo = isUser ? `<div style="font-size: ${isSub?11:12}px; color: var(--text-muted);">${escapeHtml(item.email)}</div>` : `<div style="font-size: ${isSub?11:12}px; color: var(--text-muted);">Ekip</div>`;
+            const badge = isUser ? `<span class="badge badge-info" style="font-size: 10px;">Kullanıcı</span>` : `<span class="badge badge-warning" style="font-size: 10px;">Ekip</span>`;
+            
+            const paddingLeft = isSub ? 'var(--spacing-xl)' : 'var(--spacing-lg)';
+            const borderLeft = isSub ? '3px solid rgba(var(--primary-rgb), 0.3)' : '3px solid transparent';
+            const bgColor = isSub ? 'rgba(0,0,0,0.015)' : 'transparent';
+            
+            return `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); background: ${bgColor}; transition: background 0.2s; cursor: default;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
+                    <div style="display: flex; align-items: center; gap: ${isSub?8:12}px;">
+                        ${icon}
+                        <div>
+                            <div style="font-weight: 500; font-size: ${isSub?13:14}px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                                ${escapeHtml(item.name)}
+                                ${!isSub ? badge : ''}
+                            </div>
+                            ${extraInfo}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        body.innerHTML = listHtml;
+    }
+
+    openModal(modalId);
+}
+
+export function showInfoModal(title, text) {
+    let modalId = 'globalInfoModal';
+    let overlay = document.getElementById(modalId);
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = modalId;
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+            <div class="modal" style="width: min(400px, 90%);">
+                <div class="modal-header">
+                    <h2 id="${modalId}-title">Info</h2>
+                    <button type="button" class="close-btn" onclick="closeModal('${modalId}')" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="${modalId}-text" style="font-size: 14px; line-height: 1.5; color: var(--text-main); white-space: pre-wrap;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="closeModal('${modalId}')">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    document.getElementById(`${modalId}-title`).textContent = title;
+    document.getElementById(`${modalId}-text`).textContent = text;
+    openModal(modalId);
+}
+
 export function bindShellActions() {
     const logoutBtn = document.getElementById('shellLogoutBtn');
     if (logoutBtn) {
@@ -211,10 +321,22 @@ export function bindShellActions() {
                         
                         let overrides = me.overrides || [];
                         
+                        let allPermsDef = [];
+                        try {
+                            allPermsDef = await window.api.request('/permissions');
+                        } catch(e) { console.warn('Could not load permission definitions', e); }
+                        
                         let permsHtml = perms.map(p => {
                             const isOverride = overrides.includes(p);
-                            return `<div style="font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
-                                <span>${p}</span>
+                            const def = allPermsDef.find(x => x.key === p);
+                            const desc = def && def.description ? escapeHtml(def.description) : 'Açıklama bulunmuyor.';
+                            return `<div style="font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span>${p}</span>
+                                    <span style="cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replace(/'/g, "\\'")}')">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                                    </span>
+                                </div>
                                 ${isOverride ? '<span class="badge badge-warning" style="font-size:10px; padding:2px 4px;">override</span>' : ''}
                             </div>`;
                         }).join('');
@@ -316,6 +438,14 @@ export function bindShellActions() {
             if (auditLink) auditLink.style.display = 'none';
         }
     }
+
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.showToast = showToast;
+    window.showUndoToast = showUndoToast;
+    window.openTicketPreview = openTicketPreview;
+    window.showInfoModal = showInfoModal;
+    window.showAssigneesModal = showAssigneesModal;
 }
 
 export function openTicketPreview(t, lookupData) {
@@ -387,11 +517,6 @@ export function openTicketPreview(t, lookupData) {
     document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${t.id}`;
     openModal('previewModal');
 }
-
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.showToast = showToast;
-window.showUndoToast = showUndoToast;
 
 window.ui = {
     escapeHtml,

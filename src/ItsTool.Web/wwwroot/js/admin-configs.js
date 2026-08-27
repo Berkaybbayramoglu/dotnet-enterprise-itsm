@@ -119,6 +119,30 @@ export const adminConfigs = {
                 <input type="checkbox" id="rActive" checked>
                 <label class="form-label" for="rActive" style="margin: 0;">Is Active</label>
             </div>`
+    },
+    permissions: {
+        endpoint: '/Permissions', pageTitle: 'Permissions',
+        modalId: 'permModal', createTitle: 'New Permission', auditSafeDelete: true,
+        formFields: { id: 'pId', map: { 'name': 'pName', 'key': 'pKey', 'description': 'pDesc' } },
+        columns: [
+            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'key', label: 'Key', render: (item) => `<span class="badge badge-primary">${window.ui?.escapeHtml(item.key || '')}</span>` },
+            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
+            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
+        ],
+        formHtml: `
+            <div class="form-group">
+                <label class="form-label" for="pKey">Key (Code) *</label>
+                <input id="pKey" class="form-control" required placeholder="e.g. ticket.view">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="pName">Name *</label>
+                <input id="pName" class="form-control" required placeholder="e.g. View Tickets">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="pDesc">Description</label>
+                <textarea id="pDesc" class="form-control" rows="3" placeholder="Explain what this permission allows..."></textarea>
+            </div>`
     }
 };
 
