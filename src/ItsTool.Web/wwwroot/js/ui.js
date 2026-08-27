@@ -202,7 +202,16 @@ export function showAssigneesModal(encodedData) {
 
         const listHtml = data.map(item => {
             const isUser = item.type === 'user';
+            const isEmpty = item.type === 'empty';
+            const isGroup = item.type === 'group';
             const isSub = item.isSubItem;
+            
+            if (isEmpty) {
+                return `
+                <div class="assignee-subitem-for-${item.parentGroupId}" style="display: none; align-items: center; padding: var(--spacing-md) var(--spacing-xl); padding-left: 56px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
+                    <div style="font-size: 13px; color: var(--text-muted); font-style: italic;">Bu grupta kayıtlı kullanıcı bulunmuyor.</div>
+                </div>`;
+            }
             
             const iconSize = isSub ? 28 : 36;
             const iconFontSize = isSub ? 12 : 14;
@@ -222,10 +231,9 @@ export function showAssigneesModal(encodedData) {
             
             const nestingArrow = isSub ? `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: var(--text-muted); opacity: 0.6; margin-right: 4px; margin-left: -8px;"><path d="M19 15l-6 6-1.42-1.42L15.17 17H5V5h2v10h8.17l-3.59-3.58L13 10l6 6z"/></svg>` : '';
             
-            const hasSub = !isSub && !isUser && data.some(d => d.isSubItem && d.parentGroupId === item.id);
-            const toggleIcon = hasSub ? `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>` : '';
-            const onClickAttr = hasSub ? `onclick="window.toggleAssigneeGroup(${item.id}, this)"` : '';
-            const cursorAttr = hasSub ? 'cursor: pointer;' : 'cursor: default;';
+            const toggleIcon = isGroup ? `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>` : '';
+            const onClickAttr = isGroup ? `onclick="window.toggleAssigneeGroup(${item.id}, this)"` : '';
+            const cursorAttr = isGroup ? 'cursor: pointer;' : 'cursor: default;';
             const displayAttr = isSub ? 'display: none;' : 'display: flex;';
             const classAttr = isSub ? `class="assignee-subitem-for-${item.parentGroupId}"` : '';
             

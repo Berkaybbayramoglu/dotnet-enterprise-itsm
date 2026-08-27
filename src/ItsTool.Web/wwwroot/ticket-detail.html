@@ -487,60 +487,89 @@
                     if (activeAssignments.length === 0) {
                         assignHTML = '<span class="text-muted">No active assignments</span>';
                     } else {
-                        // Group by department
+                        // Group by department then group
                         const grouped = {};
-                        const resolveDeptId = (a) => {
+                        
+                        // First, categorize all active assignments
+                        activeAssignments.forEach(a => {
+                            if (a.groupId) {
+                                const g = globalGroups.find(x => x.id === a.groupId);
+                                const dId = g?.departmentId || 'none';
+                                if (!grouped[dId]) grouped[dId] = { groups: {}, usersWithoutGroup: [] };
+                                if (!grouped[dId].groups[a.groupId]) grouped[dId].groups[a.groupId] = { groupData: g, users: [] };
+                            }
+                        });
+                        
+                        activeAssignments.forEach(a => {
                             if (a.userId) {
                                 const u = users.find(x => x.id === a.userId);
-                                return u?.departmentId || 'none';
-                            } else if (a.groupId) {
-                                const g = globalGroups.find(x => x.id === a.groupId);
-                                return g?.departmentId || 'none';
+                                const dId = u?.departmentId || 'none';
+                                if (!grouped[dId]) grouped[dId] = { groups: {}, usersWithoutGroup: [] };
+                                
+                                // Try to place under an assigned group if user belongs to it
+                                let placedInGroup = false;
+                                if (u?.groupIds && u.groupIds.length > 0) {
+                                    for (let gId of u.groupIds) {
+                                        if (grouped[dId].groups[gId]) {
+                                            grouped[dId].groups[gId].users.push(u);
+                                            placedInGroup = true;
+                                            break; // Place in the first matching assigned group
+                                        }
+                                    }
+                                }
+                                
+                                if (!placedInGroup) {
+                                    grouped[dId].usersWithoutGroup.push(u);
+                                }
                             }
-                            return 'none';
-                        };
-
-                        activeAssignments.forEach(a => {
-                            const deptId = resolveDeptId(a);
-                            if (!grouped[deptId]) grouped[deptId] = [];
-                            grouped[deptId].push(a);
                         });
 
                         const deptsLookup = typeof globalLookup !== 'undefined' && globalLookup.departments ? globalLookup.departments : [];
 
-                            let deptBlocks = [];
-                            for (const [deptId, assigns] of Object.entries(grouped)) {
-                                let deptName = 'No Department';
-                                if (deptId !== 'none') {
-                                    const d = deptsLookup.find(x => x.id == deptId);
-                                    if (d) deptName = d.name;
-                                }
-
-                                let blockHtml = '';
-                                blockHtml += `<div class="assignee-dept-block" style="margin-bottom: 8px; margin-left: 0 !important; padding-left: 0 !important; border: none;">`;
-                                blockHtml += `  <div class="d-flex align-items-center gap-sm" style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">`;
-                                blockHtml += `      <svg viewBox="0 0 24 24" width="14" height="14" style="fill:currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
-                                blockHtml += `      ${escapeHtml(deptName)}`;
-                                blockHtml += `  </div>`;
-                                blockHtml += `  <div style="padding-left: 16px; display: flex; flex-direction: column; gap: 4px;">`;
-
-                                assigns.forEach(a => {
-                                    if (a.userId) {
-                                        const u = users.find(x => x.id === a.userId);
-                                        const uName = u ? (u.firstName + ' ' + u.lastName) : 'Unknown User';
-                                        blockHtml += `      <div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${a.userId})">${getAvatar(a.userId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></div>`;
-                                    } else if (a.groupId) {
-                                        const g = globalGroups.find(x => x.id === a.groupId);
-                                        const gName = g ? g.name : 'Unknown Group';
-                                        blockHtml += `      <div class="d-flex align-items-center gap-sm" style="font-size: 13px;"><svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span style="font-weight:500; color:var(--text-main);">${escapeHtml(gName)}</span></div>`;
-                                    }
-                                });
-
-                                blockHtml += `  </div>`;
-                                blockHtml += `</div>`;
-                                deptBlocks.push(blockHtml);
+                        let deptBlocks = [];
+                        for (const [deptId, deptData] of Object.entries(grouped)) {
+                            let deptName = 'No Department';
+                            if (deptId !== 'none') {
+                                const d = deptsLookup.find(x => x.id == deptId);
+                                if (d) deptName = d.name;
                             }
-                            assignHTML = deptBlocks.join('');
+
+                            let blockHtml = '';
+                            blockHtml += `<div class="assignee-dept-block" style="margin-bottom: 8px; margin-left: 0 !important; padding-left: 0 !important; border: none;">`;
+                            blockHtml += `  <div class="d-flex align-items-center gap-sm" style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">`;
+                            blockHtml += `      <svg viewBox="0 0 24 24" width="14" height="14" style="fill:currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`;
+                            blockHtml += `      ${escapeHtml(deptName)}`;
+                            blockHtml += `  </div>`;
+                            blockHtml += `  <div style="padding-left: 16px; display: flex; flex-direction: column; gap: 4px;">`;
+
+                            // Render Groups and their users
+                            for (const [gId, gData] of Object.entries(deptData.groups)) {
+                                const gName = gData.groupData ? gData.groupData.name : 'Unknown Group';
+                                blockHtml += `      <div class="d-flex align-items-center gap-sm" style="font-size: 13px;"><svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span style="font-weight:500; color:var(--text-main);">${escapeHtml(gName)}</span></div>`;
+                                
+                                if (gData.users.length > 0) {
+                                    blockHtml += `<div style="padding-left: 20px; display: flex; flex-direction: column; gap: 4px; margin-top: 2px;">`;
+                                    gData.users.forEach(u => {
+                                        const uName = u ? (u.firstName + ' ' + u.lastName) : 'Unknown User';
+                                        const uId = u ? u.id : 0;
+                                        blockHtml += `      <div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${uId})">${getAvatar(uId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></div>`;
+                                    });
+                                    blockHtml += `</div>`;
+                                }
+                            }
+
+                            // Render standalone users
+                            deptData.usersWithoutGroup.forEach(u => {
+                                const uName = u ? (u.firstName + ' ' + u.lastName) : 'Unknown User';
+                                const uId = u ? u.id : 0;
+                                blockHtml += `      <div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${uId})">${getAvatar(uId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></div>`;
+                            });
+
+                            blockHtml += `  </div>`;
+                            blockHtml += `</div>`;
+                            deptBlocks.push(blockHtml);
+                        }
+                        assignHTML = deptBlocks.join('');
                         }
                 } else {
                     assignHTML = '<span class="text-muted">Unassigned</span>';
@@ -568,11 +597,11 @@
                             html += `
                                 <li style="margin-bottom: 8px;">
                                     <div style="display:flex; align-items:center; gap:8px; font-weight:600; padding:6px; background:var(--bg-hover); border-radius:4px; cursor:pointer;" onclick="const ul = this.nextElementSibling; ul.style.display = ul.style.display === 'none' ? 'block' : 'none'; const svg = this.querySelector('.dept-chevron'); svg.style.transform = ul.style.display === 'none' ? '' : 'rotate(90deg)';">
-                                        <svg class="dept-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s; transform: rotate(90deg);"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                                        <svg class="dept-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
                                         <svg viewBox="0 0 24 24" width="16" height="16" style="fill:${d.color || 'currentColor'};"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
                                         ${escapeHtml(d.name)}
                                     </div>
-                                    <ul style="list-style:none; padding-left:24px; margin-top:8px; display:block;">
+                                    <ul style="list-style:none; padding-left:24px; margin-top:8px; display:none;">
                             `;
                             
                             const dGroups = grps.filter(g => g.departmentId === d.id);
@@ -1132,10 +1161,13 @@
                         
                         const div = document.createElement('div');
                         const h = e.data;
-                        if(h.action !== 'CommentAdded' && h.action !== 'InternalNoteAdded' && h.action !== 'CommentReplied') {
+                        let text = '';
+                        const isCommentLogOnly = h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied';
+                        
+                        if (!isCommentLogOnly) {
                             div.className = 'history-event';
                             div.id = `history-${h.id}`;
-                            let text = `${h.action} <strong>${h.fieldName || ''}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em>`;
+                            text = `${h.action} <strong>${h.fieldName || ''}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em>`;
                             
                             if (h.action === 'Assigned' && h.fieldName === 'AssignedUserId') {
                                 text = `assigned this ticket to <strong>${resolveUser(h.newValue)}</strong> (was ${resolveUser(h.oldValue)})`;
@@ -1173,16 +1205,19 @@
                                 text = `edited a comment`;
                             } else if (h.action === 'CommentDeleted') {
                                 text = `deleted a comment`;
-                            } else if (h.action === 'CommentReplied') {
+                            }
+                            div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${resolveUser(h.createdBy)}</strong> ${text} at ${new Date(e.timestamp).toLocaleString()}`;
+                        } else {
+                            if (h.action === 'CommentReplied') {
                                 text = `replied to a comment`;
                             } else if (h.action === 'CommentAdded') {
                                 text = `added a comment`;
                             } else if (h.action === 'InternalNoteAdded') {
                                 text = `added an internal note`;
                             }
-                            div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${resolveUser(h.createdBy)}</strong> ${text} at ${new Date(e.timestamp).toLocaleString()}`;
-                            
-                            if (h.action === 'CommentEdited' || h.action === 'CommentDeleted' || h.action === 'CommentAdded' || h.action === 'CommentReplied' || h.action === 'InternalNoteAdded') {
+                        }
+                        
+                        if (h.action === 'CommentEdited' || h.action === 'CommentDeleted' || isCommentLogOnly) {
                                 let detailsHtml = '';
                                 
                                 if (h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied') {
@@ -1232,7 +1267,6 @@
                                 commentLogsList.appendChild(logDiv);
                             } else {
                                 if(div.innerHTML) historyList.appendChild(div);
-                            }
                         }
                     }
                 });
@@ -1263,6 +1297,26 @@
                             target.style.transition = 'box-shadow 0.5s';
                             target.style.boxShadow = '0 0 0 4px var(--primary-light)';
                             setTimeout(() => { target.style.boxShadow = 'none'; }, 3000);
+                        }
+                    }, 500);
+                }
+
+                const focusTarget = urlParams.get('focus');
+                if (focusTarget === 'properties') {
+                    setTimeout(() => {
+                        const target = document.getElementById('sidebarPanelContent');
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            target.style.transition = 'box-shadow 0.5s';
+                            target.style.boxShadow = '0 0 0 4px var(--primary-light)';
+                            target.style.borderRadius = 'var(--radius-md)';
+                            setTimeout(() => { target.style.boxShadow = 'none'; }, 3000);
+                        }
+                    }, 500);
+                } else if (focusTarget === 'assign') {
+                    setTimeout(() => {
+                        if (typeof window.openAssignModal === 'function') {
+                            window.openAssignModal();
                         }
                     }, 500);
                 }

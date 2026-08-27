@@ -50,9 +50,12 @@
                         <h3 style="margin:0; font-size: 18px;">Users</h3>
                         <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;">Manage system users and access.</p>
                     </div>
-                    <button type="button" class="btn btn-primary" data-action="openUserModal">
-                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New User
-                    </button>
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <input type="search" id="userSearchInput" class="form-control" placeholder="Search users..." style="width: 250px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px;">
+                        <button type="button" class="btn btn-primary" data-action="openUserModal">
+                            <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> New User
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -230,6 +233,52 @@
         let itemToDelete = null;
         let activeUserId = null;
 
+        window.renderUsersTable = function(data) {
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No users found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                const badge = item.isActive ? `<span class="badge badge-success" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="false">Active</span>` : `<span class="badge badge-default" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="true">Inactive</span>`;
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">
+                        ${item.profilePhoto ? `<img src="${item.profilePhoto}" class="mini-avatar" alt="Avatar">` : `<div class="mini-avatar">${item.firstName.charAt(0).toUpperCase()}</div>`}
+                        ${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}
+                    </td>
+                    <td>${escapeHtml(item.username)}</td>
+                    <td class="text-muted">${escapeHtml(item.email)}</td>
+                    <td>${badge}</td>
+                    <td>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">Roles</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">Overrides</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">Edit</button>
+                        <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if (!term) {
+                renderUsersTable(currentData);
+                return;
+            }
+            const filtered = currentData.filter(item => {
+                return (item.firstName?.toLowerCase().includes(term) ||
+                        item.lastName?.toLowerCase().includes(term) ||
+                        item.username?.toLowerCase().includes(term) ||
+                        item.email?.toLowerCase().includes(term));
+            });
+            renderUsersTable(filtered);
+        });
+
         window.loadData = async function() {
             try {
                 currentData = await window.api.getUsers();
@@ -237,34 +286,8 @@
                 try { allPermissions = await window.api.getPermissions(); } catch (e) { console.error('Failed to load perms', e); }
                 try { allDepartments = await window.api.request('/Departments'); } catch (e) { console.error('Failed to load departments', e); }
                 try { allGroups = await window.api.request('/Groups'); } catch (e) { console.error('Failed to load groups', e); }
-                const tbody = document.querySelector('#dataTable tbody');
-                tbody.innerHTML = '';
                 
-                if (currentData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">No users found.</td></tr>`;
-                    return;
-                }
-
-                currentData.forEach(item => {
-                    const tr = document.createElement('tr');
-                    const badge = item.isActive ? `<span class="badge badge-success" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="false">Active</span>` : `<span class="badge badge-default" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="true">Inactive</span>`;
-                    tr.innerHTML = `
-                        <td style="font-weight: 500;">
-                            ${item.profilePhoto ? `<img src="${item.profilePhoto}" class="mini-avatar" alt="Avatar">` : `<div class="mini-avatar">${item.firstName.charAt(0).toUpperCase()}</div>`}
-                            ${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}
-                        </td>
-                        <td>${escapeHtml(item.username)}</td>
-                        <td class="text-muted">${escapeHtml(item.email)}</td>
-                        <td>${badge}</td>
-                        <td>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">Roles</button>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">Overrides</button>
-                            <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">Edit</button>
-                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">Del</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                renderUsersTable(currentData);
             } catch (err) { console.error(err); 
                 let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
                 if (errEl) {

@@ -16,9 +16,9 @@ public record ProjectDto(int Id, string Name, string ProjectKey, string? Descrip
 public record CreateProjectDto(string Name, string ProjectKey, string? Description);
 public record UpdateProjectDto(string Name, string ProjectKey, string? Description, string Status);
 
-public record RoleDto(int Id, string Name, string? Description, bool IsActive);
-public record CreateRoleDto(string Name, string? Description);
-public record UpdateRoleDto(string Name, string? Description, bool IsActive);
+public record RoleDto(int Id, string Name, string? Description, bool IsActive, string[]? Permissions);
+public record CreateRoleDto(string Name, string? Description, string[]? Permissions);
+public record UpdateRoleDto(string Name, string? Description, bool IsActive, string[]? Permissions);
 
 public record PermissionDto(int Id, string Name, string Key, string? Description);
 public record CreatePermissionDto(string Name, string Key, string? Description);

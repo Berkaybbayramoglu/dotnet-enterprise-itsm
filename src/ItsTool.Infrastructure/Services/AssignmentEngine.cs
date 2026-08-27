@@ -30,15 +30,30 @@ public class AssignmentEngine : IAssignmentEngine
             if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) continue;
             if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) continue;
 
-            if (rule.TargetGroupId.HasValue || rule.TargetUserId.HasValue)
+            if (rule.TargetGroupId.HasValue)
             {
-                ticket.Assignments.Add(new TicketAssignment 
+                var groupAssignment = new TicketAssignment 
                 { 
                     TicketId = ticket.Id, 
                     AssignedGroupId = rule.TargetGroupId, 
+                    AssignedByUserId = ticket.RequesterUserId,
+                    IsActive = true
+                };
+                ticket.Assignments.Add(groupAssignment);
+                _context.Set<TicketAssignment>().Add(groupAssignment);
+            }
+
+            if (rule.TargetUserId.HasValue)
+            {
+                var userAssignment = new TicketAssignment 
+                { 
+                    TicketId = ticket.Id, 
                     AssignedUserId = rule.TargetUserId,
-                    AssignedByUserId = ticket.RequesterUserId
-                });
+                    AssignedByUserId = ticket.RequesterUserId,
+                    IsActive = true
+                };
+                ticket.Assignments.Add(userAssignment);
+                _context.Set<TicketAssignment>().Add(userAssignment);
             }
             // Mark the ticket as assigned in the system implicitly
             return;

@@ -6,7 +6,10 @@ export function initCrudPage(cfg) {
     root.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
             <h1 style="font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0;">${pageTitle}</h1>
-            <button class="btn btn-primary" onclick="window.openCrudModal()">+ New ${pageTitle}</button>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <input type="search" id="crudSearchInput" class="form-control" placeholder="Search..." style="width: 250px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px;">
+                <button class="btn btn-primary" onclick="window.openCrudModal()">+ New ${pageTitle}</button>
+            </div>
         </div>
         <div class="card" style="padding: 0;">
             <div style="overflow-x: auto;">
@@ -49,6 +52,26 @@ export function initCrudPage(cfg) {
     const form = document.getElementById(`${modalId}Form`);
     const modalTitleEl = document.getElementById(`${modalId}Title`);
     let currentData = [];
+
+    const searchInput = document.getElementById('crudSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if (!term) {
+                renderTable(currentData);
+                return;
+            }
+            const filtered = currentData.filter(item => {
+                return columns.some(col => {
+                    // Skip checking boolean fields or objects directly if possible, stringify standard keys
+                    const val = item[col.key];
+                    if (val == null) return false;
+                    return String(val).toLowerCase().includes(term);
+                });
+            });
+            renderTable(filtered);
+        });
+    }
 
     // Helper: renderTable
     const buildCellHtml = (item, col) => {

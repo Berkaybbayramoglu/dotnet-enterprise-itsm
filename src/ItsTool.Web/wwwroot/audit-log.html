@@ -214,6 +214,8 @@
                             deepLink += `&commentId=${cid}`;
                         } else if (a.action === 'CommentDeleted') {
                             deepLink += `&historyId=${a.id}`;
+                        } else if (a.action === 'ASSIGNED' || a.fieldName === 'Assignments' || a.fieldName === 'AssignedUserId' || a.fieldName === 'AssignedGroupId') {
+                            deepLink += `&focus=assign`;
                         }
                     }
                     else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;

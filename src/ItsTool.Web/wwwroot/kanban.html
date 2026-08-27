@@ -229,10 +229,14 @@
                                     details.push({ type: 'group', id: a.groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
                                     
                                     const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
-                                    groupMembers.forEach(mu => {
-                                        const muName = mu.firstName + ' ' + mu.lastName;
-                                        details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
-                                    });
+                                    if (groupMembers.length > 0) {
+                                        groupMembers.forEach(mu => {
+                                            const muName = mu.firstName + ' ' + mu.lastName;
+                                            details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
+                                        });
+                                    } else {
+                                        details.push({ type: 'empty', id: 0, name: '', email: '', initial: '', isSubItem: true, parentGroupId: a.groupId });
+                                    }
                                 }
                             });
                             assigneeDetails = details;
@@ -248,6 +252,7 @@
                         card.draggable = true;
                         card.ondragstart = window.drag;
                         card.dataset.id = t.id;
+                        card.id = 'ticket-' + t.id;
                         card.onclick = (e) => {
                             if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
                             if (typeof window.openTicketPreview === 'function') {

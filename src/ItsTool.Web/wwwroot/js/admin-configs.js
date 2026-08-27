@@ -210,6 +210,54 @@ export const adminConfigs = {
         endpoint: '/Roles', pageTitle: 'Roles',
         modalId: 'roleModal', createTitle: 'New Role', auditSafeDelete: true,
         formFields: { id: 'rId', map: { 'name': 'rName', 'description': 'rDesc', 'permissions': 'rPerms', 'isActive': 'rActive' } },
+        onModalOpen: async (id) => {
+            const container = document.getElementById('rPermsContainer');
+            if (container && container.dataset.loaded !== 'true') {
+                container.innerHTML = '<div style="font-size: 13px; color: var(--text-muted);">Loading permissions...</div>';
+                try {
+                    const perms = (await window.api.request('/Permissions')) || [];
+                    container.innerHTML = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; max-height: 200px; overflow-y: auto; padding-right: 8px;">` + perms.map(p => `
+                        <div style="display: flex; align-items: flex-start; gap: 8px; padding: 4px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" id="perm_${p.key}" class="perm-checkbox" value="${p.key}" style="margin-top: 2px;" onchange="updateHiddenPerms()">
+                            <label for="perm_${p.key}" style="margin: 0; font-size: 13px; cursor: pointer; display: flex; flex-direction: column;">
+                                <span style="font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(p.name)}</span>
+                                <span style="font-size: 11px; color: var(--text-muted); line-height: 1.2;">${window.ui?.escapeHtml(p.description || p.key)}</span>
+                            </label>
+                        </div>
+                    `).join('') + `</div>`;
+                    container.dataset.loaded = 'true';
+                    
+                    window.updateHiddenPerms = function() {
+                        const checked = Array.from(document.querySelectorAll('.perm-checkbox:checked')).map(cb => cb.value);
+                        document.getElementById('rPerms').value = checked.join(', ');
+                    };
+                } catch(err) {
+                    console.error(err);
+                    container.innerHTML = '<div style="color: var(--danger); font-size: 13px;">Error loading permissions.</div>';
+                }
+            }
+            
+            // Sync checkboxes based on current data
+            setTimeout(() => {
+                const currentPermsStr = document.getElementById('rPerms').value || '';
+                const currentPerms = currentPermsStr.split(',').map(s => s.trim()).filter(s => s);
+                console.log("rPerms is: ", currentPermsStr); document.querySelectorAll('.perm-checkbox').forEach(cb => {
+                    cb.checked = currentPerms.includes(cb.value);
+                });
+            }, 50);
+        },
+        onSave: async (payload, id) => {
+            if (typeof payload.permissions === 'string') {
+                payload.permissions = payload.permissions.split(',').map(s => s.trim()).filter(Boolean);
+            }
+            if (!payload.permissions) payload.permissions = [];
+            
+            if (id) {
+                await window.api.request(`/Roles/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            } else {
+                await window.api.request(`/Roles`, { method: 'POST', body: JSON.stringify(payload) });
+            }
+        },
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
             { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
@@ -226,8 +274,9 @@ export const adminConfigs = {
                 <textarea id="rDesc" class="form-control" rows="2"></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label" for="rPerms">Permissions (Comma separated)</label>
-                <input id="rPerms" class="form-control" placeholder="e.g. ticket.view, ticket.manage">
+                <label class="form-label">Permissions</label>
+                <div id="rPermsContainer" style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--spacing-sm); background: rgba(0,0,0,0.01);"></div>
+                <input type="hidden" id="rPerms">
             </div>
             <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                 <input type="checkbox" id="rActive" checked>
