@@ -88,8 +88,9 @@ public class AuditLogController : ControllerBase
                 h.NewValue,
                 h.CreatedBy ?? "system",
                 h.CreatedAt,
-                null,
-                null
+                "Ticket",
+                "ITS-" + h.TicketId,
+                h.TicketId.ToString()
             ))
             .ToListAsync();
 
@@ -108,6 +109,7 @@ public class AuditLogController : ControllerBase
                     h.NewValue,
                     h.CreatedBy ?? "system",
                     h.CreatedAt,
+                    h.EntityType,
                     h.EntityName,
                     h.EntityId
                 ))

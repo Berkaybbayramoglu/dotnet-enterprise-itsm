@@ -234,6 +234,17 @@
                 if(currentTicket.groupId) gSelect.value = currentTicket.groupId;
 
                 openModal('transferModal');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId === 'true') {
+                    setTimeout(() => {
+                        const header = document.querySelector('.content-area');
+                        if (header) {
+                            header.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
             } catch (e) { console.error(e); 
                 showToast('Failed to load transfer data', 'error');
              }
@@ -298,7 +309,18 @@
                 try { 
                     lookup = await window.api.getLookup(); 
                     users = await window.api.getUsers();
-                } catch (e) { console.error(e);  console.warn('Lookup failed', e);  }
+    
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId === 'true') {
+                    setTimeout(() => {
+                        const header = document.querySelector('.content-area');
+                        if (header) {
+                            header.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
+            } catch (e) { console.error(e);  console.warn('Lookup failed', e);  }
 
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 currentTicket = t;
@@ -341,7 +363,18 @@
                         await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(Number(selectedUserId)) });
                         showToast('Assigned successfully');
                         window.location.reload();
-                    } catch (e) { console.error(e);  showToast('Assign failed', 'error');  }
+        
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId === 'true') {
+                    setTimeout(() => {
+                        const header = document.querySelector('.content-area');
+                        if (header) {
+                            header.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
+            } catch (e) { console.error(e);  showToast('Assign failed', 'error');  }
                 };
 
                 try {
@@ -368,6 +401,17 @@
 
                 document.getElementById('content').style.display = 'grid';
                 loadTimeline();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId === 'true') {
+                    setTimeout(() => {
+                        const header = document.querySelector('.content-area');
+                        if (header) {
+                            header.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
             } catch (e) { console.error(e); 
                 let errEl = document.querySelector('tbody') || document.querySelector('.content-area');
                 if (errEl) {
@@ -395,7 +439,18 @@
                         const depts = await window.api.request('/Departments');
                         const d = depts.find(x => x.id === user.departmentId);
                         if (d) deptName = d.name;
-                    } catch (e) { console.error(e); }
+        
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId === 'true') {
+                    setTimeout(() => {
+                        const header = document.querySelector('.content-area');
+                        if (header) {
+                            header.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
+            } catch (e) { console.error(e); }
                 }
                 document.getElementById('aModalDept').textContent = deptName;
                 document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';

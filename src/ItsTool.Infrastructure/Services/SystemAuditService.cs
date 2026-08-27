@@ -19,12 +19,13 @@ public class SystemAuditService : ISystemAuditService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task LogAuditAsync(string entityName, string entityId, string action, string? fieldName = null, string? oldValue = null, string? newValue = null)
+    public async Task LogAuditAsync(string entityType, string entityName, string entityId, string action, string? fieldName = null, string? oldValue = null, string? newValue = null)
     {
         var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "system";
         
         var log = new SystemAuditLog
         {
+            EntityType = entityType,
             EntityName = entityName,
             EntityId = entityId,
             Action = action,

@@ -21,6 +21,7 @@ public record AuditLogItemDto(
     string? NewValue,
     string CreatedBy,
     DateTime CreatedAt,
+    string? EntityType = null,
     string? EntityName = null,
     string? EntityId = null
 );

@@ -32,6 +32,6 @@ public class AssignmentRuleControllerTests : TestBase
         Assert.IsType<NoContentResult>(result);
         Assert.False(rule.IsActive);
         
-        _mockAudit.Verify(a => a.LogAuditAsync("AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", "True", "False"), Times.Once);
+        _mockAudit.Verify(a => a.LogAuditAsync("Rule", "AssignmentRule", rule.Id.ToString(), "Toggled", "IsActive", "True", "False"), Times.Once);
     }
 }

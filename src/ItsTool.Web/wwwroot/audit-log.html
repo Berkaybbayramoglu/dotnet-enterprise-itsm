@@ -25,6 +25,22 @@
     </style>
 </head>
 <body>
+    <!-- Audit Detail Modal -->
+    <div id="auditDetailModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Audit Detail</h3>
+                <button type="button" class="close-btn" onclick="document.getElementById('auditDetailModal').classList.remove('active')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="auditDetailText" style="line-height: 1.5;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('auditDetailModal').classList.remove('active')">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-shell" data-shell>
         <main class="main-content">
             <header class="topbar">
@@ -80,12 +96,13 @@
                         <thead>
                             <tr>
                                 <th>Timestamp</th>
-                                <th>Ticket</th>
+                                <th>Entity</th>
                                 <th>User</th>
                                 <th>Action</th>
                                 <th>Field Modified</th>
                                 <th>Old Value</th>
                                 <th>New Value</th>
+                                <th style="width: 140px; text-align:right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="auditList">
@@ -150,20 +167,45 @@
                     const oldVal = mappedOld ? `<span class="value-cell" title="${escapeHtml(mappedOld)}">${escapeHtml(mappedOld)}</span>` : '<span class="text-muted">-</span>';
                     const newVal = mappedNew ? `<span class="value-cell" title="${escapeHtml(mappedNew)}">${escapeHtml(mappedNew)}</span>` : '<span class="text-muted">-</span>';
                     
-                    const ticketLink = a.ticketId ? `<a href="/ticket-detail.html?id=${a.ticketId}">ITS-${a.ticketId}</a>` : '<span class="badge badge-default">CONFIG</span>';
+                    const entityNameText = a.entityName || (a.ticketId ? `ITS-${a.ticketId}` : 'Unknown');
+                    const entityIdText = a.entityId || (a.ticketId ? a.ticketId.toString() : '');
+                    const entityType = a.entityType || (a.ticketId ? 'Ticket' : 'Config');
+
+                    const entityLink = entityType === 'Ticket' 
+                        ? `<a href="/ticket-detail.html?id=${entityIdText}&highlight=true" style="font-weight:600; color:var(--primary);">ITS-${entityIdText}</a>` 
+                        : `<span class="badge badge-default" style="margin-right:4px;">${escapeHtml(entityType)}</span> <span style="font-weight:500;">${escapeHtml(entityNameText)}</span>`;
                     
-                    // a.createdBy is usually a string (e.g., UserId or System), try parsing to map username
                     const creatorUser = users.find(u => String(u.id) === a.createdBy);
                     const creatorName = creatorUser ? `@${creatorUser.username}` : (a.createdBy || '-');
 
+                    // Determine deep link
+                    let deepLink = '#';
+                    const et = entityType.toLowerCase();
+                    const en = (a.entityName || '').toLowerCase(); // For old logs where entityType is Config and name is AssignmentRule
+                    
+                    if (et === 'ticket') deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
+                    else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
+                    else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
+                    else {
+                        const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles', 'user': 'users' };
+                        if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
+                    }
+
+                    // Determine detail sentence
+                    const detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
+
                     tr.innerHTML = `
                         <td style="font-size: 13px; color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</td>
-                        <td style="font-weight: 500;">${ticketLink}</td>
+                        <td>${entityLink}</td>
                         <td style="font-family: monospace;">${escapeHtml(creatorName)}</td>
                         <td><span class="badge badge-default">${escapeHtml(a.action)}</span></td>
                         <td style="font-size: 13px;">${escapeHtml(a.fieldName) || '-'}</td>
                         <td>${oldVal}</td>
                         <td>${newVal}</td>
+                        <td style="text-align:right;">
+                            <button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="showAuditDetail('${detailSentence.replaceAll("'", "\\'")}')">Detay</button>
+                            <a href="${deepLink}" class="btn btn-ghost" style="padding:4px 8px; font-size:12px; color:var(--primary);">Git</a>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -190,6 +232,11 @@
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
+
+        window.showAuditDetail = function(message) {
+            document.getElementById('auditDetailText').textContent = message;
+            document.getElementById('auditDetailModal').classList.add('active');
+        };
 
         document.getElementById('btnSearchAudit').addEventListener('click', async () => {
             const btn = document.getElementById('btnSearchAudit');

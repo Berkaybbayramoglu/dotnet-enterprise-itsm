@@ -44,14 +44,14 @@ export const adminConfigs = {
                 const statusStr = item.status || 'Active';
                 let color = 'default';
                 if (statusStr === 'Active') color = 'success';
-                if (statusStr === 'Warning' || statusStr === 'Inactive') color = 'warning';
-                if (statusStr === 'Postponed') color = 'info';
+                if (statusStr === 'Inactive') color = 'default';
+                if (statusStr === 'Postponed') color = 'warning';
                 
                 return `
                 <select class="badge badge-${color}" style="border:none; cursor:pointer; outline:none; font-weight:bold; appearance:none; padding-right:12px; text-align:center;" onchange="window.updateProjectStatusInline(${item.id}, this.value)">
                     <option value="Active" ${statusStr === 'Active' ? 'selected' : ''} style="background: var(--success-light); color: var(--success); font-weight: bold;">Active</option>
-                    <option value="Inactive" ${statusStr === 'Inactive' ? 'selected' : ''} style="background: var(--warning-light); color: #B36200; font-weight: bold;">Inactive</option>
-                    <option value="Postponed" ${statusStr === 'Postponed' ? 'selected' : ''} style="background: var(--primary-light); color: var(--primary-hover); font-weight: bold;">Postponed</option>
+                    <option value="Inactive" ${statusStr === 'Inactive' ? 'selected' : ''} style="background: var(--bg-hover); color: var(--text-muted); font-weight: bold;">Inactive</option>
+                    <option value="Postponed" ${statusStr === 'Postponed' ? 'selected' : ''} style="background: var(--warning-light); color: #B36200; font-weight: bold;">Postponed</option>
                 </select>`;
             }}
         ],

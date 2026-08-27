@@ -84,6 +84,20 @@ export function initCrudPage(cfg) {
             currentData = (await window.api.request(endpoint)) || [];
             window.currentData = currentData;
             renderTable(currentData);
+            
+            // Check for highlight parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const highlightId = urlParams.get('highlight');
+            if (highlightId) {
+                setTimeout(() => {
+                    const row = document.querySelector(`tr[data-id="${highlightId}"]`) || 
+                                Array.from(document.querySelectorAll('tr')).find(r => r.textContent.includes(`#${highlightId}`));
+                    if (row) {
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        row.classList.add('row-highlight');
+                    }
+                }, 100);
+            }
         } catch (err) {
             console.error(err);
             tbody.innerHTML = `<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi</td></tr>`;

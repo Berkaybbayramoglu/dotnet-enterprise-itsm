@@ -101,3 +101,12 @@ Bu desen, hem şık (hover effect) hem de engelsiz bir Dashboard sunar.
 
 ### Öğrenme Notu - EF Core Translation Hataları (Postgres)
 - **StringComparison.OrdinalIgnoreCase:** Entity Framework Core (özellikle PostgreSQL provider'ı olan Npgsql), LINQ sorguları içerisinde yer alan `string.Equals(val1, val2, StringComparison.OrdinalIgnoreCase)` yapısını SQL'e çeviremez (Translation Error). Bunun yerine, `.ToLower() == .ToLower()` veya Npgsql'in `EF.Functions.ILike` operatörü kullanılmalıdır. Aksi halde kod derlenir ancak çalışma zamanında (Runtime) 500 Internal Server Error (InvalidOperationException) fırlatır.
+
+### Denormalizing Audit Event Names
+**Problem:** In typical relational databases, if you only store `EntityId` in an audit log, the audit log becomes meaningless if the underlying entity (e.g. Rule, Webhook, Ticket) is hard-deleted.
+**Solution (UX Findability):** Denormalize both `EntityName` and `EntityType` into the `SystemAuditLog` table. This ensures that even if a rule is deleted, the log will forever explicitly state that "Rule: 'Auto-Assign L1'" was deleted, maintaining semantic context without complex joins or risking referential integrity faults.
+
+### Deep-Link and Highlight Animations (CSS + JS)
+**Problem:** Users seeing an audit entry like "Configuration X changed" want to immediately jump to the configuration and see it, rather than navigating manually and searching for the row.
+**Solution:** Embed a deep-link like `/rules.html?highlight={id}`. In the target page, immediately after rendering the async data, parse `window.location.search`, find the row (`tr[data-id="X"]`), call `row.scrollIntoView()`, and attach a `.row-highlight` class.
+The CSS utilizes `@keyframes pulse-highlight { 0%, 100% { background-color: var(--primary-light); } 50% { background-color: var(--bg-surface); } }` set to `animation: pulse-highlight 0.6s ease-in-out 3;`. A fallback `outline` is provided for `prefers-reduced-motion`. This greatly enhances discoverability and provides satisfying visual feedback.

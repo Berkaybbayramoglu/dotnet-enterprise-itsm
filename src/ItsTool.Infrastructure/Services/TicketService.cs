@@ -424,7 +424,7 @@ public class TicketService : ITicketService
             TicketId = ticketId,
             Action = "CommentAdded",
             FieldName = "Comment",
-            NewValue = c.Id.ToString(),
+            NewValue = c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content,
             CreatedBy = dto.AuthorUserId.ToString()
         });
 

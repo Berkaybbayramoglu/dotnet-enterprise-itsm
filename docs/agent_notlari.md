@@ -116,3 +116,8 @@ Faz 14 (Workflow, Kanban Modal, Dashboard):
   - Justified keeping `AddMember` in concrete controllers due to Interface Segregation Principle (ISP).
 
 - **Hotfix (Login Translation Error):** Fixed a 500 Internal Server Error in `AuthService.cs` where `string.Equals(..., StringComparison.OrdinalIgnoreCase)` could not be translated by EF Core Postgres provider. Replaced with `.ToLower() == .ToLower()`.
+
+## FIX BATCH v19
+- **Hedef:** Audit Readability (Neye Oldu + Git & Flash)
+- **Yapılanlar:** `SystemAuditLog` tablosuna `EntityType` eklendi. `AssignmentRuleController` gibi servislerden bu alan doldurularak audit kaydına kimlik kazandırıldı. Ticket olaylarındaki `CommentAdded` işlemlerinde yorumun ilk 50 karakteri loglanarak okunabilirlik sağlandı. `audit-log.html` sayfasındaki Ticket sütunu 'Entity' olarak güncellendi ve konfigürasyon kayıtları için `EntityType` ve `EntityName` denormalize olarak gösterildi. Satır içi Detay butonu eklendi ve `Git` butonu ile hedeflenen sayfada deep-link + CSS highlight (pulse-highlight) entegre edildi (`crud-page.js`, `webhooks.html`, vb. sayfalara `?highlight=X` parse mantığı eklendi).
+- **Durum:** Tamamlandı (✅).
