@@ -134,10 +134,10 @@ export function initCrudPage(cfg) {
 
     const persistData = async (id, payload) => {
         if (id) {
-            await window.api.request(`${endpoint}/${id}`, 'PUT', payload);
+            await window.api.request(`${endpoint}/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
             if (window.ui?.showToast) window.ui.showToast('Record updated successfully');
         } else {
-            await window.api.request(endpoint, 'POST', payload);
+            await window.api.request(endpoint, { method: 'POST', body: JSON.stringify(payload) });
             if (window.ui?.showToast) window.ui.showToast('Record created successfully');
         }
     };
@@ -160,10 +160,10 @@ export function initCrudPage(cfg) {
         delete payload.id;
         if (tr) tr.remove();
         
-        await window.api.request(`${endpoint}/${id}`, 'DELETE');
+        await window.api.request(`${endpoint}/${id}`, { method: 'DELETE' });
         window.ui.showUndoToast('Record deleted', async () => {
             try {
-                await window.api.request(endpoint, 'POST', payload);
+                await window.api.request(endpoint, { method: 'POST', body: JSON.stringify(payload) });
                 await window.loadData();
                 window.ui.showToast('Delete undone successfully');
             } catch(err) {
@@ -178,7 +178,7 @@ export function initCrudPage(cfg) {
             if (auditSafeDelete && window.ui?.showUndoToast) {
                 await performUndoableDelete(id, currentData.find(x => x.id === id), tr);
             } else {
-                await window.api.request(`${endpoint}/${id}`, 'DELETE');
+                await window.api.request(`${endpoint}/${id}`, { method: 'DELETE' });
                 if (window.ui?.showToast) window.ui.showToast('Record deleted successfully');
                 await window.loadData();
             }

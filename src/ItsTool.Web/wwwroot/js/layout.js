@@ -75,9 +75,21 @@ export function injectShell() {
             activeLink = document.querySelector(`.sidebar-nav-item[href="${path}"]`);
         }
         
-        if (activeLink) activeLink.classList.add('active');
-        
-        // Ensure sidebar overlay logic
+        if (activeLink) {
+            activeLink.classList.add('active');
+            
+            // Automatically scroll the sidebar so the active item is visible
+            setTimeout(() => {
+                const nav = document.querySelector('.sidebar-nav');
+                if (nav) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const navRect = nav.getBoundingClientRect();
+                    if (linkRect.bottom > navRect.bottom || linkRect.top < navRect.top) {
+                        activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }, 100);
+        }
         const overlay = document.getElementById('sidebarOverlay');
         if (!overlay) {
             const ol = document.createElement('div');

@@ -20,21 +20,21 @@ public class RoleService : IRoleService
     public async Task<IEnumerable<RoleDto>> GetAllAsync()
     {
         var roles = await _repository.GetAllAsync();
-        return roles.Select(r => new RoleDto(r.Id, r.Name, r.IsActive));
+        return roles.Select(r => new RoleDto(r.Id, r.Name, r.Description, r.IsActive));
     }
 
     public async Task<RoleDto?> GetByIdAsync(int id)
     {
         var r = await _repository.GetByIdAsync(id);
         if (r == null) return null;
-        return new RoleDto(r.Id, r.Name, r.IsActive);
+        return new RoleDto(r.Id, r.Name, r.Description, r.IsActive);
     }
 
     public async Task<RoleDto> CreateAsync(CreateRoleDto dto)
     {
-        var r = new Role { Name = dto.Name };
+        var r = new Role { Name = dto.Name, Description = dto.Description };
         await _repository.AddAsync(r);
-        return new RoleDto(r.Id, r.Name, r.IsActive);
+        return new RoleDto(r.Id, r.Name, r.Description, r.IsActive);
     }
 
     public async Task UpdateAsync(int id, UpdateRoleDto dto)
@@ -43,6 +43,7 @@ public class RoleService : IRoleService
         if (r == null) throw new KeyNotFoundException("Role not found");
         
         r.Name = dto.Name;
+        r.Description = dto.Description;
         r.IsActive = dto.IsActive;
         await _repository.UpdateAsync(r);
     }
