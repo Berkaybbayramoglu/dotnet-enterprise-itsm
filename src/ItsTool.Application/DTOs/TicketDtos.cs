@@ -5,8 +5,9 @@ public record CreateTicketDto(string Title, string Description, int ProjectId, i
 public record UpdateTicketDto(string Title, string Description, int CategoryId, int PriorityId, Dictionary<string, string> CustomFields);
 
 public record TicketHistoryDto(int Id, int TicketId, string FieldName, string? OldValue, string? NewValue, string Action, DateTime CreatedAt);
-public record TicketCommentDto(int Id, int TicketId, int AuthorUserId, string Content, bool IsInternal, DateTime CreatedAt);
-public record CreateCommentDto(string Content, bool IsInternal, int AuthorUserId);
+public record TicketCommentDto(int Id, int TicketId, int AuthorUserId, string Content, bool IsInternal, DateTime CreatedAt, int? ParentCommentId = null, bool IsEdited = false);
+public record CreateCommentDto(string Content, bool IsInternal, int AuthorUserId, int? ParentCommentId = null);
+public record UpdateCommentDto(string Content);
 
 public record TicketAttachmentDto(int Id, int TicketId, string FileName, string FilePath, long FileSize, string ContentType, int UploadedByUserId, DateTime CreatedAt);
 

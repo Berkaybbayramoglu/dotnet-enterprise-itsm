@@ -11,6 +11,8 @@ public static class PermissionConstants
     public const string TicketClose = "ticket.close";
     public const string TicketReopen = "ticket.reopen";
     public const string TicketCommentInternal = "ticket.comment.internal";
+    public const string TicketCommentEdit = "ticket.comment.edit";
+    public const string TicketCommentReply = "ticket.comment.reply";
     public const string ReportView = "report.view";
     public const string AdminManage = "admin.manage";
     public const string ConfigManage = "config.manage";
@@ -25,7 +27,7 @@ public static class PermissionConstants
     public static IReadOnlyList<string> AllPermissions => new[]
     {
         TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
-        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
+        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, TicketCommentEdit, TicketCommentReply, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
         KbManage, KbView, SurveySubmit, TicketComment
     };
 }

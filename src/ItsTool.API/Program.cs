@@ -2,6 +2,7 @@ using ItsTool.Application.Constants;
 using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Services;
 using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Data.Interceptors;
 using ItsTool.Infrastructure.Security;
 using ItsTool.API.HostedServices;
 using ItsTool.API.Security;
@@ -19,8 +20,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<ItsToolDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<SystemAuditInterceptor>();
+
+builder.Services.AddDbContext<ItsToolDbContext>((sp, options) =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    var interceptor = sp.GetRequiredService<SystemAuditInterceptor>();
+    options.AddInterceptors(interceptor);
+});
 
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<ITokenService, TokenService>();

@@ -9,7 +9,11 @@ public class TicketComment : BaseEntity
     public int AuthorUserId { get; set; }
     public string Content { get; set; } = string.Empty;
     public bool IsInternal { get; set; }
+    public bool IsEdited { get; set; }
 
+    public int? ParentCommentId { get; set; }
+    
     public virtual Ticket? Ticket { get; set; }
     public virtual User? AuthorUser { get; set; }
+    public virtual TicketComment? ParentComment { get; set; }
 }

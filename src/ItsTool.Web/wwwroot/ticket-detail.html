@@ -127,6 +127,11 @@
                                 <div class="property-label">Category</div>
                                 <div class="property-value" id="tCategory"></div>
                             </div>
+                            <div class="property-group">
+                                <div class="property-label">Group</div>
+                                <div class="property-value" id="tGroup"></div>
+                            </div>
+                            <div id="dynamicSidebarContainer"></div>
 
                             <div id="csatLink" style="display:none; margin-top: var(--spacing-lg);">
                                 <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%">Fill CSAT Survey</a>
@@ -213,6 +218,10 @@
         let currentTicket = null;
         let dynamicPlacements = [];
         let isEditMode = false;
+        
+        let globalLookup = {};
+        let globalUsers = [];
+        let globalGroups = [];
 
         window.openTransferModal = async function() {
             try {
@@ -231,7 +240,7 @@
                 groups.forEach(g => {
                     gSelect.innerHTML += `<option value="${g.id}">${escapeHtml(g.name)}</option>`;
                 });
-                if(currentTicket.groupId) gSelect.value = currentTicket.groupId;
+                if(currentTicket.assignedGroupId) gSelect.value = currentTicket.assignedGroupId;
 
                 openModal('transferModal');
 
@@ -290,6 +299,12 @@
             document.getElementById('tTitle').textContent = currentTicket.title;
             document.getElementById('tDesc').textContent = currentTicket.description || 'No description provided.';
             
+            const prioName = globalLookup.priorities?.find(x => x.id === currentTicket.priorityId)?.name || 'Normal';
+            const catName = globalLookup.categories?.find(x => x.id === currentTicket.categoryId)?.name || '-';
+            
+            document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
+            document.getElementById('tCategory').textContent = catName;
+            
             const dynContainer = document.getElementById('dynamicFieldsDisplay');
             dynContainer.innerHTML = '';
             dynamicPlacements.forEach(dp => {
@@ -309,6 +324,9 @@
                 try { 
                     lookup = await window.api.getLookup(); 
                     users = await window.api.getUsers();
+                    globalLookup = lookup;
+                    globalUsers = users;
+                    globalGroups = await window.api.getGroups();
     
                 const urlParams = new URLSearchParams(window.location.search);
                 const highlightId = urlParams.get('highlight');
@@ -328,13 +346,21 @@
                 await loadDynamicFieldsMeta();
         await renderTicketData();
                 
-                const prioName = lookup.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
                 const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
-                const catName = lookup.categories?.find(x => x.id === t.categoryId)?.name || '-';
+
                 
-                document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
+                // Get group name using the same API since we don't have lookup.groups populated initially here, wait let's use the fetch:
+                let groupName = '-';
+                if (t.assignedGroupId) {
+                    try {
+                        const groups = await window.api.getGroups();
+                        const grp = groups.find(x => x.id === t.assignedGroupId);
+                        if (grp) groupName = grp.name;
+                    } catch(e) { console.warn(e); }
+                }
+                
                 document.getElementById('tProject').textContent = projName;
-                document.getElementById('tCategory').textContent = catName;
+                document.getElementById('tGroup').textContent = groupName;
                 
                 const reqUser = users.find(u => u.id === t.requesterUserId);
                 const assignedUser = users.find(u => u.id === t.assignedUserId);
@@ -502,6 +528,22 @@
             const tDesc = document.getElementById('tDesc');
             tDesc.innerHTML = `<textarea id="inlineEditDesc" class="form-control" rows="4" style="width:100%;">${escapeHtml(currentTicket.description || '')}</textarea>`;
 
+            const tPriority = document.getElementById('tPriority');
+            let prioHtml = '<select id="inlineEditPriority" class="form-control">';
+            (globalLookup.priorities || []).forEach(p => {
+                prioHtml += `<option value="${p.id}" ${p.id === currentTicket.priorityId ? 'selected' : ''}>${escapeHtml(p.name)}</option>`;
+            });
+            prioHtml += '</select>';
+            tPriority.innerHTML = prioHtml;
+
+            const tCategory = document.getElementById('tCategory');
+            let catHtml = '<select id="inlineEditCategory" class="form-control">';
+            (globalLookup.categories || []).forEach(c => {
+                catHtml += `<option value="${c.id}" ${c.id === currentTicket.categoryId ? 'selected' : ''}>${escapeHtml(c.name)}</option>`;
+            });
+            catHtml += '</select>';
+            tCategory.innerHTML = catHtml;
+
             const dynContainer = document.getElementById('dynamicFieldsDisplay');
             dynContainer.innerHTML = buildEditDynamicFields(currentTicket, dynamicPlacements);
         };
@@ -543,11 +585,14 @@
                 return;
             }
 
+            const categoryId = document.getElementById('inlineEditCategory') ? Number(document.getElementById('inlineEditCategory').value) : currentTicket.categoryId;
+            const priorityId = document.getElementById('inlineEditPriority') ? Number(document.getElementById('inlineEditPriority').value) : currentTicket.priorityId;
+
             const payload = {
                 title,
                 description,
-                categoryId: currentTicket.categoryId,
-                priorityId: currentTicket.priorityId,
+                categoryId: categoryId,
+                priorityId: priorityId,
                 customFields
             };
 
@@ -577,33 +622,126 @@
                 const list = document.getElementById('commentsList');
                 list.innerHTML = '';
                 events.forEach(e => {
+                    const resolveUser = (id) => {
+                        if (!id || id === 'none' || id === 'null') return 'None';
+                        const u = globalUsers.find(x => x.id == id);
+                        return u ? escapeHtml(u.firstName + ' ' + u.lastName) : `User ${id}`;
+                    };
+                    const parseGrp = (str) => {
+                        if(!str) return 'None';
+                        const m = str.match(/Grp:(\d+)/);
+                        if(m && m[1]) {
+                            const g = globalGroups.find(x => x.id == m[1]);
+                            return g ? escapeHtml(g.name) : `Group ${m[1]}`;
+                        }
+                        return 'None';
+                    };
+
                     const div = document.createElement('div');
                     
                     if (e.eventType === 'Comment') {
                         const c = e.data;
+                        const isEdited = c.isEdited ? '<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">(Edited)</span>' : '';
+                        const parentInfo = c.parentCommentId ? `<div style="font-size: 12px; color: var(--text-muted); background: var(--bg-hover); padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; border-left: 2px solid var(--border-color);">Replying to comment #${c.parentCommentId}</div>` : '';
+                        
                         div.className = `comment ${c.isInternal ? 'internal' : ''}`;
+                        if (c.parentCommentId) div.style.marginLeft = "32px";
+                        div.id = `comment-${c.id}`;
                         div.innerHTML = `
                             <div class="comment-header">
                                 <div class="d-flex align-items-center gap-sm">
                                     ${getAvatar(c.authorUserId, c.authorUserId)}
-                                    <strong>User ${c.authorUserId}</strong>
+                                    <strong>${resolveUser(c.authorUserId)}</strong>
                                     <span>${new Date(e.timestamp).toLocaleString()}</span>
+                                    ${isEdited}
                                 </div>
-                                ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                                <div class="d-flex align-items-center gap-sm">
+                                    ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                                    <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="replyToComment(${c.id})">Reply</button>
+                                    <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="editComment(${c.id}, '${escapeHtml(c.content).replace(/'/g, "\\'")}')">Edit</button>
+                                </div>
                             </div>
-                            <div>${escapeHtml(c.content)}</div>
+                            ${parentInfo}
+                            <div id="comment-content-${c.id}">${escapeHtml(c.content)}</div>
                         `;
                     } else if (e.eventType === 'History') {
                         const h = e.data;
-                        if(h.action !== 'CommentAdded') {
+                        if(h.action !== 'CommentAdded' && h.action !== 'InternalNoteAdded' && h.action !== 'CommentEdited') {
                             div.className = 'history-event';
-                            div.innerHTML = `<strong>User ${h.createdBy}</strong> ${h.action} <strong>${h.fieldName || ''}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em> at ${new Date(e.timestamp).toLocaleString()}`;
+                            let text = `${h.action} <strong>${h.fieldName || ''}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em>`;
+                            
+                            if (h.action === 'Assigned' && h.fieldName === 'AssignedUserId') {
+                                text = `assigned this ticket to <strong>${resolveUser(h.newValue)}</strong> (was ${resolveUser(h.oldValue)})`;
+                            } else if (h.action === 'Transferred') {
+                                text = `transferred this ticket to group <strong>${parseGrp(h.newValue)}</strong> (was ${parseGrp(h.oldValue)})`;
+                            } else if (h.action === 'StatusChanged' || h.action === 'Reopened') {
+                                const sOld = globalLookup.statuses?.find(x => x.id == h.oldValue)?.name || h.oldValue;
+                                const sNew = globalLookup.statuses?.find(x => x.id == h.newValue)?.name || h.newValue;
+                                text = `changed status from <em>${escapeHtml(sOld)}</em> to <em>${escapeHtml(sNew)}</em>`;
+                            }
+                            
+                            div.innerHTML = `<strong>${resolveUser(h.createdBy)}</strong> ${text} at ${new Date(e.timestamp).toLocaleString()}`;
                         }
                     }
                     if(div.innerHTML) list.appendChild(div);
                 });
+                
+                // Deep link handling
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightCommentId = urlParams.get('commentId');
+                if (highlightCommentId) {
+                    setTimeout(() => {
+                        const target = document.getElementById(`comment-${highlightCommentId}`);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            target.style.transition = 'box-shadow 0.5s';
+                            target.style.boxShadow = '0 0 0 4px var(--primary-light)';
+                            setTimeout(() => { target.style.boxShadow = 'none'; }, 3000);
+                        }
+                    }, 500);
+                }
             } catch(e) { console.error(e); }
         }
+
+        let replyParentId = null;
+
+        window.replyToComment = (id) => {
+            replyParentId = id;
+            document.getElementById('commentText').focus();
+            document.getElementById('commentText').placeholder = `Replying to comment #${id}...`;
+            
+            let cancelBtn = document.getElementById('cancelReplyBtn');
+            if(!cancelBtn) {
+                cancelBtn = document.createElement('button');
+                cancelBtn.id = 'cancelReplyBtn';
+                cancelBtn.type = 'button';
+                cancelBtn.className = 'btn btn-ghost';
+                cancelBtn.innerText = 'Cancel Reply';
+                cancelBtn.onclick = () => {
+                    replyParentId = null;
+                    document.getElementById('commentText').placeholder = 'Add a comment or internal note...';
+                    cancelBtn.remove();
+                };
+                document.querySelector('#commentForm .d-flex.gap-sm.align-items-center').appendChild(cancelBtn);
+            }
+        };
+
+        window.editComment = async (id, currentContent) => {
+            const newContent = prompt('Edit your comment:', currentContent);
+            if(newContent && newContent !== currentContent) {
+                try {
+                    await window.api.request(`/Ticket/${ticketId}/comments/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ content: newContent })
+                    });
+                    showToast('Comment updated');
+                    loadTimeline();
+                } catch(e) {
+                    console.error(e);
+                    showToast('Failed to edit comment. You may not have permission.', 'error');
+                }
+            }
+        };
 
         document.getElementById('commentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -612,10 +750,15 @@
             try {
                 await window.api.request(`/Ticket/${ticketId}/comments`, {
                     method: 'POST',
-                    body: JSON.stringify({ content: content, isInternal: isInternal })
+                    body: JSON.stringify({ content: content, isInternal: isInternal, parentCommentId: replyParentId })
                 });
                 document.getElementById('commentText').value = '';
+                document.getElementById('commentText').placeholder = 'Add a comment or internal note...';
                 document.getElementById('isInternalComment').checked = false;
+                replyParentId = null;
+                const cancelBtn = document.getElementById('cancelReplyBtn');
+                if(cancelBtn) cancelBtn.remove();
+                
                 showToast('Comment added');
                 loadTimeline();
             } catch(e) { 

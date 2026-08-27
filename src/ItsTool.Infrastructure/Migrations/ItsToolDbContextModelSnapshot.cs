@@ -1844,8 +1844,14 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsInternal")
                         .HasColumnType("boolean");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
@@ -1859,6 +1865,8 @@ namespace ItsTool.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorUserId");
+
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("TicketId");
 
@@ -2533,6 +2541,10 @@ namespace ItsTool.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ItsTool.Domain.Entities.Ticket.TicketComment", "ParentComment")
+                        .WithMany()
+                        .HasForeignKey("ParentCommentId");
+
                     b.HasOne("ItsTool.Domain.Entities.Ticket.Ticket", "Ticket")
                         .WithMany()
                         .HasForeignKey("TicketId")
@@ -2540,6 +2552,8 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("AuthorUser");
+
+                    b.Navigation("ParentComment");
 
                     b.Navigation("Ticket");
                 });

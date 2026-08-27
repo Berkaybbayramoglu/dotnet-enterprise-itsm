@@ -183,7 +183,12 @@
                     const et = entityType.toLowerCase();
                     const en = (a.entityName || '').toLowerCase(); // For old logs where entityType is Config and name is AssignmentRule
                     
-                    if (et === 'ticket') deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
+                    if (et === 'ticket') {
+                        deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
+                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited') {
+                            deepLink += `&commentId=${a.oldValue}`;
+                        }
+                    }
                     else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
                     else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
                     else {

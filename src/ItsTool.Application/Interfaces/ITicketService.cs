@@ -14,6 +14,7 @@ public interface ITicketService
     Task TransferTicketAsync(int ticketId, TransferTicketDto dto);
     
     Task<TicketCommentDto> AddCommentAsync(int ticketId, CreateCommentDto dto);
+    Task<TicketCommentDto> UpdateCommentAsync(int ticketId, int commentId, UpdateCommentDto dto, int userId, bool hasEditPerm);
     Task<IEnumerable<TicketCommentDto>> GetCommentsAsync(int ticketId, bool includeInternal);
     
     Task<TicketAttachmentDto> AddAttachmentAsync(int ticketId, IFormFile file, int userId);

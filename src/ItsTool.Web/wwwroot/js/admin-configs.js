@@ -95,11 +95,12 @@ export const adminConfigs = {
     roles: {
         endpoint: '/Roles', pageTitle: 'Roles',
         modalId: 'roleModal', createTitle: 'New Role', auditSafeDelete: true,
-        formFields: { id: 'rId', map: { 'name': 'rName', 'description': 'rDesc', 'permissions': 'rPerms' } },
+        formFields: { id: 'rId', map: { 'name': 'rName', 'description': 'rDesc', 'permissions': 'rPerms', 'isActive': 'rActive' } },
         columns: [
             { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
             { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
+            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' },
+            { key: 'isActive', label: 'Status', render: (item) => item.isActive ? `<span class="badge badge-success">Active</span>` : `<span class="badge badge-default">Inactive</span>` }
         ],
         formHtml: `
             <div class="form-group">
@@ -113,6 +114,10 @@ export const adminConfigs = {
             <div class="form-group">
                 <label class="form-label" for="rPerms">Permissions (Comma separated)</label>
                 <input id="rPerms" class="form-control" placeholder="e.g. ticket.view, ticket.manage">
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="rActive" checked>
+                <label class="form-label" for="rActive" style="margin: 0;">Is Active</label>
             </div>`
     }
 };

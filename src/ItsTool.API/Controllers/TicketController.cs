@@ -132,9 +132,23 @@ public class TicketController : ControllerBase
     [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> AddComment(int id, [FromBody] CreateCommentDto dto)
     {
-        var createDto = new CreateCommentDto(dto.Content, dto.IsInternal, GetCurrentUserId());
+        var createDto = new CreateCommentDto(dto.Content, dto.IsInternal, GetCurrentUserId(), dto.ParentCommentId);
         var result = await _service.AddCommentAsync(id, createDto);
         return Ok(result);
+    }
+
+    [HttpPut("{id}/comments/{commentId}")]
+    [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateComment(int id, int commentId, [FromBody] UpdateCommentDto dto)
+    {
+        bool hasEditPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.edit");
+        try
+        {
+            var result = await _service.UpdateCommentAsync(id, commentId, dto, GetCurrentUserId(), hasEditPerm);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
     }
 
     [HttpGet("{id}/comments")]

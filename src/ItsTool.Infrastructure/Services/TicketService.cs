@@ -415,25 +415,57 @@ public class TicketService : ITicketService
             TicketId = ticketId,
             Content = dto.Content,
             IsInternal = dto.IsInternal,
-            AuthorUserId = dto.AuthorUserId
+            AuthorUserId = dto.AuthorUserId,
+            ParentCommentId = dto.ParentCommentId
         };
         _context.TicketComments.Add(c);
+        await _context.SaveChangesAsync();
 
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = ticketId,
-            Action = "CommentAdded",
-            FieldName = "Comment",
+            Action = dto.IsInternal ? "InternalNoteAdded" : "CommentAdded",
+            FieldName = dto.IsInternal ? "Internal Note" : "Comment",
+            OldValue = c.Id.ToString(), // Store CommentId for deep linking
             NewValue = c.Content.Length > 50 ? c.Content.Substring(0, 50) + "..." : c.Content,
             CreatedBy = dto.AuthorUserId.ToString()
         });
-
         await _context.SaveChangesAsync();
         
         await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
         await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, "A new comment was added.");
         
-        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt);
+        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited);
+    }
+
+    public async Task<TicketCommentDto> UpdateCommentAsync(int ticketId, int commentId, UpdateCommentDto dto, int userId, bool hasEditPerm)
+    {
+        var c = await _context.TicketComments.FirstOrDefaultAsync(x => x.Id == commentId && x.TicketId == ticketId && !x.IsDeleted);
+        if (c == null) throw new KeyNotFoundException("Comment not found");
+
+        if (c.AuthorUserId != userId && !hasEditPerm)
+        {
+            throw new UnauthorizedAccessException("You do not have permission to edit this comment.");
+        }
+
+        var oldContent = c.Content;
+        c.Content = dto.Content;
+        c.IsEdited = true;
+        c.UpdatedAt = DateTime.UtcNow;
+
+        _context.TicketHistories.Add(new TicketHistory
+        {
+            TicketId = ticketId,
+            Action = "CommentEdited",
+            FieldName = "Comment",
+            OldValue = c.Id.ToString(),
+            NewValue = $"Edited by User {userId}",
+            CreatedBy = userId.ToString()
+        });
+
+        await _context.SaveChangesAsync();
+        
+        return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited);
     }
 
     public async Task<IEnumerable<TicketCommentDto>> GetCommentsAsync(int ticketId, bool includeInternal)
@@ -442,7 +474,7 @@ public class TicketService : ITicketService
         if (!includeInternal) q = q.Where(c => !c.IsInternal);
         
         var list = await q.OrderBy(c => c.CreatedAt).ToListAsync();
-        return list.Select(c => new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt));
+        return list.Select(c => new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited));
     }
 
     public async Task<TicketAttachmentDto> AddAttachmentAsync(int ticketId, IFormFile file, int userId)
