@@ -181,14 +181,33 @@ export function showAssigneesModal(encodedData) {
         body.innerHTML = `<div style="padding: var(--spacing-xl); text-align: center; color: var(--text-muted);">Bu kayda kimse atanmamış.</div>`;
     } else {
         const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
-                const listHtml = data.map(item => {
+        // Expose a global function to toggle group users
+        window.toggleAssigneeGroup = function(groupId, el) {
+            const rows = document.querySelectorAll('.assignee-subitem-for-' + groupId);
+            const icon = el.querySelector('.toggle-icon');
+            let isHidden = true;
+            rows.forEach(r => {
+                if (r.style.display === 'none') {
+                    r.style.display = 'flex';
+                    isHidden = false;
+                } else {
+                    r.style.display = 'none';
+                    isHidden = true;
+                }
+            });
+            if (icon) {
+                icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        };
+
+        const listHtml = data.map(item => {
             const isUser = item.type === 'user';
             const isSub = item.isSubItem;
             
             const iconSize = isSub ? 28 : 36;
             const iconFontSize = isSub ? 12 : 14;
             
-            const icon = isUser 
+            const iconHtml = isUser 
                 ? `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${escapeHtml(item.initial)}</div>`
                 : `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
                      <svg viewBox="0 0 24 24" width="${isSub?14:18}" height="${isSub?14:18}" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -201,10 +220,20 @@ export function showAssigneesModal(encodedData) {
             const borderLeft = isSub ? '3px solid rgba(var(--primary-rgb), 0.3)' : '3px solid transparent';
             const bgColor = isSub ? 'rgba(0,0,0,0.015)' : 'transparent';
             
+            const nestingArrow = isSub ? `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: var(--text-muted); opacity: 0.6; margin-right: 4px; margin-left: -8px;"><path d="M19 15l-6 6-1.42-1.42L15.17 17H5V5h2v10h8.17l-3.59-3.58L13 10l6 6z"/></svg>` : '';
+            
+            const hasSub = !isSub && !isUser && data.some(d => d.isSubItem && d.parentGroupId === item.id);
+            const toggleIcon = hasSub ? `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>` : '';
+            const onClickAttr = hasSub ? `onclick="window.toggleAssigneeGroup(${item.id}, this)"` : '';
+            const cursorAttr = hasSub ? 'cursor: pointer;' : 'cursor: default;';
+            const displayAttr = isSub ? 'display: none;' : 'display: flex;';
+            const classAttr = isSub ? `class="assignee-subitem-for-${item.parentGroupId}"` : '';
+            
             return `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); background: ${bgColor}; transition: background 0.2s; cursor: default;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
+                <div ${classAttr} style="${displayAttr} align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); background: ${bgColor}; transition: background 0.2s; ${cursorAttr}" ${onClickAttr} onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
                     <div style="display: flex; align-items: center; gap: ${isSub?8:12}px;">
-                        ${icon}
+                        ${nestingArrow}
+                        ${iconHtml}
                         <div>
                             <div style="font-weight: 500; font-size: ${isSub?13:14}px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
                                 ${escapeHtml(item.name)}
@@ -212,6 +241,9 @@ export function showAssigneesModal(encodedData) {
                             </div>
                             ${extraInfo}
                         </div>
+                    </div>
+                    <div style="color: var(--text-muted);">
+                        ${toggleIcon}
                     </div>
                 </div>
             `;

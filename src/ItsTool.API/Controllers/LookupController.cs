@@ -11,11 +11,13 @@ public class LookupController : ControllerBase
 {
     private readonly ICatalogService _catalogService;
     private readonly IProjectService _projectService;
+    private readonly IDepartmentService _departmentService;
 
-    public LookupController(ICatalogService catalogService, IProjectService projectService)
+    public LookupController(ICatalogService catalogService, IProjectService projectService, IDepartmentService departmentService)
     {
         _catalogService = catalogService;
         _projectService = projectService;
+        _departmentService = departmentService;
     }
 
     [HttpGet]
@@ -26,6 +28,7 @@ public class LookupController : ControllerBase
         var ticketTypes = await _catalogService.GetTicketTypesAsync();
         var priorities = await _catalogService.GetPrioritiesAsync();
         var statuses = await _catalogService.GetStatusesAsync();
+        var departments = await _departmentService.GetAllAsync();
 
         return Ok(new
         {
@@ -33,7 +36,8 @@ public class LookupController : ControllerBase
             categories,
             ticketTypes,
             priorities,
-            statuses
+            statuses,
+            departments
         });
     }
 }

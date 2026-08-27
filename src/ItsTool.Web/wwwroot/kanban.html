@@ -166,7 +166,8 @@
                 try {
                     const res = await window.api.searchTickets({ pageSize: 100 });
                     tickets = res.items || [];
-                    allUsers = (await window.api.getUsers()).items || [];
+                    const uRes = await window.api.getUsers();
+                    allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
                 } catch (err) { console.error(err); 
                     console.warn("Tickets fetching failed.", err);
                     tickets = [];
@@ -230,7 +231,7 @@
                                     const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
                                     groupMembers.forEach(mu => {
                                         const muName = mu.firstName + ' ' + mu.lastName;
-                                        details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true });
+                                        details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
                                     });
                                 }
                             });

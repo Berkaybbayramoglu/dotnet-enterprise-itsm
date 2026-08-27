@@ -8,7 +8,7 @@ public record GroupDto(int Id, string Name, bool IsActive, int DepartmentId);
 public record CreateGroupDto(string Name, int DepartmentId);
 public record UpdateGroupDto(string Name, bool IsActive, int DepartmentId);
 
-public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, int[] RoleIds, Dictionary<int, bool> PermissionOverrides, string? ProfilePhoto, int[] GroupIds);
+public record UserDto(int Id, string Username, string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, int[] RoleIds, Dictionary<int, bool> PermissionOverrides, string? ProfilePhoto, int[] GroupIds, DateTime CreatedAt);
 public record CreateUserDto(string Username, string Email, string FirstName, string LastName, string Password, int? DepartmentId, string? ProfilePhoto, int[]? GroupIds);
 public record UpdateUserDto(string Email, string FirstName, string LastName, bool IsActive, int? DepartmentId, string? ProfilePhoto, int[]? GroupIds);
 

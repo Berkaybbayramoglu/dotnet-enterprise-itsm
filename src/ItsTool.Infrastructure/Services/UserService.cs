@@ -28,7 +28,8 @@ public class UserService : IUserService
             u.UserRoles.Select(ur => ur.RoleId).ToArray(),
             u.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
             u.ProfilePhoto,
-            u.GroupMemberships.Select(gm => gm.GroupId).ToArray()
+            u.GroupMemberships.Select(gm => gm.GroupId).ToArray(),
+            u.CreatedAt
         ));
     }
 
@@ -41,7 +42,8 @@ public class UserService : IUserService
             user.UserRoles.Select(ur => ur.RoleId).ToArray(),
             user.PermissionOverrides.ToDictionary(po => po.PermissionId, po => po.IsGranted),
             user.ProfilePhoto,
-            user.GroupMemberships.Select(gm => gm.GroupId).ToArray()
+            user.GroupMemberships.Select(gm => gm.GroupId).ToArray(),
+            user.CreatedAt
         );
     }
 
@@ -67,7 +69,7 @@ public class UserService : IUserService
         }
         
         await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto, user.GroupMemberships.Select(g => g.GroupId).ToArray());
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto, user.GroupMemberships.Select(g => g.GroupId).ToArray(), user.CreatedAt);
     }
 
     public async Task UpdateAsync(int id, UpdateUserDto dto)
