@@ -30,4 +30,5 @@ public interface ITicketService
     Task<IEnumerable<TimelineEventDto>> GetTimelineAsync(int ticketId, bool includeInternal);
     Task<PagedResult<TicketDto>> SearchTicketsAsync(TicketSearchFilterDto filter, int userId);
     Task<TicketSurveyDto> SubmitSurveyAsync(int ticketId, SubmitTicketSurveyDto dto, int userId);
+    Task<IEnumerable<UserDto>> GetEligibleUsersForTicketAsync(int ticketId);
 }

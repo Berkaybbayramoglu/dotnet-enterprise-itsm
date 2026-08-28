@@ -24,7 +24,7 @@ public class NotificationService : INotificationService
             .OrderByDescending(n => n.CreatedAt)
             .ToListAsync();
 
-        return list.Select(n => new NotificationDto(n.Id, n.UserId, n.Title, n.Message, n.IsRead, n.RelatedEntityId, n.RelatedEntityType, n.CreatedAt));
+        return list.Select(n => new NotificationDto(n.Id, n.UserId, n.Type, n.Title, n.Body, n.IsRead, n.EntityId, n.EntityType, n.Priority, n.CreatedAt));
     }
 
     public async Task MarkAsReadAsync(int notificationId, int userId)
@@ -45,5 +45,15 @@ public class NotificationService : INotificationService
             n.IsRead = true;
         }
         await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteNotificationAsync(int notificationId, int userId)
+    {
+        var n = await _context.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId && x.UserId == userId);
+        if (n != null)
+        {
+            n.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -8,8 +8,8 @@ public record UpdateTicketDto(string Title, string Description, int CategoryId, 
 
 public record TicketHistoryDto(int Id, int TicketId, string FieldName, string? OldValue, string? NewValue, string Action, DateTime CreatedAt);
 public record TicketCommentDto(int Id, int TicketId, int AuthorUserId, string Content, bool IsInternal, DateTime CreatedAt, int? ParentCommentId = null, bool IsEdited = false, DateTime? UpdatedAt = null);
-public record CreateCommentDto(string Content, bool IsInternal, int AuthorUserId, int? ParentCommentId = null);
-public record UpdateCommentDto(string Content);
+public record CreateCommentDto(string Content, bool IsInternal, int AuthorUserId, int? ParentCommentId = null, int[]? MentionedUserIds = null);
+public record UpdateCommentDto(string Content, List<int>? MentionedUserIds = null);
 
 public record TicketAttachmentDto(int Id, int TicketId, string FileName, string FilePath, long FileSize, string ContentType, int UploadedByUserId, DateTime CreatedAt);
 

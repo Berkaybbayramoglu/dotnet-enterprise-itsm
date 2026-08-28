@@ -50,6 +50,14 @@ public class TicketController : ControllerBase
         return Ok(t);
     }
 
+    [HttpGet("{id}/eligible-users")]
+    [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetEligibleUsers(int id)
+    {
+        var users = await _service.GetEligibleUsersForTicketAsync(id);
+        return Ok(users);
+    }
+
     [HttpPut("{id}")]
     [Authorize(Policy = "RequirePermission:ticket.edit")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -146,7 +154,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> AddComment(int id, [FromBody] CreateCommentDto dto)
     {
-        var createDto = new CreateCommentDto(dto.Content, dto.IsInternal, GetCurrentUserId(), dto.ParentCommentId);
+        var createDto = new CreateCommentDto(dto.Content, dto.IsInternal, GetCurrentUserId(), dto.ParentCommentId, dto.MentionedUserIds);
         var result = await _service.AddCommentAsync(id, createDto);
         return Ok(result);
     }

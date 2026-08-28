@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.SignalR;
+using ItsTool.API.Hubs;
 using System.Text;
 
 var currentDir = Directory.GetCurrentDirectory();
@@ -30,6 +32,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
 
 builder.Services.AddScoped<SystemAuditInterceptor>();
 
@@ -78,7 +81,8 @@ builder.Services.AddScoped<IAssignmentEngine, AssignmentEngine>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IWebhookDispatcher, WebhookDispatcher>();
 builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
-    builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ISignalRPusher, ItsTool.API.Services.SignalRPusher>();
     builder.Services.AddScoped<ISlaService, SlaService>();
     builder.Services.AddHostedService<SlaCheckerService>();
 
@@ -125,7 +129,8 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins(allowedOrigins)
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 
 });
@@ -159,6 +164,7 @@ app.MapGet("/api/health", () =>
 });
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notification");
 
 if (app.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("AutoSeed"))
 {

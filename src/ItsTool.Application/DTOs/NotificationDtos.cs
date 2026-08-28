@@ -2,4 +2,4 @@ using System;
 
 namespace ItsTool.Application.DTOs;
 
-public record NotificationDto(int Id, int UserId, string Title, string Message, bool IsRead, int? RelatedEntityId, string? RelatedEntityType, DateTime CreatedAt);
+public record NotificationDto(int Id, int UserId, string Type, string Title, string Body, bool IsRead, int EntityId, string EntityType, string Priority, DateTime CreatedAt);

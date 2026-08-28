@@ -22,6 +22,7 @@
         .reply-container::before { content: ''; position: absolute; left: -24px; top: -16px; bottom: 0; border-left: 2px solid var(--border); z-index: 1; }
         .reply-container:last-child::before { bottom: auto; height: 32px; }
         .replies-list { position: relative; padding-top: 8px; margin-top: 8px; border-top: 1px dashed var(--border); }
+        .replies-list:empty { display: none; }
         
         .property-group { margin-bottom: var(--spacing-md); }
         .property-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
@@ -1320,6 +1321,14 @@
         }
 
         window.inlineReplyToComment = (id, forceInternal = false) => {
+            // Close any open edit boxes
+            document.querySelectorAll('[id^="comment-edit-"]').forEach(el => {
+                if(el.style.display === 'block') {
+                    const cid = el.id.split('-').pop();
+                    window.cancelEditComment(cid);
+                }
+            });
+            
             const parentDiv = document.getElementById(`comment-${id}`);
             if(!parentDiv) return;
             
@@ -1392,6 +1401,18 @@
         };
 
         window.inlineEditComment = (id) => {
+            // Close any open reply boxes
+            let existingBox = document.getElementById('inline-reply-box');
+            if (existingBox) existingBox.remove();
+            
+            // Close any other open edit boxes
+            document.querySelectorAll('[id^="comment-edit-"]').forEach(el => {
+                if(el.style.display === 'block' && el.id !== `comment-edit-${id}`) {
+                    const cid = el.id.split('-').pop();
+                    window.cancelEditComment(cid);
+                }
+            });
+
             const contentDiv = document.getElementById(`comment-content-${id}`);
             document.getElementById(`comment-edit-${id}`).style.display = 'block';
             document.getElementById(`edit-textarea-${id}`).value = contentDiv.innerText || contentDiv.textContent;

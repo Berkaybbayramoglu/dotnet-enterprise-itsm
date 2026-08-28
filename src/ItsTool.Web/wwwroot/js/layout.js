@@ -1,4 +1,31 @@
+import { initNotifications } from './notifications.js?v=3';
+
 export function injectShell() {
+    // Inject SignalR script
+    if (!document.querySelector('script[src="js/lib/signalr.min.js"]')) {
+        const script = document.createElement('script');
+        script.src = 'js/lib/signalr.min.js';
+        script.onload = () => initNotifications();
+        document.head.appendChild(script);
+    } else {
+        initNotifications();
+    }
+
+    // Inject CSS for Dropdown
+    if (!document.getElementById('bell-dropdown-style')) {
+        const style = document.createElement('style');
+        style.id = 'bell-dropdown-style';
+        style.innerHTML = `
+            .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; list-style: none; padding: 0; margin: 8px 0 0 0; }
+            .dropdown-menu.show { display: block; }
+            .dropdown-item { display: block; padding: 8px 16px; color: var(--text-main); text-decoration: none; cursor: pointer; }
+            .dropdown-item:hover, .dropdown-item.active { background: var(--bg-hover); }
+            .dropdown-header { padding: 8px 16px; margin:0; font-size: 14px; font-weight: 600; color: var(--text-main); }
+            .dropdown-divider { height: 1px; margin: 8px 0; overflow: hidden; background-color: var(--border); border: none; }
+        `;
+        document.head.appendChild(style);
+    }
+
     const shellHtml = `
         <!-- Sidebar -->
         <aside class="sidebar">

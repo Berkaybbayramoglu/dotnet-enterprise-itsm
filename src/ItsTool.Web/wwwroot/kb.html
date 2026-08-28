@@ -41,6 +41,18 @@
                     <h2>Knowledge Base</h2>
                 </div>
                 <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)">Mark all as read</a></li>
+                        </ul>
+                    </div>
                     <button type="button" class="btn btn-primary" id="btnNewArticle" style="display: none;">+ New Article</button>
                     <div class="avatar">U</div>
                     <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
@@ -114,7 +126,7 @@
 
     <script type="module">
         import './js/api.js?v=2';
-        import { injectShell } from './js/layout.js';
+        import { injectShell } from './js/layout.js?v=4';
         import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js?v=2';
         injectShell();
         

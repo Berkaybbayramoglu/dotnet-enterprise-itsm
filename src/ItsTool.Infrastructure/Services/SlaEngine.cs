@@ -301,9 +301,10 @@ public class SlaEngine : ISlaEngine
         {
             UserId = userId,
             Title = title,
-            Message = message,
-            RelatedEntityId = ticketId,
-            RelatedEntityType = "Ticket"
+            Body = message,
+            Type = "sla.warning",
+            EntityId = ticketId,
+            EntityType = "Ticket"
         });
 
         // Fire and forget email via stub

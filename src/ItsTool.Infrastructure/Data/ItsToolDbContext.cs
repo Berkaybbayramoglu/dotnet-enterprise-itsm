@@ -67,7 +67,7 @@ public class ItsToolDbContext : DbContext
     public DbSet<TicketSla> TicketSlas => Set<TicketSla>();
 
     // Notification
-    public DbSet<NotificationRule> NotificationRules => Set<NotificationRule>();
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
     // Assignment

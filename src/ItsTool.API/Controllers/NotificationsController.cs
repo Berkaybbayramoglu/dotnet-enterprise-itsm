@@ -52,4 +52,13 @@ public class NotificationsController : ControllerBase
         await _service.MarkAllAsReadAsync(userId);
         return NoContent();
     }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteNotification(int id)
+    {
+        var userId = GetCurrentUserId();
+        await _service.DeleteNotificationAsync(id, userId);
+        return NoContent();
+    }
 }
