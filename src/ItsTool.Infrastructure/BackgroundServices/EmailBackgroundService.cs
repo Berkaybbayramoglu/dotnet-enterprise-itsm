@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ItsTool.Application.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -10,13 +11,13 @@ namespace ItsTool.Infrastructure.BackgroundServices;
 public class EmailBackgroundService : BackgroundService
 {
     private readonly IEmailQueue _emailQueue;
-    private readonly IEmailService _emailService;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<EmailBackgroundService> _logger;
 
-    public EmailBackgroundService(IEmailQueue emailQueue, IEmailService emailService, ILogger<EmailBackgroundService> logger)
+    public EmailBackgroundService(IEmailQueue emailQueue, IServiceProvider serviceProvider, ILogger<EmailBackgroundService> logger)
     {
         _emailQueue = emailQueue;
-        _emailService = emailService;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -33,7 +34,9 @@ public class EmailBackgroundService : BackgroundService
                 try
                 {
                     _logger.LogInformation("Sending background email to {To} - {Subject}", emailMessage.To, emailMessage.Subject);
-                    await _emailService.SendEmailAsync(emailMessage.To, emailMessage.Subject, emailMessage.Body, emailMessage.IsHtml);
+                    using var scope = _serviceProvider.CreateScope();
+                    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                    await emailService.SendEmailAsync(emailMessage.To, emailMessage.Subject, emailMessage.Body, emailMessage.IsHtml);
                 }
                 catch (Exception ex)
                 {
