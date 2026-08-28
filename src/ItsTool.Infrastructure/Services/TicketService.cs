@@ -751,7 +751,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, null, false)).ToList(), null))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUserId != null ? (a.AssignedUser.FirstName + " " + a.AssignedUser.LastName) : a.AssignedGroup.Name, false)).ToList(), null))
             .ToListAsync();
 
         return new PagedResult<TicketDto>
