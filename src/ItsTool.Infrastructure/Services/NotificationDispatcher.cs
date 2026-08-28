@@ -13,16 +13,20 @@ namespace ItsTool.Infrastructure.Services;
 public class NotificationDispatcher : INotificationDispatcher
 {
     private readonly ItsToolDbContext _context;
-    private readonly IEmailService _emailService;
     private readonly IWebhookDispatcher _webhookDispatcher;
     private readonly ISignalRPusher _signalRPusher;
+    private readonly IEmailQueue _emailQueue;
+    private readonly IEmailTemplateService _templateService;
+    private readonly Microsoft.Extensions.Configuration.IConfiguration _config;
 
-    public NotificationDispatcher(ItsToolDbContext context, IEmailService emailService, IWebhookDispatcher webhookDispatcher, ISignalRPusher signalRPusher)
+    public NotificationDispatcher(ItsToolDbContext context, IWebhookDispatcher webhookDispatcher, ISignalRPusher signalRPusher, IEmailQueue emailQueue, IEmailTemplateService templateService, Microsoft.Extensions.Configuration.IConfiguration config)
     {
         _context = context;
-        _emailService = emailService;
         _webhookDispatcher = webhookDispatcher;
         _signalRPusher = signalRPusher;
+        _emailQueue = emailQueue;
+        _templateService = templateService;
+        _config = config;
     }
 
     public async Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null)
@@ -217,28 +221,49 @@ public class NotificationDispatcher : INotificationDispatcher
         {
             var pref = preferences.FirstOrDefault(p => p.UserId == recipient.UserId && p.Category == recipient.Category);
             bool emailEnabled = pref == null ? true : pref.EmailEnabled;
+            // Calculate body text once for both Email and SignalR
+            string finalBody = additionalContext ?? $"Ticket {ticket.TicketNumber}";
+            if (eventKey == "comment.mention" && additionalContext != null && additionalContext.Contains("|"))
+            {
+                var parts = additionalContext.Split('|', 2);
+                finalBody = parts.Length > 1 ? parts[1] : finalBody;
+            }
 
             if (recipient.SendEmail && emailEnabled)
             {
                 var u = await _context.Users.FindAsync(recipient.UserId);
                 if (u != null)
                 {
-                    await _emailService.SendEmailAsync(u.Email, $"ITSM Notification: {eventKey}", additionalContext ?? $"Event {eventKey} on {ticket.TicketNumber}");
+                    string baseUrl = _config["AppBaseUrl"] ?? "http://localhost:5000";
+                    string ticketUrl = $"{baseUrl.TrimEnd('/')}/ticket-detail.html?id={ticket.Id}";
+                    
+                    var templateData = new Dictionary<string, string>
+                    {
+                        { "EventName", $"ITSM Notification: {eventKey}" },
+                        { "TicketNumber", ticket.TicketNumber },
+                        { "Title", ticket.Title },
+                        { "Context", finalBody },
+                        { "AppUrl", ticketUrl }
+                    };
+
+                    string htmlBody = _templateService.GenerateEmailBody(eventKey, templateData);
+
+                    var emailMsg = new EmailMessage
+                    {
+                        To = u.Email,
+                        Subject = $"ITSM Notification: {eventKey} - {ticket.TicketNumber}",
+                        Body = htmlBody,
+                        IsHtml = true
+                    };
+
+                    await _emailQueue.QueueEmailAsync(emailMsg);
                 }
             }
             
-            // SignalR Push
-            string pushBody = additionalContext ?? $"Ticket {ticket.TicketNumber}";
-            if (eventKey == "comment.mention" && additionalContext != null && additionalContext.Contains("|"))
-            {
-                var parts = additionalContext.Split('|', 2);
-                pushBody = parts.Length > 1 ? parts[1] : pushBody;
-            }
-
             await _signalRPusher.PushNotificationAsync(recipient.UserId, new {
                 type = eventKey,
                 title = $"Event {eventKey}",
-                body = pushBody,
+                body = finalBody,
                 entityId = ticket.Id,
                 priority = recipient.Priority,
                 createdAt = DateTime.UtcNow

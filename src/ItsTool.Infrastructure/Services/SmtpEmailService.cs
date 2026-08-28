@@ -19,7 +19,7 @@ public class SmtpEmailService : IEmailService
         _logger = logger;
     }
 
-    public async Task SendEmailAsync(string to, string subject, string body)
+    public async Task SendEmailAsync(string to, string subject, string body, bool isHtml = true)
     {
         var host = _config["Smtp:Host"];
         var portStr = _config["Smtp:Port"];
@@ -39,7 +39,7 @@ public class SmtpEmailService : IEmailService
             message.To.Add(new MailboxAddress("", to));
             message.Subject = subject;
 
-            message.Body = new TextPart("html")
+            message.Body = new TextPart(isHtml ? "html" : "plain")
             {
                 Text = body
             };
