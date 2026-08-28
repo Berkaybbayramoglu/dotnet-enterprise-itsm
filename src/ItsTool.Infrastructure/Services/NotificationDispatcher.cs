@@ -225,9 +225,25 @@ public class NotificationDispatcher : INotificationDispatcher
             string finalBody = additionalContext ?? $"Ticket {ticket.TicketNumber}";
             if (eventKey == "comment.mention" && additionalContext != null && additionalContext.Contains("|"))
             {
-                var parts = additionalContext.Split('|', 2);
+                var parts = additionalContext.Split('|');
                 finalBody = parts.Length > 1 ? parts[1] : finalBody;
             }
+
+            string humanReadableEvent = eventKey switch
+            {
+                "ticket.created" => "New Ticket Created",
+                "ticket.assigned" => "Ticket Assigned to You",
+                "ticket.transferred" => "Ticket Transferred",
+                "comment.added" => "New Comment on Ticket",
+                "comment.mention" => "You Were Mentioned",
+                "status.changed" => "Ticket Status Changed",
+                "ticket.reopened" => "Ticket Reopened",
+                "sla.risk" => "SLA Breach Risk",
+                "sla.breached" => "SLA Breached",
+                "critical.unassigned" => "Critical Ticket Unassigned",
+                "survey.low" => "Low Survey Score Received",
+                _ => "ITSM Notification"
+            };
 
             if (recipient.SendEmail && emailEnabled)
             {
@@ -239,7 +255,7 @@ public class NotificationDispatcher : INotificationDispatcher
                     
                     var templateData = new Dictionary<string, string>
                     {
-                        { "EventName", $"ITSM Notification: {eventKey}" },
+                        { "EventName", humanReadableEvent },
                         { "TicketNumber", ticket.TicketNumber },
                         { "Title", ticket.Title },
                         { "Context", finalBody },
@@ -251,7 +267,7 @@ public class NotificationDispatcher : INotificationDispatcher
                     var emailMsg = new EmailMessage
                     {
                         To = u.Email,
-                        Subject = $"ITSM Notification: {eventKey} - {ticket.TicketNumber}",
+                        Subject = $"{humanReadableEvent} - {ticket.TicketNumber} ({ticket.Title})",
                         Body = htmlBody,
                         IsHtml = true
                     };
@@ -262,7 +278,7 @@ public class NotificationDispatcher : INotificationDispatcher
             
             await _signalRPusher.PushNotificationAsync(recipient.UserId, new {
                 type = eventKey,
-                title = $"Event {eventKey}",
+                title = humanReadableEvent,
                 body = finalBody,
                 entityId = ticket.Id,
                 priority = recipient.Priority,
