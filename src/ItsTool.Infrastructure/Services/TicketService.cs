@@ -525,6 +525,26 @@ public class TicketService : ITicketService
         await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
         await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, "A new comment was added.");
         
+        if (dto.MentionedUserIds != null && dto.MentionedUserIds.Any())
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            foreach(var uid in dto.MentionedUserIds)
+            {
+                await _notificationDispatcher.DispatchEventAsync("comment.mention", ticketId, dto.AuthorUserId, $"{uid}|You were mentioned in ticket {ticket?.TicketNumber} ({ticket?.Title})|{c.Id}");
+                
+                _context.TicketHistories.Add(new TicketHistory
+                {
+                    TicketId = ticketId,
+                    Action = "UserMentioned",
+                    FieldName = c.Id.ToString(),
+                    OldValue = null,
+                    NewValue = uid.ToString(),
+                    CreatedBy = dto.AuthorUserId.ToString()
+                });
+            }
+            await _context.SaveChangesAsync();
+        }
+        
         return new TicketCommentDto(c.Id, c.TicketId, c.AuthorUserId, c.Content, c.IsInternal, c.CreatedAt, c.ParentCommentId, c.IsEdited, c.UpdatedAt);
     }
 
@@ -552,6 +572,25 @@ public class TicketService : ITicketService
             NewValue = c.Content,
             CreatedBy = userId.ToString()
         });
+        
+        if (dto.MentionedUserIds != null && dto.MentionedUserIds.Any())
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            foreach(var uid in dto.MentionedUserIds)
+            {
+                await _notificationDispatcher.DispatchEventAsync("comment.mention", ticketId, userId, $"{uid}|You were mentioned in ticket {ticket?.TicketNumber} ({ticket?.Title})|{c.Id}");
+                
+                _context.TicketHistories.Add(new TicketHistory
+                {
+                    TicketId = ticketId,
+                    Action = "UserMentioned",
+                    FieldName = c.Id.ToString(),
+                    OldValue = null,
+                    NewValue = uid.ToString(),
+                    CreatedBy = userId.ToString()
+                });
+            }
+        }
 
         await _context.SaveChangesAsync();
         
@@ -760,5 +799,50 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
 
         return new TicketSurveyDto(survey.Id, survey.TicketId, survey.Rating, survey.Comment, survey.SubmittedAt);
+    }
+
+    public async Task<IEnumerable<UserDto>> GetEligibleUsersForTicketAsync(int ticketId)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.Assignments)
+            .FirstOrDefaultAsync(t => t.Id == ticketId && !t.IsDeleted);
+
+        if (ticket == null) return new List<UserDto>();
+
+        var userIds = new HashSet<int>();
+        userIds.Add(ticket.RequesterUserId);
+
+        var assignees = ticket.Assignments.Where(a => a.IsActive && !a.IsDeleted).ToList();
+        foreach (var a in assignees)
+        {
+            if (a.AssignedUserId.HasValue) userIds.Add(a.AssignedUserId.Value);
+            if (a.AssignedGroupId.HasValue)
+            {
+                var groupMembers = await _context.GroupMembers
+                    .Where(gm => gm.GroupId == a.AssignedGroupId.Value && !gm.IsDeleted)
+                    .Select(gm => gm.UserId)
+                    .ToListAsync();
+                foreach(var u in groupMembers) userIds.Add(u);
+            }
+        }
+
+        if (ticket.ProjectId.HasValue)
+        {
+            var projectMembers = await _context.ProjectMembers
+                .Where(pm => pm.ProjectId == ticket.ProjectId.Value && !pm.IsDeleted)
+                .Select(pm => pm.UserId)
+                .ToListAsync();
+            foreach(var u in projectMembers) userIds.Add(u);
+        }
+
+        var users = await _context.Users
+            .Where(u => userIds.Contains(u.Id) && !u.IsDeleted)
+            .ToListAsync();
+
+        return users.Select(u => new UserDto(
+            u.Id, u.Username, u.Email, u.FirstName, u.LastName,
+            u.IsActive, u.DepartmentId, new int[0], new Dictionary<int, bool>(),
+            u.ProfilePhoto, new int[0], u.CreatedAt
+        ));
     }
 }
