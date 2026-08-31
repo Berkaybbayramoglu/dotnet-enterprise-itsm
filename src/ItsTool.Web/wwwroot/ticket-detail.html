@@ -125,7 +125,7 @@
                                 <div style="margin-top: var(--spacing-xl);">
                                     <form id="commentForm">
                                         <div class="comment-input-wrapper" style="border: 1px solid var(--border); border-radius: 8px; background: white; padding: 8px; box-shadow: var(--shadow-sm); position: relative; transition: border-color 0.2s;">
-                                            <textarea id="commentText" class="form-control" rows="3" required placeholder="Add a comment... (Drag & Drop images here)" aria-label="Comment" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
+                                            <textarea id="commentText" class="form-control" rows="3" required placeholder="Add a comment... (Drag & Drop files here)" aria-label="Comment" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
                                             
                                             <div id="attachmentPreviews" class="d-flex gap-sm flex-wrap mb-sm" style="padding: 0 8px;"></div>
                                             
@@ -1293,8 +1293,7 @@
                                     if (h.action === 'UserMentioned' && h.newValue) {
                                         detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">Mentioned User: <strong>${resolveUser(h.newValue)}</strong></div>`;
                                     } else if (h.newValue) {
-                                        let cleanText = escapeHtml(h.newValue).replace(/\[attachment:\d+\]/g, '📎 Ek Dosya').trim();
-                                        detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${cleanText}</div>`;
+                                        detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${window.renderContentWithAttachments(h.newValue)}</div>`;
                                     }
                                     if (h.action === 'CommentReplied' && h.oldValue) {
                                         // h.oldValue contains parent ID usually for replies or we can link to it. Wait, TicketService sets OldValue=null for replies.
@@ -1321,7 +1320,7 @@
                                     const editorName = resolveUser(h.createdBy);
                                     const editedAt = new Date(e.timestamp).toLocaleString();
                                     
-                                    detailsHtml = `<button class="btn btn-ghost" style="font-size:10px; padding:2px 4px; margin-top:4px;" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">Detay Gör</button>`;
+                                    detailsHtml = `<button class="btn btn-ghost" style="font-size:11px; padding:4px 8px; margin-top:4px; color:var(--primary); font-weight:600; background:rgba(10, 107, 234, 0.05); border:1px solid rgba(10, 107, 234, 0.1);" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">Detay Gör</button>`;
                                 } else if (h.action === 'CommentDeleted' && h.oldValue) {
                                     detailsHtml = `<div style="background:#ffeeee; padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid #ffcccc; font-size:11px; color:#aa0000;"><del>${escapeHtml(h.oldValue)}</del></div>`;
                                 }
@@ -1846,40 +1845,42 @@
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#039;");
         }
+        
         await loadTicket();
+
+        window.renderContentWithAttachments = (content) => {
+            if (!content) return '';
+            let contentHtml = escapeHtml(content);
+            let attachmentsHtml = '';
+            const attachRegex = /\[attachment:(\d+)\]/g;
+            let match;
+            const foundIds = [];
+            while((match = attachRegex.exec(contentHtml)) !== null) {
+                foundIds.push(match[1]);
+            }
+
+            if(foundIds.length > 0) {
+                attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 8px;">` + 
+                    foundIds.map(id => {
+                        const att = window.ticketAttachments?.find(x => x.id == id);
+                        const isImage = att && att.contentType && att.contentType.startsWith('image/');
+                        if (isImage) {
+                            return `<img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" style="max-width: 60px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 60px; object-fit: cover; cursor: pointer;" alt="Attachment" onclick="window.openLightbox(this.src)"/>`;
+                        } else {
+                            const fileName = att ? att.fileName : ('File ' + id);
+                            return `<a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" target="_blank" style="display:flex; align-items:center; gap:4px; padding:4px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-surface); color:var(--text-main); text-decoration:none; font-size:10px; font-weight:500;">📎 ${escapeHtml(fileName)}</a>`;
+                        }
+                    }).join('') +
+                    `</div>`;
+                contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
+            }
+            return `<div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>${attachmentsHtml}`;
+        };
 
         window.showEditDetails = (oldB64, newB64, authorName, editorName, createdAt, updatedAt) => {
             const oldVal = decodeURIComponent(escape(atob(oldB64)));
             const newVal = decodeURIComponent(escape(atob(newB64)));
             
-            const renderContentWithAttachments = (content) => {
-                let contentHtml = escapeHtml(content);
-                let attachmentsHtml = '';
-                const attachRegex = /\[attachment:(\d+)\]/g;
-                let match;
-                const foundIds = [];
-                while((match = attachRegex.exec(contentHtml)) !== null) {
-                    foundIds.push(match[1]);
-                }
-
-                if(foundIds.length > 0) {
-                    attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 8px;">` + 
-                        foundIds.map(id => {
-                            const att = window.ticketAttachments?.find(x => x.id == id);
-                            const isImage = att && att.contentType && att.contentType.startsWith('image/');
-                            if (isImage) {
-                                return `<img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" style="max-width: 60px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 60px; object-fit: cover; cursor: pointer;" alt="Attachment" onclick="window.openLightbox(this.src)"/>`;
-                            } else {
-                                const fileName = att ? att.fileName : ('File ' + id);
-                                return `<a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" target="_blank" style="display:flex; align-items:center; gap:4px; padding:4px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-surface); color:var(--text-main); text-decoration:none; font-size:10px; font-weight:500;">📎 ${escapeHtml(fileName)}</a>`;
-                            }
-                        }).join('') +
-                        `</div>`;
-                    contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
-                }
-                return `<div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>${attachmentsHtml}`;
-            };
-
             const modal = document.createElement('div');
             modal.className = 'modal-overlay active';
             modal.style.display = 'flex';
@@ -1899,7 +1900,7 @@
                                 <strong>Written At:</strong> ${createdAt}
                             </div>
                             <strong style="color:var(--error); font-size:12px; text-transform:uppercase;">Before (Eski Hali)</strong>
-                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; min-height:60px;">${renderContentWithAttachments(oldVal)}</div>
+                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; min-height:60px;">${window.renderContentWithAttachments(oldVal)}</div>
                         </div>
                         <div>
                             <div style="margin-bottom: 8px; font-size: 12px; color: var(--text-muted);">
@@ -1907,7 +1908,7 @@
                                 <strong>Edited At:</strong> ${updatedAt}
                             </div>
                             <strong style="color:var(--success); font-size:12px; text-transform:uppercase;">After (Yeni Hali)</strong>
-                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; min-height:60px;">${renderContentWithAttachments(newVal)}</div>
+                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; min-height:60px;">${window.renderContentWithAttachments(newVal)}</div>
                         </div>
                     </div>
                 </div>
@@ -2156,11 +2157,7 @@
             
             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 const file = e.dataTransfer.files[0];
-                if (file.type.startsWith('image/')) {
-                    uploadCommentAttachment({ files: [file], value: '' });
-                } else {
-                    showToast('Only image files are supported via drag & drop for comments.', 'warning');
-                }
+                uploadCommentAttachment({ files: [file], value: '' });
             }
         });
 
