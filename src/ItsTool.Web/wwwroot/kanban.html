@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Kanban</title>
-    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/design-system.css?v=2">
     <style>
         .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
         .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
@@ -170,7 +170,7 @@
                             <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${t('db_' + s.name.toLowerCase().replace(' ', '_'))}</span>
                             <span class="badge badge-default" id="count-${s.id}">0</span>
                         </div>
-                        <div class="column-body" data-status-id="${s.id}" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
+                        <div class="column-body" data-status-id="${s.id}" ondragover="window.allowDrop(event)" ondrop="window.drop(event)"></div>
                     `;
                     board.appendChild(col);
                 });
@@ -402,7 +402,7 @@
             }
 
             if (target && card) {
-                const newStatusId = Number.parseInt(target.dataseticket.statusId);
+                const newStatusId = Number.parseInt(target.dataset.statusId);
                 const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
 
                 try {
@@ -416,7 +416,7 @@
                     
                     // Re-calculate counts
                     document.querySelectorAll('.column-body').forEach(c => {
-                        const sId = c.dataseticket.statusId;
+                        const sId = c.dataset.statusId;
                         const count = c.querySelectorAll('.card').length;
                         document.getElementById(`count-${sId}`).textContent = count;
                     });
