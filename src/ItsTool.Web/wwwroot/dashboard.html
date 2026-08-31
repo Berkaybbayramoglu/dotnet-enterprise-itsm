@@ -58,11 +58,23 @@
                     </div>
                 </div>
 
-                <!-- New Row: Team Workload & Recent Tickets -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <!-- New Row: Team Workload, Agent Workload & Recent Tickets -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
                     <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_team_workload">Takım Yükü</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="font-weight: 600;" data-i18n="dash_team_workload">Takım Yükü</div>
+                            <a href="/workload.html" style="font-size: 12px; color: var(--primary); text-decoration: none;" data-i18n="dash_view_all">Tümünü Gör</a>
+                        </div>
                         <div id="workloadList" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="font-weight: 600;" data-i18n="dash_agent_workload">Kişi Bazlı Yük</div>
+                            <a href="/workload.html" style="font-size: 12px; color: var(--primary); text-decoration: none;" data-i18n="dash_view_all">Tümünü Gör</a>
+                        </div>
+                        <div id="agentWorkloadList" style="display: flex; flex-direction: column; gap: 12px;">
                             <!-- Populated by JS -->
                         </div>
                     </div>
@@ -96,9 +108,9 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=5';
-        import { injectShell } from './js/layout.js?v=8';
-        import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js?v=5';
+        import './js/api.js?v=6';
+        import { injectShell } from './js/layout.js?v=9';
+        import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js?v=6';
         import { t } from './js/i18n.js';
         injectShell();
         
@@ -250,6 +262,40 @@
             `).join('');
         }
 
+        function renderAgentWorkloadList(workload) {
+            let allAgents = [];
+            workload.forEach(w => {
+                if (w.members) {
+                    w.members.forEach(m => {
+                        allAgents.push(m);
+                    });
+                }
+            });
+            
+            // Sort by ticket count descending
+            allAgents.sort((a, b) => b.openTicketCount - a.openTicketCount);
+            
+            // Take top 5
+            allAgents = allAgents.slice(0, 5);
+
+            if (allAgents.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
+            
+            return allAgents.map(m => `
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
+                        <div class="avatar" style="width:32px; height:32px; font-size:14px; border-radius: 8px;">${m.userName ? m.userName.charAt(0).toUpperCase() : 'U'}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight: 500;">${m.userName}</div>
+                            <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: var(--info); width: ${Math.min(m.openTicketCount * 10, 100)}%;"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight: 600;">${m.openTicketCount}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function renderRecentTicketsList(recentTickets, lookup) {
             const getStatusName = (id) => lookup.statuses?.find(s => s.id === id)?.name || 'Unknown';
             const getStatusBadge = (status) => {
@@ -297,6 +343,7 @@
 
                 // Workload List
                 document.getElementById('workloadList').innerHTML = renderWorkloadList(workload);
+                document.getElementById('agentWorkloadList').innerHTML = renderAgentWorkloadList(workload);
 
                 // Recent Tickets List
                 document.getElementById('recentTicketsList').innerHTML = renderRecentTicketsList(recentTickets, lookup);

@@ -109,7 +109,7 @@ public class DashboardService : IDashboardService
             .Where(u => !u.IsDeleted && u.IsActive)
             .ToListAsync();
 
-        var query = await GetScopedTicketsQueryAsync(userId);
+        var query = _context.Tickets.Where(t => !t.IsDeleted);
         
         var openTicketsCountPerUser = await query
             .Where(t => t.Status != null && !t.Status.IsClosedStatus)
