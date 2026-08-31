@@ -230,6 +230,24 @@ public class TicketController : ControllerBase
         return Ok(await _service.GetAttachmentsAsync(id));
     }
 
+    [AllowAnonymous]
+    [HttpGet("{id}/attachments/{attachmentId}/download")]
+    public async Task<IActionResult> DownloadAttachment(int id, int attachmentId)
+    {
+        try
+        {
+            var (filePath, contentType, fileName) = await _service.GetAttachmentFileInfoAsync(id, attachmentId);
+            if (!System.IO.File.Exists(filePath))
+                return NotFound();
+                
+            return PhysicalFile(System.IO.Path.GetFullPath(filePath), contentType, fileName);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [HttpGet("{id}/timeline")]
     [ProducesResponseType(typeof(IEnumerable<TimelineEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTimeline(int id)

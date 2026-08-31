@@ -683,8 +683,22 @@ public class TicketService : ITicketService
 
     public async Task<IEnumerable<TicketAttachmentDto>> GetAttachmentsAsync(int ticketId)
     {
-        var list = await _context.TicketAttachments.Where(a => a.TicketId == ticketId && !a.IsDeleted).ToListAsync();
-        return list.Select(a => new TicketAttachmentDto(a.Id, a.TicketId, a.FileName, a.FilePath, a.FileSize, a.ContentType, a.UploadedByUserId, a.CreatedAt));
+        var attachments = await _context.TicketAttachments
+            .Where(a => a.TicketId == ticketId && !a.IsDeleted)
+            .ToListAsync();
+            
+        return attachments.Select(a => new TicketAttachmentDto(a.Id, a.TicketId, a.FileName, a.FilePath, a.FileSize, a.ContentType, a.UploadedByUserId, a.CreatedAt));
+    }
+
+    public async Task<(string FilePath, string ContentType, string FileName)> GetAttachmentFileInfoAsync(int ticketId, int attachmentId)
+    {
+        var attachment = await _context.TicketAttachments
+            .FirstOrDefaultAsync(a => a.Id == attachmentId && a.TicketId == ticketId && !a.IsDeleted);
+
+        if (attachment == null)
+            throw new KeyNotFoundException("Attachment not found.");
+
+        return (attachment.FilePath, attachment.ContentType, attachment.FileName);
     }
 
     public async Task AddWatcherAsync(int ticketId, int userId)

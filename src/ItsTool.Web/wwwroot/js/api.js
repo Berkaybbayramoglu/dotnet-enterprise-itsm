@@ -19,9 +19,13 @@ class ApiClient {
 
     async request(endpoint, options = {}) {
         const headers = {
-            'Content-Type': 'application/json',
             ...options.headers
         };
+        
+        // Only default to JSON if we are not sending FormData
+        if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
 
         if (this.token) {
             headers['Authorization'] = `Bearer ${this.token}`;

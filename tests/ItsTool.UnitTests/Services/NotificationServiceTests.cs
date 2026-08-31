@@ -22,8 +22,8 @@ public class NotificationServiceTests : TestBase
     [Fact]
     public async Task GetUserNotificationsAsync_ShouldReturnOnlyUserNotifications()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A" });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "B", Message = "B" });
+        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Body = "A" });
+        _context.Notifications.Add(new Notification { UserId = 2, Title = "B", Body = "B" });
         await _context.SaveChangesAsync();
 
         var notifs = await _service.GetUserNotificationsAsync(1);
@@ -35,7 +35,7 @@ public class NotificationServiceTests : TestBase
     [Fact]
     public async Task MarkAsReadAsync_ShouldMarkSpecificNotification()
     {
-        var n = new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false };
+        var n = new Notification { UserId = 1, Title = "A", Body = "A", IsRead = false };
         _context.Notifications.Add(n);
         await _context.SaveChangesAsync();
 
@@ -48,9 +48,9 @@ public class NotificationServiceTests : TestBase
     [Fact]
     public async Task MarkAllAsReadAsync_ShouldMarkAllForUser()
     {
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Message = "A", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 1, Title = "B", Message = "B", IsRead = false });
-        _context.Notifications.Add(new Notification { UserId = 2, Title = "C", Message = "C", IsRead = false });
+        _context.Notifications.Add(new Notification { UserId = 1, Title = "A", Body = "A", IsRead = false });
+        _context.Notifications.Add(new Notification { UserId = 1, Title = "B", Body = "B", IsRead = false });
+        _context.Notifications.Add(new Notification { UserId = 2, Title = "C", Body = "C", IsRead = false });
         await _context.SaveChangesAsync();
 
         await _service.MarkAllAsReadAsync(1);

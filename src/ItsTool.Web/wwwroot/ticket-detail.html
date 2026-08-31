@@ -116,12 +116,27 @@
                                 
                                 <div style="margin-top: var(--spacing-xl);">
                                     <form id="commentForm">
-                                        <textarea id="commentText" class="form-control mb-sm" rows="4" required placeholder="Add a comment..." aria-label="Comment"></textarea>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <label style="font-size: 12px; display: flex; align-items: center; gap: 4px;">
-                                                <input type="checkbox" id="isInternalComment"> Internal Note
-                                            </label>
-                                            <button type="submit" class="btn btn-primary">Save</button>
+                                        <div class="comment-input-wrapper" style="border: 1px solid var(--border); border-radius: 8px; background: white; padding: 8px; box-shadow: var(--shadow-sm); position: relative; transition: border-color 0.2s;">
+                                            <textarea id="commentText" class="form-control" rows="3" required placeholder="Add a comment... (Drag & Drop images here)" aria-label="Comment" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
+                                            
+                                            <div id="attachmentPreviews" class="d-flex gap-sm flex-wrap mb-sm" style="padding: 0 8px;"></div>
+                                            
+                                            <div class="d-flex justify-content-between align-items-center" style="padding: 4px 8px; border-top: 1px solid var(--border-light); margin-top: 4px; padding-top: 12px;">
+                                                <div class="d-flex align-items-center gap-md">
+                                                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('commentAttachmentInput').click()" title="Attach Image" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
+                                                        🖼️
+                                                    </button>
+                                                    <input type="file" id="commentAttachmentInput" style="display: none;" accept="image/*" onchange="uploadCommentAttachment(this)">
+                                                    
+                                                    <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 0; color: var(--text-secondary); cursor: pointer;">
+                                                        <input type="checkbox" id="isInternalComment"> Internal Note
+                                                    </label>
+                                                </div>
+                                                
+                                                <button type="submit" class="btn btn-primary" id="btnSubmitComment" style="border-radius: 50%; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Send Comment">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
@@ -1087,23 +1102,44 @@
                                 connectorHtml = '<div class="comment-reply-connector"></div>';
                             }
                             
-                            div.innerHTML = `
-                                ${connectorHtml}
-                                <div class="comment-header">
-                                    <div class="d-flex align-items-center gap-sm">
-                                        ${getAvatar(c.authorUserId, c.authorUserId)}
-                                        <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${resolveUser(c.authorUserId)}</strong>
-                                        <span>${new Date(e.timestamp).toLocaleString()}</span>
-                                        ${isEdited}
+                                
+                                let contentHtml = escapeHtml(c.content);
+                                let attachmentsHtml = '';
+                                const attachRegex = /\[attachment:(\d+)\]/g;
+                                let match;
+                                const foundIds = [];
+                                while((match = attachRegex.exec(contentHtml)) !== null) {
+                                    foundIds.push(match[1]);
+                                }
+
+                                if(foundIds.length > 0) {
+                                    attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 12px;">` + 
+                                        foundIds.map(id => `<img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" class="comment-attachment-img" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="Attachment" onclick="openLightbox(this.src)" onmouseover="this.style.transform=\\'scale(1.05)\\'" onmouseout="this.style.transform=\\'scale(1)\\'"/>`).join('') +
+                                        `</div>`;
+                                    
+                                    contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
+                                }
+                                
+                                div.innerHTML = `
+                                    ${connectorHtml}
+                                    <div class="comment-header">
+                                        <div class="d-flex align-items-center gap-sm">
+                                            ${getAvatar(c.authorUserId, c.authorUserId)}
+                                            <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${resolveUser(c.authorUserId)}</strong>
+                                            <span>${new Date(e.timestamp).toLocaleString()}</span>
+                                            ${isEdited}
+                                        </div>
+                                        <div class="d-flex align-items-center gap-sm">
+                                            ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">Reply</button>
+                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">Edit</button>
+                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">Delete</button>
+                                        </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-sm">
-                                        ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
-                                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">Reply</button>
-                                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">Edit</button>
-                                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">Delete</button>
+                                    <div id="comment-content-${c.id}" class="comment-body">
+                                        <div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>
+                                        ${attachmentsHtml}
                                     </div>
-                                </div>
-                                <div id="comment-content-${c.id}" class="comment-body">${escapeHtml(c.content)}</div>
                                 <div id="comment-edit-${c.id}" style="display:none; margin-top: 8px;">
                                     <textarea class="form-control mb-sm" rows="3" id="edit-textarea-${c.id}"></textarea>
                                     <div class="d-flex gap-sm">
@@ -1383,7 +1419,15 @@
             let mentionedUserIds = [];
             try {
                 if (textArea.dataset.mentions) {
-                    mentionedUserIds = JSON.parse(textArea.dataset.mentions);
+                    const rawIds = JSON.parse(textArea.dataset.mentions);
+                    mentionedUserIds = rawIds.filter(uid => {
+                        const userObj = window.globalLookup?.users?.find(u => u.id == uid);
+                        if(userObj) {
+                            const nameMention = `@${userObj.firstName} ${userObj.lastName}`;
+                            return content.includes(nameMention);
+                        }
+                        return false;
+                    });
                 }
             } catch(ex) {}
             
@@ -1560,7 +1604,15 @@
             let mentionedUserIds = [];
             try {
                 if (commentTextarea.dataset.mentions) {
-                    mentionedUserIds = JSON.parse(commentTextarea.dataset.mentions);
+                    const rawIds = JSON.parse(commentTextarea.dataset.mentions);
+                    mentionedUserIds = rawIds.filter(uid => {
+                        const userObj = window.globalLookup?.users?.find(u => u.id == uid);
+                        if(userObj) {
+                            const nameMention = `@${userObj.firstName} ${userObj.lastName}`;
+                            return content.includes(nameMention);
+                        }
+                        return false;
+                    });
                 }
             } catch(ex) {}
 
@@ -1571,6 +1623,7 @@
                 });
                 commentTextarea.value = '';
                 commentTextarea.dataset.mentions = '';
+                document.getElementById('attachmentPreviews').innerHTML = ''; // Clear preview thumbnails
                 
                 document.getElementById('isInternalComment').checked = false;
                 
@@ -1760,6 +1813,143 @@
             }
         });
         
+        window.uploadCommentAttachment = async function(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const btn = document.getElementById('btnSubmitComment');
+            
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '...';
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const res = await window.api.request(`/Ticket/${ticketId}/attachments`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const textArea = document.getElementById('commentText');
+                const attachmentMarkup = `\n[attachment:${res.id}]\n`;
+                textArea.value += attachmentMarkup;
+                textArea.dispatchEvent(new Event('input'));
+                
+                showToast('Image attached successfully!');
+            } catch (err) {
+                console.error('Failed to upload image for comment:', err);
+                showToast('Failed to upload image.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>';
+                input.value = ''; // Reset input
+            }
+        };
+
+        // Drag and drop support for the comment box
+        const commentBox = document.getElementById('commentText');
+        
+        // Sync previews with text content
+        commentBox.addEventListener('input', () => {
+            const previewContainer = document.getElementById('attachmentPreviews');
+            const content = commentBox.value;
+            const regex = /\[attachment:(\d+)\]/g;
+            let match;
+            const currentAttachmentIds = [];
+            while ((match = regex.exec(content)) !== null) {
+                currentAttachmentIds.push(match[1]);
+            }
+            
+            previewContainer.innerHTML = '';
+            currentAttachmentIds.forEach(id => {
+                const imgPreview = document.createElement('img');
+                imgPreview.src = `http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download`;
+                imgPreview.style.cssText = 'width: 60px; height: 60px; object-fit: cover; border-radius: 4px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-right: 8px; cursor: pointer;';
+                imgPreview.onclick = () => window.openLightbox(imgPreview.src);
+                previewContainer.appendChild(imgPreview);
+            });
+        });
+        
+        // Delete entire attachment tag on Backspace or Delete
+        commentBox.addEventListener('keydown', (e) => {
+            if (commentBox.selectionStart !== commentBox.selectionEnd) return;
+            
+            if (e.key === 'Backspace') {
+                const cursor = commentBox.selectionEnd;
+                const textToCursor = commentBox.value.substring(0, cursor);
+                const match = textToCursor.match(/\[attachment:\d+\]$/);
+                if (match) {
+                    e.preventDefault();
+                    const before = commentBox.value.substring(0, cursor - match[0].length);
+                    const after = commentBox.value.substring(cursor);
+                    commentBox.value = before + after;
+                    commentBox.selectionStart = commentBox.selectionEnd = before.length;
+                    commentBox.dispatchEvent(new Event('input'));
+                }
+            } else if (e.key === 'Delete') {
+                const cursor = commentBox.selectionEnd;
+                const textAfterCursor = commentBox.value.substring(cursor);
+                const match = textAfterCursor.match(/^\[attachment:\d+\]/);
+                if (match) {
+                    e.preventDefault();
+                    const before = commentBox.value.substring(0, cursor);
+                    const after = commentBox.value.substring(cursor + match[0].length);
+                    commentBox.value = before + after;
+                    commentBox.selectionStart = commentBox.selectionEnd = before.length;
+                    commentBox.dispatchEvent(new Event('input'));
+                }
+            }
+        });
+        
+        commentBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            commentBox.style.border = '2px dashed var(--primary)';
+            commentBox.style.backgroundColor = 'var(--bg-hover)';
+        });
+        
+        commentBox.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            commentBox.style.border = '';
+            commentBox.style.backgroundColor = '';
+        });
+        
+        commentBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            commentBox.style.border = '';
+            commentBox.style.backgroundColor = '';
+            
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    uploadCommentAttachment({ files: [file], value: '' });
+                } else {
+                    showToast('Only image files are supported via drag & drop for comments.', 'warning');
+                }
+            }
+        });
+
+        window.openLightbox = function(src) {
+            let overlay = document.getElementById('lightbox-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'lightbox-overlay';
+                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; cursor:zoom-out;';
+                overlay.onclick = function() { this.style.display = 'none'; };
+                
+                const img = document.createElement('img');
+                img.id = 'lightbox-img';
+                img.style.cssText = 'max-width:90%; max-height:90%; object-fit:contain; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5);';
+                
+                overlay.appendChild(img);
+                document.body.appendChild(overlay);
+            }
+            document.getElementById('lightbox-img').src = src;
+            overlay.style.display = 'flex';
+        };
+
     </script>
 </body>
 </html>

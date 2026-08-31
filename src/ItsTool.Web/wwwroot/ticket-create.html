@@ -89,6 +89,14 @@
                             </div>
                         </div>
 
+                        <div class="form-section">
+                            <h3>Attachments</h3>
+                            <div class="form-group">
+                                <label class="form-label" for="ticketAttachments">Upload Files (Images, PDFs, etc.)</label>
+                                <input class="form-control" type="file" id="ticketAttachments" multiple accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx">
+                            </div>
+                        </div>
+
                         <div style="display: flex; justify-content: flex-end; gap: var(--spacing-sm);">
                             <a href="/tickets.html" class="btn btn-ghost">Cancel</a>
                             <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Create Ticket</button>
@@ -245,15 +253,43 @@
             };
 
             try {
+                const submitBtn = document.querySelector('#createForm button[type="submit"]');
+                const origText = submitBtn.innerText;
+                submitBtn.innerText = 'Creating ticket...';
+                submitBtn.disabled = true;
+
                 const res = await window.api.request('/ticket', {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
+                
+                // Upload attachments if any
+                const files = document.getElementById('ticketAttachments').files;
+                if (files.length > 0) {
+                    submitBtn.innerText = 'Uploading attachments...';
+                    for (let i = 0; i < files.length; i++) {
+                        const formData = new FormData();
+                        formData.append('file', files[i]);
+                        try {
+                            await window.api.request(`/Ticket/${res.id}/attachments`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                        } catch(uploadErr) {
+                            console.error('Failed to upload file', files[i].name, uploadErr);
+                            showToast(`Failed to upload ${files[i].name}`, 'error');
+                        }
+                    }
+                }
+
                 showToast('Ticket created successfully!');
                 setTimeout(() => window.location.href = `/ticket-detail.html?id=${res.id}`, 1000);
             } catch (err) {
                 console.error(err);
                 showToast('Failed to create ticket', 'error');
+                const submitBtn = document.querySelector('#createForm button[type="submit"]');
+                submitBtn.innerText = 'Create Ticket';
+                submitBtn.disabled = false;
             }
         });
         await loadLookups();

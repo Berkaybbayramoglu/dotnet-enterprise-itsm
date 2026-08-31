@@ -22,7 +22,7 @@ public class DepartmentServiceTests : TestBase
     public async Task CreateAsync_ShouldCreateDepartment()
     {
         // Arrange
-        var dto = new CreateDepartmentDto("IT", "IT Dept");
+        var dto = new CreateDepartmentDto("IT", "IT Dept", "#000000");
 
         // Act
         var result = await _service.CreateAsync(dto);
