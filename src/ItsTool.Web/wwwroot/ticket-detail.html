@@ -1851,6 +1851,35 @@
         window.showEditDetails = (oldB64, newB64, authorName, editorName, createdAt, updatedAt) => {
             const oldVal = decodeURIComponent(escape(atob(oldB64)));
             const newVal = decodeURIComponent(escape(atob(newB64)));
+            
+            const renderContentWithAttachments = (content) => {
+                let contentHtml = escapeHtml(content);
+                let attachmentsHtml = '';
+                const attachRegex = /\[attachment:(\d+)\]/g;
+                let match;
+                const foundIds = [];
+                while((match = attachRegex.exec(contentHtml)) !== null) {
+                    foundIds.push(match[1]);
+                }
+
+                if(foundIds.length > 0) {
+                    attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 8px;">` + 
+                        foundIds.map(id => {
+                            const att = window.ticketAttachments?.find(x => x.id == id);
+                            const isImage = att && att.contentType && att.contentType.startsWith('image/');
+                            if (isImage) {
+                                return `<img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" style="max-width: 60px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 60px; object-fit: cover; cursor: pointer;" alt="Attachment" onclick="window.openLightbox(this.src)"/>`;
+                            } else {
+                                const fileName = att ? att.fileName : ('File ' + id);
+                                return `<a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" target="_blank" style="display:flex; align-items:center; gap:4px; padding:4px 8px; border:1px solid var(--border); border-radius:6px; background:var(--bg-surface); color:var(--text-main); text-decoration:none; font-size:10px; font-weight:500;">📎 ${escapeHtml(fileName)}</a>`;
+                            }
+                        }).join('') +
+                        `</div>`;
+                    contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
+                }
+                return `<div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>${attachmentsHtml}`;
+            };
+
             const modal = document.createElement('div');
             modal.className = 'modal-overlay active';
             modal.style.display = 'flex';
@@ -1870,7 +1899,7 @@
                                 <strong>Written At:</strong> ${createdAt}
                             </div>
                             <strong style="color:var(--error); font-size:12px; text-transform:uppercase;">Before (Eski Hali)</strong>
-                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; white-space:pre-wrap; min-height:60px;">${escapeHtml(oldVal)}</div>
+                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; min-height:60px;">${renderContentWithAttachments(oldVal)}</div>
                         </div>
                         <div>
                             <div style="margin-bottom: 8px; font-size: 12px; color: var(--text-muted);">
@@ -1878,7 +1907,7 @@
                                 <strong>Edited At:</strong> ${updatedAt}
                             </div>
                             <strong style="color:var(--success); font-size:12px; text-transform:uppercase;">After (Yeni Hali)</strong>
-                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; white-space:pre-wrap; min-height:60px;">${escapeHtml(newVal)}</div>
+                            <div style="background:var(--bg-hover); padding:8px; border-radius:4px; font-size:13px; margin-top:4px; min-height:60px;">${renderContentWithAttachments(newVal)}</div>
                         </div>
                     </div>
                 </div>
@@ -2140,7 +2169,7 @@
             if (!overlay) {
                 overlay = document.createElement('div');
                 overlay.id = 'lightbox-overlay';
-                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; cursor:zoom-out;';
+                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:100000; display:flex; align-items:center; justify-content:center; cursor:zoom-out;';
                 overlay.onclick = function() { this.style.display = 'none'; };
                 
                 const img = document.createElement('img');
