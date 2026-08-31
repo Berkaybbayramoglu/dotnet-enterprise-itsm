@@ -104,10 +104,29 @@ public class DashboardService : IDashboardService
 
     public async Task<IEnumerable<DepartmentWorkloadDto>> GetDepartmentWorkloadAsync(int userId)
     {
-        var activeUsers = await _context.Users
+        var activeUsersQuery = _context.Users
             .Include(u => u.Department)
-            .Where(u => !u.IsDeleted && u.IsActive)
-            .ToListAsync();
+            .Where(u => !u.IsDeleted && u.IsActive);
+
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+        if (!perms.Contains("report.view"))
+        {
+            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (currentUser != null)
+            {
+                var userGroupIds = await _context.GroupMembers
+                    .Where(gm => gm.UserId == userId && !gm.IsDeleted)
+                    .Select(gm => gm.GroupId)
+                    .ToListAsync();
+                
+                activeUsersQuery = activeUsersQuery.Where(u => 
+                    u.DepartmentId == currentUser.DepartmentId || 
+                    _context.GroupMembers.Any(gm => gm.UserId == u.Id && !gm.IsDeleted && userGroupIds.Contains(gm.GroupId))
+                );
+            }
+        }
+
+        var activeUsers = await activeUsersQuery.ToListAsync();
 
         var query = _context.Tickets.Where(t => !t.IsDeleted);
         

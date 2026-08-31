@@ -371,6 +371,25 @@
         let globalUsers = [];
         let globalGroups = [];
 
+        let currentUserId = 0;
+        let currentUserRoles = [];
+        let currentUserPermissions = [];
+        let isSuperAdmin = false;
+        
+        try {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentUserId = parseInt(payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.sub || 0);
+                if (payload.permission) currentUserPermissions = Array.isArray(payload.permission) ? payload.permission : [payload.permission];
+                if (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']) {
+                    const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+                    currentUserRoles = Array.isArray(roles) ? roles : [roles];
+                    isSuperAdmin = currentUserRoles.includes('SuperAdmin');
+                }
+            }
+        } catch (e) { console.error("Error decoding token in ticket-detail", e); }
+
         window.openTransferModal = async function() {
             try {
                 const projects = await window.api.getProjects();
@@ -568,7 +587,11 @@
 
                             // Render Groups and their users
                             for (const [gId, gData] of Object.entries(deptData.groups)) {
-                                const gName = gData.groupData ? gData.groupData.name : 'Unknown Group';
+                                if (!gData.groupData) {
+                                    deptData.usersWithoutGroup.push(...gData.users);
+                                    continue;
+                                }
+                                const gName = gData.groupData.name;
                                 blockHtml += `      <div class="d-flex align-items-center gap-sm" style="font-size: 13px;"><svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span style="font-weight:500; color:var(--text-main);">${escapeHtml(gName)}</span></div>`;
                                 
                                 if (gData.users.length > 0) {
@@ -792,6 +815,18 @@
                     console.error("Failed to load attachments", e);
                 }
                 
+                const canManage = isSuperAdmin || currentUserPermissions.includes('ticket.manage');
+                const canEdit = canManage || (t.requesterUserId === currentUserId);
+                
+                const btnEditInline = document.getElementById('btnEditInline');
+                if (btnEditInline) btnEditInline.style.display = canEdit ? 'inline-block' : 'none';
+                
+                const btnEditSidebar = document.getElementById('btnEditSidebar');
+                if (btnEditSidebar) btnEditSidebar.style.display = canEdit ? 'inline-block' : 'none';
+                
+                const btnTransfer = document.getElementById('btnTransfer');
+                if (btnTransfer) btnTransfer.style.display = canManage ? 'inline-block' : 'none';
+
                 loadTimeline();
 
 
