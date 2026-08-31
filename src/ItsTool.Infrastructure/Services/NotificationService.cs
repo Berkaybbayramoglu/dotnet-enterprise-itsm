@@ -56,4 +56,14 @@ public class NotificationService : INotificationService
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task DeleteAllNotificationsAsync(int userId)
+    {
+        var notifications = await _context.Notifications.Where(n => n.UserId == userId && !n.IsDeleted).ToListAsync();
+        foreach (var n in notifications)
+        {
+            n.IsDeleted = true;
+        }
+        await _context.SaveChangesAsync();
+    }
 }

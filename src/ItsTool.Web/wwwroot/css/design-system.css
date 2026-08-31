@@ -19,14 +19,18 @@
 
     /* Text Colors (WCAG AA Compliant) */
     --text-main: #172B4D;
-    --text-muted: #42526E; /* 4.5:1 contrast against white */
+    --text-muted: #42526E; 
     --text-inverse: #FFFFFF;
+    --text-danger-strong: #aa0000;
 
     /* Backgrounds & Borders */
     --bg-body: #FAFBFC;
     --bg-surface: #FFFFFF;
     --bg-hover: #EBECF0;
+    --bg-danger-light: #ffeeee;
+    --bg-subitem: rgba(0,0,0,0.015);
     --border: #DFE1E6;
+    --border-danger-light: #ffcccc;
     
     /* Layout Dimensions */
     --sidebar-width: 240px;
@@ -48,6 +52,250 @@
     
     /* Typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* =========================================
+   THEMES (Dark, Dracula, Monokai, GitHub)
+   ========================================= */
+
+/* 1. Classic Dark Theme */
+[data-theme="dark"] {
+    --primary: #4C9AFF;
+    --primary-hover: #2684FF;
+    --primary-light: #1A365D;
+
+    --success: #36B37E;
+    --success-light: #0B3D23;
+    --warning: #FFAB00;
+    --warning-light: #5C3A00;
+    --danger: #FF5630;
+    --danger-light: #4A1504;
+    --info: #00B8D9;
+    --info-light: #003847;
+
+    --text-main: #E4E5E7;
+    --text-muted: #A6A9B0;
+    --text-inverse: #1D2125;
+    --text-danger-strong: #FF8F73;
+
+    --bg-body: #1D2125;
+    --bg-surface: #22272B;
+    --bg-hover: #2C333A;
+    --bg-danger-light: rgba(255, 86, 48, 0.1);
+    --bg-subitem: rgba(255,255,255,0.02);
+
+    --border: #38414A;
+    --border-danger-light: rgba(255, 86, 48, 0.2);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+/* 2. Dracula Theme */
+[data-theme="dracula"] {
+    --primary: #bd93f9;
+    --primary-hover: #caa9fa;
+    --primary-light: rgba(189, 147, 249, 0.2);
+
+    --success: #50fa7b;
+    --success-light: rgba(80, 250, 123, 0.15);
+    --warning: #f1fa8c;
+    --warning-light: rgba(241, 250, 140, 0.15);
+    --danger: #ff5555;
+    --danger-light: rgba(255, 85, 85, 0.15);
+    --info: #8be9fd;
+    --info-light: rgba(139, 233, 253, 0.15);
+
+    --text-main: #f8f8f2;
+    --text-muted: #8ba0da;
+    --text-inverse: #282a36;
+    --text-danger-strong: #ffb86c;
+
+    --bg-body: #1e1f29;
+    --bg-surface: #282a36;
+    --bg-hover: #44475a;
+    --bg-danger-light: rgba(255, 85, 85, 0.1);
+    --bg-subitem: rgba(255,255,255,0.02);
+
+    --border: #6272a4;
+    --border-danger-light: rgba(255, 85, 85, 0.2);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 1px rgba(0, 0, 0, 0.7);
+}
+
+/* 3. Monokai Theme */
+[data-theme="monokai"] {
+    --primary: #fd971f;
+    --primary-hover: #e6db74;
+    --primary-light: rgba(253, 151, 31, 0.2);
+
+    --success: #a6e22e;
+    --success-light: rgba(166, 226, 46, 0.15);
+    --warning: #e6db74;
+    --warning-light: rgba(230, 219, 116, 0.15);
+    --danger: #f92672;
+    --danger-light: rgba(249, 38, 114, 0.15);
+    --info: #66d9ef;
+    --info-light: rgba(102, 217, 239, 0.15);
+
+    --text-main: #f8f8f2;
+    --text-muted: #b3b09d;
+    --text-inverse: #272822;
+    --text-danger-strong: #f92672;
+
+    --bg-body: #272822;
+    --bg-surface: #3e3d32;
+    --bg-hover: #49483e;
+    --bg-danger-light: rgba(249, 38, 114, 0.1);
+    --bg-subitem: rgba(255,255,255,0.02);
+
+    --border: #75715e;
+    --border-danger-light: rgba(249, 38, 114, 0.2);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 1px rgba(0, 0, 0, 0.7);
+}
+
+/* 4. GitHub Dark Theme */
+[data-theme="github-dark"] {
+    --primary: #58a6ff;
+    --primary-hover: #79c0ff;
+    --primary-light: rgba(56, 139, 253, 0.15);
+
+    --success: #238636;
+    --success-light: rgba(46, 160, 67, 0.15);
+    --warning: #d29922;
+    --warning-light: rgba(187, 128, 9, 0.15);
+    --danger: #f85149;
+    --danger-light: rgba(248, 81, 73, 0.15);
+    --info: #1f6feb;
+    --info-light: rgba(31, 111, 235, 0.15);
+
+    --text-main: #c9d1d9;
+    --text-muted: #8b949e;
+    --text-inverse: #0d1117;
+    --text-danger-strong: #ff7b72;
+
+    --bg-body: #0d1117;
+    --bg-surface: #161b22;
+    --bg-hover: #21262d;
+    --bg-danger-light: rgba(248, 81, 73, 0.1);
+    --bg-subitem: rgba(255,255,255,0.02);
+
+    --border: #30363d;
+    --border-danger-light: rgba(248, 81, 73, 0.2);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6), 0 0 1px rgba(0, 0, 0, 0.7);
+}
+
+/* =========================================
+   BOOTSTRAP OVERRIDES FOR DARK THEMES
+   ========================================= */
+[data-theme="dark"] .bg-white, [data-theme="dracula"] .bg-white, [data-theme="monokai"] .bg-white, [data-theme="github-dark"] .bg-white,
+[data-theme="dark"] .bg-light, [data-theme="dracula"] .bg-light, [data-theme="monokai"] .bg-light, [data-theme="github-dark"] .bg-light {
+    background-color: var(--bg-surface) !important;
+}
+
+[data-theme="dark"] body, [data-theme="dracula"] body, [data-theme="monokai"] body, [data-theme="github-dark"] body {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] h1, [data-theme="dracula"] h1, [data-theme="monokai"] h1, [data-theme="github-dark"] h1,
+[data-theme="dark"] h2, [data-theme="dracula"] h2, [data-theme="monokai"] h2, [data-theme="github-dark"] h2,
+[data-theme="dark"] h3, [data-theme="dracula"] h3, [data-theme="monokai"] h3, [data-theme="github-dark"] h3,
+[data-theme="dark"] h4, [data-theme="dracula"] h4, [data-theme="monokai"] h4, [data-theme="github-dark"] h4,
+[data-theme="dark"] h5, [data-theme="dracula"] h5, [data-theme="monokai"] h5, [data-theme="github-dark"] h5,
+[data-theme="dark"] h6, [data-theme="dracula"] h6, [data-theme="monokai"] h6, [data-theme="github-dark"] h6,
+[data-theme="dark"] .text-dark, [data-theme="dracula"] .text-dark, [data-theme="monokai"] .text-dark, [data-theme="github-dark"] .text-dark,
+[data-theme="dark"] .text-body, [data-theme="dracula"] .text-body, [data-theme="monokai"] .text-body, [data-theme="github-dark"] .text-body,
+[data-theme="dark"] .dropdown-header, [data-theme="dracula"] .dropdown-header, [data-theme="monokai"] .dropdown-header, [data-theme="github-dark"] .dropdown-header {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .text-muted, [data-theme="dracula"] .text-muted, [data-theme="monokai"] .text-muted, [data-theme="github-dark"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .border, [data-theme="dracula"] .border, [data-theme="monokai"] .border, [data-theme="github-dark"] .border,
+[data-theme="dark"] .border-bottom, [data-theme="dracula"] .border-bottom, [data-theme="monokai"] .border-bottom, [data-theme="github-dark"] .border-bottom,
+[data-theme="dark"] .border-top, [data-theme="dracula"] .border-top, [data-theme="monokai"] .border-top, [data-theme="github-dark"] .border-top {
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .card, [data-theme="dracula"] .card, [data-theme="monokai"] .card, [data-theme="github-dark"] .card {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .modal-content, [data-theme="dracula"] .modal-content, [data-theme="monokai"] .modal-content, [data-theme="github-dark"] .modal-content,
+[data-theme="dark"] .dropdown-menu, [data-theme="dracula"] .dropdown-menu, [data-theme="monokai"] .dropdown-menu, [data-theme="github-dark"] .dropdown-menu {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .dropdown-item, [data-theme="dracula"] .dropdown-item, [data-theme="monokai"] .dropdown-item, [data-theme="github-dark"] .dropdown-item {
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .dropdown-item:hover, [data-theme="dracula"] .dropdown-item:hover, [data-theme="monokai"] .dropdown-item:hover, [data-theme="github-dark"] .dropdown-item:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] input, [data-theme="dracula"] input, [data-theme="monokai"] input, [data-theme="github-dark"] input,
+[data-theme="dark"] select, [data-theme="dracula"] select, [data-theme="monokai"] select, [data-theme="github-dark"] select,
+[data-theme="dark"] textarea, [data-theme="dracula"] textarea, [data-theme="monokai"] textarea, [data-theme="github-dark"] textarea,
+[data-theme="dark"] .form-control, [data-theme="dracula"] .form-control, [data-theme="monokai"] .form-control, [data-theme="github-dark"] .form-control,
+[data-theme="dark"] .form-select, [data-theme="dracula"] .form-select, [data-theme="monokai"] .form-select, [data-theme="github-dark"] .form-select {
+    background-color: var(--bg-body) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] input:focus, [data-theme="dracula"] input:focus, [data-theme="monokai"] input:focus, [data-theme="github-dark"] input:focus,
+[data-theme="dark"] select:focus, [data-theme="dracula"] select:focus, [data-theme="monokai"] select:focus, [data-theme="github-dark"] select:focus,
+[data-theme="dark"] textarea:focus, [data-theme="dracula"] textarea:focus, [data-theme="monokai"] textarea:focus, [data-theme="github-dark"] textarea:focus,
+[data-theme="dark"] .form-control:focus, [data-theme="dracula"] .form-control:focus, [data-theme="monokai"] .form-control:focus, [data-theme="github-dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus, [data-theme="dracula"] .form-select:focus, [data-theme="monokai"] .form-select:focus, [data-theme="github-dark"] .form-select:focus {
+    background-color: var(--bg-body) !important;
+    border-color: var(--primary) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 0 0 0.25rem var(--primary-light) !important;
+}
+
+[data-theme="dark"] table, [data-theme="dracula"] table, [data-theme="monokai"] table, [data-theme="github-dark"] table,
+[data-theme="dark"] .table, [data-theme="dracula"] .table, [data-theme="monokai"] .table, [data-theme="github-dark"] .table {
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover, [data-theme="dracula"] .table-hover tbody tr:hover, [data-theme="monokai"] .table-hover tbody tr:hover, [data-theme="github-dark"] .table-hover tbody tr:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] th, [data-theme="dracula"] th, [data-theme="monokai"] th, [data-theme="github-dark"] th,
+[data-theme="dark"] td, [data-theme="dracula"] td, [data-theme="monokai"] td, [data-theme="github-dark"] td {
+    background-color: transparent !important;
+    border-color: var(--border) !important;
+}
+
+/* Scrollbar Theming for Dark Modes */
+[data-theme="dark"] ::-webkit-scrollbar, [data-theme="dracula"] ::-webkit-scrollbar, [data-theme="monokai"] ::-webkit-scrollbar, [data-theme="github-dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+[data-theme="dark"] ::-webkit-scrollbar-track, [data-theme="dracula"] ::-webkit-scrollbar-track, [data-theme="monokai"] ::-webkit-scrollbar-track, [data-theme="github-dark"] ::-webkit-scrollbar-track {
+    background: var(--bg-body); 
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb, [data-theme="dracula"] ::-webkit-scrollbar-thumb, [data-theme="monokai"] ::-webkit-scrollbar-thumb, [data-theme="github-dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border); 
+    border-radius: 4px;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover, [data-theme="dracula"] ::-webkit-scrollbar-thumb:hover, [data-theme="monokai"] ::-webkit-scrollbar-thumb:hover, [data-theme="github-dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted); 
 }
 
 /* 2. Global Resets & Typography */

@@ -1322,7 +1322,7 @@
                                     
                                     detailsHtml = `<button class="btn btn-ghost" style="font-size:11px; padding:4px 8px; margin-top:4px; color:var(--primary); font-weight:600; background:rgba(10, 107, 234, 0.05); border:1px solid rgba(10, 107, 234, 0.1);" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">Detay Gör</button>`;
                                 } else if (h.action === 'CommentDeleted' && h.oldValue) {
-                                    detailsHtml = `<div style="background:#ffeeee; padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid #ffcccc; font-size:11px; color:#aa0000;"><del>${escapeHtml(h.oldValue)}</del></div>`;
+                                    detailsHtml = `<div style="background:var(--bg-danger-light); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border-danger-light); font-size:11px; color:var(--text-danger-strong);"><del>${escapeHtml(h.oldValue)}</del></div>`;
                                 }
                                 
                                 const logDiv = document.createElement('div');

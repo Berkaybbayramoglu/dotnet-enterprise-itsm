@@ -1,3 +1,10 @@
+(function() {
+    try {
+        const savedTheme = localStorage.getItem('itsm_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch(e) {}
+})();
+
 export const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 // ui.js - Reusable UI components
 
@@ -372,8 +379,62 @@ export function bindShellActions() {
             sidebarOverlay.classList.remove('active');
         });
     }
-
     
+    // Theme Switcher Logic
+    const topbarRight = document.querySelector('.topbar-right');
+    if (topbarRight) {
+        // Insert Theme Selector before Avatar
+        const themeContainer = document.createElement('div');
+        themeContainer.style.position = 'relative';
+        
+        const themeBtn = document.createElement('button');
+        themeBtn.className = 'btn btn-ghost';
+        themeBtn.style.padding = '6px';
+        themeBtn.style.borderRadius = '50%';
+        themeBtn.title = 'Switch Theme';
+        themeBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
+        themeContainer.appendChild(themeBtn);
+
+        const themeDropdown = document.createElement('div');
+        themeDropdown.className = 'dropdown-menu';
+        themeDropdown.style.top = '40px';
+        themeDropdown.style.width = '160px';
+        
+        const themes = [
+            { id: 'light', name: 'Light (Default)' },
+            { id: 'dark', name: 'Dark Classic' },
+            { id: 'dracula', name: 'Dracula' },
+            { id: 'monokai', name: 'Monokai' },
+            { id: 'github-dark', name: 'GitHub Dark' }
+        ];
+        
+        themeDropdown.innerHTML = `<div class="dropdown-header">Select Theme</div><hr class="dropdown-divider">` + 
+            themes.map(t => `<div class="dropdown-item theme-option" data-theme-id="${t.id}">${t.name}</div>`).join('');
+            
+        themeContainer.appendChild(themeDropdown);
+        topbarRight.insertBefore(themeContainer, topbarRight.firstChild);
+
+        themeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            themeDropdown.classList.toggle('show');
+        });
+
+        themeDropdown.querySelectorAll('.theme-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const selectedTheme = opt.getAttribute('data-theme-id');
+                document.documentElement.setAttribute('data-theme', selectedTheme);
+                localStorage.setItem('itsm_theme', selectedTheme);
+                themeDropdown.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!themeContainer.contains(e.target)) {
+                themeDropdown.classList.remove('show');
+            }
+        });
+    }
+
     // Profile Panel Logic
     const avatarEls = document.querySelectorAll('.topbar-right .avatar');
     if (avatarEls.length > 0) {
