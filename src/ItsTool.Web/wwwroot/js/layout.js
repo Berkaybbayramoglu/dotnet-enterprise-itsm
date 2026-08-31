@@ -127,7 +127,7 @@ export function injectShell() {
         } catch (e) { console.error("Error decoding token in layout", e); }
         
         if (!perms.includes('admin.manage') && !isSuperAdmin) {
-            document.querySelectorAll('a[href="/users.html"], a[href="/admin-crud.html?type=roles"], a[href="/admin-crud.html?type=permissions"]').forEach(el => {
+            document.querySelectorAll('.sidebar-nav-title, .sidebar-nav-title ~ a').forEach(el => {
                 if (el) el.style.display = 'none';
             });
         }
