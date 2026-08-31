@@ -22,7 +22,7 @@
 
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
-                        <h2>Create New Ticket</h2>
+                        <h2 data-i18n="tc_title">Create New Ticket</h2>
                     </div>
                 </div>
                 <div class="topbar-right">
@@ -32,14 +32,14 @@
                             <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)">Mark all as read</a></li>
+                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
-                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
                 </div>
             </header>
 
@@ -47,59 +47,60 @@
                 <div style="max-width: 800px; margin: 0 auto;">
                     <form id="createForm">
                         <div class="form-section">
-                            <h3>Basic Details</h3>
+                        <div class="form-section">
+                            <h3 data-i18n="tc_basic">Basic Details</h3>
                             <div class="form-group">
-                                <label class="form-label" for="title">Title *</label>
-                                <input class="form-control" type="text" id="title" required placeholder="Brief summary of the issue">
+                                <label class="form-label" for="title" data-i18n="tc_lbl_title">Title *</label>
+                                <input class="form-control" type="text" id="title" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="desc">Description *</label>
-                                <textarea class="form-control" id="desc" rows="5" required placeholder="Detailed description..."></textarea>
+                                <label class="form-label" for="desc" data-i18n="tc_lbl_desc">Description *</label>
+                                <textarea class="form-control" id="desc" rows="5" required></textarea>
                             </div>
                         </div>
 
                         <div class="form-section">
-                            <h3>Categorization</h3>
+                            <h3 data-i18n="tc_cat">Categorization</h3>
                             <div class="grid-2">
                                 <div class="form-group">
-                                    <label class="form-label" for="projectId">Project *</label>
-                                    <select class="form-control" id="projectId" required><option value="">Select Project</option></select>
+                                    <label class="form-label" for="projectId" data-i18n="tc_lbl_project">Project *</label>
+                                    <select class="form-control" id="projectId" required><option value="" data-i18n="tc_opt_project">Select Project</option></select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="categoryId">Category *</label>
-                                    <select class="form-control" id="categoryId" required><option value="">Select Category</option></select>
+                                    <label class="form-label" for="categoryId" data-i18n="tc_lbl_category">Category *</label>
+                                    <select class="form-control" id="categoryId" required><option value="" data-i18n="tc_opt_cat">Select Category</option></select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="typeId">Ticket Type *</label>
-                                    <select class="form-control" id="typeId" required><option value="">Select Type</option></select>
+                                    <label class="form-label" for="typeId" data-i18n="tc_lbl_type">Ticket Type *</label>
+                                    <select class="form-control" id="typeId" required><option value="" data-i18n="tc_opt_type">Select Type</option></select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="priorityId">Priority *</label>
-                                    <select class="form-control" id="priorityId" required><option value="">Select Priority</option></select>
+                                    <label class="form-label" for="priorityId" data-i18n="tc_lbl_priority">Priority *</label>
+                                    <select class="form-control" id="priorityId" required><option value="" data-i18n="tc_opt_priority">Select Priority</option></select>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-section">
-                            <h3>Additional Information</h3>
+                            <h3 data-i18n="tc_add">Additional Information</h3>
                             <div id="dynamicFields">
                                 <div class="empty-state" style="padding: var(--spacing-md);">
-                                    <p style="margin: 0; font-size: 13px;">Select Project, Category, and Type to load custom fields.</p>
+                                    <p style="margin: 0; font-size: 13px;" data-i18n="tc_msg_load_fields">Select Project, Category, and Type to load custom fields.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-section">
-                            <h3>Attachments</h3>
+                            <h3 data-i18n="tc_attachments">Attachments</h3>
                             <div class="form-group">
-                                <label class="form-label" for="ticketAttachments">Upload Files (Images, PDFs, etc.)</label>
+                                <label class="form-label" for="ticketAttachments" data-i18n="tc_upload">Upload Files (Images, PDFs, etc.)</label>
                                 <input class="form-control" type="file" id="ticketAttachments" multiple accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx">
                             </div>
                         </div>
 
                         <div style="display: flex; justify-content: flex-end; gap: var(--spacing-sm);">
-                            <a href="/tickets.html" class="btn btn-ghost">Cancel</a>
-                            <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Create Ticket</button>
+                            <a href="/tickets.html" class="btn btn-ghost" data-i18n="tc_btn_cancel">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="padding: 10px 24px;" data-i18n="tc_btn_submit">Create Ticket</button>
                         </div>
                     </form>
                 </div>
@@ -108,9 +109,10 @@
     </div>
 
     <script type="module">
-        import { injectShell } from './js/layout.js?v=4';
+        import { injectShell } from './js/layout.js?v=6';
         import './js/api.js';
         import { bindShellActions, showToast } from './js/ui.js';
+        import { t } from './js/i18n.js';
         injectShell();
         
         if (!window.api.token) window.location.href = '/login.html';
@@ -199,14 +201,14 @@
             if (!pId || !cId || !tId) return;
 
             const container = document.getElementById('dynamicFields');
-            container.innerHTML = '<p class="text-muted" style="text-align: center; font-size: 13px;">Loading fields...</p>';
+            container.innerHTML = `<p class="text-muted" style="text-align: center; font-size: 13px;">${t('tc_msg_loading')}</p>`;
 
             try {
                 currentPlacements = await window.api.getPlacements(pId, cId, tId);
                 container.innerHTML = '';
                 
                 if (currentPlacements.length === 0) {
-                    container.innerHTML = '<div class="empty-state" style="padding: var(--spacing-sm);"><p style="margin: 0; font-size: 13px;">No custom fields configured for this selection.</p></div>';
+                    container.innerHTML = `<div class="empty-state" style="padding: var(--spacing-sm);"><p style="margin: 0; font-size: 13px;">${t('tc_msg_no_fields')}</p></div>`;
                     return;
                 }
 
@@ -255,7 +257,7 @@
             try {
                 const submitBtn = document.querySelector('#createForm button[type="submit"]');
                 const origText = submitBtn.innerText;
-                submitBtn.innerText = 'Creating ticket...';
+                submitBtn.innerText = t('tc_btn_creating');
                 submitBtn.disabled = true;
 
                 const res = await window.api.request('/ticket', {
@@ -266,7 +268,7 @@
                 // Upload attachments if any
                 const files = document.getElementById('ticketAttachments').files;
                 if (files.length > 0) {
-                    submitBtn.innerText = 'Uploading attachments...';
+                    submitBtn.innerText = t('tc_btn_uploading');
                     for (let i = 0; i < files.length; i++) {
                         const formData = new FormData();
                         formData.append('file', files[i]);
@@ -282,13 +284,13 @@
                     }
                 }
 
-                showToast('Ticket created successfully!');
+                showToast(t('tc_toast_success'));
                 setTimeout(() => window.location.href = `/ticket-detail.html?id=${res.id}`, 1000);
             } catch (err) {
                 console.error(err);
-                showToast('Failed to create ticket', 'error');
+                showToast(t('tc_toast_err'), 'error');
                 const submitBtn = document.querySelector('#createForm button[type="submit"]');
-                submitBtn.innerText = 'Create Ticket';
+                submitBtn.innerText = t('tc_btn_submit');
                 submitBtn.disabled = false;
             }
         });

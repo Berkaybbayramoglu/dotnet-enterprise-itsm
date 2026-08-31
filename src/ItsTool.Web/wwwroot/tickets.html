@@ -26,7 +26,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Tickets</h2>
+                    <h2 data-i18n="t_title">Tickets</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
@@ -35,35 +35,35 @@
                             <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)">Mark all as read</a></li>
+                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
-                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
                 </div>
             </header>
 
             <div class="content-area">
                 <div class="filter-bar">
-                    <input type="text" id="searchInput" class="form-control search-input" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description...">
-                    <button type="button" id="btnSearch" class="btn btn-secondary">Search</button>
-                    <button type="button" id="btnSaveFilter" class="btn btn-secondary">Save Filter</button>
+                    <input type="text" id="searchInput" class="form-control search-input" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description..." data-i18n="t_search_placeholder" data-i18n-target="placeholder">
+                    <button type="button" id="btnSearch" class="btn btn-secondary" data-i18n="t_btn_search">Search</button>
+                    <button type="button" id="btnSaveFilter" class="btn btn-secondary" data-i18n="t_btn_save_filter">Save Filter</button>
                     <select id="savedFilters" class="form-control" style="width: 200px;" aria-label="Saved Filters">
-                        <option value="">Saved Filters...</option>
+                        <option value="" data-i18n="t_saved_filters">Saved Filters...</option>
                     </select>
-                    <button type="button" id="btnExportCsv" class="btn btn-ghost">Export CSV</button>
-                    <a href="/ticket-create.html" class="btn btn-primary ml-auto">+ New Ticket</a>
+                    <button type="button" id="btnExportCsv" class="btn btn-ghost" data-i18n="t_export_csv">Export CSV</button>
+                    <a href="/ticket-create.html" class="btn btn-primary ml-auto" data-i18n="t_btn_new">+ New Ticket</a>
                 </div>
 
                 <div class="filter-bar" style="margin-top: 12px; margin-bottom: 24px;">
                     <fieldset class="btn-group" id="statusFilterGroup" style="border:none; padding:0; margin:0;">
                         <legend style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;">Ticket Status Filter</legend>
-                        <button type="button" class="btn btn-secondary active" id="filterActive" aria-pressed="true">Aktif</button>
-                        <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false">Kapalı</button>
-                        <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false">Tümü</button>
+                        <button type="button" class="btn btn-secondary active" id="filterActive" aria-pressed="true" data-i18n="t_filter_active">Aktif</button>
+                        <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false" data-i18n="t_filter_closed">Kapalı</button>
+                        <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false" data-i18n="t_filter_all">Tümü</button>
                     </fieldset>
                 </div>
 
@@ -78,10 +78,10 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>Ticket</th>
-                                <th>Status</th>
-                                <th>Priority</th>
-                                <th>Assignee</th>
+                                <th data-i18n="t_col_ticket">Ticket</th>
+                                <th data-i18n="t_col_status">Status</th>
+                                <th data-i18n="t_col_priority">Priority</th>
+                                <th data-i18n="t_col_assignee">Assignee</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -95,9 +95,10 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=2';
-        import { injectShell } from './js/layout.js?v=4';
-        import { bindShellActions, showToast } from './js/ui.js?v=2';
+        import './js/api.js?v=4';
+        import { injectShell } from './js/layout.js?v=7';
+        import { bindShellActions, showToast } from './js/ui.js?v=4';
+        import { t } from './js/i18n.js';
         injectShell();
         
         if (!window.api.token) window.location.href = '/login.html';
@@ -123,14 +124,17 @@
         });
 
         const getStatusBadge = (status) => {
-            const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
-            const label = status === 'Closed' ? 'KAPALI' : status;
+            const map = { 'Open': 'info', 'Açık': 'info', 'In Progress': 'warning', 'Devam Ediyor': 'warning', 'Pending': 'warning', 'Beklemede': 'warning', 'Resolved': 'success', 'Çözüldü': 'success', 'Closed': 'default', 'Kapatıldı': 'default' };
+            const labelKey = status ? 'db_' + status.toLowerCase().replace(/ /g, '_') : 'dash_unknown';
+            const label = t(labelKey) || status;
             return `<span class="badge badge-${map[status] || 'default'}">${label}</span>`;
         };
 
         const getPriorityBadge = (priority) => {
-            const map = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
-            return `<span class="badge badge-${map[priority] || 'default'}">${priority}</span>`;
+            const map = { 'Critical': 'danger', 'Kritik': 'danger', 'High': 'warning', 'Yüksek': 'warning', 'Medium': 'info', 'Orta': 'info', 'Low': 'success', 'Düşük': 'success' };
+            const labelKey = priority ? 'db_' + priority.toLowerCase() : 'dash_unknown';
+            const label = t(labelKey) || priority;
+            return `<span class="badge badge-${map[priority] || 'default'}">${label}</span>`;
         };
 
         const getAvatar = (id, fallback) => {
@@ -174,23 +178,23 @@
                     tbody.innerHTML = `<tr><td colspan="5">
                         <div class="empty-state">
                             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
-                            <h3>No tickets found</h3>
-                            <p>Try adjusting your search filters or create a new ticket.</p>
+                            <h3>${t('t_no_tickets')}</h3>
+                            <p>${t('t_adjust_search')}</p>
                         </div>
                     </td></tr>`;
                     return;
                 }
 
-                filteredItems.forEach(t => {
-                    const statusName = lookupData.statuses?.find(s => s.id === t.statusId)?.name || 'Unknown';
-                    const prioName = lookupData.priorities?.find(p => p.id === t.priorityId)?.name || 'Normal';
+                filteredItems.forEach(ticketItem => {
+                    const statusName = lookupData.statuses?.find(s => s.id === ticketItem.statusId)?.name || 'Unknown';
+                    const prioName = lookupData.priorities?.find(p => p.id === ticketItem.priorityId)?.name || 'Normal';
                     
-                    let assigneeName = 'Atanmamış';
+                    let assigneeName = t('t_unassigned');
                     let assigneeInitialId = null;
                     
                     let assigneeDetails = [];
-                    if (t.assignments && t.assignments.length > 0) {
-                        const activeAssignments = t.assignments.filter(a => a.isActive);
+                    if (ticketItem.assignments && ticketItem.assignments.length > 0) {
+                        const activeAssignments = ticketItem.assignments.filter(a => a.isActive);
                         if (activeAssignments.length > 0) {
                             const mainAssignee = activeAssignments[0];
                             if (mainAssignee.userId) {
@@ -237,12 +241,12 @@
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
-                            <a href="/ticket-detail.html?id=${t.id}" class="ticket-title">
+                            <a href="/ticket-detail.html?id=${ticketItem.id}" class="ticket-title">
                                 <div>
-                                    <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(t.ticketNumber)}</span>
-                                    <span style="font-size: 11px; color: var(--text-muted);">#${t.id}</span>
+                                    <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(ticketItem.ticketNumber)}</span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">#${ticketItem.id}</span>
                                 </div>
-                                <span style="margin-left: 8px;">${escapeHtml(t.title)}</span>
+                                <span style="margin-left: 8px;">${escapeHtml(ticketItem.title)}</span>
                             </a>
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
@@ -250,8 +254,8 @@
                         <td><div class="d-flex align-items-center gap-sm" style="cursor:pointer;" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none;">${escapeHtml(assigneeName)}</span></div></td>
                         <td>
                             <div class="row-actions">
-                                <a href="/ticket-detail.html?id=${t.id}" class="btn btn-ghost">View</a>
-                                <a href="/ticket-detail.html?id=${t.id}" class="btn btn-ghost" style="color: var(--primary);">Edit</a>
+                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>
+                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit')}</a>
                             </div>
                         </td>
                     `;
@@ -290,7 +294,7 @@
             try {
                 savedFiltersList = await window.api.getSavedFilters();
                 const sel = document.getElementById('savedFilters');
-                sel.innerHTML = '<option value="">Saved Filters...</option>';
+                sel.innerHTML = `<option value="">${t('t_saved_filters')}</option>`;
                 savedFiltersList.forEach(f => {
                     const opt = document.createElement('option');
                     opt.value = f.id;
@@ -310,19 +314,16 @@
         }
 
         async function saveFilter() {
-            // Can't easily replace prompt with modal without adding HTML, will keep prompt for simplicity as custom modal requires extra HTML
-            // Wait, instruction says: alert()/confirm() yerine .toast ve .modal kullanımı. prompt() is similar.
-            // But prompt is simple. Let's keep it for now unless requested otherwise, wait the instruction says alert/confirm.
-            const name = prompt("Enter filter name:");
+            const name = prompt(t('t_prompt_filter_name'));
             if (!name) return;
             const queryJson = JSON.stringify({ keyword: document.getElementById('searchInput').value });
             try {
                 await window.api.createSavedFilter({ name, queryJson });
                 loadFiltersDropdown();
-                showToast('Filter saved');
+                showToast(t('t_toast_filter_saved'));
             } catch (e) {
                 console.error(e);
-                showToast("Failed to save filter.", 'error');
+                showToast(t('t_toast_filter_err'), 'error');
             }
         }
 

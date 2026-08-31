@@ -1,3 +1,4 @@
+import { setLanguage, t, getCurrentLanguage } from './i18n.js';
 (function() {
     try {
         const savedTheme = localStorage.getItem('itsm_theme') || 'light';
@@ -408,14 +409,17 @@ export function bindShellActions() {
             { id: 'github-dark', name: 'GitHub Dark' }
         ];
         
-        themeDropdown.innerHTML = `<div class="dropdown-header">Select Theme</div><hr class="dropdown-divider">` + 
-            themes.map(t => `<div class="dropdown-item theme-option" data-theme-id="${t.id}">${t.name}</div>`).join('');
+        const currentTheme = localStorage.getItem('itsm_theme') || 'light';
+        themeDropdown.innerHTML = `<div class="dropdown-header">${t('topbar_theme') || 'Select Theme'}</div><hr class="dropdown-divider">` + 
+            themes.map(tObj => `<div class="dropdown-item theme-option ${tObj.id === currentTheme ? 'active' : ''}" data-theme-id="${tObj.id}" style="display:flex; justify-content:space-between; align-items:center;">
+                ${tObj.name}
+                ${tObj.id === currentTheme ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' : ''}
+            </div>`).join('');
             
         themeContainer.appendChild(themeDropdown);
         topbarRight.insertBefore(themeContainer, topbarRight.firstChild);
 
         themeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
             themeDropdown.classList.toggle('show');
         });
 
@@ -424,6 +428,16 @@ export function bindShellActions() {
                 const selectedTheme = opt.getAttribute('data-theme-id');
                 document.documentElement.setAttribute('data-theme', selectedTheme);
                 localStorage.setItem('itsm_theme', selectedTheme);
+                
+                // Move checkmark and active class visually
+                themeDropdown.querySelectorAll('.theme-option').forEach(el => {
+                    el.classList.remove('active');
+                    const svg = el.querySelector('svg');
+                    if (svg) svg.remove();
+                });
+                opt.classList.add('active');
+                opt.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>');
+                
                 themeDropdown.classList.remove('show');
             });
         });
@@ -431,6 +445,57 @@ export function bindShellActions() {
         document.addEventListener('click', (e) => {
             if (!themeContainer.contains(e.target)) {
                 themeDropdown.classList.remove('show');
+            }
+        });
+
+        // Language Switcher Logic
+        const langContainer = document.createElement('div');
+        langContainer.style.position = 'relative';
+        
+        const langBtn = document.createElement('button');
+        langBtn.className = 'btn btn-ghost';
+        langBtn.style.padding = '6px';
+        langBtn.style.borderRadius = '50%';
+        langBtn.title = 'Switch Language';
+        // Globe icon
+        langBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.09 13.36 4 12.69 4 12s.09-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.17.64.26 1.31.26 2s-.09 1.36-.26 2h-3.38z"/></svg>`;
+        langContainer.appendChild(langBtn);
+
+        const langDropdown = document.createElement('div');
+        langDropdown.className = 'dropdown-menu';
+        langDropdown.style.top = '40px';
+        langDropdown.style.width = '120px';
+        
+        const langs = [
+            { id: 'tr', name: 'Türkçe' },
+            { id: 'en', name: 'English' }
+        ];
+        
+        const currentLang = getCurrentLanguage();
+        langDropdown.innerHTML = `<div class="dropdown-header">${t('topbar_language') || 'Language'}</div><hr class="dropdown-divider">` + 
+            langs.map(l => `<div class="dropdown-item lang-option ${l.id === currentLang ? 'active' : ''}" data-lang-id="${l.id}" style="display:flex; justify-content:space-between; align-items:center;">
+                ${l.name}
+                ${l.id === currentLang ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' : ''}
+            </div>`).join('');
+            
+        langContainer.appendChild(langDropdown);
+        topbarRight.insertBefore(langContainer, topbarRight.firstChild);
+
+        langBtn.addEventListener('click', (e) => {
+            langDropdown.classList.toggle('show');
+        });
+
+        langDropdown.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const selectedLang = opt.getAttribute('data-lang-id');
+                setLanguage(selectedLang);
+                langDropdown.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!langContainer.contains(e.target)) {
+                langDropdown.classList.remove('show');
             }
         });
     }
@@ -463,7 +528,6 @@ export function bindShellActions() {
         let loaded = false;
         
         avatarEl.addEventListener('click', async (e) => {
-            e.stopPropagation();
             if (panel.style.display === 'none') {
                 panel.style.display = 'block';
                 if (!loaded && window.api) {
@@ -505,17 +569,17 @@ export function bindShellActions() {
                                 <div style="font-size: 12px; color: var(--text-muted);">${me.email || ''}</div>
                             </div>
                             <div style="margin-bottom: 12px;">
-                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">Roles</div>
+                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">${t('users_lbl_roles') || 'Roles'}</div>
                                 <div>${rolesHtml || '-'}</div>
                             </div>
                             <div style="margin-bottom: 16px;">
-                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">Groups</div>
+                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">${t('users_lbl_groups') || 'Groups'}</div>
                                 <div>${groupsHtml || '-'}</div>
                             </div>
                             <div>
-                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">Effective Permissions</div>
+                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">${t('users_lbl_eff_perms') || 'Effective Permissions'}</div>
                                 <div style="max-height: 200px; overflow-y: auto; background: var(--bg-hover); padding: 8px; border-radius: var(--radius-sm);">
-                                    ${permsHtml || '<div style="font-size:12px;">No permissions</div>'}
+                                    ${permsHtml || `<div style="font-size:12px;">${t('users_roles_none') || 'No permissions'}</div>`}
                                 </div>
                             </div>
                         `;
@@ -606,7 +670,7 @@ export function bindShellActions() {
     window.showAssigneesModal = showAssigneesModal;
 }
 
-export function openTicketPreview(t, lookupData) {
+export function openTicketPreview(ticketData, lookupData) {
     let modalOverlay = document.getElementById('previewModal');
     if (!modalOverlay) {
         modalOverlay = document.createElement('div');
@@ -615,15 +679,15 @@ export function openTicketPreview(t, lookupData) {
         modalOverlay.innerHTML = `
             <div class="modal" style="max-width: 500px;">
                 <div class="modal-header">
-                    <h2>Ticket Preview</h2>
+                    <h2>${t('ticket_detail_title') || 'Ticket Preview'}</h2>
                     <button type="button" class="close-btn" onclick="closeModal('previewModal')" aria-label="Close">
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                     </button>
                 </div>
                 <div class="modal-body" id="previewContent"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal('previewModal')">Close</button>
-                    <a href="#" id="previewDetailLink" class="btn btn-primary">Detaya Git</a>
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('previewModal')">${t('users_btn_cancel') || 'Close'}</button>
+                    <a href="#" id="previewDetailLink" class="btn btn-primary">${t('notif_detail_btn') || 'Detaya Git'}</a>
                 </div>
             </div>
         `;
@@ -632,14 +696,14 @@ export function openTicketPreview(t, lookupData) {
     }
 
     const content = document.getElementById('previewContent');
-    const projName = lookupData.projects?.find(x => x.id === t.projectId)?.name || '-';
-    const catName = lookupData.categories?.find(x => x.id === t.categoryId)?.name || '-';
-    const prioName = lookupData.priorities?.find(x => x.id === t.priorityId)?.name || 'Normal';
+    const projName = lookupData.projects?.find(x => x.id === ticketData.projectId)?.name || '-';
+    const catName = lookupData.categories?.find(x => x.id === ticketData.categoryId)?.name || '-';
+    const prioName = lookupData.priorities?.find(x => x.id === ticketData.priorityId)?.name || 'Normal';
     const prioColors = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
     const prioColor = prioColors[prioName] || 'default';
-    const statusName = lookupData.statuses?.find(x => x.id === t.statusId)?.name || 'Unknown';
-    const assigneeName = t.assignedUserId ? `User ${t.assignedUserId}` : 'Atanmamış';
-    const reqName = t.requesterUserId ? `User ${t.requesterUserId}` : 'Unknown';
+    const statusName = lookupData.statuses?.find(x => x.id === ticketData.statusId)?.name || 'Unknown';
+    const assigneeName = ticketData.assignedUserId ? `User ${ticketData.assignedUserId}` : 'Atanmamış';
+    const reqName = ticketData.requesterUserId ? `User ${ticketData.requesterUserId}` : 'Unknown';
     
     const formatDate = (d) => {
         if(!d) return '-';
@@ -655,24 +719,24 @@ export function openTicketPreview(t, lookupData) {
 
     const headerEl = modalOverlay.querySelector('.modal-header h2');
     if (headerEl) {
-        headerEl.innerHTML = `${escapeHtml(t.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px;">${escapeHtml(statusName)}</span>`;
+        headerEl.innerHTML = `${escapeHtml(ticketData.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px;">${escapeHtml(statusName)}</span>`;
     }
 
     content.innerHTML = `
-        <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">${escapeHtml(t.title)}</div>
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">${escapeHtml(ticketData.title)}</div>
         <div style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: var(--spacing-md); color: var(--text-muted); font-size: 14px;">
-            ${escapeHtml(t.description || '')}
+            ${escapeHtml(ticketData.description || '')}
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); background: var(--bg-hover); padding: var(--spacing-md); border-radius: var(--radius-md);">
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Priority</div><span class="badge badge-${prioColor}">${escapeHtml(prioName)}</span></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Project / Category</div><div style="font-size: 14px; font-weight: 500;">${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> ${escapeHtml(catName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Requester</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${getAvatar(t.requesterUserId, reqName)} ${escapeHtml(reqName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Assignee</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${t.assignedUserId ? getAvatar(t.assignedUserId, assigneeName) : ''} ${escapeHtml(assigneeName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">SLA Status</div><span class="badge badge-success">On Track</span></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Created At</div><div style="font-size: 14px;">${formatDate(t.createdAt)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_priority') || 'Priority'}</div><span class="badge badge-${prioColor}">${escapeHtml(t('db_' + prioName.toLowerCase().replace(' ', '_')) || prioName)}</span></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_project') || 'Project'} / ${t('ticket_prop_category') || 'Category'}</div><div style="font-size: 14px; font-weight: 500;">${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> ${escapeHtml(catName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_requester') || 'Requester'}</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${getAvatar(ticketData.requesterUserId, reqName)} ${escapeHtml(reqName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_assignee') || 'Assignee'}</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${ticketData.assignedUserId ? getAvatar(ticketData.assignedUserId, assigneeName) : ''} ${escapeHtml(assigneeName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_sla_status') || 'SLA Status'}</div><span class="badge badge-success">${t('ticket_sla_on_track') || 'On Track'}</span></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('audit_col_time') || 'Created At'}</div><div style="font-size: 14px;">${formatDate(ticketData.createdAt)}</div></div>
         </div>
     `;
-    document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${t.id}`;
+    document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${ticketData.id}`;
     openModal('previewModal');
 }
 

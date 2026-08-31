@@ -1,7 +1,9 @@
+import { t } from './i18n.js';
+
 export const adminConfigs = {
     departments: {
-        endpoint: '/Departments', pageTitle: 'Departments',
-        modalId: 'deptModal', createTitle: 'New Department', auditSafeDelete: true,
+        endpoint: '/Departments', pageTitle: t('admin_modal_dept'),
+        modalId: 'deptModal', createTitle: t('admin_modal_dept'), auditSafeDelete: true,
         expandable: true,
         onExpand: async (item, container) => {
             try {
@@ -15,7 +17,7 @@ export const adminConfigs = {
                 const deptGroups = window._groupsCache.filter(g => g.departmentId === item.id);
                 
                 if (deptGroups.length === 0) {
-                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Bu departmana bağlı grup bulunamadı.</div>';
+                    container.innerHTML = `<div style="color: var(--text-muted); font-size: 13px;">${t('admin_dept_no_group')}</div>`;
                     return;
                 }
                 
@@ -30,7 +32,7 @@ export const adminConfigs = {
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: #f59e0b;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                                     ${window.ui?.escapeHtml(g.name)} <span class="badge badge-default" style="font-size: 11px;">${groupUsers.length} üye</span>
                                 </div>
-                                <button type="button" class="btn btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--primary);" data-action="moveGroup" data-group-id="${g.id}">Departman Değiştir</button>
+                                <button type="button" class="btn btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--primary);" data-action="moveGroup" data-group-id="${g.id}">${t('admin_dept_change')}</button>
                             </div>
                     `;
                     
@@ -48,7 +50,7 @@ export const adminConfigs = {
                         });
                         html += '</div>';
                     } else {
-                        html += '<div style="padding-left: 24px; font-size: 12px; color: var(--text-muted);">Kullanıcı atanmamış.</div>';
+                        html += `<div style="padding-left: 24px; font-size: 12px; color: var(--text-muted);">${t('admin_dept_no_user')}</div>`;
                     }
                     
                     html += '</div>';
@@ -60,58 +62,58 @@ export const adminConfigs = {
 
             } catch (err) {
                 console.error(err);
-                container.innerHTML = '<div style="color: var(--danger); font-size: 13px;">Gruplar yüklenirken bir hata oluştu.</div>';
+                container.innerHTML = `<div style="color: var(--danger); font-size: 13px;">${t('admin_dept_err_load')}</div>`;
             }
         },
         formFields: { id: 'dId', map: { 'name': 'dName', 'description': 'dDesc', 'color': 'dColor' } },
         columns: [
-            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'color', label: 'Color', render: (item) => item.color ? `<div style="width:16px; height:16px; border-radius:50%; background:${item.color}; border:1px solid var(--border);"></div>` : '-' },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
+            { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'color', label: t('admin_lbl_color'), render: (item) => item.color ? `<div style="width:16px; height:16px; border-radius:50%; background:${item.color}; border:1px solid var(--border);"></div>` : '-' },
+            { key: 'name', label: t('admin_lbl_name'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
+            { key: 'description', label: t('admin_lbl_desc'), render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">
-                <label class="form-label" for="dName">Name *</label>
+                <label class="form-label" for="dName">${t('admin_lbl_name')} *</label>
                 <input id="dName" class="form-control" required placeholder="e.g. IT, HR, Finance">
             </div>
             <div class="form-group">
-                <label class="form-label" for="dColor">Folder Color</label>
+                <label class="form-label" for="dColor">${t('admin_lbl_color')}</label>
                 <input id="dColor" type="color" class="form-control" style="width: 60px; padding: 2px;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="dDesc">Description</label>
-                <textarea id="dDesc" class="form-control" rows="3" placeholder="Departman açıklaması..."></textarea>
+                <label class="form-label" for="dDesc">${t('admin_lbl_desc')}</label>
+                <textarea id="dDesc" class="form-control" rows="3"></textarea>
             </div>`
     },
     categories: {
-        endpoint: '/Categories', pageTitle: 'Categories',
-        modalId: 'catModal', createTitle: 'New Category', auditSafeDelete: true,
+        endpoint: '/Categories', pageTitle: t('admin_modal_cat'),
+        modalId: 'catModal', createTitle: t('admin_modal_cat'), auditSafeDelete: true,
         formFields: { id: 'cId', map: { 'name': 'cName', 'description': 'cDesc' } },
         columns: [
-            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
+            { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'name', label: t('admin_lbl_name'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
+            { key: 'description', label: t('admin_lbl_desc'), render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">
-                <label class="form-label" for="cName">Name *</label>
+                <label class="form-label" for="cName">${t('admin_lbl_name')} *</label>
                 <input id="cName" class="form-control" required placeholder="e.g. Hardware, Software">
             </div>
             <div class="form-group">
-                <label class="form-label" for="cDesc">Description</label>
+                <label class="form-label" for="cDesc">${t('admin_lbl_desc')}</label>
                 <textarea id="cDesc" class="form-control" rows="3"></textarea>
             </div>`
     },
     projects: {
-        endpoint: '/Projects', pageTitle: 'Projects',
-        modalId: 'projectModal', createTitle: 'New Project', auditSafeDelete: true,
+        endpoint: '/Projects', pageTitle: t('admin_modal_proj'),
+        modalId: 'projectModal', createTitle: t('admin_modal_proj'), auditSafeDelete: true,
         formFields: { id: 'pId', map: { 'name': 'pName', 'projectKey': 'pKey', 'status': 'pStatus' } },
         columns: [
-            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'projectKey', label: 'Key', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.projectKey || '')}</span>` },
-            { key: 'name', label: 'Name' },
-            { key: 'status', label: 'Status', render: (item) => {
+            { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'projectKey', label: t('admin_lbl_key'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.projectKey || '')}</span>` },
+            { key: 'name', label: t('admin_lbl_name') },
+            { key: 'status', label: t('admin_lbl_status'), render: (item) => {
                 const statusStr = item.status || 'Active';
                 let color = 'default';
                 if (statusStr === 'Active') color = 'success';
@@ -128,15 +130,15 @@ export const adminConfigs = {
         ],
         formHtml: `
             <div class="form-group">
-                <label class="form-label" for="pName">Name *</label>
+                <label class="form-label" for="pName">${t('admin_lbl_name')} *</label>
                 <input id="pName" class="form-control" required placeholder="e.g. Customer Portal">
             </div>
             <div class="form-group">
-                <label class="form-label" for="pKey">Project Key *</label>
+                <label class="form-label" for="pKey">${t('admin_lbl_key')} *</label>
                 <input id="pKey" class="form-control" required placeholder="e.g. CP" style="text-transform: uppercase;">
             </div>
             <div class="form-group">
-                <label class="form-label" for="pStatus">Status</label>
+                <label class="form-label" for="pStatus">${t('admin_lbl_status')}</label>
                 <select id="pStatus" class="form-control">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -145,8 +147,8 @@ export const adminConfigs = {
             </div>`
     },
     groups: {
-        endpoint: '/Groups', pageTitle: 'Groups',
-        modalId: 'groupModal', createTitle: 'New Group', auditSafeDelete: true,
+        endpoint: '/Groups', pageTitle: t('admin_modal_group'),
+        modalId: 'groupModal', createTitle: t('admin_modal_group'), auditSafeDelete: true,
         expandable: true,
         onExpand: async (item, container) => {
             try {
@@ -157,12 +159,12 @@ export const adminConfigs = {
                 const groupUsers = window._usersCache.filter(u => u.groupIds && u.groupIds.includes(item.id));
                 
                 if (groupUsers.length === 0) {
-                    container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Bu gruba atanmış kullanıcı bulunamadı.</div>';
+                    container.innerHTML = `<div style="color: var(--text-muted); font-size: 13px;">${t('admin_group_no_user')}</div>`;
                     return;
                 }
                 
                 let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
-                html += '<div style="font-weight: 600; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">Grup Üyeleri</div>';
+                html += `<div style="font-weight: 600; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">${t('admin_group_members')}</div>`;
                 
                 groupUsers.forEach(u => {
                     const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
@@ -180,7 +182,7 @@ export const adminConfigs = {
                 container.innerHTML = html;
             } catch (err) {
                 console.error(err);
-                container.innerHTML = '<div style="color: var(--danger); font-size: 13px;">Kullanıcılar yüklenirken bir hata oluştu.</div>';
+                container.innerHTML = `<div style="color: var(--danger); font-size: 13px;">${t('admin_group_err_load')}</div>`;
             }
         },
         formFields: { id: 'gId', map: { 'name': 'gName', 'departmentId': 'gDept' } },
@@ -193,27 +195,27 @@ export const adminConfigs = {
             }
         },
         columns: [
-            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` }
+            { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'name', label: t('admin_lbl_name'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` }
         ],
         formHtml: `
             <div class="form-group">
-                <label class="form-label" for="gName">Name *</label>
+                <label class="form-label" for="gName">${t('admin_lbl_name')} *</label>
                 <input id="gName" class="form-control" required placeholder="e.g. L1 Support">
             </div>
             <div class="form-group">
-                <label class="form-label" for="gDept">Department *</label>
+                <label class="form-label" for="gDept">${t('admin_lbl_dept_star')}</label>
                 <select id="gDept" class="form-control" required></select>
             </div>`
     },
     roles: {
-        endpoint: '/Roles', pageTitle: 'Roles',
-        modalId: 'roleModal', createTitle: 'New Role', auditSafeDelete: true,
+        endpoint: '/Roles', pageTitle: t('admin_modal_role'),
+        modalId: 'roleModal', createTitle: t('admin_modal_role'), auditSafeDelete: true,
         formFields: { id: 'rId', map: { 'name': 'rName', 'description': 'rDesc', 'permissions': 'rPerms', 'isActive': 'rActive' } },
         onModalOpen: async (id) => {
             const container = document.getElementById('rPermsContainer');
             if (container && container.dataset.loaded !== 'true') {
-                container.innerHTML = '<div style="font-size: 13px; color: var(--text-muted);">Loading permissions...</div>';
+                container.innerHTML = `<div style="font-size: 13px; color: var(--text-muted);">${t('admin_role_loading')}</div>`;
                 try {
                     const perms = (await window.api.request('/Permissions')) || [];
                     container.innerHTML = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; max-height: 200px; overflow-y: auto; padding-right: 8px;">` + perms.map(p => `
@@ -259,52 +261,52 @@ export const adminConfigs = {
             }
         },
         columns: [
-            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' },
-            { key: 'isActive', label: 'Status', render: (item) => item.isActive ? `<span class="badge badge-success">Active</span>` : `<span class="badge badge-default">Inactive</span>` }
+            { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'name', label: t('admin_lbl_name'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
+            { key: 'description', label: t('admin_lbl_desc'), render: (item) => window.ui?.escapeHtml(item.description) || '-' },
+            { key: 'isActive', label: t('admin_lbl_status'), render: (item) => item.isActive ? `<span class="badge badge-success">Active</span>` : `<span class="badge badge-default">Inactive</span>` }
         ],
         formHtml: `
             <div class="form-group">
-                <label class="form-label" for="rName">Name *</label>
+                <label class="form-label" for="rName">${t('admin_lbl_name')} *</label>
                 <input id="rName" class="form-control" required placeholder="e.g. Admin, Agent">
             </div>
             <div class="form-group">
-                <label class="form-label" for="rDesc">Description</label>
+                <label class="form-label" for="rDesc">${t('admin_lbl_desc')}</label>
                 <textarea id="rDesc" class="form-control" rows="2"></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">Permissions</label>
+                <label class="form-label">${t('admin_lbl_perms')}</label>
                 <div id="rPermsContainer" style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--spacing-sm); background: rgba(0,0,0,0.01);"></div>
                 <input type="hidden" id="rPerms">
             </div>
             <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                 <input type="checkbox" id="rActive" checked>
-                <label class="form-label" for="rActive" style="margin: 0;">Is Active</label>
+                <label class="form-label" for="rActive" style="margin: 0;">${t('users_lbl_active')}</label>
             </div>`
     },
     permissions: {
-        endpoint: '/Permissions', pageTitle: 'Permissions',
-        modalId: 'permModal', createTitle: 'New Permission', auditSafeDelete: true,
+        endpoint: '/Permissions', pageTitle: t('admin_modal_perm'),
+        modalId: 'permModal', createTitle: t('admin_modal_perm'), auditSafeDelete: true,
         formFields: { id: 'pId', map: { 'name': 'pName', 'key': 'pKey', 'description': 'pDesc' } },
         columns: [
-            { key: 'id', label: 'ID', render: (item) => `<span class="text-muted">#${item.id}</span>` },
-            { key: 'key', label: 'Key', render: (item) => `<span class="badge badge-primary">${window.ui?.escapeHtml(item.key || '')}</span>` },
-            { key: 'name', label: 'Name', render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
-            { key: 'description', label: 'Description', render: (item) => window.ui?.escapeHtml(item.description) || '-' }
+            { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
+            { key: 'key', label: t('admin_lbl_key'), render: (item) => `<span class="badge badge-primary">${window.ui?.escapeHtml(item.key || '')}</span>` },
+            { key: 'name', label: t('admin_lbl_name'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` },
+            { key: 'description', label: t('admin_lbl_desc'), render: (item) => window.ui?.escapeHtml(item.description) || '-' }
         ],
         formHtml: `
             <div class="form-group">
-                <label class="form-label" for="pKey">Key (Code) *</label>
+                <label class="form-label" for="pKey">${t('admin_lbl_keycode')}</label>
                 <input id="pKey" class="form-control" required placeholder="e.g. ticket.view">
             </div>
             <div class="form-group">
-                <label class="form-label" for="pName">Name *</label>
+                <label class="form-label" for="pName">${t('admin_lbl_name')} *</label>
                 <input id="pName" class="form-control" required placeholder="e.g. View Tickets">
             </div>
             <div class="form-group">
-                <label class="form-label" for="pDesc">Description</label>
-                <textarea id="pDesc" class="form-control" rows="3" placeholder="Explain what this permission allows..."></textarea>
+                <label class="form-label" for="pDesc">${t('admin_lbl_desc')}</label>
+                <textarea id="pDesc" class="form-control" rows="3" placeholder="..."></textarea>
             </div>`
     }
 };

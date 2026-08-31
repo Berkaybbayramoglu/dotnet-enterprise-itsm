@@ -45,7 +45,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Kanban Board</h2>
+                    <h2 data-i18n="kanban_title">Kanban Board</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
@@ -54,14 +54,14 @@
                             <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)">Mark all as read</a></li>
+                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
-                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
                 </div>
             </header>
 
@@ -70,9 +70,9 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <div style="background: var(--bg-hover); padding: 8px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
                         <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.
+                        <span data-i18n="kanban_info">Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.</span>
                     </div>
-                    <button class="btn btn-ghost" onclick="window.resetColumnOrder()">Sırayı Sıfırla</button>
+                    <button class="btn btn-ghost" onclick="window.resetColumnOrder()" data-i18n="kanban_reset_order">Sırayı Sıfırla</button>
                 </div>
 
                 <div class="kanban-board" id="board">
@@ -85,9 +85,10 @@
     <!-- Shared Preview Modal is dynamically injected by ui.js -->
 
     <script type="module">
-        import './js/api.js?v=2';
-        import { injectShell } from './js/layout.js?v=4';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=2';
+        import './js/api.js?v=3';
+        import { injectShell } from './js/layout.js?v=6';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=3';
+        import { t } from './js/i18n.js';
         injectShell();
         
         if (!window.api.token) window.location.href = '/login.html';
@@ -166,7 +167,7 @@
                     
                     col.innerHTML = `
                         <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
-                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${s.name}</span>
+                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${t('db_' + s.name.toLowerCase().replace(' ', '_'))}</span>
                             <span class="badge badge-default" id="count-${s.id}">0</span>
                         </div>
                         <div class="column-body" data-status-id="${s.id}" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
@@ -188,7 +189,7 @@
                 renderTickets();
             } catch(e) { 
                 console.error("Critical error in initKanban:", e); 
-                window.showToast("API bağlantısı kurulamadı. Lütfen API'yi yeniden başlatın.", "error");
+                window.showToast(t('kanban_api_error'), "error");
             }
         }
 
@@ -196,9 +197,9 @@
             document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
             const counts = {};
 
-            tickets.forEach(t => {
+            tickets.forEach(ticket => {
                 // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
-                let sId = t.statusId;
+                let sId = ticket.statusId;
                 if(typeof sId === 'string') {
                     // Try to map name to id for demo if it returns string
                     const found = statuses.find(x => x.name === sId);
@@ -208,12 +209,12 @@
                 counts[sId] = (counts[sId] || 0) + 1;
 
                 // Find active assignment
-                let assigneeName = 'Atanmamış';
+                let assigneeName = t('kanban_unassigned');
                 let assigneeInitialId = null;
                 
                 let assigneeDetails = [];
-                    if (t.assignments && t.assignments.length > 0) {
-                        const activeAssignments = t.assignments.filter(a => a.isActive);
+                    if (ticket.assignments && ticket.assignments.length > 0) {
+                        const activeAssignments = ticket.assignments.filter(a => a.isActive);
                         if (activeAssignments.length > 0) {
                             const mainAssignee = activeAssignments[0];
                             if (mainAssignee.userId) {
@@ -263,22 +264,22 @@
                         card.className = 'card';
                         card.draggable = true;
                         card.ondragstart = window.drag;
-                        card.dataset.id = t.id;
-                        card.id = 'ticket-' + t.id;
+                        card.dataset.id = ticket.id;
+                        card.id = 'ticket-' + ticket.id;
                         card.onclick = (e) => {
                             if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
                             if (typeof window.openTicketPreview === 'function') {
-                                window.openTicketPreview(t, lookupData);
+                                window.openTicketPreview(ticket, lookupData);
                             }
                         };
                         
                         card.innerHTML = `
                         <div class="card-header">
-                            <a href="/ticket-detail.html?id=${t.id}" class="card-number" target="_blank">${escapeHtml(t.ticketNumber)}</a>
-                            ${getPriorityIcon(t.priorityId)}
+                            <a href="/ticket-detail.html?id=${ticket.id}" class="card-number" target="_blank">${escapeHtml(ticket.ticketNumber)}</a>
+                            ${getPriorityIcon(ticket.priorityId)}
                         </div>
-                        <div class="card-title">${escapeHtml(t.title)}</div>
-                        <div class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px;" title="Tüm atananları gör" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
+                        <div class="card-title">${escapeHtml(ticket.title)}</div>
+                        <div class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px;" title="${t('kanban_view_assignees')}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
                             ${getAvatar(assigneeInitialId, assigneeName)}
                             <span style="font-size: 12px; font-weight: 500; color: var(--text-main); pointer-events: none;">${escapeHtml(assigneeName)}</span>
                         </div>
@@ -360,14 +361,14 @@
             let userId = payload.sub || 'unknown';
             localStorage.setItem(`kanban.colorder.${userId}`, JSON.stringify(newOrder));
             
-            showToast('Sütun sırası kaydedildi.', 'success');
+            showToast(t('kanban_order_saved'), 'success');
         }
         
         window.resetColumnOrder = function() {
             const payload = JSON.parse(atob(window.api.token.split('.')[1]));
             let userId = payload.sub || 'unknown';
             localStorage.removeItem(`kanban.colorder.${userId}`);
-            showToast('Sütun sırası sıfırlandı.', 'success');
+            showToast(t('kanban_order_reset'), 'success');
             window.location.reload();
         };
 
@@ -401,7 +402,7 @@
             }
 
             if (target && card) {
-                const newStatusId = Number.parseInt(target.dataset.statusId);
+                const newStatusId = Number.parseInt(target.dataseticket.statusId);
                 const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
 
                 try {
@@ -415,19 +416,19 @@
                     
                     // Re-calculate counts
                     document.querySelectorAll('.column-body').forEach(c => {
-                        const sId = c.dataset.statusId;
+                        const sId = c.dataseticket.statusId;
                         const count = c.querySelectorAll('.card').length;
                         document.getElementById(`count-${sId}`).textContent = count;
                     });
 
                     if (newStatusId === 5) {
-                        showToast("Ticket closed. Sending CSAT survey notification...");
+                        showToast(t('kanban_toast_closed'));
                     } else {
-                        showToast("Ticket moved successfully");
+                        showToast(t('kanban_toast_moved'));
                     }
                 } catch(e) {
                     console.error(e);
-                    showToast('Geçersiz geçiş: Bu aşamaya geçilemez.', 'error');
+                    showToast(t('kanban_invalid_transition'), 'error');
                 }
             }
         };

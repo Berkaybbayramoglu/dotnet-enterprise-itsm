@@ -50,16 +50,16 @@
 
                     <div style="display:flex; align-items:center; gap: 8px;">
                         <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
-                        <h2>Ticket Detail</h2>
+                        <h2 data-i18n="ticket_detail_title">Ticket Detail</h2>
                         <button class="btn btn-secondary" id="btnEditInline" onclick="toggleEditMode()" style="margin-left: 8px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Düzenle
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg><span data-i18n="ticket_btn_edit">Düzenle</span>
                         </button>
                         <button class="btn btn-secondary" id="btnTransfer" onclick="window.openTransferModal()" style="margin-left: 8px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M16 1l-3 3h2v2c0 2.21-1.79 4-4 4s-4-1.79-4-4V4H5v2c0 3.31 2.69 6 6 6s6-2.69 6-6V4h2l-3-3zM9 23l3-3h-2v-2c0-2.21 1.79-4 4-4s4 1.79 4 4v2h2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H7l-3 3z"/></svg>Transfer
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M16 1l-3 3h2v2c0 2.21-1.79 4-4 4s-4-1.79-4-4V4H5v2c0 3.31 2.69 6 6 6s6-2.69 6-6V4h2l-3-3zM9 23l3-3h-2v-2c0-2.21 1.79-4 4-4s4 1.79 4 4v2h2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H7l-3 3z"/></svg><span data-i18n="ticket_btn_transfer">Transfer</span>
                         </button>
                         <div id="editActions" style="display:none; margin-left: 8px;">
-                            <button class="btn btn-ghost" onclick="cancelEditMode()">İptal</button>
-                            <button class="btn btn-primary" onclick="saveEditMode()">Kaydet</button>
+                            <button class="btn btn-ghost" onclick="cancelEditMode()" data-i18n="users_btn_cancel">İptal</button>
+                            <button class="btn btn-primary" onclick="saveEditMode()" data-i18n="users_btn_save">Kaydet</button>
                         </div>
                     </div>
                 </div>
@@ -74,18 +74,18 @@
                             <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li>
                                 <a class="dropdown-item text-center" href="#" onclick="markAllAsRead(event)" style="padding: 12px 0; color: var(--primary); font-weight: 500; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; border-top: 1px solid var(--border);">
                                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M0.41,13.41L6,19L7.41,17.58L1.83,12M22.24,5.58L11.66,16.17L7.5,12L6.07,13.41L11.66,19L23.66,7M18,7L16.59,5.58L10.24,11.93L11.66,13.34L18,7Z"/></svg>
-                                    Tümünü Okundu Olarak İşaretle
+                                    <span data-i18n="topbar_mark_all_read">Tümünü Okundu Olarak İşaretle</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
-                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
                 </div>
             </header>
 
@@ -97,7 +97,7 @@
                             <h1 class="ticket-title" id="tTitle">Loading Title...</h1>
                         </div>
                         
-                        <div class="property-label">Description</div>
+                        <div class="property-label" data-i18n="ticket_tab_desc">Description</div>
                         <div class="description-box" id="tDesc"></div>
 
                         <div id="dynamicFieldsDisplay" style="margin-bottom: var(--spacing-xl);"></div>
@@ -105,7 +105,7 @@
                         <div class="collapsible-section" style="margin-bottom: var(--spacing-xl);">
                             <div class="property-label mb-md" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('activitySection', this)">
                                 <svg viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>
-                                Activity
+                                <span data-i18n="ticket_tab_history">Activity</span>
                             </div>
                             <div id="activitySection" style="display: none;">
                                 <div class="comment-thread" id="historyList"></div>
@@ -117,7 +117,7 @@
                         <div class="collapsible-section">
                             <div class="property-label mb-md" style="font-size: 16px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('commentsSection', this)">
                                 <svg viewBox="0 0 24 24" width="20" height="20" style="transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>
-                                Comments & History
+                                <span data-i18n="ticket_tab_comments">Comments & History</span>
                             </div>
                             <div id="commentsSection" style="display: block;">
                                 <div class="comment-thread" id="commentsList"></div>
@@ -125,7 +125,7 @@
                                 <div style="margin-top: var(--spacing-xl);">
                                     <form id="commentForm">
                                         <div class="comment-input-wrapper" style="border: 1px solid var(--border); border-radius: 8px; background: white; padding: 8px; box-shadow: var(--shadow-sm); position: relative; transition: border-color 0.2s;">
-                                            <textarea id="commentText" class="form-control" rows="3" required placeholder="Add a comment... (Drag & Drop files here)" aria-label="Comment" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
+                                            <textarea id="commentText" class="form-control" rows="3" required data-i18n="ticket_add_comment" data-i18n-target="placeholder" placeholder="Add a comment... (Drag & Drop files here)" aria-label="Comment" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
                                             
                                             <div id="attachmentPreviews" class="d-flex gap-sm flex-wrap mb-sm" style="padding: 0 8px;"></div>
                                             
@@ -137,7 +137,7 @@
                                                     <input type="file" id="commentAttachmentInput" style="display: none;" onchange="uploadCommentAttachment(this)">
                                                     
                                                     <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 0; color: var(--text-secondary); cursor: pointer;">
-                                                        <input type="checkbox" id="isInternalComment"> Internal Note
+                                                        <input type="checkbox" id="isInternalComment"> <span data-i18n="td_internal_note">Internal Note</span>
                                                     </label>
                                                 </div>
                                                 
@@ -155,16 +155,16 @@
                     <div class="side-column">
                         <div class="sidebar-panel" id="sidebarPanelContent">
                             <div class="d-flex justify-content-between align-items-center mb-md">
-                                <h3 style="margin:0; font-size:16px;">Properties</h3>
-                                <button class="btn btn-ghost" id="btnEditSidebar" onclick="toggleSidebarEdit()" style="font-size:12px; padding:2px 8px;">Edit</button>
+                                <h3 style="margin:0; font-size:16px;" data-i18n="ticket_properties">Properties</h3>
+                                <button class="btn btn-ghost" id="btnEditSidebar" onclick="toggleSidebarEdit()" style="font-size:12px; padding:2px 8px;" data-i18n="ticket_btn_edit">Edit</button>
                                 <div id="sidebarEditActions" style="display:none; gap:4px;">
-                                    <button class="btn btn-ghost" onclick="cancelSidebarEdit()" style="font-size:12px; padding:2px 8px;">Cancel</button>
-                                    <button class="btn btn-primary" onclick="saveSidebarEdit()" style="font-size:12px; padding:2px 8px;">Save</button>
+                                    <button class="btn btn-ghost" onclick="cancelSidebarEdit()" style="font-size:12px; padding:2px 8px;" data-i18n="users_btn_cancel">Cancel</button>
+                                    <button class="btn btn-primary" onclick="saveSidebarEdit()" style="font-size:12px; padding:2px 8px;" data-i18n="users_btn_save">Save</button>
                                 </div>
                             </div>
 
                             <div class="property-group">
-                                <div class="property-label">Status</div>
+                                <div class="property-label" data-i18n="ticket_prop_status">Status</div>
                                 <div class="property-value">
                                     <select id="statusSelect" class="form-control" style="width:100%" aria-label="Status">
                                         <!-- Options will be populated dynamically -->
@@ -176,29 +176,29 @@
                             
                             <div class="property-group">
                                 <div class="property-label" style="display: flex; justify-content: space-between; align-items: center;">
-                                    Assignees
-                                    <button class="btn btn-ghost" onclick="window.openAssignModal()" style="font-size:12px; padding:2px 8px;">Manage</button>
+                                    <span data-i18n="ticket_prop_assignee">Assignees</span>
+                                    <button class="btn btn-ghost" onclick="window.openAssignModal()" style="font-size:12px; padding:2px 8px;" data-i18n="ticket_btn_manage">Manage</button>
                                 </div>
                                 <div class="property-value" id="tAssigned" style="margin-bottom: var(--spacing-sm); display:flex; flex-direction:column; gap:4px;"></div>
                                 <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 8px;" onclick="window.openAssignmentTree()">
                                     <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle; margin-right: 4px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                                    View Assignment Tree
+                                    <span data-i18n="td_modal_assign_history">View Assignment Tree</span>
                                 </button>
                             </div>
                             <div class="property-group">
-                                <div class="property-label">Requester</div>
+                                <div class="property-label" data-i18n="ticket_prop_requester">Requester</div>
                                 <div class="property-value" id="tReq"></div>
                             </div>
                             <div class="property-group">
-                                <div class="property-label">Priority</div>
+                                <div class="property-label" data-i18n="ticket_prop_priority">Priority</div>
                                 <div class="property-value" id="tPriority"></div>
                             </div>
                             <div class="property-group">
-                                <div class="property-label">Project</div>
+                                <div class="property-label" data-i18n="ticket_prop_project">Project</div>
                                 <div class="property-value" id="tProject"></div>
                             </div>
                             <div class="property-group">
-                                <div class="property-label">Category</div>
+                                <div class="property-label" data-i18n="ticket_prop_category">Category</div>
                                 <div class="property-value" id="tCategory"></div>
                             </div>
 
@@ -207,16 +207,16 @@
                             <hr class="panel-divider">
                             
                             <div class="property-group">
-                                <div class="property-label" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="property-label" style="display: flex; justify-content: space-between; align-items: center;" data-i18n="td_modal_comment_logs">
                                     Comment Logs
                                 </div>
-                                <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 8px;" onclick="document.getElementById('commentLogsModal').classList.add('active')">
+                                <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 8px;" onclick="document.getElementById('commentLogsModal').classList.add('active')" data-i18n="td_view_logs">
                                     View Comment Logs
                                 </button>
                             </div>
 
                             <div id="csatLink" style="display:none; margin-top: var(--spacing-lg);">
-                                <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%">Fill CSAT Survey</a>
+                                <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%" data-i18n="td_fill_csat">Fill CSAT Survey</a>
                             </div>
                         </div>
                     </div>
@@ -228,7 +228,7 @@
     <div id="transferModal" class="modal-overlay">
         <div class="modal" style="width: min(500px, 90%);">
             <div class="modal-header">
-                <h2>Transfer Ticket</h2>
+                <h2 data-i18n="td_modal_transfer">Transfer Ticket</h2>
                 <button type="button" class="close-btn" onclick="closeModal('transferModal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
@@ -236,22 +236,22 @@
             <div class="modal-body">
                 <form id="transferForm">
                     <div class="form-group">
-                        <label class="form-label" for="transferProject" for="transferProject">Project</label>
+                        <label class="form-label" for="transferProject" for="transferProject" data-i18n="td_modal_project">Project</label>
                         <select id="transferProject" class="form-control">
-                            <option value="">-- No Change --</option>
+                            <option value="" data-i18n="td_opt_no_change">-- No Change --</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="transferGroup" for="transferGroup">Group</label>
+                        <label class="form-label" for="transferGroup" for="transferGroup" data-i18n="td_modal_group">Group</label>
                         <select id="transferGroup" class="form-control">
-                            <option value="">-- No Change --</option>
+                            <option value="" data-i18n="td_opt_no_change">-- No Change --</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('transferModal')">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btnSubmitTransfer">Transfer</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('transferModal')" data-i18n="tc_btn_cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitTransfer" data-i18n="td_btn_transfer">Transfer</button>
             </div>
         </div>
     </div>
@@ -260,7 +260,7 @@
     <div id="assigneeModal" class="modal-overlay">
         <div class="modal" style="width: min(400px, 90%);">
             <div class="modal-header">
-                <h2>User Details</h2>
+                <h2 data-i18n="td_modal_user_details">User Details</h2>
                 <button type="button" class="close-btn" onclick="closeModal('assigneeModal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
@@ -270,9 +270,9 @@
                 <h3 id="aModalName" style="margin: 0 0 4px 0;" aria-label="Assignee Name">Assignee</h3>
                 <p id="aModalUsername" class="text-muted" style="margin: 0 0 16px 0; font-size: 13px;"></p>
                 <div style="text-align: left; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                    <div style="margin-bottom: 8px;"><strong>Email:</strong> <span id="aModalEmail"></span></div>
-                    <div style="margin-bottom: 8px;"><strong>Department:</strong> <span id="aModalDept"></span></div>
-                    <div><strong>Status:</strong> <span id="aModalStatus"></span></div>
+                    <div style="margin-bottom: 8px;"><strong data-i18n="td_email">Email:</strong> <span id="aModalEmail"></span></div>
+                    <div style="margin-bottom: 8px;"><strong data-i18n="td_dept">Department:</strong> <span id="aModalDept"></span></div>
+                    <div><strong data-i18n="td_status">Status:</strong> <span id="aModalStatus"></span></div>
                 </div>
             </div>
         </div>
@@ -284,7 +284,7 @@
     <div id="manageAssigneesModal" class="modal-overlay">
         <div class="modal" style="width: min(500px, 90%);">
             <div class="modal-header">
-                <h2>Manage Assignees</h2>
+                <h2 data-i18n="td_manage_assignees">Manage Assignees</h2>
                 <button type="button" class="close-btn" onclick="closeModal('manageAssigneesModal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
@@ -297,8 +297,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('manageAssigneesModal')">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btnSubmitAssign">Save Assignments</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('manageAssigneesModal')" data-i18n="tc_btn_cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitAssign" data-i18n="td_btn_save_assign">Save Assignments</button>
             </div>
         </div>
     </div>
@@ -307,7 +307,7 @@
     <div id="assignmentTreeModal" class="modal-overlay">
         <div class="modal" style="width: min(600px, 90%); max-height: 90vh; display: flex; flex-direction: column;">
             <div class="modal-header">
-                <h2>Assignment History Tree</h2>
+                <h2 data-i18n="td_modal_assign_history">Assignment History Tree</h2>
                 <button type="button" class="close-btn" onclick="closeModal('assignmentTreeModal')" aria-label="Close">
                     <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
@@ -323,9 +323,9 @@
     <div id="commentLogsModal" class="modal-overlay">
         <div class="modal" style="width: min(600px, 90%); max-height: 90vh; display: flex; flex-direction: column;">
             <div class="modal-header">
-                <h2>Comment Logs</h2>
+                <h2 data-i18n="td_modal_comment_logs">Comment Logs</h2>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <input type="text" id="commentLogSearch" class="form-control" style="width:200px; padding: 4px 8px; font-size: 12px;" placeholder="Search logs...">
+                    <input type="text" id="commentLogSearch" class="form-control" style="width:200px; padding: 4px 8px; font-size: 12px;" placeholder="Search logs..." data-i18n="td_search_logs" data-i18n-target="placeholder">
                     <button class="btn btn-ghost" onclick="downloadCommentLogs()" title="Download CSV">
                         <svg viewBox="0 0 24 24" width="18" height="18" style="fill:currentColor;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                     </button>
@@ -343,10 +343,11 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=2';
+        import './js/api.js?v=4';
         import { injectShell } from './js/layout.js';
-        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js?v=2';
+        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js?v=4';
         import { initMentions } from './js/mentions.js';
+        import { t } from './js/i18n.js';
         injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
@@ -376,14 +377,14 @@
                 const groups = await window.api.getGroups();
                 
                 const pSelect = document.getElementById('transferProject');
-                pSelect.innerHTML = '<option value="">-- No Change --</option>';
+                pSelect.innerHTML = `<option value="">${t('td_opt_no_change')}</option>`;
                 projects.forEach(p => {
                     pSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
                 });
                 if(currentTicket.projectId) pSelect.value = currentTicket.projectId;
 
                 const gSelect = document.getElementById('transferGroup');
-                gSelect.innerHTML = '<option value="">-- No Change --</option>';
+                gSelect.innerHTML = `<option value="">${t('td_opt_no_change')}</option>`;
                 groups.forEach(g => {
                     gSelect.innerHTML += `<option value="${g.id}">${escapeHtml(g.name)}</option>`;
                 });
@@ -440,7 +441,7 @@
             const prioName = globalLookup.priorities?.find(x => x.id === currentTicket.priorityId)?.name || 'Normal';
             const catName = globalLookup.categories?.find(x => x.id === currentTicket.categoryId)?.name || '-';
             
-            document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(prioName)}</span>`;
+            document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(t('db_' + prioName.toLowerCase().replace(' ', '_')) || prioName)}</span>`;
             document.getElementById('tCategory').textContent = catName;
             
             const dynContainer = document.getElementById('dynamicFieldsDisplay');
@@ -747,7 +748,7 @@
                         }
                         
                         if (!tree || tree.length === 0) {
-                            container.innerHTML = '<div class="text-muted">No assignments found in history.</div>';
+                            container.innerHTML = `<div class="text-muted">${t('td_no_assignments')}</div>`;
                         } else {
                             let rootHtml = '';
                             tree.forEach(rootNode => {
@@ -1106,7 +1107,7 @@
                             
                             const div = document.createElement('div');
                             const c = e.data;
-                            const isEdited = c.isEdited ? `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;" title="${c.updatedAt ? new Date(c.updatedAt).toLocaleString() : ''}">(Edited ${c.updatedAt ? 'at ' + new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''})</span>` : '';
+                            const isEdited = c.isEdited ? `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;" title="${c.updatedAt ? new Date(c.updatedAt).toLocaleString() : ''}">${c.updatedAt ? (t('log_edited_at') || '(Edited at {0})').replace('{0}', new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) : (t('log_edited_only') || '(Edited)')}</span>` : '';
                             
                             div.className = `comment ${c.isInternal ? 'internal' : ''}`;
                             div.id = `comment-${c.id}`;
@@ -1160,9 +1161,9 @@
                                         </div>
                                         <div class="d-flex align-items-center gap-sm">
                                             ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
-                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">Reply</button>
-                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">Edit</button>
-                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">Delete</button>
+                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">${t('ticket_btn_reply') || 'Reply'}</button>
+                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">${t('ticket_btn_edit') || 'Edit'}</button>
+                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">${t('btn_delete') || 'Delete'}</button>
                                         </div>
                                     </div>
                                     <div id="comment-content-${c.id}" class="comment-body" data-raw-content="${encodeURIComponent(c.content)}">
@@ -1183,8 +1184,8 @@
                                             </div>
                                             
                                             <div class="d-flex gap-sm">
-                                                <button class="btn btn-ghost btn-sm" onclick="cancelEditComment(${c.id})">Cancel</button>
-                                                <button class="btn btn-primary btn-sm" onclick="saveEditComment(${c.id})" id="btnSaveEdit-${c.id}">Save</button>
+                                                <button class="btn btn-ghost btn-sm" onclick="cancelEditComment(${c.id})">${t('btn_cancel') || 'Cancel'}</button>
+                                                <button class="btn btn-primary btn-sm" onclick="saveEditComment(${c.id})" id="btnSaveEdit-${c.id}">${t('btn_save') || 'Save'}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1233,55 +1234,73 @@
                         if (!isCommentLogOnly) {
                             div.className = 'history-event';
                             div.id = `history-${h.id}`;
-                            text = `${h.action} <strong>${h.fieldName || ''}</strong> from <em>${escapeHtml(h.oldValue || 'none')}</em> to <em>${escapeHtml(h.newValue || 'none')}</em>`;
+                            const actionKey = h.action === 'Created' ? (t('log_created') || 'Created') : h.action;
+                            const noneText = t('log_none') || 'none';
+                            const oldVal = h.oldValue || noneText;
+                            const newVal = h.newValue || noneText;
+                            
+                            text = (t('log_changed_general') || `{0} <strong>{1}</strong> from <em>{2}</em> to <em>{3}</em>`)
+                                .replace('{0}', actionKey)
+                                .replace('{1}', h.fieldName || '')
+                                .replace('{2}', escapeHtml(oldVal))
+                                .replace('{3}', escapeHtml(newVal));
                             
                             if (h.action === 'Assigned' && h.fieldName === 'AssignedUserId') {
-                                text = `assigned this ticket to <strong>${resolveUser(h.newValue)}</strong> (was ${resolveUser(h.oldValue)})`;
+                                text = (t('log_assigned') || `assigned this ticket to <strong>{0}</strong> (was {1})`)
+                                    .replace('{0}', resolveUser(h.newValue))
+                                    .replace('{1}', resolveUser(h.oldValue));
                             } else if (h.action === 'Transferred') {
                                 const parseTransfer = (val) => {
-                                    if (!val || val === 'Proj:,Grp:') return 'none';
+                                    if (!val || val === 'Proj:,Grp:') return t('log_none') || 'none';
                                     const mProj = val.match(/Proj:(-?\d*)/);
                                     const mGrp = val.match(/Grp:(-?\d*)/);
                                     const pId = mProj && mProj[1] ? mProj[1] : null;
                                     const gId = mGrp && mGrp[1] ? mGrp[1] : null;
                                     
-                                    const pName = pId && pId !== '-1' ? (globalLookup.projects?.find(x => x.id == pId)?.name || `Project ${pId}`) : 'No Project';
-                                    const gName = gId && gId !== '-1' ? (globalGroups?.find(x => x.id == gId)?.name || `Group ${gId}`) : 'No Group';
+                                    const pName = pId && pId !== '-1' ? (globalLookup.projects?.find(x => x.id == pId)?.name || `Project ${pId}`) : (t('log_no_project') || 'No Project');
+                                    const gName = gId && gId !== '-1' ? (globalGroups?.find(x => x.id == gId)?.name || `Group ${gId}`) : (t('log_no_group') || 'No Group');
                                     
                                     return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
                                 };
-                                text = `transferred this ticket to <strong>${escapeHtml(parseTransfer(h.newValue))}</strong> (was ${escapeHtml(parseTransfer(h.oldValue))})`;
+                                text = (t('log_transferred') || `transferred this ticket to <strong>{0}</strong> (was {1})`)
+                                    .replace('{0}', escapeHtml(parseTransfer(h.newValue)))
+                                    .replace('{1}', escapeHtml(parseTransfer(h.oldValue)));
                             } else if (h.action === 'StatusChanged' || h.action === 'Reopened') {
                                 const sOld = globalLookup.statuses?.find(x => x.id == h.oldValue)?.name || h.oldValue;
                                 const sNew = globalLookup.statuses?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = `changed status from <em>${escapeHtml(sOld)}</em> to <em>${escapeHtml(sNew)}</em>`;
+                                text = (t('log_changed_status') || `changed status from <em>{0}</em> to <em>{1}</em>`)
+                                    .replace('{0}', escapeHtml(sOld)).replace('{1}', escapeHtml(sNew));
                             } else if (h.fieldName === 'PriorityId' || h.fieldName === 'Priority') {
                                 const pOld = globalLookup.priorities?.find(x => x.id == h.oldValue)?.name || h.oldValue;
                                 const pNew = globalLookup.priorities?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = `changed priority from <em>${escapeHtml(pOld)}</em> to <em>${escapeHtml(pNew)}</em>`;
+                                text = (t('log_changed_priority') || `changed priority from <em>{0}</em> to <em>{1}</em>`)
+                                    .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
                             } else if (h.fieldName === 'CategoryId' || h.fieldName === 'Category') {
                                 const cOld = globalLookup.categories?.find(x => x.id == h.oldValue)?.name || h.oldValue;
                                 const cNew = globalLookup.categories?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = `changed category from <em>${escapeHtml(cOld)}</em> to <em>${escapeHtml(cNew)}</em>`;
+                                text = (t('log_changed_category') || `changed category from <em>{0}</em> to <em>{1}</em>`)
+                                    .replace('{0}', escapeHtml(cOld)).replace('{1}', escapeHtml(cNew));
                             } else if (h.fieldName === 'ProjectId' || h.fieldName === 'Project') {
                                 const pOld = globalLookup.projects?.find(x => x.id == h.oldValue)?.name || h.oldValue;
                                 const pNew = globalLookup.projects?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = `changed project from <em>${escapeHtml(pOld)}</em> to <em>${escapeHtml(pNew)}</em>`;
+                                text = (t('log_changed_project') || `changed project from <em>{0}</em> to <em>{1}</em>`)
+                                    .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
                             } else if (h.action === 'CommentEdited') {
-                                text = `edited a comment`;
+                                text = t('log_edited_comment') || `edited a comment`;
                             } else if (h.action === 'CommentDeleted') {
-                                text = `deleted a comment`;
+                                text = t('log_deleted_comment') || `deleted a comment`;
                             } else if (h.action === 'UserMentioned') {
-                                text = `mentioned <strong>${resolveUser(h.newValue)}</strong> in a comment`;
+                                text = (t('log_mentioned_user') || `mentioned <strong>{0}</strong> in a comment`).replace('{0}', resolveUser(h.newValue));
                             }
-                            div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${resolveUser(h.createdBy)}</strong> ${text} at ${new Date(e.timestamp).toLocaleString()}`;
+                            const atText = t('log_at') ? ` ${t('log_at')} ` : ' ';
+                            div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${resolveUser(h.createdBy)}</strong> ${text}${atText}${new Date(e.timestamp).toLocaleString()}`;
                         } else {
                             if (h.action === 'CommentReplied' || h.action === 'CommentAdded' || h.action === 'InternalNoteAdded') {
                                 const hasAttachment = h.newValue && h.newValue.includes('[attachment:');
                                 if (hasAttachment) {
-                                    text = h.action === 'CommentReplied' ? `replied with an attachment` : (h.action === 'InternalNoteAdded' ? `added an internal note with an attachment` : `added a comment with an attachment`);
+                                    text = h.action === 'CommentReplied' ? (t('log_replied_attachment') || `replied with an attachment`) : (h.action === 'InternalNoteAdded' ? (t('log_note_attachment') || `added an internal note with an attachment`) : (t('log_comment_attachment') || `added a comment with an attachment`));
                                 } else {
-                                    text = h.action === 'CommentReplied' ? `replied to a comment` : (h.action === 'InternalNoteAdded' ? `added an internal note` : `added a comment`);
+                                    text = h.action === 'CommentReplied' ? (t('log_replied') || `replied to a comment`) : (h.action === 'InternalNoteAdded' ? (t('log_added_note') || `added an internal note`) : (t('log_added_comment') || `added a comment`));
                                 }
                             }
                         }
@@ -1291,7 +1310,7 @@
                                 
                                 if (h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied' || h.action === 'UserMentioned') {
                                     if (h.action === 'UserMentioned' && h.newValue) {
-                                        detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">Mentioned User: <strong>${resolveUser(h.newValue)}</strong></div>`;
+                                        detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${t('log_mentioned_user_prefix') || 'Mentioned User:'} <strong>${resolveUser(h.newValue)}</strong></div>`;
                                     } else if (h.newValue) {
                                         detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${window.renderContentWithAttachments(h.newValue)}</div>`;
                                     }
@@ -1303,7 +1322,7 @@
                                     // Add a link to jump to comment if it still exists
                                     const commentExists = events.some(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
                                     if (commentExists) {
-                                        detailsHtml += `<a href="#" onclick="event.preventDefault(); document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="font-size:10px; display:inline-block; margin-top:4px;">Jump to comment</a>`;
+                                        detailsHtml += `<a href="#" onclick="event.preventDefault(); document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="font-size:10px; display:inline-block; margin-top:4px;">${t('log_jump_to_comment') || 'Jump to comment'}</a>`;
                                     }
                                 } else if (h.action === 'CommentEdited' && h.oldValue && h.newValue) {
                                     const oldEnc = btoa(unescape(encodeURIComponent(h.oldValue)));
@@ -1423,15 +1442,15 @@
             
             box.innerHTML = `
                 <div class="comment-reply-connector"></div>
-                <textarea class="form-control mb-sm" rows="3" id="inline-reply-text" placeholder="Replying to comment #${id}..."></textarea>
+                <textarea class="form-control mb-sm" rows="3" id="inline-reply-text" placeholder="${(t('log_replying_to') || 'Replying to comment #{0}...').replace('{0}', id)}"></textarea>
                 <div style="margin-bottom: 8px;">
                     <label style="font-size: 13px; color: var(--text-muted); cursor: ${forceInternal ? 'not-allowed' : 'pointer'};">
-                        <input type="checkbox" id="inline-reply-internal" ${forceInternal ? 'checked disabled' : ''}> Internal Note
+                        <input type="checkbox" id="inline-reply-internal" ${forceInternal ? 'checked disabled' : ''}> ${t('log_internal_note_cb') || 'Internal Note'}
                     </label>
                 </div>
                 <div class="d-flex gap-sm">
-                    <button class="btn btn-primary btn-sm" onclick="submitInlineReply(${id}, ${forceInternal})">Reply</button>
-                    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('inline-reply-box').remove()">Cancel</button>
+                    <button class="btn btn-primary btn-sm" onclick="submitInlineReply(${id}, ${forceInternal})">${t('ticket_btn_reply') || 'Reply'}</button>
+                    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('inline-reply-box').remove()">${t('btn_cancel') || 'Cancel'}</button>
                 </div>
             `;
             

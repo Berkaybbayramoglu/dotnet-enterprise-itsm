@@ -1,4 +1,4 @@
-
+import { t } from './i18n.js';
 
 let hubConnection = null;
 
@@ -33,17 +33,26 @@ export async function initNotifications() {
         loadNotifications(); // reload list
     });
 
-    // Dropdown toggle logic
     const notifList = document.getElementById('notificationList');
     if (notifList && !document.getElementById('btnDeleteAllNotifs')) {
         const li = document.createElement('li');
         li.innerHTML = `<a id="btnDeleteAllNotifs" class="dropdown-item text-center" href="#" onclick="deleteAllNotifications(event)" style="padding: 12px 0; color: var(--danger); font-weight: 500; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; border-top: 1px solid var(--border);">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
-            Tamamını Sil
+            ${t ? t('topbar_delete_all') : 'Tamamını Sil'}
         </a>`;
         notifList.appendChild(li);
     }
     
+    try {
+        await hubConnection.start();
+        console.log("SignalR Connected for notifications.");
+    } catch (err) {
+        console.error("SignalR Connection Error: ", err);
+    }
+}
+
+// Dropdown toggle logic runs unconditionally
+if (typeof document !== 'undefined') {
     document.addEventListener('click', (e) => {
         const toggle = e.target.closest('#bellDropdown');
         const menu = document.getElementById('notificationList');
@@ -53,13 +62,6 @@ export async function initNotifications() {
             menu.classList.remove('show');
         }
     });
-
-    try {
-        await hubConnection.start();
-        console.log("SignalR Connected for notifications.");
-    } catch (err) {
-        console.error("SignalR Connection Error: ", err);
-    }
 }
 
 async function loadNotifications() {
@@ -127,7 +129,7 @@ async function loadNotifications() {
                             <div class="d-flex justify-content-between align-items-center">
                                 <div style="font-size: 11px; color: #999;">${new Date(n.createdAt).toLocaleString()}</div>
                                 <div class="d-flex gap-sm">
-                                    <button type="button" class="btn btn-outline-secondary" style="padding: 2px 8px; font-size: 11px; border-radius: 4px;" onclick="event.preventDefault(); event.stopPropagation(); window.showInfoModal('Bildirim Detayı', '${bodyText.replaceAll("'", "\\'")}');">Detay</button>
+                                    <button type="button" class="btn btn-outline-secondary" style="padding: 2px 8px; font-size: 11px; border-radius: 4px;" onclick="event.preventDefault(); event.stopPropagation(); window.showInfoModal('${t ? t('notif_detail') : 'Bildirim Detayı'}', '${bodyText.replaceAll("'", "\\'")}');">${t ? t('notif_detail_btn') : 'Detay'}</button>
                                     <a href="${linkUrl}" class="btn btn-primary" style="padding: 2px 8px; font-size: 11px; border-radius: 4px; color: white; text-decoration: none;" onclick="event.stopPropagation();">Git</a>
                                 </div>
                             </div>
@@ -196,7 +198,7 @@ async function loadNotifications() {
 
 window.deleteAllNotifications = async function(e) {
     e.preventDefault();
-    if (!confirm('Tüm bildirimleri kalıcı olarak silmek istediğinize emin misiniz?')) return;
+    if (!confirm(t ? t('notif_confirm_delete') : 'Tüm bildirimleri kalıcı olarak silmek istediğinize emin misiniz?')) return;
     try {
         await window.api.request(`/notifications/all`, { method: 'DELETE' });
         loadNotifications();

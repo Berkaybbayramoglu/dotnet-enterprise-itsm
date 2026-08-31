@@ -16,7 +16,7 @@
                         <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
                     </button>
 
-                    <h2>Dashboard</h2>
+                    <h2 data-i18n="dash_title">Dashboard</h2>
                 </div>
                 <div class="topbar-right">
                     <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
@@ -25,14 +25,14 @@
                             <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)">Mark all as read</a></li>
+                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
-                    <button class="btn btn-ghost" id="shellLogoutBtn">Logout</button>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
                 </div>
             </header>
             
@@ -45,13 +45,13 @@
                 <!-- Charts Row -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Tickets by Status</div>
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_tickets_status">Tickets by Status</div>
                         <div style="height: 260px; position: relative;" id="statusChartContainer">
                             <canvas id="statusChart"></canvas>
                         </div>
                     </div>
                     <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Tickets by Priority</div>
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_tickets_priority">Tickets by Priority</div>
                         <div style="height: 260px; position: relative;" id="priorityChartContainer">
                             <canvas id="priorityChart"></canvas>
                         </div>
@@ -61,13 +61,13 @@
                 <!-- New Row: Team Workload & Recent Tickets -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Takım Yükü</div>
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_team_workload">Takım Yükü</div>
                         <div id="workloadList" style="display: flex; flex-direction: column; gap: 12px;">
                             <!-- Populated by JS -->
                         </div>
                     </div>
                     <div class="card" style="padding: 20px;">
-                        <div style="font-weight: 600; margin-bottom: 16px;">Son Talepler</div>
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_recent_requests">Son Talepler</div>
                         <div id="recentTicketsList" style="display: flex; flex-direction: column; gap: 8px;">
                             <!-- Populated by JS -->
                         </div>
@@ -96,9 +96,10 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=2';
-        import { injectShell } from './js/layout.js?v=4';
-        import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js?v=2';
+        import './js/api.js?v=5';
+        import { injectShell } from './js/layout.js?v=8';
+        import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js?v=5';
+        import { t } from './js/i18n.js';
         injectShell();
         
         window.openModal = openModal;
@@ -127,7 +128,7 @@
                             <svg viewBox="0 0 24 24" width="24" height="24" style="fill: currentColor;">${iconPath}</svg>
                         </div>
                         <div>
-                            <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">${title}</div>
+                            <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">${t('dash_kpi_' + title.replace(/ /g, '_').toLowerCase()) || title}</div>
                             <div style="font-size: 28px; font-weight: 700; color: var(--${title === 'Avg CSAT' || title === 'Open Tickets' || title === 'Unassigned' ? 'text' : color}); line-height: 1.2;">${val}</div>
                         </div>
                     </div>
@@ -138,7 +139,7 @@
             new Chart(document.getElementById('statusChart'), {
                         type: 'doughnut',
                         data: {
-                            labels: dist.byStatus.map(d => d.key),
+                            labels: dist.byStatus.map(d => t('db_' + d.key.toLowerCase().replace(' ', '_'))),
                             datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
                         },
                         options: { 
@@ -160,7 +161,7 @@
             new Chart(document.getElementById('priorityChart'), {
                         type: 'bar',
                         data: {
-                            labels: dist.byPriority.map(d => d.key),
+                            labels: dist.byPriority.map(d => t('db_' + d.key.toLowerCase().replace(' ', '_'))),
                             datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
                         },
                         options: { 
@@ -179,12 +180,12 @@
         
                 function renderWorkload(workload) {
             return workload.length === 0 
-                ? '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>'
+                ? `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`
                 : workload.map(w => `
                     <div style="margin-bottom: 24px;">
                         <h4 style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
                             ${w.departmentName} 
-                            <span class="badge badge-warning" style="font-size: 11px;">Total: ${w.openTicketCount}</span>
+                            <span class="badge badge-warning" style="font-size: 11px;">${t('dash_total')}: ${w.openTicketCount}</span>
                         </h4>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             ${w.agents.map(a => `
@@ -193,7 +194,7 @@
                                         <div class="avatar" style="width: 24px; height: 24px; font-size: 11px;">${a.agentName.charAt(0)}</div>
                                         <span style="font-size: 13px; font-weight: 500;">${a.agentName}</span>
                                     </div>
-                                    <span style="font-size: 13px; font-weight: 600; color: var(--danger);">${a.openTicketCount} Open</span>
+                                    <span style="font-size: 13px; font-weight: 600; color: var(--danger);">${a.openTicketCount} ${t('dash_status_open')}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -203,22 +204,26 @@
 
         function renderRecentTickets(recentTickets, lookup) {
             return recentTickets.length === 0 
-                ? '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">Henüz bilet yok</td></tr>'
-                : recentTickets.map(t => {
-                    const statusName = (lookup.statuses && lookup.statuses.find(x => x.id === t.statusId)?.name) || 'Bilinmiyor';
-                    const priorityName = (lookup.priorities && lookup.priorities.find(x => x.id === t.priorityId)?.name) || 'Bilinmiyor';
+                ? `<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">${t('dash_no_tickets')}</td></tr>`
+                : recentTickets.map(tData => {
+                    const statusName = (lookup.statuses && lookup.statuses.find(x => x.id === tData.statusId)?.name) || t('dash_unknown');
+                    const priorityName = (lookup.priorities && lookup.priorities.find(x => x.id === tData.priorityId)?.name) || t('dash_unknown');
+                    
+                    const localizedStatus = t('db_' + statusName.toLowerCase().replace(/ /g, '_')) || statusName;
+                    const localizedPriority = t('db_' + priorityName.toLowerCase().replace(/ /g, '_')) || priorityName;
+
                     return `
-                    <tr style="cursor: pointer;" onclick="openTicketPreview(${t.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTicketPreview(${t.id});}">
-                        <td class="text-muted" style="font-family: monospace;">#${t.id}</td>
-                        <td style="font-weight: 500;">${t.title}</td>
-                        <td><span class="badge badge-default">${statusName}</span></td>
-                        <td><span class="badge badge-warning">${priorityName}</span></td>
+                    <tr style="cursor: pointer;" onclick="openTicketPreview(${tData.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTicketPreview(${tData.id});}">
+                        <td class="text-muted" style="font-family: monospace;">#${tData.id}</td>
+                        <td style="font-weight: 500;">${window.ui?.escapeHtml(tData.title) || tData.title}</td>
+                        <td><span class="badge badge-default">${window.ui?.escapeHtml(localizedStatus) || localizedStatus}</span></td>
+                        <td><span class="badge badge-warning">${window.ui?.escapeHtml(localizedPriority) || localizedPriority}</span></td>
                     </tr>
                     `;
                 }).join('');
         }
         function renderWorkloadList(workload) {
-            if (workload.length === 0) return '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>';
+            if (workload.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
             return workload.map(w => `
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
@@ -249,15 +254,16 @@
             const getStatusName = (id) => lookup.statuses?.find(s => s.id === id)?.name || 'Unknown';
             const getStatusBadge = (status) => {
                 const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default', 'Açık': 'info', 'Devam Ediyor': 'warning', 'Beklemede': 'warning', 'Çözüldü': 'success', 'Kapatıldı': 'default' };
-                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${status}</span>`;
+                let translationKey = 'db_' + status.toLowerCase().replace(' ', '_');
+                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${t(translationKey)}</span>`;
             };
             
-            if (recentTickets.length === 0) return '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Henüz veri yok</div>';
-            return recentTickets.map(t => `
-                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${t.id})" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
-                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
-                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
-                    ${getStatusBadge(getStatusName(t.statusId))}
+            if (recentTickets.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
+            return recentTickets.map(tData => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
+                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${tData.ticketNumber}</div>
+                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tData.title}</div>
+                    ${getStatusBadge(getStatusName(tData.statusId))}
                 </div>
             `).join('');
         }
@@ -296,13 +302,13 @@
                 document.getElementById('recentTicketsList').innerHTML = renderRecentTicketsList(recentTickets, lookup);
 
                 if (!dist.byStatus || dist.byStatus.length === 0) {
-                    document.getElementById('statusChartContainer').innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Henüz veri yok</div>';
+                    document.getElementById('statusChartContainer').innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">${t('dash_no_data')}</div>`;
                 } else {
                 buildStatusChart(dist);
                 }
 
                 if (!dist.byPriority || dist.byPriority.length === 0) {
-                    document.getElementById('priorityChartContainer').innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">Henüz veri yok</div>';
+                    document.getElementById('priorityChartContainer').innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">${t('dash_no_data')}</div>`;
                 } else {
                 buildPriorityChart(dist);
                 }
@@ -325,34 +331,41 @@
         
         function renderDrillDownTickets(items) {
             window.__drillDownCache = items;
-            document.getElementById('drillDownCount').textContent = `${items.length} records found`;
+            document.getElementById('drillDownCount').textContent = `${items.length} ${t('dash_records_found') || 'records found'}`;
             if (items.length === 0) {
-                document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
+                document.getElementById('drillDownList').innerHTML = `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_tickets_cat') || 'No tickets in this category'}</div>`;
                 return;
             }
             
             const getStatusName = (id) => window.__lookupCache?.statuses?.find(s => s.id === id)?.name || 'Unknown';
             const getPriorityName = (id) => window.__lookupCache?.priorities?.find(s => s.id === id)?.name || 'Normal';
             const getStatusBadge = (status) => {
-                const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default' };
-                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${status}</span>`;
+                const map = { 'Open': 'info', 'Açık': 'info', 'In Progress': 'warning', 'Devam Ediyor': 'warning', 'Pending': 'warning', 'Beklemede': 'warning', 'Resolved': 'success', 'Çözüldü': 'success', 'Closed': 'default', 'Kapatıldı': 'default' };
+                const label = t('db_' + status.toLowerCase().replace(/ /g, '_')) || status;
+                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${window.ui?.escapeHtml(label) || label}</span>`;
             };
 
-            document.getElementById('drillDownList').innerHTML = items.map(t => `
-                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${t.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
-                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${t.ticketNumber}</div>
-                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
-                    ${getStatusBadge(getStatusName(t.statusId))}
-                    <span class="badge badge-default" style="font-size: 11px;">${getPriorityName(t.priorityId)}</span>
+            const getPriorityBadge = (priority) => {
+                const pMap = { 'Critical': 'danger', 'Kritik': 'danger', 'High': 'warning', 'Yüksek': 'warning', 'Medium': 'info', 'Orta': 'info', 'Low': 'default', 'Düşük': 'default' };
+                const label = t('db_' + priority.toLowerCase().replace(/ /g, '_')) || priority;
+                return `<span class="badge badge-${pMap[priority] || 'default'}" style="font-size: 11px;">${window.ui?.escapeHtml(label) || label}</span>`;
+            };
+
+            document.getElementById('drillDownList').innerHTML = items.map(tData => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
+                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${tData.ticketNumber}</div>
+                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tData.title}</div>
+                    ${getStatusBadge(getStatusName(tData.statusId))}
+                    ${getPriorityBadge(getPriorityName(tData.priorityId))}
                 </div>
             `).join('');
         }
 
         async function loadAndRenderSurveys() {
             const surveys = await window.api.getDashboardSurveys();
-            document.getElementById('drillDownCount').textContent = `${surveys.length} survey(s) found`;
+            document.getElementById('drillDownCount').textContent = `${surveys.length} ${t('dash_surveys_found') || 'survey(s) found'}`;
             if (surveys.length === 0) {
-                document.getElementById('drillDownList').innerHTML = '<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">Bu kategoride talep yok</div>';
+                document.getElementById('drillDownList').innerHTML = `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_tickets_cat') || 'No tickets in this category'}</div>`;
             } else {
                 document.getElementById('drillDownList').innerHTML = surveys.map(s => `
                     <div style="padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;">
@@ -397,9 +410,20 @@
         }
 
         window.openDrillDown = async function(type) {
-            document.getElementById('drillDownTitle').textContent = type + ' Details';
-            document.getElementById('drillDownCount').textContent = 'Loading...';
-            document.getElementById('drillDownList').innerHTML = '<div style="padding:20px;text-align:center;">Loading data...</div>';
+            let translatedType = type;
+            if (type.startsWith('Status: ')) {
+                const val = type.replace('Status: ', '');
+                translatedType = `${t('dash_lbl_status') || 'Status'}: ${t('db_' + val.toLowerCase().replace(' ', '_')) || val}`;
+            } else if (type.startsWith('Priority: ')) {
+                const val = type.replace('Priority: ', '');
+                translatedType = `${t('dash_lbl_priority') || 'Priority'}: ${t('db_' + val.toLowerCase().replace(' ', '_')) || val}`;
+            } else {
+                translatedType = t('dash_kpi_' + type.replace(/ /g, '_').toLowerCase()) || type;
+            }
+            
+            document.getElementById('drillDownTitle').textContent = `${translatedType} ${t('dash_details') || 'Details'}`;
+            document.getElementById('drillDownCount').textContent = t('admin_role_loading') || 'Loading...';
+            document.getElementById('drillDownList').innerHTML = `<div style="padding:20px;text-align:center;">${t('admin_role_loading') || 'Loading data...'}</div>`;
             
             if (window.openModal) window.openModal('drillDownModal');
 
