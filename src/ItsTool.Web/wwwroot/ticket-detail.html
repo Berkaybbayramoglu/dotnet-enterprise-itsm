@@ -59,7 +59,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="topbar-right">
+            
+            <script>
+                // Global store for attachments to distinguish images from files
+                window.ticketAttachments = [];
+            </script>      <div class="topbar-right">
                     <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
                         <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
@@ -123,10 +127,10 @@
                                             
                                             <div class="d-flex justify-content-between align-items-center" style="padding: 4px 8px; border-top: 1px solid var(--border-light); margin-top: 4px; padding-top: 12px;">
                                                 <div class="d-flex align-items-center gap-md">
-                                                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('commentAttachmentInput').click()" title="Attach Image" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
-                                                        🖼️
+                                                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('commentAttachmentInput').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
+                                                        📎
                                                     </button>
-                                                    <input type="file" id="commentAttachmentInput" style="display: none;" accept="image/*" onchange="uploadCommentAttachment(this)">
+                                                    <input type="file" id="commentAttachmentInput" style="display: none;" onchange="uploadCommentAttachment(this)">
                                                     
                                                     <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 0; color: var(--text-secondary); cursor: pointer;">
                                                         <input type="checkbox" id="isInternalComment"> Internal Note
@@ -776,6 +780,13 @@
                 }
 
                 document.getElementById('content').style.display = 'grid';
+                
+                try {
+                    window.ticketAttachments = await window.api.request(`/Ticket/${ticketId}/attachments`);
+                } catch(e) {
+                    console.error("Failed to load attachments", e);
+                }
+                
                 loadTimeline();
 
 
@@ -1114,7 +1125,16 @@
 
                                 if(foundIds.length > 0) {
                                     attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 12px;">` + 
-                                        foundIds.map(id => `<img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" class="comment-attachment-img" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="Attachment" onclick="openLightbox(this.src)" onmouseover="this.style.transform=\\'scale(1.05)\\'" onmouseout="this.style.transform=\\'scale(1)\\'"/>`).join('') +
+                                        foundIds.map(id => {
+                                            const att = window.ticketAttachments?.find(x => x.id == id);
+                                            const isImage = att && att.contentType && att.contentType.startsWith('image/');
+                                            if (isImage) {
+                                                return `<img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" class="comment-attachment-img" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="Attachment" onclick="openLightbox(this.src)" onmouseover="this.style.transform=\\'scale(1.05)\\'" onmouseout="this.style.transform=\\'scale(1)\\'"/>`;
+                                            } else {
+                                                const fileName = att ? att.fileName : ('File ' + id);
+                                                return `<a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" target="_blank" style="display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:12px; font-weight:500; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\\'var(--primary)\\'" onmouseout="this.style.borderColor=\\'var(--border)\\'"><svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> ${escapeHtml(fileName)}</a>`;
+                                            }
+                                        }).join('') +
                                         `</div>`;
                                     
                                     contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
@@ -1830,6 +1850,9 @@
                     body: formData
                 });
                 
+                window.ticketAttachments = window.ticketAttachments || [];
+                window.ticketAttachments.push(res);
+                
                 const textArea = document.getElementById('commentText');
                 const attachmentMarkup = `\n[attachment:${res.id}]\n`;
                 textArea.value += attachmentMarkup;
@@ -1862,11 +1885,24 @@
             
             previewContainer.innerHTML = '';
             currentAttachmentIds.forEach(id => {
-                const imgPreview = document.createElement('img');
-                imgPreview.src = `http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download`;
-                imgPreview.style.cssText = 'width: 60px; height: 60px; object-fit: cover; border-radius: 4px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-right: 8px; cursor: pointer;';
-                imgPreview.onclick = () => window.openLightbox(imgPreview.src);
-                previewContainer.appendChild(imgPreview);
+                const att = window.ticketAttachments?.find(x => x.id == id);
+                const isImage = att && att.contentType && att.contentType.startsWith('image/');
+                
+                if (isImage) {
+                    const imgPreview = document.createElement('img');
+                    imgPreview.src = `http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download`;
+                    imgPreview.style.cssText = 'width: 60px; height: 60px; object-fit: cover; border-radius: 4px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-right: 8px; cursor: pointer;';
+                    imgPreview.onclick = () => window.openLightbox(imgPreview.src);
+                    previewContainer.appendChild(imgPreview);
+                } else {
+                    const fileName = att ? att.fileName : ('File ' + id);
+                    const fileCard = document.createElement('a');
+                    fileCard.href = `http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download`;
+                    fileCard.target = '_blank';
+                    fileCard.style.cssText = 'display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:11px; font-weight:500; height: 32px; margin-right: 8px;';
+                    fileCard.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> ${escapeHtml(fileName)}`;
+                    previewContainer.appendChild(fileCard);
+                }
             });
         });
         
