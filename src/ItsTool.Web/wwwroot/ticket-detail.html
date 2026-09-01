@@ -907,8 +907,8 @@
                     const uChecks = document.querySelectorAll('.user-checkbox:checked');
                     const gChecks = document.querySelectorAll('.group-checkbox:checked');
                     
-                    const uIds = Array.from(uChecks).map(c => parseInt(c.value));
-                    const gIds = Array.from(gChecks).map(c => parseInt(c.value));
+                    const uIds = [...new Set(Array.from(uChecks).map(c => parseInt(c.value)))];
+                    const gIds = [...new Set(Array.from(gChecks).map(c => parseInt(c.value)))];
                     
                     try {
                         const req = { userIds: uIds, groupIds: gIds };

@@ -37,6 +37,28 @@
             </header>
 
             <div class="content-area">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 12px; align-items: center; gap: 12px;">
+                    <label style="font-size: 13px; font-weight: 500; color: var(--text-muted);" data-i18n="calendar_jump_date">Tarihe Git:</label>
+                    <div style="display: flex; gap: 4px; background: var(--bg-surface); padding: 4px; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                        <select id="calendarMonthSelect" style="border: none; background: transparent; padding: 4px 8px; outline: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-main);">
+                            <option value="01">Ocak</option>
+                            <option value="02">Şubat</option>
+                            <option value="03">Mart</option>
+                            <option value="04">Nisan</option>
+                            <option value="05">Mayıs</option>
+                            <option value="06">Haziran</option>
+                            <option value="07">Temmuz</option>
+                            <option value="08">Ağustos</option>
+                            <option value="09">Eylül</option>
+                            <option value="10">Ekim</option>
+                            <option value="11">Kasım</option>
+                            <option value="12">Aralık</option>
+                        </select>
+                        <div style="width: 1px; background: var(--border); margin: 4px 0;"></div>
+                        <select id="calendarYearSelect" style="border: none; background: transparent; padding: 4px 8px; outline: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-main);">
+                        </select>
+                    </div>
+                </div>
                 <div id='calendar'></div>
             </div>
         </main>
@@ -72,9 +94,26 @@
                                 // FullCalendar exclusive end date logic: add 1 day if it's all-day
                                 endDate.setDate(endDate.getDate() + 1);
                                 
+                                let titleStr = `#${t.id} - ${t.title}`;
+                                if (t.assignments && t.assignments.length > 0) {
+                                    const activeAssignees = t.assignments.filter(a => a.isActive);
+                                    if (activeAssignees.length > 0) {
+                                        const names = activeAssignees.map(a => a.assigneeName).filter(n => n).join(', ');
+                                        if (names) {
+                                            titleStr += ` (${names})`;
+                                        } else {
+                                            titleStr += ` (Atanmadı)`;
+                                        }
+                                    } else {
+                                        titleStr += ` (Atanmadı)`;
+                                    }
+                                } else {
+                                    titleStr += ` (Atanmadı)`;
+                                }
+                                
                                 return {
                                     id: t.id,
-                                    title: `#${t.id} - ${t.title}`,
+                                    title: titleStr,
                                     start: t.estimatedStartDate,
                                     end: endDate.toISOString().split('T')[0],
                                     url: `/ticket-detail.html?id=${t.id}`,
@@ -96,9 +135,44 @@
                     if (info.event.url) {
                         window.location.href = info.event.url;
                     }
+                },
+                datesSet: function(info) {
+                    var current = calendar.getDate();
+                    var cm = (current.getMonth() + 1).toString().padStart(2, '0');
+                    var mSelect = document.getElementById('calendarMonthSelect');
+                    var ySelect = document.getElementById('calendarYearSelect');
+                    if (mSelect && ySelect) {
+                        mSelect.value = cm;
+                        ySelect.value = current.getFullYear();
+                    }
                 }
             });
             calendar.render();
+
+            var mSelect = document.getElementById('calendarMonthSelect');
+            var ySelect = document.getElementById('calendarYearSelect');
+            
+            if (mSelect && ySelect) {
+                // Populate years dynamically (-5 to +5 years from now)
+                const currentYear = new Date().getFullYear();
+                for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+                    let opt = document.createElement('option');
+                    opt.value = y;
+                    opt.text = y;
+                    ySelect.appendChild(opt);
+                }
+
+                const jumpToDate = () => {
+                    const y = ySelect.value;
+                    const m = mSelect.value;
+                    if (y && m) {
+                        calendar.gotoDate(`${y}-${m}-01`);
+                    }
+                };
+
+                mSelect.addEventListener('change', jumpToDate);
+                ySelect.addEventListener('change', jumpToDate);
+            }
         });
     </script>
 </body>
