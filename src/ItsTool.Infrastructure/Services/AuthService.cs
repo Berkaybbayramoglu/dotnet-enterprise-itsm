@@ -86,6 +86,9 @@ public class AuthService : IAuthService
             .Select(o => o.Permission!.Key)
             .ToListAsync();
 
+        var kbCount = await _context.KnowledgeArticles
+            .CountAsync(a => a.AuthorUserId == user.Id && !a.IsDeleted);
+
         return new MeResponseDto(
             Id: user.Id,
             Username: user.Username,
@@ -93,7 +96,9 @@ public class AuthService : IAuthService
             Groups: groups,
             Roles: roles,
             Permissions: permissions,
-            Overrides: overrides
+            Overrides: overrides,
+            KbArticleCount: kbCount,
+            ProfilePhoto: user.ProfilePhoto
         );
     }
 }

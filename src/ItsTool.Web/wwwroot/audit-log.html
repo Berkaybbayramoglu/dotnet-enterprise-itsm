@@ -172,6 +172,10 @@
                     if (a.fieldName === 'StatusId') {
                         mappedOld = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
                         mappedNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'Status' && a.entityType === 'KnowledgeArticle') {
+                        const sMap = { '0': t('kb_opt_draft') || 'Draft', '1': t('kb_opt_published') || 'Published', '2': t('kb_badge_pending') || 'Pending Review' };
+                        mappedOld = sMap[a.oldValue] || a.oldValue;
+                        mappedNew = sMap[a.newValue] || a.newValue;
                     } else if (a.fieldName === 'PriorityId') {
                         mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
                         mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
@@ -233,6 +237,7 @@
                     }
                     else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
                     else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
+                    else if (et === 'knowledgearticle') deepLink = `/kb-article.html?id=${entityIdText}`;
                     else {
                         const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles', 'user': 'users' };
                         if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
@@ -255,7 +260,7 @@
                         <td>${newVal}</td>
                         <td style="text-align:right; position: sticky; right: 0; background: var(--bg-surface); z-index: 1; box-shadow: -2px 0 5px rgba(0,0,0,0.05);">
                             <button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="showAuditDetail('${detailSentence.replaceAll("'", "\\'")}')">${t('audit_btn_detail')}</button>
-                            <a href="${deepLink}" class="btn btn-ghost" style="padding:4px 8px; font-size:12px; color:var(--primary);">${t('audit_btn_go')}</a>
+                            <a href="${deepLink}" class="btn btn-ghost" style="padding:4px 8px; font-size:12px; color:var(--primary); ${deepLink === '#' ? 'display:none;' : ''}">${t('audit_btn_go')}</a>
                         </td>
                     `;
                     tbody.appendChild(tr);

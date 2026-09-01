@@ -576,6 +576,12 @@ export function bindShellActions() {
                                 <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">${t('users_lbl_groups') || 'Groups'}</div>
                                 <div>${groupsHtml || '-'}</div>
                             </div>
+                            <div style="margin-bottom: 16px;">
+                                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">${t('kb_lbl_contributions') || 'KB Contributions'}</div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="badge badge-success" style="font-size: 13px; padding: 4px 8px;">${me.kbArticleCount || 0} Makale Önerisi</span>
+                                </div>
+                            </div>
                             <div>
                                 <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">${t('users_lbl_eff_perms') || 'Effective Permissions'}</div>
                                 <div style="max-height: 200px; overflow-y: auto; background: var(--bg-hover); padding: 8px; border-radius: var(--radius-sm);">
@@ -623,8 +629,9 @@ export function bindShellActions() {
                 const payload = JSON.parse(atob(window.api.token.split('.')[1]));
                 let perms = [];
                 let roles = [];
-                if (payload.Permissions) {
-                    perms = typeof payload.Permissions === 'string' ? [payload.Permissions] : payload.Permissions;
+                let permsClaim = payload.permission || payload.Permissions;
+                if (permsClaim) {
+                    perms = typeof permsClaim === 'string' ? [permsClaim] : permsClaim;
                 }
                 if (payload.Roles) {
                     roles = typeof payload.Roles === 'string' ? [payload.Roles] : payload.Roles;

@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Knowledge Base</title>
     <link rel="stylesheet" href="css/design-system.css">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <style>
+        /* Quill dark mode overrides for the editor container */
+        .ql-container { font-family: inherit; font-size: 14px; }
+        .ql-editor { min-height: 200px; max-height: 400px; overflow-y: auto; background: var(--bg-surface); color: var(--text-main); }
+        .ql-toolbar { background: var(--bg-hover); border-color: var(--border) !important; border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); }
+        .ql-container.ql-snow { border-color: var(--border) !important; border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
+        .ql-snow .ql-stroke { stroke: var(--text-main); }
+        .ql-snow .ql-fill { fill: var(--text-main); }
+        .ql-snow .ql-picker { color: var(--text-main); }
+    </style>
     <style>
         .kb-container { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 1000px; margin: 0 auto; }
         .search-hero { background: linear-gradient(135deg, #0747A6 0%, #00224d 100%); padding: var(--spacing-xxl) var(--spacing-xl); border-radius: var(--radius-lg); text-align: center; color: white; margin-bottom: var(--spacing-lg); }
@@ -53,7 +64,6 @@
                             <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
                         </ul>
                     </div>
-                    <button type="button" class="btn btn-primary" id="btnNewArticle" style="display: none;" data-i18n="kb_btn_new">+ New Article</button>
                     <div class="avatar">U</div>
                     <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
                 </div>
@@ -67,6 +77,15 @@
                             <input type="text" id="searchInput" aria-label="Search knowledge base" placeholder="Search for articles, guides, and FAQs..." data-i18n="kb_search_placeholder" data-i18n-target="placeholder">
                             <button type="button" class="btn" id="btnSearchKb" data-i18n="kb_btn_search">Search</button>
                         </div>
+                        <div style="margin-top: 16px;">
+                            <button type="button" class="btn btn-primary" id="btnNewArticle" style="display: none;" data-i18n="kb_btn_new">+ New Article</button>
+                        </div>
+                    </div>
+
+                    <div id="kbTabs" style="display: flex; margin-bottom: 16px; border-bottom: 1px solid var(--border); gap: 16px;">
+                        <button id="tabPublished" class="btn btn-ghost" style="border-bottom: 2px solid var(--primary); border-radius: 0; color: var(--primary); padding-bottom: 8px;" data-i18n="kb_tab_all">All Articles</button>
+                        <button id="tabPending" class="btn btn-ghost" style="display: none; border-bottom: 2px solid transparent; border-radius: 0; padding-bottom: 8px; color: var(--text-muted);" data-i18n="kb_badge_pending">Pending Review</button>
+                        <button id="tabMine" class="btn btn-ghost" style="border-bottom: 2px solid transparent; border-radius: 0; padding-bottom: 8px; color: var(--text-muted);" data-i18n="kb_tab_mine">My Suggestions</button>
                     </div>
                     
                     <div class="articles" id="articleList">
@@ -89,6 +108,10 @@
             <div class="modal-body">
                 <form id="articleForm">
                     <input type="hidden" id="articleId" value="">
+                    <div id="authorFeedbackAlert" style="display: none; padding: 12px; margin-bottom: 16px; background: rgba(var(--warning-rgb, 245,158,11), 0.1); border: 1px solid var(--warning); border-radius: 8px; color: var(--text);">
+                        <strong style="color: var(--warning);"><svg viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; margin-right:4px; vertical-align:text-bottom;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> <span data-i18n="kb_alert_feedback">Manager Feedback</span>:</strong>
+                        <p id="authorFeedbackText" style="margin: 4px 0 0 0; font-size: 13px;"></p>
+                    </div>
                     <div class="form-group">
                         <label class="form-label" for="articleTitle" data-i18n="kb_lbl_title">Title</label>
                         <input id="articleTitle" class="form-control" required>
@@ -100,8 +123,8 @@
                     <div class="form-group">
                         <label class="form-label" for="articleVisibility" data-i18n="kb_lbl_vis">Visibility</label>
                         <select id="articleVisibility" class="form-control" required>
-                            <option value="0" data-i18n="kb_opt_pub">Public</option>
-                            <option value="1" data-i18n="kb_opt_int">Internal</option>
+                            <option value="1" data-i18n="kb_opt_pub">Public</option>
+                            <option value="0" data-i18n="kb_opt_int">Internal</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -112,8 +135,9 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="articleContent" data-i18n="kb_lbl_content">Content</label>
-                        <textarea id="articleContent" class="form-control" rows="8" required></textarea>
+                        <label class="form-label" for="quillEditor" data-i18n="kb_lbl_content">Content</label>
+                        <div id="quillEditor"></div>
+                        <input type="hidden" id="articleContent" required>
                     </div>
                 </form>
             </div>
@@ -124,6 +148,40 @@
         </div>
     </div>
 
+    <!-- Article Review Modal (For Managers) -->
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 data-i18n="kb_modal_review">Review Article</h2>
+                <button type="button" class="close-btn" onclick="closeModal('reviewModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <input type="hidden" id="reviewArticleId" value="">
+                    <div class="form-group">
+                        <label class="form-label" for="reviewStatus" data-i18n="kb_lbl_status">Status</label>
+                        <select id="reviewStatus" class="form-control" required>
+                            <option value="1" data-i18n="kb_opt_approve">Approve & Publish</option>
+                            <option value="3" data-i18n="kb_opt_revise">Request Revision</option>
+                            <option value="4" data-i18n="kb_opt_reject">Reject</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="feedbackGroup" style="display: none;">
+                        <label class="form-label" for="reviewFeedback" data-i18n="kb_lbl_feedback">Feedback / Revision Request</label>
+                        <textarea id="reviewFeedback" class="form-control" rows="4"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('reviewModal')" data-i18n="users_btn_cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitReview" data-i18n="kb_btn_submit_review">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <script type="module">
         import './js/api.js?v=3';
         import { injectShell } from './js/layout.js?v=10';
@@ -141,13 +199,38 @@
         }
         const claims = parseJwt(window.api.token) || {};
         const roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
-        const perms = claims['Permissions'] || [];
+        const perms = claims['permission'] || claims['Permissions'] || [];
+        const currentUserId = parseInt(claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || claims['nameid'] || claims['sub'] || '0');
         const hasManageKb = (Array.isArray(roles) ? roles.includes('SuperAdmin') : roles === 'SuperAdmin') || 
                             (Array.isArray(perms) ? perms.includes('kb.manage') : perms === 'kb.manage');
         
-        if (hasManageKb) document.getElementById('btnNewArticle').style.display = 'inline-flex';
+        document.getElementById('btnNewArticle').style.display = 'inline-flex';
+        if (!hasManageKb) {
+            document.getElementById('btnNewArticle').setAttribute('data-i18n', 'kb_btn_suggest');
+            document.getElementById('btnNewArticle').textContent = t('kb_btn_suggest') || '+ Suggest Article';
+        }
         
+        let currentTab = 'published';
         let allCategories = [];
+        
+        if (hasManageKb) {
+            document.getElementById('tabPending').style.display = 'inline-block';
+        }
+
+        const tabs = ['tabPublished', 'tabPending', 'tabMine'];
+        tabs.forEach(tabId => {
+            document.getElementById(tabId)?.addEventListener('click', (e) => {
+                currentTab = tabId.replace('tab', '').toLowerCase();
+                tabs.forEach(tId => {
+                    const el = document.getElementById(tId);
+                    if (el) {
+                        el.style.borderColor = (tId === tabId) ? 'var(--primary)' : 'transparent';
+                        el.style.color = (tId === tabId) ? 'var(--primary)' : 'var(--text-muted)';
+                    }
+                });
+                loadKb(document.getElementById('searchInput').value);
+            });
+        });
 
         async function loadKb(keyword = '') {
             try {
@@ -155,7 +238,18 @@
                 const list = document.getElementById('articleList');
                 list.innerHTML = '';
                 
-                if (articles.length === 0) {
+                let filteredArticles = articles;
+                
+                if (currentTab === 'published') {
+                    filteredArticles = articles.filter(a => a.status === 1 || (a.status === 0 && a.authorUserId === currentUserId));
+                } else if (currentTab === 'pending') {
+                    // Managers should not see their own pending articles in the "Pending" tab to review themselves
+                    filteredArticles = articles.filter(a => (a.status === 2 || a.status === 3 || a.status === 4) && a.authorUserId !== currentUserId);
+                } else if (currentTab === 'mine') {
+                    filteredArticles = articles.filter(a => a.authorUserId === currentUserId);
+                }
+                
+                if (filteredArticles.length === 0) {
                     list.innerHTML = `
                         <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
                             <svg viewBox="0 0 24 24" width="48" height="48" style="fill: var(--border); margin-bottom: 16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
@@ -166,25 +260,37 @@
                     return;
                 }
 
-                articles.forEach(a => {
+                filteredArticles.forEach(a => {
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = 'article-card';
                     btn.addEventListener('click', () => window.openArticle(a.id));
                     
                     let badges = '';
-                    if (a.visibility === 1) badges += `<span class="badge badge-warning">${t('kb_badge_internal')}</span> `;
+                    if (a.visibility === 0) badges += `<span class="badge badge-warning">${t('kb_badge_internal')}</span> `;
                     if (a.status === 0) badges += `<span class="badge badge-default">${t('kb_badge_draft')}</span> `;
+                    if (a.status === 2) badges += `<span class="badge badge-info">${t('kb_badge_pending') || 'Pending Review'}</span> `;
+                    if (a.status === 3) badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span> `;
+                    if (a.status === 4) badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span> `;
 
                     let actionsHtml = '';
-                    if (hasManageKb) {
-                        actionsHtml = `
-                            <div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">
-                                <button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(${a.id})">${t('kb_btn_edit')}</button>
-                                <button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(${a.id}, ${a.status})">${a.status === 1 ? t('kb_btn_unpub') : t('kb_btn_pub')}</button>
-                                <button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(${a.id})">${t('kb_btn_del')}</button>
-                            </div>
-                        `;
+                    const isAuthor = a.authorUserId === currentUserId;
+                    
+                    if (hasManageKb || (isAuthor && a.status !== 1)) {
+                        actionsHtml = `<div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">`;
+                        actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(${a.id})">${t('kb_btn_edit')}</button>`;
+                        
+                        if (hasManageKb) {
+                            if (a.status === 2) {
+                                actionsHtml += `<button type="button" class="btn btn-primary" style="padding: 4px 12px; font-size: 13px;" title="Approve" onclick="quickApproveArticle(event, ${a.id})">${t('kb_btn_approve_pub') || 'Onayla'}</button>`;
+                                actionsHtml += `<button type="button" class="btn btn-secondary" style="padding: 4px 12px; font-size: 13px;" title="Review" onclick="openReviewModal(${a.id})">${t('kb_btn_review') || 'İncele'}</button>`;
+                            } else {
+                                actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(${a.id}, ${a.status})">${a.status === 1 ? t('kb_btn_unpub') : t('kb_btn_pub')}</button>`;
+                            }
+                        }
+                        
+                        actionsHtml += `<button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(${a.id})">${t('kb_btn_del')}</button>`;
+                        actionsHtml += `</div>`;
                     }
                     
                     btn.innerHTML = `
@@ -197,7 +303,8 @@
                         </p>
                         <div class="meta" style="flex-wrap: wrap;">
                             <span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg> ${a.viewCount}</span>
-                            <span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg> ${new Date(a.createdAt).toLocaleDateString()}</span>
+                            <span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg> ${new Date(a.createdAt).toLocaleString('tr-TR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                            ${a.authorName ? `<span class="meta-item"><svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Gönderen: ${escapeHtml(a.authorName)}${a.authorDepartment ? ` (${escapeHtml(a.authorDepartment)})` : ''}</span>` : ''}
                             ${actionsHtml}
                         </div>
                     `;
@@ -240,13 +347,50 @@
             }
         });
 
+        let quill = null;
+        function initQuill() {
+            if (!quill) {
+                quill = new Quill('#quillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image'],
+                            ['clean']
+                        ]
+                    }
+                });
+                quill.on('text-change', function() {
+                    document.getElementById('articleContent').value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
+                });
+            }
+        }
+
         document.getElementById('btnNewArticle')?.addEventListener('click', async () => {
             document.getElementById('articleId').value = '';
             document.getElementById('articleTitle').value = '';
+            initQuill();
+            quill.root.innerHTML = '';
             document.getElementById('articleContent').value = '';
-            document.getElementById('articleVisibility').value = '0';
+            document.getElementById('articleVisibility').value = '1';
             document.getElementById('articleStatus').value = '0';
-            document.getElementById('modalTitle').textContent = t('kb_modal_new');
+            
+            document.getElementById('authorFeedbackAlert').style.display = 'none';
+            document.getElementById('btnSaveArticle').textContent = t('kb_btn_save') || 'Save Article';
+
+            if (!hasManageKb) {
+                document.getElementById('articleVisibility').parentElement.style.display = 'none';
+                document.getElementById('articleStatus').parentElement.style.display = 'none';
+            } else {
+                document.getElementById('articleVisibility').parentElement.style.display = 'block';
+                document.getElementById('articleStatus').parentElement.style.display = 'block';
+            }
+
+            document.getElementById('modalTitle').setAttribute('data-i18n', hasManageKb ? 'kb_modal_new' : 'kb_btn_suggest');
+            document.getElementById('modalTitle').textContent = hasManageKb ? t('kb_modal_new') : t('kb_btn_suggest') || 'Suggest Article';
             
             if (allCategories.length === 0) {
                 try {
@@ -289,7 +433,9 @@
                 const article = await window.api.request(`/kb/articles/${id}`);
                 document.getElementById('articleId').value = article.id;
                 document.getElementById('articleTitle').value = article.title;
-                document.getElementById('articleContent').value = article.content;
+                initQuill();
+                quill.root.innerHTML = article.content || '';
+                document.getElementById('articleContent').value = article.content || '';
                 document.getElementById('articleVisibility').value = article.visibility;
                 document.getElementById('articleStatus').value = article.status;
                 document.getElementById('modalTitle').textContent = t('kb_modal_edit');
@@ -300,9 +446,68 @@
                     catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
                 }
                 document.getElementById('articleCategory').value = article.categoryId;
+                
+                if (article.status === 3 && article.managerFeedback) {
+                    document.getElementById('authorFeedbackAlert').style.display = 'block';
+                    document.getElementById('authorFeedbackText').textContent = article.managerFeedback;
+                    document.getElementById('btnSaveArticle').textContent = t('kb_btn_fix') || 'Fix & Resubmit';
+                } else {
+                    document.getElementById('authorFeedbackAlert').style.display = 'none';
+                    document.getElementById('btnSaveArticle').textContent = t('kb_btn_save') || 'Save Article';
+                }
+                
                 openModal('articleModal');
             } catch (e) { console.error(e);  showToast(t('kb_toast_load_err'), 'error');  }
         };
+
+        window.quickApproveArticle = async function(event, id) {
+            event.stopPropagation();
+            try {
+                await window.api.reviewKbArticle(id, { status: 1, feedback: '' });
+                showToast(t('kb_toast_updated') || 'Article approved and published.');
+                loadKb();
+            } catch (e) {
+                console.error(e);
+                showToast(t('kb_toast_save_err') || 'Error approving article.', 'error');
+            }
+        };
+
+        window.openReviewModal = function(id) {
+            document.getElementById('reviewArticleId').value = id;
+            document.getElementById('reviewStatus').value = '1';
+            document.getElementById('reviewFeedback').value = '';
+            document.getElementById('feedbackGroup').style.display = 'none';
+            openModal('reviewModal');
+        };
+
+        document.getElementById('reviewStatus').addEventListener('change', (e) => {
+            if (e.target.value === '3' || e.target.value === '4') {
+                document.getElementById('feedbackGroup').style.display = 'block';
+            } else {
+                document.getElementById('feedbackGroup').style.display = 'none';
+            }
+        });
+
+        document.getElementById('btnSubmitReview').addEventListener('click', async () => {
+            const form = document.getElementById('reviewForm');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const id = document.getElementById('reviewArticleId').value;
+            const payload = {
+                status: Number.parseInt(document.getElementById('reviewStatus').value),
+                feedback: document.getElementById('reviewFeedback').value
+            };
+
+            try {
+                await window.api.reviewKbArticle(id, payload);
+                showToast(t('kb_toast_updated'));
+                closeModal('reviewModal');
+                loadKb();
+            } catch (e) {
+                console.error(e);
+                showToast(t('kb_toast_save_err'), 'error');
+            }
+        });
         
         window.togglePublish = async function(id, currentStatus) {
             try {

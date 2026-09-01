@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Knowledge Base Article</title>
     <link rel="stylesheet" href="css/design-system.css">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <style>
+        /* Quill dark mode overrides for the editor container */
+        .ql-container { font-family: inherit; font-size: 14px; }
+        .ql-editor { min-height: 200px; max-height: 400px; overflow-y: auto; background: var(--bg-surface); color: var(--text-main); }
+        .ql-toolbar { background: var(--bg-hover); border-color: var(--border) !important; border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); }
+        .ql-container.ql-snow { border-color: var(--border) !important; border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
+        .ql-snow .ql-stroke { stroke: var(--text-main); }
+        .ql-snow .ql-fill { fill: var(--text-main); }
+        .ql-snow .ql-picker { color: var(--text-main); }
+    </style>
     <style>
         .kb-container { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 800px; margin: 0 auto; padding: var(--spacing-xl) 0; }
         .article-meta { display: flex; gap: var(--spacing-md); color: var(--text-muted); font-size: 13px; margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border); align-items: center; }
@@ -51,15 +62,17 @@
                     
                     
                     <div id="adminActionBar" style="display: none; justify-content: flex-end; gap: 8px; margin-bottom: 16px;">
+                        <button type="button" class="btn btn-primary" id="btnReviewArticle" style="display:none;" data-i18n="kb_btn_review">Review</button>
                         <button type="button" class="btn btn-ghost" id="btnTogglePublish"></button>
-                        <button type="button" class="btn btn-secondary" id="btnEditArticle">Edit</button>
-                        <button type="button" class="btn btn-danger" id="btnDeleteArticle">Delete</button>
+                        <button type="button" class="btn btn-secondary" id="btnEditArticle" data-i18n="kb_btn_edit">Edit</button>
+                        <button type="button" class="btn btn-danger" id="btnDeleteArticle" data-i18n="kb_btn_del">Delete</button>
                     </div>
 
                     <h1 id="articleTitle" style="font-size: 32px; margin-bottom: 8px;">Loading...</h1>
                     
                     <div class="article-meta">
                         <span id="articleDate"></span>
+                        <span id="articleAuthor" style="display: none;"></span>
                         <span>•</span>
                         <span style="display:flex; align-items:center; gap: 4px;">
                             <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor;"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
@@ -68,6 +81,18 @@
                         <span id="articleBadges" style="margin-left: auto;"></span>
                     </div>
                     
+                    <div id="pageFeedbackAlert" style="display: none; background: rgba(var(--warning-rgb, 245,158,11), 0.1); border-left: 4px solid var(--warning); padding: 12px; margin-bottom: 24px; border-radius: 4px;">
+                        <div id="pageFeedbackTitle" style="font-weight: 600; color: var(--warning); margin-bottom: 4px;" data-i18n="kb_lbl_manager_feedback">Manager Feedback / Revision Request</div>
+                        <div id="pageFeedbackText" style="color: var(--text-main); font-size: 14px; white-space: pre-wrap;"></div>
+                    </div>
+
+                    <div id="managerTip" style="display: none; background: rgba(var(--primary-rgb, 59,130,246), 0.05); border: 1px dashed rgba(var(--primary-rgb, 59,130,246), 0.3); padding: 10px; border-radius: 4px; margin-bottom: 20px; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" style="fill: var(--primary); flex-shrink: 0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        <span style="font-size: 13px; color: var(--text-secondary);">
+                            <strong>İpucu:</strong> Yorum yapmak veya hızlıca revizyon istemek için aşağıdaki makale metninden istediğiniz bir kısmı farenizle seçebilirsiniz.
+                        </span>
+                    </div>
+
                     <div class="article-content" id="articleContent">
                         <p style="color: var(--text-muted);">Please wait while the article loads...</p>
                     </div>
@@ -87,6 +112,10 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div id="authorFeedbackAlert" style="display: none; background: rgba(var(--warning-rgb, 245,158,11), 0.1); border-left: 4px solid var(--warning); padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+                    <div style="font-weight: 600; color: var(--warning); margin-bottom: 4px;" data-i18n="kb_lbl_manager_feedback">Manager Feedback</div>
+                    <div id="authorFeedbackText" style="color: var(--text-main); font-size: 14px; white-space: pre-wrap;"></div>
+                </div>
                 <form id="articleForm">
                     <div class="form-group">
                         <label class="form-label" for="editArticleTitle" data-i18n="kb_lbl_title">Title</label>
@@ -111,8 +140,9 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="editArticleContent" data-i18n="kb_lbl_content">Content</label>
-                        <textarea id="editArticleContent" class="form-control" rows="8" required></textarea>
+                        <label class="form-label" for="quillEditor" data-i18n="kb_lbl_content">Content</label>
+                        <div id="quillEditor"></div>
+                        <input type="hidden" id="editArticleContent" required>
                     </div>
                 </form>
             </div>
@@ -123,6 +153,48 @@
         </div>
     </div>
 
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 data-i18n="kb_modal_review">Review Article</h2>
+                <button type="button" class="close-btn" onclick="closeModal('reviewModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <div class="form-group">
+                        <label class="form-label" for="reviewStatus" data-i18n="kb_lbl_action">Action</label>
+                        <select id="reviewStatus" class="form-control" required>
+                            <option value="1" data-i18n="kb_opt_approve">Approve & Publish</option>
+                            <option value="3" data-i18n="kb_opt_revise">Request Revision</option>
+                            <option value="4" data-i18n="kb_opt_reject">Reject</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="feedbackGroup" style="display: none;">
+                        <label class="form-label" for="reviewFeedback" data-i18n="kb_lbl_feedback">Feedback / Revision Request</label>
+                        <textarea id="reviewFeedback" class="form-control" rows="4"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('reviewModal')" data-i18n="users_btn_cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitReview" data-i18n="kb_btn_submit_review">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Review Tooltip -->
+    <div id="floatingReviewBtn" style="display: none; position: absolute; z-index: 1000; background: var(--bg-surface); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: var(--radius-md); padding: 4px;">
+        <button type="button" class="btn btn-primary" style="font-size: 12px; padding: 4px 8px; display: flex; align-items: center;" onclick="window.openReviewForSelection()">
+            <svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor; margin-right: 4px;"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+            <span data-i18n="kb_btn_review_selection">Yorum Bırak / Revize İste</span>
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <script type="module">
         import './js/api.js?v=3';
         import { injectShell } from './js/layout.js?v=10';
@@ -155,61 +227,172 @@
                 const a = await window.api.request(`/kb/articles/${articleId}`);
                 document.title = `${a.title} - ITSM Knowledge Base`;
                 document.getElementById('articleTitle').textContent = a.title;
-                document.getElementById('articleDate').textContent = new Date(a.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('articleDate').textContent = new Date(a.createdAt).toLocaleString('tr-TR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                
+                if (a.authorName) {
+                    document.getElementById('articleAuthor').style.display = 'inline';
+                    document.getElementById('articleAuthor').innerHTML = ` • Gönderen: ${escapeHtml(a.authorName)}${a.authorDepartment ? ` (${escapeHtml(a.authorDepartment)})` : ''}`;
+                }
+
                 document.getElementById('articleViews').textContent = a.viewCount;
                 
                 let badges = '';
-                if (a.visibility === 1) badges += \`<span class="badge badge-warning" style="margin-right: 8px;">\${t('kb_badge_internal') || 'Internal'}</span>\`;
-                if (a.status === 0) badges += \`<span class="badge badge-default">\${t('kb_badge_draft') || 'Draft'}</span>\`;
+                if (a.visibility === 1) badges += `<span class="badge badge-warning" style="margin-right: 8px;">${t('kb_badge_internal') || 'Internal'}</span>`;
+                if (a.status === 0) badges += `<span class="badge badge-default">${t('kb_badge_draft') || 'Draft'}</span>`;
+                if (a.status === 2) badges += `<span class="badge badge-info" style="background: var(--info); color: white;">${t('kb_badge_pending') || 'Pending Review'}</span>`;
+                if (a.status === 3) badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span>`;
+                if (a.status === 4) badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span>`;
                 document.getElementById('articleBadges').innerHTML = badges;
                 
-                document.getElementById('articleContent').innerHTML = escapeHtml(a.content);
+                if ((a.status === 3 || a.status === 4) && a.managerFeedback) {
+                    document.getElementById('pageFeedbackAlert').style.display = 'block';
+                    document.getElementById('pageFeedbackAlert').style.background = 'rgba(var(--warning-rgb, 245,158,11), 0.1)';
+                    document.getElementById('pageFeedbackAlert').style.borderLeftColor = 'var(--warning)';
+                    document.getElementById('pageFeedbackTitle').style.color = 'var(--warning)';
+                    document.getElementById('pageFeedbackTitle').textContent = 'Manager Feedback / Revision Request';
+                    document.getElementById('pageFeedbackText').textContent = a.managerFeedback;
+                } else if (a.status === 2 && a.managerFeedback) {
+                    document.getElementById('pageFeedbackAlert').style.display = 'block';
+                    document.getElementById('pageFeedbackAlert').style.background = 'rgba(var(--info-rgb, 59,130,246), 0.1)';
+                    document.getElementById('pageFeedbackAlert').style.borderLeftColor = 'var(--info)';
+                    document.getElementById('pageFeedbackTitle').style.color = 'var(--info)';
+                    document.getElementById('pageFeedbackTitle').textContent = '📌 Yazar Revizyonu Tamamladı! (Önceki İnceleme Notunuz Aşağıdadır)';
+                    document.getElementById('pageFeedbackText').textContent = a.managerFeedback;
+                } else {
+                    document.getElementById('pageFeedbackAlert').style.display = 'none';
+                }
+
+                document.getElementById('articleContent').innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(a.content) : escapeHtml(a.content);
                 loadedArticle = a;
+                const isAuthor = currentUserId > 0 && a.authorUserId === currentUserId;
+
+                if (isManager || (isAuthor && a.status !== 1)) {
+                    document.getElementById('adminActionBar').style.display = 'flex';
+                    await loadCategoriesForEdit();
+                } else {
+                    document.getElementById('adminActionBar').style.display = 'none';
+                }
+
                 if(isManager) {
+                    document.getElementById('managerTip').style.display = 'flex';
                     const tBtn = document.getElementById('btnTogglePublish');
                     tBtn.textContent = a.status === 0 ? (t('kb_btn_pub') || 'Publish') : (t('kb_btn_unpub') || 'Unpublish');
+                    if (a.status === 2) {
+                        tBtn.style.display = 'none';
+                        document.getElementById('btnReviewArticle').style.display = 'inline-flex';
+                    } else {
+                        tBtn.style.display = 'inline-flex';
+                        document.getElementById('btnReviewArticle').style.display = 'none';
+                    }
+                    tBtn.style.display = tBtn.style.display; // preserve
+                } else {
+                    document.getElementById('managerTip').style.display = 'none';
+                    document.getElementById('btnTogglePublish').style.display = 'none';
+                    document.getElementById('btnReviewArticle').style.display = 'none';
                 }
             } catch (e) { console.error(e); 
-                showToast('Failed to load article', 'error');
-                document.getElementById('articleTitle').textContent = 'Article Not Found';
-                document.getElementById('articleContent').innerHTML = '<p class="text-danger">The article you are looking for does not exist or you do not have permission to view it.</p>';
+                showToast(t('kb_toast_load_err') || 'Failed to load article', 'error');
+                document.getElementById('articleTitle').textContent = t('kb_not_found') || 'Article Not Found';
+                document.getElementById('articleContent').innerHTML = `<p class="text-danger">${t('kb_not_found_desc') || 'The article you are looking for does not exist or you do not have permission to view it.'}</p>`;
              }
         }
         
         
         let loadedArticle = null;
         let isManager = false;
+        let currentUserId = 0;
 
         try {
             const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+            let currentUserIdStr = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.nameid || payload.sub || '0';
+            currentUserId = parseInt(currentUserIdStr, 10);
+            
             let perms = [];
-            if (payload.Permissions) {
-                perms = typeof payload.Permissions === 'string' ? [payload.Permissions] : payload.Permissions;
+            let permsClaim = payload.permission || payload.Permissions;
+            if (permsClaim) {
+                perms = typeof permsClaim === 'string' ? [permsClaim] : permsClaim;
             }
             if (perms.includes('kb.manage')) {
                 isManager = true;
-                document.getElementById('adminActionBar').style.display = 'flex';
-                
-                // Load categories for edit modal
+            }
+        } catch (e) { console.error(e); }
+
+        async function loadCategoriesForEdit() {
+            if (document.getElementById('editArticleCategory').options.length === 0) {
                 try {
                     const cats = await window.api.request('/kb/categories');
                     const sel = document.getElementById('editArticleCategory');
                     cats.forEach(c => {
                         sel.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
                     });
-                } catch (e) {
-                    console.error(e);
-                }
+                } catch (e) { console.error(e); }
             }
-        } catch (e) { console.error(e); }
+        }
+
+        let quill = null;
+        function initQuill() {
+            if (!quill) {
+                quill = new Quill('#quillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image'],
+                            ['clean']
+                        ]
+                    }
+                });
+                quill.on('text-change', function() {
+                    document.getElementById('editArticleContent').value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
+                });
+            }
+        }
 
         document.getElementById('btnEditArticle')?.addEventListener('click', () => {
             if(!loadedArticle) return;
             document.getElementById('editArticleTitle').value = loadedArticle.title;
             document.getElementById('editArticleCategory').value = loadedArticle.categoryId;
             document.getElementById('editArticleVisibility').value = loadedArticle.visibility;
-            document.getElementById('editArticleStatus').value = loadedArticle.status;
-            document.getElementById('editArticleContent').value = loadedArticle.content;
+            
+            const statusSel = document.getElementById('editArticleStatus');
+            if (!isManager) {
+                statusSel.innerHTML = `
+                    <option value="0">${t('kb_opt_draft') || 'Draft'}</option>
+                    <option value="2">Gönder (Onaya Sun)</option>
+                `;
+                if (loadedArticle.status === 3) {
+                    statusSel.value = "2";
+                } else if (loadedArticle.status === 0) {
+                    statusSel.value = "0";
+                } else {
+                    statusSel.value = "2";
+                }
+            } else {
+                statusSel.innerHTML = `
+                    <option value="0">${t('kb_opt_draft') || 'Draft'}</option>
+                    <option value="1">${t('kb_opt_published') || 'Published'}</option>
+                    <option value="2">${t('kb_badge_pending') || 'Pending Review'}</option>
+                    <option value="3">${t('kb_badge_needs_rev') || 'Needs Revision'}</option>
+                `;
+                statusSel.value = loadedArticle.status;
+            }
+
+            initQuill();
+            quill.root.innerHTML = loadedArticle.content || '';
+            document.getElementById('editArticleContent').value = loadedArticle.content || '';
+
+            if (loadedArticle.status === 3 && loadedArticle.managerFeedback) {
+                document.getElementById('authorFeedbackAlert').style.display = 'block';
+                document.getElementById('authorFeedbackText').textContent = loadedArticle.managerFeedback;
+                document.getElementById('btnSaveArticle').textContent = t('kb_btn_fix') || 'Fix & Resubmit';
+            } else {
+                document.getElementById('authorFeedbackAlert').style.display = 'none';
+                document.getElementById('btnSaveArticle').textContent = t('kb_btn_save') || 'Save';
+            }
+
             openModal('articleModal');
         });
 
@@ -250,6 +433,43 @@
              }
         });
 
+        document.getElementById('btnReviewArticle')?.addEventListener('click', () => {
+            if(!loadedArticle) return;
+            document.getElementById('reviewStatus').value = '1';
+            document.getElementById('reviewFeedback').value = '';
+            document.getElementById('feedbackGroup').style.display = 'none';
+            openModal('reviewModal');
+        });
+
+        document.getElementById('reviewStatus')?.addEventListener('change', (e) => {
+            if (e.target.value === '3' || e.target.value === '4') {
+                document.getElementById('feedbackGroup').style.display = 'block';
+            } else {
+                document.getElementById('feedbackGroup').style.display = 'none';
+            }
+        });
+
+        document.getElementById('btnSubmitReview')?.addEventListener('click', async () => {
+            if(!loadedArticle) return;
+            const form = document.getElementById('reviewForm');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const payload = {
+                status: Number.parseInt(document.getElementById('reviewStatus').value),
+                feedback: document.getElementById('reviewFeedback').value
+            };
+
+            try {
+                await window.api.reviewKbArticle(articleId, payload);
+                showToast(t('kb_toast_updated') || 'Article reviewed successfully.');
+                closeModal('reviewModal');
+                loadArticle();
+            } catch (e) {
+                console.error(e);
+                showToast(t('kb_toast_save_err') || 'Failed to submit review', 'error');
+            }
+        });
+
         document.getElementById('btnDeleteArticle')?.addEventListener('click', () => {
             showUndoToast('Article will be deleted.', async () => {
                 // Cancelled
@@ -263,6 +483,60 @@
                 }
             });
         });
+
+
+        // --- Inline Text Selection Logic (Overleaf-style) ---
+        let selectedTextForReview = '';
+
+        document.getElementById('articleContent').addEventListener('mouseup', (e) => {
+            if (!isManager) return;
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            
+            if (text.length > 0) {
+                selectedTextForReview = text;
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                const floatingBtn = document.getElementById('floatingReviewBtn');
+                
+                // Position above the selection (adjusted for scrolling)
+                floatingBtn.style.top = (window.scrollY + rect.top - 45) + 'px';
+                floatingBtn.style.left = (window.scrollX + rect.left + (rect.width / 2) - 80) + 'px';
+                floatingBtn.style.display = 'block';
+            } else {
+                document.getElementById('floatingReviewBtn').style.display = 'none';
+                selectedTextForReview = '';
+            }
+        });
+
+        document.addEventListener('mousedown', (e) => {
+            const floatingBtn = document.getElementById('floatingReviewBtn');
+            const content = document.getElementById('articleContent');
+            if (floatingBtn && !floatingBtn.contains(e.target) && content && !content.contains(e.target)) {
+                floatingBtn.style.display = 'none';
+            }
+        });
+
+        window.openReviewForSelection = function() {
+            if (!loadedArticle) return;
+            document.getElementById('floatingReviewBtn').style.display = 'none';
+            
+            document.getElementById('reviewStatus').value = '3'; // Default to Request Revision
+            document.getElementById('feedbackGroup').style.display = 'block';
+            
+            // Format the selected text as a blockquote
+            const quote = `> "${selectedTextForReview}"\n\n`;
+            document.getElementById('reviewFeedback').value = quote;
+            
+            openModal('reviewModal');
+            
+            // Focus textarea and place cursor at the end
+            setTimeout(() => {
+                const textarea = document.getElementById('reviewFeedback');
+                textarea.focus();
+                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            }, 100);
+        };
 
         await loadArticle();
     </script>

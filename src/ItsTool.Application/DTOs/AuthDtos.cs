@@ -16,4 +16,6 @@ public record MeResponseDto(
     IEnumerable<string> Groups, 
     IEnumerable<string> Roles, 
     IEnumerable<string> Permissions,
-    IEnumerable<string> Overrides);
+    IEnumerable<string> Overrides,
+    int KbArticleCount,
+    string? ProfilePhoto);

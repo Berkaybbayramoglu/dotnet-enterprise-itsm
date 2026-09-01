@@ -98,6 +98,8 @@ async function loadNotifications() {
                 if (n.entityType === 'Ticket' && n.entityId) {
                     linkUrl = `/ticket-detail.html?id=${n.entityId}`;
                     if (commentId) linkUrl += `&highlight=true&commentId=${commentId}`;
+                } else if (n.entityType === 'KnowledgeArticle' && n.entityId) {
+                    linkUrl = `/kb-article.html?id=${n.entityId}`;
                 }
                 
                 let displayTitle = n.title;
@@ -261,8 +263,12 @@ function showToastNotification(payload) {
 
     let linkUrl = '#';
     if (payload.entityId) {
-        linkUrl = `/ticket-detail.html?id=${payload.entityId}`;
-        if (commentId) linkUrl += `&highlight=true&commentId=${commentId}`;
+        if (payload.entityType === 'Ticket') {
+            linkUrl = `/ticket-detail.html?id=${payload.entityId}`;
+            if (commentId) linkUrl += `&highlight=true&commentId=${commentId}`;
+        } else if (payload.entityType === 'KnowledgeArticle') {
+            linkUrl = `/kb-article.html?id=${payload.entityId}`;
+        }
     }
 
     const toastHtml = `

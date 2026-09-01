@@ -9,7 +9,7 @@ public class KnowledgeCategory : BaseEntity
     public virtual KnowledgeCategory? Parent { get; set; }
 }
 
-public enum ArticleStatus { Draft, Published }
+public enum ArticleStatus { Draft, Published, PendingReview, NeedsRevision, Rejected }
 public enum ArticleVisibility { Internal, Public }
 
 public class KnowledgeArticle : BaseEntity
@@ -21,6 +21,7 @@ public class KnowledgeArticle : BaseEntity
     public ArticleStatus Status { get; set; }
     public ArticleVisibility Visibility { get; set; }
     public int ViewCount { get; set; }
+    public string? ManagerFeedback { get; set; }
 
     public virtual KnowledgeCategory? Category { get; set; }
 }

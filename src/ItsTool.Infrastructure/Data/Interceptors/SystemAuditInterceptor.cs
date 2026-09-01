@@ -45,8 +45,8 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
         foreach (var entry in entries)
         {
-            // Skip auditing the audit log itself or history logs to prevent recursion/noise
-            if (entry.Entity is SystemAuditLog || entry.Entity.GetType().Name.Contains("History") || entry.Entity.GetType().Name.Contains("Comment")) 
+            // Skip auditing the audit log itself, history logs, notifications, or comments to prevent recursion/noise
+            if (entry.Entity is SystemAuditLog || entry.Entity.GetType().Name.Contains("History") || entry.Entity.GetType().Name.Contains("Comment") || entry.Entity.GetType().Name.Contains("Notification")) 
                 continue;
 
             var entityType = entry.Entity.GetType().Name;

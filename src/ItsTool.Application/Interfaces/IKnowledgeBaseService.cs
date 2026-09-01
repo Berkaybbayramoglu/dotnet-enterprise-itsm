@@ -14,6 +14,7 @@ public interface IKnowledgeBaseService
     Task<IEnumerable<KbArticleSummaryDto>> SearchArticlesAsync(int userId, string? keyword, int? categoryId);
     Task<KbArticleDto?> GetArticleAsync(int id, int userId);
     Task<KbArticleDto> CreateArticleAsync(CreateKbArticleDto dto, int authorId);
-    Task UpdateArticleAsync(int id, UpdateKbArticleDto dto);
-    Task DeleteArticleAsync(int id);
+    Task UpdateArticleAsync(int id, UpdateKbArticleDto dto, int currentUserId);
+    Task ReviewArticleAsync(int id, ReviewKbArticleDto dto, int reviewerId);
+    Task DeleteArticleAsync(int id, int currentUserId);
 }

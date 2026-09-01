@@ -3,6 +3,7 @@ using System;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ItsTool.Infrastructure.Migrations
 {
     [DbContext(typeof(ItsToolDbContext))]
-    partial class ItsToolDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260831141911_AddKbCommentsAndRevisionStatuses")]
+    partial class AddKbCommentsAndRevisionStatuses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -620,9 +623,6 @@ namespace ItsTool.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ManagerFeedback")
-                        .HasColumnType("text");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -647,6 +647,54 @@ namespace ItsTool.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("KnowledgeArticles");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticleComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("KnowledgeArticleComments");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.KnowledgeBase.KnowledgeCategory", b =>
@@ -2389,6 +2437,25 @@ namespace ItsTool.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticleComment", b =>
+                {
+                    b.HasOne("ItsTool.Domain.Entities.KnowledgeBase.KnowledgeArticle", "Article")
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ItsTool.Domain.Entities.Organization.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ItsTool.Domain.Entities.KnowledgeBase.KnowledgeCategory", b =>

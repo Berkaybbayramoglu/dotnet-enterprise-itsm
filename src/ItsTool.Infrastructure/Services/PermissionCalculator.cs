@@ -17,6 +17,20 @@ public class PermissionCalculator : IPermissionCalculator
     {
         var permissions = new HashSet<string>();
 
+        // 0. SuperAdmin Check
+        bool isSuperAdmin = await _context.UserRoles
+            .Include(ur => ur.Role)
+            .AnyAsync(ur => ur.UserId == userId && ur.Role != null && ur.Role.Name == "SuperAdmin" && ur.Role.IsActive && !ur.Role.IsDeleted && !ur.IsDeleted);
+
+        if (isSuperAdmin)
+        {
+            var allPerms = await _context.Permissions
+                .Where(p => p.IsActive && !p.IsDeleted)
+                .Select(p => p.Key)
+                .ToListAsync();
+            return new HashSet<string>(allPerms);
+        }
+
         // 1. Kullanıcının doğrudan rollerinden gelen yetkiler
         var userRolePerms = await _context.UserRoles
             .Where(ur => ur.UserId == userId && ur.Role != null && ur.Role.IsActive && !ur.Role.IsDeleted && !ur.IsDeleted)
