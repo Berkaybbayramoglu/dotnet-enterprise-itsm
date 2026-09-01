@@ -238,8 +238,9 @@
                     else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
                     else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
                     else if (et === 'knowledgearticle') deepLink = `/kb-article.html?id=${entityIdText}`;
+                    else if (et === 'user') deepLink = `/users.html?highlight=${entityIdText}`;
                     else {
-                        const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles', 'user': 'users' };
+                        const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles' };
                         if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
                     }
 

@@ -19,9 +19,11 @@ public class LocalFileStorageService : IFileStorageService
 
     public async Task<string> SaveFileAsync(IFormFile file, int ticketId)
     {
-        var allowedTypes = new[] { "image/jpeg", "image/png", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
-        if (!allowedTypes.Contains(file.ContentType))
-            throw new InvalidOperationException("File type not allowed.");
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".docx", ".xlsx", ".doc", ".xls", ".txt", ".md", ".csv", ".json", ".xml", ".zip", ".log", ".tex", ".svg", ".rar", ".7z", ".tar.gz", ".tar", ".sql" };
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        
+        if (!allowedExtensions.Contains(ext))
+            throw new InvalidOperationException($"File type '{ext}' not allowed.");
 
         if (file.Length > 10 * 1024 * 1024) // 10 MB
             throw new InvalidOperationException("File size exceeds 10MB limit.");

@@ -137,7 +137,7 @@
                                                     <button type="button" class="btn btn-ghost" onclick="document.getElementById('commentAttachmentInput').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
                                                         📎
                                                     </button>
-                                                    <input type="file" id="commentAttachmentInput" style="display: none;" onchange="uploadCommentAttachment(this)">
+                                                    <input type="file" id="commentAttachmentInput" multiple style="display: none;" onchange="uploadCommentAttachment(this)">
                                                     
                                                     <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 0; color: var(--text-secondary); cursor: pointer;">
                                                         <input type="checkbox" id="isInternalComment"> <span data-i18n="td_internal_note">Internal Note</span>
@@ -354,11 +354,11 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=4';
+        import './js/api.js?v=5';
         import { injectShell } from './js/layout.js';
-        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js?v=4';
+        import { bindShellActions, showToast, openModal, closeModal, showConfirmModal, showUndoToast } from './js/ui.js?v=6';
         import { initMentions } from './js/mentions.js';
-        import { t } from './js/i18n.js';
+        import { t } from './js/i18n.js?v=4';
         injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
@@ -492,6 +492,8 @@
             renderMainAttachments();
         }
 
+        window.pendingDeletions = window.pendingDeletions || new Set();
+
         window.renderMainAttachments = function(isEdit = false) {
             const attachmentsContainer = document.getElementById('mainTicketAttachments');
             const lblAttachments = document.getElementById('lblMainAttachments');
@@ -499,10 +501,17 @@
             let html = '';
             
             if (window.ticketAttachments && window.ticketAttachments.length > 0) {
-                attachmentsContainer.style.display = 'flex';
-                lblAttachments.style.display = 'block';
+                const visibleAttachments = window.ticketAttachments.filter(att => !window.pendingDeletions.has(att.id));
                 
-                window.ticketAttachments.forEach(att => {
+                if (visibleAttachments.length > 0 || isEdit) {
+                    attachmentsContainer.style.display = 'flex';
+                    lblAttachments.style.display = 'block';
+                } else {
+                    attachmentsContainer.style.display = 'none';
+                    lblAttachments.style.display = 'none';
+                }
+                
+                visibleAttachments.forEach(att => {
                     const isImage = att.contentType.startsWith('image/');
                     let delBtn = isEdit ? `<button type="button" class="btn-icon" style="position:absolute; top:-8px; right:-8px; background:var(--danger); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); z-index:10; border:2px solid white;" onclick="deleteMainAttachment(${att.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>` : '';
 
@@ -536,27 +545,123 @@
             if (isEdit) {
                 attachmentsContainer.style.display = 'flex';
                 lblAttachments.style.display = 'block';
+                
+                // We'll append pending uploads dynamically, so we just append the Add button here.
                 html += `
-                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; width:100%;">
-                        <input type="file" id="editNewAttachments" multiple class="form-control" style="max-width:300px;">
-                        <span style="font-size:12px; color:var(--text-muted);">Select files to upload</span>
-                    </div>
+                    <label id="btnAddNewAttachmentLabel" for="editNewAttachments" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width: 150px; height: 150px; border: 2px dashed var(--primary); border-radius: 6px; background: rgba(var(--primary-rgb), 0.05); cursor: pointer; transition: all 0.2s; margin:0;" onmouseover="this.style.background='rgba(var(--primary-rgb), 0.1)'" onmouseout="this.style.background='rgba(var(--primary-rgb), 0.05)'">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="var(--primary)"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--primary); margin-top: 8px;">Add Attachments</span>
+                        <input type="file" id="editNewAttachments" multiple style="display: none;" onchange="window.updateNewAttachmentsPreview(this)">
+                    </label>
                 `;
             }
 
             attachmentsContainer.innerHTML = html;
+            if (isEdit) {
+                window.renderPendingUploads();
+            }
+        };
+
+        window.pendingUploads = window.pendingUploads || [];
+
+        window.updateNewAttachmentsPreview = function(input) {
+            if (input.files && input.files.length > 0) {
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    window.pendingUploads.push({
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+                    });
+                }
+                input.value = ''; // Reset so the same file can be selected again
+                window.renderPendingUploads();
+            }
+        };
+
+        window.removePendingUpload = function(id) {
+            window.pendingUploads = window.pendingUploads.filter(p => p.id !== id);
+            window.renderPendingUploads();
+        };
+
+        window.renderPendingUploads = function() {
+            // Remove existing pending elements
+            document.querySelectorAll('.pending-upload-item').forEach(el => el.remove());
+            
+            const btnLabel = document.getElementById('btnAddNewAttachmentLabel');
+            if (!btnLabel) return;
+            
+            window.pendingUploads.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'pending-upload-item';
+                item.style.position = 'relative';
+                item.style.width = '150px';
+                item.style.height = '150px';
+                item.style.borderRadius = '6px';
+                item.style.overflow = 'hidden';
+                item.style.boxShadow = 'var(--shadow-sm)';
+                item.style.border = '2px solid var(--primary)'; // Blue border for unsaved files
+                
+                if (p.url) {
+                    item.innerHTML = `
+                        <img src="${escapeHtml(p.url)}" style="width:100%; height:100%; object-fit: cover;" alt="${escapeHtml(p.file.name)}">
+                        <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.6); color:white; font-size:11px; padding:4px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title="${escapeHtml(p.file.name)}">${escapeHtml(p.file.name)}</div>
+                    `;
+                } else {
+                    item.innerHTML = `
+                        <div style="width:100%; height:100%; background:var(--bg-hover); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); padding:8px; text-align:center;">
+                            <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" style="margin-bottom:8px;"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <span style="font-size:11px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; width:100%;" title="${escapeHtml(p.file.name)}">${escapeHtml(p.file.name)}</span>
+                        </div>
+                    `;
+                }
+
+                item.innerHTML += `
+                    <button type="button" class="btn btn-ghost" style="position:absolute; top:4px; right:4px; width:24px; height:24px; padding:0; border-radius:50%; background:var(--danger); color:white;" onclick="window.removePendingUpload(${p.id})" title="Remove">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                `;
+                
+                // Insert before the Add button
+                btnLabel.parentNode.insertBefore(item, btnLabel);
+            });
         };
 
         window.deleteMainAttachment = async function(attId) {
-            if (!confirm('Are you sure you want to delete this attachment?')) return;
+            const proceed = await showConfirmModal('Görseli Sil', 'Bu görseli silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');
+            if (!proceed) return;
+            
+            // Optimiztically hide the attachment from the UI
+            window.pendingDeletions.add(attId);
+            renderMainAttachments(isEditMode);
+
+            const finalProceed = await showUndoToast('Görsel siliniyor. İptal etmek için tıklayın.', null, 4000);
+            if (!finalProceed) {
+                // User clicked Undo, restore the attachment to the UI
+                window.pendingDeletions.delete(attId);
+                renderMainAttachments(isEditMode);
+                return;
+            }
+
             try {
                 await window.api.request(`/Ticket/${ticketId}/attachments/${attId}`, { method: 'DELETE' });
-                showToast('Attachment deleted successfully', 'success');
+                // api.js doesn't show toast on 204 No Content, so we show our own success toast
+                showToast('Görsel başarıyla silindi', 'success');
+                
+                window.pendingDeletions.delete(attId);
                 // Refresh attachments
                 window.ticketAttachments = await window.api.request(`/Ticket/${ticketId}/attachments`);
-                renderMainAttachments(true);
+                renderMainAttachments(isEditMode);
+                // Refresh history log
+                loadTimeline();
             } catch (e) {
-                showToast('Failed to delete attachment', 'error');
+                // If API fails, restore the attachment to the UI
+                window.pendingDeletions.delete(attId);
+                renderMainAttachments(isEditMode);
+                // api.js automatically shows a toast for errors, but we can add a fallback
+                if (!e.message.includes('404') && !e.message.includes('403')) {
+                    showToast('Failed to delete attachment', 'error');
+                }
             }
         }
 
@@ -997,6 +1102,38 @@
             return html;
         }
 
+        window.downloadHistoryCsv = function() {
+            if (!window.ticketTimeline || window.ticketTimeline.length === 0) {
+                showToast('No history to download', 'warning');
+                return;
+            }
+            
+            // Filter only history items (type 1)
+            const historyItems = window.ticketTimeline.filter(e => e.type === 1).map(e => e.data);
+            
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Date,User,Action,Field,OldValue,NewValue\n";
+            
+            historyItems.forEach(h => {
+                const date = `"${new Date(h.createdAt).toLocaleString().replace(/"/g, '""')}"`;
+                const user = `"${(globalUsers.find(x => x.id == h.createdBy)?.username || h.createdBy || '').replace(/"/g, '""')}"`;
+                const action = `"${(h.action || '').replace(/"/g, '""')}"`;
+                const field = `"${(h.fieldName || '').replace(/"/g, '""')}"`;
+                const oldVal = `"${(h.oldValue || '').replace(/"/g, '""')}"`;
+                const newVal = `"${(h.newValue || '').replace(/"/g, '""')}"`;
+                
+                csvContent += `${date},${user},${action},${field},${oldVal},${newVal}\n`;
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ticket_${ticketId}_history.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
         window.toggleEditMode = function() {
             if (!currentTicket) return;
             isEditMode = true;
@@ -1123,6 +1260,7 @@
 
         window.cancelEditMode = async function() {
             isEditMode = false;
+            window.pendingUploads = [];
             document.getElementById('btnEditInline').style.display = 'inline-block';
             document.getElementById('editActions').style.display = 'none';
             await renderTicketData();
@@ -1177,16 +1315,16 @@
                 });
                 
                 // Upload new attachments if selected
-                const fileInput = document.getElementById('editNewAttachments');
-                if (fileInput && fileInput.files.length > 0) {
-                    for (let i = 0; i < fileInput.files.length; i++) {
+                if (window.pendingUploads && window.pendingUploads.length > 0) {
+                    for (let i = 0; i < window.pendingUploads.length; i++) {
                         const formData = new FormData();
-                        formData.append('file', fileInput.files[i]);
+                        formData.append('file', window.pendingUploads[i].file);
                         await window.api.request(`/Ticket/${ticketId}/attachments`, {
                             method: 'POST',
                             body: formData
                         });
                     }
+                    window.pendingUploads = [];
                 }
 
                 showToast('Talep güncellendi');
@@ -1337,7 +1475,7 @@
                                                 <button type="button" class="btn btn-ghost" onclick="document.getElementById('editAttachmentInput-${c.id}').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
                                                     📎
                                                 </button>
-                                                <input type="file" id="editAttachmentInput-${c.id}" style="display: none;" onchange="window.uploadEditAttachment(this, ${c.id})">
+                                                <input type="file" id="editAttachmentInput-${c.id}" multiple style="display: none;" onchange="window.uploadEditAttachment(this, ${c.id})">
                                             </div>
                                             
                                             <div class="d-flex gap-sm">
@@ -1442,6 +1580,10 @@
                                 const pNew = globalLookup.projects?.find(x => x.id == h.newValue)?.name || h.newValue;
                                 text = (t('log_changed_project') || `changed project from <em>{0}</em> to <em>{1}</em>`)
                                     .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
+                            } else if (h.action === 'AttachmentAdded') {
+                                text = (t('log_attachment_added') || `added attachment <strong>{0}</strong>`).replace('{0}', escapeHtml(h.newValue));
+                            } else if (h.action === 'AttachmentDeleted') {
+                                text = (t('log_attachment_deleted') || `deleted attachment <strong>{0}</strong>`).replace('{0}', escapeHtml(h.oldValue));
                             } else if (h.action === 'CommentEdited') {
                                 text = t('log_edited_comment') || `edited a comment`;
                             } else if (h.action === 'CommentDeleted') {
@@ -1717,21 +1859,22 @@
             btn.innerHTML = 'Uploading...';
             btn.disabled = true;
 
-            const formData = new FormData();
-            formData.append('file', input.files[0]);
-
             try {
-                const res = await window.api.request(`/Ticket/${ticketId}/attachments`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                window.ticketAttachments = window.ticketAttachments || [];
-                window.ticketAttachments.push(res);
-                
-                const textArea = document.getElementById(`edit-textarea-${commentId}`);
-                const attachmentMarkup = `\n[attachment:${res.id}]\n`;
-                textArea.value += attachmentMarkup;
+                for (let i = 0; i < input.files.length; i++) {
+                    const formData = new FormData();
+                    formData.append('file', input.files[i]);
+                    const res = await window.api.request(`/Ticket/${ticketId}/attachments`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    window.ticketAttachments = window.ticketAttachments || [];
+                    window.ticketAttachments.push(res);
+                    
+                    const textArea = document.getElementById(`edit-textarea-${commentId}`);
+                    const attachmentMarkup = `\n[attachment:${res.id}]\n`;
+                    textArea.value += attachmentMarkup;
+                }
                 
                 window.syncEditPreviews(commentId);
             } catch (err) {
@@ -2207,33 +2350,34 @@
         
         window.uploadCommentAttachment = async function(input) {
             if (!input.files || input.files.length === 0) return;
-            const file = input.files[0];
             const btn = document.getElementById('btnSubmitComment');
             
             try {
                 btn.disabled = true;
                 btn.innerHTML = '...';
                 
-                const formData = new FormData();
-                formData.append('file', file);
+                for (let i = 0; i < input.files.length; i++) {
+                    const formData = new FormData();
+                    formData.append('file', input.files[i]);
+                    
+                    const res = await window.api.request(`/Ticket/${ticketId}/attachments`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    window.ticketAttachments = window.ticketAttachments || [];
+                    window.ticketAttachments.push(res);
+                    
+                    const textArea = document.getElementById('commentText');
+                    const attachmentMarkup = `\n[attachment:${res.id}]\n`;
+                    textArea.value += attachmentMarkup;
+                    textArea.dispatchEvent(new Event('input'));
+                }
                 
-                const res = await window.api.request(`/Ticket/${ticketId}/attachments`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                window.ticketAttachments = window.ticketAttachments || [];
-                window.ticketAttachments.push(res);
-                
-                const textArea = document.getElementById('commentText');
-                const attachmentMarkup = `\n[attachment:${res.id}]\n`;
-                textArea.value += attachmentMarkup;
-                textArea.dispatchEvent(new Event('input'));
-                
-                showToast('Image attached successfully!');
+                showToast('Files attached successfully!');
             } catch (err) {
-                console.error('Failed to upload image for comment:', err);
-                showToast('Failed to upload image.', 'error');
+                console.error('Failed to upload file for comment:', err);
+                showToast('Failed to upload one or more files.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>';

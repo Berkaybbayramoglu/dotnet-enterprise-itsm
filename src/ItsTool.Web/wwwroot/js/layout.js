@@ -76,7 +76,7 @@ export function injectShell() {
                 <a href="/admin-crud.html?type=permissions" class="sidebar-nav-item" data-type="permissions">
                     <svg viewBox="0 0 24 24" width="20" height="20" style="fill: currentColor; opacity: 0.7;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg> <span data-i18n="nav_permissions">Permissions</span>
                 </a>
-                <a href="/audit-log.html" class="sidebar-nav-item">
+                <a href="/audit-log.html?v=2" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg> <span data-i18n="nav_audit">Audit Logs</span>
                 </a>
                 <a href="/webhooks.html" class="sidebar-nav-item">

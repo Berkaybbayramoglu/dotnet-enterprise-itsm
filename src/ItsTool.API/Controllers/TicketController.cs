@@ -260,11 +260,11 @@ public class TicketController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(ex.Message);
+            return StatusCode(403, new { error = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(ex.Message);
+            return StatusCode(404, new { error = ex.Message });
         }
     }
 

@@ -183,7 +183,7 @@ public class SlaEngine : ISlaEngine
     {
         var activeSlas = await _context.TicketSlas
             .Include(s => s.Ticket)
-                .ThenInclude(t => t.Assignments)
+                .ThenInclude(t => t!.Assignments)
             .Where(s => s.PausedAt == null && (!s.ResolutionMetAt.HasValue || !s.FirstResponseMetAt.HasValue))
             .ToListAsync();
 

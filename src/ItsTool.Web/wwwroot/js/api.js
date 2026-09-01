@@ -36,7 +36,14 @@ class ApiClient {
             headers
         };
 
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        // Prevent caching for GET requests
+        let finalEndpoint = endpoint;
+        if (!options.method || options.method.toUpperCase() === 'GET') {
+            const separator = finalEndpoint.includes('?') ? '&' : '?';
+            finalEndpoint += `${separator}_t=${new Date().getTime()}`;
+        }
+
+        const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, config);
 
         if (response.status === 401) {
             this.clearToken();

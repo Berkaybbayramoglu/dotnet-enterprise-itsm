@@ -280,6 +280,9 @@ export const translations = {
         "log_mentioned_user_prefix": "Mentioned User:",
         "log_jump_to_comment": "Jump to comment",
         "log_at": "at",
+        "log_created": "created",
+        "log_attachment_added": "added attachment <strong>{0}</strong>",
+        "log_attachment_deleted": "deleted attachment <strong>{0}</strong>",
         
         "log_changed_general": "{0} <strong>{1}</strong> from <em>{2}</em> to <em>{3}</em>",
         "log_assigned": "assigned this ticket to <strong>{0}</strong> (was {1})",
@@ -296,6 +299,9 @@ export const translations = {
         "log_internal_note_cb": "Internal Note",
         "log_none": "none",
         "ticket_btn_reply": "Reply",
+        "btn_delete": "Delete",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save",
 
         // Tickets List
         "t_title": "Tickets",
@@ -372,6 +378,7 @@ export const translations = {
         "td_modal_comment_logs": "Comment Logs",
         "td_search_logs": "Search logs...",
         "td_download_csv": "Download CSV",
+        "td_download_history_csv": "Download History (CSV)",
         "td_no_assignments": "No assignments found in history.",
 
         // Knowledge Base
@@ -727,6 +734,9 @@ export const translations = {
         "log_mentioned_user_prefix": "Bahsedilen Kullanıcı:",
         "log_jump_to_comment": "Yoruma Git",
         "log_at": "",
+        "log_created": "oluşturdu:",
+        "log_attachment_added": "<strong>{0}</strong> adlı eki ekledi",
+        "log_attachment_deleted": "<strong>{0}</strong> adlı eki sildi",
         
         "log_changed_general": "<strong>{1}</strong> alanını <em>{2}</em> değerinden <em>{3}</em> değerine {0}",
         "log_assigned": "bileti <strong>{0}</strong> adlı kullanıcıya atadı (önceki: {1})",
@@ -743,6 +753,9 @@ export const translations = {
         "log_internal_note_cb": "İç Not",
         "log_none": "yok",
         "ticket_btn_reply": "Yanıtla",
+        "btn_delete": "Sil",
+        "btn_cancel": "İptal",
+        "btn_save": "Kaydet",
 
         // Tickets List
         "t_title": "Biletler",
@@ -818,9 +831,10 @@ export const translations = {
         "td_btn_save_assign": "Atamaları Kaydet",
         "td_modal_assign_history": "Atama Geçmişi Ağacı",
         "td_modal_comment_logs": "Yorum Günlükleri",
-        "td_search_logs": "Günlüklerde ara...",
+        "td_search_logs": "Loglarda ara...",
         "td_download_csv": "CSV İndir",
-        "td_no_assignments": "Geçmişte herhangi bir atama bulunamadı.",
+        "td_download_history_csv": "Geçmişi İndir (CSV)",
+        "td_no_assignments": "Geçmişte atama bulunamadı.",
 
         // Knowledge Base
         "kb_title": "Bilgi Bankası",
