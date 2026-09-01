@@ -169,7 +169,7 @@ export const adminConfigs = {
                 groupUsers.forEach(u => {
                     const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
                     html += `
-                        <div class="user-hover-link" data-user-id="${u.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px; cursor: pointer;">
+                        <div class="user-hover-link draggable-user" draggable="true" data-user-id="${u.id}" data-group-id="${item.id}" ondragstart="window.onUserDragStart && window.onUserDragStart(event, ${u.id}, ${item.id})" style="display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px; cursor: grab;">
                             <div class="avatar" style="width: 32px; height: 32px; font-size: 14px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${initial}</div>
                             <div>
                                 <div style="font-size: 14px; font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</div>
@@ -186,26 +186,85 @@ export const adminConfigs = {
             }
         },
         formFields: { id: 'gId', map: { 'name': 'gName', 'departmentId': 'gDept' } },
-        onModalOpen: async () => {
+        onModalOpen: async (id) => {
             const select = document.getElementById('gDept');
             if (select && select.options.length === 0) {
                 const depts = (await window.api.request('/Departments')) || [];
                 select.innerHTML = '<option value="">Select a Department...</option>' + 
                     depts.map(d => `<option value="${d.id}">${window.ui?.escapeHtml(d.name)}</option>`).join('');
             }
+            
+            // Populate users list for checkbox selection
+            const container = document.getElementById('gUsersList');
+            if (container) {
+                container.innerHTML = `<div style="font-size: 13px; color: var(--text-muted);">Yükleniyor...</div>`;
+                try {
+                    const uRes = await window.api.getUsers();
+                    const allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
+                    
+                    let groupUsers = [];
+                    if (id) {
+                        groupUsers = allUsers.filter(u => u.groupIds && u.groupIds.includes(Number.parseInt(id, 10))).map(u => u.id);
+                    }
+                    
+                    container.innerHTML = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; max-height: 200px; overflow-y: auto; padding-right: 8px;">` + allUsers.map(u => `
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" id="gUser_${u.id}" class="guser-checkbox" value="${u.id}" ${groupUsers.includes(u.id) ? 'checked' : ''} style="margin-top: 2px;">
+                            <label for="gUser_${u.id}" style="margin: 0; font-size: 13px; cursor: pointer; display: flex; flex-direction: column;">
+                                <span style="font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</span>
+                                <span style="font-size: 11px; color: var(--text-muted);">${window.ui?.escapeHtml(u.email)}</span>
+                            </label>
+                        </div>
+                    `).join('') + `</div>`;
+                } catch (e) {
+                    console.error(e);
+                    container.innerHTML = `<div style="color: var(--danger); font-size: 13px;">Kullanıcılar yüklenemedi.</div>`;
+                }
+            }
+        },
+        onSave: async (payload, id) => {
+            payload.departmentId = payload.departmentId ? Number.parseInt(payload.departmentId, 10) : null;
+            let targetGroupId = id ? Number.parseInt(id, 10) : null;
+            
+            if (id) {
+                await window.api.request(`/Groups/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+            } else {
+                const created = await window.api.request(`/Groups`, { method: 'POST', body: JSON.stringify(payload) });
+                targetGroupId = created.id;
+            }
+            
+            // Handle users
+            const checkedUserIds = Array.from(document.querySelectorAll('.guser-checkbox:checked')).map(cb => Number.parseInt(cb.value, 10));
+            const uRes = await window.api.getUsers();
+            const allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
+            const existingUserIds = allUsers.filter(u => u.groupIds && u.groupIds.includes(targetGroupId)).map(u => u.id);
+            
+            const toAdd = checkedUserIds.filter(uId => !existingUserIds.includes(uId));
+            const toRemove = existingUserIds.filter(uId => !checkedUserIds.includes(uId));
+            
+            await Promise.all(toAdd.map(uId => window.api.addGroupMember(targetGroupId, uId)));
+            await Promise.all(toRemove.map(uId => window.api.removeGroupMember(targetGroupId, uId)));
+            
+            window._usersCache = null; // force cache reload
         },
         columns: [
             { key: 'id', label: t('admin_lbl_id'), render: (item) => `<span class="text-muted">#${item.id}</span>` },
             { key: 'name', label: t('admin_lbl_name'), render: (item) => `<span style="font-weight: 500;">${window.ui?.escapeHtml(item.name || '')}</span>` }
         ],
         formHtml: `
-            <div class="form-group">
-                <label class="form-label" for="gName">${t('admin_lbl_name')} *</label>
-                <input id="gName" class="form-control" required placeholder="e.g. L1 Support">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label" for="gName">${t('admin_lbl_name')} *</label>
+                    <input id="gName" class="form-control" required placeholder="e.g. L1 Support">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="gDept">${t('admin_lbl_dept_star')}</label>
+                    <select id="gDept" class="form-control" required></select>
+                </div>
             </div>
             <div class="form-group">
-                <label class="form-label" for="gDept">${t('admin_lbl_dept_star')}</label>
-                <select id="gDept" class="form-control" required></select>
+                <label class="form-label">Grup Üyeleri</label>
+                <div id="gUsersList" style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--spacing-sm); background: rgba(0,0,0,0.01);"></div>
             </div>`
     },
     roles: {
@@ -421,6 +480,119 @@ document.addEventListener('click', async (e) => {
             modal.classList.add('active');
         }
     });
+
+// Global Drag & Drop Logic for Groups
+if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
+    window._dragLogicInitialized = true;
+    
+    window.onUserDragStart = (e, userId, sourceGroupId) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ userId, sourceGroupId }));
+        e.dataTransfer.effectAllowed = 'move';
+        e.target.style.opacity = '0.5';
+    };
+    
+    document.addEventListener('dragend', (e) => {
+        if (e.target.classList && e.target.classList.contains('draggable-user')) {
+            e.target.style.opacity = '1';
+        }
+    });
+
+    const getTargetTr = (target) => {
+        const tr = target.closest('tr[data-id]');
+        if (tr) return tr;
+        const expandTr = target.closest('tr.expandable-content');
+        if (expandTr && expandTr.previousElementSibling && expandTr.previousElementSibling.dataset.id) {
+            return expandTr.previousElementSibling;
+        }
+        return null;
+    };
+
+    document.addEventListener('dragover', (e) => {
+        const tr = getTargetTr(e.target);
+        if (tr && window.currentData && window.location.search.includes('type=groups')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            tr.style.background = 'rgba(var(--primary-rgb), 0.1)';
+            const expandTr = tr.nextElementSibling;
+            if (expandTr && expandTr.classList.contains('expandable-content')) {
+                expandTr.style.background = 'rgba(var(--primary-rgb), 0.1)';
+            }
+        }
+    });
+    
+    document.addEventListener('dragleave', (e) => {
+        const tr = getTargetTr(e.target);
+        if (tr && window.currentData && window.location.search.includes('type=groups')) {
+            tr.style.background = '';
+            const expandTr = tr.nextElementSibling;
+            if (expandTr && expandTr.classList.contains('expandable-content')) {
+                expandTr.style.background = '';
+            }
+        }
+    });
+    
+    document.addEventListener('drop', async (e) => {
+        const tr = getTargetTr(e.target);
+        if (tr && window.currentData && window.location.search.includes('type=groups')) {
+            e.preventDefault();
+            tr.style.background = '';
+            const expandTr = tr.nextElementSibling;
+            if (expandTr && expandTr.classList.contains('expandable-content')) {
+                expandTr.style.background = '';
+            }
+            
+            try {
+                const dataText = e.dataTransfer.getData('text/plain');
+                if (!dataText) return;
+                
+                const data = JSON.parse(dataText);
+                if (!data || !data.userId || !data.sourceGroupId) return;
+                
+                const targetGroupId = Number.parseInt(tr.dataset.id, 10);
+                if (targetGroupId === data.sourceGroupId) return;
+                
+                // Optimistic UI: visually disable the dragged element
+                const draggedEl = document.querySelector(`.draggable-user[data-user-id="${data.userId}"]`);
+                if (draggedEl) {
+                    draggedEl.style.opacity = '0.5';
+                    draggedEl.style.pointerEvents = 'none';
+                }
+
+                await window.api.removeGroupMember(data.sourceGroupId, data.userId);
+                await window.api.addGroupMember(targetGroupId, data.userId);
+                
+                window.ui?.showToast('Kullanıcı başarıyla yeni gruba taşındı.');
+                
+                // Invalidate and re-fetch users
+                window._usersCache = null;
+                const uRes = await window.api.getUsers();
+                window._usersCache = Array.isArray(uRes) ? uRes : (uRes.items || []);
+                
+                // Seamlessly refresh only the expanded containers
+                const expandedBtns = document.querySelectorAll('.expand-btn[aria-expanded="true"]');
+                for (const btn of Array.from(expandedBtns)) {
+                    const tr = btn.closest('tr');
+                    if (!tr) continue;
+                    
+                    const itemId = Number.parseInt(tr.dataset.id, 10);
+                    const item = window.currentData?.find(x => x.id === itemId);
+                    const expandTr = tr.nextElementSibling;
+                    
+                    if (expandTr && expandTr.classList.contains('expandable-content')) {
+                        const container = expandTr.querySelector('.expand-container');
+                        if (container && item) {
+                            // Re-run the groups onExpand logic to update the members list in-place
+                            await adminConfigs.groups.onExpand(item, container);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Drop error:', err);
+                window.ui?.showToast('Kullanıcı taşınırken hata oluştu.', 'error');
+            }
+        }
+    });
+}
 
 // --- Global User Tooltip Logic for Admin Configs ---
 if (typeof document !== 'undefined') {
