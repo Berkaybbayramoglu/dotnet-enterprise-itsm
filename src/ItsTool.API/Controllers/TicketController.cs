@@ -248,6 +248,26 @@ public class TicketController : ControllerBase
         }
     }
 
+    [HttpDelete("{id}/attachments/{attachmentId}")]
+    public async Task<IActionResult> DeleteAttachment(int id, int attachmentId)
+    {
+        bool hasManage = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.manage") || 
+                         User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
+        try
+        {
+            await _service.DeleteAttachmentAsync(id, attachmentId, GetCurrentUserId(), hasManage);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
     [HttpGet("{id}/timeline")]
     [ProducesResponseType(typeof(IEnumerable<TimelineEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTimeline(int id)

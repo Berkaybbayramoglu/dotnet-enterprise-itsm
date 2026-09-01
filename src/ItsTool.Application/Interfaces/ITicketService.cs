@@ -23,6 +23,7 @@ public interface ITicketService
     Task<TicketAttachmentDto> AddAttachmentAsync(int ticketId, IFormFile file, int userId);
     Task<IEnumerable<TicketAttachmentDto>> GetAttachmentsAsync(int ticketId);
     Task<(string FilePath, string ContentType, string FileName)> GetAttachmentFileInfoAsync(int ticketId, int attachmentId);
+    Task DeleteAttachmentAsync(int ticketId, int attachmentId, int userId, bool hasManagePerm);
     
     Task AddWatcherAsync(int ticketId, int userId);
     Task RemoveWatcherAsync(int ticketId, int userId);

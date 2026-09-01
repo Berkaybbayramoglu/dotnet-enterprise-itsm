@@ -489,18 +489,27 @@
             document.getElementById('tEstimatedStartDate').textContent = formatDate(currentTicket.estimatedStartDate);
             document.getElementById('tEstimatedEndDate').textContent = formatDate(currentTicket.estimatedEndDate);
 
+            renderMainAttachments();
+        }
+
+        window.renderMainAttachments = function(isEdit = false) {
             const attachmentsContainer = document.getElementById('mainTicketAttachments');
             const lblAttachments = document.getElementById('lblMainAttachments');
+            
+            let html = '';
+            
             if (window.ticketAttachments && window.ticketAttachments.length > 0) {
                 attachmentsContainer.style.display = 'flex';
                 lblAttachments.style.display = 'block';
-                attachmentsContainer.innerHTML = '';
                 
                 window.ticketAttachments.forEach(att => {
                     const isImage = att.contentType.startsWith('image/');
+                    let delBtn = isEdit ? `<button type="button" class="btn-icon" style="position:absolute; top:-8px; right:-8px; background:var(--danger); color:white; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); z-index:10; border:2px solid white;" onclick="deleteMainAttachment(${att.id})"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>` : '';
+
                     if (isImage) {
-                        attachmentsContainer.innerHTML += `
-                            <div class="comment-attachment-img-container">
+                        html += `
+                            <div class="comment-attachment-img-container" style="position:relative;">
+                                ${delBtn}
                                 <img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${att.id}/download" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="${escapeHtml(att.fileName)}" onclick="window.openLightbox(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
                                 <a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${att.id}/download" download class="download-btn" title="Download">
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
@@ -508,18 +517,46 @@
                             </div>
                         `;
                     } else {
-                        attachmentsContainer.innerHTML += `
-                            <a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${att.id}/download" target="_blank" style="display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:12px; font-weight:500; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                                ${escapeHtml(att.fileName)}
-                            </a>
+                        html += `
+                            <div style="position:relative;">
+                                ${delBtn}
+                                <a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${att.id}/download" target="_blank" style="display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:12px; font-weight:500; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                    ${escapeHtml(att.fileName)}
+                                </a>
+                            </div>
                         `;
                     }
                 });
-            } else {
+            } else if (!isEdit) {
                 attachmentsContainer.style.display = 'none';
                 lblAttachments.style.display = 'none';
-                attachmentsContainer.innerHTML = '';
+            }
+
+            if (isEdit) {
+                attachmentsContainer.style.display = 'flex';
+                lblAttachments.style.display = 'block';
+                html += `
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; width:100%;">
+                        <input type="file" id="editNewAttachments" multiple class="form-control" style="max-width:300px;">
+                        <span style="font-size:12px; color:var(--text-muted);">Select files to upload</span>
+                    </div>
+                `;
+            }
+
+            attachmentsContainer.innerHTML = html;
+        };
+
+        window.deleteMainAttachment = async function(attId) {
+            if (!confirm('Are you sure you want to delete this attachment?')) return;
+            try {
+                await window.api.request(`/Ticket/${ticketId}/attachments/${attId}`, { method: 'DELETE' });
+                showToast('Attachment deleted successfully', 'success');
+                // Refresh attachments
+                window.ticketAttachments = await window.api.request(`/Ticket/${ticketId}/attachments`);
+                renderMainAttachments(true);
+            } catch (e) {
+                showToast('Failed to delete attachment', 'error');
             }
         }
 
@@ -990,6 +1027,8 @@
 
             const dynContainer = document.getElementById('dynamicFieldsDisplay');
             dynContainer.innerHTML = buildEditDynamicFields(currentTicket, dynamicPlacements);
+
+            renderMainAttachments(true);
         };
 
         window.toggleSidebarEdit = function() {
@@ -1087,6 +1126,7 @@
             document.getElementById('btnEditInline').style.display = 'inline-block';
             document.getElementById('editActions').style.display = 'none';
             await renderTicketData();
+            renderMainAttachments(false);
         };
 
         window.saveEditMode = async function() {
@@ -1135,6 +1175,20 @@
                     method: 'PUT',
                     body: JSON.stringify(payload)
                 });
+                
+                // Upload new attachments if selected
+                const fileInput = document.getElementById('editNewAttachments');
+                if (fileInput && fileInput.files.length > 0) {
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        const formData = new FormData();
+                        formData.append('file', fileInput.files[i]);
+                        await window.api.request(`/Ticket/${ticketId}/attachments`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                    }
+                }
+
                 showToast('Talep güncellendi');
                 isEditMode = false;
                 document.getElementById('btnEditInline').style.display = 'inline-block';

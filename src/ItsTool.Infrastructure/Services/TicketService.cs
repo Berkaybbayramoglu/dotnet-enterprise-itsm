@@ -708,6 +708,29 @@ public class TicketService : ITicketService
         return (attachment.FilePath, attachment.ContentType, attachment.FileName);
     }
 
+    public async Task DeleteAttachmentAsync(int ticketId, int attachmentId, int userId, bool hasManagePerm)
+    {
+        var a = await _context.TicketAttachments.FirstOrDefaultAsync(x => x.Id == attachmentId && x.TicketId == ticketId && !x.IsDeleted);
+        if (a == null) throw new KeyNotFoundException("Attachment not found.");
+
+        if (a.UploadedByUserId != userId && !hasManagePerm)
+            throw new UnauthorizedAccessException("You don't have permission to delete this attachment.");
+
+        a.IsDeleted = true;
+
+        _context.TicketHistories.Add(new TicketHistory
+        {
+            TicketId = ticketId,
+            Action = "AttachmentDeleted",
+            FieldName = "Attachment",
+            OldValue = a.FileName,
+            NewValue = null,
+            CreatedBy = userId.ToString()
+        });
+
+        await _context.SaveChangesAsync();
+    }
+
     public async Task AddWatcherAsync(int ticketId, int userId)
     {
         var exists = await _context.TicketWatchers.AnyAsync(w => w.TicketId == ticketId && w.UserId == userId && !w.IsDeleted);
