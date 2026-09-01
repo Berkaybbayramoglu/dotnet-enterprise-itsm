@@ -102,6 +102,9 @@
 
                         <div id="dynamicFieldsDisplay" style="margin-bottom: var(--spacing-xl);"></div>
 
+                        <div class="property-label" id="lblMainAttachments" style="display:none;" data-i18n="tc_attachments">Attachments</div>
+                        <div id="mainTicketAttachments" class="d-flex gap-sm flex-wrap" style="margin-bottom: var(--spacing-xl); display:none;"></div>
+
                         <div class="collapsible-section" style="margin-bottom: var(--spacing-xl);">
                             <div class="property-label mb-md" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('activitySection', this)">
                                 <svg viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>
@@ -485,6 +488,39 @@
             
             document.getElementById('tEstimatedStartDate').textContent = formatDate(currentTicket.estimatedStartDate);
             document.getElementById('tEstimatedEndDate').textContent = formatDate(currentTicket.estimatedEndDate);
+
+            const attachmentsContainer = document.getElementById('mainTicketAttachments');
+            const lblAttachments = document.getElementById('lblMainAttachments');
+            if (window.ticketAttachments && window.ticketAttachments.length > 0) {
+                attachmentsContainer.style.display = 'flex';
+                lblAttachments.style.display = 'block';
+                attachmentsContainer.innerHTML = '';
+                
+                window.ticketAttachments.forEach(att => {
+                    const isImage = att.contentType.startsWith('image/');
+                    if (isImage) {
+                        attachmentsContainer.innerHTML += `
+                            <div class="comment-attachment-img-container">
+                                <img src="/api/Ticket/${ticketId}/attachments/${att.id}/download" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="${escapeHtml(att.fileName)}" onclick="window.openLightbox(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+                                <a href="/api/Ticket/${ticketId}/attachments/${att.id}/download" download class="download-btn" title="Download">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                </a>
+                            </div>
+                        `;
+                    } else {
+                        attachmentsContainer.innerHTML += `
+                            <a href="/api/Ticket/${ticketId}/attachments/${att.id}/download" target="_blank" style="display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:12px; font-weight:500; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                ${escapeHtml(att.fileName)}
+                            </a>
+                        `;
+                    }
+                });
+            } else {
+                attachmentsContainer.style.display = 'none';
+                lblAttachments.style.display = 'none';
+                attachmentsContainer.innerHTML = '';
+            }
         }
 
         async function loadTicket() {
@@ -507,9 +543,16 @@
 
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 currentTicket = t;
+
+                // Fetch attachments first, then render ticket data which needs them
+                try {
+                    window.ticketAttachments = await window.api.request(`/Ticket/${ticketId}/attachments`);
+                } catch (e) {
+                    console.error("Failed to load attachments", e);
+                }
                 
                 await loadDynamicFieldsMeta();
-        await renderTicketData();
+                await renderTicketData();
                 
                 const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
 
@@ -825,11 +868,7 @@
 
                 document.getElementById('content').style.display = 'grid';
                 
-                try {
-                    window.ticketAttachments = await window.api.request(`/Ticket/${ticketId}/attachments`);
-                } catch(e) {
-                    console.error("Failed to load attachments", e);
-                }
+                // Attachments are already fetched earlier
                 
                 const canManage = isSuperAdmin || currentUserPermissions.includes('ticket.manage');
                 const canEdit = canManage || (t.requesterUserId === currentUserId);
