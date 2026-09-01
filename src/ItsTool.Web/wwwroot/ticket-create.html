@@ -57,6 +57,16 @@
                                 <label class="form-label" for="desc" data-i18n="tc_lbl_desc">Description *</label>
                                 <textarea class="form-control" id="desc" rows="5" required></textarea>
                             </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="estimatedStartDate" data-i18n="ticket_lbl_start_date">Estimated Start Date</label>
+                                    <input class="form-control" type="date" id="estimatedStartDate">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="estimatedEndDate" data-i18n="ticket_lbl_end_date">Estimated End Date</label>
+                                    <input class="form-control" type="date" id="estimatedEndDate">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-section">
@@ -251,7 +261,9 @@
                 typeId: Number.parseInt(document.getElementById('typeId').value),
                 priorityId: Number.parseInt(document.getElementById('priorityId').value),
                 requesterUserId: 1, // simplified for demo
-                customFields: customFields
+                customFields: customFields,
+                estimatedStartDate: document.getElementById('estimatedStartDate').value ? new Date(document.getElementById('estimatedStartDate').value).toISOString() : null,
+                estimatedEndDate: document.getElementById('estimatedEndDate').value ? new Date(document.getElementById('estimatedEndDate').value).toISOString() : null
             };
 
             try {

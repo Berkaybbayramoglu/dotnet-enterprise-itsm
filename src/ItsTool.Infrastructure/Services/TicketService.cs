@@ -130,7 +130,9 @@ public class TicketService : ITicketService
             TypeId = dto.TypeId,
             PriorityId = dto.PriorityId,
             RequesterUserId = dto.RequesterUserId,
-            StatusId = defaultStatus.Id
+            StatusId = defaultStatus.Id,
+            EstimatedStartDate = dto.EstimatedStartDate,
+            EstimatedEndDate = dto.EstimatedEndDate
         };
         _context.Tickets.Add(t);
         await _context.SaveChangesAsync();
@@ -166,7 +168,7 @@ public class TicketService : ITicketService
         await _slaEngine.AttachSlaToTicketAsync(t.Id);
         await _notificationDispatcher.DispatchEventAsync("ticket.created", t.Id, dto.RequesterUserId, "A new ticket has been created.");
 
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, new List<TicketAssigneeDto>(), null);
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, new List<TicketAssigneeDto>(), null, t.EstimatedStartDate, t.EstimatedEndDate);
     }
 
     public async Task<TicketDto?> GetTicketByIdAsync(int id)
@@ -190,7 +192,7 @@ public class TicketService : ITicketService
             a.AssignedUserId != null ? (a.AssignedUser?.FirstName + " " + a.AssignedUser?.LastName) : a.AssignedGroup?.Name,
             a.AssignedUserId != null ? (a.AssignedUser?.IsDeleted ?? false) : (a.AssignedGroup?.IsDeleted ?? false)
         )).ToList();
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields);
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields, t.EstimatedStartDate, t.EstimatedEndDate);
     }
 
     public async Task UpdateTicketAsync(int id, UpdateTicketDto dto, int currentUserId)
@@ -227,6 +229,11 @@ public class TicketService : ITicketService
         t.Description = dto.Description;
         t.CategoryId = dto.CategoryId;
         t.PriorityId = dto.PriorityId;
+        
+        CheckDiff("EstimatedStartDate", t.EstimatedStartDate?.ToString("O"), dto.EstimatedStartDate?.ToString("O"));
+        CheckDiff("EstimatedEndDate", t.EstimatedEndDate?.ToString("O"), dto.EstimatedEndDate?.ToString("O"));
+        t.EstimatedStartDate = dto.EstimatedStartDate;
+        t.EstimatedEndDate = dto.EstimatedEndDate;
 
         // Custom fields update logic
         var existingFields = await _context.TicketFieldValues
@@ -765,7 +772,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUserId != null ? (a.AssignedUser.FirstName + " " + a.AssignedUser.LastName) : a.AssignedGroup.Name, false)).ToList(), null))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUserId != null ? (a.AssignedUser.FirstName + " " + a.AssignedUser.LastName) : a.AssignedGroup.Name, false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate))
             .ToListAsync();
 
         return new PagedResult<TicketDto>

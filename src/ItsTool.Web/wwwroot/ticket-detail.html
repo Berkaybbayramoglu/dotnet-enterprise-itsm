@@ -201,6 +201,14 @@
                                 <div class="property-label" data-i18n="ticket_prop_category">Category</div>
                                 <div class="property-value" id="tCategory"></div>
                             </div>
+                            <div class="property-group">
+                                <div class="property-label" data-i18n="ticket_lbl_start_date">Estimated Start Date</div>
+                                <div class="property-value" id="tEstimatedStartDate"></div>
+                            </div>
+                            <div class="property-group">
+                                <div class="property-label" data-i18n="ticket_lbl_end_date">Estimated End Date</div>
+                                <div class="property-value" id="tEstimatedEndDate"></div>
+                            </div>
 
                             <div id="dynamicSidebarContainer"></div>
                             
@@ -469,6 +477,14 @@
                 const val = currentTicket.customFields ? currentTicket.customFields[dp.def.key] : '-';
                 dynContainer.innerHTML += `<div class="property-group"><div class="property-label">${escapeHtml(dp.def.label)}</div><div class="property-value">${escapeHtml(val || '-')}</div></div>`;
             });
+            
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '-';
+                return new Date(dateStr).toLocaleDateString();
+            };
+            
+            document.getElementById('tEstimatedStartDate').textContent = formatDate(currentTicket.estimatedStartDate);
+            document.getElementById('tEstimatedEndDate').textContent = formatDate(currentTicket.estimatedEndDate);
         }
 
         async function loadTicket() {
@@ -966,6 +982,13 @@
             projHtml += '</select>';
             tProject.innerHTML = projHtml;
 
+            const tEstimatedStartDate = document.getElementById('tEstimatedStartDate');
+            const startVal = currentTicket.estimatedStartDate ? new Date(currentTicket.estimatedStartDate).toISOString().split('T')[0] : '';
+            tEstimatedStartDate.innerHTML = `<input type="date" id="sidebarEditStartDate" class="form-control form-control-sm" value="${startVal}">`;
+
+            const tEstimatedEndDate = document.getElementById('tEstimatedEndDate');
+            const endVal = currentTicket.estimatedEndDate ? new Date(currentTicket.estimatedEndDate).toISOString().split('T')[0] : '';
+            tEstimatedEndDate.innerHTML = `<input type="date" id="sidebarEditEndDate" class="form-control form-control-sm" value="${endVal}">`;
         };
 
         window.cancelSidebarEdit = async function() {
@@ -980,10 +1003,14 @@
             const categoryId = Number(document.getElementById('sidebarEditCategory').value);
             const priorityId = Number(document.getElementById('sidebarEditPriority').value);
             const projectId = document.getElementById('sidebarEditProject').value ? Number(document.getElementById('sidebarEditProject').value) : -1;
+            const estimatedStartDate = document.getElementById('sidebarEditStartDate').value ? new Date(document.getElementById('sidebarEditStartDate').value).toISOString() : null;
+            const estimatedEndDate = document.getElementById('sidebarEditEndDate').value ? new Date(document.getElementById('sidebarEditEndDate').value).toISOString() : null;
 
             try {
                 // Update basic ticket details (Title and Description don't change, we use current)
-                if (categoryId !== currentTicket.categoryId || priorityId !== currentTicket.priorityId) {
+                const hasDateChanges = currentTicket.estimatedStartDate !== estimatedStartDate || currentTicket.estimatedEndDate !== estimatedEndDate;
+                
+                if (categoryId !== currentTicket.categoryId || priorityId !== currentTicket.priorityId || hasDateChanges) {
                     await window.api.request(`/Ticket/${ticketId}`, {
                         method: 'PUT',
                         body: JSON.stringify({
@@ -991,7 +1018,9 @@
                             description: currentTicket.description,
                             categoryId: categoryId,
                             priorityId: priorityId,
-                            customFields: currentTicket.customFields || {}
+                            customFields: currentTicket.customFields || {},
+                            estimatedStartDate: estimatedStartDate,
+                            estimatedEndDate: estimatedEndDate
                         })
                     });
                 }

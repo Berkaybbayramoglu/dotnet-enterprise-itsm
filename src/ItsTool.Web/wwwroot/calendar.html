@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Calendar</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <style>
+        #calendar {
+            background: var(--bg-surface);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            min-height: 600px;
+        }
+        .fc-event {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+                    <h2 data-i18n="nav_calendar">Calendar</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div id='calendar'></div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import './js/api.js?v=4';
+        import { injectShell } from './js/layout.js?v=10';
+        import { bindShellActions, showToast } from './js/ui.js';
+        import { t } from './js/i18n.js';
+        injectShell();
+        
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: async function(fetchInfo, successCallback, failureCallback) {
+                    try {
+                        const res = await window.api.searchTickets({ keyword: '', pageSize: 1000 });
+                        
+                        const events = res.items
+                            .filter(t => t.estimatedStartDate || t.estimatedEndDate)
+                            .map(t => {
+                                const endDate = t.estimatedEndDate ? new Date(t.estimatedEndDate) : new Date(t.estimatedStartDate);
+                                // FullCalendar exclusive end date logic: add 1 day if it's all-day
+                                endDate.setDate(endDate.getDate() + 1);
+                                
+                                return {
+                                    id: t.id,
+                                    title: `#${t.id} - ${t.title}`,
+                                    start: t.estimatedStartDate,
+                                    end: endDate.toISOString().split('T')[0],
+                                    url: `/ticket-detail.html?id=${t.id}`,
+                                    backgroundColor: 'var(--primary)',
+                                    borderColor: 'var(--primary-dark)',
+                                    allDay: true
+                                };
+                            });
+                        
+                        successCallback(events);
+                    } catch (e) {
+                        console.error('Failed to load tickets for calendar', e);
+                        failureCallback(e);
+                        showToast('Takvim verileri yüklenemedi', 'error');
+                    }
+                },
+                eventClick: function(info) {
+                    info.jsEvent.preventDefault(); // don't let the browser navigate immediately
+                    if (info.event.url) {
+                        window.location.href = info.event.url;
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
