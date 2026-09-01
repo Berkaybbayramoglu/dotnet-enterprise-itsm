@@ -33,7 +33,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width:100%; border:none; background:transparent;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -259,7 +259,7 @@
             const deleteBtn = e.target.closest('.btn-delete');
             
             if (editBtn) {
-                const id = Number.parseInt(editBtn.dataset.id);
+                const id = Number.parseInt(editBtn.dataset.id, 10);
                 const field = fieldsList.find(x => x.id === id);
                 if (field) {
                     document.getElementById('eId').value = field.id;
@@ -275,7 +275,7 @@
                     openModal('editModal');
                 }
             } else if (deleteBtn) {
-                fieldToDelete = Number.parseInt(deleteBtn.dataset.id);
+                fieldToDelete = Number.parseInt(deleteBtn.dataset.id, 10);
                 openModal('confirmModal');
             }
         });
@@ -294,7 +294,7 @@
                     body: JSON.stringify({
                         key: key,
                         label: label,
-                        fieldType: Number.parseInt(typeStr) || 0,
+                        fieldType: Number.parseInt(typeStr, 10) || 0,
                         validationRegex: regex || null,
                         isActive: true
                     })
@@ -341,7 +341,7 @@
                     body: JSON.stringify({
                         key: key,
                         label: label,
-                        fieldType: Number.parseInt(typeStr) || 0,
+                        fieldType: Number.parseInt(typeStr, 10) || 0,
                         validationRegex: null
                     })
                 });
