@@ -239,53 +239,56 @@ export function initCrudPage(cfg) {
         }
     };
 
+    const handleExpandAction = async (expandBtn) => {
+        const tr = expandBtn.closest('tr');
+        const isExpanded = expandBtn.getAttribute('aria-expanded') === 'true';
+        const itemId = Number.parseInt(tr.dataset.id, 10);
+        const item = currentData.find(x => x.id === itemId);
+        
+        if (isExpanded) {
+            expandBtn.setAttribute('aria-expanded', 'false');
+            expandBtn.querySelector('svg').style.transform = 'rotate(0deg)';
+            const expandTr = tr.nextElementSibling;
+            if (expandTr?.classList.contains('expandable-content')) {
+                expandTr.remove();
+            }
+        } else {
+            expandBtn.setAttribute('aria-expanded', 'true');
+            expandBtn.querySelector('svg').style.transform = 'rotate(90deg)';
+            
+            const expandTr = document.createElement('tr');
+            expandTr.className = 'expandable-content';
+            expandTr.innerHTML = `<td colspan="100" style="padding: 0; background: rgba(0,0,0,0.02); border-bottom: 2px solid var(--border);">
+                <div style="padding: var(--spacing-lg) var(--spacing-xl); padding-left: 48px;" class="expand-container">
+                    <div style="text-align: center; color: var(--text-muted);"><span class="spinner" style="width: 20px; height: 20px; display: inline-block;"></span> Yükleniyor...</div>
+                </div>
+            </td>`;
+            tr.parentNode.insertBefore(expandTr, tr.nextSibling);
+            
+            if (cfg.onExpand) {
+                await cfg.onExpand(item, expandTr.querySelector('.expand-container'));
+            }
+        }
+    };
+
+    const handleDeleteAction = async (delBtn) => {
+        const isConfirmed = window.ui?.showConfirmModal 
+            ? await window.ui.showConfirmModal(t('kb_yes') || 'Are you sure?', t('kb_confirm_del') || 'Are you sure you want to delete this record?')
+            : confirm(t('kb_confirm_del') || 'Are you sure you want to delete this record?');
+            
+        if (!isConfirmed) return;
+        await deleteRecord(Number.parseInt(delBtn.dataset.id, 10), delBtn.closest('tr'));
+    };
+
     const wireActions = async (e) => {
         const expandBtn = e.target.closest('.expand-btn');
-        if (expandBtn && cfg.expandable) {
-            const tr = expandBtn.closest('tr');
-            const isExpanded = expandBtn.getAttribute('aria-expanded') === 'true';
-            const itemId = Number.parseInt(tr.dataset.id, 10);
-            const item = currentData.find(x => x.id === itemId);
-            
-            if (isExpanded) {
-                expandBtn.setAttribute('aria-expanded', 'false');
-                expandBtn.querySelector('svg').style.transform = 'rotate(0deg)';
-                const expandTr = tr.nextElementSibling;
-                if (expandTr && expandTr.classList.contains('expandable-content')) {
-                    expandTr.remove();
-                }
-            } else {
-                expandBtn.setAttribute('aria-expanded', 'true');
-                expandBtn.querySelector('svg').style.transform = 'rotate(90deg)';
-                
-                const expandTr = document.createElement('tr');
-                expandTr.className = 'expandable-content';
-                expandTr.innerHTML = `<td colspan="100" style="padding: 0; background: rgba(0,0,0,0.02); border-bottom: 2px solid var(--border);">
-                    <div style="padding: var(--spacing-lg) var(--spacing-xl); padding-left: 48px;" class="expand-container">
-                        <div style="text-align: center; color: var(--text-muted);"><span class="spinner" style="width: 20px; height: 20px; display: inline-block;"></span> Yükleniyor...</div>
-                    </div>
-                </td>`;
-                tr.parentNode.insertBefore(expandTr, tr.nextSibling);
-                
-                if (cfg.onExpand) {
-                    await cfg.onExpand(item, expandTr.querySelector('.expand-container'));
-                }
-            }
-            return;
-        }
+        if (expandBtn && cfg.expandable) return handleExpandAction(expandBtn);
 
         const editBtn = e.target.closest('[data-action="edit"]');
-        if (editBtn) window.openCrudModal(Number.parseInt(editBtn.dataset.id, 10));
+        if (editBtn) return window.openCrudModal(Number.parseInt(editBtn.dataset.id, 10));
 
         const delBtn = e.target.closest('[data-action="delete"]');
-        if (delBtn) {
-            const isConfirmed = window.ui?.showConfirmModal 
-                ? await window.ui.showConfirmModal(t('kb_yes') || 'Are you sure?', t('kb_confirm_del') || 'Are you sure you want to delete this record?')
-                : confirm(t('kb_confirm_del') || 'Are you sure you want to delete this record?');
-                
-            if (!isConfirmed) return;
-            await deleteRecord(Number.parseInt(delBtn.dataset.id, 10), delBtn.closest('tr'));
-        }
+        if (delBtn) return handleDeleteAction(delBtn);
 
         const closeBtn = e.target.closest('[data-action="closeModal"]');
         if (closeBtn) {

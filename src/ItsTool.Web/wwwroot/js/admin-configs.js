@@ -23,7 +23,7 @@ export const adminConfigs = {
                 
                 let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
                 deptGroups.forEach(g => {
-                    const groupUsers = window._usersCache.filter(u => u.groupIds && u.groupIds.includes(g.id));
+                    const groupUsers = window._usersCache.filter(u => u.groupIds?.includes(g.id));
                     
                     html += `
                         <div class="card" style="padding: 12px; margin: 0; background: white; border: 1px solid var(--border);">
@@ -156,7 +156,7 @@ export const adminConfigs = {
                     const uRes = await window.api.getUsers();
                     window._usersCache = Array.isArray(uRes) ? uRes : (uRes.items || []);
                 }
-                const groupUsers = window._usersCache.filter(u => u.groupIds && u.groupIds.includes(item.id));
+                const groupUsers = window._usersCache.filter(u => u.groupIds?.includes(item.id));
                 
                 if (groupUsers.length === 0) {
                     container.innerHTML = `<div style="color: var(--text-muted); font-size: 13px;">${t('admin_group_no_user')}</div>`;
@@ -188,7 +188,7 @@ export const adminConfigs = {
         formFields: { id: 'gId', map: { 'name': 'gName', 'departmentId': 'gDept' } },
         onModalOpen: async (id) => {
             const select = document.getElementById('gDept');
-            if (select && select.options.length === 0) {
+            if (select?.options.length === 0) {
                 const depts = (await window.api.request('/Departments')) || [];
                 select.innerHTML = '<option value="">Select a Department...</option>' + 
                     depts.map(d => `<option value="${d.id}">${window.ui?.escapeHtml(d.name)}</option>`).join('');
@@ -204,7 +204,7 @@ export const adminConfigs = {
                     
                     let groupUsers = [];
                     if (id) {
-                        groupUsers = allUsers.filter(u => u.groupIds && u.groupIds.includes(Number.parseInt(id, 10))).map(u => u.id);
+                        groupUsers = allUsers.filter(u => u.groupIds?.includes(Number.parseInt(id, 10))).map(u => u.id);
                     }
                     
                     container.innerHTML = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; max-height: 200px; overflow-y: auto; padding-right: 8px;">` + allUsers.map(u => `
@@ -237,7 +237,7 @@ export const adminConfigs = {
             const checkedUserIds = Array.from(document.querySelectorAll('.guser-checkbox:checked')).map(cb => Number.parseInt(cb.value, 10));
             const uRes = await window.api.getUsers();
             const allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
-            const existingUserIds = allUsers.filter(u => u.groupIds && u.groupIds.includes(targetGroupId)).map(u => u.id);
+            const existingUserIds = allUsers.filter(u => u.groupIds?.includes(targetGroupId)).map(u => u.id);
             
             const toAdd = checkedUserIds.filter(uId => !existingUserIds.includes(uId));
             const toRemove = existingUserIds.filter(uId => !checkedUserIds.includes(uId));
@@ -301,9 +301,9 @@ export const adminConfigs = {
             // Sync checkboxes based on current data
             setTimeout(() => {
                 const currentPermsStr = document.getElementById('rPerms').value || '';
-                const currentPerms = currentPermsStr.split(',').map(s => s.trim()).filter(s => s);
+                const currentPerms = new Set(currentPermsStr.split(',').map(s => s.trim()).filter(Boolean));
                 console.log("rPerms is: ", currentPermsStr); document.querySelectorAll('.perm-checkbox').forEach(cb => {
-                    cb.checked = currentPerms.includes(cb.value);
+                    cb.checked = currentPerms.has(cb.value);
                 });
             }, 50);
         },
@@ -402,7 +402,7 @@ document.addEventListener('click', async (e) => {
     if (moveBtn) {
         const groupId = moveBtn.dataset.groupId;
         const currentGroup = window._groupsCache?.find(g => g.id == groupId);
-        if (!currentGroup) return;
+        if (currentGroup) {
             
             // Re-use ui.js modal or just prompt/create inline modal. 
             // Better: use an ad-hoc modal for Move Group
@@ -479,7 +479,8 @@ document.addEventListener('click', async (e) => {
             
             modal.classList.add('active');
         }
-    });
+    }
+});
 
 // Global Drag & Drop Logic for Groups
 if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
@@ -492,7 +493,7 @@ if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
     };
     
     document.addEventListener('dragend', (e) => {
-        if (e.target.classList && e.target.classList.contains('draggable-user')) {
+        if (e.target.classList?.contains('draggable-user')) {
             e.target.style.opacity = '1';
         }
     });
@@ -501,7 +502,7 @@ if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
         const tr = target.closest('tr[data-id]');
         if (tr) return tr;
         const expandTr = target.closest('tr.expandable-content');
-        if (expandTr && expandTr.previousElementSibling && expandTr.previousElementSibling.dataset.id) {
+        if (expandTr?.previousElementSibling?.dataset.id) {
             return expandTr.previousElementSibling;
         }
         return null;
@@ -514,7 +515,7 @@ if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
             e.dataTransfer.dropEffect = 'move';
             tr.style.background = 'rgba(var(--primary-rgb), 0.1)';
             const expandTr = tr.nextElementSibling;
-            if (expandTr && expandTr.classList.contains('expandable-content')) {
+            if (expandTr?.classList.contains('expandable-content')) {
                 expandTr.style.background = 'rgba(var(--primary-rgb), 0.1)';
             }
         }
@@ -525,19 +526,57 @@ if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
         if (tr && window.currentData && window.location.search.includes('type=groups')) {
             tr.style.background = '';
             const expandTr = tr.nextElementSibling;
-            if (expandTr && expandTr.classList.contains('expandable-content')) {
+            if (expandTr?.classList.contains('expandable-content')) {
                 expandTr.style.background = '';
             }
         }
     });
     
+    async function handleUserMove(userId, sourceGroupId, targetGroupId) {
+        // Optimistic UI: visually disable the dragged element
+        const draggedEl = document.querySelector(`.draggable-user[data-user-id="${userId}"]`);
+        if (draggedEl) {
+            draggedEl.style.opacity = '0.5';
+            draggedEl.style.pointerEvents = 'none';
+        }
+
+        await window.api.removeGroupMember(sourceGroupId, userId);
+        await window.api.addGroupMember(targetGroupId, userId);
+        
+        window.ui?.showToast('Kullanıcı başarıyla yeni gruba taşındı.');
+        
+        // Invalidate and re-fetch users
+        window._usersCache = null;
+        const uRes = await window.api.getUsers();
+        window._usersCache = Array.isArray(uRes) ? uRes : (uRes.items || []);
+        
+        // Seamlessly refresh only the expanded containers
+        const expandedBtns = document.querySelectorAll('.expand-btn[aria-expanded="true"]');
+        for (const btn of Array.from(expandedBtns)) {
+            const tr = btn.closest('tr');
+            if (!tr) continue;
+            
+            const itemId = Number.parseInt(tr.dataset.id, 10);
+            const item = window.currentData?.find(x => x.id === itemId);
+            const expandTr = tr.nextElementSibling;
+            
+            if (expandTr?.classList.contains('expandable-content')) {
+                const container = expandTr.querySelector('.expand-container');
+                if (container && item) {
+                    // Re-run the groups onExpand logic to update the members list in-place
+                    await adminConfigs.groups.onExpand(item, container);
+                }
+            }
+        }
+    }
+
     document.addEventListener('drop', async (e) => {
         const tr = getTargetTr(e.target);
         if (tr && window.currentData && window.location.search.includes('type=groups')) {
             e.preventDefault();
             tr.style.background = '';
             const expandTr = tr.nextElementSibling;
-            if (expandTr && expandTr.classList.contains('expandable-content')) {
+            if (expandTr?.classList.contains('expandable-content')) {
                 expandTr.style.background = '';
             }
             
@@ -546,46 +585,12 @@ if (typeof document !== 'undefined' && !window._dragLogicInitialized) {
                 if (!dataText) return;
                 
                 const data = JSON.parse(dataText);
-                if (!data || !data.userId || !data.sourceGroupId) return;
+                if (!data?.userId || !data?.sourceGroupId) return;
                 
                 const targetGroupId = Number.parseInt(tr.dataset.id, 10);
                 if (targetGroupId === data.sourceGroupId) return;
                 
-                // Optimistic UI: visually disable the dragged element
-                const draggedEl = document.querySelector(`.draggable-user[data-user-id="${data.userId}"]`);
-                if (draggedEl) {
-                    draggedEl.style.opacity = '0.5';
-                    draggedEl.style.pointerEvents = 'none';
-                }
-
-                await window.api.removeGroupMember(data.sourceGroupId, data.userId);
-                await window.api.addGroupMember(targetGroupId, data.userId);
-                
-                window.ui?.showToast('Kullanıcı başarıyla yeni gruba taşındı.');
-                
-                // Invalidate and re-fetch users
-                window._usersCache = null;
-                const uRes = await window.api.getUsers();
-                window._usersCache = Array.isArray(uRes) ? uRes : (uRes.items || []);
-                
-                // Seamlessly refresh only the expanded containers
-                const expandedBtns = document.querySelectorAll('.expand-btn[aria-expanded="true"]');
-                for (const btn of Array.from(expandedBtns)) {
-                    const tr = btn.closest('tr');
-                    if (!tr) continue;
-                    
-                    const itemId = Number.parseInt(tr.dataset.id, 10);
-                    const item = window.currentData?.find(x => x.id === itemId);
-                    const expandTr = tr.nextElementSibling;
-                    
-                    if (expandTr && expandTr.classList.contains('expandable-content')) {
-                        const container = expandTr.querySelector('.expand-container');
-                        if (container && item) {
-                            // Re-run the groups onExpand logic to update the members list in-place
-                            await adminConfigs.groups.onExpand(item, container);
-                        }
-                    }
-                }
+                await handleUserMove(data.userId, data.sourceGroupId, targetGroupId);
             } catch (err) {
                 console.error('Drop error:', err);
                 window.ui?.showToast('Kullanıcı taşınırken hata oluştu.', 'error');
@@ -605,56 +610,59 @@ if (typeof document !== 'undefined') {
             userTooltip.style.cssText = 'position:absolute; display:none; background:var(--bg-surface); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,0.15); padding:12px; border-radius:8px; z-index:10000; width:260px; pointer-events:none;';
             document.body.appendChild(userTooltip);
 
+            async function displayUserTooltip(user, target, tooltipEl) {
+                if (!window._deptsCache && window.api) {
+                    try { window._deptsCache = await window.api.request('/Departments'); } catch(err) { window._deptsCache = []; }
+                }
+                if (!window._groupsCache && window.api) {
+                    try { window._groupsCache = await window.api.request('/Groups'); } catch(err) { window._groupsCache = []; }
+                }
+                
+                const dept = window._deptsCache?.find(d => d.id == user.departmentId)?.name || 'No Department';
+                const userGroups = user.groupIds?.length > 0 
+                    ? user.groupIds.map(gid => window._groupsCache?.find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
+                    : 'No Groups';
+                const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
+
+                const initial = (user.firstName + ' ' + user.lastName).charAt(0).toUpperCase();
+                const avatarHtml = user.profilePhoto 
+                    ? `<img src="${user.profilePhoto}" class="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`
+                    : `<div class="avatar" style="width:32px;height:32px;font-size:14px;background:rgba(var(--primary-rgb),0.1);color:var(--primary);display:flex;align-items:center;justify-content:center;border-radius:50%;">${initial}</div>`;
+
+                tooltipEl.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                        ${avatarHtml}
+                        <div>
+                            <div style="font-weight:600; font-size:14px;">${window.ui?.escapeHtml(user.firstName + ' ' + user.lastName)}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">@${window.ui?.escapeHtml(user.username)}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                        <div><strong style="color:var(--text-muted);">Joined:</strong> ${createdAt}</div>
+                        <div><strong style="color:var(--text-muted);">Dept:</strong> ${window.ui?.escapeHtml(dept)}</div>
+                        <div><strong style="color:var(--text-muted);">Groups:</strong> ${window.ui?.escapeHtml(userGroups)}</div>
+                    </div>
+                `;
+                
+                const rect = target.getBoundingClientRect();
+                tooltipEl.style.display = 'block';
+                
+                let top = rect.bottom + window.scrollY + 8;
+                let left = rect.left + window.scrollX;
+                if (top + tooltipEl.offsetHeight > window.scrollY + window.innerHeight) top = rect.top + window.scrollY - tooltipEl.offsetHeight - 8;
+                if (left + tooltipEl.offsetWidth > window.scrollX + window.innerWidth) left = window.scrollX + window.innerWidth - tooltipEl.offsetWidth - 12;
+                
+                tooltipEl.style.top = top + 'px';
+                tooltipEl.style.left = left + 'px';
+            }
+
             document.addEventListener('mouseover', async (e) => {
                 const target = e.target.closest('.user-hover-link');
                 if (target && window._usersCache) {
-                    const userId = target.getAttribute('data-user-id');
+                    const userId = target.dataset.userId;
                     const user = window._usersCache.find(u => u.id == userId);
                     if (user) {
-                        // Ensure we have depts and groups loaded globally if missing
-                        if (!window._deptsCache && window.api) {
-                            try { window._deptsCache = await window.api.request('/Departments'); } catch(err) { window._deptsCache = []; }
-                        }
-                        if (!window._groupsCache && window.api) {
-                            try { window._groupsCache = await window.api.request('/Groups'); } catch(err) { window._groupsCache = []; }
-                        }
-                        
-                        const dept = window._deptsCache?.find(d => d.id == user.departmentId)?.name || 'No Department';
-                        const userGroups = user.groupIds && user.groupIds.length > 0 
-                            ? user.groupIds.map(gid => window._groupsCache?.find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
-                            : 'No Groups';
-                        const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
-
-                        const initial = (user.firstName + ' ' + user.lastName).charAt(0).toUpperCase();
-                        const avatarHtml = user.profilePhoto 
-                            ? `<img src="${user.profilePhoto}" class="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`
-                            : `<div class="avatar" style="width:32px;height:32px;font-size:14px;background:rgba(var(--primary-rgb),0.1);color:var(--primary);display:flex;align-items:center;justify-content:center;border-radius:50%;">${initial}</div>`;
-
-                        userTooltip.innerHTML = `
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                                ${avatarHtml}
-                                <div>
-                                    <div style="font-weight:600; font-size:14px;">${window.ui?.escapeHtml(user.firstName + ' ' + user.lastName)}</div>
-                                    <div style="font-size:11px; color:var(--text-muted);">@${window.ui?.escapeHtml(user.username)}</div>
-                                </div>
-                            </div>
-                            <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
-                                <div><strong style="color:var(--text-muted);">Joined:</strong> ${createdAt}</div>
-                                <div><strong style="color:var(--text-muted);">Dept:</strong> ${window.ui?.escapeHtml(dept)}</div>
-                                <div><strong style="color:var(--text-muted);">Groups:</strong> ${window.ui?.escapeHtml(userGroups)}</div>
-                            </div>
-                        `;
-                        
-                        const rect = target.getBoundingClientRect();
-                        userTooltip.style.display = 'block';
-                        
-                        let top = rect.bottom + window.scrollY + 8;
-                        let left = rect.left + window.scrollX;
-                        if (top + userTooltip.offsetHeight > window.scrollY + window.innerHeight) top = rect.top + window.scrollY - userTooltip.offsetHeight - 8;
-                        if (left + userTooltip.offsetWidth > window.scrollX + window.innerWidth) left = window.scrollX + window.innerWidth - userTooltip.offsetWidth - 12;
-                        
-                        userTooltip.style.top = top + 'px';
-                        userTooltip.style.left = left + 'px';
+                        await displayUserTooltip(user, target, userTooltip);
                     }
                 }
             });

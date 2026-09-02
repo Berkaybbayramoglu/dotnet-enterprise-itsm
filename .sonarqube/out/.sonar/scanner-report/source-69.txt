@@ -940,48 +940,42 @@ export function t(key) {
 /**
  * Scans the DOM for [data-i18n] attributes and updates their text content.
  */
+function applyTranslationToElement(el, dict) {
+    const key = el.dataset.i18n;
+    if (!dict[key]) return;
+
+    const target = el.dataset.i18nTarget;
+    if (target === 'placeholder') {
+        el.placeholder = dict[key];
+        return;
+    }
+
+    let textNodeFound = false;
+    for (const node of el.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+            node.nodeValue = dict[key];
+            textNodeFound = true;
+            break;
+        }
+    }
+    
+    if (!textNodeFound) {
+        if (el.childNodes.length === 0) {
+            el.textContent = dict[key];
+        } else {
+            el.appendChild(document.createTextNode(' ' + dict[key]));
+        }
+    }
+}
+
 export function applyTranslations() {
     const lang = getCurrentLanguage();
     const dict = translations[lang];
     if (!dict) return;
 
-    // Find all elements with data-i18n attribute
     const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-            // Check if element has children that we shouldn't overwrite (like SVGs)
-            // If it has HTML content that isn't just text, we should be careful.
-            // A simple approach is to use data-i18n-target attribute if we need to replace placeholder etc.
-            const target = el.getAttribute('data-i18n-target');
-            if (target === 'placeholder') {
-                el.placeholder = dict[key];
-            } else {
-                // If the element has child nodes (like svg icons inside buttons), 
-                // we should only replace the text nodes.
-                let textNodeFound = false;
-                for (let i = 0; i < el.childNodes.length; i++) {
-                    const node = el.childNodes[i];
-                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
-                        node.nodeValue = dict[key];
-                        textNodeFound = true;
-                        break;
-                    }
-                }
-                // If no text node was found (or if it's completely empty), just set textContent
-                if (!textNodeFound) {
-                    if (el.childNodes.length === 0) {
-                        el.textContent = dict[key];
-                    } else {
-                        // Safe fallback: append a text node at the end
-                        el.appendChild(document.createTextNode(' ' + dict[key]));
-                    }
-                }
-            }
-        }
-    });
+    elements.forEach(el => applyTranslationToElement(el, dict));
 
-    // Update html lang attribute
     document.documentElement.lang = lang;
 }
 

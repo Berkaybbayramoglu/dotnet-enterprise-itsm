@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ProjectInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
-  <ProjectName>ItsTool.Web</ProjectName>
+  <ProjectName>ItsTool.Domain</ProjectName>
   <ProjectLanguage>C#</ProjectLanguage>
   <ProjectType>Product</ProjectType>
-  <ProjectGuid>48375dc6-fdca-48d7-8610-b14c9e0b5eef</ProjectGuid>
-  <FullPath>/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/ItsTool.Web.csproj</FullPath>
+  <ProjectGuid>22528ca4-22ea-4283-bfcc-ab8dd95fd4b1</ProjectGuid>
+  <FullPath>/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Domain/ItsTool.Domain.csproj</FullPath>
   <IsExcluded>false</IsExcluded>
   <AnalysisResultFiles>
     <AnalysisResultFile Id="FilesToAnalyze" Location="/home/berkay/Desktop/Turkcell_Staj/itsm-tool/.sonarqube/conf/1/FilesToAnalyze.txt" />

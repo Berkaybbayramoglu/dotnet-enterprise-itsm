@@ -91,7 +91,7 @@
         import './js/api.js?v=4';
         import { injectShell } from './js/layout.js?v=10';
         import { bindShellActions, showToast } from './js/ui.js';
-        import { t } from './js/i18n.js';
+        
         injectShell();
         
         if (!window.api.token) window.location.href = '/login.html';

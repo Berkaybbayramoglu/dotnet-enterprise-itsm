@@ -1,3 +1,3 @@
 Û
-ÑYour code is analyzed as compatible with all Python 3 versions by default. You can get a more precise analysis by setting the exact Python version in your configuration via the parameter "sonar.python.version"®Í‰Ž†4¼
-²Missing blame information for 14 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href="https://docs.sonarsource.com/sonarqube-community-build/analyzing-source-code/scm-integration/" rel="noopener noreferrer" target="_blank">the documentation</a>.·ÀŠŽ†4
+ÑYour code is analyzed as compatible with all Python 3 versions by default. You can get a more precise analysis by setting the exact Python version in your configuration via the parameter "sonar.python.version"ÄŒ­Ž†4¼
+²Missing blame information for 12 files. This may lead to some features not working correctly. Please check the analysis logs and refer to <a href="https://docs.sonarsource.com/sonarqube-community-build/analyzing-source-code/scm-integration/" rel="noopener noreferrer" target="_blank">the documentation</a>.¸ó­Ž†4

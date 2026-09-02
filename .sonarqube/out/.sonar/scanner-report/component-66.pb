@@ -1,1 +1,1 @@
-B 2cssXûhr-src/ItsTool.Web/wwwroot/css/design-system.css
+B 2cssXûhr-src/ItsTool.Web/wwwroot/css/design-system.css

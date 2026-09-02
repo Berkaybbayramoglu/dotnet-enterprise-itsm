@@ -282,6 +282,83 @@
             }
         }
 
+        function resolveAuditMappedValues(a, lookup, users) {
+            let mappedOld = a.oldValue;
+            let mappedNew = a.newValue;
+            
+            if (a.fieldName === 'StatusId') {
+                mappedOld = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                mappedNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+            } else if (a.fieldName === 'Status' && a.entityType === 'KnowledgeArticle') {
+                const sMap = { '0': t('kb_opt_draft') || 'Draft', '1': t('kb_opt_published') || 'Published', '2': t('kb_badge_pending') || 'Pending Review' };
+                mappedOld = sMap[a.oldValue] || a.oldValue;
+                mappedNew = sMap[a.newValue] || a.newValue;
+            } else if (a.fieldName === 'PriorityId') {
+                mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+            } else if (a.fieldName === 'CategoryId') {
+                mappedOld = lookup.categories?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                mappedNew = lookup.categories?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+            } else if (a.fieldName === 'ProjectId') {
+                mappedOld = lookup.projects?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                mappedNew = lookup.projects?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+            } else if (a.fieldName === 'AssignedUserId') {
+                mappedOld = users?.find(s => String(s.id) === a.oldValue)?.firstName ? (users.find(s => String(s.id) === a.oldValue).firstName + ' ' + users.find(s => String(s.id) === a.oldValue).lastName) : a.oldValue;
+                mappedNew = users?.find(s => String(s.id) === a.newValue)?.firstName ? (users.find(s => String(s.id) === a.newValue).firstName + ' ' + users.find(s => String(s.id) === a.newValue).lastName) : a.newValue;
+            } else if (a.fieldName === 'AssignedGroupId') {
+                mappedOld = lookup.groups?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                mappedNew = lookup.groups?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+            } else if (a.fieldName === 'Transfer') {
+                const parseTransfer = (val) => {
+                    if (!val || val === 'Proj:,Grp:' || val === 'none') return val;
+                    const mProj = val.match(/Proj:(-?\d*)/);
+                    const mGrp = val.match(/Grp:(-?\d*)/);
+                    const pId = mProj && mProj[1] ? mProj[1] : null;
+                    const gId = mGrp && mGrp[1] ? mGrp[1] : null;
+                    const pName = pId && pId !== '-1' ? (lookup.projects?.find(x => String(x.id) === pId)?.name || `Project ${pId}`) : 'No Project';
+                    const gName = gId && gId !== '-1' ? (lookup.groups?.find(x => String(x.id) === gId)?.name || `Group ${gId}`) : 'No Group';
+                    return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
+                };
+                mappedOld = parseTransfer(a.oldValue);
+                mappedNew = parseTransfer(a.newValue);
+            }
+            return { mappedOld, mappedNew };
+        }
+
+        function resolveAuditDeepLink(a, entityType, entityIdText) {
+            let deepLink = '#';
+            const et = entityType.toLowerCase();
+            const en = (a.entityName || '').toLowerCase();
+            if (et === 'ticket') {
+                deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
+                if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied') {
+                    const cid = (!Number.isNaN(Number(a.fieldName)) && a.fieldName) ? a.fieldName : a.oldValue;
+                    deepLink += `&commentId=${cid}`;
+                } else if (a.action === 'CommentDeleted') {
+                    deepLink += `&historyId=${a.id}`;
+                } else if (a.action === 'ASSIGNED' || a.fieldName === 'Assignments' || a.fieldName === 'AssignedUserId' || a.fieldName === 'AssignedGroupId') {
+                    deepLink += `&focus=assign`;
+                }
+            } else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
+            else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
+            else if (et === 'knowledgearticle') deepLink = `/kb-article.html?id=${entityIdText}`;
+            else if (et === 'user') deepLink = `/users.html?highlight=${entityIdText}`;
+            else if (et === 'groupmember') deepLink = `/admin-crud.html?type=groups`;
+            else {
+                const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles' };
+                if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
+            }
+            return deepLink;
+        }
+
+        function buildAuditDetailSentence(a, creatorName, entityNameText, entityType, mappedOld, mappedNew) {
+            let sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
+            if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
+                sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;
+            }
+            return sentence;
+        }
+
         function escapeHtml(unsafe) {
             return (unsafe || '').toString()
                 .replaceAll('&', "&amp;")

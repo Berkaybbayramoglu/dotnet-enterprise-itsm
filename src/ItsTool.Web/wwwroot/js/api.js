@@ -40,7 +40,7 @@ class ApiClient {
         let finalEndpoint = endpoint;
         if (!options.method || options.method.toUpperCase() === 'GET') {
             const separator = finalEndpoint.includes('?') ? '&' : '?';
-            finalEndpoint += `${separator}_t=${new Date().getTime()}`;
+            finalEndpoint += `${separator}_t=${Date.now()}`;
         }
 
         const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, config);

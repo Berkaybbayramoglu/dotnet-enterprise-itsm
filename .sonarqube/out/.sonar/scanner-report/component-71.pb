@@ -1,1 +1,1 @@
-G 2jsX¬hr'src/ItsTool.Web/wwwroot/js/crud-page.js
+G 2jsX¯hr'src/ItsTool.Web/wwwroot/js/crud-page.js
