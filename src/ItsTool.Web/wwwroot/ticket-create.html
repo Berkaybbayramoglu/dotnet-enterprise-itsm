@@ -35,7 +35,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -256,10 +256,10 @@
             const payload = {
                 title: document.getElementById('title').value,
                 description: document.getElementById('desc').value,
-                projectId: Number.parseInt(document.getElementById('projectId').value),
-                categoryId: Number.parseInt(document.getElementById('categoryId').value),
-                typeId: Number.parseInt(document.getElementById('typeId').value),
-                priorityId: Number.parseInt(document.getElementById('priorityId').value),
+                projectId: Number.parseInt(document.getElementById('projectId').value, 10),
+                categoryId: Number.parseInt(document.getElementById('categoryId').value, 10),
+                typeId: Number.parseInt(document.getElementById('typeId').value, 10),
+                priorityId: Number.parseInt(document.getElementById('priorityId').value, 10),
                 requesterUserId: 1, // simplified for demo
                 customFields: customFields,
                 estimatedStartDate: document.getElementById('estimatedStartDate').value ? new Date(document.getElementById('estimatedStartDate').value).toISOString() : null,

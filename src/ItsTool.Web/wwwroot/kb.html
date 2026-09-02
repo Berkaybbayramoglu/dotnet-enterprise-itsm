@@ -61,7 +61,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -200,7 +200,7 @@
         const claims = parseJwt(window.api.token) || {};
         const roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
         const perms = claims['permission'] || claims['Permissions'] || [];
-        const currentUserId = parseInt(claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || claims['nameid'] || claims['sub'] || '0');
+        const currentUserId = Number.parseInt(claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || claims['nameid'] || claims['sub'] || '0', 10);
         const hasManageKb = (Array.isArray(roles) ? roles.includes('SuperAdmin') : roles === 'SuperAdmin') || 
                             (Array.isArray(perms) ? perms.includes('kb.manage') : perms === 'kb.manage');
         
@@ -408,11 +408,11 @@
             
             const id = document.getElementById('articleId').value;
             const payload = {
-                categoryId: Number.parseInt(document.getElementById('articleCategory').value),
+                categoryId: Number.parseInt(document.getElementById('articleCategory').value, 10),
                 title: document.getElementById('articleTitle').value,
                 content: document.getElementById('articleContent').value,
-                visibility: Number.parseInt(document.getElementById('articleVisibility').value),
-                status: Number.parseInt(document.getElementById('articleStatus').value)
+                visibility: Number.parseInt(document.getElementById('articleVisibility').value, 10),
+                status: Number.parseInt(document.getElementById('articleStatus').value, 10)
             };
             
             try {
@@ -494,7 +494,7 @@
 
             const id = document.getElementById('reviewArticleId').value;
             const payload = {
-                status: Number.parseInt(document.getElementById('reviewStatus').value),
+                status: Number.parseInt(document.getElementById('reviewStatus').value, 10),
                 feedback: document.getElementById('reviewFeedback').value
             };
 

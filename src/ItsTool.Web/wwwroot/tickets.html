@@ -38,7 +38,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -251,7 +251,7 @@
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
                         <td>${getPriorityBadge(prioName)}</td>
-                        <td><div class="d-flex align-items-center gap-sm" style="cursor:pointer;" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none;">${escapeHtml(assigneeName)}</span></div></td>
+                        <td><button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; border:none; background:none; padding:0; text-align:left; font:inherit; color:inherit;" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none;">${escapeHtml(assigneeName)}</span></button></td>
                         <td>
                             <div class="row-actions">
                                 <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>

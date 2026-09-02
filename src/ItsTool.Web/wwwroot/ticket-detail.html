@@ -76,12 +76,11 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
-                            <li>
-                                <a class="dropdown-item text-center" href="#" onclick="markAllAsRead(event)" style="padding: 12px 0; color: var(--primary); font-weight: 500; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; border-top: 1px solid var(--border);">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M0.41,13.41L6,19L7.41,17.58L1.83,12M22.24,5.58L11.66,16.17L7.5,12L6.07,13.41L11.66,19L23.66,7M18,7L16.59,5.58L10.24,11.93L11.66,13.34L18,7Z"/></svg>
-                                    <span data-i18n="topbar_mark_all_read">Tümünü Okundu Olarak İşaretle</span>
-                                </a>
-                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center" onclick="markAllAsRead(event)" style="border: none; background: none; width: 100%; padding: 12px 0; color: var(--primary); font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; border-top: 1px solid var(--border);">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M0.41,13.41L6,19L7.41,17.58L1.83,12M22.24,5.58L11.66,16.17L7.5,12L6.07,13.41L11.66,19L23.66,7M18,7L16.59,5.58L10.24,11.93L11.66,13.34L18,7Z"/></svg>
+                                <span data-i18n="topbar_mark_all_read">Tümünü Okundu Olarak İşaretle</span>
+                            </button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -227,7 +226,8 @@
                             </div>
 
                             <div id="csatLink" style="display:none; margin-top: var(--spacing-lg);">
-                                <a href="#" id="surveyBtn" class="btn btn-primary" style="width:100%" data-i18n="td_fill_csat">Fill CSAT Survey</a>
+                                <button type="button" id="btnAssignToMe" class="btn btn-secondary" style="width:100%; display:none" data-i18n="td_assign_me">Bana Ata</button>
+                                <button type="button" id="surveyBtn" class="btn btn-primary" style="width:100%" data-i18n="td_fill_csat">Fill CSAT Survey</button>
                             </div>
                         </div>
                     </div>
@@ -390,8 +390,10 @@
         try {
             const token = localStorage.getItem('jwt_token');
             if (token) {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                currentUserId = parseInt(payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.sub || 0);
+                const payload = JSON.parse(atob(window.api.token.split('.')[1]));
+                try {
+                    currentUserId = Number.parseInt(payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.sub || 0, 10);
+                } catch (e) { console.error("Error parsing currentUserId", e); }
                 if (payload.permission) currentUserPermissions = Array.isArray(payload.permission) ? payload.permission : [payload.permission];
                 if (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']) {
                     const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
@@ -433,8 +435,8 @@
             const gid = document.getElementById('transferGroup').value;
             
             const dto = {
-                projectId: pid ? Number.parseInt(pid) : null,
-                groupId: gid ? Number.parseInt(gid) : null
+                projectId: pid ? Number.parseInt(pid, 10) : null,
+                groupId: gid ? Number.parseInt(gid, 10) : null
             };
 
             try {
@@ -907,8 +909,13 @@
                     const uChecks = document.querySelectorAll('.user-checkbox:checked');
                     const gChecks = document.querySelectorAll('.group-checkbox:checked');
                     
-                    const uIds = [...new Set(Array.from(uChecks).map(c => parseInt(c.value)))];
-                    const gIds = [...new Set(Array.from(gChecks).map(c => parseInt(c.value)))];
+                    const uIds = [...new Set(Array.from(uChecks).map(c => Number.parseInt(c.value, 10)))];
+                    const gIds = [...new Set(Array.from(gChecks).map(c => Number.parseInt(c.value, 10)))];
+                    
+                    if (uIds.length === 0 && gIds.length === 0) {
+                        showToast('Lütfen en az bir atama yapın.', 'warning');
+                        return;
+                    }
                     
                     try {
                         const req = { userIds: uIds, groupIds: gIds };
@@ -1621,7 +1628,7 @@
                                     // Add a link to jump to comment if it still exists
                                     const commentExists = events.some(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
                                     if (commentExists) {
-                                        detailsHtml += `<a href="#" onclick="event.preventDefault(); document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="font-size:10px; display:inline-block; margin-top:4px;">${t('log_jump_to_comment') || 'Jump to comment'}</a>`;
+                                        detailsHtml += `<button type="button" onclick="document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); text-decoration: underline; font-size:10px; display:inline-block; margin-top:4px;">${t('log_jump_to_comment') || 'Jump to comment'}</button>`;
                                     }
                                 } else if (h.action === 'CommentEdited' && h.oldValue && h.newValue) {
                                     const oldEnc = btoa(unescape(encodeURIComponent(h.oldValue)));
@@ -2140,7 +2147,7 @@
         });
 
         document.getElementById('statusSelect').addEventListener('change', async (e) => {
-            const newStatus = Number.parseInt(e.target.value);
+            const newStatus = Number.parseInt(e.target.value, 10);
             const statusName = e.target.options[e.target.selectedIndex].text;
             try {
                 await window.api.request(`/Ticket/${ticketId}/status`, {

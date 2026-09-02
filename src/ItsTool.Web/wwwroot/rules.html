@@ -33,7 +33,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -248,10 +248,10 @@
             const toggleBtn = e.target.closest('.btn-toggle');
             
             if (deleteBtn) {
-                ruleToDelete = Number.parseInt(deleteBtn.dataset.id);
+                ruleToDelete = Number.parseInt(deleteBtn.dataset.id, 10);
                 openModal('confirmModal');
             } else if (editBtn) {
-                ruleToEdit = Number.parseInt(editBtn.dataset.id);
+                ruleToEdit = Number.parseInt(editBtn.dataset.id, 10);
                 const r = rulesList.find(x => x.id === ruleToEdit);
                 if (r) {
                     document.getElementById('rName').value = r.name;
@@ -266,7 +266,7 @@
                     openModal('createModal');
                 }
             } else if (toggleBtn) {
-                const id = Number.parseInt(toggleBtn.dataset.id);
+                const id = Number.parseInt(toggleBtn.dataset.id, 10);
                 toggleBtn.style.opacity = '0.5';
                 try {
                     await window.api.toggleAssignmentRule(id);
@@ -306,13 +306,13 @@
             e.preventDefault();
             const payload = {
                 name: document.getElementById('rName').value.trim(),
-                sortOrder: Number.parseInt(document.getElementById('rSort').value) || 10,
+                sortOrder: Number.parseInt(document.getElementById('rSort').value, 10) || 10,
                 isActive: document.getElementById('rActive').checked,
-                projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value) : null,
-                categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value) : null,
-                ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value) : null,
-                targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value) : null,
-                targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value) : null
+                projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value, 10) : null,
+                categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value, 10) : null,
+                ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value, 10) : null,
+                targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value, 10) : null,
+                targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value, 10) : null
             };
             
             try {

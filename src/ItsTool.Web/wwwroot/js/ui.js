@@ -257,9 +257,11 @@ export function showAssigneesModal(encodedData) {
             const cursorAttr = isGroup ? 'cursor: pointer;' : 'cursor: default;';
             const displayAttr = isSub ? 'display: none;' : 'display: flex;';
             const classAttr = isSub ? `class="assignee-subitem-for-${item.parentGroupId}"` : '';
+            const tag = isGroup ? 'button' : 'div';
+            const buttonAttrs = isGroup ? `type="button"` : '';
             
             return `
-                <div ${classAttr} style="${displayAttr} align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); background: ${bgColor}; transition: background 0.2s; ${cursorAttr}" ${onClickAttr} onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
+                <${tag} ${buttonAttrs} ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; ${cursorAttr}" ${onClickAttr} onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
                     <div style="display: flex; align-items: center; gap: ${isSub?8:12}px;">
                         ${nestingArrow}
                         ${iconHtml}
@@ -274,7 +276,7 @@ export function showAssigneesModal(encodedData) {
                     <div style="color: var(--text-muted);">
                         ${toggleIcon}
                     </div>
-                </div>
+                </${tag}>
             `;
         }).join('');
         body.innerHTML = listHtml;
@@ -567,9 +569,9 @@ export function bindShellActions() {
                             return `<div style="font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; gap: 4px;">
                                     <span>${p}</span>
-                                    <span style="cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replace(/'/g, "\\'")}')">
+                                    <button type="button" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replace(/'/g, "\\'")}')">
                                         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-                                    </span>
+                                    </button>
                                 </div>
                                 ${isOverride ? '<span class="badge badge-warning" style="font-size:10px; padding:2px 4px;">override</span>' : ''}
                             </div>`;
