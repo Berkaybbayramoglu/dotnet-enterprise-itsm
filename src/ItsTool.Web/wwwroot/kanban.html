@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Kanban</title>
-    <link rel="stylesheet" href="css/design-system.css?v=2">
+    <link rel="stylesheet" href="css/design-system.css?v=999">
     <style>
         .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
         .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
@@ -85,9 +85,9 @@
     <!-- Shared Preview Modal is dynamically injected by ui.js -->
 
     <script type="module">
-        import './js/api.js?v=3';
-        import { injectShell } from './js/layout.js?v=10';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=3';
+        import './js/api.js?v=999';
+        import { injectShell } from './js/layout.js?v=999';
+        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=999';
         import { t } from './js/i18n.js';
         injectShell();
         
