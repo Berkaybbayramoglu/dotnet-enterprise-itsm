@@ -1,1 +1,1 @@
-: 2csXfhr6src/ItsTool.API/Controllers/KnowledgeBaseController.cs
+: 2webXhr"src/ItsTool.Web/wwwroot/index.html

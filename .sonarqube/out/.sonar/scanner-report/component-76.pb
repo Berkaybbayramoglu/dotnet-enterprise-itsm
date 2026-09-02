@@ -1,1 +1,1 @@
-L 2csXhr:src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
+L 2jsXhr'src/ItsTool.Web/wwwroot/js/lib/chart.js

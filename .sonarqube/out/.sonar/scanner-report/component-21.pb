@@ -1,1 +1,1 @@
- 2csXhrBsrc/ItsTool.Domain/Entities/Notification/NotificationPreference.cs
+ 2csXhr6src/ItsTool.Domain/Entities/Organization/Department.cs

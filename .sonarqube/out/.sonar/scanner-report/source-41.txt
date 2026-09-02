@@ -1,15 +1,13 @@
-using System;
 using ItsTool.Domain.Common;
-using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.Domain.Entities.Ticket;
 
-public class TicketSurvey : BaseEntity
+public class TicketWatcher : BaseEntity
 {
     public int TicketId { get; set; }
-    public int Rating { get; set; } // 1-5
-    public string? Comment { get; set; }
-    public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
-    
+    public int UserId { get; set; }
+
     public virtual Ticket? Ticket { get; set; }
+    public virtual User? User { get; set; }
 }

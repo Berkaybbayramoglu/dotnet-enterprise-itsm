@@ -1,25 +1,8 @@
-using ItsTool.Domain.Common;
-using ItsTool.Domain.Entities.Ticket;
-
-namespace ItsTool.Domain.Entities.Workflow;
-
-public class Workflow : BaseEntity
-{
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public int? ProjectId { get; set; }
+const fetch = require('node-fetch');
+async function test() {
+    const res = await fetch('http://127.0.0.1:5246/api/Ticket/2/attachments', {
+        headers: { 'Authorization': 'Bearer ' + 'dummy_token' } // wait, I don't have a token.
+    });
+    console.log(res.status);
 }
-
-public class WorkflowTransition : BaseEntity
-{
-    public int WorkflowId { get; set; }
-    public int FromStatusId { get; set; }
-    public int ToStatusId { get; set; }
-    public string TransitionName { get; set; } = string.Empty;
-    public string? RequiredPermissionKey { get; set; }
-    public int SortOrder { get; set; }
-
-    public virtual Workflow? Workflow { get; set; }
-    public virtual Status? FromStatus { get; set; }
-    public virtual Status? ToStatus { get; set; }
-}
+test();

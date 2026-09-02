@@ -1,1 +1,1 @@
-w 2webXÚhr#src/ItsTool.Web/wwwroot/survey.html
+w 2csX	hr4src/ItsTool.Application/Interfaces/ISignalRPusher.cs

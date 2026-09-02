@@ -1,1 +1,1 @@
-y 2webXïhr&src/ItsTool.Web/wwwroot/dashboard.html
+y 2csXhr1src/ItsTool.Application/Interfaces/ISlaService.cs

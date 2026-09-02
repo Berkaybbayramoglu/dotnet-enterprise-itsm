@@ -1,1 +1,1 @@
-j 2webXÀhr%src/ItsTool.Web/wwwroot/webhooks.html
+j 2csXhr9src/ItsTool.Application/Interfaces/IDynamicFormService.cs

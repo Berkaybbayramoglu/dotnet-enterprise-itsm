@@ -1,98 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Login</title>
-    <link rel="stylesheet" href="css/design-system.css">
-    <style>
-        body { 
-            background: linear-gradient(135deg, var(--primary) 0%, #002255 100%);
-            display: flex; justify-content: center; align-items: center; height: 100vh;
-        }
-        .login-box { 
-            background: var(--bg-surface); padding: var(--spacing-xl); 
-            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); 
-            width: 100%; max-width: 400px; text-align: center;
-        }
-        .login-logo {
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 48px; height: 48px; background-color: var(--primary-light);
-            color: var(--primary); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);
-        }
-        .login-logo svg { width: 24px; height: 24px; fill: currentColor; }
-        h1 { margin-bottom: var(--spacing-lg); color: var(--text-main); font-size: 24px; }
-        .form-group { text-align: left; }
-        .error { color: var(--danger); text-align: center; margin-top: var(--spacing-md); display: none; font-size: 13px; font-weight: 500; }
-    </style>
-</head>
-<body>
-    <div class="login-box">
-        <div class="login-logo">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg>
-        </div>
-        <h1>Welcome Back</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label class="form-label" for="username" for="username">Username or Email</label>
-                <input id="username" class="form-control" autocomplete="username" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <div style="position: relative;">
-                    <input type="password" id="password" class="form-control" autocomplete="current-password" required style="padding-right: 40px;">
-                    <button type="button" id="togglePassword" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;">
-                        <svg id="eyeIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md); padding: 10px;">Sign In</button>
-            <div id="errorMessage" class="error"></div>
-            
-            <div id="demoHint" style="margin-top: 24px; padding: 12px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; text-align: left; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-                <strong style="color: var(--text-main); display: block; margin-bottom: 8px;">Demo Accounts (Pwd: *123!)</strong>
-                <code style="background:transparent; padding:0; color:var(--primary);">admin</code> : SuperAdmin<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">manager</code> : Manager<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">agent1</code> : Agent<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">agent2</code> : Agent (+ticket.close)<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">user1</code> : EndUser
-            </div>
-        </form>
-    </div>
+using System.Threading;
+using System.Threading.Tasks;
 
-    <script type="module">
-        import './js/api.js';
-        document.getElementById('togglePassword').addEventListener('click', function (e) {
-            const passwordInput = document.getElementById('password');
-            const icon = this.querySelector('svg path');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.setAttribute('d', 'M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-2.5c4.73 0 9 3.11 11 7.5-1.73 4.39-6 7.5-11 7.5S2 16.39.27 12c1.73-4.39 6-7.5 11-7.5zm0 13c3.87 0 7.33-2.11 9.17-5.5C19.33 8.61 15.87 6.5 12 6.5S4.67 8.61 2.83 12c1.84 3.39 5.3 5.5 9.17 5.5zm4.07-7.96l-1.42 1.42C14.54 10.5 14 11.19 14 12c0 1.1-.9 2-2 2-.81 0-1.5-.54-1.84-1.28l-1.42 1.42C9.43 14.85 10.63 15.5 12 15.5c1.93 0 3.5-1.57 3.5-3.5 0-1.37-.65-2.57-1.36-3.26z'); // Just a crossed eye placeholder or similar, or just keep same icon
-                this.style.color = 'var(--primary)';
-            } else {
-                passwordInput.type = 'password';
-                icon.setAttribute('d', 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z');
-                this.style.color = 'var(--text-muted)';
-            }
-        });
+namespace ItsTool.Application.Interfaces;
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
-            
-            try {
-                await window.api.login(username, password);
-                window.location.href = '/dashboard.html';
-            } catch (err) {
-                console.error(err);
-                errorDiv.textContent = 'Login failed. Please check your credentials.';
-                errorDiv.style.display = 'block';
-            }
-        });
-    </script>
-</body>
-</html>
+public class EmailMessage
+{
+    public string To { get; set; } = string.Empty;
+    public string Subject { get; set; } = string.Empty;
+    public string Body { get; set; } = string.Empty;
+    public bool IsHtml { get; set; } = true;
+}
+
+public interface IEmailQueue
+{
+    ValueTask QueueEmailAsync(EmailMessage message);
+    ValueTask<EmailMessage> DequeueEmailAsync(CancellationToken cancellationToken);
+}

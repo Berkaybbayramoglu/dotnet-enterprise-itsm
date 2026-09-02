@@ -1,1 +1,1 @@
-p 2webXühr"src/ItsTool.Web/wwwroot/rules.html
+p 2csXhr;src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs

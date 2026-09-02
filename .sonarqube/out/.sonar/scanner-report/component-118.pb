@@ -1,1 +1,1 @@
-v 2webXhr"src/ItsTool.Web/wwwroot/index.html
+v 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs

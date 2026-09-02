@@ -1,1 +1,0 @@
-Å 2jsX‡hr"src/ItsTool.Web/wwwroot/js/i18n.js

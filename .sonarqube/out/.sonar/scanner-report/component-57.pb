@@ -1,1 +1,1 @@
-9 2csX@hr/src/ItsTool.API/Controllers/GroupsController.cs
+9 2webXKhr'src/ItsTool.Web/wwwroot/admin-crud.html

@@ -1,122 +1,98 @@
-using System.Collections.Generic;
-using System.Linq;
-using ItsTool.Application.Interfaces;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Organization;
-using ItsTool.Infrastructure.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace ItsTool.API.Controllers;
-
-[ApiController]
-[Route("api/rules/assignment")]
-[Authorize(Policy = "RequirePermission:config.manage")]
-public class AssignmentRuleController : ControllerBase
-{
-    private readonly ItsToolDbContext _context;
-    private readonly ISystemAuditService _auditService;
-    private const string EntityName = "AssignmentRule";
-
-    public AssignmentRuleController(ItsToolDbContext context, ISystemAuditService auditService)
-    {
-        _context = context;
-        _auditService = auditService;
-    }
-
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<AssignmentRuleDto>), 200)]
-    public async Task<IActionResult> GetRules()
-    {
-        var rules = await _context.AssignmentRules
-            .Where(r => !r.IsDeleted)
-            .OrderBy(r => r.SortOrder)
-            .ToListAsync();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Login</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        body { 
+            background: linear-gradient(135deg, var(--primary) 0%, #002255 100%);
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+        }
+        .login-box { 
+            background: var(--bg-surface); padding: var(--spacing-xl); 
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); 
+            width: 100%; max-width: 400px; text-align: center;
+        }
+        .login-logo {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; background-color: var(--primary-light);
+            color: var(--primary); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);
+        }
+        .login-logo svg { width: 24px; height: 24px; fill: currentColor; }
+        h1 { margin-bottom: var(--spacing-lg); color: var(--text-main); font-size: 24px; }
+        .form-group { text-align: left; }
+        .error { color: var(--danger); text-align: center; margin-top: var(--spacing-md); display: none; font-size: 13px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="login-logo">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg>
+        </div>
+        <h1>Welcome Back</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="username" for="username">Username or Email</label>
+                <input id="username" class="form-control" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" class="form-control" autocomplete="current-password" required style="padding-right: 40px;">
+                    <button type="button" id="togglePassword" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;">
+                        <svg id="eyeIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md); padding: 10px;">Sign In</button>
+            <div id="errorMessage" class="error"></div>
             
-        var dtos = rules.Select(r => new AssignmentRuleDto(
-            r.Id, r.Name, r.ProjectId, r.CategoryId, r.TicketTypeId, r.PriorityId, r.TargetGroupId, r.TargetUserId, r.SortOrder, r.IsActive));
+            <div id="demoHint" style="margin-top: 24px; padding: 12px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; text-align: left; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                <strong style="color: var(--text-main); display: block; margin-bottom: 8px;">Demo Accounts (Pwd: *123!)</strong>
+                <code style="background:transparent; padding:0; color:var(--primary);">admin</code> : SuperAdmin<br>
+                <code style="background:transparent; padding:0; color:var(--primary);">manager</code> : Manager<br>
+                <code style="background:transparent; padding:0; color:var(--primary);">agent1</code> : Agent<br>
+                <code style="background:transparent; padding:0; color:var(--primary);">agent2</code> : Agent (+ticket.close)<br>
+                <code style="background:transparent; padding:0; color:var(--primary);">user1</code> : EndUser
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+        import './js/api.js';
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('svg path');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.setAttribute('d', 'M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-2.5c4.73 0 9 3.11 11 7.5-1.73 4.39-6 7.5-11 7.5S2 16.39.27 12c1.73-4.39 6-7.5 11-7.5zm0 13c3.87 0 7.33-2.11 9.17-5.5C19.33 8.61 15.87 6.5 12 6.5S4.67 8.61 2.83 12c1.84 3.39 5.3 5.5 9.17 5.5zm4.07-7.96l-1.42 1.42C14.54 10.5 14 11.19 14 12c0 1.1-.9 2-2 2-.81 0-1.5-.54-1.84-1.28l-1.42 1.42C9.43 14.85 10.63 15.5 12 15.5c1.93 0 3.5-1.57 3.5-3.5 0-1.37-.65-2.57-1.36-3.26z'); // Just a crossed eye placeholder or similar, or just keep same icon
+                this.style.color = 'var(--primary)';
+            } else {
+                passwordInput.type = 'password';
+                icon.setAttribute('d', 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z');
+                this.style.color = 'var(--text-muted)';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
             
-        return Ok(dtos);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(typeof(AssignmentRuleDto), 201)]
-    public async Task<IActionResult> CreateRule([FromBody] CreateAssignmentRuleDto dto)
-    {
-        var rule = new AssignmentRule
-        {
-            Name = dto.Name,
-            ProjectId = dto.ProjectId,
-            CategoryId = dto.CategoryId,
-            TicketTypeId = dto.TicketTypeId,
-            PriorityId = dto.PriorityId,
-            TargetGroupId = dto.TargetGroupId,
-            TargetUserId = dto.TargetUserId,
-            SortOrder = dto.SortOrder,
-            IsActive = dto.IsActive
-        };
-        
-        _context.AssignmentRules.Add(rule);
-        await _context.SaveChangesAsync();
-        
-        await _auditService.LogAuditAsync("Rule", EntityName, rule.Id.ToString(), "Created", "Rule", null, rule.Name);
-
-        var responseDto = new AssignmentRuleDto(
-            rule.Id, rule.Name, rule.ProjectId, rule.CategoryId, rule.TicketTypeId, rule.PriorityId, rule.TargetGroupId, rule.TargetUserId, rule.SortOrder, rule.IsActive);
-            
-        return CreatedAtAction(nameof(GetRules), new { id = rule.Id }, responseDto);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateRule(int id, [FromBody] UpdateAssignmentRuleDto dto)
-    {
-        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
-        if (rule == null) return NotFound();
-        
-        rule.Name = dto.Name;
-        rule.ProjectId = dto.ProjectId;
-        rule.CategoryId = dto.CategoryId;
-        rule.TicketTypeId = dto.TicketTypeId;
-        rule.PriorityId = dto.PriorityId;
-        rule.TargetGroupId = dto.TargetGroupId;
-        rule.TargetUserId = dto.TargetUserId;
-        rule.SortOrder = dto.SortOrder;
-        rule.IsActive = dto.IsActive;
-        
-        await _context.SaveChangesAsync();
-        await _auditService.LogAuditAsync("Rule", EntityName, rule.Id.ToString(), "Updated", "Rule", null, rule.Name);
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteRule(int id)
-    {
-        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
-        if (rule == null) return NotFound();
-        
-        rule.IsDeleted = true;
-        await _context.SaveChangesAsync();
-        await _auditService.LogAuditAsync("Rule", EntityName, rule.Id.ToString(), "Deleted", "Rule", rule.Name, null);
-        return NoContent();
-    }
-
-    [HttpPut("{id}/toggle")]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> ToggleRule(int id)
-    {
-        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
-        if (rule == null) return NotFound();
-
-        var oldStatus = rule.IsActive.ToString();
-        rule.IsActive = !rule.IsActive;
-        var newStatus = rule.IsActive.ToString();
-
-        await _context.SaveChangesAsync();
-        await _auditService.LogAuditAsync("Rule", EntityName, rule.Id.ToString(), "Toggled", "IsActive", oldStatus, newStatus);
-        return NoContent();
-    }
-}
+            try {
+                await window.api.login(username, password);
+                window.location.href = '/dashboard.html';
+            } catch (err) {
+                console.error(err);
+                errorDiv.textContent = 'Login failed. Please check your credentials.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

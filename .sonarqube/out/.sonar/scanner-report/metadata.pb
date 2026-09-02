@@ -1,4 +1,4 @@
-ÖíÏ†4	itsm-tool(:R
+Ë£‰†4	itsm-tool(:R
 
 kubernetesD
 $2daa1f33-83a1-4e12-838a-aba088d54e3e	Sonar way
@@ -70,14 +70,12 @@ $729fefe2-6301-4f82-9ce1-c1bb97cc27ca	Sonar wayts ¸ö…õ€4B
 
 javascript
 
-javascriptËü…õ€4j(9ec82ca002537991049620a462f7d75be7ae9caf²
-cs—²
+javascriptËü…õ€4j(8f44d7d8567e57e7ed2cf3d9ba3506c538a9ea05²
+csQ²
 css²
 web²
-py²
-js(²
-jsonNº	
-otherº	
+py²
+jsonN²
+js(º	
+otherº	
 shell
-º
-markdown

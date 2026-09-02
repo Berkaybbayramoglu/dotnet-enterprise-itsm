@@ -1,1 +1,1 @@
-7 2csXMhr4src/ItsTool.API/Controllers/DepartmentsController.cs
+7 2jsXhrsrc/ItsTool.Web/wwwroot/test.js

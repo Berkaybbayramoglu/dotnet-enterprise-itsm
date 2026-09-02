@@ -1,1 +1,1 @@
-4 2csX1hr3src/ItsTool.API/Controllers/CategoriesController.cs
+4 2webXühr"src/ItsTool.Web/wwwroot/rules.html

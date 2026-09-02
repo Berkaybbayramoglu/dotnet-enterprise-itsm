@@ -12,6 +12,7 @@ namespace ItsTool.API.Controllers;
 [Authorize]
 public class TicketController : ControllerBase
 {
+    private const string PermissionClaim = "Permission";
     private readonly ITicketService _service;
 
     public TicketController(ITicketService service)
@@ -163,7 +164,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateComment(int id, int commentId, [FromBody] UpdateCommentDto dto)
     {
-        bool hasEditPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.edit");
+        bool hasEditPerm = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.comment.edit");
         try
         {
             var result = await _service.UpdateCommentAsync(id, commentId, dto, GetCurrentUserId(), hasEditPerm);
@@ -177,7 +178,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteComment(int id, int commentId)
     {
-        bool hasDeletePerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.delete");
+        bool hasDeletePerm = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.comment.delete");
         try
         {
             await _service.DeleteCommentAsync(id, commentId, GetCurrentUserId(), hasDeletePerm);
@@ -191,7 +192,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RestoreComment(int id, int commentId)
     {
-        bool hasDeletePerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.delete");
+        bool hasDeletePerm = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.comment.delete");
         try
         {
             await _service.RestoreCommentAsync(id, commentId, GetCurrentUserId(), hasDeletePerm);
@@ -205,7 +206,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<TicketCommentDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetComments(int id)
     {
-        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal");
+        bool hasInternalPerm = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.comment.internal");
         var result = await _service.GetCommentsAsync(id, hasInternalPerm);
         return Ok(result);
     }
@@ -251,7 +252,7 @@ public class TicketController : ControllerBase
     [HttpDelete("{id}/attachments/{attachmentId}")]
     public async Task<IActionResult> DeleteAttachment(int id, int attachmentId)
     {
-        bool hasManage = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.manage") || 
+        bool hasManage = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.manage") || 
                          User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
         try
         {
@@ -272,7 +273,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<TimelineEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTimeline(int id)
     {
-        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal") || 
+        bool hasInternalPerm = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.comment.internal") || 
                                User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
         return Ok(await _service.GetTimelineAsync(id, hasInternalPerm));
     }

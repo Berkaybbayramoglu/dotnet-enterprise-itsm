@@ -1,101 +1,494 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Dashboard</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/lib/chart.js"></script>
+</head>
+<body>
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
 
-namespace ItsTool.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class PermissionsController : ControllerBase
-{
-    private readonly ItsToolDbContext _context;
-    private readonly IPermissionCalculator _permissionCalculator;
-
-    public PermissionsController(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
-    {
-        _context = context;
-        _permissionCalculator = permissionCalculator;
-    }
-    
-    private async Task EnforceAdminAccessAsync(int userId)
-    {
-        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        if (!perms.Contains("admin.manage"))
-            throw new UnauthorizedAccessException("Only SuperAdmins can manage permissions.");
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var perms = await _context.Permissions.Select(p => new PermissionDto(p.Id, p.Name, p.Key, p.Description)).ToListAsync();
-        return Ok(perms);
-    }
-    
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var p = await _context.Permissions.FindAsync(id);
-        if (p == null) return NotFound();
-        return Ok(new PermissionDto(p.Id, p.Name, p.Key, p.Description));
-    }
-    
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreatePermissionDto dto)
-    {
-        try
-        {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            await EnforceAdminAccessAsync(userId);
+                    <h2 data-i18n="dash_title">Dashboard</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
             
-            var p = new Permission { Name = dto.Name, Key = dto.Key, Description = dto.Description };
-            _context.Permissions.Add(p);
-            await _context.SaveChangesAsync();
-            return Ok(new PermissionDto(p.Id, p.Name, p.Key, p.Description));
+            <div class="content-area" style="max-width: 1440px; margin: 0 auto; padding: 20px;">
+                <!-- KPI Row -->
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 16px;" id="overviewCards">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Charts Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="card" style="padding: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_tickets_status">Tickets by Status</div>
+                        <div style="height: 260px; position: relative;" id="statusChartContainer">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_tickets_priority">Tickets by Priority</div>
+                        <div style="height: 260px; position: relative;" id="priorityChartContainer">
+                            <canvas id="priorityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Row: Team Workload, Agent Workload & Recent Tickets -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                    <div class="card" style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="font-weight: 600;" data-i18n="dash_team_workload">Takım Yükü</div>
+                            <a href="/workload.html" style="font-size: 12px; color: var(--primary); text-decoration: none;" data-i18n="dash_view_all">Tümünü Gör</a>
+                        </div>
+                        <div id="workloadList" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="font-weight: 600;" data-i18n="dash_agent_workload">Kişi Bazlı Yük</div>
+                            <a href="/workload.html" style="font-size: 12px; color: var(--primary); text-decoration: none;" data-i18n="dash_view_all">Tümünü Gör</a>
+                        </div>
+                        <div id="agentWorkloadList" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 16px;" data-i18n="dash_recent_requests">Son Talepler</div>
+                        <div id="recentTicketsList" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Drill-Down Modal -->
+    <div id="drillDownModal" class="modal-overlay">
+        <div class="modal" style="max-width: 800px; width: 90%;">
+            <div class="modal-header">
+                <h2 id="drillDownTitle">Details</h2>
+                <button type="button" class="close-btn" onclick="closeModal('drillDownModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="drillDownCount" style="margin-bottom: 12px; font-weight: 500; color: var(--text-muted);"></div>
+                <div id="drillDownList" style="display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 8px;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import './js/api.js?v=6';
+        import { injectShell } from './js/layout.js?v=10';
+        import { bindShellActions, showToast, openTicketPreview, openModal, closeModal } from './js/ui.js?v=6';
+        import { t } from './js/i18n.js';
+        injectShell();
+        
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+
+        window.openTicketPreviewWrapper = function(id) {
+            let t = window.__recentTicketsCache?.find(x => x.id === id);
+            if (!t && window.__drillDownCache) {
+                t = window.__drillDownCache.find(x => x.id === id);
+            }
+            if (t) openTicketPreview(t, window.__lookupCache || {});
+        };
+        
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        const createKpiCard = (title, val, color, iconPath) => `
+                    <div class="card" 
+                         role="button" tabindex="0" 
+                         style="display: flex; align-items: center; gap: 12px; height: 96px; padding: 16px; border-left: 4px solid var(--${color}); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'"
+                         onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'"
+                         onclick="window.openDrillDown('${title}')"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openDrillDown('${title}');}">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(var(--${color}-rgb), 0.1); display: flex; align-items: center; justify-content: center; color: var(--${color});">
+                            <svg viewBox="0 0 24 24" width="24" height="24" style="fill: currentColor;">${iconPath}</svg>
+                        </div>
+                        <div>
+                            <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">${t('dash_kpi_' + title.replaceAll(' ', '_').toLowerCase()) || title}</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--${title === 'Avg CSAT' || title === 'Open Tickets' || title === 'Unassigned' ? 'text' : color}); line-height: 1.2;">${val}</div>
+                        </div>
+                    </div>
+                `;
+
+        
+        function buildStatusChart(dist) {
+            new Chart(document.getElementById('statusChart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: dist.byStatus.map(d => t('db_' + d.key.toLowerCase().replaceAll(' ', '_'))),
+                            datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
+                        },
+                        options: { 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: 'bottom' } }, 
+                            cutout: '62%',
+                            onClick: (e, activeElements) => {
+                                if (activeElements.length > 0) {
+                                    const index = activeElements[0].index;
+                                    const label = dist.byStatus[index].key;
+                                    window.openDrillDown('Status: ' + label);
+                                }
+                            }
+                        }
+                    });
         }
-        catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
-    }
-    
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdatePermissionDto dto)
-    {
-        try
-        {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            await EnforceAdminAccessAsync(userId);
-            
-            var p = await _context.Permissions.FindAsync(id);
-            if (p == null) return NotFound();
-            
-            p.Name = dto.Name;
-            p.Key = dto.Key;
-            p.Description = dto.Description;
-            await _context.SaveChangesAsync();
-            return Ok(new PermissionDto(p.Id, p.Name, p.Key, p.Description));
+        
+        function buildPriorityChart(dist) {
+            new Chart(document.getElementById('priorityChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: dist.byPriority.map(d => t('db_' + d.key.toLowerCase().replaceAll(' ', '_'))),
+                            datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
+                        },
+                        options: { 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { display: false } },
+                            onClick: (e, activeElements) => {
+                                if (activeElements.length > 0) {
+                                    const index = activeElements[0].index;
+                                    const label = dist.byPriority[index].key;
+                                    window.openDrillDown('Priority: ' + label);
+                                }
+                            }
+                        }
+                    });
         }
-        catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
-    }
-    
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-            await EnforceAdminAccessAsync(userId);
-            
-            var p = await _context.Permissions.FindAsync(id);
-            if (p == null) return NotFound();
-            
-            _context.Permissions.Remove(p);
-            await _context.SaveChangesAsync();
-            return NoContent();
+        
+                function renderWorkload(workload) {
+            return workload.length === 0 
+                ? `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`
+                : workload.map(w => `
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
+                            ${w.departmentName} 
+                            <span class="badge badge-warning" style="font-size: 11px;">${t('dash_total')}: ${w.openTicketCount}</span>
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${w.agents.map(a => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-body); border-radius: var(--radius-sm);">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="avatar" style="width: 24px; height: 24px; font-size: 11px;">${a.agentName.charAt(0)}</div>
+                                        <span style="font-size: 13px; font-weight: 500;">${a.agentName}</span>
+                                    </div>
+                                    <span style="font-size: 13px; font-weight: 600; color: var(--danger);">${a.openTicketCount} ${t('dash_status_open')}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
         }
-        catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
-    }
-}
+
+        function renderRecentTickets(recentTickets, lookup) {
+            return recentTickets.length === 0 
+                ? `<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">${t('dash_no_tickets')}</td></tr>`
+                : recentTickets.map(tData => {
+                    const statusName = (lookup.statuses && lookup.statuses.find(x => x.id === tData.statusId)?.name) || t('dash_unknown');
+                    const priorityName = (lookup.priorities && lookup.priorities.find(x => x.id === tData.priorityId)?.name) || t('dash_unknown');
+                    
+                    const localizedStatus = t('db_' + statusName.toLowerCase().replaceAll(' ', '_')) || statusName;
+                    const localizedPriority = t('db_' + priorityName.toLowerCase().replaceAll(' ', '_')) || priorityName;
+
+                    return `
+                    <tr style="cursor: pointer;" onclick="openTicketPreview(${tData.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTicketPreview(${tData.id});}">
+                        <td class="text-muted" style="font-family: monospace;">#${tData.id}</td>
+                        <td style="font-weight: 500;">${window.ui?.escapeHtml(tData.title) || tData.title}</td>
+                        <td><span class="badge badge-default">${window.ui?.escapeHtml(localizedStatus) || localizedStatus}</span></td>
+                        <td><span class="badge badge-warning">${window.ui?.escapeHtml(localizedPriority) || localizedPriority}</span></td>
+                    </tr>
+                    `;
+                }).join('');
+        }
+        function renderWorkloadList(workload) {
+            if (workload.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
+            return workload.map(w => `
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
+                        <div class="avatar" style="width:32px; height:32px; font-size:14px; border-radius: 8px;">${w.departmentName ? w.departmentName.charAt(0).toUpperCase() : 'D'}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight: 500;">${w.departmentName || 'Dept ' + w.departmentId}</div>
+                            <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: var(--primary); width: ${Math.min(w.openTicketCount * 10, 100)}%;"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight: 600;">${w.openTicketCount}</div>
+                    </div>
+                    ${w.members && w.members.length > 0 ? `
+                        <div style="padding-left: 44px; display: flex; flex-direction: column; gap: 4px;">
+                            ${w.members.map(m => `
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+                                    <span>${m.userName}</span>
+                                    <span>${m.openTicketCount}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderAgentWorkloadList(workload) {
+            let allAgents = [];
+            workload.forEach(w => {
+                if (w.members) {
+                    w.members.forEach(m => {
+                        allAgents.push(m);
+                    });
+                }
+            });
+            
+            // Sort by ticket count descending
+            allAgents.sort((a, b) => b.openTicketCount - a.openTicketCount);
+            
+            // Take top 5
+            allAgents = allAgents.slice(0, 5);
+
+            if (allAgents.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
+            
+            return allAgents.map(m => `
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 12px; font-size: 14px;">
+                        <div class="avatar" style="width:32px; height:32px; font-size:14px; border-radius: 8px;">${m.userName ? m.userName.charAt(0).toUpperCase() : 'U'}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight: 500;">${m.userName}</div>
+                            <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: var(--info); width: ${Math.min(m.openTicketCount * 10, 100)}%;"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight: 600;">${m.openTicketCount}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRecentTicketsList(recentTickets, lookup) {
+            const getStatusName = (id) => lookup.statuses?.find(s => s.id === id)?.name || 'Unknown';
+            const getStatusBadge = (status) => {
+                const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default', 'Açık': 'info', 'Devam Ediyor': 'warning', 'Beklemede': 'warning', 'Çözüldü': 'success', 'Kapatıldı': 'default' };
+                let translationKey = 'db_' + status.toLowerCase().replaceAll(' ', '_');
+                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${t(translationKey)}</span>`;
+            };
+            
+            if (recentTickets.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
+            return recentTickets.map(tData => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
+                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${tData.ticketNumber}</div>
+                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tData.title}</div>
+                    ${getStatusBadge(getStatusName(tData.statusId))}
+                </div>
+            `).join('');
+        }
+
+        async function fetchSafe(apiFunc, fallback) {
+            try { return await apiFunc(); } catch (e) { console.error(e); return fallback; }
+        }
+
+        async function loadDashboard() {
+            try {
+                const overview = await window.api.getDashboardOverview();
+                const dist = await window.api.getDashboardDistributions();
+                
+                const workload = await fetchSafe(() => window.api.request('/dashboard/department-workload'), []);
+                
+                const res = await fetchSafe(() => window.api.searchTickets({ pageSize: 5 }), {items: []});
+                const recentTickets = res.items || [];
+                window.__recentTicketsCache = recentTickets;
+                
+                const lookup = await fetchSafe(() => window.api.getLookup(), {});
+                window.__lookupCache = lookup;
+
+                document.getElementById('overviewCards').innerHTML = `
+                    ${createKpiCard('Open Tickets', overview.openTickets ?? 0, 'info', '<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>')}
+                    ${createKpiCard('Critical', overview.criticalTickets ?? 0, 'danger', '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>')}
+                    ${createKpiCard('SLA Risk', overview.slaRiskTickets ?? 0, 'warning', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>')}
+                    ${createKpiCard('SLA Breached', overview.slaBreachedTickets ?? 0, 'danger', '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>')}
+                    ${createKpiCard('Unassigned', overview.unassignedTickets ?? 0, 'default', '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>')}
+                    ${createKpiCard('Avg CSAT', overview.csatAverage ? overview.csatAverage.toFixed(1) : 0, 'success', '<path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>')}
+                `;
+
+                // Workload List
+                document.getElementById('workloadList').innerHTML = renderWorkloadList(workload);
+                document.getElementById('agentWorkloadList').innerHTML = renderAgentWorkloadList(workload);
+
+                // Recent Tickets List
+                document.getElementById('recentTicketsList').innerHTML = renderRecentTicketsList(recentTickets, lookup);
+
+                if (!dist.byStatus || dist.byStatus.length === 0) {
+                    document.getElementById('statusChartContainer').innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">${t('dash_no_data')}</div>`;
+                } else {
+                buildStatusChart(dist);
+                }
+
+                if (!dist.byPriority || dist.byPriority.length === 0) {
+                    document.getElementById('priorityChartContainer').innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color:var(--text-muted);">${t('dash_no_data')}</div>`;
+                } else {
+                buildPriorityChart(dist);
+                }
+
+            } catch (err) { console.error(err); 
+                console.warn("Defensive rendering triggered due to error:", err);
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                     } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+
+                if(err.message === 'Unauthorized') return;
+                showToast('Error loading dashboard', 'error');
+            }
+        }
+        
+        function renderDrillDownTickets(items) {
+            window.__drillDownCache = items;
+            document.getElementById('drillDownCount').textContent = `${items.length} ${t('dash_records_found') || 'records found'}`;
+            if (items.length === 0) {
+                document.getElementById('drillDownList').innerHTML = `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_tickets_cat') || 'No tickets in this category'}</div>`;
+                return;
+            }
+            
+            const getStatusName = (id) => window.__lookupCache?.statuses?.find(s => s.id === id)?.name || 'Unknown';
+            const getPriorityName = (id) => window.__lookupCache?.priorities?.find(s => s.id === id)?.name || 'Normal';
+            const getStatusBadge = (status) => {
+                const map = { 'Open': 'info', 'Açık': 'info', 'In Progress': 'warning', 'Devam Ediyor': 'warning', 'Pending': 'warning', 'Beklemede': 'warning', 'Resolved': 'success', 'Çözüldü': 'success', 'Closed': 'default', 'Kapatıldı': 'default' };
+                const label = t('db_' + status.toLowerCase().replaceAll(' ', '_')) || status;
+                return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${window.ui?.escapeHtml(label) || label}</span>`;
+            };
+
+            const getPriorityBadge = (priority) => {
+                const pMap = { 'Critical': 'danger', 'Kritik': 'danger', 'High': 'warning', 'Yüksek': 'warning', 'Medium': 'info', 'Orta': 'info', 'Low': 'default', 'Düşük': 'default' };
+                const label = t('db_' + priority.toLowerCase().replaceAll(' ', '_')) || priority;
+                return `<span class="badge badge-${pMap[priority] || 'default'}" style="font-size: 11px;">${window.ui?.escapeHtml(label) || label}</span>`;
+            };
+
+            document.getElementById('drillDownList').innerHTML = items.map(tData => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
+                    <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${tData.ticketNumber}</div>
+                    <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tData.title}</div>
+                    ${getStatusBadge(getStatusName(tData.statusId))}
+                    ${getPriorityBadge(getPriorityName(tData.priorityId))}
+                </div>
+            `).join('');
+        }
+
+        async function loadAndRenderSurveys() {
+            const surveys = await window.api.getDashboardSurveys();
+            document.getElementById('drillDownCount').textContent = `${surveys.length} ${t('dash_surveys_found') || 'survey(s) found'}`;
+            if (surveys.length === 0) {
+                document.getElementById('drillDownList').innerHTML = `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_tickets_cat') || 'No tickets in this category'}</div>`;
+            } else {
+                document.getElementById('drillDownList').innerHTML = surveys.map(s => `
+                    <div style="padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <strong style="color:var(--primary);">Rating: ${s.rating}/5</strong>
+                            <span style="font-size: 12px; color: var(--text-muted);">${new Date(s.createdAt).toLocaleString()}</span>
+                        </div>
+                        <div style="font-size: 14px; color: var(--text-main); font-style: italic;">"${s.comment || 'No comment'}"</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function applyLookupFilter(filter, lookupArray, itemName, filterKey) {
+            const obj = window.__lookupCache?.[lookupArray]?.find(s => s.name === itemName);
+            if (obj) filter[filterKey] = obj.id;
+        }
+
+        function buildDrillDownFilter(type) {
+            let filter = { pageSize: 50 };
+            const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+            const excludeClosed = () => { if (closedStatus) filter.excludeStatusId = closedStatus.id; };
+            
+            if (type === 'Open Tickets') {
+                excludeClosed();
+            } else if (type === 'Critical') {
+                applyLookupFilter(filter, 'priorities', 'Critical', 'priorityId');
+                excludeClosed();
+            } else if (type === 'SLA Risk') {
+                filter.slaStatus = 'warning';
+            } else if (type === 'SLA Breached') {
+                filter.slaStatus = 'breached';
+            } else if (type === 'Unassigned') {
+                filter.unassigned = true;
+                excludeClosed();
+            } else if (type.startsWith('Status: ')) {
+                applyLookupFilter(filter, 'statuses', type.replace('Status: ', ''), 'statusId');
+            } else if (type.startsWith('Priority: ')) {
+                applyLookupFilter(filter, 'priorities', type.replace('Priority: ', ''), 'priorityId');
+            }
+            return filter;
+        }
+
+        window.openDrillDown = async function(type) {
+            let translatedType = type;
+            if (type.startsWith('Status: ')) {
+                const val = type.replace('Status: ', '');
+                translatedType = `${t('dash_lbl_status') || 'Status'}: ${t('db_' + val.toLowerCase().replaceAll(' ', '_')) || val}`;
+            } else if (type.startsWith('Priority: ')) {
+                const val = type.replace('Priority: ', '');
+                translatedType = `${t('dash_lbl_priority') || 'Priority'}: ${t('db_' + val.toLowerCase().replaceAll(' ', '_')) || val}`;
+            } else {
+                translatedType = t('dash_kpi_' + type.replaceAll(' ', '_').toLowerCase()) || type;
+            }
+            
+            document.getElementById('drillDownTitle').textContent = `${translatedType} ${t('dash_details') || 'Details'}`;
+            document.getElementById('drillDownCount').textContent = t('admin_role_loading') || 'Loading...';
+            document.getElementById('drillDownList').innerHTML = `<div style="padding:20px;text-align:center;">${t('admin_role_loading') || 'Loading data...'}</div>`;
+            
+            if (window.openModal) window.openModal('drillDownModal');
+
+            try {
+                if (type === 'Avg CSAT') {
+                    await loadAndRenderSurveys();
+                    return;
+                }
+                
+                let filter = buildDrillDownFilter(type);
+                const res = await window.api.searchTickets(filter);
+                renderDrillDownTickets(res.items || []);
+            } catch (err) {
+                console.error("Drill-down error", err);
+                document.getElementById('drillDownList').innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load data.</div>';
+            }
+        };
+        await loadDashboard();
+    </script>
+</body>
+</html>

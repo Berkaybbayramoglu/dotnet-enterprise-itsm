@@ -1,1 +1,1 @@
-u 2webXKhr'src/ItsTool.Web/wwwroot/admin-crud.html
+u 2csXhr4src/ItsTool.Application/Interfaces/IReportService.cs

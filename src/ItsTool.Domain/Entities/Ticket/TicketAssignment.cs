@@ -10,7 +10,6 @@ public class TicketAssignment : BaseEntity
     public int? AssignedGroupId { get; set; }
     public int? ParentAssignmentId { get; set; }
     public int AssignedByUserId { get; set; }
-    public bool IsActive { get; set; } = true;
 
     public virtual Ticket Ticket { get; set; } = null!;
     public virtual User? AssignedUser { get; set; }

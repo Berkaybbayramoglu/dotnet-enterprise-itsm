@@ -1,1 +1,0 @@
-ù 2csXLhr8src/ItsTool.Infrastructure/Helpers/TicketQueryHelpers.cs

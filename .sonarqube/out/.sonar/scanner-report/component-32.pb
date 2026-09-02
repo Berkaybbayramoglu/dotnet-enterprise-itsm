@@ -1,1 +1,1 @@
-  2csXhr-src/ItsTool.Domain/Entities/SystemAuditLog.cs
+  2csXhr.src/ItsTool.Domain/Entities/Ticket/Priority.cs

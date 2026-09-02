@@ -1,1 +1,1 @@
-o 2webXÁhr#src/ItsTool.Web/wwwroot/kanban.html
+o 2csXhr9src/ItsTool.Application/Interfaces/IFileStorageService.cs

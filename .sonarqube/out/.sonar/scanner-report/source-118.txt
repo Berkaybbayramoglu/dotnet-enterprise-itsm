@@ -1,20 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Redirecting...</title>
-    <script>
-        // Check for token and redirect accordingly
-        const token = localStorage.getItem('jwt_token');
-        if (token) {
-            window.location.replace('/dashboard.html');
-        } else {
-            window.location.replace('/login.html');
-        }
-    </script>
-</head>
-<body>
-    <p>Redirecting, please wait...</p>
-</body>
-</html>
+using System.Linq.Expressions;
+using ItsTool.Domain.Common;
+
+namespace ItsTool.Application.Interfaces;
+
+public interface IRepository<T> where T : BaseEntity
+{
+    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null);
+    Task<T?> GetByIdAsync(int id);
+    Task<T> AddAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task DeleteAsync(int id);
+}

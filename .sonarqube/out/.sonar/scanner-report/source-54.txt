@@ -1,56 +1,213 @@
-using System.Threading.Tasks;
-using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Takım Yükü</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            align-items: start;
+        }
+        .department-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .department-card h3 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-main);
+        }
+        .department-card h3 .badge {
+            font-size: 12px;
+            background: var(--warning-light);
+            color: #B36200;
+        }
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .agent-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .agent-header .avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 14px;
+            border-radius: 8px;
+            background: var(--bg-hover);
+        }
+        .agent-info {
+            flex: 1;
+        }
+        .agent-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--info);
+            transition: width 0.3s ease;
+        }
+        .agent-count {
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 24px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+                    <h2 data-i18n="nav_workload">Takım Yükü</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
 
-namespace ItsTool.API.Controllers;
+            <div class="content-area" style="max-width: 1440px; margin: 0 auto; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h1 style="margin:0; font-size: 24px;" data-i18n="dash_team_workload">Takım Yükü Detayları</h1>
+                    <input type="text" id="searchInput" class="form-control" style="width: 300px;" placeholder="Çalışan veya departman ara..." data-i18n="workload_search" data-i18n-target="placeholder" aria-label="Search Workload">
+                </div>
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class DashboardController : ControllerBase
-{
-    private readonly IDashboardService _dashboardService;
+                <div id="loadingState" style="text-align: center; padding: 40px; color: var(--text-muted);" data-i18n="admin_role_loading">Yükleniyor...</div>
+                
+                <div id="workloadContainer" class="masonry-grid" style="display: none;">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </main>
+    </div>
 
-    public DashboardController(IDashboardService dashboardService)
-    {
-        _dashboardService = dashboardService;
-    }
+    <script type="module">
+        import './js/api.js?v=4';
+        import { injectShell } from './js/layout.js?v=10';
+        import { bindShellActions, showToast } from './js/ui.js?v=4';
+        import { t } from './js/i18n.js';
+        
+        injectShell();
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+        let rawWorkload = [];
 
-    [HttpGet("overview")]
-    public async Task<IActionResult> GetOverview()
-    {
-        var result = await _dashboardService.GetOverviewAsync(GetCurrentUserId());
-        return Ok(result);
-    }
+        function renderWorkload(data) {
+            const container = document.getElementById('workloadContainer');
+            if (data.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">${t('dash_no_data') || 'Veri bulunamadı'}</div>`;
+                return;
+            }
 
-    [HttpGet("distributions")]
-    public async Task<IActionResult> GetDistributions()
-    {
-        var result = await _dashboardService.GetDistributionsAsync(GetCurrentUserId());
-        return Ok(result);
-    }
+            container.innerHTML = data.map(dept => `
+                <div class="department-card">
+                    <h3>
+                        ${window.ui?.escapeHtml(dept.departmentName) || dept.departmentName}
+                        <span class="badge" title="Toplam Açık İş">${dept.openTicketCount}</span>
+                    </h3>
+                    <div class="agent-list">
+                        ${dept.members && dept.members.length > 0 ? dept.members.map(agent => `
+                            <div class="agent-item">
+                                <div class="agent-header">
+                                    <div class="avatar">${agent.userName ? agent.userName.charAt(0).toUpperCase() : 'U'}</div>
+                                    <div class="agent-info">
+                                        <div class="agent-name">${window.ui?.escapeHtml(agent.userName) || agent.userName}</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${Math.min(agent.openTicketCount * 10, 100)}%; background: ${agent.openTicketCount > 10 ? 'var(--danger)' : agent.openTicketCount > 5 ? 'var(--warning)' : 'var(--info)'};"></div>
+                                        </div>
+                                    </div>
+                                    <div class="agent-count" style="color: ${agent.openTicketCount > 10 ? 'var(--danger)' : agent.openTicketCount > 5 ? '#B36200' : 'var(--text-main)'};">
+                                        ${agent.openTicketCount}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : `<div style="font-size:12px; color:var(--text-muted); text-align:center;">Ekip üyesi yok</div>`}
+                    </div>
+                </div>
+            `).join('');
+        }
 
-    [HttpGet("department-workload")]
-    public async Task<IActionResult> GetDepartmentWorkload()
-    {
-        var result = await _dashboardService.GetDepartmentWorkloadAsync(GetCurrentUserId());
-        return Ok(result);
-    }
+        async function init() {
+            try {
+                rawWorkload = await window.api.request('/dashboard/department-workload') || [];
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('workloadContainer').style.display = 'grid';
+                renderWorkload(rawWorkload);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loadingState').textContent = 'Veri yüklenemedi.';
+                document.getElementById('loadingState').style.color = 'var(--danger)';
+            }
+        }
 
-    [HttpGet("sla-compliance")]
-    public async Task<IActionResult> GetSlaCompliance()
-    {
-        var result = await _dashboardService.GetSlaComplianceAsync(GetCurrentUserId());
-        return Ok(result);
-    }
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            if (!keyword) {
+                renderWorkload(rawWorkload);
+                return;
+            }
+            
+            const filtered = [];
+            rawWorkload.forEach(dept => {
+                const matchesDept = dept.departmentName?.toLowerCase().includes(keyword);
+                const matchingMembers = dept.members?.filter(m => m.userName?.toLowerCase().includes(keyword)) || [];
+                
+                if (matchesDept || matchingMembers.length > 0) {
+                    filtered.push({
+                        ...dept,
+                        members: matchingMembers.length > 0 ? matchingMembers : dept.members
+                    });
+                }
+            });
+            renderWorkload(filtered);
+        });
 
-    [HttpGet("surveys")]
-    public async Task<IActionResult> GetRecentSurveys()
-    {
-        var result = await _dashboardService.GetRecentSurveysAsync(GetCurrentUserId());
-        return Ok(result);
-    }
-}
+        init();
+    </script>
+</body>
+</html>

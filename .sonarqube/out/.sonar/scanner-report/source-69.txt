@@ -1,301 +1,991 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+// i18n.js - Internationalization Module
 
-namespace ItsTool.API.Controllers;
+export const translations = {
+    "en": {
+        // Sidebar Navigation
+        "nav_dashboard": "Dashboard",
+        "nav_tickets": "Tickets",
+        "nav_kanban": "Kanban",
+        "nav_calendar": "Calendar",
+        "nav_workload": "Team Workload",
+        "nav_kb": "Knowledge Base",
+        "nav_admin_title": "ADMINISTRATION",
+        "nav_projects": "Projects",
+        "nav_categories": "Categories",
+        "nav_departments": "Departments",
+        "nav_groups": "Groups",
+        "nav_users": "Users",
+        "nav_roles": "Roles",
+        "nav_permissions": "Permissions",
+        "nav_audit": "Audit Logs",
+        "nav_webhooks": "Webhooks",
+        "nav_custom_fields": "Custom Fields",
+        "nav_automations": "Automations",
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class TicketController : ControllerBase
-{
-    private readonly ITicketService _service;
+        // Dashboard
+        "dash_team_workload": "Team Workload",
+        "dash_recent_requests": "Recent Requests",
+        "dash_no_data": "No data yet",
+        "dash_no_tickets": "No tickets yet",
+        "dash_tickets_status": "Tickets by Status",
+        "dash_tickets_priority": "Tickets by Priority",
+        "dash_kpi_critical": "Critical",
+        "dash_kpi_sla_risk": "SLA Risk",
+        "dash_kpi_sla_breached": "SLA Breached",
+        "dash_kpi_unassigned": "Unassigned",
+        "dash_kpi_avg_csat": "Avg CSAT",
+        "dash_total": "Total",
+        "dash_status_open": "Open",
+        "dash_unknown": "Unknown",
+        "dash_records_found": "records found",
+        "dash_surveys_found": "survey(s) found",
+        "dash_no_tickets_cat": "No tickets in this category",
+        "dash_details": "Details",
+        "dash_lbl_status": "Status",
+        "dash_lbl_priority": "Priority",
 
-    public TicketController(ITicketService service)
-    {
-        _service = service;
+        // KPI Titles
+        "dash_kpi_open_tickets": "Open Tickets",
+        "dash_status_in_progress": "In Progress",
+        "dash_status_pending": "Pending",
+        "dash_status_resolved": "Resolved",
+        "dash_status_closed": "Closed",
+        "dash_priority_critical": "Critical",
+        "dash_priority_high": "High",
+        "dash_priority_medium": "Medium",
+        "dash_priority_low": "Low",
+
+        // DB Level (Turkish base)
+        "db_açık": "Open",
+        "db_devam_ediyor": "In Progress",
+        "db_beklemede": "Pending",
+        "db_çözüldü": "Resolved",
+        "db_kapatıldı": "Closed",
+        "db_düşük": "Low",
+        "db_orta": "Medium",
+        "db_yüksek": "High",
+        "db_kritik": "Critical",
+
+        // Kanban & Misc
+        "kanban_info": "Closed tickets are archived in CLOSED. You can drag and drop column headers to reorder.",
+        "kanban_reset_order": "Reset Order",
+        "kanban_unassigned": "Unassigned",
+        "kanban_view_assignees": "View all assignees",
+        "kanban_invalid_transition": "Invalid transition: Cannot move to this stage.",
+        "kanban_api_error": "API connection failed. Please restart API.",
+        "kanban_order_saved": "Column order saved.",
+        "kanban_order_reset": "Column order reset.",
+        "kanban_title": "Kanban Board",
+        "kanban_toast_closed": "Ticket closed. Sending CSAT survey notification...",
+        "kanban_toast_moved": "Ticket moved successfully",
+        "notif_assigned": "Assigned to You",
+        "notif_comment": "New Comment",
+        "notif_created": "Ticket Created",
+        "notif_sla": "SLA Breached",
+        "notif_detail": "Notification Detail",
+        "notif_detail_btn": "Detail",
+        "notif_confirm_delete": "Are you sure you want to permanently delete all notifications?",
+        "err_api": "Failed to load data - check API",
+
+        // Audit Log
+        "audit_title": "System Audit Log",
+        "audit_subtitle": "Event Log",
+        "audit_desc": "Track all system and user activities across the platform.",
+        "audit_filter_ticket": "Ticket ID",
+        "audit_filter_user": "User ID",
+        "audit_filter_action": "Action Type",
+        "audit_filter_from": "From Date",
+        "audit_filter_to": "To Date",
+        "audit_filter_btn": "Filter",
+        "audit_filter_loading": "Loading...",
+        "audit_col_time": "Timestamp",
+        "audit_col_entity": "Entity",
+        "audit_col_user": "User",
+        "audit_col_action": "Action",
+        "audit_col_field": "Field Modified",
+        "audit_col_old": "Old Value",
+        "audit_col_new": "New Value",
+        "audit_col_actions": "Actions",
+        "audit_no_data": "No audit logs match the selected criteria.",
+        "audit_detail": "Audit Detail",
+        "audit_btn_close": "Close",
+        "audit_btn_detail": "Detail",
+        "audit_btn_go": "Go",
+
+        // Users
+        "users_title": "Users Management",
+        "users_header": "Users",
+        "users_desc": "Manage system users and access.",
+        "users_search": "Search users...",
+        "users_btn_new": "New User",
+        "users_col_name": "Name",
+        "users_col_username": "Username",
+        "users_col_email": "Email",
+        "users_col_status": "Status",
+        "users_col_actions": "Actions",
+        "users_no_data": "No users found.",
+        "users_modal_title_edit": "Edit User",
+        "users_modal_title_new": "New User",
+        "users_btn_upload": "Upload Photo",
+        "users_btn_remove": "Remove Photo",
+        "users_lbl_first": "First Name *",
+        "users_lbl_last": "Last Name *",
+        "users_lbl_user": "Username *",
+        "users_lbl_email": "Email *",
+        "users_lbl_dept": "Department",
+        "users_opt_none": "-- None --",
+
+        "users_lbl_pass": "Password",
+        "users_pass_placeholder": "Leave blank to keep existing (if edit)",
+        "users_lbl_active": "Is Active",
+        "users_btn_cancel": "Cancel",
+        "users_btn_save": "Save",
+        "users_roles_title": "Manage Roles",
+        "users_lbl_user_colon": "User:",
+        "users_opt_role": "-- Select Role --",
+        "users_btn_assign": "Assign Role",
+        "users_roles_current": "Current Roles",
+        "users_roles_none": "No roles assigned.",
+        "users_btn_revoke": "Revoke",
+        "users_overrides_title": "Manage Permission Overrides",
+        "users_btn_allow": "Allow",
+        "users_btn_deny": "Deny",
+        "users_btn_edit": "Edit",
+        "users_btn_del": "Del",
+        "users_lbl_roles": "Roles",
+        "users_lbl_groups": "Groups",
+        "users_lbl_eff_perms": "Effective Permissions",
+
+        // Admin Configs
+        "admin_dept_no_group": "No groups assigned to this department.",
+        "admin_dept_change": "Change Department",
+        "admin_dept_no_user": "No users assigned.",
+        "admin_dept_err_load": "Error loading groups.",
+        "admin_group_no_user": "No users assigned to this group.",
+        "admin_group_members": "Group Members",
+        "admin_group_err_load": "Error loading users.",
+        "admin_role_loading": "Loading permissions...",
+        "admin_role_err": "Error loading permissions.",
+        "admin_lbl_id": "ID",
+        "admin_lbl_color": "Color",
+        "admin_lbl_name": "Name",
+        "admin_lbl_desc": "Description",
+        "admin_lbl_key": "Key",
+        "admin_lbl_status": "Status",
+        "admin_lbl_dept_star": "Department *",
+        "admin_lbl_perms": "Permissions",
+        "admin_lbl_keycode": "Key (Code) *",
+        "admin_btn_move": "Move",
+
+        // Admin Modals
+        "admin_modal_dept": "Department",
+        "admin_modal_cat": "Category",
+        "admin_modal_proj": "Project",
+        "admin_modal_group": "Group",
+        "admin_modal_role": "Role",
+        "admin_modal_perm": "Permission",
+        "admin_modal_new_prefix": "New",
+
+        // Rules
+        "rules_title": "Automation Rules",
+        "rules_desc": "Manage event-based automation rules and triggers.",
+        "rules_btn_new": "New Rule",
+        "rules_col_name": "Rule Name",
+        "rules_col_event": "Event Type",
+        "rules_col_status": "Status",
+        "rules_col_actions": "Actions",
+        "rules_no_data": "No automation rules configured.",
+        "rules_modal_new": "New Rule",
+        "rules_modal_edit": "Edit Rule",
+        "rules_lbl_name": "Rule Name *",
+        "rules_lbl_event": "Trigger Event *",
+        "rules_lbl_cond": "Conditions (JSON)",
+        "rules_lbl_act": "Actions (JSON)",
+        "rules_lbl_active": "Is Active",
+
+        // Webhooks
+        "webhooks_title": "Webhooks",
+        "webhooks_desc": "Configure external webhooks for system events.",
+        "webhooks_btn_new": "New Webhook",
+        "webhooks_col_name": "Name",
+        "webhooks_col_event": "Event",
+        "webhooks_col_endpoint": "Endpoint",
+        "webhooks_col_status": "Status",
+        "webhooks_col_actions": "Actions",
+        "webhooks_no_data": "No webhooks configured.",
+        "webhooks_modal_new": "New Webhook",
+        "webhooks_modal_edit": "Edit Webhook",
+        "webhooks_lbl_name": "Name *",
+        "webhooks_lbl_event": "Event Type *",
+        "webhooks_lbl_url": "Endpoint URL *",
+        "webhooks_lbl_secret": "Secret Key",
+        "webhooks_lbl_active": "Is Active",
+
+        // Custom Fields
+        "fields_title": "Custom Fields",
+        "fields_desc": "Manage custom metadata fields for tickets.",
+        "fields_btn_new": "New Field",
+        "fields_col_name": "Name",
+        "fields_col_key": "Key",
+        "fields_col_type": "Data Type",
+        "fields_col_req": "Required",
+        "fields_col_actions": "Actions",
+        "fields_no_data": "No custom fields configured.",
+        "fields_modal_new": "New Custom Field",
+        "fields_modal_edit": "Edit Custom Field",
+        "fields_lbl_name": "Field Name *",
+        "fields_lbl_key": "Field Key * (e.g. custom_ip)",
+        "fields_lbl_type": "Data Type *",
+        "fields_lbl_req": "Is Required",
+        
+        // Topbar
+        "topbar_notifications": "Notifications",
+        "topbar_mark_all_read": "Mark all as read",
+        "topbar_delete_all": "Delete All",
+        "topbar_theme": "Select Theme",
+        "topbar_language": "Language",
+        "topbar_logout": "Logout",
+
+        // Ticket Detail Page
+        "ticket_detail_title": "Ticket Detail",
+        "ticket_btn_edit": "Edit",
+        "ticket_btn_transfer": "Transfer",
+        "ticket_tab_details": "Details",
+        "ticket_tab_desc": "Description",
+        "ticket_tab_comments": "Comments",
+        "ticket_tab_history": "History",
+        "ticket_tab_subtasks": "Subtasks",
+        "ticket_add_comment": "Add Comment...",
+        "ticket_btn_comment": "Comment",
+        "ticket_properties": "PROPERTIES",
+        "ticket_prop_priority": "Priority",
+        "ticket_prop_status": "Status",
+        "ticket_prop_project": "Project",
+        "ticket_prop_category": "Category",
+        "ticket_prop_assignee": "Assignee",
+        "ticket_prop_sla_status": "SLA Status",
+        "ticket_sla_on_track": "On Track",
+        "ticket_prop_requester": "Requester",
+        
+        // Activity & Comment Logs
+        "log_edited_comment": "edited a comment",
+        "log_deleted_comment": "deleted a comment",
+        "log_mentioned_user": "mentioned <strong>{0}</strong> in a comment",
+        "log_replied_attachment": "replied with an attachment",
+        "log_note_attachment": "added an internal note with an attachment",
+        "log_comment_attachment": "added a comment with an attachment",
+        "log_replied": "replied to a comment",
+        "log_added_note": "added an internal note",
+        "log_added_comment": "added a comment",
+        "log_mentioned_user_prefix": "Mentioned User:",
+        "log_jump_to_comment": "Jump to comment",
+        "log_at": "at",
+        "log_created": "created",
+        "log_attachment_added": "added attachment <strong>{0}</strong>",
+        "log_attachment_deleted": "deleted attachment <strong>{0}</strong>",
+        
+        "log_changed_general": "{0} <strong>{1}</strong> from <em>{2}</em> to <em>{3}</em>",
+        "log_assigned": "assigned this ticket to <strong>{0}</strong> (was {1})",
+        "log_transferred": "transferred this ticket to <strong>{0}</strong> (was {1})",
+        "log_changed_status": "changed status from <em>{0}</em> to <em>{1}</em>",
+        "log_changed_priority": "changed priority from <em>{0}</em> to <em>{1}</em>",
+        "log_changed_category": "changed category from <em>{0}</em> to <em>{1}</em>",
+        "log_changed_project": "changed project from <em>{0}</em> to <em>{1}</em>",
+        "log_no_project": "No Project",
+        "log_no_group": "No Group",
+        "log_edited_at": "(Edited at {0})",
+        "log_edited_only": "(Edited)",
+        "log_replying_to": "Replying to comment #{0}...",
+        "log_internal_note_cb": "Internal Note",
+        "log_none": "none",
+        "ticket_btn_reply": "Reply",
+        "btn_delete": "Delete",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save",
+
+        // Tickets List
+        "t_title": "Tickets",
+        "t_search_placeholder": "Search by Ticket Number, Title, or Description...",
+        "t_btn_search": "Search",
+        "t_btn_save_filter": "Save Filter",
+        "t_saved_filters": "Saved Filters...",
+        "t_export_csv": "Export CSV",
+        "t_btn_new": "+ New Ticket",
+        "t_col_ticket": "Ticket",
+        "t_col_status": "Status",
+        "t_col_priority": "Priority",
+        "t_col_assignee": "Assignee",
+        "t_filter_active": "Active",
+        "t_filter_closed": "Closed",
+        "t_filter_all": "All",
+        "t_no_tickets": "No tickets found",
+        "t_adjust_search": "Try adjusting your search filters or create a new ticket.",
+        "t_btn_view": "View",
+        "t_prompt_filter_name": "Enter filter name:",
+        "t_toast_filter_saved": "Filter saved",
+        "t_toast_filter_err": "Failed to save filter.",
+        "t_unassigned": "Unassigned",
+
+        // Ticket Create
+        "tc_title": "Create New Ticket",
+        "tc_desc": "Fill out the information below to submit a new request.",
+        "tc_req": "* Indicates a required field",
+        "tc_lbl_title": "Title *",
+        "tc_lbl_desc": "Description *",
+        "tc_lbl_project": "Project",
+        "tc_lbl_category": "Category",
+        "tc_lbl_priority": "Priority",
+        "tc_opt_priority": "-- Select Priority --",
+        "tc_attachments": "Attachments",
+        "tc_btn_cancel": "Cancel",
+        "tc_btn_submit": "Submit Ticket",
+        "tc_basic": "Basic Details",
+        "tc_cat": "Categorization",
+        "tc_add": "Additional Information",
+        "tc_upload": "Upload Files (Images, PDFs, etc.)",
+        "tc_lbl_type": "Ticket Type *",
+        "tc_opt_project": "Select Project",
+        "tc_opt_cat": "Select Category",
+        "tc_opt_type": "Select Type",
+        "tc_msg_load_fields": "Select Project, Category, and Type to load custom fields.",
+        "tc_msg_no_fields": "No custom fields configured for this selection.",
+        "tc_msg_loading": "Loading fields...",
+        "tc_btn_creating": "Creating ticket...",
+        "tc_btn_uploading": "Uploading attachments...",
+        "tc_toast_success": "Ticket created successfully!",
+        "tc_toast_err": "Failed to create ticket",
+
+        // Ticket Detail Extra
+        "td_internal_note": "Internal Note",
+        "td_attach_file": "Attach File",
+        "td_add_comment": "Add a comment... (Drag & Drop files here)",
+        "td_btn_send": "Send",
+        "td_view_logs": "View Comment Logs",
+        "td_fill_csat": "Fill CSAT Survey",
+        "td_modal_transfer": "Transfer Ticket",
+        "td_modal_project": "Project",
+        "td_modal_group": "Group",
+        "td_opt_no_change": "-- No Change --",
+        "td_btn_transfer": "Transfer",
+        "td_modal_user_details": "User Details",
+        "td_manage_assignees": "Manage Assignees",
+        "td_btn_save_assign": "Save Assignments",
+        "td_modal_assign_history": "Assignment History Tree",
+        "td_email": "Email:",
+        "td_dept": "Department:",
+        "td_status": "Status:",
+        "ticket_btn_manage": "Manage",
+        "td_modal_comment_logs": "Comment Logs",
+        "td_search_logs": "Search logs...",
+        "td_download_csv": "Download CSV",
+        "td_download_history_csv": "Download History (CSV)",
+        "td_no_assignments": "No assignments found in history.",
+
+        // Knowledge Base
+        "kb_title": "Knowledge Base",
+        "kb_desc": "Find answers, tutorials, and guidelines.",
+        "kb_search_placeholder": "Search articles...",
+        "kb_btn_search": "Search",
+        "kb_categories": "Categories",
+        "kb_no_articles": "No articles found.",
+        "kb_read_more": "Read More →",
+        "kb_was_helpful": "Was this article helpful?",
+        "kb_yes": "Yes",
+        "kb_no": "No",
+        "kb_related_articles": "Related Articles",
+        "kb_back": "← Back to Knowledge Base",
+        "kb_all_categories": "All Categories",
+        "kb_by": "By",
+        "kb_btn_new": "+ New Article",
+        "kb_btn_suggest": "+ Suggest Article",
+        "kb_hero": "How can we help you today?",
+        "kb_adjust_search": "Try adjusting your search terms.",
+        "kb_read_more_about": "Read more about",
+        "kb_badge_internal": "Internal",
+        "kb_badge_draft": "Draft",
+        "kb_modal_new": "New Article",
+        "kb_modal_edit": "Edit Article",
+        "kb_lbl_title": "Title",
+        "kb_lbl_cat": "Category",
+        "kb_lbl_vis": "Visibility",
+        "kb_lbl_status": "Status",
+        "kb_lbl_content": "Content",
+        "kb_opt_pub": "Public",
+        "kb_opt_int": "Internal",
+        "kb_opt_draft": "Draft",
+        "kb_opt_published": "Published",
+        "kb_btn_save": "Save Article",
+        "kb_toast_updated": "Article updated successfully",
+        "kb_toast_created": "Article created successfully",
+        "kb_toast_save_err": "Error saving article",
+        "kb_toast_load_err": "Error fetching article details",
+        "kb_btn_edit": "Edit",
+        "kb_btn_unpub": "Unpublish",
+        "kb_btn_pub": "Publish",
+        "kb_btn_del": "Delete",
+        "kb_toast_pub": "Article published",
+        "kb_toast_unpub": "Article unpublished",
+        "kb_toast_pub_err": "Error toggling publish state",
+        "kb_confirm_del": "Are you sure you want to delete this article?",
+        "kb_toast_del": "Article deleted successfully",
+        "kb_article_title": "Knowledge Base Article",
+        "kb_loading": "Loading...",
+        "kb_views": "views",
+        "kb_please_wait": "Please wait while the article loads...",
+        "kb_btn_approve_pub": "Approve & Publish",
+        "kb_badge_pending": "Pending Review",
+        "kb_toast_id_missing": "Article ID missing",
+        "kb_not_found": "Article Not Found",
+        "kb_not_found_desc": "The article you are looking for does not exist or you do not have permission to view it.",
+        "kb_confirm_del_toast": "Article will be deleted.",
+        "kb_toast_del_err": "Delete failed.",
+        "kb_tab_all": "All Articles",
+        "kb_tab_mine": "My Suggestions",
+        "kb_badge_needs_rev": "Needs Revision",
+        "kb_badge_rejected": "Rejected",
+        "kb_btn_review": "Review",
+        "kb_modal_review": "Review Article",
+        "kb_lbl_feedback": "Feedback / Revision Request",
+        "kb_opt_approve": "Approve & Publish",
+        "kb_opt_revise": "Request Revision",
+        "kb_opt_reject": "Reject",
+        "kb_btn_submit_review": "Submit Review",
+        "kb_alert_feedback": "Manager Feedback",
+        "kb_btn_fix": "Fix & Resubmit",
+        "kb_lbl_contributions": "KB Contributions"
+    },
+    "tr": {
+        // Sidebar Navigation
+        "nav_dashboard": "Gösterge Paneli",
+        "nav_tickets": "Biletler",
+        "nav_kanban": "Kanban",
+        "nav_calendar": "Takvim",
+        "nav_workload": "Takım Yükü",
+        "nav_kb": "Bilgi Bankası",
+        "nav_admin_title": "YÖNETİM",
+        "nav_projects": "Projeler",
+        "nav_categories": "Kategoriler",
+        "nav_departments": "Departmanlar",
+        "nav_groups": "Gruplar",
+        "nav_users": "Kullanıcılar",
+        "nav_roles": "Roller",
+        "nav_permissions": "İzinler",
+        "nav_audit": "Denetim Günlükleri",
+        "nav_webhooks": "Webhooklar",
+        "nav_custom_fields": "Özel Alanlar",
+        "nav_automations": "Otomasyonlar",
+
+        // Dashboard
+        "dash_team_workload": "Takım Yükü",
+        "dash_recent_requests": "Son Talepler",
+        "dash_no_data": "Henüz veri yok",
+        "dash_no_tickets": "Henüz bilet yok",
+        "dash_tickets_status": "Duruma Göre Biletler",
+        "dash_tickets_priority": "Önceliğe Göre Biletler",
+        "dash_kpi_critical": "Kritik",
+        "dash_kpi_sla_risk": "SLA Riski",
+        "dash_kpi_sla_breached": "SLA İhlali",
+        "dash_kpi_unassigned": "Atanmamış",
+        "dash_kpi_avg_csat": "Ort. CSAT",
+
+        "dash_status_open": "Açık",
+        "dash_unknown": "Bilinmiyor",
+        "dash_records_found": "kayıt bulundu",
+        "dash_surveys_found": "anket bulundu",
+        "dash_no_tickets_cat": "Bu kategoride talep yok",
+        "dash_details": "Detayları",
+        "dash_lbl_status": "Durum",
+        "dash_lbl_priority": "Öncelik",
+
+        // KPI Titles
+        "dash_kpi_open_tickets": "Açık Biletler",
+        "dash_status_in_progress": "Devam Ediyor",
+        "dash_status_pending": "Beklemede",
+        "dash_status_resolved": "Çözüldü",
+        "dash_status_closed": "Kapatıldı",
+        "dash_priority_critical": "Kritik",
+        "dash_priority_high": "Yüksek",
+        "dash_priority_medium": "Orta",
+        "dash_priority_low": "Düşük",
+        "dash_total": "Toplam",
+
+        // DB Level (Turkish base)
+        "db_açık": "Açık",
+        "db_devam_ediyor": "Devam Ediyor",
+        "db_beklemede": "Beklemede",
+        "db_çözüldü": "Çözüldü",
+        "db_kapatıldı": "Kapatıldı",
+        "db_düşük": "Düşük",
+        "db_orta": "Orta",
+        "db_yüksek": "Yüksek",
+        "db_kritik": "Kritik",
+
+        // Kanban & Misc
+        "kanban_info": "Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.",
+        "kanban_reset_order": "Sırayı Sıfırla",
+        "kanban_unassigned": "Atanmamış",
+        "kanban_view_assignees": "Tüm atananları gör",
+        "kanban_invalid_transition": "Geçersiz geçiş: Bu aşamaya geçilemez.",
+        "kanban_api_error": "API bağlantısı kurulamadı. Lütfen API'yi yeniden başlatın.",
+        "kanban_order_saved": "Sütun sırası kaydedildi.",
+        "kanban_order_reset": "Sütun sırası sıfırlandı.",
+        "kanban_title": "Kanban Panosu",
+        "kanban_toast_closed": "Bilet kapatıldı. CSAT anket bildirimi gönderiliyor...",
+        "kanban_toast_moved": "Bilet başarıyla taşındı",
+        "notif_assigned": "Size Atandı",
+        "notif_comment": "Yeni Yorum",
+        "notif_created": "Bilet Oluşturuldu",
+        "notif_sla": "SLA İhlali",
+        "notif_detail": "Bildirim Detayı",
+        "notif_detail_btn": "Detay",
+        "notif_confirm_delete": "Tüm bildirimleri kalıcı olarak silmek istediğinize emin misiniz?",
+        "err_api": "Veri yüklenemedi — API'yi kontrol et",
+
+        // Audit Log
+        "audit_title": "Sistem Denetim Günlüğü",
+        "audit_subtitle": "Olay Günlüğü",
+        "audit_desc": "Platformdaki tüm sistem ve kullanıcı etkinliklerini takip edin.",
+        "audit_filter_ticket": "Bilet ID",
+        "audit_filter_user": "Kullanıcı ID",
+        "audit_filter_action": "İşlem Türü",
+        "audit_filter_from": "Başlangıç Tarihi",
+        "audit_filter_to": "Bitiş Tarihi",
+        "audit_filter_btn": "Filtrele",
+        "audit_filter_loading": "Yükleniyor...",
+        "audit_col_time": "Zaman",
+        "audit_col_entity": "Kayıt",
+        "audit_col_user": "Kullanıcı",
+        "audit_col_action": "İşlem",
+        "audit_col_field": "Değişen Alan",
+        "audit_col_old": "Eski Değer",
+        "audit_col_new": "Yeni Değer",
+        "audit_col_actions": "İşlemler",
+        "audit_no_data": "Seçilen kriterlere uygun günlük bulunamadı.",
+        "audit_detail": "Denetim Detayı",
+        "audit_btn_close": "Kapat",
+        "audit_btn_detail": "Detay",
+        "audit_btn_go": "Git",
+
+        // Users
+        "users_title": "Kullanıcı Yönetimi",
+        "users_header": "Kullanıcılar",
+        "users_desc": "Sistem kullanıcılarını ve erişimlerini yönetin.",
+        "users_search": "Kullanıcı ara...",
+        "users_btn_new": "Yeni Kullanıcı",
+        "users_col_name": "İsim",
+        "users_col_username": "Kullanıcı Adı",
+        "users_col_email": "E-posta",
+        "users_col_status": "Durum",
+        "users_col_actions": "İşlemler",
+        "users_no_data": "Kullanıcı bulunamadı.",
+        "users_modal_title_edit": "Kullanıcı Düzenle",
+        "users_modal_title_new": "Yeni Kullanıcı",
+        "users_btn_upload": "Fotoğraf Yükle",
+        "users_btn_remove": "Fotoğrafı Kaldır",
+        "users_lbl_first": "Ad *",
+        "users_lbl_last": "Soyad *",
+        "users_lbl_user": "Kullanıcı Adı *",
+        "users_lbl_email": "E-posta *",
+        "users_lbl_dept": "Departman",
+        "users_opt_none": "-- Yok --",
+
+        "users_lbl_pass": "Şifre",
+        "users_pass_placeholder": "Değiştirmek istemiyorsanız boş bırakın",
+        "users_lbl_active": "Aktif Mi",
+        "users_btn_cancel": "İptal",
+        "users_btn_save": "Kaydet",
+        "users_roles_title": "Rolleri Yönet",
+        "users_lbl_user_colon": "Kullanıcı:",
+        "users_opt_role": "-- Rol Seç --",
+        "users_btn_assign": "Rol Ata",
+        "users_roles_current": "Mevcut Roller",
+        "users_roles_none": "Atanmış rol bulunmuyor.",
+        "users_btn_revoke": "Geri Al",
+        "users_overrides_title": "İzin İstisnalarını Yönet",
+        "users_btn_allow": "İzin Ver",
+        "users_btn_deny": "Reddet",
+        "users_btn_edit": "Düzenle",
+        "users_btn_del": "Sil",
+        "users_lbl_roles": "Roller",
+        "users_lbl_groups": "Gruplar",
+        "users_lbl_eff_perms": "Geçerli İzinler",
+
+        // Admin Configs
+        "admin_dept_no_group": "Bu departmana bağlı grup bulunamadı.",
+        "admin_dept_change": "Departman Değiştir",
+        "admin_dept_no_user": "Kullanıcı atanmamış.",
+        "admin_dept_err_load": "Gruplar yüklenirken hata oluştu.",
+        "admin_group_no_user": "Bu gruba atanmış kullanıcı bulunamadı.",
+        "admin_group_members": "Grup Üyeleri",
+        "admin_group_err_load": "Kullanıcılar yüklenirken hata oluştu.",
+        "admin_role_loading": "İzinler yükleniyor...",
+        "admin_role_err": "İzinler yüklenirken hata oluştu.",
+        "admin_lbl_id": "ID",
+        "admin_lbl_color": "Renk",
+        "admin_lbl_name": "İsim",
+        "admin_lbl_desc": "Açıklama",
+        "admin_lbl_key": "Anahtar",
+        "admin_lbl_status": "Durum",
+        "admin_lbl_dept_star": "Departman *",
+        "admin_lbl_perms": "İzinler",
+        "admin_lbl_keycode": "Anahtar (Kod) *",
+        "admin_btn_move": "Taşı",
+
+        // Admin Modals
+        "admin_modal_dept": "Departman",
+        "admin_modal_cat": "Kategori",
+        "admin_modal_proj": "Proje",
+        "admin_modal_group": "Grup",
+        "admin_modal_role": "Rol",
+        "admin_modal_perm": "İzin",
+        "admin_modal_new_prefix": "Yeni",
+
+        // Rules
+        "rules_title": "Otomasyon Kuralları",
+        "rules_desc": "Olay tabanlı otomasyon kurallarını ve tetikleyicilerini yönetin.",
+        "rules_btn_new": "Yeni Kural",
+        "rules_col_name": "Kural Adı",
+        "rules_col_event": "Olay Türü",
+        "rules_col_status": "Durum",
+        "rules_col_actions": "İşlemler",
+        "rules_no_data": "Yapılandırılmış otomasyon kuralı bulunmuyor.",
+        "rules_modal_new": "Yeni Kural",
+        "rules_modal_edit": "Kuralı Düzenle",
+        "rules_lbl_name": "Kural Adı *",
+        "rules_lbl_event": "Tetikleyici Olay *",
+        "rules_lbl_cond": "Şartlar (JSON)",
+        "rules_lbl_act": "Eylemler (JSON)",
+        "rules_lbl_active": "Aktif Mi",
+
+        // Webhooks
+        "webhooks_title": "Webhooks",
+        "webhooks_desc": "Sistem olayları için harici webhook bağlantılarını yapılandırın.",
+        "webhooks_btn_new": "Yeni Webhook",
+        "webhooks_col_name": "İsim",
+        "webhooks_col_event": "Olay",
+        "webhooks_col_endpoint": "Uç Nokta",
+        "webhooks_col_status": "Durum",
+        "webhooks_col_actions": "İşlemler",
+        "webhooks_no_data": "Yapılandırılmış webhook bulunmuyor.",
+        "webhooks_modal_new": "Yeni Webhook",
+        "webhooks_modal_edit": "Webhook Düzenle",
+        "webhooks_lbl_name": "İsim *",
+        "webhooks_lbl_event": "Olay Türü *",
+        "webhooks_lbl_url": "Bağlantı (URL) *",
+        "webhooks_lbl_secret": "Gizli Anahtar (Secret)",
+        "webhooks_lbl_active": "Aktif Mi",
+
+        // Custom Fields
+        "fields_title": "Özel Alanlar",
+        "fields_desc": "Biletler için özel meta veri alanlarını yönetin.",
+        "fields_btn_new": "Yeni Alan",
+        "fields_col_name": "İsim",
+        "fields_col_key": "Anahtar (Key)",
+        "fields_col_type": "Veri Tipi",
+        "fields_col_req": "Zorunlu",
+        "fields_col_actions": "İşlemler",
+        "fields_no_data": "Yapılandırılmış özel alan bulunmuyor.",
+        "fields_modal_new": "Yeni Özel Alan",
+        "fields_modal_edit": "Özel Alanı Düzenle",
+        "fields_lbl_name": "Alan Adı *",
+        "fields_lbl_key": "Alan Anahtarı * (Örn. cihaz_ip)",
+        "fields_lbl_type": "Veri Tipi *",
+        "fields_lbl_req": "Zorunlu Mu",
+
+        // Topbar
+        "topbar_notifications": "Bildirimler",
+        "topbar_mark_all_read": "Tümünü okundu işaretle",
+        "topbar_delete_all": "Tamamını Sil",
+        "topbar_theme": "Tema Seç",
+        "topbar_language": "Dil",
+        "topbar_logout": "Çıkış Yap",
+
+        // Ticket Detail Page
+        "ticket_detail_title": "Bilet Detayı",
+        "ticket_btn_edit": "Düzenle",
+        "ticket_btn_transfer": "Transfer",
+        "ticket_tab_details": "Detaylar",
+        "ticket_tab_desc": "Açıklama",
+        "ticket_tab_comments": "Yorumlar",
+        "ticket_tab_history": "Geçmiş",
+        "ticket_tab_subtasks": "Alt Görevler",
+        "ticket_add_comment": "Yorum Ekle...",
+        "ticket_btn_comment": "Gönder",
+        "ticket_properties": "ÖZELLİKLER",
+        "ticket_prop_priority": "Öncelik",
+        "ticket_prop_status": "Durum",
+        "ticket_prop_project": "Proje",
+        "ticket_prop_category": "Kategori",
+        "ticket_prop_assignee": "Atanan",
+        "ticket_prop_sla_status": "SLA Durumu",
+        "ticket_sla_on_track": "Yolunda",
+        "ticket_prop_requester": "Talep Eden",
+        
+        // Activity & Comment Logs
+        "log_edited_comment": "bir yorumu düzenledi",
+        "log_deleted_comment": "bir yorumu sildi",
+        "log_mentioned_user": "bir yorumda <strong>{0}</strong> adlı kullanıcıdan bahsetti",
+        "log_replied_attachment": "ek içeren bir yanıt verdi",
+        "log_note_attachment": "ek içeren bir iç not ekledi",
+        "log_comment_attachment": "ek içeren bir yorum ekledi",
+        "log_replied": "bir yoruma yanıt verdi",
+        "log_added_note": "bir iç not ekledi",
+        "log_added_comment": "bir yorum ekledi",
+        "log_mentioned_user_prefix": "Bahsedilen Kullanıcı:",
+        "log_jump_to_comment": "Yoruma Git",
+        "log_at": "",
+        "log_created": "oluşturdu:",
+        "log_attachment_added": "<strong>{0}</strong> adlı eki ekledi",
+        "log_attachment_deleted": "<strong>{0}</strong> adlı eki sildi",
+        
+        "log_changed_general": "<strong>{1}</strong> alanını <em>{2}</em> değerinden <em>{3}</em> değerine {0}",
+        "log_assigned": "bileti <strong>{0}</strong> adlı kullanıcıya atadı (önceki: {1})",
+        "log_transferred": "bileti <strong>{0}</strong> grubuna transfer etti (önceki: {1})",
+        "log_changed_status": "durumu <em>{0}</em> iken <em>{1}</em> olarak değiştirdi",
+        "log_changed_priority": "önceliği <em>{0}</em> iken <em>{1}</em> olarak değiştirdi",
+        "log_changed_category": "kategoriyi <em>{0}</em> iken <em>{1}</em> olarak değiştirdi",
+        "log_changed_project": "projeyi <em>{0}</em> iken <em>{1}</em> olarak değiştirdi",
+        "log_no_project": "Proje Yok",
+        "log_no_group": "Grup Yok",
+        "log_edited_at": "(Düzenlendi: {0})",
+        "log_edited_only": "(Düzenlendi)",
+        "log_replying_to": "#{0} numaralı yoruma yanıt veriliyor...",
+        "log_internal_note_cb": "İç Not",
+        "log_none": "yok",
+        "ticket_btn_reply": "Yanıtla",
+        "btn_delete": "Sil",
+        "btn_cancel": "İptal",
+        "btn_save": "Kaydet",
+
+        // Tickets List
+        "t_title": "Biletler",
+        "t_search_placeholder": "Bilet Numarası, Başlık veya Açıklama ile ara...",
+        "t_btn_search": "Ara",
+        "t_btn_save_filter": "Filtreyi Kaydet",
+        "t_saved_filters": "Kayıtlı Filtreler...",
+        "t_export_csv": "CSV Dışa Aktar",
+        "t_btn_new": "+ Yeni Bilet",
+        "t_col_ticket": "Bilet",
+        "t_col_status": "Durum",
+        "t_col_priority": "Öncelik",
+        "t_col_assignee": "Atanan",
+        "t_filter_active": "Aktif",
+        "t_filter_closed": "Kapalı",
+        "t_filter_all": "Tümü",
+        "t_no_tickets": "Bilet bulunamadı",
+        "t_adjust_search": "Arama filtrelerinizi ayarlamayı veya yeni bir bilet oluşturmayı deneyin.",
+        "t_btn_view": "Görüntüle",
+        "t_prompt_filter_name": "Filtre adını girin:",
+        "t_toast_filter_saved": "Filtre kaydedildi",
+        "t_toast_filter_err": "Filtre kaydedilemedi.",
+        "t_unassigned": "Atanmamış",
+
+        // Ticket Create
+        "tc_title": "Yeni Bilet Oluştur",
+        "tc_desc": "Yeni bir talep göndermek için aşağıdaki bilgileri doldurun.",
+        "tc_req": "* Zorunlu alanları belirtir",
+        "tc_lbl_title": "Başlık *",
+        "tc_lbl_desc": "Açıklama *",
+        "tc_lbl_project": "Proje",
+        "tc_lbl_category": "Kategori",
+        "tc_lbl_priority": "Öncelik",
+        "tc_opt_priority": "-- Öncelik Seçin --",
+        "tc_attachments": "Ekler",
+        "tc_btn_cancel": "İptal",
+        "tc_btn_submit": "Bilet Gönder",
+        "tc_basic": "Temel Bilgiler",
+        "tc_cat": "Kategorizasyon",
+        "tc_add": "Ek Bilgiler",
+        "tc_upload": "Dosya Yükle (Görsel, PDF vb.)",
+        "tc_lbl_type": "Bilet Türü *",
+        "tc_opt_project": "Proje Seçin",
+        "tc_opt_cat": "Kategori Seçin",
+        "tc_opt_type": "Tür Seçin",
+        "tc_msg_load_fields": "Özel alanları yüklemek için Proje, Kategori ve Tür seçin.",
+        "tc_msg_no_fields": "Bu seçim için yapılandırılmış özel alan bulunmuyor.",
+        "tc_msg_loading": "Alanlar yükleniyor...",
+        "tc_btn_creating": "Bilet oluşturuluyor...",
+        "tc_btn_uploading": "Ekler yükleniyor...",
+        "tc_toast_success": "Bilet başarıyla oluşturuldu!",
+        "tc_toast_err": "Bilet oluşturulamadı",
+
+        // Ticket Detail Extra
+        "td_internal_note": "İç Not",
+        "td_attach_file": "Dosya Ekle",
+        "td_add_comment": "Yorum ekle... (Dosyaları buraya sürükleyip bırakabilirsiniz)",
+        "td_btn_send": "Gönder",
+        "td_view_logs": "Yorum Günlüklerini Görüntüle",
+        "td_fill_csat": "Memnuniyet Anketi Doldur",
+        "td_modal_transfer": "Bileti Transfer Et",
+        "td_modal_project": "Proje",
+        "td_modal_group": "Grup",
+        "td_opt_no_change": "-- Değişiklik Yok --",
+        "td_btn_transfer": "Transfer Et",
+        "td_modal_user_details": "Kullanıcı Detayları",
+
+        "td_manage_assignees": "Atamaları Yönet",
+        "td_email": "E-posta:",
+        "td_dept": "Departman:",
+        "td_status": "Durum:",
+        "ticket_btn_manage": "Yönet",
+        "td_btn_save_assign": "Atamaları Kaydet",
+        "td_modal_assign_history": "Atama Geçmişi Ağacı",
+        "td_modal_comment_logs": "Yorum Günlükleri",
+        "td_search_logs": "Loglarda ara...",
+        "td_download_csv": "CSV İndir",
+        "td_download_history_csv": "Geçmişi İndir (CSV)",
+        "td_no_assignments": "Geçmişte atama bulunamadı.",
+
+        // Knowledge Base
+        "kb_title": "Bilgi Bankası",
+        "kb_desc": "Cevapları, eğitimleri ve kılavuzları bulun.",
+        "kb_search_placeholder": "Makale ara...",
+        "kb_btn_search": "Ara",
+        "kb_categories": "Kategoriler",
+        "kb_no_articles": "Makale bulunamadı.",
+        "kb_read_more": "Devamını Oku →",
+        "kb_was_helpful": "Bu makale yardımcı oldu mu?",
+        "kb_yes": "Evet",
+        "kb_no": "Hayır",
+        "kb_related_articles": "İlgili Makaleler",
+
+        "kb_back": "← Bilgi Bankasına Dön",
+        "kb_all_categories": "Tüm Kategoriler",
+        "kb_by": "Yazar:",
+        "kb_btn_new": "+ Yeni Makale",
+        "kb_btn_suggest": "+ Makale Öner",
+        "kb_hero": "Bugün size nasıl yardımcı olabiliriz?",
+        "kb_adjust_search": "Arama terimlerinizi ayarlamayı deneyin.",
+        "kb_read_more_about": "Devamını oku:",
+        "kb_badge_internal": "Dahili",
+        "kb_badge_draft": "Taslak",
+        "kb_modal_new": "Yeni Makale",
+        "kb_modal_edit": "Makaleyi Düzenle",
+        "kb_lbl_title": "Başlık",
+        "kb_lbl_cat": "Kategori",
+        "kb_lbl_vis": "Görünürlük",
+        "kb_lbl_status": "Durum",
+        "kb_lbl_content": "İçerik",
+        "kb_opt_pub": "Herkese Açık",
+        "kb_opt_int": "Dahili",
+        "kb_opt_draft": "Taslak",
+        "kb_opt_published": "Yayında",
+        "kb_btn_save": "Makaleyi Kaydet",
+        "kb_toast_updated": "Makale başarıyla güncellendi",
+        "kb_toast_created": "Makale başarıyla oluşturuldu",
+        "kb_toast_save_err": "Makale kaydedilirken hata oluştu",
+        "kb_toast_load_err": "Makale detayları alınırken hata oluştu",
+        "kb_btn_edit": "Düzenle",
+        "kb_btn_unpub": "Yayından Kaldır",
+        "kb_btn_pub": "Yayınla",
+        "kb_btn_del": "Sil",
+        "kb_toast_pub": "Makale yayınlandı",
+        "kb_toast_unpub": "Makale yayından kaldırıldı",
+        "kb_toast_pub_err": "Yayın durumu değiştirilirken hata oluştu",
+        "kb_confirm_del": "Bu makaleyi silmek istediğinize emin misiniz?",
+        "kb_toast_del": "Makale başarıyla silindi",
+        "kb_article_title": "Bilgi Bankası Makalesi",
+        "kb_loading": "Yükleniyor...",
+        "kb_views": "görüntülenme",
+        "kb_please_wait": "Lütfen makale yüklenirken bekleyin...",
+        "kb_btn_approve_pub": "Onayla & Yayınla",
+        "kb_badge_pending": "Onay Bekliyor",
+        "kb_toast_id_missing": "Makale ID eksik",
+        "kb_not_found": "Makale Bulunamadı",
+        "kb_not_found_desc": "Aradığınız makale mevcut değil veya görüntüleme izniniz yok.",
+        "kb_confirm_del_toast": "Makale silinecek.",
+        "kb_toast_del_err": "Silme başarısız.",
+        "kb_tab_all": "Tüm Makaleler",
+        "kb_tab_mine": "Önerilerim",
+        "kb_badge_needs_rev": "Revize Bekliyor",
+        "kb_badge_rejected": "Reddedildi",
+        "kb_btn_review": "İncele",
+        "kb_modal_review": "Makaleyi İncele",
+        "kb_lbl_feedback": "Geribildirim / Revize Talebi",
+        "kb_opt_approve": "Onayla & Yayınla",
+        "kb_opt_revise": "Revize İste",
+        "kb_opt_reject": "Reddet",
+        "kb_btn_submit_review": "İncelemeyi Gönder",
+        "kb_alert_feedback": "Yönetici Geribildirimi",
+        "kb_btn_fix": "Düzelt & Tekrar Gönder",
+        "kb_lbl_contributions": "Bilgi Bankası Katkıları"
     }
+};
 
-    private int GetCurrentUserId()
-    {
-        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.TryParse(idClaim, out var id) ? id : 0;
-    }
+/**
+ * Gets the currently selected language from localStorage, defaults to 'tr'.
+ */
+export function getCurrentLanguage() {
+    return localStorage.getItem('itsm_lang') || 'tr';
+}
 
-    [HttpPost]
-    [Authorize(Policy = "RequirePermission:ticket.create")]
-    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketDto dto)
-    {
-        try
-        {
-            var result = await _service.CreateTicketAsync(dto);
-            return CreatedAtAction(nameof(GetTicket), new { id = result.Id }, result);
-        }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpGet("{id}")]
-    [Authorize(Policy = "RequirePermission:ticket.view")]
-    [ProducesResponseType(typeof(TicketDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetTicket(int id)
-    {
-        var t = await _service.GetTicketByIdAsync(id);
-        if (t == null) return NotFound();
-        return Ok(t);
-    }
-
-    [HttpGet("{id}/eligible-users")]
-    [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetEligibleUsers(int id)
-    {
-        var users = await _service.GetEligibleUsersForTicketAsync(id);
-        return Ok(users);
-    }
-
-    [HttpPut("{id}")]
-    [Authorize(Policy = "RequirePermission:ticket.edit")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateTicket(int id, [FromBody] UpdateTicketDto dto)
-    {
-        try
-        {
-            await _service.UpdateTicketAsync(id, dto, GetCurrentUserId());
-            return NoContent();
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpGet("{id}/allowed-transitions")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAllowedTransitions(int id)
-    {
-        try
-        {
-            var transitions = await _service.GetAllowedTransitionsAsync(id, GetCurrentUserId());
-            return Ok(transitions);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpPost("{id}/status")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> ChangeStatus(int id, [FromBody] int newStatusId)
-    {
-        try
-        {
-            var dto = new ChangeStatusDto(newStatusId, GetCurrentUserId());
-            await _service.ChangeStatusAsync(id, dto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-    }
-
-    public record AssignTicketRequest(List<int> UserIds, List<int> GroupIds, int? ParentAssignmentId = null);
-
-    [HttpPost("{id}/assign")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> AssignTicket(int id, [FromBody] AssignTicketRequest req)
-    {
-        try
-        {
-            var dto = new AssignTicketDto(req.UserIds ?? new List<int>(), req.GroupIds ?? new List<int>(), GetCurrentUserId(), req.ParentAssignmentId);
-            await _service.AssignTicketAsync(id, dto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-    }
-
-    [HttpGet("{id}/assignments/tree")]
-    [ProducesResponseType(typeof(IEnumerable<TicketAssigneeDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAssignmentTree(int id)
-    {
-        try
-        {
-            var tree = await _service.GetAssignmentTreeAsync(id);
-            return Ok(tree);
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-    }
-
-    [HttpPost("{id}/transfer")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> TransferTicket(int id, [FromBody] TransferTicketDto dto)
-    {
-        try
-        {
-            var transferDto = new TransferTicketDto(dto.ProjectId, dto.GroupId, GetCurrentUserId());
-            await _service.TransferTicketAsync(id, transferDto);
-            return NoContent();
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-    }
-
-    [HttpPost("{id}/comments")]
-    [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> AddComment(int id, [FromBody] CreateCommentDto dto)
-    {
-        var createDto = new CreateCommentDto(dto.Content, dto.IsInternal, GetCurrentUserId(), dto.ParentCommentId, dto.MentionedUserIds);
-        var result = await _service.AddCommentAsync(id, createDto);
-        return Ok(result);
-    }
-
-    [HttpPut("{id}/comments/{commentId}")]
-    [ProducesResponseType(typeof(TicketCommentDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateComment(int id, int commentId, [FromBody] UpdateCommentDto dto)
-    {
-        bool hasEditPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.edit");
-        try
-        {
-            var result = await _service.UpdateCommentAsync(id, commentId, dto, GetCurrentUserId(), hasEditPerm);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-    }
-
-    [HttpDelete("{id}/comments/{commentId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteComment(int id, int commentId)
-    {
-        bool hasDeletePerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.delete");
-        try
-        {
-            await _service.DeleteCommentAsync(id, commentId, GetCurrentUserId(), hasDeletePerm);
-            return NoContent();
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-    }
-
-    [HttpPost("{id}/comments/{commentId}/restore")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> RestoreComment(int id, int commentId)
-    {
-        bool hasDeletePerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.delete");
-        try
-        {
-            await _service.RestoreCommentAsync(id, commentId, GetCurrentUserId(), hasDeletePerm);
-            return NoContent();
-        }
-        catch (KeyNotFoundException) { return NotFound(); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-    }
-
-    [HttpGet("{id}/comments")]
-    [ProducesResponseType(typeof(IEnumerable<TicketCommentDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetComments(int id)
-    {
-        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal");
-        var result = await _service.GetCommentsAsync(id, hasInternalPerm);
-        return Ok(result);
-    }
-
-    [HttpPost("{id}/attachments")]
-    [ProducesResponseType(typeof(TicketAttachmentDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddAttachment(int id, IFormFile file)
-    {
-        try
-        {
-            var result = await _service.AddAttachmentAsync(id, file, GetCurrentUserId());
-            return Ok(result);
-        }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-    }
-
-    [HttpGet("{id}/attachments")]
-    [ProducesResponseType(typeof(IEnumerable<TicketAttachmentDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAttachments(int id)
-    {
-        return Ok(await _service.GetAttachmentsAsync(id));
-    }
-
-    [AllowAnonymous]
-    [HttpGet("{id}/attachments/{attachmentId}/download")]
-    public async Task<IActionResult> DownloadAttachment(int id, int attachmentId)
-    {
-        try
-        {
-            var (filePath, contentType, fileName) = await _service.GetAttachmentFileInfoAsync(id, attachmentId);
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
-                
-            return PhysicalFile(System.IO.Path.GetFullPath(filePath), contentType, fileName);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpDelete("{id}/attachments/{attachmentId}")]
-    public async Task<IActionResult> DeleteAttachment(int id, int attachmentId)
-    {
-        bool hasManage = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.manage") || 
-                         User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
-        try
-        {
-            await _service.DeleteAttachmentAsync(id, attachmentId, GetCurrentUserId(), hasManage);
-            return NoContent();
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(403, new { error = ex.Message });
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return StatusCode(404, new { error = ex.Message });
-        }
-    }
-
-    [HttpGet("{id}/timeline")]
-    [ProducesResponseType(typeof(IEnumerable<TimelineEventDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTimeline(int id)
-    {
-        bool hasInternalPerm = User.HasClaim(c => c.Type == "Permission" && c.Value == "ticket.comment.internal") || 
-                               User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
-        return Ok(await _service.GetTimelineAsync(id, hasInternalPerm));
-    }
-
-    [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] TicketSearchFilterDto filter)
-    {
-        var result = await _service.SearchTicketsAsync(filter, GetCurrentUserId());
-        return Ok(result);
-    }
-
-    [HttpPost("{id}/survey")]
-    [ProducesResponseType(typeof(TicketSurveyDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SubmitSurvey(int id, [FromBody] SubmitTicketSurveyDto dto)
-    {
-        try
-        {
-            var result = await _service.SubmitSurveyAsync(id, dto, GetCurrentUserId());
-            return CreatedAtAction(nameof(GetTicket), new { id = result.TicketId }, result);
-        }
-        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
-        catch (UnauthorizedAccessException ex) { return Unauthorized(new { error = ex.Message }); }
-        catch (KeyNotFoundException) { return NotFound(); }
+/**
+ * Sets the new language and applies translations immediately.
+ */
+export function setLanguage(langCode) {
+    if (translations[langCode]) {
+        localStorage.setItem('itsm_lang', langCode);
+        window.location.reload();
     }
 }
+
+/**
+ * Helper function for dynamic JS translations
+ */
+export function t(key) {
+    const lang = getCurrentLanguage();
+    return translations[lang]?.[key] || key;
+}
+
+/**
+ * Scans the DOM for [data-i18n] attributes and updates their text content.
+ */
+export function applyTranslations() {
+    const lang = getCurrentLanguage();
+    const dict = translations[lang];
+    if (!dict) return;
+
+    // Find all elements with data-i18n attribute
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+            // Check if element has children that we shouldn't overwrite (like SVGs)
+            // If it has HTML content that isn't just text, we should be careful.
+            // A simple approach is to use data-i18n-target attribute if we need to replace placeholder etc.
+            const target = el.getAttribute('data-i18n-target');
+            if (target === 'placeholder') {
+                el.placeholder = dict[key];
+            } else {
+                // If the element has child nodes (like svg icons inside buttons), 
+                // we should only replace the text nodes.
+                let textNodeFound = false;
+                for (let i = 0; i < el.childNodes.length; i++) {
+                    const node = el.childNodes[i];
+                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+                        node.nodeValue = dict[key];
+                        textNodeFound = true;
+                        break;
+                    }
+                }
+                // If no text node was found (or if it's completely empty), just set textContent
+                if (!textNodeFound) {
+                    if (el.childNodes.length === 0) {
+                        el.textContent = dict[key];
+                    } else {
+                        // Safe fallback: append a text node at the end
+                        el.appendChild(document.createTextNode(' ' + dict[key]));
+                    }
+                }
+            }
+        }
+    });
+
+    // Update html lang attribute
+    document.documentElement.lang = lang;
+}
+
+// Auto-run translation logic immediately when module loads
+(function() {
+    applyTranslations();
+})();

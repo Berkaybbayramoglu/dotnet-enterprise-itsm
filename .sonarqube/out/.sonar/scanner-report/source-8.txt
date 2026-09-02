@@ -1,7 +1,9 @@
-namespace ItsTool.Domain.Common;
-public interface IAuditable {
-    System.DateTime CreatedAt { get; set; }
-    string? CreatedBy { get; set; }
-    System.DateTime? UpdatedAt { get; set; }
-    string? UpdatedBy { get; set; }
+using ItsTool.Domain.Common;
+using ItsTool.Domain.Entities.Organization;
+namespace ItsTool.Domain.Entities.Auth;
+public class GroupRole : BaseEntity {
+    public int GroupId { get; set; }
+    public int RoleId { get; set; }
+    public virtual Group? Group { get; set; }
+    public virtual Role? Role { get; set; }
 }

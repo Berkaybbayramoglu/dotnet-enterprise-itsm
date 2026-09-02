@@ -1,43 +1,606 @@
-using Microsoft.AspNetCore.Mvc;
-
-namespace ItsTool.API.Controllers;
-
-public abstract class CrudControllerBase<TDto> : ControllerBase where TDto : class
-{
-    protected abstract Task<IEnumerable<TDto>> GetAllEntitiesAsync();
-    protected abstract Task<TDto?> GetEntityByIdAsync(int id);
-    protected abstract Task DeleteEntityAsync(int id);
-
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
-    {
-        return Ok(await GetAllEntitiesAsync());
-    }
-
-    [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var entity = await GetEntityByIdAsync(id);
-        if (entity == null) return NotFound();
-        return Ok(entity);
-    }
-
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id)
-    {
-        try
-        {
-            await DeleteEntityAsync(id);
-            return NoContent();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Users</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        .role-list { margin-top: 8px; font-size: 13px; max-height: 150px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+        .role-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+        .role-item:last-child { border-bottom: none; }
+        .avatar-upload { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .avatar-preview { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background-color: var(--bg-body); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 24px; color: var(--text-muted); font-weight: bold; }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .mini-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background-color: var(--primary); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; margin-right: 8px; vertical-align: middle; }
+        .row-highlight { animation: highlight-fade 2s ease-out; }
+        @keyframes highlight-fade {
+            0% { background-color: rgba(var(--primary-rgb), 0.2); }
+            100% { background-color: transparent; }
         }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-}
+    </style>
+</head>
+<body>
+
+    <script>
+        window.addEventListener('error', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">ERROR: ' + e.message + '</div>';
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            document.body.innerHTML = '<div style="color:red;font-size:20px;padding:20px;background:white;">PROMISE ERROR: ' + e.reason + '</div>';
+        });
+    </script>
+
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+
+                    <h2 data-i18n="users_title">Users Management</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;" data-i18n="users_header">Users</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;" data-i18n="users_desc">Manage system users and access.</p>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <input type="search" id="userSearchInput" class="form-control" placeholder="Search users..." style="width: 250px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 14px;" aria-label="Search users">
+                        <button type="button" class="btn btn-primary" data-action="openUserModal">
+                            <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> <span data-i18n="users_btn_new">New User</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th data-i18n="users_col_name">Name</th>
+                                <th data-i18n="users_col_username">Username</th>
+                                <th data-i18n="users_col_email">Email</th>
+                                <th data-i18n="users_col_status">Status</th>
+                                <th style="width: 150px;" data-i18n="users_col_actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="userModal" class="modal-overlay">
+        <div class="modal">
+            <form id="userForm">
+                <input type="hidden" id="uId">
+                <div class="modal-header">
+                    <h2 id="modalTitle" data-i18n="users_modal_title_new">User</h2>
+                    <button type="button" class="close-btn" data-action="closeModal" data-target="userModal" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="uAvatarPreview">
+                            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <div>
+                            <label class="btn btn-secondary" for="uAvatarFile" style="cursor: pointer; padding: 6px 12px; font-size: 13px;" data-i18n="users_btn_upload">Upload Photo</label>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 6px 12px; font-size: 13px; margin-left: 8px;" onclick="removeProfilePhoto()" data-i18n="users_btn_remove">Remove Photo</button>
+                            <input type="file" id="uAvatarFile" accept="image/*" style="display: none;">
+                            <input type="hidden" id="uProfilePhotoBase64">
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Max 200x200 (Auto-resized)</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="uFirst" data-i18n="users_lbl_first">First Name *</label>
+                            <input id="uFirst" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="uLast" data-i18n="users_lbl_last">Last Name *</label>
+                            <input id="uLast" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="uUsername" data-i18n="users_lbl_user">Username *</label>
+                        <input id="uUsername" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="uEmail" data-i18n="users_lbl_email">Email *</label>
+                        <input id="uEmail" class="form-control" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="uDepartment" data-i18n="users_lbl_dept">Department</label>
+                            <select id="uDepartment" class="form-control">
+                                <option value="" data-i18n="users_opt_none">-- None --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label" data-i18n="users_lbl_groups">Groups</div>
+                            <div id="uGroupsList" style="max-height: 120px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px;">
+                                <!-- Checkboxes populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="uPassword" data-i18n="users_lbl_pass">Password</label>
+                        <input id="uPassword" class="form-control" placeholder="Leave blank to keep existing (if edit)">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="uActive" checked>
+                        <label class="form-label" for="uActive" style="margin: 0;" data-i18n="users_lbl_active">Is Active</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="userModal" data-i18n="users_btn_cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="users_btn_save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Roles Modal -->
+    <div id="rolesModal" class="modal-overlay">
+        <div class="modal" style="width: min(600px, 90%);">
+            <div class="modal-header">
+                <h2 data-i18n="users_roles_title">Manage Roles</h2>
+                <button type="button" class="close-btn" data-action="closeModal" data-target="rolesModal" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted" style="margin-top:0;"><span data-i18n="users_lbl_user_colon">User:</span> <strong id="rUserName"></strong></p>
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <select id="roleSelect" class="form-control" style="flex: 1;" aria-label="Select Role">
+                        <!-- populated by JS -->
+                    </select>
+                    <button type="button" class="btn btn-secondary" id="btnAssignRole" data-i18n="users_btn_assign">Assign Role</button>
+                </div>
+                
+                <h4 data-i18n="users_roles_current">Current Roles</h4>
+                <div class="role-list" id="roleList">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Overrides Modal -->
+    <div id="overridesModal" class="modal-overlay">
+        <div class="modal" style="width: min(800px, 90%);">
+            <div class="modal-header">
+                <h2 data-i18n="users_overrides_title">Manage Permission Overrides</h2>
+                <button type="button" class="close-btn" data-action="closeModal" data-target="overridesModal" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted" style="margin-top:0;"><span data-i18n="users_lbl_user_colon">User:</span> <strong id="oUserName"></strong></p>
+                <div class="perm-list" id="overrideList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 400px; padding: 12px; border-radius: 8px;">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script type="module">
+        import './js/api.js?v=3';
+        import { injectShell } from './js/layout.js?v=10';
+        import { bindShellActions, showToast, escapeHtml, showUndoToast, openModal, closeModal } from './js/ui.js?v=3';
+        import { t } from './js/i18n.js';
+        injectShell();
+
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const target = btn.dataset.target;
+            const idAttr = btn.dataset.id;
+            const flagAttr = btn.dataset.flag;
+            const id = idAttr && idAttr !== 'undefined' ? Number.parseInt(idAttr) : undefined;
+            const flag = flagAttr ? (flagAttr === 'true') : undefined;
+            
+            if (action === 'closeModal' && target) {
+                if (typeof closeModal === 'function') closeModal(target); else if (typeof window.closeModal === 'function') window.closeModal(target);
+            } else if (typeof window[action] === 'function') {
+                if (flag !== undefined) window[action](id, flag);
+                else window[action](id);
+            }
+        });
+
+
+        let currentData = [];
+        let allRoles = [];
+        let allPermissions = [];
+        let allDepartments = [];
+        let allGroups = [];
+        let itemToDelete = null;
+        let activeUserId = null;
+
+        window.renderUsersTable = function(data) {
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">${t('users_no_data')}</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', item.id);
+                const badge = item.isActive ? `<span class="badge badge-success" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="false">Active</span>` : `<span class="badge badge-default" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="true">Inactive</span>`;
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">
+                        ${item.profilePhoto ? `<img src="${item.profilePhoto}" class="mini-avatar" alt="Avatar">` : `<div class="mini-avatar">${item.firstName.charAt(0).toUpperCase()}</div>`}
+                        ${escapeHtml(item.firstName)} ${escapeHtml(item.lastName)}
+                    </td>
+                    <td>${escapeHtml(item.username)}</td>
+                    <td class="text-muted">${escapeHtml(item.email)}</td>
+                    <td>${badge}</td>
+                    <td>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">${t('users_roles_title').split(' ')[0]}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">${t('users_overrides_title').split(' ')[0]}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">${t('users_btn_edit')}</button>
+                        <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">${t('users_btn_del')}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        document.getElementById('userSearchInput')?.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if (!term) {
+                renderUsersTable(currentData);
+                return;
+            }
+            const filtered = currentData.filter(item => {
+                return (item.firstName?.toLowerCase().includes(term) ||
+                        item.lastName?.toLowerCase().includes(term) ||
+                        item.username?.toLowerCase().includes(term) ||
+                        item.email?.toLowerCase().includes(term));
+            });
+            renderUsersTable(filtered);
+        });
+
+        window.loadData = async function() {
+            try {
+                currentData = await window.api.getUsers();
+                allRoles = await window.api.getRoles();
+                try { allPermissions = await window.api.getPermissions(); } catch (e) { console.error('Failed to load perms', e); }
+                try { allDepartments = await window.api.request('/Departments'); } catch (e) { console.error('Failed to load departments', e); }
+                try { allGroups = await window.api.request('/Groups'); } catch (e) { console.error('Failed to load groups', e); }
+                
+                document.getElementById('userSearchInput').setAttribute('placeholder', t('users_search'));
+                document.getElementById('uPassword').setAttribute('placeholder', t('users_pass_placeholder'));
+                
+                renderUsersTable(currentData);
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId) {
+                    setTimeout(() => {
+                        const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                        if (row) {
+                            row.classList.add('row-highlight');
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                }
+            } catch (err) { console.error(err); 
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                     } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+
+                console.error(err);
+                showToast('Error loading users', 'error');
+            }
+        };
+
+        window.toggleUserStatus = async function(id, newStatus) {
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            try {
+                await window.api.updateUser(id, {
+                    firstName: item.firstName,
+                    lastName: item.lastName,
+                    email: item.email,
+                    departmentId: item.departmentId,
+                    isActive: newStatus,
+                    profilePhoto: item.profilePhoto
+                });
+                showToast('User status updated');
+                loadData();
+            } catch (e) { console.error(e);  
+                showToast('Failed to update status', 'error'); 
+             }
+        };
+
+        window.openUserModal = function(id = null) {
+            const form = document.getElementById('userForm');
+            form.reset();
+            document.getElementById('uId').value = id || '';
+            document.getElementById('modalTitle').textContent = id ? t('users_modal_title_edit') : t('users_modal_title_new');
+            
+            // Populate department dropdown
+            const deptSelect = document.getElementById('uDepartment');
+            deptSelect.innerHTML = `<option value="">${t('users_opt_none')}</option>`;
+            allDepartments.forEach(d => {
+                deptSelect.innerHTML += `<option value="${d.id}">${escapeHtml(d.name)}</option>`;
+            });
+            
+            // Populate groups checkboxes
+            const groupsList = document.getElementById('uGroupsList');
+            groupsList.innerHTML = '';
+            allGroups.forEach(g => {
+                groupsList.innerHTML += `
+                    <label style="display: flex; align-items: center; gap: 8px; padding: 4px; font-size: 13px; cursor: pointer;">
+                        <input type="checkbox" name="uGroups" value="${g.id}">
+                        ${escapeHtml(g.name)}
+                    </label>
+                `;
+            });
+            
+            if (id) {
+                const item = currentData.find(x => x.id === id);
+                if (item) {
+                    document.getElementById('uFirst').value = item.firstName;
+                    document.getElementById('uLast').value = item.lastName;
+                    document.getElementById('uUsername').value = item.username;
+                    document.getElementById('uEmail').value = item.email;
+                    document.getElementById('uActive').checked = item.isActive;
+                    document.getElementById('uDepartment').value = item.departmentId || '';
+                    if (item.groupIds) {
+                        Array.from(document.querySelectorAll('input[name="uGroups"]')).forEach(cb => {
+                            if (item.groupIds.includes(Number.parseInt(cb.value))) cb.checked = true;
+                        });
+                    }
+                    document.getElementById('uProfilePhotoBase64').value = item.profilePhoto || '';
+                    if (item.profilePhoto) {
+                        document.getElementById('uAvatarPreview').innerHTML = `<img src="${item.profilePhoto}">`;
+                    } else {
+                        document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+                    }
+                }
+                document.getElementById('uPassword').required = false;
+            } else {
+                document.getElementById('uPassword').required = true;
+                document.getElementById('uProfilePhotoBase64').value = '';
+                document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+            }
+            openModal('userModal');
+        };
+
+        window.openRolesModal = function(id) {
+            activeUserId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            
+            document.getElementById('rUserName').textContent = item.username;
+            
+            // Populate select
+            const select = document.getElementById('roleSelect');
+            select.innerHTML = `<option value="">${t('users_opt_role')}</option>`;
+            allRoles.forEach(r => {
+                if (!item.roleIds || !item.roleIds.includes(r.id)) {
+                    select.innerHTML += `<option value="${r.id}">${escapeHtml(r.name)}</option>`;
+                }
+            });
+
+            // Populate list
+            const list = document.getElementById('roleList');
+            list.innerHTML = '';
+            if (!item.roleIds || item.roleIds.length === 0) {
+                list.innerHTML = `<div class="text-muted" style="padding: 8px;">${t('users_roles_none')}</div>`;
+            } else {
+                item.roleIds.forEach(rId => {
+                    const r = allRoles.find(x => x.id === rId);
+                    const label = r ? escapeHtml(r.name) : `Role #${rId}`;
+                    list.innerHTML += `
+                        <div class="role-item">
+                            <span>${label}</span>
+                            <button class="btn btn-ghost" style="color: var(--danger); padding: 2px 4px; font-size:12px;" data-action="revokeRole" data-id="${rId}">${t('users_btn_revoke')}</button>
+                        </div>
+                    `;
+                });
+            }
+
+            openModal('rolesModal');
+        };
+
+        window.openOverridesModal = function(id) {
+            activeUserId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+            
+            document.getElementById('oUserName').textContent = item.username;
+
+            const list = document.getElementById('overrideList');
+            list.innerHTML = '';
+            
+            allPermissions.forEach(p => {
+                const overrideValue = item.permissionOverrides ? item.permissionOverrides[p.id] : undefined;
+                const isGranted = overrideValue === true;
+                const isRevoked = overrideValue === false;
+                
+                list.innerHTML += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                        <span>${p.key} <small class="text-muted" style="display:block;">${p.name}</small></span>
+                        <div style="display: flex; gap: 4px;">
+                            <button type="button" class="btn ${isGranted ? 'btn-success' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" data-action="setOverride" data-id="${p.id}" data-flag="true">${t('users_btn_allow')}</button>
+                            <button type="button" class="btn ${isRevoked ? 'btn-danger' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" data-action="setOverride" data-id="${p.id}" data-flag="false">${t('users_btn_deny')}</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            openModal('overridesModal');
+        };
+
+        window.setOverride = async function(permId, isGranted) {
+            if (!activeUserId) return;
+            try {
+                await window.api.setPermissionOverride(activeUserId, permId, isGranted);
+                showToast('Override saved');
+                loadData();
+            } catch (err) { console.error(err); 
+                showToast('Failed to save override', 'error');
+                loadData();
+             }
+        };
+
+        document.getElementById('btnAssignRole').addEventListener('click', async () => {
+            const roleId = document.getElementById('roleSelect').value;
+            if (!roleId || !activeUserId) return;
+            try {
+                await window.api.assignRole(activeUserId, roleId);
+                showToast('Role assigned');
+                await loadData();
+                window.openRolesModal(activeUserId);
+            } catch (err) { console.error(err); 
+                showToast('Failed to assign role', 'error');
+             }
+        });
+
+        window.revokeRole = async function(roleId) {
+            if (!activeUserId) return;
+            try {
+                await window.api.revokeRole(activeUserId, roleId);
+                showToast('Role revoked');
+                await loadData();
+                window.openRolesModal(activeUserId);
+            } catch (err) { console.error(err); 
+                showToast('Failed to revoke role', 'error');
+             }
+        };
+
+        window.promptDelete = async function(id) {
+            const proceed = await showUndoToast('Öğe silinecek. Geri almak için tıklayın.', null, 4000);
+            if (proceed) {
+                try {
+                    await window.api.deleteUser(id);
+                    showToast('Silme işlemi tamamlandı');
+                    loadData();
+                } catch (e) { console.error(e); 
+                    showToast('Silme işlemi başarısız', 'error');
+                 }
+            }
+        };
+
+        
+
+        document.getElementById('uAvatarFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 200;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    document.getElementById('uProfilePhotoBase64').value = dataUrl;
+                    document.getElementById('uAvatarPreview').innerHTML = `<img src="${dataUrl}">`;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        window.removeProfilePhoto = function() {
+            document.getElementById('uProfilePhotoBase64').value = '';
+            document.getElementById('uAvatarPreview').innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+            document.getElementById('uAvatarFile').value = '';
+        };
+
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('uId').value;
+            const data = {
+                firstName: document.getElementById('uFirst').value.trim(),
+                lastName: document.getElementById('uLast').value.trim(),
+                username: document.getElementById('uUsername').value.trim(),
+                email: document.getElementById('uEmail').value.trim(),
+                isActive: document.getElementById('uActive').checked,
+                departmentId: document.getElementById('uDepartment').value ? Number.parseInt(document.getElementById('uDepartment').value) : null,
+                groupIds: Array.from(document.querySelectorAll('input[name="uGroups"]:checked')).map(cb => Number.parseInt(cb.value)),
+                profilePhoto: document.getElementById('uProfilePhotoBase64').value || null
+            };
+            
+            const pwd = document.getElementById('uPassword').value;
+            if (pwd) data.password = pwd; // DTO usually expects password
+            
+            try {
+                if (id) await window.api.updateUser(id, data);
+                else await window.api.createUser(data);
+                
+                closeModal('userModal');
+                showToast('User saved');
+        loadData(); // removed await for resilience
+            } catch (err) { console.error(err); 
+                showToast('Failed to save user', 'error');
+             }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

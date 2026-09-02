@@ -1,15 +1,13 @@
-using System;
 using ItsTool.Domain.Common;
 
-namespace ItsTool.Domain.Entities;
+namespace ItsTool.Domain.Entities.Ticket;
 
-public class SystemAuditLog : BaseEntity
+public class Priority : BaseEntity
 {
-    public string EntityType { get; set; } = string.Empty;
-    public string EntityName { get; set; } = string.Empty;
-    public string EntityId { get; set; } = string.Empty;
-    public string Action { get; set; } = string.Empty;
-    public string? FieldName { get; set; }
-    public string? OldValue { get; set; }
-    public string? NewValue { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int ProjectId { get; set; }
+    public int Weight { get; set; }
+    public string? ColorHex { get; set; }
+    public int SortOrder { get; set; }
+    public int SeverityLevel { get; set; }
 }

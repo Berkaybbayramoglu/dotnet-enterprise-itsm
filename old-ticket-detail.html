@@ -538,8 +538,8 @@
             openModal('manageAssigneesModal');
             
             try {
-                const deptsRes = await window.api.request('/departments').catch(() => ({ items: [] }));
-                const grpsRes = await window.api.request('/groups').catch(() => ({ items: [] }));
+                const deptsRes = await window.api.request('/departments').catch(e => { console.error("[old-ticket-detail] fetch error:", e); return { items: [] }; });
+                const grpsRes = await window.api.request('/groups').catch(e => { console.error("[old-ticket-detail] fetch error:", e); return { items: [] }; });
                 const usrsRes = await window.api.getUsers();
                 const depts = Array.isArray(deptsRes) ? deptsRes : (deptsRes.items || []);
                 const grps = Array.isArray(grpsRes) ? grpsRes : (grpsRes.items || []);
@@ -751,7 +751,7 @@
                         }
                     }, 100);
                 }
-            } catch (e) { console.error(e); }
+            } catch(e) { console.error("[old-ticket-detail] error:", e); }
                 }
                 document.getElementById('aModalDept').textContent = deptName;
                 document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
@@ -1147,8 +1147,7 @@
                                 text = `deleted a comment`;
                             }
                             div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${resolveUser(h.createdBy)}</strong> ${text} at ${new Date(e.timestamp).toLocaleString()}`;
-                        } else {
-                            if (h.action === 'CommentReplied') {
+                        } else if (h.action === 'CommentReplied') {
                                 text = `replied to a comment`;
                             } else if (h.action === 'CommentAdded') {
                                 text = `added a comment`;
@@ -1255,12 +1254,12 @@
                     }, 500);
                 } else if (focusTarget === 'assign') {
                     setTimeout(() => {
-                        if (typeof window.openAssignModal === 'function') {
+                        if (window.openAssignModal !== undefined) {
                             window.openAssignModal();
                         }
                     }, 500);
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) { console.error("[old-ticket-detail] error:", e); }
         }
 
         window.inlineReplyToComment = (id, forceInternal = false) => {
@@ -1418,7 +1417,7 @@
                     }
                 }, duration);
                 
-                document.body.removeChild(btn.closest('.modal-overlay'));
+                btn.closest('.modal-overlay').remove();
                 loadTimeline();
             } catch(e) {
                 console.error(e);
@@ -1573,7 +1572,7 @@
             
             items.forEach(item => {
                 if (item.dataset.csvRow) {
-                    csvContent += item.dataset.csvRow + "\\n";
+                    csvContent += item.dataset.csvRow + String.raw`\n`;
                 }
             });
             
@@ -1583,7 +1582,7 @@
             link.setAttribute("download", `ticket_${ticketId}_comment_logs.csv`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            link.remove();
         };
         // --- User Tooltip Logic ---
         const userTooltip = document.createElement('div');
@@ -1594,12 +1593,12 @@
         document.addEventListener('mouseover', (e) => {
             const target = e.target.closest('.user-hover-link');
             if (target) {
-                const userId = target.getAttribute('data-user-id');
-                const user = (typeof globalUsers !== 'undefined' ? globalUsers : []).find(u => u.id == userId);
+                const userId = target.dataset.userId;
+                const user = (globalUsers !== undefined ? globalUsers : []).find(u => u.id == userId);
                 if (user) {
                     const dept = (globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';
                     const userGroups = user.groupIds && user.groupIds.length > 0 
-                        ? user.groupIds.map(gid => (typeof globalGroups !== 'undefined' ? globalGroups : []).find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
+                        ? user.groupIds.map(gid => (globalGroups !== undefined ? globalGroups : []).find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
                         : 'No Groups';
                     const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
 

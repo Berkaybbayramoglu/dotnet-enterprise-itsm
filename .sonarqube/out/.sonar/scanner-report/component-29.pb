@@ -1,1 +1,1 @@
- 2csXhr6src/ItsTool.Domain/Entities/Project/ProjectSequence.cs
+ 2csXhr,src/ItsTool.Domain/Entities/SLA/TicketSla.cs

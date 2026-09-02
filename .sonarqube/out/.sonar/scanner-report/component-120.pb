@@ -1,1 +1,1 @@
-x 2webX¶hr%src/ItsTool.Web/wwwroot/calendar.html
+x 2csXhr0src/ItsTool.Application/Interfaces/ISlaEngine.cs

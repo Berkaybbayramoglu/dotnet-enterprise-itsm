@@ -1,1 +1,1 @@
- 2csXhr8src/ItsTool.Domain/Entities/Notification/Notification.cs
+ 2csXhr:src/ItsTool.Domain/Entities/Organization/AssignmentRule.cs

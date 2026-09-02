@@ -1,1 +1,1 @@
-I 2csX-hr3src/ItsTool.API/HostedServices/SlaCheckerService.cs
+I 2jsX‚hr src/ItsTool.Web/wwwroot/js/ui.js

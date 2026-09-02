@@ -1,29 +1,349 @@
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+<!DOCTYPE html>
+<html lang="en">
 
-namespace ItsTool.API.Controllers;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Tickets</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .filter-bar { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-md); align-items: center; flex-wrap: wrap; }
+        .search-input { width: 300px; }
+        .ticket-title { font-weight: 600; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: var(--spacing-sm); }
+        .ticket-title:hover { color: var(--primary); text-decoration: underline; }
+        .ticket-number { color: var(--text-muted); font-size: 12px; }
+        
+        @media (max-width: 768px) { .table { min-width: 100% !important; } }
+    </style>
+</head>
 
-[ApiController]
-[Route("api/reports")]
-[Authorize]
-public class ReportsController : ControllerBase
-{
-    private readonly IReportService _reportService;
+<body>
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
 
-    public ReportsController(IReportService reportService)
-    {
-        _reportService = reportService;
-    }
+                    <h2 data-i18n="t_title">Tickets</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+            <div class="content-area">
+                <div class="filter-bar">
+                    <input type="text" id="searchInput" class="form-control search-input" aria-label="Search Tickets" placeholder="Search by Ticket Number, Title, or Description..." data-i18n="t_search_placeholder" data-i18n-target="placeholder">
+                    <button type="button" id="btnSearch" class="btn btn-secondary" data-i18n="t_btn_search">Search</button>
+                    <button type="button" id="btnSaveFilter" class="btn btn-secondary" data-i18n="t_btn_save_filter">Save Filter</button>
+                    <select id="savedFilters" class="form-control" style="width: 200px;" aria-label="Saved Filters">
+                        <option value="" data-i18n="t_saved_filters">Saved Filters...</option>
+                    </select>
+                    <button type="button" id="btnExportCsv" class="btn btn-ghost" data-i18n="t_export_csv">Export CSV</button>
+                    <a href="/ticket-create.html" class="btn btn-primary ml-auto" data-i18n="t_btn_new">+ New Ticket</a>
+                </div>
 
-    [HttpGet("tickets/csv")]
-    public async Task<IActionResult> ExportTicketsCsv([FromQuery] TicketSearchFilterDto filter)
-    {
-        var stream = await _reportService.ExportTicketsToCsvAsync(filter, GetCurrentUserId());
-        return File(stream, "text/csv", $"tickets_export_{System.DateTime.UtcNow:yyyyMMdd_HHmmss}.csv");
-    }
-}
+                <div class="filter-bar" style="margin-top: 12px; margin-bottom: 24px;">
+                    <fieldset class="btn-group" id="statusFilterGroup" style="border:none; padding:0; margin:0;">
+                        <legend style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0;">Ticket Status Filter</legend>
+                        <button type="button" class="btn btn-secondary active" id="filterActive" aria-pressed="true" data-i18n="t_filter_active">Aktif</button>
+                        <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false" data-i18n="t_filter_closed">Kapalı</button>
+                        <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false" data-i18n="t_filter_all">Tümü</button>
+                    </fieldset>
+                </div>
+
+                <div class="table-container" style="overflow-x: hidden;">
+                    <table class="table" style="table-layout: fixed; width: 100%;">
+                        <colgroup>
+                            <col style="width: 40%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th data-i18n="t_col_ticket">Ticket</th>
+                                <th data-i18n="t_col_status">Status</th>
+                                <th data-i18n="t_col_priority">Priority</th>
+                                <th data-i18n="t_col_assignee">Assignee</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketList">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import './js/api.js?v=4';
+        import { injectShell } from './js/layout.js?v=10';
+        import { bindShellActions, showToast } from './js/ui.js?v=4';
+        import { t } from './js/i18n.js';
+        injectShell();
+        
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        let activeFilterState = 'active'; // 'active', 'closed', 'all'
+
+        document.getElementById('statusFilterGroup').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const stateMap = { 'filterActive': 'active', 'filterClosed': 'closed', 'filterAll': 'all' };
+                const state = stateMap[e.target.id];
+                if (state) {
+                    activeFilterState = state;
+                    document.querySelectorAll('#statusFilterGroup .btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-pressed', 'false');
+                    });
+                    e.target.classList.add('active');
+                    e.target.setAttribute('aria-pressed', 'true');
+                    search();
+                }
+            }
+        });
+
+        const getStatusBadge = (status) => {
+            const map = { 'Open': 'info', 'Açık': 'info', 'In Progress': 'warning', 'Devam Ediyor': 'warning', 'Pending': 'warning', 'Beklemede': 'warning', 'Resolved': 'success', 'Çözüldü': 'success', 'Closed': 'default', 'Kapatıldı': 'default' };
+            const labelKey = status ? 'db_' + status.toLowerCase().replaceAll(' ', '_') : 'dash_unknown';
+            const label = t(labelKey) || status;
+            return `<span class="badge badge-${map[status] || 'default'}">${label}</span>`;
+        };
+
+        const getPriorityBadge = (priority) => {
+            const map = { 'Critical': 'danger', 'Kritik': 'danger', 'High': 'warning', 'Yüksek': 'warning', 'Medium': 'info', 'Orta': 'info', 'Low': 'success', 'Düşük': 'success' };
+            const labelKey = priority ? 'db_' + priority.toLowerCase() : 'dash_unknown';
+            const label = t(labelKey) || priority;
+            return `<span class="badge badge-${map[priority] || 'default'}">${label}</span>`;
+        };
+
+        const getAvatar = (id, fallback) => {
+            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border); visibility: hidden;"></div>`;
+            const initial = String(fallback || id).charAt(0).toUpperCase();
+            return `<div class="avatar" title="${fallback}">${initial}</div>`;
+        };
+
+        let lookupData = {};
+        let allUsers = [];
+        async function loadLookup() {
+            try { 
+                lookupData = await window.api.getLookup();
+                allUsers = (await window.api.getUsers()).items || [];
+            } catch (e) { console.error(e);  console.warn('Lookup failed', e);  }
+        }
+
+        async function search() {
+            if (!lookupData.statuses) await loadLookup();
+            const keyword = document.getElementById('searchInput').value;
+            try {
+                const res = await window.api.searchTickets({ keyword, pageSize: 50 });
+                const tbody = document.getElementById('ticketList');
+                tbody.innerHTML = '';
+                
+                // Apply front-end filter for active/closed/all
+                let filteredItems = res.items;
+                if (activeFilterState === 'active') {
+                    filteredItems = filteredItems.filter(t => {
+                        const s = lookupData.statuses?.find(st => st.id === t.statusId);
+                        return !(s?.isClosedStatus ?? false);
+                    });
+                } else if (activeFilterState === 'closed') {
+                    filteredItems = filteredItems.filter(t => {
+                        const s = lookupData.statuses?.find(st => st.id === t.statusId);
+                        return s?.isClosedStatus ?? false;
+                    });
+                }
+
+                if (filteredItems.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+                            <h3>${t('t_no_tickets')}</h3>
+                            <p>${t('t_adjust_search')}</p>
+                        </div>
+                    </td></tr>`;
+                    return;
+                }
+
+                filteredItems.forEach(ticketItem => {
+                    const statusName = lookupData.statuses?.find(s => s.id === ticketItem.statusId)?.name || 'Unknown';
+                    const prioName = lookupData.priorities?.find(p => p.id === ticketItem.priorityId)?.name || 'Normal';
+                    
+                    let assigneeName = t('t_unassigned');
+                    let assigneeInitialId = null;
+                    
+                    let assigneeDetails = [];
+                    if (ticketItem.assignments && ticketItem.assignments.length > 0) {
+                        const activeAssignments = ticketItem.assignments.filter(a => a.isActive);
+                        if (activeAssignments.length > 0) {
+                            const mainAssignee = activeAssignments[0];
+                            if (mainAssignee.userId) {
+                                const u = allUsers.find(x => x.id === mainAssignee.userId);
+                                assigneeName = u ? (u.firstName + ' ' + u.lastName) : (mainAssignee.assigneeName || `User ${mainAssignee.userId}`);
+                                assigneeInitialId = assigneeName;
+                            } else if (mainAssignee.groupId) {
+                                const g = lookupData.groups?.find(x => x.id === mainAssignee.groupId);
+                                assigneeName = g ? g.name : (mainAssignee.assigneeName || `Group ${mainAssignee.groupId}`);
+                                assigneeInitialId = assigneeName;
+                            }
+                            if (activeAssignments.length > 1) {
+                                assigneeName += ` (+${activeAssignments.length - 1})`;
+                            }
+                            
+                            let details = [];
+                            activeAssignments.forEach(a => {
+                                if (a.userId) {
+                                    const u = allUsers.find(x => x.id === a.userId);
+                                    const name = u ? (u.firstName + ' ' + u.lastName) : (a.assigneeName || `User ${a.userId}`);
+                                    details.push({ type: 'user', id: a.userId, name: name, email: u ? u.email : '', initial: name.charAt(0).toUpperCase(), isSubItem: false });
+                                } else if (a.groupId) {
+                                    const g = lookupData.groups?.find(x => x.id === a.groupId);
+                                    const name = g ? g.name : (a.assigneeName || `Group ${a.groupId}`);
+                                    details.push({ type: 'group', id: a.groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
+                                    
+                                    const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
+                                    if (groupMembers.length > 0) {
+                                        groupMembers.forEach(mu => {
+                                            const muName = mu.firstName + ' ' + mu.lastName;
+                                            details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
+                                        });
+                                    } else {
+                                        details.push({ type: 'empty', id: 0, name: 'Ekipte kullanıcı yok', initial: '-', isSubItem: true, parentGroupId: a.groupId });
+                                    }
+                                }
+                            });
+                            assigneeDetails = details;
+                        }
+                    }
+
+                    const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <a href="/ticket-detail.html?id=${ticketItem.id}" class="ticket-title">
+                                <div>
+                                    <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(ticketItem.ticketNumber)}</span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">#${ticketItem.id}</span>
+                                </div>
+                                <span style="margin-left: 8px;">${escapeHtml(ticketItem.title)}</span>
+                            </a>
+                        </td>
+                        <td>${getStatusBadge(statusName)}</td>
+                        <td>${getPriorityBadge(prioName)}</td>
+                        <td><button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; border:none; background:none; padding:0; text-align:left; font:inherit; color:inherit;" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none;">${escapeHtml(assigneeName)}</span></button></td>
+                        <td>
+                            <div class="row-actions">
+                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>
+                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit')}</a>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) { console.error(e); showToast('Search failed', 'error'); }
+        }
+
+        async function exportCsv() {
+            const keyword = document.getElementById('searchInput').value;
+            try {
+                const blob = await window.api.exportTickets({ keyword });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tickets.csv';
+                a.click();
+            } catch (e) {
+                console.error(e);
+                showToast('Export failed', 'error');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        let savedFiltersList = [];
+
+        async function loadFiltersDropdown() {
+            try {
+                savedFiltersList = await window.api.getSavedFilters();
+                const sel = document.getElementById('savedFilters');
+                sel.innerHTML = `<option value="">${t('t_saved_filters')}</option>`;
+                savedFiltersList.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.id;
+                    opt.textContent = f.name;
+                    sel.appendChild(opt);
+                });
+            } catch (e) { console.error(e); 
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                     } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+ console.error(e); }
+        }
+
+        async function saveFilter() {
+            const name = prompt(t('t_prompt_filter_name'));
+            if (!name) return;
+            const queryJson = JSON.stringify({ keyword: document.getElementById('searchInput').value });
+            try {
+                await window.api.createSavedFilter({ name, queryJson });
+                loadFiltersDropdown();
+                showToast(t('t_toast_filter_saved'));
+            } catch (e) {
+                console.error(e);
+                showToast(t('t_toast_filter_err'), 'error');
+            }
+        }
+
+        function loadFilter() {
+            const id = document.getElementById('savedFilters').value;
+            if (!id) return;
+            const filter = savedFiltersList.find(f => f.id == id);
+            if (filter) {
+                const q = JSON.parse(filter.queryJson);
+                document.getElementById('searchInput').value = q.keyword || '';
+                search();
+            }
+        }
+
+        document.getElementById('btnSearch').addEventListener('click', search);
+        document.getElementById('btnSaveFilter').addEventListener('click', saveFilter);
+        document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
+        document.getElementById('savedFilters').addEventListener('change', loadFilter);
+        await loadFiltersDropdown();
+        await search();
+    </script>
+</body>
+</html>

@@ -30,6 +30,53 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
+    private bool ShouldSkipAudit(object entity)
+    {
+        if (entity is SystemAuditLog) return true;
+        var name = entity.GetType().Name;
+        return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification");
+    }
+
+    private void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
+    {
+        var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
+        if (modifiedProperties.Any(p => p.Metadata.Name == "IsDeleted") && entry.Entity.IsDeleted)
+        {
+            logs.Add(CreateAuditLog(entityType, entityName, entityId, "Deleted", null, null, null, userId, now));
+            return;
+        }
+
+        foreach (var prop in modifiedProperties)
+        {
+            string propName = prop.Metadata.Name;
+            if (propName == "UpdatedAt" || propName == "CreatedAt" || propName == "DeletedAt") continue;
+
+            var original = prop.OriginalValue?.ToString();
+            var current = prop.CurrentValue?.ToString();
+
+            if (original != current)
+            {
+                logs.Add(CreateAuditLog(entityType, entityName, entityId, "Updated", propName, original ?? "none", current ?? "none", userId, now));
+            }
+        }
+    }
+
+    private SystemAuditLog CreateAuditLog(string entityType, string entityName, string entityId, string action, string? fieldName, string? oldValue, string? newValue, string userId, DateTime now)
+    {
+        return new SystemAuditLog
+        {
+            EntityType = entityType,
+            EntityName = entityName,
+            EntityId = entityId,
+            Action = action,
+            FieldName = fieldName,
+            OldValue = oldValue,
+            NewValue = newValue,
+            CreatedBy = userId,
+            CreatedAt = now
+        };
+    }
+
     private void GenerateAuditLogs(DbContext? context)
     {
         if (context == null) return;
@@ -45,89 +92,23 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
         foreach (var entry in entries)
         {
-            // Skip auditing the audit log itself, history logs, notifications, or comments to prevent recursion/noise
-            if (entry.Entity is SystemAuditLog || entry.Entity.GetType().Name.Contains("History") || entry.Entity.GetType().Name.Contains("Comment") || entry.Entity.GetType().Name.Contains("Notification")) 
-                continue;
+            if (ShouldSkipAudit(entry.Entity)) continue;
 
             var entityType = entry.Entity.GetType().Name;
             var entityName = GetEntityName(entry, context);
             var entityId = entry.Entity.Id.ToString();
+            
+            var isGroupMember = entityType == "GroupMember";
 
             if (entry.State == EntityState.Added)
-            {
-                logsToAdd.Add(new SystemAuditLog
-                {
-                    EntityType = entityType,
-                    EntityName = entityName,
-                    EntityId = entityId,
-                    Action = "Created",
-                    NewValue = entityType == "GroupMember" ? entityName : null,
-                    CreatedBy = userId,
-                    CreatedAt = now
-                });
-            }
+                logsToAdd.Add(CreateAuditLog(entityType, entityName, entityId, "Created", null, null, isGroupMember ? entityName : null, userId, now));
             else if (entry.State == EntityState.Deleted)
-            {
-                logsToAdd.Add(new SystemAuditLog
-                {
-                    EntityType = entityType,
-                    EntityName = entityName,
-                    EntityId = entityId,
-                    Action = "Deleted",
-                    OldValue = entityType == "GroupMember" ? entityName : null,
-                    CreatedBy = userId,
-                    CreatedAt = now
-                });
-            }
+                logsToAdd.Add(CreateAuditLog(entityType, entityName, entityId, "Deleted", null, isGroupMember ? entityName : null, null, userId, now));
             else if (entry.State == EntityState.Modified)
-            {
-                // Detailed property tracking for Modified
-                var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
-
-                // If it's a soft delete, log it as Deleted
-                if (modifiedProperties.Any(p => p.Metadata.Name == "IsDeleted") && entry.Entity.IsDeleted)
-                {
-                    logsToAdd.Add(new SystemAuditLog
-                    {
-                        EntityType = entityType,
-                        EntityName = entityName,
-                        EntityId = entityId,
-                        Action = "Deleted",
-                        CreatedBy = userId,
-                        CreatedAt = now
-                    });
-                    continue;
-                }
-
-                foreach (var prop in modifiedProperties)
-                {
-                    string propName = prop.Metadata.Name;
-                    if (propName == "UpdatedAt" || propName == "CreatedAt" || propName == "DeletedAt") 
-                        continue;
-
-                    var original = prop.OriginalValue?.ToString();
-                    var current = prop.CurrentValue?.ToString();
-
-                    if (original != current)
-                    {
-                        logsToAdd.Add(new SystemAuditLog
-                        {
-                            EntityType = entityType,
-                            EntityName = entityName,
-                            EntityId = entityId,
-                            Action = "Updated",
-                            FieldName = propName,
-                            OldValue = original ?? "none",
-                            NewValue = current ?? "none",
-                            CreatedBy = userId,
-                            CreatedAt = now
-                        });
-                    }
-                }
-            }
+                ProcessModifiedEntity(entry, logsToAdd, entityType, entityName, entityId, userId, now);
         }
 
-        if (logsToAdd.Any())
+        if (logsToAdd.Count > 0)
         {
             context.Set<SystemAuditLog>().AddRange(logsToAdd);
         }

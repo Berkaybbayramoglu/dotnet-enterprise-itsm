@@ -1,59 +1,317 @@
-using System.Security.Claims;
-using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Audit Log</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: var(--spacing-md); }
+        .page-title h3 { margin: 0; font-size: 20px; color: var(--text-main); }
+        .page-title p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); }
+        
+        .filter-panel { background: var(--bg-surface); padding: var(--spacing-lg); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: var(--spacing-lg); display: flex; flex-wrap: wrap; gap: var(--spacing-md); align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px; }
+        .filter-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+        .filter-group input { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; }
+        .filter-group input:focus { border-color: var(--primary); outline: none; }
+        
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow-x: auto; }
+        
+        .empty-state { text-align: center; padding: var(--spacing-xxl) var(--spacing-lg); color: var(--text-muted); }
+        
+        /* Value formatting */
+        .value-cell { font-family: monospace; font-size: 12px; background: var(--bg-body); padding: 2px 6px; border-radius: 3px; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <!-- Audit Detail Modal -->
+    <div id="auditDetailModal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 data-i18n="audit_detail">Audit Detail</h3>
+                <button type="button" class="close-btn" onclick="document.getElementById('auditDetailModal').classList.remove('active')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="auditDetailText" style="line-height: 1.5;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('auditDetailModal').classList.remove('active')" data-i18n="audit_btn_close">Close</button>
+            </div>
+        </div>
+    </div>
 
-namespace ItsTool.API.Controllers;
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
 
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
-{
-    private readonly IAuthService _authService;
+                    <h2 data-i18n="audit_title">System Audit Log</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width:100%; border:none; background:transparent;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
 
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h3 data-i18n="audit_subtitle">Event Log</h3>
+                        <p data-i18n="audit_desc">Track all system and user activities across the platform.</p>
+                    </div>
+                </div>
 
-    [AllowAnonymous]
-    [HttpPost("login")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
-    {
-        try
-        {
-            var result = await _authService.LoginAsync(request);
-            return Ok(result);
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <label for="filterTicket" data-i18n="audit_filter_ticket">Ticket ID</label>
+                        <input id="filterTicket" placeholder="e.g. ITS-1">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterUserId" data-i18n="audit_filter_user">User ID</label>
+                        <input id="filterUserId" placeholder="e.g. 5">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterAction" data-i18n="audit_filter_action">Action Type</label>
+                        <input id="filterAction" placeholder="e.g. Created, Updated">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterFrom" data-i18n="audit_filter_from">From Date</label>
+                        <input id="filterFrom">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterTo" data-i18n="audit_filter_to">To Date</label>
+                        <input id="filterTo">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnSearchAudit" style="height: 38px; padding: 0 16px;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> <span data-i18n="audit_filter_btn">Filter</span>
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table" style="min-width: 800px;">
+                        <thead>
+                            <tr>
+                                <th data-i18n="audit_col_time">Timestamp</th>
+                                <th data-i18n="audit_col_entity">Entity</th>
+                                <th data-i18n="audit_col_user">User</th>
+                                <th data-i18n="audit_col_action">Action</th>
+                                <th data-i18n="audit_col_field">Field Modified</th>
+                                <th data-i18n="audit_col_old">Old Value</th>
+                                <th data-i18n="audit_col_new">New Value</th>
+                                <th style="width: 140px; text-align:right; position: sticky; right: 0; background: var(--bg-surface); z-index: 2; box-shadow: -2px 0 5px rgba(0,0,0,0.05);" data-i18n="audit_col_actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditList">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import './js/api.js?v=3';
+        import { injectShell } from './js/layout.js?v=10';
+        import { bindShellActions, showToast } from './js/ui.js?v=3';
+        import { t } from './js/i18n.js';
+        injectShell();
+
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        async function loadAuditLogs() {
+            const ticket = document.getElementById('filterTicket').value;
+            const userId = document.getElementById('filterUserId').value;
+            const action = document.getElementById('filterAction').value;
+            const fromDate = document.getElementById('filterFrom').value;
+            const toDate = document.getElementById('filterTo').value;
+
+            try {
+                let lookup = {};
+                let users = [];
+                try {
+                    lookup = await window.api.getLookup();
+                    users = await window.api.getUsers();
+                } catch (e) { console.error(e);  console.warn('Lookup failed in audit', e);  }
+
+                const res = await window.api.getAuditLogs({
+                    ticket, userId, action, fromDate, toDate, page: 1, pageSize: 100
+                });
+                
+                const tbody = document.getElementById('auditList');
+                tbody.innerHTML = '';
+                
+                if (res.items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">${t('audit_no_data')}</div></td></tr>`;
+                    return;
+                }
+
+                res.items.forEach(a => {
+                    const tr = document.createElement('tr');
+                    
+                    let mappedOld = a.oldValue;
+                    let mappedNew = a.newValue;
+                    
+                    if (a.fieldName === 'StatusId') {
+                        mappedOld = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'Status' && a.entityType === 'KnowledgeArticle') {
+                        const sMap = { '0': t('kb_opt_draft') || 'Draft', '1': t('kb_opt_published') || 'Published', '2': t('kb_badge_pending') || 'Pending Review' };
+                        mappedOld = sMap[a.oldValue] || a.oldValue;
+                        mappedNew = sMap[a.newValue] || a.newValue;
+                    } else if (a.fieldName === 'PriorityId') {
+                        mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'CategoryId') {
+                        mappedOld = lookup.categories?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.categories?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'ProjectId') {
+                        mappedOld = lookup.projects?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.projects?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'AssignedUserId') {
+                        mappedOld = users?.find(s => String(s.id) === a.oldValue)?.firstName ? (users.find(s => String(s.id) === a.oldValue).firstName + ' ' + users.find(s => String(s.id) === a.oldValue).lastName) : a.oldValue;
+                        mappedNew = users?.find(s => String(s.id) === a.newValue)?.firstName ? (users.find(s => String(s.id) === a.newValue).firstName + ' ' + users.find(s => String(s.id) === a.newValue).lastName) : a.newValue;
+                    } else if (a.fieldName === 'AssignedGroupId') {
+                        mappedOld = lookup.groups?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
+                        mappedNew = lookup.groups?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                    } else if (a.fieldName === 'Transfer') {
+                        const parseTransfer = (val) => {
+                            if (!val || val === 'Proj:,Grp:' || val === 'none') return val;
+                            const mProj = val.match(/Proj:(-?\d*)/);
+                            const mGrp = val.match(/Grp:(-?\d*)/);
+                            const pId = mProj && mProj[1] ? mProj[1] : null;
+                            const gId = mGrp && mGrp[1] ? mGrp[1] : null;
+                            const pName = pId && pId !== '-1' ? (lookup.projects?.find(x => String(x.id) === pId)?.name || `Project ${pId}`) : 'No Project';
+                            const gName = gId && gId !== '-1' ? (lookup.groups?.find(x => String(x.id) === gId)?.name || `Group ${gId}`) : 'No Group';
+                            return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
+                        };
+                        mappedOld = parseTransfer(a.oldValue);
+                        mappedNew = parseTransfer(a.newValue);
+                    }
+                    
+                    const oldVal = mappedOld ? `<span class="value-cell" title="${escapeHtml(mappedOld)}">${escapeHtml(mappedOld)}</span>` : '<span class="text-muted">-</span>';
+                    const newVal = mappedNew ? `<span class="value-cell" title="${escapeHtml(mappedNew)}">${escapeHtml(mappedNew)}</span>` : '<span class="text-muted">-</span>';
+                    
+                    const entityNameText = a.entityName || (a.ticketId ? `ITS-${a.ticketId}` : 'Unknown');
+                    const entityIdText = a.entityId || (a.ticketId ? a.ticketId.toString() : '');
+                    const entityType = a.entityType || (a.ticketId ? 'Ticket' : 'Config');
+
+                    const entityLink = entityType === 'Ticket' 
+                        ? `<a href="/ticket-detail.html?id=${entityIdText}&highlight=true" style="font-weight:600; color:var(--primary);">ITS-${entityIdText}</a>` 
+                        : `<span class="badge badge-default" style="margin-right:4px;">${escapeHtml(entityType)}</span> <span style="font-weight:500;">${escapeHtml(entityNameText)}</span>`;
+                    
+                    const creatorUser = users.find(u => String(u.id) === a.createdBy);
+                    const creatorName = creatorUser ? `@${creatorUser.username}` : (a.createdBy || '-');
+
+                    // Determine deep link
+                    let deepLink = '#';
+                    const et = entityType.toLowerCase();
+                    const en = (a.entityName || '').toLowerCase(); // For old logs where entityType is Config and name is AssignmentRule
+                    if (et === 'ticket') {
+                        deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
+                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied') {
+                            const cid = (!Number.isNaN(Number(a.fieldName)) && a.fieldName) ? a.fieldName : a.oldValue;
+                            deepLink += `&commentId=${cid}`;
+                        } else if (a.action === 'CommentDeleted') {
+                            deepLink += `&historyId=${a.id}`;
+                        } else if (a.action === 'ASSIGNED' || a.fieldName === 'Assignments' || a.fieldName === 'AssignedUserId' || a.fieldName === 'AssignedGroupId') {
+                            deepLink += `&focus=assign`;
+                        }
+                    }
+                    else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
+                    else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
+                    else if (et === 'knowledgearticle') deepLink = `/kb-article.html?id=${entityIdText}`;
+                    else if (et === 'user') deepLink = `/users.html?highlight=${entityIdText}`;
+                    else if (et === 'groupmember') deepLink = `/admin-crud.html?type=groups`;
+                    else {
+                        const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles' };
+                        if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
+                    }
+
+                    // Determine detail sentence
+                    let detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
+                    
+                    if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
+                        detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;
+                    }
+
+                    tr.innerHTML = `
+                        <td style="font-size: 13px; color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</td>
+                        <td>${entityLink}</td>
+                        <td style="font-family: monospace;">${escapeHtml(creatorName)}</td>
+                        <td><span class="badge badge-default">${escapeHtml(a.action)}</span></td>
+                        <td style="font-size: 13px;">${escapeHtml(a.fieldName) || '-'}</td>
+                        <td>${oldVal}</td>
+                        <td>${newVal}</td>
+                        <td style="text-align:right; position: sticky; right: 0; background: var(--bg-surface); z-index: 1; box-shadow: -2px 0 5px rgba(0,0,0,0.05);">
+                            <button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="showAuditDetail('${detailSentence.replaceAll("'", "\\'")}')">${t('audit_btn_detail')}</button>
+                            <a href="${deepLink}" class="btn btn-ghost" style="padding:4px 8px; font-size:12px; color:var(--primary); ${deepLink === '#' ? 'display:none;' : ''}">${t('audit_btn_go')}</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) { console.error(e); 
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                     } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+ 
+                console.error(e);
+                showToast('Failed to load audit logs. You might not have the required permissions.', 'error');
+            }
         }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized(new { message = "Invalid credentials." });
-        }
-    }
 
-    [Authorize]
-    [HttpGet("me")]
-    [ProducesResponseType(typeof(MeResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetMe()
-    {
-        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!int.TryParse(userIdStr, out int userId))
-        {
-            return Unauthorized();
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
-        try
-        {
-            var result = await _authService.GetMeAsync(userId);
-            return Ok(result);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized();
-        }
-    }
-}
+        window.showAuditDetail = function(message) {
+            document.getElementById('auditDetailText').textContent = message;
+            document.getElementById('auditDetailModal').classList.add('active');
+        };
+
+        document.getElementById('btnSearchAudit').addEventListener('click', async () => {
+            const btn = document.getElementById('btnSearchAudit');
+            btn.style.opacity = '0.7';
+            btn.innerHTML = t('audit_filter_loading');
+        await loadAuditLogs();
+            btn.style.opacity = '1';
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> <span data-i18n="audit_filter_btn">${t('audit_filter_btn')}</span>`;
+        });
+
+        // Add enter key support for inputs
+        document.querySelectorAll('.filter-group input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('btnSearchAudit').click();
+            });
+        });
+        await loadAuditLogs();
+    </script>
+</body>
+</html>

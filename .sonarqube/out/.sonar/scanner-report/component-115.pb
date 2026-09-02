@@ -1,1 +1,1 @@
-s 2jsXhrsrc/ItsTool.Web/wwwroot/test.js
+s 2csX:hr:src/ItsTool.Application/Interfaces/IOrganizationService.cs

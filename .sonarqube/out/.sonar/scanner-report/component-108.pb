@@ -1,1 +1,1 @@
-l 2webXchr"src/ItsTool.Web/wwwroot/login.html
+l 2csXhr1src/ItsTool.Application/Interfaces/IEmailQueue.cs

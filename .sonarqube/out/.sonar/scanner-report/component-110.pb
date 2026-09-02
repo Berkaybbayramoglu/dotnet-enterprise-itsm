@@ -1,1 +1,1 @@
-n 2webX¾hr&src/ItsTool.Web/wwwroot/audit-log.html
+n 2csX	hr;src/ItsTool.Application/Interfaces/IEmailTemplateService.cs

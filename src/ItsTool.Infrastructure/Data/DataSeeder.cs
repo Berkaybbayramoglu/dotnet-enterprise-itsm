@@ -32,9 +32,10 @@ public static class TransitionConstants
 
 public class DataSeeder
 {
-    private static readonly string[] ManagerPermissions = new[] { "report.view", "audit.view", "ticket.view", "ticket.assign", "ticket.transfer", "kb.manage" };
-    private static readonly string[] AgentPermissions = new[] { "ticket.view", PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "ticket.assign", "ticket.transfer", "kb.view" };
-    private static readonly string[] EndUserPermissions = new[] { "ticket.create", "ticket.view", "survey.submit", "kb.view" };
+    private const string TicketView = TicketView;
+    private static readonly string[] ManagerPermissions = new[] { "report.view", "audit.view", TicketView, "ticket.assign", "ticket.transfer", "kb.manage" };
+    private static readonly string[] AgentPermissions = new[] { TicketView, PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "ticket.assign", "ticket.transfer", "kb.view" };
+    private static readonly string[] EndUserPermissions = new[] { "ticket.create", TicketView, "survey.submit", "kb.view" };
 
     private readonly ItsToolDbContext _context;
 
@@ -143,7 +144,7 @@ public class DataSeeder
         var permDescriptions = new Dictionary<string, string>
         {
             { "ticket.create", "Yeni bilet oluşturma yetkisi sağlar." },
-            { "ticket.view", "Tüm biletleri veya yetkili olunan biletleri görüntüleme yetkisi sağlar." },
+            { TicketView, "Tüm biletleri veya yetkili olunan biletleri görüntüleme yetkisi sağlar." },
             { "ticket.edit", "Bilet detaylarını düzenleme yetkisi sağlar." },
             { "ticket.assign", "Biletleri kişilere veya gruplara atama yetkisi sağlar." },
             { "ticket.transfer", "Biletleri farklı projelere veya departmanlara transfer etme yetkisi sağlar." },
@@ -166,11 +167,12 @@ public class DataSeeder
             { "user.manage", "Kullanıcıları ve rolleri yönetme yetkisi sağlar." }
         };
         
-        foreach (var ep in existingPermissions)
+        var permissionsToUpdate = existingPermissions.Where(ep => string.IsNullOrEmpty(ep.Description)).ToList();
+        foreach (var ep in permissionsToUpdate)
         {
-            if (string.IsNullOrEmpty(ep.Description) && permDescriptions.ContainsKey(ep.Key))
+            if (permDescriptions.TryGetValue(ep.Key, out var desc))
             {
-                ep.Description = permDescriptions[ep.Key];
+                ep.Description = desc;
             }
         }
         await _context.SaveChangesAsync();

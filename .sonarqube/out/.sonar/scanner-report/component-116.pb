@@ -1,1 +1,1 @@
-t 2webXÑhr*src/ItsTool.Web/wwwroot/ticket-detail.html
+t 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs

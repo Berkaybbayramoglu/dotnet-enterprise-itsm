@@ -188,13 +188,11 @@ using (var scope = app.Services.CreateScope())
     
     var deletedGroupIds = await ctx.Groups.Where(g => g.IsDeleted).Select(g => g.Id).ToListAsync();
     
-    foreach(var a in orphanedAssignments) 
+    var assignmentsToDelete = orphanedAssignments.Where(a => a.AssignedGroupId.HasValue && deletedGroupIds.Contains(a.AssignedGroupId.GetValueOrDefault())).ToList();
+    foreach(var a in assignmentsToDelete) 
     {
-        if (deletedGroupIds.Contains(a.AssignedGroupId.Value)) 
-        {
-            a.IsDeleted = true;
-            a.IsActive = false;
-        }
+        a.IsDeleted = true;
+        a.IsActive = false;
     }
     await ctx.SaveChangesAsync();
 }
