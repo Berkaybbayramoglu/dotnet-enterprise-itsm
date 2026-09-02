@@ -134,7 +134,7 @@ export const translations = {
         "users_lbl_email": "Email *",
         "users_lbl_dept": "Department",
         "users_opt_none": "-- None --",
-        "users_lbl_groups": "Groups",
+
         "users_lbl_pass": "Password",
         "users_pass_placeholder": "Leave blank to keep existing (if edit)",
         "users_lbl_active": "Is Active",
@@ -487,7 +487,7 @@ export const translations = {
         "dash_kpi_sla_breached": "SLA İhlali",
         "dash_kpi_unassigned": "Atanmamış",
         "dash_kpi_avg_csat": "Ort. CSAT",
-        "dash_total": "Toplam",
+
         "dash_status_open": "Açık",
         "dash_unknown": "Bilinmiyor",
         "dash_records_found": "kayıt bulundu",
@@ -588,7 +588,7 @@ export const translations = {
         "users_lbl_email": "E-posta *",
         "users_lbl_dept": "Departman",
         "users_opt_none": "-- Yok --",
-        "users_lbl_groups": "Gruplar",
+
         "users_lbl_pass": "Şifre",
         "users_pass_placeholder": "Değiştirmek istemiyorsanız boş bırakın",
         "users_lbl_active": "Aktif Mi",
@@ -822,7 +822,7 @@ export const translations = {
         "td_opt_no_change": "-- Değişiklik Yok --",
         "td_btn_transfer": "Transfer Et",
         "td_modal_user_details": "Kullanıcı Detayları",
-        "td_modal_assign_history": "Atama Geçmişi Ağacı",
+
         "td_manage_assignees": "Atamaları Yönet",
         "td_email": "E-posta:",
         "td_dept": "Departman:",
@@ -848,7 +848,7 @@ export const translations = {
         "kb_yes": "Evet",
         "kb_no": "Hayır",
         "kb_related_articles": "İlgili Makaleler",
-        "kb_back": "← Bilgi Bankasına Dön",
+
         "kb_back": "← Bilgi Bankasına Dön",
         "kb_all_categories": "Tüm Kategoriler",
         "kb_by": "Yazar:",
