@@ -569,7 +569,7 @@ export function bindShellActions() {
                             return `<div style="font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; gap: 4px;">
                                     <span>${p}</span>
-                                    <button type="button" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replaceAll(\"'\", \"\\\\'\")}')">
+                                    <button type="button" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replaceAll(`'`, `\\'`).replaceAll(`"`, `&quot;`)}')">
                                         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
                                     </button>
                                 </div>
