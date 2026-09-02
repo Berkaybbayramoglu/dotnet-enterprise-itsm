@@ -1,63 +1,101 @@
 using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Infrastructure.Data;
+using ItsTool.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:admin.manage")]
-public class ProjectsController : CrudControllerBase<ProjectDto>
+[Authorize]
+public class PermissionsController : ControllerBase
 {
-    private readonly IProjectService _service;
+    private readonly ItsToolDbContext _context;
+    private readonly IPermissionCalculator _permissionCalculator;
 
-    public ProjectsController(IProjectService service)
+    public PermissionsController(ItsToolDbContext context, IPermissionCalculator permissionCalculator)
     {
-        _service = service;
+        _context = context;
+        _permissionCalculator = permissionCalculator;
+    }
+    
+    private async Task EnforceAdminAccessAsync(int userId)
+    {
+        var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
+        if (!perms.Contains("admin.manage"))
+            throw new UnauthorizedAccessException("Only SuperAdmins can manage permissions.");
     }
 
-    protected override Task<IEnumerable<ProjectDto>> GetAllEntitiesAsync() => _service.GetAllAsync();
-    protected override Task<ProjectDto?> GetEntityByIdAsync(int id) => _service.GetByIdAsync(id);
-    protected override Task DeleteEntityAsync(int id) => _service.DeleteAsync(id);
-
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var perms = await _context.Permissions.Select(p => new PermissionDto(p.Id, p.Name, p.Key, p.Description)).ToListAsync();
+        return Ok(perms);
+    }
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var p = await _context.Permissions.FindAsync(id);
+        if (p == null) return NotFound();
+        return Ok(new PermissionDto(p.Id, p.Name, p.Key, p.Description));
+    }
+    
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> Create([FromBody] CreateProjectDto dto)
-    {
-        var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectDto dto)
+    public async Task<IActionResult> Create([FromBody] CreatePermissionDto dto)
     {
         try
         {
-            await _service.UpdateAsync(id, dto);
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            await EnforceAdminAccessAsync(userId);
+            
+            var p = new Permission { Name = dto.Name, Key = dto.Key, Description = dto.Description };
+            _context.Permissions.Add(p);
+            await _context.SaveChangesAsync();
+            return Ok(new PermissionDto(p.Id, p.Name, p.Key, p.Description));
+        }
+        catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
+    }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdatePermissionDto dto)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            await EnforceAdminAccessAsync(userId);
+            
+            var p = await _context.Permissions.FindAsync(id);
+            if (p == null) return NotFound();
+            
+            p.Name = dto.Name;
+            p.Key = dto.Key;
+            p.Description = dto.Description;
+            await _context.SaveChangesAsync();
+            return Ok(new PermissionDto(p.Id, p.Name, p.Key, p.Description));
+        }
+        catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            await EnforceAdminAccessAsync(userId);
+            
+            var p = await _context.Permissions.FindAsync(id);
+            if (p == null) return NotFound();
+            
+            _context.Permissions.Remove(p);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpPost("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> AddMember(int id, int userId)
-    {
-        await _service.AddMemberAsync(id, userId);
-        return NoContent();
-    }
-
-    [HttpDelete("{id}/members/{userId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> RemoveMember(int id, int userId)
-    {
-        await _service.RemoveMemberAsync(id, userId);
-        return NoContent();
+        catch (UnauthorizedAccessException ex) { return Forbid(ex.Message); }
     }
 }

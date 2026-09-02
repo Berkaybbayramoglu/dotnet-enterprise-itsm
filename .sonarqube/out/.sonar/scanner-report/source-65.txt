@@ -1,84 +1,76 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:sla.manage")]
-public class SlaController : ControllerBase
+[Route("api/saved-filters")]
+[Authorize]
+public class SavedFilterController : ControllerBase
 {
-    private readonly ISlaService _service;
+    private readonly ItsToolDbContext _context;
 
-    public SlaController(ISlaService service)
+    public SavedFilterController(ItsToolDbContext context)
     {
-        _service = service;
+        _context = context;
     }
 
-    [HttpGet("policies")]
-    [ProducesResponseType(typeof(IEnumerable<SlaPolicyDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPolicies([FromQuery] int? projectId)
+    private int GetCurrentUserId()
     {
-        return Ok(await _service.GetPoliciesAsync(projectId));
+        var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.Parse(idClaim ?? "0");
     }
 
-    [HttpPost("policies")]
-    [ProducesResponseType(typeof(SlaPolicyDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreatePolicy([FromBody] CreateSlaPolicyDto dto)
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<SavedFilterDto>), 200)]
+    public async Task<IActionResult> GetMyFilters()
     {
-        var res = await _service.CreatePolicyAsync(dto);
-        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res);
+        var userId = GetCurrentUserId();
+        var filters = await _context.SavedFilters
+            .Where(f => f.UserId == userId && !f.IsDeleted)
+            .ToListAsync();
+            
+        return Ok(filters.Select(f => new SavedFilterDto(f.Id, f.UserId, f.Name, f.QueryJson)));
     }
 
-    [HttpPut("policies/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdatePolicy(int id, [FromBody] UpdateSlaPolicyDto dto)
+    [HttpPost]
+    [ProducesResponseType(typeof(SavedFilterDto), 201)]
+    public async Task<IActionResult> CreateFilter([FromBody] CreateSavedFilterDto dto)
     {
-        try { await _service.UpdatePolicyAsync(id, dto); return NoContent(); }
-        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
+        var userId = GetCurrentUserId();
+        var filter = new SavedFilter
+        {
+            UserId = userId,
+            Name = dto.Name,
+            QueryJson = dto.QueryJson
+        };
+        
+        _context.SavedFilters.Add(filter);
+        await _context.SaveChangesAsync();
+        
+        return CreatedAtAction(nameof(GetMyFilters), new { id = filter.Id }, new SavedFilterDto(filter.Id, filter.UserId, filter.Name, filter.QueryJson));
     }
 
-    [HttpDelete("policies/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeletePolicy(int id)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> DeleteFilter(int id)
     {
-        await _service.DeletePolicyAsync(id); return NoContent();
-    }
-
-    [HttpGet("policies/{id}/targets")]
-    [ProducesResponseType(typeof(IEnumerable<SlaTargetDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTargets(int id)
-    {
-        return Ok(await _service.GetTargetsAsync(id));
-    }
-
-    [HttpPost("targets")]
-    [ProducesResponseType(typeof(SlaTargetDto), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateTarget([FromBody] CreateSlaTargetDto dto)
-    {
-        var res = await _service.CreateTargetAsync(dto);
-        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res); // Note: Should probably point to GetTargets
-    }
-
-    [HttpPut("targets/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateTarget(int id, [FromBody] UpdateSlaTargetDto dto)
-    {
-        try { await _service.UpdateTargetAsync(id, dto); return NoContent(); }
-        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
-    }
-
-    [HttpDelete("targets/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> DeleteTarget(int id)
-    {
-        await _service.DeleteTargetAsync(id); return NoContent();
+        var userId = GetCurrentUserId();
+        var filter = await _context.SavedFilters.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId && !f.IsDeleted);
+        
+        if (filter == null) return NotFound();
+        
+        filter.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        
+        return NoContent();
     }
 }

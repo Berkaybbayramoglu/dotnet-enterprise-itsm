@@ -1,44 +1,33 @@
-using ItsTool.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using Xunit;
+using ItsTool.Domain.Entities.Ticket;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Data.Configurations;
 
-public class LocalFileStorageServiceTests
+public class TicketAssignmentConfiguration : IEntityTypeConfiguration<TicketAssignment>
 {
-    private readonly string _testPath = Path.Combine(Path.GetTempPath(), "ItsmTestUploads");
-
-    public LocalFileStorageServiceTests()
+    public void Configure(EntityTypeBuilder<TicketAssignment> builder)
     {
-        if (Directory.Exists(_testPath)) Directory.Delete(_testPath, true);
-    }
-
-    [Fact]
-    public async Task SaveFileAsync_ShouldRejectInvalidMime()
-    {
-        var configMock = new Mock<IConfiguration>();
-        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
-        var service = new LocalFileStorageService(configMock.Object);
-
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
+        builder.HasKey(a => a.Id);
         
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
-    }
+        builder.HasOne(a => a.AssignedUser)
+               .WithMany()
+               .HasForeignKey(a => a.AssignedUserId)
+               .OnDelete(DeleteBehavior.Restrict);
 
-    [Fact]
-    public async Task SaveFileAsync_ShouldRejectLargeFile()
-    {
-        var configMock = new Mock<IConfiguration>();
-        configMock.Setup(c => c["FileStorage:BasePath"]).Returns(_testPath);
-        var service = new LocalFileStorageService(configMock.Object);
+        builder.HasOne(a => a.AssignedGroup)
+               .WithMany()
+               .HasForeignKey(a => a.AssignedGroupId)
+               .OnDelete(DeleteBehavior.Restrict);
 
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.ContentType).Returns("application/pdf");
-        fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
-        
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
+        builder.HasOne(a => a.AssignedByUser)
+               .WithMany()
+               .HasForeignKey(a => a.AssignedByUserId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(a => a.ParentAssignment)
+               .WithMany()
+               .HasForeignKey(a => a.ParentAssignmentId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }

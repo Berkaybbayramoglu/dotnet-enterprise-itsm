@@ -1,1 +1,0 @@
-X 2webXšhr&src/ItsTool.Web/wwwroot/dashboard.html

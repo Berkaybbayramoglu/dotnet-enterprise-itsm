@@ -1,1 +1,1 @@
-Ä 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
+Ä 2csXhr0src/ItsTool.Application/DTOs/OrganizationDtos.cs

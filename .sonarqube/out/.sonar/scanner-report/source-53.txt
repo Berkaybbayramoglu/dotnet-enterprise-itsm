@@ -1,56 +1,43 @@
-using System.Threading.Tasks;
-using ItsTool.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ItsTool.API.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class DashboardController : ControllerBase
+public abstract class CrudControllerBase<TDto> : ControllerBase where TDto : class
 {
-    private readonly IDashboardService _dashboardService;
+    protected abstract Task<IEnumerable<TDto>> GetAllEntitiesAsync();
+    protected abstract Task<TDto?> GetEntityByIdAsync(int id);
+    protected abstract Task DeleteEntityAsync(int id);
 
-    public DashboardController(IDashboardService dashboardService)
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
     {
-        _dashboardService = dashboardService;
+        return Ok(await GetAllEntitiesAsync());
     }
 
-    private int GetCurrentUserId() => int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
-
-    [HttpGet("overview")]
-    public async Task<IActionResult> GetOverview()
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(int id)
     {
-        var result = await _dashboardService.GetOverviewAsync(GetCurrentUserId());
-        return Ok(result);
+        var entity = await GetEntityByIdAsync(id);
+        if (entity == null) return NotFound();
+        return Ok(entity);
     }
 
-    [HttpGet("distributions")]
-    public async Task<IActionResult> GetDistributions()
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
     {
-        var result = await _dashboardService.GetDistributionsAsync(GetCurrentUserId());
-        return Ok(result);
-    }
-
-    [HttpGet("department-workload")]
-    public async Task<IActionResult> GetDepartmentWorkload()
-    {
-        var result = await _dashboardService.GetDepartmentWorkloadAsync(GetCurrentUserId());
-        return Ok(result);
-    }
-
-    [HttpGet("sla-compliance")]
-    public async Task<IActionResult> GetSlaCompliance()
-    {
-        var result = await _dashboardService.GetSlaComplianceAsync(GetCurrentUserId());
-        return Ok(result);
-    }
-
-    [HttpGet("surveys")]
-    public async Task<IActionResult> GetRecentSurveys()
-    {
-        var result = await _dashboardService.GetRecentSurveysAsync(GetCurrentUserId());
-        return Ok(result);
+        try
+        {
+            await DeleteEntityAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

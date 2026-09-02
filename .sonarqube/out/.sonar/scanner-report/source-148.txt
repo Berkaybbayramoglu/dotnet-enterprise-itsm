@@ -1,60 +1,32 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Organization;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
+using ItsTool.Domain.Entities.Notification;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Data.Configurations;
 
-public class GroupServiceTests : TestBase
+public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 {
-    private readonly Repository<Group> _repository;
-    private readonly GroupService _service;
-
-    public GroupServiceTests()
+    public void Configure(EntityTypeBuilder<Notification> builder)
     {
-        _repository = new Repository<Group>(_context);
-        _service = new GroupService(_repository, _context);
+        builder.HasQueryFilter(e => !e.IsDeleted);
+        builder.HasIndex(e => new { e.UserId, e.IsRead });
+        
+        builder.HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
+}
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateGroup()
+public class NotificationPreferenceConfiguration : IEntityTypeConfiguration<NotificationPreference>
+{
+    public void Configure(EntityTypeBuilder<NotificationPreference> builder)
     {
-        var dto = new CreateGroupDto("Helpdesk", 1);
-        var result = await _service.CreateAsync(dto);
-
-        Assert.NotNull(result);
-        Assert.Equal("Helpdesk", result.Name);
-        Assert.Equal(1, result.DepartmentId);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateGroup()
-    {
-        var group = new Group { Name = "OldName", DepartmentId = 1 };
-        _context.Groups.Add(group);
-        await _context.SaveChangesAsync();
-
-        var dto = new UpdateGroupDto("NewName", true, 2);
-        await _service.UpdateAsync(group.Id, dto);
-
-        var updated = await _context.Groups.FindAsync(group.Id);
-        Assert.Equal("NewName", updated!.Name);
-        Assert.Equal(2, updated.DepartmentId);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldSoftDeleteGroup()
-    {
-        var group = new Group { Name = "ToDelete", DepartmentId = 1 };
-        _context.Groups.Add(group);
-        await _context.SaveChangesAsync();
-
-        await _service.DeleteAsync(group.Id);
-
-        var deleted = await _context.Groups.FindAsync(group.Id);
-        Assert.True(deleted!.IsDeleted);
-        Assert.NotNull(deleted.DeletedAt);
+        builder.HasQueryFilter(e => !e.IsDeleted);
+        
+        builder.HasOne(e => e.User)
+            .WithMany()
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

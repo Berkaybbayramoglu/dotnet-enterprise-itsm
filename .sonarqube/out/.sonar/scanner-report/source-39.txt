@@ -1,10 +1,19 @@
 using ItsTool.Domain.Common;
+using ItsTool.Domain.Entities.Organization;
+
 namespace ItsTool.Domain.Entities.Ticket;
-public class TicketHistory : BaseEntity {
+
+public class TicketComment : BaseEntity
+{
     public int TicketId { get; set; }
-    public string FieldName { get; set; } = string.Empty;
-    public string? OldValue { get; set; }
-    public string? NewValue { get; set; }
-    public string Action { get; set; } = string.Empty;
+    public int AuthorUserId { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public bool IsInternal { get; set; }
+    public bool IsEdited { get; set; }
+
+    public int? ParentCommentId { get; set; }
+    
     public virtual Ticket? Ticket { get; set; }
+    public virtual User? AuthorUser { get; set; }
+    public virtual TicketComment? ParentComment { get; set; }
 }

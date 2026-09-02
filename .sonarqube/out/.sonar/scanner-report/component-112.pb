@@ -1,1 +1,1 @@
-p 2csXchr2src/ItsTool.Infrastructure/Services/AuthService.cs
+p 2webXühr"src/ItsTool.Web/wwwroot/rules.html

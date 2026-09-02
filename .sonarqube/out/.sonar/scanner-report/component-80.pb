@@ -1,1 +1,0 @@
-P 2webXÓhr&src/ItsTool.Web/wwwroot/audit-log.html

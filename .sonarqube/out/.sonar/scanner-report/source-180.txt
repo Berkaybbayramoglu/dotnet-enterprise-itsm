@@ -1,19 +1,15 @@
-namespace ItsTool.Application.DTOs;
+using System;
+using System.Threading.Tasks;
+using ItsTool.Application.Interfaces;
 
-public record TicketDto(int Id, string TicketNumber, string Title, string Description, int ProjectId, int CategoryId, int TypeId, int StatusId, int PriorityId, int RequesterUserId, int? AssignedUserId, int? AssignedGroupId, Dictionary<string, string>? CustomFields = null);
-public record CreateTicketDto(string Title, string Description, int ProjectId, int CategoryId, int TypeId, int PriorityId, int RequesterUserId, Dictionary<string, string> CustomFields);
-public record UpdateTicketDto(string Title, string Description, int CategoryId, int PriorityId, Dictionary<string, string> CustomFields);
+namespace ItsTool.Infrastructure.Services;
 
-public record TicketHistoryDto(int Id, int TicketId, string FieldName, string? OldValue, string? NewValue, string Action, DateTime CreatedAt);
-public record TicketCommentDto(int Id, int TicketId, int AuthorUserId, string Content, bool IsInternal, DateTime CreatedAt);
-public record CreateCommentDto(string Content, bool IsInternal, int AuthorUserId);
-
-public record TicketAttachmentDto(int Id, int TicketId, string FileName, string FilePath, long FileSize, string ContentType, int UploadedByUserId, DateTime CreatedAt);
-
-public record TicketWatcherDto(int TicketId, int UserId);
-
-public record TimelineEventDto(string EventType, DateTime Timestamp, object Data); // e.g. EventType: "Comment", "History", "Attachment"
-
-public record AssignTicketDto(int UserId, int AssignerUserId);
-public record TransferTicketDto(int? ProjectId, int? GroupId, int TransferrerUserId);
-public record ChangeStatusDto(int NewStatusId, int UserId);
+public class StubEmailService : IEmailService
+{
+    public Task SendEmailAsync(string to, string subject, string body, bool isHtml = true)
+    {
+        Console.WriteLine($"[EMAIL STUB] To: {to}, Subject: {subject}");
+        Console.WriteLine($"[EMAIL STUB] Body: {body}");
+        return Task.CompletedTask;
+    }
+}

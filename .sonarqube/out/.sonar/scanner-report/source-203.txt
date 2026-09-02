@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
+using ItsTool.Domain.Entities.Ticket;
 
 namespace ItsTool.Application.Interfaces;
 
-public interface IWebhookDispatcher
+public interface IAssignmentEngine
 {
-    Task DispatchEventAsync(string eventKey, object payload);
+    Task AssignTicketAsync(Ticket ticket);
 }

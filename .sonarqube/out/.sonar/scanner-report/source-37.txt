@@ -3,15 +3,18 @@ using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.Domain.Entities.Ticket;
 
-public class TicketAttachment : BaseEntity
+public class TicketAssignment : BaseEntity
 {
     public int TicketId { get; set; }
-    public string FileName { get; set; } = string.Empty;
-    public string FilePath { get; set; } = string.Empty;
-    public long FileSize { get; set; }
-    public string ContentType { get; set; } = string.Empty;
-    public int UploadedByUserId { get; set; }
+    public int? AssignedUserId { get; set; }
+    public int? AssignedGroupId { get; set; }
+    public int? ParentAssignmentId { get; set; }
+    public int AssignedByUserId { get; set; }
+    public bool IsActive { get; set; } = true;
 
-    public virtual Ticket? Ticket { get; set; }
-    public virtual User? UploadedByUser { get; set; }
+    public virtual Ticket Ticket { get; set; } = null!;
+    public virtual User? AssignedUser { get; set; }
+    public virtual Group? AssignedGroup { get; set; }
+    public virtual TicketAssignment? ParentAssignment { get; set; }
+    public virtual User AssignedByUser { get; set; } = null!;
 }

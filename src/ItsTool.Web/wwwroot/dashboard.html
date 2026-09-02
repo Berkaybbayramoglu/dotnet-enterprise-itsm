@@ -28,7 +28,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -140,7 +140,7 @@
                             <svg viewBox="0 0 24 24" width="24" height="24" style="fill: currentColor;">${iconPath}</svg>
                         </div>
                         <div>
-                            <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">${t('dash_kpi_' + title.replace(/ /g, '_').toLowerCase()) || title}</div>
+                            <div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">${t('dash_kpi_' + title.replaceAll(' ', '_').toLowerCase()) || title}</div>
                             <div style="font-size: 28px; font-weight: 700; color: var(--${title === 'Avg CSAT' || title === 'Open Tickets' || title === 'Unassigned' ? 'text' : color}); line-height: 1.2;">${val}</div>
                         </div>
                     </div>
@@ -151,7 +151,7 @@
             new Chart(document.getElementById('statusChart'), {
                         type: 'doughnut',
                         data: {
-                            labels: dist.byStatus.map(d => t('db_' + d.key.toLowerCase().replace(' ', '_'))),
+                            labels: dist.byStatus.map(d => t('db_' + d.key.toLowerCase().replaceAll(' ', '_'))),
                             datasets: [{ data: dist.byStatus.map(d => d.count), backgroundColor: ['#0052CC','#00875A','#FF991F','#DE350B','#42526E'] }]
                         },
                         options: { 
@@ -173,7 +173,7 @@
             new Chart(document.getElementById('priorityChart'), {
                         type: 'bar',
                         data: {
-                            labels: dist.byPriority.map(d => t('db_' + d.key.toLowerCase().replace(' ', '_'))),
+                            labels: dist.byPriority.map(d => t('db_' + d.key.toLowerCase().replaceAll(' ', '_'))),
                             datasets: [{ label: 'Count', data: dist.byPriority.map(d => d.count), backgroundColor: '#0052CC' }]
                         },
                         options: { 
@@ -221,8 +221,8 @@
                     const statusName = (lookup.statuses && lookup.statuses.find(x => x.id === tData.statusId)?.name) || t('dash_unknown');
                     const priorityName = (lookup.priorities && lookup.priorities.find(x => x.id === tData.priorityId)?.name) || t('dash_unknown');
                     
-                    const localizedStatus = t('db_' + statusName.toLowerCase().replace(/ /g, '_')) || statusName;
-                    const localizedPriority = t('db_' + priorityName.toLowerCase().replace(/ /g, '_')) || priorityName;
+                    const localizedStatus = t('db_' + statusName.toLowerCase().replaceAll(' ', '_')) || statusName;
+                    const localizedPriority = t('db_' + priorityName.toLowerCase().replaceAll(' ', '_')) || priorityName;
 
                     return `
                     <tr style="cursor: pointer;" onclick="openTicketPreview(${tData.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTicketPreview(${tData.id});}">
@@ -300,7 +300,7 @@
             const getStatusName = (id) => lookup.statuses?.find(s => s.id === id)?.name || 'Unknown';
             const getStatusBadge = (status) => {
                 const map = { 'Open': 'info', 'In Progress': 'warning', 'Pending': 'warning', 'Resolved': 'success', 'Closed': 'default', 'Açık': 'info', 'Devam Ediyor': 'warning', 'Beklemede': 'warning', 'Çözüldü': 'success', 'Kapatıldı': 'default' };
-                let translationKey = 'db_' + status.toLowerCase().replace(' ', '_');
+                let translationKey = 'db_' + status.toLowerCase().replaceAll(' ', '_');
                 return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${t(translationKey)}</span>`;
             };
             
@@ -388,13 +388,13 @@
             const getPriorityName = (id) => window.__lookupCache?.priorities?.find(s => s.id === id)?.name || 'Normal';
             const getStatusBadge = (status) => {
                 const map = { 'Open': 'info', 'Açık': 'info', 'In Progress': 'warning', 'Devam Ediyor': 'warning', 'Pending': 'warning', 'Beklemede': 'warning', 'Resolved': 'success', 'Çözüldü': 'success', 'Closed': 'default', 'Kapatıldı': 'default' };
-                const label = t('db_' + status.toLowerCase().replace(/ /g, '_')) || status;
+                const label = t('db_' + status.toLowerCase().replaceAll(' ', '_')) || status;
                 return `<span class="badge badge-${map[status] || 'default'}" style="font-size: 11px;">${window.ui?.escapeHtml(label) || label}</span>`;
             };
 
             const getPriorityBadge = (priority) => {
                 const pMap = { 'Critical': 'danger', 'Kritik': 'danger', 'High': 'warning', 'Yüksek': 'warning', 'Medium': 'info', 'Orta': 'info', 'Low': 'default', 'Düşük': 'default' };
-                const label = t('db_' + priority.toLowerCase().replace(/ /g, '_')) || priority;
+                const label = t('db_' + priority.toLowerCase().replaceAll(' ', '_')) || priority;
                 return `<span class="badge badge-${pMap[priority] || 'default'}" style="font-size: 11px;">${window.ui?.escapeHtml(label) || label}</span>`;
             };
 
@@ -460,12 +460,12 @@
             let translatedType = type;
             if (type.startsWith('Status: ')) {
                 const val = type.replace('Status: ', '');
-                translatedType = `${t('dash_lbl_status') || 'Status'}: ${t('db_' + val.toLowerCase().replace(' ', '_')) || val}`;
+                translatedType = `${t('dash_lbl_status') || 'Status'}: ${t('db_' + val.toLowerCase().replaceAll(' ', '_')) || val}`;
             } else if (type.startsWith('Priority: ')) {
                 const val = type.replace('Priority: ', '');
-                translatedType = `${t('dash_lbl_priority') || 'Priority'}: ${t('db_' + val.toLowerCase().replace(' ', '_')) || val}`;
+                translatedType = `${t('dash_lbl_priority') || 'Priority'}: ${t('db_' + val.toLowerCase().replaceAll(' ', '_')) || val}`;
             } else {
-                translatedType = t('dash_kpi_' + type.replace(/ /g, '_').toLowerCase()) || type;
+                translatedType = t('dash_kpi_' + type.replaceAll(' ', '_').toLowerCase()) || type;
             }
             
             document.getElementById('drillDownTitle').textContent = `${translatedType} ${t('dash_details') || 'Details'}`;

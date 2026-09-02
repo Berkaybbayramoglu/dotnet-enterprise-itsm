@@ -57,7 +57,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -355,7 +355,7 @@
         function saveColumnOrder() {
             const board = document.getElementById('board');
             const cols = Array.from(board.children);
-            const newOrder = cols.map(c => Number.parseInt(c.dataset.colId));
+            const newOrder = cols.map(c => Number.parseInt(c.dataset.colId, 10));
             
             const payload = JSON.parse(atob(window.api.token.split('.')[1]));
             let userId = payload.sub || 'unknown';
@@ -402,8 +402,8 @@
             }
 
             if (target && card) {
-                const newStatusId = Number.parseInt(target.dataset.statusId);
-                const ticketId = Number.parseInt(card.id.replace('ticket-', ''));
+                const newStatusId = Number.parseInt(target.dataset.statusId, 10);
+                const ticketId = Number.parseInt(card.id.replace('ticket-', ''), 10);
 
                 try {
                     // Actual API expects string status if we are mapping it, check mock API logic, normally ID

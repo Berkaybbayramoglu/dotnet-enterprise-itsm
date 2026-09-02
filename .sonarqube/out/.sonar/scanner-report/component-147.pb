@@ -1,1 +1,1 @@
-“ (2csXDhr>tests/ItsTool.UnitTests/Services/EmailIngestionServiceTests.cs
+“ 2csXhrIsrc/ItsTool.Infrastructure/Data/Configurations/DepartmentConfiguration.cs

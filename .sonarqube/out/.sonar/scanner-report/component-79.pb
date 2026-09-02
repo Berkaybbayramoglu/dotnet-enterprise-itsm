@@ -1,1 +1,0 @@
-O 2webXÁhrsrc/ItsTool.Web/wwwroot/kb.html

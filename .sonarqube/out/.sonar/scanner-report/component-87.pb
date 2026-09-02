@@ -1,1 +1,0 @@
-W 2webXØhr#src/ItsTool.Web/wwwroot/survey.html

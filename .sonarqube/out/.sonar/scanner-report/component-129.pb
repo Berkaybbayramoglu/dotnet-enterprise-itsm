@@ -1,1 +1,1 @@
-Å 2csXAhr7src/ItsTool.Infrastructure/Services/SmtpEmailService.cs
+Å 2jsX‡hr"src/ItsTool.Web/wwwroot/js/i18n.js

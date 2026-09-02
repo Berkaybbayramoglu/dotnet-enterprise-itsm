@@ -1,1 +1,1 @@
-s 2csX8hr8src/ItsTool.Infrastructure/Services/DepartmentService.cs
+s 2jsXhrsrc/ItsTool.Web/wwwroot/test.js

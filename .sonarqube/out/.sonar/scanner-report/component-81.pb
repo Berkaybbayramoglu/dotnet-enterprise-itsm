@@ -1,1 +1,0 @@
-Q 2webXûhr#src/ItsTool.Web/wwwroot/kanban.html

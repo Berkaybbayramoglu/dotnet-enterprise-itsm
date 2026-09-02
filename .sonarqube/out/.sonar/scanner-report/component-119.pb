@@ -1,1 +1,1 @@
-w 2csX›hr;src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs
+w 2webXÚhr#src/ItsTool.Web/wwwroot/survey.html

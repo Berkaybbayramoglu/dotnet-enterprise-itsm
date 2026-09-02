@@ -1,1 +1,1 @@
-¦ (2xmlX—ähr.tests/ItsTool.UnitTests/coverage.opencover.xml
+¦ 2csX4hr;src/ItsTool.Infrastructure/Services/EmailTemplateService.cs

@@ -1,34 +1,34 @@
-using ItsTool.Application.DTOs;
+namespace ItsTool.Application.Constants;
 
-namespace ItsTool.Application.Interfaces;
-
-public interface ICatalogService
+public static class PermissionConstants
 {
-    // Category
-    Task<IEnumerable<CategoryDto>> GetCategoriesAsync(int? projectId = null);
-    Task<CategoryDto?> GetCategoryByIdAsync(int id);
-    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
-    Task UpdateCategoryAsync(int id, UpdateCategoryDto dto);
-    Task DeleteCategoryAsync(int id);
+    public const string TicketCreate = "ticket.create";
+    public const string TicketView = "ticket.view";
+    public const string TicketEdit = "ticket.edit";
+    public const string TicketAssign = "ticket.assign";
+    public const string TicketTransfer = "ticket.transfer";
+    public const string TicketResolve = "ticket.resolve";
+    public const string TicketClose = "ticket.close";
+    public const string TicketReopen = "ticket.reopen";
+    public const string TicketCommentInternal = "ticket.comment.internal";
+    public const string TicketCommentEdit = "ticket.comment.edit";
+    public const string TicketCommentReply = "ticket.comment.reply";
+    public const string TicketCommentDelete = "ticket.comment.delete";
+    public const string ReportView = "report.view";
+    public const string AdminManage = "admin.manage";
+    public const string ConfigManage = "config.manage";
+    public const string SlaManage = "sla.manage";
+    public const string AuditView = "audit.view";
 
-    // TicketType
-    Task<IEnumerable<TicketTypeDto>> GetTicketTypesAsync();
-    Task<TicketTypeDto?> GetTicketTypeByIdAsync(int id);
-    Task<TicketTypeDto> CreateTicketTypeAsync(CreateTicketTypeDto dto);
-    Task UpdateTicketTypeAsync(int id, UpdateTicketTypeDto dto);
-    Task DeleteTicketTypeAsync(int id);
+    public const string KbManage = "kb.manage";
+    public const string KbView = "kb.view";
+    public const string SurveySubmit = "survey.submit";
+    public const string TicketComment = "ticket.comment";
 
-    // Status
-    Task<IEnumerable<StatusDto>> GetStatusesAsync();
-    Task<StatusDto?> GetStatusByIdAsync(int id);
-    Task<StatusDto> CreateStatusAsync(CreateStatusDto dto);
-    Task UpdateStatusAsync(int id, UpdateStatusDto dto);
-    Task DeleteStatusAsync(int id);
-
-    // Priority
-    Task<IEnumerable<PriorityDto>> GetPrioritiesAsync();
-    Task<PriorityDto?> GetPriorityByIdAsync(int id);
-    Task<PriorityDto> CreatePriorityAsync(CreatePriorityDto dto);
-    Task UpdatePriorityAsync(int id, UpdatePriorityDto dto);
-    Task DeletePriorityAsync(int id);
+    public static IReadOnlyList<string> AllPermissions => new[]
+    {
+        TicketCreate, TicketView, TicketEdit, TicketAssign, TicketTransfer, 
+        TicketResolve, TicketClose, TicketReopen, TicketCommentInternal, TicketCommentEdit, TicketCommentReply, TicketCommentDelete, ReportView, AdminManage, ConfigManage, SlaManage, AuditView,
+        KbManage, KbView, SurveySubmit, TicketComment
+    };
 }

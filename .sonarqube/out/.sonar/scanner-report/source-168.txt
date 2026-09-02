@@ -1,7 +1,32 @@
-namespace ItsTool.Application.DTOs;
+using System;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+using ItsTool.Application.Interfaces;
 
-public record AssignmentRuleDto(int Id, string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+namespace ItsTool.Infrastructure.Services;
 
-public record CreateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+public class InMemoryEmailQueue : IEmailQueue
+{
+    private readonly Channel<EmailMessage> _queue;
 
-public record UpdateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+    public InMemoryEmailQueue()
+    {
+        var options = new BoundedChannelOptions(1000)
+        {
+            FullMode = BoundedChannelFullMode.Wait
+        };
+        _queue = Channel.CreateBounded<EmailMessage>(options);
+    }
+
+    public async ValueTask QueueEmailAsync(EmailMessage message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+        await _queue.Writer.WriteAsync(message);
+    }
+
+    public async ValueTask<EmailMessage> DequeueEmailAsync(CancellationToken cancellationToken)
+    {
+        return await _queue.Reader.ReadAsync(cancellationToken);
+    }
+}

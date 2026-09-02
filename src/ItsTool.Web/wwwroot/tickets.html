@@ -125,7 +125,7 @@
 
         const getStatusBadge = (status) => {
             const map = { 'Open': 'info', 'Açık': 'info', 'In Progress': 'warning', 'Devam Ediyor': 'warning', 'Pending': 'warning', 'Beklemede': 'warning', 'Resolved': 'success', 'Çözüldü': 'success', 'Closed': 'default', 'Kapatıldı': 'default' };
-            const labelKey = status ? 'db_' + status.toLowerCase().replace(/ /g, '_') : 'dash_unknown';
+            const labelKey = status ? 'db_' + status.toLowerCase().replaceAll(' ', '_') : 'dash_unknown';
             const label = t(labelKey) || status;
             return `<span class="badge badge-${map[status] || 'default'}">${label}</span>`;
         };

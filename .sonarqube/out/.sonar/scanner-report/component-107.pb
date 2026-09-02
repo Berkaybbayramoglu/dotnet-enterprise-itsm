@@ -1,1 +1,1 @@
-k 2csX,hr:src/ItsTool.Infrastructure/Data/ItsToolDbContextFactory.cs
+k 2webX hr'src/ItsTool.Web/wwwroot/kb-article.html

@@ -1,1 +1,0 @@
-U 2webX0hr'src/ItsTool.Web/wwwroot/admin-crud.html

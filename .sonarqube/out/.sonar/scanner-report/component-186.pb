@@ -1,1 +1,1 @@
-º 2csX#hr5src/ItsTool.Application/Interfaces/ICatalogService.cs
+º 2csX#hr8src/ItsTool.Application/Constants/PermissionConstants.cs

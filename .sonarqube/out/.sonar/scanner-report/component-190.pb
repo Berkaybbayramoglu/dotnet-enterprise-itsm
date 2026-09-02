@@ -1,1 +1,1 @@
-¾ 2csX	hr3src/ItsTool.Application/Interfaces/IEmailService.cs
+¾ 2csXhr+src/ItsTool.Application/DTOs/CatalogDtos.cs

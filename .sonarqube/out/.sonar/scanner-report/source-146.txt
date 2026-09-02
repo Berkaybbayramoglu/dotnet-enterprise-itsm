@@ -1,54 +1,58 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Config;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using ItsTool.Application.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.BackgroundServices;
 
-public class DynamicFormServiceTests : TestBase
+public class EmailBackgroundService : BackgroundService
 {
-    private readonly Repository<FieldDefinition> _defRepo;
-    private readonly Repository<FieldOption> _optRepo;
-    private readonly Repository<FormFieldPlacement> _placementRepo;
-    private readonly DynamicFormService _service;
+    private readonly IEmailQueue _emailQueue;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<EmailBackgroundService> _logger;
 
-    public DynamicFormServiceTests() : base()
+    public EmailBackgroundService(IEmailQueue emailQueue, IServiceProvider serviceProvider, ILogger<EmailBackgroundService> logger)
     {
-        _defRepo = new Repository<FieldDefinition>(_context);
-        _optRepo = new Repository<FieldOption>(_context);
-        _placementRepo = new Repository<FormFieldPlacement>(_context);
-        _service = new DynamicFormService(_defRepo, _optRepo, _placementRepo, _context);
+        _emailQueue = emailQueue;
+        _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
-    [Fact]
-    public async Task CreateFieldDefinitionAsync_ShouldThrowIfKeyNotUnique()
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var f = new FieldDefinition { Key = "test.key", Label = "A", FieldType = FieldType.Text };
-        _context.FieldDefinitions.Add(f);
-        await _context.SaveChangesAsync();
+        _logger.LogInformation("Email Background Service is starting.");
 
-        var dto = new CreateFieldDefinitionDto("test.key", "B", "Text", null);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateFieldDefinitionAsync(dto));
-    }
-
-    [Fact]
-    public async Task CreatePlacementAsync_ShouldThrowIfDuplicateScope()
-    {
-        var p = new FormFieldPlacement { FieldDefinitionId = 1, ProjectId = 1 };
-        _context.FormFieldPlacements.Add(p);
-        await _context.SaveChangesAsync();
-
-        var dto = new CreateFormFieldPlacementDto(1, 1, null, null, 1, true);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreatePlacementAsync(dto));
-    }
-
-    [Fact]
-    public async Task CreateFieldDefinitionAsync_ShouldCreate()
-    {
-        var dto = new CreateFieldDefinitionDto("uniq.key", "N", "Text", null);
-        var res = await _service.CreateFieldDefinitionAsync(dto);
-        Assert.Equal("uniq.key", res.Key);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                var emailMessage = await _emailQueue.DequeueEmailAsync(stoppingToken);
+                
+                try
+                {
+                    _logger.LogInformation("Sending background email to {To} - {Subject}", emailMessage.To, emailMessage.Subject);
+                    using var scope = _serviceProvider.CreateScope();
+                    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                    await emailService.SendEmailAsync(emailMessage.To, emailMessage.Subject, emailMessage.Body, emailMessage.IsHtml);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send background email to {To}", emailMessage.To);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Prevent throwing if stoppingToken is canceled
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in Email Background Service queue reader.");
+            }
+        }
+        
+        _logger.LogInformation("Email Background Service is stopping.");
     }
 }

@@ -1,14 +1,7 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.Interfaces;
+public record AssignmentRuleDto(int Id, string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
 
-public interface IDashboardService
-{
-    Task<DashboardOverviewDto> GetOverviewAsync(int userId);
-    Task<DashboardDistributionsDto> GetDistributionsAsync(int userId);
-    Task<IEnumerable<DepartmentWorkloadDto>> GetDepartmentWorkloadAsync(int userId);
-    Task<SlaComplianceDto> GetSlaComplianceAsync(int userId);
-    Task<IEnumerable<TicketSurveyDto>> GetRecentSurveysAsync(int userId);
-}
+public record CreateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);
+
+public record UpdateAssignmentRuleDto(string Name, int? ProjectId, int? CategoryId, int? TicketTypeId, int? PriorityId, int? TargetGroupId, int? TargetUserId, int SortOrder, bool IsActive);

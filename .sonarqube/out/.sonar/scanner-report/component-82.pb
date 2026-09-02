@@ -1,1 +1,0 @@
-R 2webXáhr"src/ItsTool.Web/wwwroot/rules.html

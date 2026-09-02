@@ -1,59 +1,127 @@
-using System.Security.Claims;
+using System.Linq;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
-using ItsTool.Application.Interfaces;
+using ItsTool.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ItsTool.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+[Route("api/audit-log")]
+[Authorize(Policy = "RequirePermission:audit.view")]
+public class AuditLogController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly ItsToolDbContext _context;
 
-    public AuthController(IAuthService authService)
+    public AuditLogController(ItsToolDbContext context)
     {
-        _authService = authService;
+        _context = context;
     }
 
-    [AllowAnonymous]
-    [HttpPost("login")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedAuditLogDto), 200)]
+    public async Task<IActionResult> GetAuditLogs([FromQuery] AuditLogFilterDto filter)
     {
-        try
-        {
-            var result = await _authService.LoginAsync(request);
-            return Ok(result);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized(new { message = "Invalid credentials." });
-        }
-    }
+        var ticketQuery = _context.TicketHistories.AsQueryable();
+        var systemQuery = _context.SystemAuditLogs.AsQueryable();
+        
+        bool isTicketFiltered = false;
 
-    [Authorize]
-    [HttpGet("me")]
-    [ProducesResponseType(typeof(MeResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetMe()
-    {
-        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!int.TryParse(userIdStr, out int userId))
+        if (!string.IsNullOrEmpty(filter.Ticket))
         {
-            return Unauthorized();
+            var ticketStr = filter.Ticket.Trim().ToUpper();
+            if (ticketStr.StartsWith("ITS-"))
+            {
+                if (int.TryParse(ticketStr.AsSpan(4), out int parsedId))
+                {
+                    ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
+                    isTicketFiltered = true;
+                }
+            }
+            else if (int.TryParse(ticketStr, out int parsedId))
+            {
+                ticketQuery = ticketQuery.Where(h => h.TicketId == parsedId);
+                isTicketFiltered = true;
+            }
         }
 
-        try
+        if (!string.IsNullOrEmpty(filter.Action))
         {
-            var result = await _authService.GetMeAsync(userId);
-            return Ok(result);
+            ticketQuery = ticketQuery.Where(h => h.Action == filter.Action);
+            systemQuery = systemQuery.Where(h => h.Action == filter.Action);
         }
-        catch (UnauthorizedAccessException)
+
+        if (filter.UserId.HasValue)
         {
-            return Unauthorized();
+            var userIdStr = filter.UserId.Value.ToString();
+            ticketQuery = ticketQuery.Where(h => h.CreatedBy == userIdStr);
+            systemQuery = systemQuery.Where(h => h.CreatedBy == userIdStr);
         }
+
+        if (filter.FromDate.HasValue)
+        {
+            ticketQuery = ticketQuery.Where(h => h.CreatedAt >= filter.FromDate.Value);
+            systemQuery = systemQuery.Where(h => h.CreatedAt >= filter.FromDate.Value);
+        }
+
+        if (filter.ToDate.HasValue)
+        {
+            ticketQuery = ticketQuery.Where(h => h.CreatedAt <= filter.ToDate.Value);
+            systemQuery = systemQuery.Where(h => h.CreatedAt <= filter.ToDate.Value);
+        }
+
+        var ticketCount = await ticketQuery.CountAsync();
+        var systemCount = isTicketFiltered ? 0 : await systemQuery.CountAsync();
+        var totalCount = ticketCount + systemCount;
+
+        var ticketItems = await ticketQuery
+            .OrderByDescending(h => h.CreatedAt)
+            .Take(filter.PageSize * filter.Page)
+            .Select(h => new AuditLogItemDto(
+                h.Id,
+                h.TicketId,
+                h.Action,
+                h.FieldName,
+                h.OldValue,
+                h.NewValue,
+                h.CreatedBy ?? "system",
+                h.CreatedAt,
+                "Ticket",
+                "ITS-" + h.TicketId,
+                h.TicketId.ToString()
+            ))
+            .ToListAsync();
+
+        var systemItems = new System.Collections.Generic.List<AuditLogItemDto>();
+        if (!isTicketFiltered)
+        {
+            systemItems = await systemQuery
+                .OrderByDescending(h => h.CreatedAt)
+                .Take(filter.PageSize * filter.Page)
+                .Select(h => new AuditLogItemDto(
+                    h.Id,
+                    null,
+                    h.Action,
+                    h.FieldName ?? "",
+                    h.OldValue,
+                    h.NewValue,
+                    h.CreatedBy ?? "system",
+                    h.CreatedAt,
+                    h.EntityType,
+                    h.EntityName,
+                    h.EntityId
+                ))
+                .ToListAsync();
+        }
+
+        var items = ticketItems.Concat(systemItems)
+            .OrderByDescending(h => h.CreatedAt)
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+
+        return Ok(new PaginatedAuditLogDto(items, totalCount, filter.Page, filter.PageSize));
     }
 }

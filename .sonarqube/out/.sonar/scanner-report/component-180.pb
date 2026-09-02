@@ -1,1 +1,1 @@
-´ 2csXhr*src/ItsTool.Application/DTOs/TicketDtos.cs
+´ 2csXhr7src/ItsTool.Infrastructure/Services/StubEmailService.cs

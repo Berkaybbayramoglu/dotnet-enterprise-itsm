@@ -1,154 +1,88 @@
-using ItsTool.Application.Constants;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
-using ItsTool.Infrastructure.Services;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Security;
-using ItsTool.API.HostedServices;
-using ItsTool.API.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace ItsTool.API.Controllers;
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddDbContext<ItsToolDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<DataSeeder>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPermissionCalculator, PermissionCalculator>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-// Organization Services (Phase 4)
-builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<IGroupService, GroupService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-
-// Catalog & Workflow Services (Phase 5)
-builder.Services.AddScoped<ICatalogService, CatalogService>();
-builder.Services.AddScoped<IWorkflowService, WorkflowService>();
-builder.Services.AddScoped<IDynamicFormService, DynamicFormService>();
-
-// Ticket Services (Phase 6)
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
-builder.Services.AddScoped<ITicketService, TicketService>();
-    builder.Services.AddScoped<IEmailService>(sp =>
-    {
-        var config = sp.GetRequiredService<IConfiguration>();
-        var host = config["Smtp:Host"];
-        if (!string.IsNullOrEmpty(host))
-        {
-            var logger = sp.GetRequiredService<ILogger<SmtpEmailService>>();
-            return new SmtpEmailService(config, logger);
-        }
-        return new StubEmailService();
-    });
-    builder.Services.AddScoped<IEmailIngestionService, EmailIngestionService>();
-builder.Services.AddScoped<ISlaEngine, SlaEngine>();
-builder.Services.AddScoped<IAssignmentEngine, AssignmentEngine>();
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<IWebhookDispatcher, WebhookDispatcher>();
-builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
-    builder.Services.AddScoped<INotificationService, NotificationService>();
-    builder.Services.AddScoped<ISlaService, SlaService>();
-    builder.Services.AddHostedService<SlaCheckerService>();
-
-    // Dashboard, Reporting & KB (Phase 8)
-    builder.Services.AddScoped<IDashboardService, DashboardService>();
-    builder.Services.AddScoped<IReportService, ReportService>();
-    builder.Services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
-    builder.Services.AddScoped<ISystemAuditService, SystemAuditService>();
-
-// Auth Setup
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? "fallback_secret_for_development_purposes_only"))
-        };
-    });
-
-builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddAuthorization(options =>
+[ApiController]
+[Route("api/[controller]")]
+[Authorize(Policy = "RequirePermission:config.manage")]
+public class WorkflowController : ControllerBase
 {
-    foreach (var perm in PermissionConstants.AllPermissions)
+    private readonly IWorkflowService _service;
+
+    public WorkflowController(IWorkflowService service)
     {
-        options.AddPolicy($"RequirePermission:{perm}", policy => 
-            policy.Requirements.Add(new PermissionRequirement(perm)));
+        _service = service;
     }
-    options.AddPolicy("RequireKbManage", policy => policy.RequireClaim("Permission", "kb.manage"));
-});
 
-// Minimal CORS
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-?? Array.Empty<string>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("TrustedOrigins", builder =>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<WorkflowDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetWorkflows([FromQuery] int? projectId)
     {
-        builder.WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+        return Ok(await _service.GetWorkflowsAsync(projectId));
+    }
 
-});
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseCors("TrustedOrigins");
-app.UseHttpsRedirection();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapGet("/api/health", () =>
-{
-    return Results.Ok(new
+    [HttpPost]
+    [ProducesResponseType(typeof(WorkflowDto), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateWorkflow([FromBody] CreateWorkflowDto dto)
     {
-        status = "OK",
-        service = "ItsTool.API",
-        timestamp = DateTime.UtcNow
-    });
-});
+        var result = await _service.CreateWorkflowAsync(dto);
+        return CreatedAtAction(nameof(GetWorkflows), new { id = result.Id }, result);
+    }
 
-app.MapControllers();
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateWorkflow(int id, [FromBody] UpdateWorkflowDto dto)
+    {
+        try { await _service.UpdateWorkflowAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+    }
 
-if (app.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("AutoSeed"))
-{
-    using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<ItsTool.Infrastructure.Data.ItsToolDbContext>();
-    await context.Database.MigrateAsync();
-    var seeder = new ItsTool.Infrastructure.Data.DataSeeder(context);
-    await seeder.SeedAsync();
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteWorkflow(int id)
+    {
+        await _service.DeleteWorkflowAsync(id); return NoContent();
+    }
+
+    [HttpGet("{workflowId}/transitions")]
+    [ProducesResponseType(typeof(IEnumerable<WorkflowTransitionDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTransitions(int workflowId)
+    {
+        return Ok(await _service.GetTransitionsByWorkflowIdAsync(workflowId));
+    }
+
+    [HttpPost("transitions")]
+    [ProducesResponseType(typeof(WorkflowTransitionDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateTransition([FromBody] CreateWorkflowTransitionDto dto)
+    {
+        try
+        {
+            var result = await _service.CreateTransitionAsync(dto);
+            return CreatedAtAction(nameof(GetWorkflows), new { id = result.Id }, result);
+        }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpPut("transitions/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTransition(int id, [FromBody] UpdateWorkflowTransitionDto dto)
+    {
+        try { await _service.UpdateTransitionAsync(id, dto); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [HttpDelete("transitions/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteTransition(int id)
+    {
+        await _service.DeleteTransitionAsync(id); return NoContent();
+    }
 }
-
-await app.RunAsync();

@@ -1,1 +1,1 @@
-¯ 2csXhr1src/ItsTool.Application/DTOs/KnowledgeBaseDtos.cs
+¯ 2csX\hr4src/ItsTool.Infrastructure/Services/ReportService.cs

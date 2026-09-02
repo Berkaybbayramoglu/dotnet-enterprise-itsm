@@ -1,1 +1,1 @@
-ƒ 2csX*hr9src/ItsTool.Infrastructure/Services/SystemAuditService.cs
+ƒ 2jsX¬hr'src/ItsTool.Web/wwwroot/js/crud-page.js

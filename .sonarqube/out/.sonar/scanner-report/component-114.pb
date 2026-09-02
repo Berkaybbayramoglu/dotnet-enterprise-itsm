@@ -1,1 +1,1 @@
-r 2csXÌhr7src/ItsTool.Infrastructure/Services/DashboardService.cs
+r 2webXÖhr%src/ItsTool.Web/wwwroot/workload.html

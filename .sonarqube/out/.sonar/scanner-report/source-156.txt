@@ -1,59 +1,62 @@
-using ItsTool.Application.DTOs;
-using ItsTool.Domain.Entities.Auth;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
+using System.Linq.Expressions;
+using ItsTool.Application.Interfaces;
+using ItsTool.Domain.Common;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class RoleServiceTests : TestBase
+public class Repository<T> : IRepository<T> where T : BaseEntity
 {
-    private readonly Repository<Role> _repository;
-    private readonly RoleService _service;
+    protected readonly ItsToolDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
-    public RoleServiceTests()
+    public Repository(ItsToolDbContext context)
     {
-        _repository = new Repository<Role>(_context);
-        _service = new RoleService(_repository, _context);
+        _context = context;
+        _dbSet = context.Set<T>();
     }
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateRole()
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
     {
-        var dto = new CreateRoleDto("Manager");
-        var result = await _service.CreateAsync(dto);
-
-        Assert.NotNull(result);
-        Assert.Equal("Manager", result.Name);
+        IQueryable<T> query = _dbSet.Where(e => !e.IsDeleted);
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+        return await query.ToListAsync();
     }
 
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateRole()
+    public async Task<T?> GetByIdAsync(int id)
     {
-        var role = new Role { Name = "Old" };
-        _context.Roles.Add(role);
+        return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    }
+
+    public async Task<T> AddAsync(T entity)
+    {
+        _dbSet.Add(entity);
         await _context.SaveChangesAsync();
-
-        var dto = new UpdateRoleDto("New", true);
-        await _service.UpdateAsync(role.Id, dto);
-
-        var updated = await _context.Roles.FindAsync(role.Id);
-        Assert.Equal("New", updated!.Name);
+        return entity;
     }
 
-    [Fact]
-    public async Task AssignPermissionAsync_ShouldAssignPermission()
+    public async Task UpdateAsync(T entity)
     {
-        var role = new Role { Name = "R1" };
-        var perm = new Permission { Name = "P1", Key = "p1" };
-        _context.Roles.Add(role);
-        _context.Permissions.Add(perm);
+        entity.UpdatedAt = DateTime.UtcNow;
+        _dbSet.Update(entity);
         await _context.SaveChangesAsync();
+    }
 
-        await _service.AssignPermissionAsync(role.Id, perm.Id);
-
-        var assigned = await _context.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == role.Id && rp.PermissionId == perm.Id);
-        Assert.NotNull(assigned);
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            entity.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new KeyNotFoundException($"{typeof(T).Name} not found");
+        }
     }
 }

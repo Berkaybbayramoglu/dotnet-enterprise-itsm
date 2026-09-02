@@ -136,7 +136,7 @@
                                                     <button type="button" class="btn btn-ghost" onclick="document.getElementById('commentAttachmentInput').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
                                                         📎
                                                     </button>
-                                                    <input type="file" id="commentAttachmentInput" multiple style="display: none;" onchange="uploadCommentAttachment(this)">
+                                                    <input type="file" id="commentAttachmentInput" multiple style="display: none;" onchange="uploadCommentAttachment(this)" aria-label="Attach File">
                                                     
                                                     <label style="font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 0; color: var(--text-secondary); cursor: pointer;">
                                                         <input type="checkbox" id="isInternalComment"> <span data-i18n="td_internal_note">Internal Note</span>
@@ -336,7 +336,7 @@
             <div class="modal-header">
                 <h2 data-i18n="td_modal_comment_logs">Comment Logs</h2>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <input type="text" id="commentLogSearch" class="form-control" style="width:200px; padding: 4px 8px; font-size: 12px;" placeholder="Search logs..." data-i18n="td_search_logs" data-i18n-target="placeholder">
+                    <input type="text" id="commentLogSearch" class="form-control" style="width:200px; padding: 4px 8px; font-size: 12px;" placeholder="Search logs..." data-i18n="td_search_logs" data-i18n-target="placeholder" aria-label="Search Comment Logs">
                     <button class="btn btn-ghost" onclick="downloadCommentLogs()" title="Download CSV">
                         <svg viewBox="0 0 24 24" width="18" height="18" style="fill:currentColor;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                     </button>
@@ -1122,12 +1122,12 @@
             csvContent += "Date,User,Action,Field,OldValue,NewValue\n";
             
             historyItems.forEach(h => {
-                const date = `"${new Date(h.createdAt).toLocaleString().replace(/"/g, '""')}"`;
-                const user = `"${(globalUsers.find(x => x.id == h.createdBy)?.username || h.createdBy || '').replace(/"/g, '""')}"`;
-                const action = `"${(h.action || '').replace(/"/g, '""')}"`;
-                const field = `"${(h.fieldName || '').replace(/"/g, '""')}"`;
-                const oldVal = `"${(h.oldValue || '').replace(/"/g, '""')}"`;
-                const newVal = `"${(h.newValue || '').replace(/"/g, '""')}"`;
+                const date = `"${new Date(h.createdAt).toLocaleString().replaceAll('"', '""')}"`;
+                const user = `"${(globalUsers.find(x => x.id == h.createdBy)?.username || h.createdBy || '').replaceAll('"', '""')}"`;
+                const action = `"${(h.action || '').replaceAll('"', '""')}"`;
+                const field = `"${(h.fieldName || '').replaceAll('"', '""')}"`;
+                const oldVal = `"${(h.oldValue || '').replaceAll('"', '""')}"`;
+                const newVal = `"${(h.newValue || '').replaceAll('"', '""')}"`;
                 
                 csvContent += `${date},${user},${action},${field},${oldVal},${newVal}\n`;
             });
@@ -1635,7 +1635,7 @@
                                     const newEnc = btoa(unescape(encodeURIComponent(h.newValue)));
                                     let origAuthor = 'Unknown';
                                     let origCreatedAt = 'Unknown';
-                                    if (h.fieldName && !isNaN(h.fieldName)) {
+                                    if (h.fieldName && !Number.isNaN(Number(h.fieldName))) {
                                         const origEvent = events.find(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
                                         if (origEvent) {
                                             origAuthor = resolveUser(origEvent.data.authorUserId);
@@ -1657,7 +1657,7 @@
                                 logDiv.style.backgroundColor = 'transparent';
                                 logDiv.style.padding = '4px 0 4px 8px';
                                 logDiv.dataset.searchText = `${resolveUser(h.createdBy)} ${text} ${h.oldValue||''} ${h.newValue||''}`.toLowerCase();
-                                logDiv.dataset.csvRow = `"${new Date(e.timestamp).toISOString()}","${resolveUser(h.createdBy)}","${text}","${(h.oldValue||'').replace(/"/g, '""')}","${(h.newValue||'').replace(/"/g, '""')}"`;
+                                logDiv.dataset.csvRow = `"${new Date(e.timestamp).toISOString()}","${resolveUser(h.createdBy)}","${text}","${(h.oldValue||'').replaceAll('"', '""')}","${(h.newValue||'').replaceAll('"', '""')}"`;
                                 
                                 logDiv.innerHTML = `<div style="font-size:11px; color:var(--text-main);"><strong>${resolveUser(h.createdBy)}</strong> ${text}</div><div style="font-size:10px; color:var(--text-muted);">${new Date(e.timestamp).toLocaleString()}</div>${detailsHtml}`;
                                 commentLogsList.appendChild(logDiv);

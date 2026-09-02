@@ -1,1 +1,1 @@
-Ç 2csXhr7src/ItsTool.Infrastructure/Services/StubEmailService.cs
+Ç 2jsXùhr+src/ItsTool.Web/wwwroot/js/admin-configs.js

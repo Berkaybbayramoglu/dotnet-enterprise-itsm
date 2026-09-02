@@ -1,1 +1,1 @@
-u 2csXzhr<src/ItsTool.Infrastructure/Services/EmailIngestionService.cs
+u 2webXKhr'src/ItsTool.Web/wwwroot/admin-crud.html

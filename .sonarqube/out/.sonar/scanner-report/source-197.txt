@@ -1,10 +1,5 @@
-using System.IO;
-using System.Threading.Tasks;
-using ItsTool.Application.DTOs;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.Interfaces;
+public record SavedFilterDto(int Id, int UserId, string Name, string QueryJson);
 
-public interface IReportService
-{
-    Task<Stream> ExportTicketsToCsvAsync(TicketSearchFilterDto filter, int userId);
-}
+public record CreateSavedFilterDto(string Name, string QueryJson);

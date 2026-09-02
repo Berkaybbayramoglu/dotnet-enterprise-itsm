@@ -1,1 +1,1 @@
-‘ (2csX6hr:tests/ItsTool.UnitTests/Services/DepartmentServiceTests.cs
+‘ 2webX;hr<src/ItsTool.Infrastructure/Templates/Email/BaseTemplate.html

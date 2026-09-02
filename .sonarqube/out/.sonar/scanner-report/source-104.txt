@@ -1,13 +1,8 @@
-using ItsTool.Domain.Entities.Ticket;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace ItsTool.Infrastructure.Data.Configurations;
-public class TicketConfiguration : IEntityTypeConfiguration<Ticket> {
-    public void Configure(EntityTypeBuilder<Ticket> builder) {
-        builder.HasKey(t => t.Id);
-        builder.Property(t => t.TicketNumber).IsRequired().HasMaxLength(50);
-        builder.HasIndex(t => t.TicketNumber).IsUnique();
-        builder.HasOne(t => t.RequesterUser).WithMany().HasForeignKey(t => t.RequesterUserId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(t => t.AssignedUser).WithMany().HasForeignKey(t => t.AssignedUserId).OnDelete(DeleteBehavior.SetNull);
-    }
+const fetch = require('node-fetch');
+async function test() {
+    const res = await fetch('http://127.0.0.1:5246/api/Ticket/2/attachments', {
+        headers: { 'Authorization': 'Bearer ' + 'dummy_token' } // wait, I don't have a token.
+    });
+    console.log(res.status);
 }
+test();

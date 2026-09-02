@@ -1,27 +1,34 @@
-using ItsTool.Application.DTOs;
+using System;
 
-namespace ItsTool.Application.Interfaces;
+namespace ItsTool.Application.DTOs;
 
-public interface IDynamicFormService
-{
-    // FieldDefinition
-    Task<IEnumerable<FieldDefinitionDto>> GetFieldDefinitionsAsync();
-    Task<FieldDefinitionDto?> GetFieldDefinitionByIdAsync(int id);
-    Task<FieldDefinitionDto> CreateFieldDefinitionAsync(CreateFieldDefinitionDto dto);
-    Task UpdateFieldDefinitionAsync(int id, UpdateFieldDefinitionDto dto);
-    Task DeleteFieldDefinitionAsync(int id);
+public record AuditLogFilterDto(
+    int? UserId,
+    string? Action,
+    string? Ticket,
+    DateTime? FromDate,
+    DateTime? ToDate,
+    int Page = 1,
+    int PageSize = 50
+);
 
-    // FieldOption
-    Task<IEnumerable<FieldOptionDto>> GetFieldOptionsAsync(int fieldDefinitionId);
-    Task<FieldOptionDto?> GetFieldOptionByIdAsync(int id);
-    Task<FieldOptionDto> CreateFieldOptionAsync(CreateFieldOptionDto dto);
-    Task UpdateFieldOptionAsync(int id, UpdateFieldOptionDto dto);
-    Task DeleteFieldOptionAsync(int id);
+public record AuditLogItemDto(
+    int Id,
+    int? TicketId,
+    string Action,
+    string FieldName,
+    string? OldValue,
+    string? NewValue,
+    string CreatedBy,
+    DateTime CreatedAt,
+    string? EntityType = null,
+    string? EntityName = null,
+    string? EntityId = null
+);
 
-    // FormFieldPlacement
-    Task<IEnumerable<FormFieldPlacementDto>> GetPlacementsAsync(int? projectId, int? categoryId, int? ticketTypeId);
-    Task<FormFieldPlacementDto?> GetPlacementByIdAsync(int id);
-    Task<FormFieldPlacementDto> CreatePlacementAsync(CreateFormFieldPlacementDto dto);
-    Task UpdatePlacementAsync(int id, UpdateFormFieldPlacementDto dto);
-    Task DeletePlacementAsync(int id);
-}
+public record PaginatedAuditLogDto(
+    System.Collections.Generic.IEnumerable<AuditLogItemDto> Items,
+    int TotalCount,
+    int Page,
+    int PageSize
+);

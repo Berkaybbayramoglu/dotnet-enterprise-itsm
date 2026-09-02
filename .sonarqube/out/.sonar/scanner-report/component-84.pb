@@ -1,1 +1,0 @@
-T 2webXÔhr*src/ItsTool.Web/wwwroot/ticket-detail.html

@@ -1,1 +1,1 @@
-¨ 2csXhr2src/ItsTool.Application/DTOs/AssignmentRuleDtos.cs
+¨ 2csX!hr9src/ItsTool.Infrastructure/Services/InMemoryEmailQueue.cs

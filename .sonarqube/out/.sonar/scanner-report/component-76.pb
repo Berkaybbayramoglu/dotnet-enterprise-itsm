@@ -1,1 +1,1 @@
-L 2webX¦hr%src/ItsTool.Web/wwwroot/webhooks.html
+L 2csXhr:src/ItsTool.API/Security/PermissionAuthorizationHandler.cs

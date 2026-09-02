@@ -1,2 +1,1 @@
- 2csX
-hr-src/ItsTool.Domain/Entities/Auth/GroupRole.cs
+ 2csXhr.src/ItsTool.Domain/Entities/Auth/Permission.cs

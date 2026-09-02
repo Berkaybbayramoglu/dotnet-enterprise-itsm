@@ -1,95 +1,52 @@
-using System;
-using System.Threading.Tasks;
-using ItsTool.Domain.Entities.SLA;
-using ItsTool.Domain.Entities.Ticket;
-using ItsTool.Infrastructure.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using ItsTool.Application.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using Xunit;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Security;
 
-public class SlaEscalationTests : TestBase
+public class TokenService : ITokenService
 {
-    private readonly SlaEngine _engine;
-    private readonly Mock<IEmailService> _mockEmailService;
-    private readonly Mock<INotificationDispatcher> _mockNotificationDispatcher;
+    private readonly IConfiguration _configuration;
 
-    public SlaEscalationTests() : base()
+    public TokenService(IConfiguration configuration)
     {
-        _mockEmailService = new Mock<IEmailService>();
-        _mockNotificationDispatcher = new Mock<INotificationDispatcher>();
-        _engine = new SlaEngine(_context, _mockEmailService.Object, _mockNotificationDispatcher.Object);
-        SeedBasicData().Wait();
+        _configuration = configuration;
     }
 
-    private async Task SeedBasicData()
+    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
-        var lowPriority = new Priority { Name = "Low", SeverityLevel = 1 };
-        var highPriority = new Priority { Name = "High", SeverityLevel = 2 };
-        _context.Priorities.AddRange(lowPriority, highPriority);
-
-        var policy = new SlaPolicy { Name = "Escalate Policy", EscalateOnBreach = true, IsActive = true };
-        _context.SlaPolicies.Add(policy);
-        await _context.SaveChangesAsync();
-
-        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = policy.Id, PriorityId = lowPriority.Id, FirstResponseMinutes = 60, ResolutionMinutes = 120, IsActive = true });
-        await _context.SaveChangesAsync();
-    }
-
-    [Fact]
-    public async Task CheckBreachesAsync_ShouldEscalate_WhenBreachedAndPolicyAllows()
-    {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
-        _context.Tickets.Add(ticket);
-        await _context.SaveChangesAsync();
-
-        var sla = new TicketSla
+        var claims = new List<Claim>
         {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10)
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(ClaimTypes.Name, username)
         };
-        _context.TicketSlas.Add(sla);
-        await _context.SaveChangesAsync();
 
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
-
-        // Verify Escalation
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var highPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 2)).Id;
-        
-        Assert.Equal(highPriorityId, updatedTicket?.PriorityId); // Priority bumped
-        
-        var updatedSla = await _context.TicketSlas.FindAsync(sla.Id);
-        Assert.NotNull(updatedSla?.EscalatedAt); // EscalatedAt set
-
-        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breach", ticket.Id, null, It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task TryEscalateAsync_ShouldBeIdempotent()
-    {
-        var ticket = new Ticket { TicketNumber = "T-1", PriorityId = _context.Priorities.First(p => p.SeverityLevel == 1).Id };
-        _context.Tickets.Add(ticket);
-        await _context.SaveChangesAsync();
-
-        var sla = new TicketSla
+        foreach (var role in roles)
         {
-            TicketId = ticket.Id,
-            FirstResponseDueAt = DateTime.UtcNow.AddMinutes(-10), // Breached
-            ResolutionDueAt = DateTime.UtcNow.AddMinutes(10),
-            EscalatedAt = DateTime.UtcNow.AddDays(-1) // Already escalated
-        };
-        _context.TicketSlas.Add(sla);
-        await _context.SaveChangesAsync();
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
 
-        await _engine.CheckBreachesAsync(DateTime.UtcNow);
+        foreach (var perm in permissions)
+        {
+            claims.Add(new Claim("permission", perm));
+        }
 
-        // Priority should still be low because it shouldn't escalate twice
-        var updatedTicket = await _context.Tickets.FindAsync(ticket.Id);
-        var lowPriorityId = (await _context.Priorities.FirstAsync(p => p.SeverityLevel == 1)).Id;
-        Assert.Equal(lowPriorityId, updatedTicket?.PriorityId); 
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

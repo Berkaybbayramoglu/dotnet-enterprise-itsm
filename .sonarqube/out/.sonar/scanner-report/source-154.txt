@@ -1,60 +1,94 @@
-using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities;
+using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.Auth;
 using ItsTool.Domain.Entities.Project;
-using ItsTool.Infrastructure.Data;
-using ItsTool.Infrastructure.Services;
+using ItsTool.Domain.Entities.Ticket;
+using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.Config;
+using ItsTool.Domain.Entities.SLA;
+using ItsTool.Domain.Entities.Notification;
+using ItsTool.Domain.Entities.KnowledgeBase;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
+using System.Reflection;
 
-namespace ItsTool.UnitTests.Services;
+namespace ItsTool.Infrastructure.Data;
 
-public class ProjectServiceTests : TestBase
+public class ItsToolDbContext : DbContext
 {
-    private readonly Repository<Project> _repository;
-    private readonly ProjectService _service;
-
-    public ProjectServiceTests()
+    public ItsToolDbContext(DbContextOptions<ItsToolDbContext> options) : base(options)
     {
-        _repository = new Repository<Project>(_context);
-        _service = new ProjectService(_repository, _context);
     }
 
-    [Fact]
-    public async Task CreateAsync_ShouldCreateProject()
+    // Organization
+    public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Group> Groups => Set<Group>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<GroupMember> GroupMembers => Set<GroupMember>();
+
+    // Auth
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
+    public DbSet<UserPermissionOverride> UserPermissionOverrides => Set<UserPermissionOverride>();
+
+    // Project
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+
+    // Ticket & Workflow
+    public DbSet<TicketType> TicketTypes => Set<TicketType>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Status> Statuses => Set<Status>();
+    public DbSet<Priority> Priorities => Set<Priority>();
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<TicketAssignment> TicketAssignments => Set<TicketAssignment>();
+    public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
+    public DbSet<SystemAuditLog> SystemAuditLogs => Set<SystemAuditLog>();
+    public DbSet<Workflow> Workflows => Set<Workflow>();
+    public DbSet<WorkflowTransition> WorkflowTransitions => Set<WorkflowTransition>();
+    public DbSet<TicketComment> TicketComments => Set<TicketComment>();
+    public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
+    public DbSet<TicketWatcher> TicketWatchers => Set<TicketWatcher>();
+    public DbSet<ProjectSequence> ProjectSequences => Set<ProjectSequence>();
+
+    // Config (EAV)
+    public DbSet<FieldDefinition> FieldDefinitions => Set<FieldDefinition>();
+    public DbSet<FieldOption> FieldOptions => Set<FieldOption>();
+    public DbSet<FormFieldPlacement> FormFieldPlacements => Set<FormFieldPlacement>();
+    public DbSet<TicketFieldValue> TicketFieldValues => Set<TicketFieldValue>();
+
+    // SLA
+    public DbSet<SlaPolicy> SlaPolicies => Set<SlaPolicy>();
+    public DbSet<SlaTarget> SlaTargets => Set<SlaTarget>();
+    public DbSet<BusinessHour> BusinessHours => Set<BusinessHour>();
+    public DbSet<Holiday> Holidays => Set<Holiday>();
+    public DbSet<TicketSla> TicketSlas => Set<TicketSla>();
+
+    // Notification
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    // Assignment
+    public DbSet<AssignmentRule> AssignmentRules => Set<AssignmentRule>();
+
+    // Filter
+    public DbSet<SavedFilter> SavedFilters => Set<SavedFilter>();
+
+    // KnowledgeBase
+    public DbSet<KnowledgeCategory> KnowledgeCategories => Set<KnowledgeCategory>();
+    public DbSet<KnowledgeArticle> KnowledgeArticles => Set<KnowledgeArticle>();
+
+    // CSAT
+    public DbSet<TicketSurvey> TicketSurveys => Set<TicketSurvey>();
+
+    // Webhooks
+    public DbSet<WebhookSubscription> WebhookSubscriptions => Set<WebhookSubscription>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var dto = new CreateProjectDto("App", "APP", null);
-        var result = await _service.CreateAsync(dto);
-
-        Assert.NotNull(result);
-        Assert.Equal("App", result.Name);
-        Assert.Equal("APP", result.ProjectKey);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateProject()
-    {
-        var proj = new Project { Name = "Old", ProjectKey = "OLD" };
-        _context.Projects.Add(proj);
-        await _context.SaveChangesAsync();
-
-        var dto = new UpdateProjectDto("New", "NEW", null, "Active");
-        await _service.UpdateAsync(proj.Id, dto);
-
-        var updated = await _context.Projects.FindAsync(proj.Id);
-        Assert.Equal("New", updated!.Name);
-        Assert.Equal("NEW", updated.ProjectKey);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldSoftDeleteProject()
-    {
-        var proj = new Project { Name = "ToDelete", ProjectKey = "TD" };
-        _context.Projects.Add(proj);
-        await _context.SaveChangesAsync();
-
-        await _service.DeleteAsync(proj.Id);
-
-        var deleted = await _context.Projects.FindAsync(proj.Id);
-        Assert.True(deleted!.IsDeleted);
-        Assert.NotNull(deleted.DeletedAt);
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

@@ -1,1 +1,0 @@
-_ 2jsXohr+src/ItsTool.Web/wwwroot/js/admin-configs.js

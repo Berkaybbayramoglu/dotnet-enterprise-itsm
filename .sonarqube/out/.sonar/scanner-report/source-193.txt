@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
+namespace ItsTool.Application.DTOs;
 
-namespace ItsTool.Application.Interfaces;
-
-public interface INotificationDispatcher
-{
-    Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null);
-}
+public record EmailIngestionDto(
+    string MessageId,
+    string From,
+    string Subject,
+    string Body
+);

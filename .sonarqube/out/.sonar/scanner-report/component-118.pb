@@ -1,1 +1,1 @@
-v 2csXPhr3src/ItsTool.Infrastructure/Services/GroupService.cs
+v 2webXhr"src/ItsTool.Web/wwwroot/index.html

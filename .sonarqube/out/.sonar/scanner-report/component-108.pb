@@ -1,1 +1,1 @@
-l 2csX?hr-src/ItsTool.Infrastructure/Data/Repository.cs
+l 2webXchr"src/ItsTool.Web/wwwroot/login.html
