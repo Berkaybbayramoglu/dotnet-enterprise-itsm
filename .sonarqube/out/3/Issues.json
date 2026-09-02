@@ -12,6 +12,27 @@
       },
       "results": [
         {
+          "ruleId": "S3260",
+          "level": "warning",
+          "message": "Private classes which are not derived in the current assembly should be marked as 'sealed'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
+                "region": {
+                  "startLine": 49,
+                  "startColumn": 19,
+                  "endLine": 49,
+                  "endColumn": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
           "ruleId": "S1192",
           "level": "warning",
           "message": "Define a constant instead of using this literal 'ticket.view' 4 times.",
@@ -73,24 +94,100 @@
           }
         },
         {
-          "ruleId": "S1186",
+          "ruleId": "S1192",
           "level": "warning",
-          "message": "Add a nested comment explaining why this method is empty, throw a 'NotSupportedException' or complete the implementation.",
+          "message": "Define a constant instead of using this literal 'kb.manage' 7 times.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814143005_AddTicketSlas.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
                 "region": {
-                  "startLine": 17,
-                  "startColumn": 33,
-                  "endLine": 17,
-                  "endColumn": 37
+                  "startLine": 62,
+                  "startColumn": 43,
+                  "endLine": 62,
+                  "endColumn": 54
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 116,
+                  "startColumn": 43,
+                  "endLine": 116,
+                  "endColumn": 54
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 159,
+                  "startColumn": 43,
+                  "endLine": 159,
+                  "endColumn": 54
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 194,
+                  "startColumn": 78,
+                  "endLine": 194,
+                  "endColumn": 89
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 246,
+                  "startColumn": 43,
+                  "endLine": 246,
+                  "endColumn": 54
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 287,
+                  "startColumn": 29,
+                  "endLine": 287,
+                  "endColumn": 40
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 337,
+                  "startColumn": 43,
+                  "endLine": 337,
+                  "endColumn": 54
                 }
               }
             }
           ],
           "properties": {
-            "warningLevel": 1
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null,
+              "3": null,
+              "4": null,
+              "5": null
+            }
           }
         },
         {
@@ -482,18 +579,39 @@
           }
         },
         {
-          "ruleId": "S1192",
+          "ruleId": "S1186",
           "level": "warning",
-          "message": "Define a constant instead of using this literal 'kb.manage' 7 times.",
+          "message": "Add a nested comment explaining why this method is empty, throw a 'NotSupportedException' or complete the implementation.",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260814143005_AddTicketSlas.cs",
                 "region": {
-                  "startLine": 62,
-                  "startColumn": 43,
-                  "endLine": 62,
-                  "endColumn": 54
+                  "startLine": 17,
+                  "startColumn": 33,
+                  "endLine": 17,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1510",
+          "level": "note",
+          "message": "Use 'ArgumentNullException.ThrowIfNull' instead of explicitly throwing a new exception instance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/InMemoryEmailQueue.cs",
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 9,
+                  "endLine": 24,
+                  "endColumn": 79
                 }
               }
             }
@@ -501,81 +619,18 @@
           "relatedLocations": [
             {
               "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/InMemoryEmailQueue.cs",
                 "region": {
-                  "startLine": 116,
-                  "startColumn": 43,
-                  "endLine": 116,
-                  "endColumn": 54
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
-                "region": {
-                  "startLine": 159,
-                  "startColumn": 43,
-                  "endLine": 159,
-                  "endColumn": 54
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
-                "region": {
-                  "startLine": 194,
-                  "startColumn": 78,
-                  "endLine": 194,
-                  "endColumn": 89
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
-                "region": {
-                  "startLine": 246,
-                  "startColumn": 43,
-                  "endLine": 246,
-                  "endColumn": 54
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
-                "region": {
-                  "startLine": 287,
-                  "startColumn": 29,
-                  "endLine": 287,
-                  "endColumn": 40
-                }
-              }
-            },
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
-                "region": {
-                  "startLine": 337,
-                  "startColumn": 43,
-                  "endLine": 337,
-                  "endColumn": 54
+                  "startLine": 24,
+                  "startColumn": 13,
+                  "endLine": 24,
+                  "endColumn": 20
                 }
               }
             }
           ],
           "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "0": null,
-              "1": null,
-              "2": null,
-              "3": null,
-              "4": null,
-              "5": null
-            }
+            "warningLevel": 1
           }
         },
         {
@@ -748,58 +803,27 @@
           }
         },
         {
-          "ruleId": "S3260",
-          "level": "warning",
-          "message": "Private classes which are not derived in the current assembly should be marked as 'sealed'.",
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
           "locations": [
             {
               "resultFile": {
                 "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
                 "region": {
-                  "startLine": 49,
-                  "startColumn": 19,
-                  "endLine": 49,
-                  "endColumn": 36
+                  "startLine": 41,
+                  "startColumn": 14,
+                  "endLine": 41,
+                  "endColumn": 30
                 }
               }
             }
           ],
           "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1510",
-          "level": "note",
-          "message": "Use 'ArgumentNullException.ThrowIfNull' instead of explicitly throwing a new exception instance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/InMemoryEmailQueue.cs",
-                "region": {
-                  "startLine": 24,
-                  "startColumn": 9,
-                  "endLine": 24,
-                  "endColumn": 79
-                }
-              }
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
             }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/InMemoryEmailQueue.cs",
-                "region": {
-                  "startLine": 24,
-                  "startColumn": 13,
-                  "endLine": 24,
-                  "endColumn": 20
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
           }
         },
         {
@@ -1032,17 +1056,42 @@
           }
         },
         {
-          "ruleId": "CA1861",
+          "ruleId": "CA1862",
           "level": "note",
-          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "message": "Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260827203709_AddNotificationMatrix.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs",
                 "region": {
-                  "startLine": 90,
-                  "startColumn": 26,
-                  "endLine": 90,
+                  "startLine": 34,
+                  "startColumn": 18,
+                  "endLine": 34,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs",
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 18,
+                  "endLine": 35,
                   "endColumn": 54
                 }
               }
@@ -1051,7 +1100,8 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "paramName": "columns"
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
             }
           }
         },
@@ -1237,18 +1287,18 @@
           }
         },
         {
-          "ruleId": "CA1862",
+          "ruleId": "CA1860",
           "level": "note",
-          "message": "Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "message": "Prefer comparing 'Length' to 0 rather than using 'Any()', both for clarity and for performance",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/RoleService.cs",
                 "region": {
-                  "startLine": 34,
-                  "startColumn": 18,
-                  "endLine": 34,
-                  "endColumn": 57
+                  "startLine": 58,
+                  "startColumn": 40,
+                  "endLine": 58,
+                  "endColumn": 61
                 }
               }
             }
@@ -1256,23 +1306,22 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": null
+              "DiagnosticPropertyKey": "Length"
             }
           }
         },
         {
-          "ruleId": "CA1862",
+          "ruleId": "CA1861",
           "level": "note",
-          "message": "Prefer using 'string.Equals(string, StringComparison)' to perform a case-insensitive comparison, but keep in mind that this might cause subtle changes in behavior, so make sure to conduct thorough testing after applying the suggestion, or if culturally sensitive comparison is not required, consider using 'StringComparison.OrdinalIgnoreCase'",
+          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/AuthService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Migrations/20260827203709_AddNotificationMatrix.cs",
                 "region": {
-                  "startLine": 35,
-                  "startColumn": 18,
-                  "endLine": 35,
+                  "startLine": 90,
+                  "startColumn": 26,
+                  "endLine": 90,
                   "endColumn": 54
                 }
               }
@@ -1281,9 +1330,77 @@
           "properties": {
             "warningLevel": 1,
             "customProperties": {
-              "LeftOffendingMethod": "ToLower",
-              "RightOffendingMethod": null
+              "paramName": "columns"
             }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Length' to 0 rather than using 'Any()', both for clarity and for performance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/UserService.cs",
+                "region": {
+                  "startLine": 63,
+                  "startColumn": 37,
+                  "endLine": 63,
+                  "endColumn": 55
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Length"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Interceptors/SystemAuditInterceptor.cs",
+                "region": {
+                  "startLine": 130,
+                  "startColumn": 13,
+                  "endLine": 130,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S2325",
+          "level": "warning",
+          "message": "Make 'GetEntityName' a static method.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Interceptors/SystemAuditInterceptor.cs",
+                "region": {
+                  "startLine": 136,
+                  "startColumn": 20,
+                  "endLine": 136,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
           }
         },
         {
@@ -1540,75 +1657,6 @@
           }
         },
         {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
-                "region": {
-                  "startLine": 41,
-                  "startColumn": 14,
-                  "endLine": 41,
-                  "endColumn": 30
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Count"
-            }
-          }
-        },
-        {
-          "ruleId": "S2325",
-          "level": "warning",
-          "message": "Make 'GetEntityName' a static method.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Interceptors/SystemAuditInterceptor.cs",
-                "region": {
-                  "startLine": 136,
-                  "startColumn": 20,
-                  "endLine": 136,
-                  "endColumn": 33
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Length' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/RoleService.cs",
-                "region": {
-                  "startLine": 58,
-                  "startColumn": 40,
-                  "endLine": 58,
-                  "endColumn": 61
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Length"
-            }
-          }
-        },
-        {
           "ruleId": "S3267",
           "level": "warning",
           "message": "Loops should be simplified using the \"Where\" LINQ method",
@@ -1646,51 +1694,6 @@
           }
         },
         {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Interceptors/SystemAuditInterceptor.cs",
-                "region": {
-                  "startLine": 130,
-                  "startColumn": 13,
-                  "endLine": 130,
-                  "endColumn": 28
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Count"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1822",
-          "level": "note",
-          "message": "Member 'GetEntityName' does not access instance data and can be marked as static",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Interceptors/SystemAuditInterceptor.cs",
-                "region": {
-                  "startLine": 136,
-                  "startColumn": 20,
-                  "endLine": 136,
-                  "endColumn": 33
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
           "ruleId": "S1125",
           "level": "warning",
           "message": "Remove the unnecessary Boolean literal(s).",
@@ -1712,61 +1715,24 @@
           }
         },
         {
-          "ruleId": "CA1854",
+          "ruleId": "CA1822",
           "level": "note",
-          "message": "Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup",
+          "message": "Member 'GetEntityName' does not access instance data and can be marked as static",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/Interceptors/SystemAuditInterceptor.cs",
                 "region": {
-                  "startLine": 171,
-                  "startColumn": 57,
-                  "endLine": 171,
-                  "endColumn": 93
-                }
-              }
-            }
-          ],
-          "relatedLocations": [
-            {
-              "physicalLocation": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
-                "region": {
-                  "startLine": 173,
-                  "startColumn": 34,
-                  "endLine": 173,
-                  "endColumn": 58
+                  "startLine": 136,
+                  "startColumn": 20,
+                  "endLine": 136,
+                  "endColumn": 33
                 }
               }
             }
           ],
           "properties": {
             "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Length' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/UserService.cs",
-                "region": {
-                  "startLine": 63,
-                  "startColumn": 37,
-                  "endLine": 63,
-                  "endColumn": 55
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Length"
-            }
           }
         },
         {
@@ -1975,111 +1941,31 @@
           }
         },
         {
-          "ruleId": "S3358",
-          "level": "warning",
-          "message": "Extract this nested ternary operation into an independent statement.",
+          "ruleId": "CA1854",
+          "level": "note",
+          "message": "Prefer a 'TryGetValue' call over a Dictionary indexer access guarded by a 'ContainsKey' check to avoid double lookup",
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 313,
-                  "startColumn": 132,
-                  "endLine": 313,
-                  "endColumn": 195
+                  "startLine": 171,
+                  "startColumn": 57,
+                  "endLine": 171,
+                  "endColumn": 93
                 }
               }
             }
           ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
+          "relatedLocations": [
             {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
+              "physicalLocation": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Data/DataSeeder.cs",
                 "region": {
-                  "startLine": 153,
-                  "startColumn": 14,
-                  "endLine": 153,
-                  "endColumn": 28
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Count"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
-                "region": {
-                  "startLine": 161,
-                  "startColumn": 14,
-                  "endLine": 161,
-                  "endColumn": 27
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Count"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1860",
-          "level": "note",
-          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
-                "region": {
-                  "startLine": 82,
-                  "startColumn": 17,
-                  "endLine": 82,
-                  "endColumn": 31
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1,
-            "customProperties": {
-              "DiagnosticPropertyKey": "Count"
-            }
-          }
-        },
-        {
-          "ruleId": "CA1847",
-          "level": "note",
-          "message": "Use 'string.Contains(char)' instead of 'string.Contains(string)' when searching for a single character",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
-                "region": {
-                  "startLine": 115,
-                  "startColumn": 92,
-                  "endLine": 115,
-                  "endColumn": 95
+                  "startLine": 173,
+                  "startColumn": 34,
+                  "endLine": 173,
+                  "endColumn": 58
                 }
               }
             }
@@ -2330,6 +2216,96 @@
           }
         },
         {
+          "ruleId": "S3358",
+          "level": "warning",
+          "message": "Extract this nested ternary operation into an independent statement.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/KnowledgeBaseService.cs",
+                "region": {
+                  "startLine": 313,
+                  "startColumn": 132,
+                  "endLine": 313,
+                  "endColumn": 195
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
+                "region": {
+                  "startLine": 153,
+                  "startColumn": 14,
+                  "endLine": 153,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
+                "region": {
+                  "startLine": 161,
+                  "startColumn": 14,
+                  "endLine": 161,
+                  "endColumn": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S3358",
+          "level": "warning",
+          "message": "Extract this nested ternary operation into an independent statement.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 524,
+                  "startColumn": 73,
+                  "endLine": 524,
+                  "endColumn": 126
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
           "ruleId": "S1075",
           "level": "warning",
           "message": "Refactor your code not to use hardcoded absolute paths or URIs.",
@@ -2393,27 +2369,6 @@
           }
         },
         {
-          "ruleId": "S3358",
-          "level": "warning",
-          "message": "Extract this nested ternary operation into an independent statement.",
-          "locations": [
-            {
-              "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
-                "region": {
-                  "startLine": 524,
-                  "startColumn": 73,
-                  "endLine": 524,
-                  "endColumn": 126
-                }
-              }
-            }
-          ],
-          "properties": {
-            "warningLevel": 1
-          }
-        },
-        {
           "ruleId": "CA1860",
           "level": "note",
           "message": "Prefer comparing 'Length' to 0 rather than using 'Any()', both for clarity and for performance",
@@ -2434,6 +2389,30 @@
             "warningLevel": 1,
             "customProperties": {
               "DiagnosticPropertyKey": "Length"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "region": {
+                  "startLine": 583,
+                  "startColumn": 45,
+                  "endLine": 583,
+                  "endColumn": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
             }
           }
         },
@@ -2613,12 +2592,12 @@
           "locations": [
             {
               "resultFile": {
-                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/TicketService.cs",
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
                 "region": {
-                  "startLine": 583,
-                  "startColumn": 45,
-                  "endLine": 583,
-                  "endColumn": 71
+                  "startLine": 82,
+                  "startColumn": 17,
+                  "endLine": 82,
+                  "endColumn": 31
                 }
               }
             }
@@ -2628,6 +2607,27 @@
             "customProperties": {
               "DiagnosticPropertyKey": "Count"
             }
+          }
+        },
+        {
+          "ruleId": "CA1847",
+          "level": "note",
+          "message": "Use 'string.Contains(char)' instead of 'string.Contains(string)' when searching for a single character",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/Services/NotificationDispatcher.cs",
+                "region": {
+                  "startLine": 115,
+                  "startColumn": 92,
+                  "endLine": 115,
+                  "endColumn": 95
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
           }
         },
         {

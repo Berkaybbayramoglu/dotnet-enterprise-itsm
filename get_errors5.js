@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 const html = fs.readFileSync('/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/ticket-detail.html', 'utf8');
 const scriptStart = html.indexOf('<script type="module">') + '<script type="module">'.length;
 const scriptEnd = html.indexOf('</script>', scriptStart);

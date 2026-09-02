@@ -10331,7 +10331,192 @@ HttpDeleteAA 
 )GG 
 ;GG 
 }HH 
-}II ¥K
+}II Ë
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/LookupController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[ 
+ApiController 
+] 
+[ 
+Route 
+( 
+$str 
+) 
+] 
+[		 
+	Authorize		 
+
+]		
+ 
+public
+
+ 
+class
+
+ 
+LookupController
+
+ 
+:
+
+ 
+ControllerBase
+
+  .
+{ 
+private 
+readonly 
+ICatalogService $
+_catalogService% 4
+;4 5
+private 
+readonly 
+IProjectService $
+_projectService% 4
+;4 5
+private 
+readonly 
+IDepartmentService '
+_departmentService( :
+;: ;
+public 
+
+LookupController 
+( 
+ICatalogService +
+catalogService, :
+,: ;
+IProjectService< K
+projectServiceL Z
+,Z [
+IDepartmentService\ n
+departmentService	o €
+)
+€ 
+{ 
+_catalogService 
+= 
+catalogService (
+;( )
+_projectService 
+= 
+projectService (
+;( )
+_departmentService 
+= 
+departmentService .
+;. /
+} 
+[ 
+HttpGet 
+] 
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+
+GetLookups% /
+(/ 0
+)0 1
+{ 
+var 
+projects 
+= 
+await 
+_projectService ,
+., -
+GetAllAsync- 8
+(8 9
+)9 :
+;: ;
+var 
+
+categories 
+= 
+await 
+_catalogService .
+.. /
+GetCategoriesAsync/ A
+(A B
+nullB F
+)F G
+;G H
+var 
+ticketTypes 
+= 
+await 
+_catalogService  /
+./ 0
+GetTicketTypesAsync0 C
+(C D
+)D E
+;E F
+var 
+
+priorities 
+= 
+await 
+_catalogService .
+.. /
+GetPrioritiesAsync/ A
+(A B
+)B C
+;C D
+var 
+statuses 
+= 
+await 
+_catalogService ,
+., -
+GetStatusesAsync- =
+(= >
+)> ?
+;? @
+var 
+departments 
+= 
+await 
+_departmentService  2
+.2 3
+GetAllAsync3 >
+(> ?
+)? @
+;@ A
+return!! 
+Ok!! 
+(!! 
+new!! 
+{"" 	
+projects## 
+,## 
+
+categories$$ 
+,$$ 
+ticketTypes%% 
+,%% 
+
+priorities&& 
+,&& 
+statuses'' 
+,'' 
+departments(( 
+})) 	
+)))	 
+
+;))
+ 
+}** 
+}++ ¥K
 c/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/KnowledgeBaseController.cs
 	namespace 	
 ItsTool
@@ -10904,192 +11089,7 @@ _kbServicebb 
 )cc 
 ;cc 
 }dd 
-}ee Ë
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/LookupController.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Controllers !
-;! "
-[ 
-ApiController 
-] 
-[ 
-Route 
-( 
-$str 
-) 
-] 
-[		 
-	Authorize		 
-
-]		
- 
-public
-
- 
-class
-
- 
-LookupController
-
- 
-:
-
- 
-ControllerBase
-
-  .
-{ 
-private 
-readonly 
-ICatalogService $
-_catalogService% 4
-;4 5
-private 
-readonly 
-IProjectService $
-_projectService% 4
-;4 5
-private 
-readonly 
-IDepartmentService '
-_departmentService( :
-;: ;
-public 
-
-LookupController 
-( 
-ICatalogService +
-catalogService, :
-,: ;
-IProjectService< K
-projectServiceL Z
-,Z [
-IDepartmentService\ n
-departmentService	o €
-)
-€ 
-{ 
-_catalogService 
-= 
-catalogService (
-;( )
-_projectService 
-= 
-projectService (
-;( )
-_departmentService 
-= 
-departmentService .
-;. /
-} 
-[ 
-HttpGet 
-] 
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-
-GetLookups% /
-(/ 0
-)0 1
-{ 
-var 
-projects 
-= 
-await 
-_projectService ,
-., -
-GetAllAsync- 8
-(8 9
-)9 :
-;: ;
-var 
-
-categories 
-= 
-await 
-_catalogService .
-.. /
-GetCategoriesAsync/ A
-(A B
-nullB F
-)F G
-;G H
-var 
-ticketTypes 
-= 
-await 
-_catalogService  /
-./ 0
-GetTicketTypesAsync0 C
-(C D
-)D E
-;E F
-var 
-
-priorities 
-= 
-await 
-_catalogService .
-.. /
-GetPrioritiesAsync/ A
-(A B
-)B C
-;C D
-var 
-statuses 
-= 
-await 
-_catalogService ,
-., -
-GetStatusesAsync- =
-(= >
-)> ?
-;? @
-var 
-departments 
-= 
-await 
-_departmentService  2
-.2 3
-GetAllAsync3 >
-(> ?
-)? @
-;@ A
-return!! 
-Ok!! 
-(!! 
-new!! 
-{"" 	
-projects## 
-,## 
-
-categories$$ 
-,$$ 
-ticketTypes%% 
-,%% 
-
-priorities&& 
-,&& 
-statuses'' 
-,'' 
-departments(( 
-})) 	
-)))	 
-
-;))
- 
-}** 
-}++ …/
+}ee …/
 \/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/GroupsController.cs
 	namespace 	
 ItsTool
@@ -14576,256 +14576,7 @@ HttpDelete
 ††B C
 }
 ‡‡ 
-}ˆˆ Ï!
-Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuthController.cs
-	namespace 	
-ItsTool
- 
-. 
-API 
-. 
-Controllers !
-;! "
-[		 
-ApiController		 
-]		 
-[
-
- 
-Route
-
- 
-(
-
- 
-$str
-
- 
-)
-
- 
-]
-
- 
-public 
-class 
-AuthController 
-: 
-ControllerBase ,
-{ 
-private 
-readonly 
-IAuthService !
-_authService" .
-;. /
-public 
-
-AuthController 
-( 
-IAuthService &
-authService' 2
-)2 3
-{ 
-_authService 
-= 
-authService "
-;" #
-} 
-[ 
-AllowAnonymous 
-] 
-[ 
-HttpPost 
-( 
-$str 
-) 
-] 
-[  
-ProducesResponseType 
-( 
-typeof  
-(  !
-AuthResponseDto! 0
-)0 1
-,1 2
-StatusCodes3 >
-.> ?
-Status200OK? J
-)J K
-]K L
-[  
-ProducesResponseType 
-( 
-StatusCodes %
-.% &!
-Status401Unauthorized& ;
-); <
-]< =
-public 
-
-async 
-Task 
-< 
-IActionResult #
-># $
-Login% *
-(* +
-[+ ,
-FromBody, 4
-]4 5
-LoginRequestDto6 E
-requestF M
-)M N
-{ 
-try 
-{ 	
-var 
-result 
-= 
-await 
-_authService +
-.+ ,
-
-LoginAsync, 6
-(6 7
-request7 >
-)> ?
-;? @
-return 
-Ok 
-( 
-result 
-) 
-; 
-} 	
-catch 
-( '
-UnauthorizedAccessException *
-)* +
-{   	
-return!! 
-Unauthorized!! 
-(!!  
-new!!  #
-{!!$ %
-message!!& -
-=!!. /
-$str!!0 F
-}!!G H
-)!!H I
-;!!I J
-}"" 	
-}## 
-[%% 
-	Authorize%% 
-]%% 
-[&& 
-HttpGet&& 
-(&& 
-$str&& 
-)&& 
-]&& 
-[''  
-ProducesResponseType'' 
-('' 
-typeof''  
-(''  !
-MeResponseDto''! .
-)''. /
-,''/ 0
-StatusCodes''1 <
-.''< =
-Status200OK''= H
-)''H I
-]''I J
-[((  
-ProducesResponseType(( 
-((( 
-StatusCodes(( %
-.((% &!
-Status401Unauthorized((& ;
-)((; <
-]((< =
-public)) 
-
-async)) 
-Task)) 
-<)) 
-IActionResult)) #
->))# $
-GetMe))% *
-())* +
-)))+ ,
-{** 
-var++ 
-	userIdStr++ 
-=++ 
-User++ 
-.++ 
-FindFirstValue++ +
-(+++ ,
-
-ClaimTypes++, 6
-.++6 7
-NameIdentifier++7 E
-)++E F
-;++F G
-if,, 
-
-(,, 
-!,, 
-int,, 
-.,, 
-TryParse,, 
-(,, 
-	userIdStr,, #
-,,,# $
-out,,% (
-int,,) ,
-userId,,- 3
-),,3 4
-),,4 5
-{-- 	
-return.. 
-Unauthorized.. 
-(..  
-)..  !
-;..! "
-}// 	
-try11 
-{22 	
-var33 
-result33 
-=33 
-await33 
-_authService33 +
-.33+ ,
-
-GetMeAsync33, 6
-(336 7
-userId337 =
-)33= >
-;33> ?
-return44 
-Ok44 
-(44 
-result44 
-)44 
-;44 
-}55 	
-catch66 
-(66 '
-UnauthorizedAccessException66 *
-)66* +
-{77 	
-return88 
-Unauthorized88 
-(88  
-)88  !
-;88! "
-}99 	
-}:: 
-};; ±b
+}ˆˆ ±b
 ^/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuditLogController.cs
 	namespace		 	
 ItsTool		
@@ -15553,7 +15304,256 @@ totalCount}}2 <
 )}}[ \
 ;}}\ ]
 }~~ 
-} ìp
+} Ï!
+Z/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AuthController.cs
+	namespace 	
+ItsTool
+ 
+. 
+API 
+. 
+Controllers !
+;! "
+[		 
+ApiController		 
+]		 
+[
+
+ 
+Route
+
+ 
+(
+
+ 
+$str
+
+ 
+)
+
+ 
+]
+
+ 
+public 
+class 
+AuthController 
+: 
+ControllerBase ,
+{ 
+private 
+readonly 
+IAuthService !
+_authService" .
+;. /
+public 
+
+AuthController 
+( 
+IAuthService &
+authService' 2
+)2 3
+{ 
+_authService 
+= 
+authService "
+;" #
+} 
+[ 
+AllowAnonymous 
+] 
+[ 
+HttpPost 
+( 
+$str 
+) 
+] 
+[  
+ProducesResponseType 
+( 
+typeof  
+(  !
+AuthResponseDto! 0
+)0 1
+,1 2
+StatusCodes3 >
+.> ?
+Status200OK? J
+)J K
+]K L
+[  
+ProducesResponseType 
+( 
+StatusCodes %
+.% &!
+Status401Unauthorized& ;
+); <
+]< =
+public 
+
+async 
+Task 
+< 
+IActionResult #
+># $
+Login% *
+(* +
+[+ ,
+FromBody, 4
+]4 5
+LoginRequestDto6 E
+requestF M
+)M N
+{ 
+try 
+{ 	
+var 
+result 
+= 
+await 
+_authService +
+.+ ,
+
+LoginAsync, 6
+(6 7
+request7 >
+)> ?
+;? @
+return 
+Ok 
+( 
+result 
+) 
+; 
+} 	
+catch 
+( '
+UnauthorizedAccessException *
+)* +
+{   	
+return!! 
+Unauthorized!! 
+(!!  
+new!!  #
+{!!$ %
+message!!& -
+=!!. /
+$str!!0 F
+}!!G H
+)!!H I
+;!!I J
+}"" 	
+}## 
+[%% 
+	Authorize%% 
+]%% 
+[&& 
+HttpGet&& 
+(&& 
+$str&& 
+)&& 
+]&& 
+[''  
+ProducesResponseType'' 
+('' 
+typeof''  
+(''  !
+MeResponseDto''! .
+)''. /
+,''/ 0
+StatusCodes''1 <
+.''< =
+Status200OK''= H
+)''H I
+]''I J
+[((  
+ProducesResponseType(( 
+((( 
+StatusCodes(( %
+.((% &!
+Status401Unauthorized((& ;
+)((; <
+]((< =
+public)) 
+
+async)) 
+Task)) 
+<)) 
+IActionResult)) #
+>))# $
+GetMe))% *
+())* +
+)))+ ,
+{** 
+var++ 
+	userIdStr++ 
+=++ 
+User++ 
+.++ 
+FindFirstValue++ +
+(+++ ,
+
+ClaimTypes++, 6
+.++6 7
+NameIdentifier++7 E
+)++E F
+;++F G
+if,, 
+
+(,, 
+!,, 
+int,, 
+.,, 
+TryParse,, 
+(,, 
+	userIdStr,, #
+,,,# $
+out,,% (
+int,,) ,
+userId,,- 3
+),,3 4
+),,4 5
+{-- 	
+return.. 
+Unauthorized.. 
+(..  
+)..  !
+;..! "
+}// 	
+try11 
+{22 	
+var33 
+result33 
+=33 
+await33 
+_authService33 +
+.33+ ,
+
+GetMeAsync33, 6
+(336 7
+userId337 =
+)33= >
+;33> ?
+return44 
+Ok44 
+(44 
+result44 
+)44 
+;44 
+}55 	
+catch66 
+(66 '
+UnauthorizedAccessException66 *
+)66* +
+{77 	
+return88 
+Unauthorized88 
+(88  
+)88  !
+;88! "
+}99 	
+}:: 
+};; ìp
 d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.API/Controllers/AssignmentRuleController.cs
 	namespace 	
 ItsTool

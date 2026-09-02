@@ -5,24 +5,26 @@ P/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/TestBase.c
 ( 0   
  ( /
 
- „
-f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AssignmentEngineTests.cs
+ 
+e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WorkflowServiceTests.cs
 
-		 "2
-& -  )) 88 
+
+
+ !
+* 7 ' 4
+4 C 6 E2
+% -  #%%B J00B J
 
- D
- % *
- ( . 
+ >
+ 8 ;
+   #
 
-!! ?
-## $$% *
-'' ))( .++ 
+"" E
+$$ %%a d
 
-// G
-11 33* /
-22 331 6
-66 88( .:: Õ
+)) E
+++ ,,) *00a b
+// 00g jÕ
 g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WebhookDispatcherTests.cs
 
  #<
@@ -340,62 +342,24 @@ d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/P
 
 00 9(
 22 33 "66# '888 <
-88 99 :: à	
-j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.cs
+88 99 :: „
+f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AssignmentEngineTests.cs
 
- &>
-* 5 :: &cc  +dd  +
-–– &
+		 "2
+& -  )) 88 
 
- Z<
-  ))7 ;--= A55S W::J N
- & +**[ `
- - 222` e
- 4 955k p(
-   !! ))I M**C G(
-## $$ !--P U11: ?(
-.. // $11M V22C L2
-:: == >>! '??! '@@! '
+ D
+ % *
+ ( . 
 
-DD c2
-GG HH !WW: ?ZZQ V[[Q V(
-JJ KK WWM QXXC G
-MM OO& /XX[ d
-NN OO1 =^^l x(
-QQ SS  %ZZ= BccO T2
-RR SS' ,[[= B^^S XddO T
-cc gg !hh& 1(
-dd jj #kk& 1ll) 4
+!! ?
+## $$% *
+'' ))( .++ 
 
-pp XD
-ss tt 
-7 ;
-ˆˆ7 ;
-7 ;
-––J N8
-vv xx& +
-‚‚\ a
-‰‰\ a
-‘‘\ a 
-ww xx- 2
-……\ a8
-zz ||  %
-I N
-‚‚C H
-……C H,
-{{ ||' ,
-ˆˆI N
-‰‰C H0
-
-ŒŒ 
-  
-I N
-‘‘C H0
-
-–– 
-™™ 
-šš' -
-››. 4©
+// G
+11 33* /
+22 331 6
+66 88( .:: ©
 i/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/NotificationServiceTests.cs
 
  %2
@@ -541,27 +505,7 @@ g/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/D
 
 && 9
 )) **! %..1 5
-.. 11 22 !ÿ
-k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.cs
-
- $2
-( 3  88 &HH &
- : >
-
-$$ :
-.. 884 :
-88 995 ;
-99 ::< D(
-:: << !== !>> !
-==) *==. /
->>) *>>. />>G H
-
-BB R
-GG HH4 :
-HH II5 ;
-II JJ< D
-JJ LL !(
-LL) *LL. /LLH ILLc dö
+.. 11 22 !ö
 f/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/DashboardServiceTests.cs
 
  "F
@@ -611,58 +555,7 @@ d/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/C
 
 22 :(
 44 55 88j k<<] ^
-88 99) +
-e/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/WorkflowServiceTests.cs
-
-
-
- !
-* 7 ' 4
-4 C 6 E2
-% -  #%%B J00B J
-
- >
- 8 ;
-   #
-
-"" E
-$$ %%a d
-
-)) E
-++ ,,) *00a b
-// 00g j­
-\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Data/DataSeederTests.cs
-
-		 
-
- T
-  .. 2
-  - 5""- 511- 5
-D EI J2
-  #P \))1 =11P \
-G HL M
-  %""P ^
-I JN O?
-  '	u …	""w ‡))V f	11u …
-K LP Q
- $$ $(
-  = ?d f
-!! %% &(
-"" "" ""= ?""f h
-(( **, >
-)) ))  ))E G
-00 #33 +(
-11 11 11= ?11d f”
-n/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/SavedFilterControllerTests.cs
-
- '(
-+ 6  )) &
- : >
-
-## >
-)) **5 ;
-** ++c k
-++ -- .. «
+88 99) +«
 a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/AuthServiceTests.cs
 
  <
@@ -698,8 +591,115 @@ a/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/A
 ee( )ee- .
 hh  !hh% &
 kk nn3 :(
-nn qq rr' -ss! 'V
-T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/GlobalUsings.csµ
+nn qq rr' -ss! 'à	
+j/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Services/PermissionCalculatorTests.cs
+
+ &>
+* 5 :: &cc  +dd  +
+–– &
+
+ Z<
+  ))7 ;--= A55S W::J N
+ & +**[ `
+ - 222` e
+ 4 955k p(
+   !! ))I M**C G(
+## $$ !--P U11: ?(
+.. // $11M V22C L2
+:: == >>! '??! '@@! '
+
+DD c2
+GG HH !WW: ?ZZQ V[[Q V(
+JJ KK WWM QXXC G
+MM OO& /XX[ d
+NN OO1 =^^l x(
+QQ SS  %ZZ= BccO T2
+RR SS' ,[[= B^^S XddO T
+cc gg !hh& 1(
+dd jj #kk& 1ll) 4
+
+pp XD
+ss tt 
+7 ;
+ˆˆ7 ;
+7 ;
+––J N8
+vv xx& +
+‚‚\ a
+‰‰\ a
+‘‘\ a 
+ww xx- 2
+……\ a8
+zz ||  %
+I N
+‚‚C H
+……C H,
+{{ ||' ,
+ˆˆI N
+‰‰C H0
+
+ŒŒ 
+  
+I N
+‘‘C H0
+
+–– 
+™™ 
+šš' -
+››. 4V
+T/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/GlobalUsings.cs­
+\/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Data/DataSeederTests.cs
+
+		 
+
+ T
+  .. 2
+  - 5""- 511- 5
+D EI J2
+  #P \))1 =11P \
+G HL M
+  %""P ^
+I JN O?
+  '	u …	""w ‡))V f	11u …
+K LP Q
+ $$ $(
+  = ?d f
+!! %% &(
+"" "" ""= ?""f h
+(( **, >
+)) ))  ))E G
+00 #33 +(
+11 11 11= ?11d f”
+n/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/SavedFilterControllerTests.cs
+
+ '(
++ 6  )) &
+ : >
+
+## >
+)) **5 ;
+** ++c k
+++ -- .. ÿ
+k/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AuditLogControllerTests.cs
+
+ $2
+( 3  88 &HH &
+ : >
+
+$$ :
+.. 884 :
+88 995 ;
+99 ::< D(
+:: << !== !>> !
+==) *==. /
+>>) *>>. />>G H
+
+BB R
+GG HH4 :
+HH II5 ;
+II JJ< D
+JJ LL !(
+LL) *LL. /LLH ILLc dµ
 q/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/Controllers/AssignmentRuleControllerTests.cs
 
  *

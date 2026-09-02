@@ -1,1 +1,1 @@
-r 2webXÖhr%src/ItsTool.Web/wwwroot/workload.html
+r 2webXÖhr%src/ItsTool.Web/wwwroot/workload.html
