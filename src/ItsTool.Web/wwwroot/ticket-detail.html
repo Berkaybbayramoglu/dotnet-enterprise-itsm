@@ -105,7 +105,7 @@
                         <div id="mainTicketAttachments" class="d-flex gap-sm flex-wrap" style="margin-bottom: var(--spacing-xl); display:none;"></div>
 
                         <div class="collapsible-section" style="margin-bottom: var(--spacing-xl);">
-                            <div class="property-label mb-md" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('activitySection', this)">
+                            <div class="property-label mb-md" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('activitySection', this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSection('activitySection', this);}">
                                 <svg viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>
                                 <span data-i18n="ticket_tab_history">Activity</span>
                             </div>
@@ -117,7 +117,7 @@
                         <hr class="panel-divider" style="margin: var(--spacing-xl) 0;">
 
                         <div class="collapsible-section">
-                            <div class="property-label mb-md" style="font-size: 16px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('commentsSection', this)">
+                            <div class="property-label mb-md" style="font-size: 16px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleSection('commentsSection', this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSection('commentsSection', this);}">
                                 <svg viewBox="0 0 24 24" width="20" height="20" style="transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>
                                 <span data-i18n="ticket_tab_comments">Comments & History</span>
                             </div>
@@ -571,7 +571,7 @@
                 for (let i = 0; i < input.files.length; i++) {
                     const file = input.files[i];
                     window.pendingUploads.push({
-                        id: Date.now() + Math.random(),
+                        id: Date.now() + crypto.getRandomValues(new Uint32Array(1))[0],
                         file: file,
                         url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
                     });

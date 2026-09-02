@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Calendar</title>
     <link rel="stylesheet" href="css/design-system.css">
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js' integrity="sha384-B1OFx8Gy9GjPu8UbUyXbGQpzll9ubAUQ9agInFJ8NnD7nYG1u/CLR+Sqr5yifl4q" crossorigin="anonymous"></script>
     <style>
         #calendar {
             background: var(--bg-surface);
@@ -55,6 +55,7 @@
                             <option value="12">Aralık</option>
                         </select>
                         <div style="width: 1px; background: var(--border); margin: 4px 0;"></div>
+                        <label for="calendarYearSelect" style="display:none;" data-i18n="calendar_jump_year">Yıl Seçimi</label>
                         <select id="calendarYearSelect" aria-label="Yıl Seçimi" style="border: none; background: transparent; padding: 4px 8px; outline: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-main);">
                         </select>
                     </div>

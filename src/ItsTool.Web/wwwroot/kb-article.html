@@ -45,7 +45,7 @@
                             <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
                             <div id="notificationItems"></div>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center text-muted" href="#" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read">Mark all as read</a></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
                         </ul>
                     </div>
                     <div class="avatar">U</div>
@@ -284,7 +284,6 @@
                         tBtn.style.display = 'inline-flex';
                         document.getElementById('btnReviewArticle').style.display = 'none';
                     }
-                    tBtn.style.display = tBtn.style.display; // preserve
                 } else {
                     document.getElementById('managerTip').style.display = 'none';
                     document.getElementById('btnTogglePublish').style.display = 'none';
@@ -305,7 +304,7 @@
         try {
             const payload = JSON.parse(atob(window.api.token.split('.')[1]));
             let currentUserIdStr = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.nameid || payload.sub || '0';
-            currentUserId = parseInt(currentUserIdStr, 10);
+            currentUserId = Number.parseInt(currentUserIdStr, 10);
             
             let perms = [];
             let permsClaim = payload.permission || payload.Permissions;
@@ -399,9 +398,9 @@
         document.getElementById('btnSaveArticle')?.addEventListener('click', async () => {
             const data = {
                 title: document.getElementById('editArticleTitle').value,
-                categoryId: Number.parseInt(document.getElementById('editArticleCategory').value),
-                visibility: Number.parseInt(document.getElementById('editArticleVisibility').value),
-                status: Number.parseInt(document.getElementById('editArticleStatus').value),
+                categoryId: Number.parseInt(document.getElementById('editArticleCategory').value, 10),
+                visibility: Number.parseInt(document.getElementById('editArticleVisibility').value, 10),
+                status: Number.parseInt(document.getElementById('editArticleStatus').value, 10),
                 content: document.getElementById('editArticleContent').value
             };
             try {
@@ -455,7 +454,7 @@
             if (!form.checkValidity()) { form.reportValidity(); return; }
 
             const payload = {
-                status: Number.parseInt(document.getElementById('reviewStatus').value),
+                status: Number.parseInt(document.getElementById('reviewStatus').value, 10),
                 feedback: document.getElementById('reviewFeedback').value
             };
 

@@ -15,7 +15,7 @@ echo "=== SEEDING WORKFLOW MATRICES ==="
 curl -s -w "\nHTTP: %{http_code}\n" -X POST -H "Authorization: Bearer $TOKEN" http://localhost:5246/api/system/seed
 
 echo "=== WORKFLOW TRANSITION COUNT ==="
-PGPASSWORD=Berha6469. psql -h localhost -U postgres -d itsm_tool -c "SELECT count(*)::int FROM \"WorkflowTransitions\" WHERE \"WorkflowId\" = 1;"
+PGPASSWORD="${PGPASSWORD:?HATA: PGPASSWORD env değişkeni gerekli}" psql -h localhost -U postgres -d itsm_tool -c "SELECT count(*)::int FROM \"WorkflowTransitions\" WHERE \"WorkflowId\" = 1;"
 echo ""
 
 echo "=== TRANSITION OPEN -> RESOLVED ==="
