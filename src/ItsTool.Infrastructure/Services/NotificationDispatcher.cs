@@ -12,6 +12,13 @@ namespace ItsTool.Infrastructure.Services;
 
 public class NotificationDispatcher : INotificationDispatcher
 {
+    private const string PriorityNormal = "Normal";
+    private const string CategoryStatusUpdates = "StatusUpdates";
+    private const string EventCommentMention = "comment.mention";
+    private const string CategoryMentions = "Mentions";
+    private const string DefaultBaseUrl = "http://localhost:5000";
+
+
     private readonly ItsToolDbContext _context;
     private readonly IWebhookDispatcher _webhookDispatcher;
     private readonly ISignalRPusher _signalRPusher;
@@ -38,7 +45,7 @@ public class NotificationDispatcher : INotificationDispatcher
         if (ticket == null) return;
 
         var recipients = await GetRecipientsForEventAsync(eventKey, ticket, triggerUserId, additionalContext);
-        if (!recipients.Any()) return;
+        if (recipients.Count == 0) return;
 
         await ProcessNotificationsAsync(recipients, eventKey, ticket, additionalContext);
         
@@ -46,21 +53,21 @@ public class NotificationDispatcher : INotificationDispatcher
         await _webhookDispatcher.DispatchEventAsync(eventKey, new { ticketId = ticketId, triggerUserId = triggerUserId, context = additionalContext });
     }
 
-    private class ResolvedRecipient
+    private sealed class ResolvedRecipient
     {
         public int UserId { get; set; }
         public bool SendEmail { get; set; }
-        public string Priority { get; set; } = "Normal";
-        public string Category { get; set; } = "StatusUpdates";
+        public string Priority { get; set; } = PriorityNormal;
+        public string Category { get; set; } = CategoryStatusUpdates;
     }
 
     private async Task<List<ResolvedRecipient>> GetRecipientsForEventAsync(string eventKey, Ticket ticket, int? triggerUserId, string? additionalContext)
     {
         var recipients = new Dictionary<int, ResolvedRecipient>();
 
-        void Add(int userId, bool email, string priority = "Normal", string category = "StatusUpdates")
+        void Add(int userId, bool email, string priority = PriorityNormal, string category = CategoryStatusUpdates)
         {
-            if (triggerUserId.HasValue && userId == triggerUserId.Value && eventKey != "comment.mention") return; // Don't notify the trigger user unless it's a mention
+            if (triggerUserId.HasValue && userId == triggerUserId.Value && eventKey != EventCommentMention) return; // Don't notify the trigger user unless it's a mention
             
             if (recipients.TryGetValue(userId, out var existing))
             {
@@ -78,79 +85,84 @@ public class NotificationDispatcher : INotificationDispatcher
         
         async Task AddAssignees(bool email, string cat)
         {
-            foreach (var id in assigneeIds) Add(id, email, "Normal", cat);
-            if (groupIds.Any())
+            foreach (var id in assigneeIds) Add(id, email, PriorityNormal, cat);
+            if (groupIds.Count > 0)
             {
                 var members = await _context.GroupMembers.Where(gm => groupIds.Contains(gm.GroupId) && !gm.IsDeleted).Select(gm => gm.UserId).Distinct().ToListAsync();
-                foreach (var mid in members) Add(mid, email, "Normal", cat);
+                foreach (var mid in members) Add(mid, email, PriorityNormal, cat);
             }
         }
         
         async Task AddDeptManagers(bool email, string cat)
         {
             var managers = await GetDepartmentManagersAsync(groupIds);
-            foreach(var mid in managers) Add(mid, email, "Normal", cat);
+            foreach(var mid in managers) Add(mid, email, PriorityNormal, cat);
         }
 
-        switch (eventKey)
-        {
-            case "ticket.created":
-                Add(ticket.RequesterUserId, false, "Normal", "StatusUpdates");
-                await AddAssignees(true, "Assignments");
-                break;
-            case "ticket.assigned":
-            case "ticket.transferred":
-                await AddAssignees(true, "Assignments");
-                break;
-            case "comment.added":
-                Add(ticket.RequesterUserId, false, "Normal", "Mentions"); // Use Mentions cat for comments
-                await AddAssignees(false, "Mentions");
-                var participants = await _context.TicketComments.Where(c => c.TicketId == ticket.Id && !c.IsDeleted).Select(c => c.CreatedBy).Distinct().ToListAsync();
-                foreach(var pid in participants) 
-                {
-                    if(int.TryParse(pid, out int p)) Add(p, false, "Normal", "Mentions");
-                }
-                break;
-            case "comment.mention":
-                if (!string.IsNullOrEmpty(additionalContext) && additionalContext.Contains("|"))
-                {
-                    var parts = additionalContext.Split('|', 2);
-                    if (int.TryParse(parts[0], out int mentionedId))
-                    {
-                        Add(mentionedId, true, "High", "Mentions");
-                    }
-                }
-                break;
-            case "status.changed":
-                Add(ticket.RequesterUserId, false, "Normal", "StatusUpdates");
-                await AddAssignees(false, "StatusUpdates");
-                break;
-            case "ticket.reopened":
-                Add(ticket.RequesterUserId, true, "Normal", "StatusUpdates");
-                await AddAssignees(true, "StatusUpdates");
-                break;
-            case "sla.risk":
-                await AddAssignees(false, "Sla");
-                break;
-            case "sla.breached":
-                await AddAssignees(true, "Sla");
-                await AddDeptManagers(true, "Sla");
-                break;
-            case "critical.unassigned":
-                await AddDeptManagers(true, "Sla");
-                break;
-            case "survey.low":
-                await AddAssignees(false, "StatusUpdates");
-                await AddDeptManagers(false, "StatusUpdates");
-                break;
-        }
+        await ApplyEventRulesAsync(eventKey, ticket, additionalContext, Add, AddAssignees, AddDeptManagers);
 
         return recipients.Values.ToList();
     }
 
+    private async Task ApplyEventRulesAsync(string eventKey, Ticket ticket, string? additionalContext, Action<int, bool, string, string> add, Func<bool, string, Task> addAssignees, Func<bool, string, Task> addDeptManagers)
+    {
+        switch (eventKey)
+        {
+            case "ticket.created":
+                add(ticket.RequesterUserId, false, PriorityNormal, CategoryStatusUpdates);
+                await addAssignees(true, "Assignments");
+                break;
+            case "ticket.assigned":
+            case "ticket.transferred":
+                await addAssignees(true, "Assignments");
+                break;
+            case "comment.added":
+                add(ticket.RequesterUserId, false, PriorityNormal, CategoryMentions); // Use Mentions cat for comments
+                await addAssignees(false, CategoryMentions);
+                var participants = await _context.TicketComments.Where(c => c.TicketId == ticket.Id && !c.IsDeleted).Select(c => c.CreatedBy).Distinct().ToListAsync();
+                foreach(var pid in participants) 
+                {
+                    if(int.TryParse(pid, out int p)) add(p, false, PriorityNormal, CategoryMentions);
+                }
+                break;
+            case EventCommentMention:
+                if (!string.IsNullOrEmpty(additionalContext) && additionalContext.Contains('|'))
+                {
+                    var parts = additionalContext.Split('|', 2);
+                    if (int.TryParse(parts[0], out int mentionedId))
+                    {
+                        add(mentionedId, true, "High", CategoryMentions);
+                    }
+                }
+                break;
+            case "status.changed":
+                add(ticket.RequesterUserId, false, PriorityNormal, CategoryStatusUpdates);
+                await addAssignees(false, CategoryStatusUpdates);
+                break;
+            case "ticket.reopened":
+                add(ticket.RequesterUserId, true, PriorityNormal, CategoryStatusUpdates);
+                await addAssignees(true, CategoryStatusUpdates);
+                break;
+            case "sla.risk":
+                await addAssignees(false, "Sla");
+                break;
+            case "sla.breached":
+                await addAssignees(true, "Sla");
+                await addDeptManagers(true, "Sla");
+                break;
+            case "critical.unassigned":
+                await addDeptManagers(true, "Sla");
+                break;
+            case "survey.low":
+                await addAssignees(false, CategoryStatusUpdates);
+                await addDeptManagers(false, CategoryStatusUpdates);
+                break;
+        }
+    }
+
     private async Task<List<int>> GetDepartmentManagersAsync(List<int> groupIds)
     {
-        if (!groupIds.Any()) return new List<int>();
+        if (groupIds.Count == 0) return new List<int>();
 
         var deptIds = await _context.Groups
             .Where(g => groupIds.Contains(g.Id) && !g.IsDeleted && g.DepartmentId.HasValue)
@@ -158,7 +170,7 @@ public class NotificationDispatcher : INotificationDispatcher
             .Distinct()
             .ToListAsync();
 
-        if (!deptIds.Any()) return new List<int>();
+        if (deptIds.Count == 0) return new List<int>();
 
         var allGroupIdsInDepts = await _context.Groups
             .Where(g => g.DepartmentId.HasValue && deptIds.Contains(g.DepartmentId.Value) && !g.IsDeleted)
@@ -189,10 +201,16 @@ public class NotificationDispatcher : INotificationDispatcher
             .Where(p => userIds.Contains(p.UserId) && !p.IsDeleted)
             .ToListAsync();
 
+        await SaveNotificationsToDbAsync(recipients, eventKey, ticket, additionalContext);
+        await SendNotificationsAsync(recipients, preferences, eventKey, ticket, additionalContext);
+    }
+
+    private async Task SaveNotificationsToDbAsync(List<ResolvedRecipient> recipients, string eventKey, Ticket ticket, string? additionalContext)
+    {
         foreach (var recipient in recipients)
         {
             string notifBody = additionalContext ?? $"Ticket {ticket.TicketNumber}";
-            if (eventKey == "comment.mention" && additionalContext != null && additionalContext.Contains("|"))
+            if (eventKey == EventCommentMention && additionalContext != null && additionalContext.Contains('|'))
             {
                 var parts = additionalContext.Split('|', 2);
                 notifBody = parts.Length > 1 ? parts[1] : notifBody;
@@ -215,65 +233,27 @@ public class NotificationDispatcher : INotificationDispatcher
         }
 
         await _context.SaveChangesAsync();
+    }
 
-        // After saving, send emails and signalr pushes
+    private async Task SendNotificationsAsync(List<ResolvedRecipient> recipients, List<NotificationPreference> preferences, string eventKey, Ticket ticket, string? additionalContext)
+    {
         foreach (var recipient in recipients)
         {
             var pref = preferences.FirstOrDefault(p => p.UserId == recipient.UserId && p.Category == recipient.Category);
-            bool emailEnabled = pref == null ? true : pref.EmailEnabled;
-            // Calculate body text once for both Email and SignalR
+            bool emailEnabled = pref?.EmailEnabled ?? true;
+            
             string finalBody = additionalContext ?? $"Ticket {ticket.TicketNumber}";
-            if (eventKey == "comment.mention" && additionalContext != null && additionalContext.Contains("|"))
+            if (eventKey == EventCommentMention && additionalContext != null && additionalContext.Contains('|'))
             {
                 var parts = additionalContext.Split('|');
                 finalBody = parts.Length > 1 ? parts[1] : finalBody;
             }
 
-            string humanReadableEvent = eventKey switch
-            {
-                "ticket.created" => "New Ticket Created",
-                "ticket.assigned" => "Ticket Assigned to You",
-                "ticket.transferred" => "Ticket Transferred",
-                "comment.added" => "New Comment on Ticket",
-                "comment.mention" => "You Were Mentioned",
-                "status.changed" => "Ticket Status Changed",
-                "ticket.reopened" => "Ticket Reopened",
-                "sla.risk" => "SLA Breach Risk",
-                "sla.breached" => "SLA Breached",
-                "critical.unassigned" => "Critical Ticket Unassigned",
-                "survey.low" => "Low Survey Score Received",
-                _ => "ITSM Notification"
-            };
+            string humanReadableEvent = GetHumanReadableEventName(eventKey);
 
             if (recipient.SendEmail && emailEnabled)
             {
-                var u = await _context.Users.FindAsync(recipient.UserId);
-                if (u != null)
-                {
-                    string baseUrl = _config["AppBaseUrl"] ?? "http://localhost:5000";
-                    string ticketUrl = $"{baseUrl.TrimEnd('/')}/ticket-detail.html?id={ticket.Id}";
-                    
-                    var templateData = new Dictionary<string, string>
-                    {
-                        { "EventName", humanReadableEvent },
-                        { "TicketNumber", ticket.TicketNumber },
-                        { "Title", ticket.Title },
-                        { "Context", finalBody },
-                        { "AppUrl", ticketUrl }
-                    };
-
-                    string htmlBody = _templateService.GenerateEmailBody(eventKey, templateData);
-
-                    var emailMsg = new EmailMessage
-                    {
-                        To = u.Email,
-                        Subject = $"{humanReadableEvent} - {ticket.TicketNumber} ({ticket.Title})",
-                        Body = htmlBody,
-                        IsHtml = true
-                    };
-
-                    await _emailQueue.QueueEmailAsync(emailMsg);
-                }
+                await EnqueueEmailAsync(recipient.UserId, humanReadableEvent, ticket, finalBody, eventKey);
             }
             
             await _signalRPusher.PushNotificationAsync(recipient.UserId, new {
@@ -285,5 +265,55 @@ public class NotificationDispatcher : INotificationDispatcher
                 createdAt = DateTime.UtcNow
             });
         }
+    }
+
+    private async Task EnqueueEmailAsync(int userId, string humanReadableEvent, Ticket ticket, string finalBody, string eventKey)
+    {
+        var u = await _context.Users.FindAsync(userId);
+        if (u != null)
+        {
+            string baseUrl = _config["AppBaseUrl"] ?? DefaultBaseUrl;
+            string ticketUrl = $"{baseUrl.TrimEnd('/')}/ticket-detail.html?id={ticket.Id}";
+            
+            var templateData = new Dictionary<string, string>
+            {
+                { "EventName", humanReadableEvent },
+                { "TicketNumber", ticket.TicketNumber },
+                { "Title", ticket.Title },
+                { "Context", finalBody },
+                { "AppUrl", ticketUrl }
+            };
+
+            string htmlBody = _templateService.GenerateEmailBody(eventKey, templateData);
+
+            var emailMsg = new EmailMessage
+            {
+                To = u.Email,
+                Subject = $"{humanReadableEvent} - {ticket.TicketNumber} ({ticket.Title})",
+                Body = htmlBody,
+                IsHtml = true
+            };
+
+            await _emailQueue.QueueEmailAsync(emailMsg);
+        }
+    }
+
+    private static string GetHumanReadableEventName(string eventKey)
+    {
+        return eventKey switch
+        {
+            "ticket.created" => "New Ticket Created",
+            "ticket.assigned" => "Ticket Assigned to You",
+            "ticket.transferred" => "Ticket Transferred",
+            "comment.added" => "New Comment on Ticket",
+            EventCommentMention => "You Were Mentioned",
+            "status.changed" => "Ticket Status Changed",
+            "ticket.reopened" => "Ticket Reopened",
+            "sla.risk" => "SLA Breach Risk",
+            "sla.breached" => "SLA Breached",
+            "critical.unassigned" => "Critical Ticket Unassigned",
+            "survey.low" => "Low Survey Score Received",
+            _ => "ITSM Notification"
+        };
     }
 }

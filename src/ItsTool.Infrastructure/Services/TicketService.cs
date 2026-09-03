@@ -5,6 +5,8 @@ using ItsTool.Infrastructure.Helpers;
 using ItsTool.Domain.Entities.Project;
 using ItsTool.Domain.Entities.Workflow;
 using ItsTool.Domain.Entities.Config;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -395,27 +397,12 @@ public class TicketService : ITicketService
         
         if (!isSuperAdmin && dto.ParentAssignmentId.HasValue)
         {
-            var parentAssignment = t.Assignments.FirstOrDefault(a => a.Id == dto.ParentAssignmentId);
-            if (parentAssignment != null && parentAssignment.AssignedUserId != dto.AssignerUserId)
-            {
-                // Verify if assigner is in the assigned group
-                bool isGroupMember = parentAssignment.AssignedGroupId.HasValue && assigner != null &&
-                    await _context.Groups.AnyAsync(g => g.Id == parentAssignment.AssignedGroupId && g.DepartmentId == assigner.DepartmentId);
-                
-                if (!isGroupMember)
-                    throw new UnauthorizedAccessException("You can only delegate your own assignments or group assignments.");
-            }
+            await VerifyHierarchyCheckAsync(t, dto, assigner);
         }
         
         if (!isSuperAdmin)
         {
-            // Verify targets are in the same department if not super admin
-            foreach (var uId in dto.UserIds)
-            {
-                var targetUser = await _context.Users.FindAsync(uId);
-                if (targetUser != null && targetUser.DepartmentId != assigner?.DepartmentId)
-                    throw new UnauthorizedAccessException($"Target user {targetUser.Username} is not in your department.");
-            }
+            await VerifyDepartmentTargetsAsync(dto, assigner);
         }
 
         // We only deactivate previous assignments if they are not explicitly in the new list, or maybe we just deactivate all and re-assign?
@@ -451,6 +438,29 @@ public class TicketService : ITicketService
 
         await _context.SaveChangesAsync();
         await _notificationDispatcher.DispatchEventAsync("ticket.assigned", t.Id, dto.AssignerUserId, $"Ticket assigned to multiple entities");
+    }
+
+    private async Task VerifyHierarchyCheckAsync(Ticket t, AssignTicketDto dto, User? assigner)
+    {
+        var parentAssignment = t.Assignments.FirstOrDefault(a => a.Id == dto.ParentAssignmentId);
+        if (parentAssignment != null && parentAssignment.AssignedUserId != dto.AssignerUserId)
+        {
+            bool isGroupMember = parentAssignment.AssignedGroupId.HasValue && assigner != null &&
+                await _context.Groups.AnyAsync(g => g.Id == parentAssignment.AssignedGroupId && g.DepartmentId == assigner.DepartmentId);
+            
+            if (!isGroupMember)
+                throw new UnauthorizedAccessException("You can only delegate your own assignments or group assignments.");
+        }
+    }
+
+    private async Task VerifyDepartmentTargetsAsync(AssignTicketDto dto, User? assigner)
+    {
+        foreach (var uId in dto.UserIds)
+        {
+            var targetUser = await _context.Users.FindAsync(uId);
+            if (targetUser != null && targetUser.DepartmentId != assigner?.DepartmentId)
+                throw new UnauthorizedAccessException($"Target user {targetUser.Username} is not in your department.");
+        }
     }
 
     public async Task TransferTicketAsync(int ticketId, TransferTicketDto dto)
@@ -518,10 +528,18 @@ public class TicketService : ITicketService
         _context.TicketComments.Add(c);
         await _context.SaveChangesAsync();
 
+        string actionType;
+        if (dto.ParentCommentId.HasValue)
+            actionType = "CommentReplied";
+        else if (dto.IsInternal)
+            actionType = "InternalNoteAdded";
+        else
+            actionType = "CommentAdded";
+
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = ticketId,
-            Action = dto.ParentCommentId.HasValue ? "CommentReplied" : (dto.IsInternal ? "InternalNoteAdded" : "CommentAdded"),
+            Action = actionType,
             FieldName = c.Id.ToString(),
             OldValue = null,
             NewValue = c.Content,
@@ -532,7 +550,7 @@ public class TicketService : ITicketService
         await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
         await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, "A new comment was added.");
         
-        if (dto.MentionedUserIds != null && dto.MentionedUserIds.Any())
+        if (dto.MentionedUserIds != null && dto.MentionedUserIds.Length > 0)
         {
             var ticket = await _context.Tickets.FindAsync(ticketId);
             foreach(var uid in dto.MentionedUserIds)
@@ -580,7 +598,7 @@ public class TicketService : ITicketService
             CreatedBy = userId.ToString()
         });
         
-        if (dto.MentionedUserIds != null && dto.MentionedUserIds.Any())
+        if (dto.MentionedUserIds != null && dto.MentionedUserIds.Count > 0)
         {
             var ticket = await _context.Tickets.FindAsync(ticketId);
             foreach(var uid in dto.MentionedUserIds)
