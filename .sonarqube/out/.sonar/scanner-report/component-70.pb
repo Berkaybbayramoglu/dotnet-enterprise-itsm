@@ -1,1 +1,1 @@
-F 2jsX¥hr+src/ItsTool.Web/wwwroot/js/admin-configs.js
+F 2csX¯hr/src/ItsTool.API/Controllers/TicketController.cs

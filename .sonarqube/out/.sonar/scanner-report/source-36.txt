@@ -1,17 +1,14 @@
 using ItsTool.Domain.Common;
-using ItsTool.Domain.Entities.Organization;
 
 namespace ItsTool.Domain.Entities.Ticket;
 
-public class TicketAttachment : BaseEntity
+public class Status : BaseEntity
 {
-    public int TicketId { get; set; }
-    public string FileName { get; set; } = string.Empty;
-    public string FilePath { get; set; } = string.Empty;
-    public long FileSize { get; set; }
-    public string ContentType { get; set; } = string.Empty;
-    public int UploadedByUserId { get; set; }
-
-    public virtual Ticket? Ticket { get; set; }
-    public virtual User? UploadedByUser { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int ProjectId { get; set; }
+    public bool IsClosedStatus { get; set; } = false;
+    public string? ColorHex { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsSystemDefault { get; set; }
+    public bool PausesSla { get; set; }
 }

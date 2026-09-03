@@ -1,8 +1,20 @@
-using System.Threading.Tasks;
-
-namespace ItsTool.Application.Interfaces;
-
-public interface ISignalRPusher
-{
-    Task PushNotificationAsync(int userId, object payload);
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Redirecting...</title>
+    <script>
+        // Check for token and redirect accordingly
+        const token = localStorage.getItem('jwt_token');
+        if (token) {
+            window.location.replace('/dashboard.html');
+        } else {
+            window.location.replace('/login.html');
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting, please wait...</p>
+</body>
+</html>

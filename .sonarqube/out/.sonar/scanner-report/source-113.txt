@@ -1,8 +1,379 @@
-using System.Threading.Tasks;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Assignment Rules</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .table-container { background: var(--bg-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+        
 
-namespace ItsTool.Application.Interfaces;
+    </style>
+</head>
+<body>
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
 
-public interface INotificationDispatcher
-{
-    Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null);
-}
+                    <h2 data-i18n="rules_title">Assignment Rules</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="admin-header">
+                    <div>
+                        <h3 style="margin:0; font-size: 18px;" data-i18n="rules_title">Auto-Assignment Rules</h3>
+                        <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;" data-i18n="rules_desc">Manage rules for automatically assigning incoming tickets.</p>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnCreateRuleModal">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> <span data-i18n="rules_btn_new">Create New Rule</span>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="rulesTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Sort</th>
+                                <th data-i18n="rules_col_name">Name</th>
+                                <th>Project</th>
+                                <th>Category</th>
+                                <th data-i18n="rules_col_event">Type</th>
+                                <th>Target Group</th>
+                                <th>Target User</th>
+                                <th data-i18n="rules_col_status">Status</th>
+                                <th style="width: 100px;" data-i18n="rules_col_actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Rule Modal (Create/Edit) -->
+    <div id="createModal" class="modal-overlay">
+        <div class="modal">
+            <form id="createForm">
+                <div class="modal-header">
+                    <h2 id="ruleModalTitle" data-i18n="rules_modal_new">Create Assignment Rule</h2>
+                    <button type="button" class="close-btn" onclick="closeModal('createModal')" aria-label="Close">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="rName" data-i18n="rules_lbl_name">Rule Name *</label>
+                        <input id="rName" class="form-control" required placeholder="e.g. VIP Incident Routing">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rSort" for="rSort">Sort Order</label>
+                        <input id="rSort" class="form-control" value="10" required>
+                        <small class="text-muted" style="display:block; margin-top: 4px;">Lower numbers execute first.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rProject" for="rProject">Project</label>
+                        <select id="rProject" class="form-control"><option value="">-- Any --</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rCategory" for="rCategory">Category</label>
+                        <select id="rCategory" class="form-control"><option value="">-- Any --</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rType" for="rType">Type</label>
+                        <select id="rType" class="form-control"><option value="">-- Any --</option></select>
+                    </div>
+                    <div class="form-group" style="margin-top: var(--spacing-md); border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+                        <label class="form-label" for="rGroup" for="rGroup">Target Group</label>
+                        <select id="rGroup" class="form-control"><option value="">-- Unassigned --</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="rUser" for="rUser">Target User</label>
+                        <select id="rUser" class="form-control"><option value="">-- Unassigned --</option></select>
+                    </div>
+                    <div class="form-group" style="margin-top: var(--spacing-md);">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="rActive" checked>
+                            <span data-i18n="rules_lbl_active">Is Active</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('createModal')" data-i18n="users_btn_cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitRule" data-i18n="users_btn_save">Create Rule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+                <button type="button" class="close-btn" onclick="closeModal('confirmModal')" aria-label="Close">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this assignment rule? Tickets will no longer be routed automatically.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { injectShell } from './js/layout.js?v=999';
+        import './js/api.js';
+        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
+        import { t } from './js/i18n.js';
+        injectShell();
+
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+
+        let ruleToDelete = null;
+        let ruleToEdit = null;
+        let lookupData = {};
+        let rulesList = [];
+
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+
+        async function loadRules() {
+            try {
+                const rules = await window.api.getAssignmentRules();
+                rulesList = rules;
+                const tbody = document.querySelector('#rulesTable tbody');
+                tbody.innerHTML = '';
+                
+                if (rules.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">${t('rules_no_data')}</td></tr>`;
+                    return;
+                }
+
+                rules.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.id = r.id;
+                    
+                    const statusBadge = r.isActive 
+                        ? `<span class="badge badge-success btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to disable">Active</span>`
+                        : `<span class="badge badge-default btn-toggle" style="cursor: pointer;" data-id="${r.id}" title="Click to enable">Inactive</span>`;
+                    
+                    const projName = lookupData.projects?.find(x => x.id === r.projectId)?.name || 'Herhangi';
+                    const catName = lookupData.categories?.find(x => x.id === r.categoryId)?.name || 'Herhangi';
+                    const typeName = lookupData.ticketTypes?.find(x => x.id === r.ticketTypeId)?.name || 'Herhangi';
+                    const groupName = lookupData.groups?.find(x => x.id === r.targetGroupId)?.name || '—';
+                    const userName = lookupData.users?.find(x => x.id === r.targetUserId)?.username || '—';
+
+                    tr.innerHTML = `
+                        <td style="font-family: monospace;">${r.sortOrder}</td>
+                        <td style="font-weight: 500;">${escapeHtml(r.name)}</td>
+                        <td class="text-muted">${escapeHtml(projName)}</td>
+                        <td class="text-muted">${escapeHtml(catName)}</td>
+                        <td class="text-muted">${escapeHtml(typeName)}</td>
+                        <td class="text-muted">${escapeHtml(groupName)}</td>
+                        <td class="text-muted">${escapeHtml(userName)}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button type="button" class="btn btn-ghost btn-edit" style="color: var(--primary); padding: 4px 8px;" data-id="${r.id}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
+                            <button type="button" class="btn btn-ghost btn-delete" style="color: var(--danger); padding: 4px 8px;" data-id="${r.id}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                // Highlight logic
+                const urlParams = new URLSearchParams(window.location.search);
+                const highlightId = urlParams.get('highlight');
+                if (highlightId) {
+                    setTimeout(() => {
+                        const row = document.querySelector(`tr[data-id="${highlightId}"]`);
+                        if (row) {
+                            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            row.classList.add('row-highlight');
+                        }
+                    }, 100);
+                }
+            } catch (err) { console.error(err); 
+                let errEl = document.querySelector('tbody') || document.querySelector('#overviewCards') || document.querySelector('#board') || document.querySelector('#articleList') || document.querySelector('.content-area');
+                if (errEl) {
+                    if (errEl.tagName === 'TBODY') {
+                        errEl.innerHTML = '<tr><td colspan="100" style="text-align: center; padding: var(--spacing-xl); color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</td></tr>';
+                     } else {
+                        errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
+                    }
+                }
+
+                console.error(err);
+                showToast('Error loading rules', 'error');
+            }
+        }
+
+        document.querySelector('#rulesTable tbody').addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.btn-delete');
+            const editBtn = e.target.closest('.btn-edit');
+            const toggleBtn = e.target.closest('.btn-toggle');
+            
+            if (deleteBtn) {
+                ruleToDelete = Number.parseInt(deleteBtn.dataset.id, 10);
+                openModal('confirmModal');
+            } else if (editBtn) {
+                ruleToEdit = Number.parseInt(editBtn.dataset.id, 10);
+                const r = rulesList.find(x => x.id === ruleToEdit);
+                if (r) {
+                    document.getElementById('rName').value = r.name;
+                    document.getElementById('rSort').value = r.sortOrder;
+                    document.getElementById('rProject').value = r.projectId || '';
+                    document.getElementById('rCategory').value = r.categoryId || '';
+                    document.getElementById('rType').value = r.ticketTypeId || '';
+                    document.getElementById('rGroup').value = r.targetGroupId || '';
+                    document.getElementById('rUser').value = r.targetUserId || '';
+                    document.getElementById('rActive').checked = r.isActive;
+                    document.getElementById('ruleModalTitle').textContent = t('rules_modal_edit');
+                    openModal('createModal');
+                }
+            } else if (toggleBtn) {
+                const id = Number.parseInt(toggleBtn.dataset.id, 10);
+                toggleBtn.style.opacity = '0.5';
+                try {
+                    await window.api.toggleAssignmentRule(id);
+                    showToast('Rule status updated');
+                    loadRules();
+                } catch (err) {
+                    console.error(err);
+                    showToast('Failed to toggle rule', 'error');
+                    toggleBtn.style.opacity = '1';
+                }
+            }
+        });
+
+        document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+            if (!ruleToDelete) return;
+            try {
+                await window.api.deleteAssignmentRule(ruleToDelete);
+                closeModal('confirmModal');
+                showToast('Rule deleted successfully');
+        loadRules(); // removed await for resilience
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to delete rule', 'error');
+            } finally {
+                ruleToDelete = null;
+            }
+        });
+
+        document.getElementById('btnCreateRuleModal').addEventListener('click', () => {
+            ruleToEdit = null;
+            document.getElementById('createForm').reset();
+            document.getElementById('ruleModalTitle').textContent = t('rules_modal_new');
+            openModal('createModal');
+        });
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('rName').value.trim(),
+                sortOrder: Number.parseInt(document.getElementById('rSort').value, 10) || 10,
+                isActive: document.getElementById('rActive').checked,
+                projectId: document.getElementById('rProject').value ? Number.parseInt(document.getElementById('rProject').value, 10) : null,
+                categoryId: document.getElementById('rCategory').value ? Number.parseInt(document.getElementById('rCategory').value, 10) : null,
+                ticketTypeId: document.getElementById('rType').value ? Number.parseInt(document.getElementById('rType').value, 10) : null,
+                targetGroupId: document.getElementById('rGroup').value ? Number.parseInt(document.getElementById('rGroup').value, 10) : null,
+                targetUserId: document.getElementById('rUser').value ? Number.parseInt(document.getElementById('rUser').value, 10) : null
+            };
+            
+            try {
+                if (ruleToEdit) {
+                    await window.api.updateAssignmentRule(ruleToEdit, payload);
+                    showToast('Rule updated successfully');
+                } else {
+                    await window.api.createAssignmentRule(payload);
+                    showToast('Rule created successfully');
+                }
+                closeModal('createModal');
+                loadRules();
+            } catch (e) {
+                console.error(e);
+                showToast(ruleToEdit ? 'Failed to update rule' : 'Failed to create rule', 'error');
+            }
+        });
+
+        function escapeHtml(unsafe) {
+            return (unsafe || '').toString()
+                .replaceAll('&', "&amp;")
+                .replaceAll('<', "&lt;")
+                .replaceAll('>', "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+        async function initRules() {
+            try {
+                lookupData = await window.api.request('/lookup');
+                const usersList = await window.api.getUsers();
+                const groupsList = await window.api.getGroups();
+                lookupData.users = usersList;
+                lookupData.groups = groupsList;
+
+                const populate = (id, arr) => {
+                    const el = document.getElementById(id);
+                    arr.forEach(x => {
+                        const opt = document.createElement('option');
+                        opt.value = x.id; opt.textContent = x.name || x.username || x.id;
+                        el.appendChild(opt);
+                    });
+                };
+                populate('rProject', lookupData.projects || []);
+                populate('rCategory', lookupData.categories || []);
+                populate('rType', lookupData.ticketTypes || []);
+                populate('rGroup', lookupData.groups || []);
+                populate('rUser', lookupData.users || []);
+            } catch(e) {
+                console.error("Failed to load lookups", e);
+            }
+            loadRules();
+        }
+
+        document.addEventListener('DOMContentLoaded', initRules);
+    </script>
+</body>
+</html>

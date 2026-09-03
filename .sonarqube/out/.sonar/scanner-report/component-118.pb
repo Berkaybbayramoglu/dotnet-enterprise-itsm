@@ -1,1 +1,1 @@
-v 2csXhr1src/ItsTool.Application/Interfaces/IRepository.cs
+v 2webXKhr'src/ItsTool.Web/wwwroot/admin-crud.html

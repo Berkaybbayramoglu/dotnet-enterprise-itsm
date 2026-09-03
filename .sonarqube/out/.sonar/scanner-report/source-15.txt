@@ -1,13 +1,10 @@
 using ItsTool.Domain.Common;
 using ItsTool.Domain.Entities.Organization;
-
-namespace ItsTool.Domain.Entities.Config;
-
-public class SavedFilter : BaseEntity
-{
+namespace ItsTool.Domain.Entities.Auth;
+public class UserPermissionOverride : BaseEntity {
     public int UserId { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string QueryJson { get; set; } = string.Empty;
-
+    public int PermissionId { get; set; }
+    public bool IsGranted { get; set; }
     public virtual User? User { get; set; }
+    public virtual Permission? Permission { get; set; }
 }

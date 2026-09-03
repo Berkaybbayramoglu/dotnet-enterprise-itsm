@@ -48,7 +48,7 @@ export function initMentions(textareaId, ticketId = null) {
         
         const filtered = users.filter(u => {
             const fullName = (u.firstName + ' ' + u.lastName).toLowerCase();
-            return fullName.includes(query) || (u.email && u.email.toLowerCase().includes(query));
+            return fullName.includes(query) || u.email?.toLowerCase().includes(query);
         });
         if (filtered.length === 0) {
             hideDropdown();
@@ -124,7 +124,7 @@ export function initMentions(textareaId, ticketId = null) {
     });
 
     textarea.addEventListener('keydown', (e) => {
-        if (dropdown && dropdown.style.display === 'block') {
+        if (dropdown?.style.display === 'block') {
             const items = dropdown.querySelectorAll('.dropdown-item');
             if (e.key === 'ArrowDown') {
                 e.preventDefault();

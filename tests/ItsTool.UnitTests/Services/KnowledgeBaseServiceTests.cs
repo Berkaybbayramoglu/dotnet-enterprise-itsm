@@ -13,11 +13,13 @@ public class KnowledgeBaseServiceTests : TestBase
 {
     private readonly KnowledgeBaseService _kbService;
     private readonly Mock<IPermissionCalculator> _mockPermCalculator;
+    private readonly Mock<ISignalRPusher> _mockSignalRPusher;
 
     public KnowledgeBaseServiceTests() : base()
     {
         _mockPermCalculator = new Mock<IPermissionCalculator>();
-        _kbService = new KnowledgeBaseService(_context, _mockPermCalculator.Object);
+        _mockSignalRPusher = new Mock<ISignalRPusher>();
+        _kbService = new KnowledgeBaseService(_context, _mockPermCalculator.Object, _mockSignalRPusher.Object);
     }
 
     [Fact]

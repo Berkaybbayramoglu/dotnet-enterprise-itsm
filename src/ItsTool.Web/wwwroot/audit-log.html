@@ -166,45 +166,7 @@
                 res.items.forEach(a => {
                     const tr = document.createElement('tr');
                     
-                    let mappedOld = a.oldValue;
-                    let mappedNew = a.newValue;
-                    
-                    if (a.fieldName === 'StatusId') {
-                        mappedOld = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                        mappedNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
-                    } else if (a.fieldName === 'Status' && a.entityType === 'KnowledgeArticle') {
-                        const sMap = { '0': t('kb_opt_draft') || 'Draft', '1': t('kb_opt_published') || 'Published', '2': t('kb_badge_pending') || 'Pending Review' };
-                        mappedOld = sMap[a.oldValue] || a.oldValue;
-                        mappedNew = sMap[a.newValue] || a.newValue;
-                    } else if (a.fieldName === 'PriorityId') {
-                        mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                        mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
-                    } else if (a.fieldName === 'CategoryId') {
-                        mappedOld = lookup.categories?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                        mappedNew = lookup.categories?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
-                    } else if (a.fieldName === 'ProjectId') {
-                        mappedOld = lookup.projects?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                        mappedNew = lookup.projects?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
-                    } else if (a.fieldName === 'AssignedUserId') {
-                        mappedOld = users?.find(s => String(s.id) === a.oldValue)?.firstName ? (users.find(s => String(s.id) === a.oldValue).firstName + ' ' + users.find(s => String(s.id) === a.oldValue).lastName) : a.oldValue;
-                        mappedNew = users?.find(s => String(s.id) === a.newValue)?.firstName ? (users.find(s => String(s.id) === a.newValue).firstName + ' ' + users.find(s => String(s.id) === a.newValue).lastName) : a.newValue;
-                    } else if (a.fieldName === 'AssignedGroupId') {
-                        mappedOld = lookup.groups?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                        mappedNew = lookup.groups?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
-                    } else if (a.fieldName === 'Transfer') {
-                        const parseTransfer = (val) => {
-                            if (!val || val === 'Proj:,Grp:' || val === 'none') return val;
-                            const mProj = val.match(/Proj:(-?\d*)/);
-                            const mGrp = val.match(/Grp:(-?\d*)/);
-                            const pId = mProj && mProj[1] ? mProj[1] : null;
-                            const gId = mGrp && mGrp[1] ? mGrp[1] : null;
-                            const pName = pId && pId !== '-1' ? (lookup.projects?.find(x => String(x.id) === pId)?.name || `Project ${pId}`) : 'No Project';
-                            const gName = gId && gId !== '-1' ? (lookup.groups?.find(x => String(x.id) === gId)?.name || `Group ${gId}`) : 'No Group';
-                            return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
-                        };
-                        mappedOld = parseTransfer(a.oldValue);
-                        mappedNew = parseTransfer(a.newValue);
-                    }
+                    const { mappedOld, mappedNew } = resolveAuditMappedValues(a, lookup, users);
                     
                     const oldVal = mappedOld ? `<span class="value-cell" title="${escapeHtml(mappedOld)}">${escapeHtml(mappedOld)}</span>` : '<span class="text-muted">-</span>';
                     const newVal = mappedNew ? `<span class="value-cell" title="${escapeHtml(mappedNew)}">${escapeHtml(mappedNew)}</span>` : '<span class="text-muted">-</span>';
@@ -220,37 +182,8 @@
                     const creatorUser = users.find(u => String(u.id) === a.createdBy);
                     const creatorName = creatorUser ? `@${creatorUser.username}` : (a.createdBy || '-');
 
-                    // Determine deep link
-                    let deepLink = '#';
-                    const et = entityType.toLowerCase();
-                    const en = (a.entityName || '').toLowerCase(); // For old logs where entityType is Config and name is AssignmentRule
-                    if (et === 'ticket') {
-                        deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
-                        if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied') {
-                            const cid = (!Number.isNaN(Number(a.fieldName)) && a.fieldName) ? a.fieldName : a.oldValue;
-                            deepLink += `&commentId=${cid}`;
-                        } else if (a.action === 'CommentDeleted') {
-                            deepLink += `&historyId=${a.id}`;
-                        } else if (a.action === 'ASSIGNED' || a.fieldName === 'Assignments' || a.fieldName === 'AssignedUserId' || a.fieldName === 'AssignedGroupId') {
-                            deepLink += `&focus=assign`;
-                        }
-                    }
-                    else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
-                    else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
-                    else if (et === 'knowledgearticle') deepLink = `/kb-article.html?id=${entityIdText}`;
-                    else if (et === 'user') deepLink = `/users.html?highlight=${entityIdText}`;
-                    else if (et === 'groupmember') deepLink = `/admin-crud.html?type=groups`;
-                    else {
-                        const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles' };
-                        if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
-                    }
-
-                    // Determine detail sentence
-                    let detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
-                    
-                    if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
-                        detailSentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;
-                    }
+                    const deepLink = resolveAuditDeepLink(a, entityType, entityIdText);
+                    const detailSentence = buildAuditDetailSentence(a, creatorName, entityNameText, entityType, mappedOld, mappedNew);
 
                     tr.innerHTML = `
                         <td style="font-size: 13px; color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</td>
@@ -261,7 +194,7 @@
                         <td>${oldVal}</td>
                         <td>${newVal}</td>
                         <td style="text-align:right; position: sticky; right: 0; background: var(--bg-surface); z-index: 1; box-shadow: -2px 0 5px rgba(0,0,0,0.05);">
-                            <button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="showAuditDetail('${detailSentence.replaceAll("'", "\\'")}')">${t('audit_btn_detail')}</button>
+                            <button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="showAuditDetail('${detailSentence.replaceAll("'", String.raw`\'`).replaceAll('"', '&quot;')}')">${t('audit_btn_detail')}</button>
                             <a href="${deepLink}" class="btn btn-ghost" style="padding:4px 8px; font-size:12px; color:var(--primary); ${deepLink === '#' ? 'display:none;' : ''}">${t('audit_btn_go')}</a>
                         </td>
                     `;
@@ -326,29 +259,34 @@
         }
 
         function resolveAuditDeepLink(a, entityType, entityIdText) {
-            let deepLink = '#';
             const et = entityType.toLowerCase();
-            const en = (a.entityName || '').toLowerCase();
             if (et === 'ticket') {
-                deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
+                let deepLink = `/ticket-detail.html?id=${entityIdText}&highlight=true`;
                 if (a.action === 'CommentAdded' || a.action === 'InternalNoteAdded' || a.action === 'CommentEdited' || a.action === 'CommentReplied') {
                     const cid = (!Number.isNaN(Number(a.fieldName)) && a.fieldName) ? a.fieldName : a.oldValue;
-                    deepLink += `&commentId=${cid}`;
-                } else if (a.action === 'CommentDeleted') {
-                    deepLink += `&historyId=${a.id}`;
-                } else if (a.action === 'ASSIGNED' || a.fieldName === 'Assignments' || a.fieldName === 'AssignedUserId' || a.fieldName === 'AssignedGroupId') {
-                    deepLink += `&focus=assign`;
-                }
-            } else if (et === 'rule' || en === 'assignmentrule') deepLink = `/rules.html?highlight=${entityIdText}`;
-            else if (et === 'webhook') deepLink = `/webhooks.html?highlight=${entityIdText}`;
-            else if (et === 'knowledgearticle') deepLink = `/kb-article.html?id=${entityIdText}`;
-            else if (et === 'user') deepLink = `/users.html?highlight=${entityIdText}`;
-            else if (et === 'groupmember') deepLink = `/admin-crud.html?type=groups`;
-            else {
-                const crudMap = { 'project': 'projects', 'category': 'categories', 'department': 'departments', 'group': 'groups', 'role': 'roles' };
-                if (crudMap[et]) deepLink = `/admin-crud.html?type=${crudMap[et]}&highlight=${entityIdText}`;
+                    return deepLink + `&commentId=${cid}`;
+                } 
+                if (a.action === 'CommentDeleted') return deepLink + `&historyId=${a.id}`;
+                if (a.action === 'ASSIGNED' || a.fieldName === 'Assignments' || a.fieldName === 'AssignedUserId' || a.fieldName === 'AssignedGroupId') return deepLink + `&focus=assign`;
+                return deepLink;
             }
-            return deepLink;
+            
+            const en = (a.entityName || '').toLowerCase();
+            const linkMap = {
+                'rule': `/rules.html?highlight=${entityIdText}`,
+                'webhook': `/webhooks.html?highlight=${entityIdText}`,
+                'knowledgearticle': `/kb-article.html?id=${entityIdText}`,
+                'user': `/users.html?highlight=${entityIdText}`,
+                'groupmember': `/admin-crud.html?type=groups`,
+                'project': `/admin-crud.html?type=projects&highlight=${entityIdText}`,
+                'category': `/admin-crud.html?type=categories&highlight=${entityIdText}`,
+                'department': `/admin-crud.html?type=departments&highlight=${entityIdText}`,
+                'group': `/admin-crud.html?type=groups&highlight=${entityIdText}`,
+                'role': `/admin-crud.html?type=roles&highlight=${entityIdText}`
+            };
+            
+            if (en === 'assignmentrule') return `/rules.html?highlight=${entityIdText}`;
+            return linkMap[et] || '#';
         }
 
         function buildAuditDetailSentence(a, creatorName, entityNameText, entityType, mappedOld, mappedNew) {

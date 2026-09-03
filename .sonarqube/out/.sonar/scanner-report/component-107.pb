@@ -1,2 +1,1 @@
-k 2csX
-hr<src/ItsTool.Application/Interfaces/IEmailIngestionService.cs
+k 2webXÀhr%src/ItsTool.Web/wwwroot/webhooks.html

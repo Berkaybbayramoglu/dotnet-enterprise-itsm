@@ -1,1 +1,1 @@
- 2csXhrBsrc/ItsTool.Domain/Entities/Notification/NotificationPreference.cs
+ 2csXhr9src/ItsTool.Domain/Entities/Config/WebhookSubscription.cs

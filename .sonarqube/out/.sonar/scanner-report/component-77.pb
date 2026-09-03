@@ -1,1 +1,1 @@
-M 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js
+M 2csXhr:src/ItsTool.API/Security/PermissionAuthorizationHandler.cs

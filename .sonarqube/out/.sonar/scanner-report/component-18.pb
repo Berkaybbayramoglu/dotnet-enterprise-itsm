@@ -1,1 +1,1 @@
- 2csXhr8src/ItsTool.Domain/Entities/Notification/Notification.cs
+ 2csXhr1src/ItsTool.Domain/Entities/Config/SavedFilter.cs

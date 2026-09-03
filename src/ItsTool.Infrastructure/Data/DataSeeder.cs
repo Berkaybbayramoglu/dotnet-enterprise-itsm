@@ -32,7 +32,7 @@ public static class TransitionConstants
 
 public class DataSeeder
 {
-    private const string TicketView = TicketView;
+    private const string TicketView = PermissionConstants.TicketView;
     private static readonly string[] ManagerPermissions = new[] { "report.view", "audit.view", TicketView, "ticket.assign", "ticket.transfer", "kb.manage" };
     private static readonly string[] AgentPermissions = new[] { TicketView, PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "ticket.assign", "ticket.transfer", "kb.view" };
     private static readonly string[] EndUserPermissions = new[] { "ticket.create", TicketView, "survey.submit", "kb.view" };

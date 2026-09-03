@@ -1,4 +1,4 @@
-¢ã¬Ž†4	itsm-tool(:R
+ÙÕÃ°†4	itsm-tool(:R
 
 kubernetesD
 $2daa1f33-83a1-4e12-838a-aba088d54e3e	Sonar way
@@ -63,6 +63,8 @@ $729fefe2-6301-4f82-9ce1-c1bb97cc27ca	Sonar wayts ¸ö…õ€4B
 webÌü…õ€4B
 cayc
 caycÉü…õ€4B
+xml
+xmlÌü…õ€4B
 iac
 iacËü…õ€4B
 text
@@ -70,12 +72,16 @@ $729fefe2-6301-4f82-9ce1-c1bb97cc27ca	Sonar wayts ¸ö…õ€4B
 
 javascript
 
-javascriptËü…õ€4j(d83af133c1cd40b443fc4a4146334d05f5eb033e²
-csQ²
+javascriptËü…õ€4j(182a3026d0e5fbc1aa14757127db718e8aafe60b²
+cs´²
 css²
-web²
-py²
-jsonN²
-js(º	
-otherº	
+web²
+xml²
+py²
+js3²	
+jsonÁ²
+yamlº	
+otherº	
 shell
+º
+markdown

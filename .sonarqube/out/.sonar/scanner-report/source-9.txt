@@ -1,7 +1,7 @@
-using ItsTool.Domain.Common;
-namespace ItsTool.Domain.Entities.Auth;
-public class Permission : BaseEntity {
-    public string Name { get; set; } = string.Empty;
-    public string Key { get; set; } = string.Empty;
-    public string? Description { get; set; }
+namespace ItsTool.Domain.Common;
+public interface IAuditable {
+    System.DateTime CreatedAt { get; set; }
+    string? CreatedBy { get; set; }
+    System.DateTime? UpdatedAt { get; set; }
+    string? UpdatedBy { get; set; }
 }

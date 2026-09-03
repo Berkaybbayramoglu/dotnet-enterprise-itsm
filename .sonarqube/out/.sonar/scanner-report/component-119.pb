@@ -1,1 +1,1 @@
-w 2csX	hr4src/ItsTool.Application/Interfaces/ISignalRPusher.cs
+w 2webXhr"src/ItsTool.Web/wwwroot/index.html

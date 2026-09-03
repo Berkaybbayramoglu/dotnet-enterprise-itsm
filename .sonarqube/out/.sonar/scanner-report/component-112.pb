@@ -1,1 +1,1 @@
-p 2csXhr;src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs
+p 2webXÁhr#src/ItsTool.Web/wwwroot/kanban.html

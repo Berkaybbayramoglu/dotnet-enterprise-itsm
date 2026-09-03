@@ -1,1 +1,1 @@
-6 2webXÖhr%src/ItsTool.Web/wwwroot/workload.html
+6 2csX,hr1src/ItsTool.API/Controllers/CrudControllerBase.cs

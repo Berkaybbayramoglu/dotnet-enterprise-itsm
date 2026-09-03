@@ -1,1 +1,1 @@
-n 2csX	hr;src/ItsTool.Application/Interfaces/IEmailTemplateService.cs
+n 2webXùhrsrc/ItsTool.Web/wwwroot/kb.html

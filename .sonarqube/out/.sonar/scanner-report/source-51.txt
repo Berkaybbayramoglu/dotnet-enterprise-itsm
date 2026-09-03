@@ -1,448 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITSM Tool - Kanban</title>
-    <link rel="stylesheet" href="css/design-system.css?v=2">
-    <style>
-        .kanban-board { display: flex; gap: var(--spacing-lg); overflow-x: auto; overflow-y: hidden; height: calc(100vh - 150px); align-items: flex-start; padding-bottom: var(--spacing-md); }
-        .column { background: rgba(9,30,66,0.04); border-radius: var(--radius-lg); min-width: 320px; max-width: 320px; display: flex; flex-direction: column; max-height: 100%; }
-        .column-header { padding: var(--spacing-md); font-weight: 600; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid transparent; }
-        .column-body { padding: var(--spacing-sm); flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--spacing-sm); min-height: 200px; }
-        
-        .card { background: var(--bg-surface); padding: var(--spacing-md); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); cursor: pointer; display: flex; flex-direction: column; gap: var(--spacing-sm); border-left: 3px solid transparent; transition: box-shadow 0.2s; }
-        .card:hover { box-shadow: var(--shadow-md); }
-        .card:active { cursor: grabbing; }
-        
-        .card-header { display: flex; justify-content: space-between; align-items: center; }
-        .card-title { font-weight: 500; font-size: 14px; color: var(--text-main); }
-        .card-number { font-size: 12px; color: var(--text-muted); font-weight: 600; text-decoration: none; }
-        .card-number:hover { text-decoration: underline; color: var(--primary); }
-        
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-xs); }
-        
-        /* Priorites mapping to border */
-        .priority-Critical { border-left-color: var(--danger); }
-        .priority-High { border-left-color: var(--warning); }
-        .priority-Medium { border-left-color: var(--info); }
-        .priority-Low { border-left-color: var(--success); }
+using System.Security.Claims;
+using ItsTool.Application.DTOs;
+using ItsTool.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-        /* Column Status Header Strips */
-        .col-1 .column-header { border-bottom-color: var(--info); }
-        .col-2 .column-header { border-bottom-color: var(--warning); }
-        .col-3 .column-header { border-bottom-color: var(--text-muted); }
-        .col-4 .column-header { border-bottom-color: var(--success); }
-        .col-5 .column-header { border-bottom-color: var(--danger); }
-    </style>
-</head>
-<body>
-    <div class="app-shell" data-shell>
-        <main class="main-content">
-            <header class="topbar">
-                <div class="topbar-left">
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-                    </button>
+namespace ItsTool.API.Controllers;
 
-                    <h2 data-i18n="kanban_title">Kanban Board</h2>
-                </div>
-                <div class="topbar-right">
-                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
-                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
-                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
-                            <div id="notificationItems"></div>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
-                        </ul>
-                    </div>
-                    <div class="avatar">U</div>
-                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
-                </div>
-            </header>
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly IAuthService _authService;
 
-            <div class="content-area">
+    public AuthController(IAuthService authService)
+    {
+        _authService = authService;
+    }
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div style="background: var(--bg-hover); padding: 8px 12px; border-radius: var(--radius); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                        <span data-i18n="kanban_info">Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.</span>
-                    </div>
-                    <button class="btn btn-ghost" onclick="window.resetColumnOrder()" data-i18n="kanban_reset_order">Sırayı Sıfırla</button>
-                </div>
+    [AllowAnonymous]
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    {
+        try
+        {
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new { message = "Invalid credentials." });
+        }
+    }
 
-                <div class="kanban-board" id="board">
-                    <!-- Columns will be injected here -->
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Shared Preview Modal is dynamically injected by ui.js -->
-
-    <script type="module">
-        import './js/api.js?v=3';
-        import { injectShell } from './js/layout.js?v=10';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=3';
-        import { t } from './js/i18n.js';
-        injectShell();
-        
-        if (!window.api.token) window.location.href = '/login.html';
-        bindShellActions();
-
-        let statuses = [];
-        let tickets = [];
-        let allUsers = [];
-
-        const getAvatar = (id, fallback) => {
-            if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
-            const initial = String(fallback || id).charAt(0).toUpperCase();
-            return `<div class="avatar" title="${fallback}">${initial}</div>`;
-        };
-
-        const getPriorityIcon = (priority) => {
-            const colors = { 'Critical': 'var(--danger)', 'High': 'var(--warning)', 'Medium': 'var(--info)', 'Low': 'var(--success)' };
-            return `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: ${colors[priority] || 'var(--text-muted)'}"><path d="M16 11V3H8v6H2v12h20V11h-6zM10 5h4v14h-4V5zM4 11h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg>`;
-        };
-
-        let lookupData = {};
-        async function initKanban() {
-            try {
-                try {
-                    lookupData = await window.api.getLookup();
-                    
-                } catch (err) { console.error(err); 
-                    console.warn("Lookup fetching failed, using fallback empty object.", err);
-                    lookupData = { };
-                }
-                
-                // Override statuses with real ones if available
-                if (lookupData.statuses && lookupData.statuses.length > 0) {
-                    statuses = lookupData.statuses;
-                } else {
-                    statuses = [
-                        { id: 1, name: 'Open' },
-                        { id: 2, name: 'In Progress' },
-                        { id: 3, name: 'Pending' },
-                        { id: 4, name: 'Resolved' },
-                        { id: 5, name: 'Closed' }
-                    ];
-                }
-
-
-                let payload = { sub: 'unknown' };
-                try {
-                    payload = JSON.parse(atob(window.api.token.split('.')[1]));
-                } catch (e) { console.error(e); }
-                const userId = payload.sub;
-                
-                let savedOrder = localStorage.getItem(`kanban.colorder.${userId}`);
-                if (savedOrder) {
-                    try {
-                        savedOrder = JSON.parse(savedOrder);
-                        const sortedStatuses = [];
-                        savedOrder.forEach(id => {
-                            const st = statuses.find(s => s.id === id);
-                            if (st) sortedStatuses.push(st);
-                        });
-                        statuses.forEach(st => {
-                            if (!savedOrder.includes(st.id)) sortedStatuses.push(st);
-                        });
-                        statuses = sortedStatuses;
-                    } catch (e) { console.error(e); }
-                }
-
-                const board = document.getElementById('board');
-                board.innerHTML = '';
-                statuses.forEach(s => {
-                    const col = document.createElement('div');
-                    col.className = `column col-${s.id}`;
-                    col.dataset.colId = s.id;
-                    col.ondragover = window.allowColDrop;
-                    col.ondrop = window.colDrop;
-                    
-                    col.innerHTML = `
-                        <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
-                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${t('db_' + s.name.toLowerCase().replace(' ', '_'))}</span>
-                            <span class="badge badge-default" id="count-${s.id}">0</span>
-                        </div>
-                        <div class="column-body" data-status-id="${s.id}" ondragover="window.allowDrop(event)" ondrop="window.drop(event)"></div>
-                    `;
-                    board.appendChild(col);
-                });
-
-
-                try {
-                    const res = await window.api.searchTickets({ pageSize: 100 });
-                    tickets = res.items || [];
-                    const uRes = await window.api.getUsers();
-                    allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
-                } catch (err) { console.error(err); 
-                    console.warn("Tickets fetching failed.", err);
-                    tickets = [];
-                 }
-
-                renderTickets();
-            } catch(e) { 
-                console.error("Critical error in initKanban:", e); 
-                window.showToast(t('kanban_api_error'), "error");
-            }
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(MeResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetMe()
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdStr, out int userId))
+        {
+            return Unauthorized();
         }
 
-        function renderTickets() {
-            document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
-            const counts = {};
-
-            tickets.forEach(ticket => {
-                // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
-                let sId = ticket.statusId;
-                if(typeof sId === 'string') {
-                    // Try to map name to id for demo if it returns string
-                    const found = statuses.find(x => x.name === sId);
-                    if(found) sId = found.id; else sId = 1;
-                }
-
-                counts[sId] = (counts[sId] || 0) + 1;
-
-                // Find active assignment
-                let assigneeName = t('kanban_unassigned');
-                let assigneeInitialId = null;
-                
-                let assigneeDetails = [];
-                    if (ticket.assignments && ticket.assignments.length > 0) {
-                        const activeAssignments = ticket.assignments.filter(a => a.isActive);
-                        if (activeAssignments.length > 0) {
-                            const mainAssignee = activeAssignments[0];
-                            if (mainAssignee.userId) {
-                                const u = allUsers.find(x => x.id === mainAssignee.userId);
-                                assigneeName = u ? (u.firstName + ' ' + u.lastName) : `User ${mainAssignee.userId}`;
-                                assigneeInitialId = assigneeName;
-                            } else if (mainAssignee.groupId) {
-                                const g = lookupData.groups?.find(x => x.id === mainAssignee.groupId);
-                                assigneeName = g ? g.name : `Group ${mainAssignee.groupId}`;
-                                assigneeInitialId = assigneeName;
-                            }
-                            if (activeAssignments.length > 1) {
-                                assigneeName += ` (+${activeAssignments.length - 1})`;
-                            }
-                            
-                            let details = [];
-                            activeAssignments.forEach(a => {
-                                if (a.userId) {
-                                    const u = allUsers.find(x => x.id === a.userId);
-                                    const name = u ? (u.firstName + ' ' + u.lastName) : `User ${a.userId}`;
-                                    details.push({ type: 'user', id: a.userId, name: name, email: u ? u.email : '', initial: name.charAt(0).toUpperCase(), isSubItem: false });
-                                } else if (a.groupId) {
-                                    const g = lookupData.groups?.find(x => x.id === a.groupId);
-                                    const name = g ? g.name : `Group ${a.groupId}`;
-                                    details.push({ type: 'group', id: a.groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
-                                    
-                                    const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
-                                    if (groupMembers.length > 0) {
-                                        groupMembers.forEach(mu => {
-                                            const muName = mu.firstName + ' ' + mu.lastName;
-                                            details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
-                                        });
-                                    } else {
-                                        details.push({ type: 'empty', id: 0, name: '', email: '', initial: '', isSubItem: true, parentGroupId: a.groupId });
-                                    }
-                                }
-                            });
-                            assigneeDetails = details;
-                        }
-                    }
-
-                    const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
-                    
-                    const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
-                    if (colBody) {
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.draggable = true;
-                        card.ondragstart = window.drag;
-                        card.dataset.id = ticket.id;
-                        card.id = 'ticket-' + ticket.id;
-                        card.onclick = (e) => {
-                            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
-                            if (typeof window.openTicketPreview === 'function') {
-                                window.openTicketPreview(ticket, lookupData);
-                            }
-                        };
-                        
-                        card.innerHTML = `
-                        <div class="card-header">
-                            <a href="/ticket-detail.html?id=${ticket.id}" class="card-number" target="_blank">${escapeHtml(ticket.ticketNumber)}</a>
-                            ${getPriorityIcon(ticket.priorityId)}
-                        </div>
-                        <div class="card-title">${escapeHtml(ticket.title)}</div>
-                        <div class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px;" title="${t('kanban_view_assignees')}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
-                            ${getAvatar(assigneeInitialId, assigneeName)}
-                            <span style="font-size: 12px; font-weight: 500; color: var(--text-main); pointer-events: none;">${escapeHtml(assigneeName)}</span>
-                        </div>
-                    `;
-                    colBody.appendChild(card);
-                }
-            });
-
-            // Update counts
-            statuses.forEach(s => {
-                const countBadge = document.getElementById(`count-${s.id}`);
-                if(countBadge) countBadge.textContent = counts[s.id] || 0;
-            });
+        try
+        {
+            var result = await _authService.GetMeAsync(userId);
+            return Ok(result);
         }
-
-
-        window.allowColDrop = function(ev) {
-            ev.preventDefault();
-            const targetCol = ev.target.closest('.column');
-            const draggingCol = document.querySelector('.column.dragging');
-            
-            if (targetCol && draggingCol && targetCol !== draggingCol) {
-                // Determine whether to place before or after based on mouse position
-                const rect = targetCol.getBoundingClientRect();
-                const mid = rect.left + rect.width / 2;
-                if (ev.clientX < mid) {
-                    targetCol.parentNode.insertBefore(draggingCol, targetCol);
-                } else {
-                    targetCol.parentNode.insertBefore(draggingCol, targetCol.nextSibling);
-                }
-            }
-        };
-
-        window.colDrag = function(ev) {
-            ev.dataTransfer.setData("type", "column");
-            const col = ev.target.closest('.column');
-            if (col) {
-                ev.dataTransfer.setData("columnId", col.dataset.colId);
-                col.classList.add('dragging');
-                // Optional: make the dragged original element slightly transparent
-                col.style.opacity = '0.4';
-            }
-            
-            // Prevent any default "null" or invalid ghost text by explicitly setting an empty drag image or just plain text
-            if (ev.dataTransfer.setDragImage) {
-                const img = new Image();
-                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // transparent pixel
-                ev.dataTransfer.setDragImage(img, 0, 0);
-            }
-        };
-
-        window.dragEnd = function(ev) {
-            document.querySelectorAll('.dragging').forEach(el => {
-                el.classList.remove('dragging');
-                el.style.opacity = '1';
-            });
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-        };
-
-        window.colDrop = function(ev) {
-            document.querySelectorAll('.column').forEach(c => {
-                c.classList.remove('drag-over', 'dragging');
-                c.style.opacity = '1';
-            });
-            ev.preventDefault();
-            const type = ev.dataTransfer.getData("type");
-            if (type !== "column") return;
-            
-            // Since the DOM is already reordered by allowColDrop, we just save it.
-            saveColumnOrder();
-        };
-        
-        function saveColumnOrder() {
-            const board = document.getElementById('board');
-            const cols = Array.from(board.children);
-            const newOrder = cols.map(c => Number.parseInt(c.dataset.colId, 10));
-            
-            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
-            let userId = payload.sub || 'unknown';
-            localStorage.setItem(`kanban.colorder.${userId}`, JSON.stringify(newOrder));
-            
-            showToast(t('kanban_order_saved'), 'success');
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
         }
-        
-        window.resetColumnOrder = function() {
-            const payload = JSON.parse(atob(window.api.token.split('.')[1]));
-            let userId = payload.sub || 'unknown';
-            localStorage.removeItem(`kanban.colorder.${userId}`);
-            showToast(t('kanban_order_reset'), 'success');
-            window.location.reload();
-        };
-
-        window.allowDrop = function(ev) {
-            ev.preventDefault();
-            const type = ev.dataTransfer.getData("type");
-            if (type !== "column") {
-                document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
-                const colBody = ev.target.closest('.column-body');
-                if (colBody) colBody.classList.add('drag-over');
-            }
-        };
-
-        window.drag = function(ev) {
-            let el = ev.target;
-            while(el && !el.classList.contains('card')) el = el.parentElement;
-            if(el) ev.dataTransfer.setData("text", el.id);
-        };
-
-        window.drop = async function(ev) {
-            document.querySelectorAll('.dragging, .drag-over').forEach(el => {
-                el.classList.remove('dragging', 'drag-over');
-            });
-            ev.preventDefault();
-            const data = ev.dataTransfer.getData("text");
-            const card = document.getElementById(data);
-            
-            let target = ev.target;
-            while(target && !target.classList.contains('column-body')) {
-                target = target.parentElement;
-            }
-
-            if (target && card) {
-                const newStatusId = Number.parseInt(target.dataset.statusId, 10);
-                const ticketId = Number.parseInt(card.id.replace('ticket-', ''), 10);
-
-                try {
-                    // Actual API expects string status if we are mapping it, check mock API logic, normally ID
-                    await window.api.request(`/Ticket/${ticketId}/status`, {
-                        method: 'POST',
-                        body: JSON.stringify(newStatusId)
-                    });
-                    
-                    target.appendChild(card);
-                    
-                    // Re-calculate counts
-                    document.querySelectorAll('.column-body').forEach(c => {
-                        const sId = c.dataset.statusId;
-                        const count = c.querySelectorAll('.card').length;
-                        document.getElementById(`count-${sId}`).textContent = count;
-                    });
-
-                    if (newStatusId === 5) {
-                        showToast(t('kanban_toast_closed'));
-                    } else {
-                        showToast(t('kanban_toast_moved'));
-                    }
-                } catch(e) {
-                    console.error(e);
-                    showToast(t('kanban_invalid_transition'), 'error');
-                }
-            }
-        };
-
-        function escapeHtml(unsafe) {
-            return (unsafe || '').toString()
-                .replaceAll('&', "&amp;")
-                .replaceAll('<', "&lt;")
-                .replaceAll('>', "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        await initKanban();
-    </script>
-</body>
-</html>
+    }
+}

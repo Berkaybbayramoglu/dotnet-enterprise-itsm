@@ -1,7 +1,5 @@
-using ItsTool.Domain.Common;
-namespace ItsTool.Domain.Entities.Auth;
-public class Role : BaseEntity {
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+namespace ItsTool.Domain.Common;
+public interface ISoftDelete {
+    bool IsDeleted { get; set; }
+    System.DateTime? DeletedAt { get; set; }
 }

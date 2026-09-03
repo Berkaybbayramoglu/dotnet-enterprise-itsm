@@ -1,1 +1,1 @@
-+ 2csX	hr)src/ItsTool.Domain/Enums/ProjectStatus.cs
++ 2csXhr0src/ItsTool.Domain/Entities/Ticket/TicketType.cs

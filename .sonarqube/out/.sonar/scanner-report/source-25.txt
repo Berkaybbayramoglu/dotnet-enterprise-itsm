@@ -1,12 +1,9 @@
 using ItsTool.Domain.Common;
-using ItsTool.Domain.Enums;
-
-namespace ItsTool.Domain.Entities.Project;
-
-public class Project : BaseEntity {
+using System.Collections.Generic;
+namespace ItsTool.Domain.Entities.Organization;
+public class Group : BaseEntity {
     public string Name { get; set; } = string.Empty;
-    public string ProjectKey { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public int CurrentTicketSequence { get; set; } = 0;
-    public ProjectStatus Status { get; set; } = ProjectStatus.Active;
+    public int? DepartmentId { get; set; }
+    public virtual Department? Department { get; set; }
+    public virtual ICollection<GroupMember> Members { get; set; } = new List<GroupMember>();
 }

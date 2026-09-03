@@ -1,1 +1,1 @@
-l 2csXhr1src/ItsTool.Application/Interfaces/IEmailQueue.cs
+l 2webX hr'src/ItsTool.Web/wwwroot/kb-article.html

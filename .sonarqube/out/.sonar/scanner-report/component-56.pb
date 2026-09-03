@@ -1,1 +1,1 @@
-8 2webXÑhr*src/ItsTool.Web/wwwroot/ticket-detail.html
+8 2csXMhr4src/ItsTool.API/Controllers/DepartmentsController.cs

@@ -1,1 +1,1 @@
-E 2jsXÚhr"src/ItsTool.Web/wwwroot/js/i18n.js
+E 2csXhr-src/ItsTool.API/Controllers/TestController.cs

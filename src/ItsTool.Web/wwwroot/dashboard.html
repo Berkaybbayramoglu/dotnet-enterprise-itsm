@@ -457,7 +457,7 @@
         }
 
         window.openDrillDown = async function(type) {
-            let translatedType = type;
+            let translatedType;
             if (type.startsWith('Status: ')) {
                 const val = type.replace('Status: ', '');
                 translatedType = `${t('dash_lbl_status') || 'Status'}: ${t('db_' + val.toLowerCase().replaceAll(' ', '_')) || val}`;

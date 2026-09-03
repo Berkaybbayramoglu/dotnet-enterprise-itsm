@@ -1,1 +1,1 @@
-m 2csX	hr3src/ItsTool.Application/Interfaces/IEmailService.cs
+m 2webXchr"src/ItsTool.Web/wwwroot/login.html

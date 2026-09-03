@@ -1,1 +1,1 @@
-t 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs
+t 2jsXhrsrc/ItsTool.Web/wwwroot/test.js

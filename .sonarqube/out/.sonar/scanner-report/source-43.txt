@@ -1,8 +1,13 @@
-namespace ItsTool.Domain.Enums;
+using ItsTool.Domain.Common;
 
-public enum ProjectStatus
+namespace ItsTool.Domain.Entities.Ticket;
+
+public class TicketType : BaseEntity
 {
-    Active = 0,
-    Inactive = 1,
-    Postponed = 2
+    public string Name { get; set; } = string.Empty;
+    public int ProjectId { get; set; }
+    public string? Description { get; set; }
+    public string? Icon { get; set; }
+    public string? ColorHex { get; set; }
+    public bool IsSystemDefault { get; set; }
 }

@@ -1,8 +1,13 @@
-const fetch = require('node-fetch');
-async function test() {
-    const res = await fetch('http://127.0.0.1:5246/api/Ticket/2/attachments', {
-        headers: { 'Authorization': 'Bearer ' + 'dummy_token' } // wait, I don't have a token.
-    });
-    console.log(res.status);
+using ItsTool.Domain.Common;
+using ItsTool.Domain.Entities.Organization;
+
+namespace ItsTool.Domain.Entities.Ticket;
+
+public class TicketWatcher : BaseEntity
+{
+    public int TicketId { get; set; }
+    public int UserId { get; set; }
+
+    public virtual Ticket? Ticket { get; set; }
+    public virtual User? User { get; set; }
 }
-test();

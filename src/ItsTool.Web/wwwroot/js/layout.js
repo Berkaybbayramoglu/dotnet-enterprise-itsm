@@ -2,8 +2,8 @@
 import { applyTranslations } from './i18n.js';
 import { initNotifications } from './notifications.js?v=3';
 
-export function injectShell() {
-    // Inject SignalR script
+
+function injectSignalR() {
     if (!document.querySelector('script[src="js/lib/signalr.min.js"]')) {
         const script = document.createElement('script');
         script.src = 'js/lib/signalr.min.js';
@@ -12,8 +12,9 @@ export function injectShell() {
     } else {
         initNotifications();
     }
+}
 
-    // Inject CSS for Dropdown
+function injectDropdownStyle() {
     if (!document.getElementById('bell-dropdown-style')) {
         const style = document.createElement('style');
         style.id = 'bell-dropdown-style';
@@ -27,8 +28,79 @@ export function injectShell() {
         `;
         document.head.appendChild(style);
     }
+}
 
-    const shellHtml = `
+function highlightActiveLink() {
+    const path = window.location.pathname;
+    const search = window.location.search;
+    let activeLink = document.querySelector(`.sidebar-nav-item[href="${path}${search}"]`);
+    
+    if (!activeLink && path === '/admin-crud.html') {
+        const urlParams = new URLSearchParams(search);
+        const type = urlParams.get('type');
+        if (type) {
+            activeLink = document.querySelector(`.sidebar-nav-item[data-type="${type}"]`);
+        }
+    } else if (!activeLink) {
+        activeLink = document.querySelector(`.sidebar-nav-item[href="${path}"]`);
+    }
+    
+    if (activeLink) activeLink.classList.add('active');
+    return activeLink;
+}
+
+function applyRbacToSidebar() {
+    let perms = [];
+    let isSuperAdmin = false;
+    try {
+        const token = localStorage.getItem('jwt_token');
+        if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.permission) {
+                perms = Array.isArray(payload.permission) ? payload.permission : [payload.permission];
+            }
+            if (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']) {
+                const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+                isSuperAdmin = Array.isArray(roles) ? roles.includes('SuperAdmin') : roles === 'SuperAdmin';
+            }
+        }
+    } catch (e) { console.error("Error decoding token in layout", e); }
+    
+    if (!perms.includes('admin.manage') && !isSuperAdmin) {
+        document.querySelectorAll('.sidebar-nav-title, .sidebar-nav-title ~ a').forEach(el => {
+            if (el) el.style.display = 'none';
+        });
+    }
+}
+
+function scrollSidebarToActive(activeLink) {
+    setTimeout(() => {
+        const nav = document.querySelector('.sidebar-nav');
+        if (nav && activeLink) {
+            const linkRect = activeLink.getBoundingClientRect();
+            const navRect = nav.getBoundingClientRect();
+            if (linkRect.bottom > navRect.bottom || linkRect.top < navRect.top) {
+                activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, 100);
+}
+
+function ensureSidebarOverlay() {
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!overlay) {
+        const ol = document.createElement('div');
+        ol.className = 'sidebar-overlay';
+        ol.id = 'sidebarOverlay';
+        document.body.appendChild(ol);
+    }
+}
+
+export function injectShell() {
+    injectSignalR();
+    injectDropdownStyle();
+
+const shellHtml = `
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -93,72 +165,20 @@ export function injectShell() {
 
         
     `;
-
+    
     const shellContainer = document.querySelector('[data-shell]');
     if (shellContainer) {
         shellContainer.insertAdjacentHTML('afterbegin', shellHtml);
         
-        // Active link highlighting
-        const path = window.location.pathname;
-        const search = window.location.search;
-        let activeLink = document.querySelector(`.sidebar-nav-item[href="${path}${search}"]`);
-        
-        if (!activeLink && path === '/admin-crud.html') {
-            const urlParams = new URLSearchParams(search);
-            const type = urlParams.get('type');
-            if (type) {
-                activeLink = document.querySelector(`.sidebar-nav-item[data-type="${type}"]`);
-            }
-        } else if (!activeLink) {
-            activeLink = document.querySelector(`.sidebar-nav-item[href="${path}"]`);
-        }
-        
-        let perms = [];
-        let isSuperAdmin = false;
-        try {
-            const token = localStorage.getItem('jwt_token');
-            if (token) {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                if (payload.permission) {
-                    perms = Array.isArray(payload.permission) ? payload.permission : [payload.permission];
-                }
-                if (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']) {
-                    const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-                    isSuperAdmin = Array.isArray(roles) ? roles.includes('SuperAdmin') : roles === 'SuperAdmin';
-                }
-            }
-        } catch (e) { console.error("Error decoding token in layout", e); }
-        
-        if (!perms.includes('admin.manage') && !isSuperAdmin) {
-            document.querySelectorAll('.sidebar-nav-title, .sidebar-nav-title ~ a').forEach(el => {
-                if (el) el.style.display = 'none';
-            });
-        }
+        const activeLink = highlightActiveLink();
+        applyRbacToSidebar();
         
         if (activeLink) {
-            activeLink.classList.add('active');
-            
-            // Automatically scroll the sidebar so the active item is visible
-            setTimeout(() => {
-                const nav = document.querySelector('.sidebar-nav');
-                if (nav) {
-                    const linkRect = activeLink.getBoundingClientRect();
-                    const navRect = nav.getBoundingClientRect();
-                    if (linkRect.bottom > navRect.bottom || linkRect.top < navRect.top) {
-                        activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            }, 100);
+            scrollSidebarToActive(activeLink);
         }
-        const overlay = document.getElementById('sidebarOverlay');
-        if (!overlay) {
-            const ol = document.createElement('div');
-            ol.className = 'sidebar-overlay';
-            ol.id = 'sidebarOverlay';
-            document.body.appendChild(ol);
-        }
+        
+        ensureSidebarOverlay();
 
-        // Apply translations on newly injected content
         if (typeof applyTranslations === 'function') {
             applyTranslations();
         }

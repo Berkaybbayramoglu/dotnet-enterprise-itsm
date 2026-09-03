@@ -1,1 +1,1 @@
-u 2csXhr4src/ItsTool.Application/Interfaces/IReportService.cs
+u 2webXÑhr*src/ItsTool.Web/wwwroot/ticket-detail.html

@@ -1,1 +1,1 @@
-q 2csX	hr=src/ItsTool.Application/Interfaces/INotificationDispatcher.cs
+q 2webXühr"src/ItsTool.Web/wwwroot/rules.html

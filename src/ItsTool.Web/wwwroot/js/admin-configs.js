@@ -202,14 +202,14 @@ export const adminConfigs = {
                     const uRes = await window.api.getUsers();
                     const allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
                     
-                    let groupUsers = [];
+                    let groupUsersSet = new Set();
                     if (id) {
-                        groupUsers = allUsers.filter(u => u.groupIds?.includes(Number.parseInt(id, 10))).map(u => u.id);
+                        groupUsersSet = new Set(allUsers.filter(u => u.groupIds?.includes(Number.parseInt(id, 10))).map(u => u.id));
                     }
                     
                     container.innerHTML = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; max-height: 200px; overflow-y: auto; padding-right: 8px;">` + allUsers.map(u => `
                         <div style="display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
-                            <input type="checkbox" id="gUser_${u.id}" class="guser-checkbox" value="${u.id}" ${groupUsers.includes(u.id) ? 'checked' : ''} style="margin-top: 2px;">
+                            <input type="checkbox" id="gUser_${u.id}" class="guser-checkbox" value="${u.id}" ${groupUsersSet.has(u.id) ? 'checked' : ''} style="margin-top: 2px;">
                             <label for="gUser_${u.id}" style="margin: 0; font-size: 13px; cursor: pointer; display: flex; flex-direction: column;">
                                 <span style="font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</span>
                                 <span style="font-size: 11px; color: var(--text-muted);">${window.ui?.escapeHtml(u.email)}</span>
@@ -235,12 +235,14 @@ export const adminConfigs = {
             
             // Handle users
             const checkedUserIds = Array.from(document.querySelectorAll('.guser-checkbox:checked')).map(cb => Number.parseInt(cb.value, 10));
+            const checkedUserIdsSet = new Set(checkedUserIds);
             const uRes = await window.api.getUsers();
             const allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
             const existingUserIds = allUsers.filter(u => u.groupIds?.includes(targetGroupId)).map(u => u.id);
+            const existingUserIdsSet = new Set(existingUserIds);
             
-            const toAdd = checkedUserIds.filter(uId => !existingUserIds.includes(uId));
-            const toRemove = existingUserIds.filter(uId => !checkedUserIds.includes(uId));
+            const toAdd = checkedUserIds.filter(uId => !existingUserIdsSet.has(uId));
+            const toRemove = existingUserIds.filter(uId => !checkedUserIdsSet.has(uId));
             
             await Promise.all(toAdd.map(uId => window.api.addGroupMember(targetGroupId, uId)));
             await Promise.all(toRemove.map(uId => window.api.removeGroupMember(targetGroupId, uId)));

@@ -1,1 +1,1 @@
- 2csX/hr2src/ItsTool.Domain/Entities/Config/CustomFields.cs
+ 2csX	hr2src/ItsTool.Domain/Entities/Auth/RolePermission.cs
