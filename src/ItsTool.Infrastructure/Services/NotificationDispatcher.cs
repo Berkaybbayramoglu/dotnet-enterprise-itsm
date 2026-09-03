@@ -16,7 +16,6 @@ public class NotificationDispatcher : INotificationDispatcher
     private const string CategoryStatusUpdates = "StatusUpdates";
     private const string EventCommentMention = "comment.mention";
     private const string CategoryMentions = "Mentions";
-    private const string DefaultBaseUrl = "http://localhost:5000";
 
 
     private readonly ItsToolDbContext _context;
@@ -65,43 +64,48 @@ public class NotificationDispatcher : INotificationDispatcher
     {
         var recipients = new Dictionary<int, ResolvedRecipient>();
 
-        void Add(int userId, bool email, string priority = PriorityNormal, string category = CategoryStatusUpdates)
-        {
-            if (triggerUserId.HasValue && userId == triggerUserId.Value && eventKey != EventCommentMention) return; // Don't notify the trigger user unless it's a mention
-            
-            if (recipients.TryGetValue(userId, out var existing))
-            {
-                existing.SendEmail |= email;
-                if (priority == "High") existing.Priority = "High";
-            }
-            else
-            {
-                recipients[userId] = new ResolvedRecipient { UserId = userId, SendEmail = email, Priority = priority, Category = category };
-            }
-        }
-        
-        var assigneeIds = ticket.Assignments.Where(a => a.IsActive && a.AssignedUserId.HasValue).Select(a => a.AssignedUserId!.Value).ToList();
-        var groupIds = ticket.Assignments.Where(a => a.IsActive && a.AssignedGroupId.HasValue).Select(a => a.AssignedGroupId!.Value).ToList();
-        
-        async Task AddAssignees(bool email, string cat)
-        {
-            foreach (var id in assigneeIds) Add(id, email, PriorityNormal, cat);
-            if (groupIds.Count > 0)
-            {
-                var members = await _context.GroupMembers.Where(gm => groupIds.Contains(gm.GroupId) && !gm.IsDeleted).Select(gm => gm.UserId).Distinct().ToListAsync();
-                foreach (var mid in members) Add(mid, email, PriorityNormal, cat);
-            }
-        }
-        
-        async Task AddDeptManagers(bool email, string cat)
-        {
-            var managers = await GetDepartmentManagersAsync(groupIds);
-            foreach(var mid in managers) Add(mid, email, PriorityNormal, cat);
-        }
+        Action<int, bool, string, string> add = (uid, email, prio, cat) => AddRecipient(recipients, uid, email, triggerUserId, eventKey, prio, cat);
+        Func<bool, string, Task> addAssignees = (email, cat) => AddAssigneesAsync(recipients, ticket, email, cat, triggerUserId, eventKey);
+        Func<bool, string, Task> addDeptManagers = (email, cat) => AddDeptManagersAsync(recipients, ticket, email, cat, triggerUserId, eventKey);
 
-        await ApplyEventRulesAsync(eventKey, ticket, additionalContext, Add, AddAssignees, AddDeptManagers);
+        await ApplyEventRulesAsync(eventKey, ticket, additionalContext, add, addAssignees, addDeptManagers);
 
         return recipients.Values.ToList();
+    }
+
+    private void AddRecipient(Dictionary<int, ResolvedRecipient> recipients, int userId, bool email, int? triggerUserId, string eventKey, string priority = PriorityNormal, string category = CategoryStatusUpdates)
+    {
+        if (triggerUserId.HasValue && userId == triggerUserId.Value && eventKey != EventCommentMention) return; 
+        
+        if (recipients.TryGetValue(userId, out var existing))
+        {
+            existing.SendEmail |= email;
+            if (priority == "High") existing.Priority = "High";
+        }
+        else
+        {
+            recipients[userId] = new ResolvedRecipient { UserId = userId, SendEmail = email, Priority = priority, Category = category };
+        }
+    }
+
+    private async Task AddAssigneesAsync(Dictionary<int, ResolvedRecipient> recipients, Ticket ticket, bool email, string cat, int? triggerUserId, string eventKey)
+    {
+        var assigneeIds = ticket.Assignments.Where(a => a.IsActive && a.AssignedUserId.HasValue).Select(a => a.AssignedUserId!.Value).ToList();
+        foreach (var id in assigneeIds) AddRecipient(recipients, id, email, triggerUserId, eventKey, PriorityNormal, cat);
+        
+        var groupIds = ticket.Assignments.Where(a => a.IsActive && a.AssignedGroupId.HasValue).Select(a => a.AssignedGroupId!.Value).ToList();
+        if (groupIds.Count > 0)
+        {
+            var members = await _context.GroupMembers.Where(gm => groupIds.Contains(gm.GroupId) && !gm.IsDeleted).Select(gm => gm.UserId).Distinct().ToListAsync();
+            foreach (var mid in members) AddRecipient(recipients, mid, email, triggerUserId, eventKey, PriorityNormal, cat);
+        }
+    }
+
+    private async Task AddDeptManagersAsync(Dictionary<int, ResolvedRecipient> recipients, Ticket ticket, bool email, string cat, int? triggerUserId, string eventKey)
+    {
+        var groupIds = ticket.Assignments.Where(a => a.IsActive && a.AssignedGroupId.HasValue).Select(a => a.AssignedGroupId!.Value).ToList();
+        var managers = await GetDepartmentManagersAsync(groupIds);
+        foreach(var mid in managers) AddRecipient(recipients, mid, email, triggerUserId, eventKey, PriorityNormal, cat);
     }
 
     private async Task ApplyEventRulesAsync(string eventKey, Ticket ticket, string? additionalContext, Action<int, bool, string, string> add, Func<bool, string, Task> addAssignees, Func<bool, string, Task> addDeptManagers)
@@ -272,7 +276,7 @@ public class NotificationDispatcher : INotificationDispatcher
         var u = await _context.Users.FindAsync(userId);
         if (u != null)
         {
-            string baseUrl = _config["AppBaseUrl"] ?? DefaultBaseUrl;
+            string baseUrl = _config["AppBaseUrl"] ?? string.Empty;
             string ticketUrl = $"{baseUrl.TrimEnd('/')}/ticket-detail.html?id={ticket.Id}";
             
             var templateData = new Dictionary<string, string>

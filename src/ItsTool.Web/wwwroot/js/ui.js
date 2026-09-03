@@ -165,74 +165,66 @@ export function closeModal(modalId) {
 
 
 function createAssigneeRow(item, escapeHtml) {
-    const isUser = item.type === 'user';
-    const isEmpty = item.type === 'empty';
-    const isGroup = item.type === 'group';
-    const isSub = item.isSubItem;
-    
-    if (isEmpty) {
-        return `
+    if (item.type === 'empty') return createAssigneeEmptyRow(item, escapeHtml);
+    if (item.type === 'group') return createAssigneeGroupRow(item, escapeHtml);
+    return createAssigneeUserRow(item, escapeHtml);
+}
+
+function createAssigneeEmptyRow(item, escapeHtml) {
+    return `
         <div class="assignee-subitem-for-${item.parentGroupId}" style="display: none; align-items: center; padding: var(--spacing-md) var(--spacing-xl); padding-left: 56px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
             <div style="font-size: 13px; color: var(--text-muted); font-style: italic;">Bu grupta kayıtlı kullanıcı bulunmuyor.</div>
         </div>`;
-    }
+}
+
+function createAssigneeGroupRow(item, escapeHtml) {
+    const iconHtml = `<div class="avatar" style="width: 36px; height: 36px; min-width: 36px; font-size: 14px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+           </div>`;
+    const extraInfo = `<div style="font-size: 12px; color: var(--text-muted);">Ekip</div>`;
+    const badge = `<span class="badge badge-warning" style="font-size: 10px;">Ekip</span>`;
+    const toggleIcon = `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>`;
     
+    return `
+        <button type="button" style="display: flex; width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: var(--spacing-lg); border-left: 3px solid transparent; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: transparent; transition: background 0.2s; cursor: pointer;" onclick="window.toggleAssigneeGroup(${item.id}, this)" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                ${iconHtml}
+                <div>
+                    <div style="font-weight: 500; font-size: 14px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                        ${escapeHtml(item.name)}
+                        ${badge}
+                    </div>
+                    ${extraInfo}
+                </div>
+            </div>
+            <div style="color: var(--text-muted);">
+                ${toggleIcon}
+            </div>
+        </button>
+    `;
+}
+
+function createAssigneeUserRow(item, escapeHtml) {
+    const isSub = item.isSubItem;
     const iconSize = isSub ? 28 : 36;
     const iconFontSize = isSub ? 12 : 14;
+    const iconHtml = `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${escapeHtml(item.initial)}</div>`;
     
-    let iconHtml;
-    if (isUser) {
-        iconHtml = `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${escapeHtml(item.initial)}</div>`;
-    } else {
-        let svgWidth;
-        if (isSub) {
-            svgWidth = 14;
-        } else {
-            svgWidth = 18;
-        }
-        iconHtml = `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-             <svg viewBox="0 0 24 24" width="${svgWidth}" height="${svgWidth}" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-           </div>`;
-    }
-           
-    let extraInfo;
-    let fs;
-    if (isSub) {
-        fs = 11;
-    } else {
-        fs = 12;
-    }
-    if (isUser) {
-        extraInfo = `<div style="font-size: ${fs}px; color: var(--text-muted);">${escapeHtml(item.email)}</div>`;
-    } else {
-        extraInfo = `<div style="font-size: ${fs}px; color: var(--text-muted);">Ekip</div>`;
-    }
-    
-    let badge;
-    if (isUser) {
-        badge = `<span class="badge badge-info" style="font-size: 10px;">Kullanıcı</span>`;
-    } else {
-        badge = `<span class="badge badge-warning" style="font-size: 10px;">Ekip</span>`;
-    }
+    const fs = isSub ? 11 : 12;
+    const extraInfo = `<div style="font-size: ${fs}px; color: var(--text-muted);">${escapeHtml(item.email)}</div>`;
+    const badge = `<span class="badge badge-info" style="font-size: 10px;">Kullanıcı</span>`;
     
     const paddingLeft = isSub ? 'var(--spacing-xl)' : 'var(--spacing-lg)';
     const borderLeft = isSub ? '3px solid rgba(var(--primary-rgb), 0.3)' : '3px solid transparent';
     const bgColor = isSub ? 'rgba(0,0,0,0.015)' : 'transparent';
-    
     const nestingArrow = isSub ? `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: var(--text-muted); opacity: 0.6; margin-right: 4px; margin-left: -8px;"><path d="M19 15l-6 6-1.42-1.42L15.17 17H5V5h2v10h8.17l-3.59-3.58L13 10l6 6z"/></svg>` : '';
-    
-    const toggleIcon = isGroup ? `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>` : '';
-    const onClickAttr = isGroup ? `onclick="window.toggleAssigneeGroup(${item.id}, this)"` : '';
-    const cursorAttr = isGroup ? 'cursor: pointer;' : 'cursor: default;';
     const displayAttr = isSub ? 'display: none;' : 'display: flex;';
     const classAttr = isSub ? `class="assignee-subitem-for-${item.parentGroupId}"` : '';
-    const tag = isGroup ? 'button' : 'div';
-    const buttonAttrs = isGroup ? `type="button"` : '';
-    let avatarMargin = isSub ? 8 : 12;
-    let nameFs = isSub ? 13 : 14;
-    
+    const avatarMargin = isSub ? 8 : 12;
+    const nameFs = isSub ? 13 : 14;
+
     return `
-        <${tag} ${buttonAttrs} ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; ${cursorAttr}" ${onClickAttr} onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
+        <div ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; cursor: default;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
             <div style="display: flex; align-items: center; gap: ${avatarMargin}px;">
                 ${nestingArrow}
                 ${iconHtml}
@@ -245,9 +237,8 @@ function createAssigneeRow(item, escapeHtml) {
                 </div>
             </div>
             <div style="color: var(--text-muted);">
-                ${toggleIcon}
             </div>
-        </${tag}>
+        </div>
     `;
 }
 

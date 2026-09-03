@@ -218,6 +218,66 @@
                 .replaceAll("'", "&#039;");
         }
 
+        function renderArticleBadges(a) {
+            let badges = '';
+            if (a.visibility === 1) badges += `<span class="badge badge-warning" style="margin-right: 8px;">${t('kb_badge_internal') || 'Internal'}</span>`;
+            if (a.status === 0) badges += `<span class="badge badge-default">${t('kb_badge_draft') || 'Draft'}</span>`;
+            if (a.status === 2) badges += `<span class="badge badge-info" style="background: var(--info); color: white;">${t('kb_badge_pending') || 'Pending Review'}</span>`;
+            if (a.status === 3) badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span>`;
+            if (a.status === 4) badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span>`;
+            document.getElementById('articleBadges').innerHTML = badges;
+        }
+
+        function renderArticleFeedbackAlerts(a) {
+            const alertBox = document.getElementById('pageFeedbackAlert');
+            const titleBox = document.getElementById('pageFeedbackTitle');
+            const textBox = document.getElementById('pageFeedbackText');
+            
+            if ((a.status === 3 || a.status === 4) && a.managerFeedback) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(var(--warning-rgb, 245,158,11), 0.1)';
+                alertBox.style.borderLeftColor = 'var(--warning)';
+                titleBox.style.color = 'var(--warning)';
+                titleBox.textContent = 'Manager Feedback / Revision Request';
+                textBox.textContent = a.managerFeedback;
+            } else if (a.status === 2 && a.managerFeedback) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(var(--info-rgb, 59,130,246), 0.1)';
+                alertBox.style.borderLeftColor = 'var(--info)';
+                titleBox.style.color = 'var(--info)';
+                titleBox.textContent = '📌 Yazar Revizyonu Tamamladı! (Önceki İnceleme Notunuz Aşağıdadır)';
+                textBox.textContent = a.managerFeedback;
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+
+        async function setupManagerControls(a, isAuthor) {
+            if (isManager || (isAuthor && a.status !== 1)) {
+                document.getElementById('adminActionBar').style.display = 'flex';
+                await loadCategoriesForEdit();
+            } else {
+                document.getElementById('adminActionBar').style.display = 'none';
+            }
+
+            if (isManager) {
+                document.getElementById('managerTip').style.display = 'flex';
+                const tBtn = document.getElementById('btnTogglePublish');
+                tBtn.textContent = a.status === 0 ? (t('kb_btn_pub') || 'Publish') : (t('kb_btn_unpub') || 'Unpublish');
+                if (a.status === 2) {
+                    tBtn.style.display = 'none';
+                    document.getElementById('btnReviewArticle').style.display = 'inline-flex';
+                } else {
+                    tBtn.style.display = 'inline-flex';
+                    document.getElementById('btnReviewArticle').style.display = 'none';
+                }
+            } else {
+                document.getElementById('managerTip').style.display = 'none';
+                document.getElementById('btnTogglePublish').style.display = 'none';
+                document.getElementById('btnReviewArticle').style.display = 'none';
+            }
+        }
+
         async function loadArticle() {
             if (!articleId) {
                 showToast('Article ID missing', 'error');
@@ -231,64 +291,19 @@
                 
                 if (a.authorName) {
                     document.getElementById('articleAuthor').style.display = 'inline';
-                    document.getElementById('articleAuthor').innerHTML = ` • Gönderen: ${escapeHtml(a.authorName)}${a.authorDepartment ? ` (${escapeHtml(a.authorDepartment)})` : ''}`;
+                    document.getElementById('articleAuthor').textContent = ` • Gönderen: ${a.authorName}${a.authorDepartment ? ` (${a.authorDepartment})` : ''}`;
                 }
 
                 document.getElementById('articleViews').textContent = a.viewCount;
                 
-                let badges = '';
-                if (a.visibility === 1) badges += `<span class="badge badge-warning" style="margin-right: 8px;">${t('kb_badge_internal') || 'Internal'}</span>`;
-                if (a.status === 0) badges += `<span class="badge badge-default">${t('kb_badge_draft') || 'Draft'}</span>`;
-                if (a.status === 2) badges += `<span class="badge badge-info" style="background: var(--info); color: white;">${t('kb_badge_pending') || 'Pending Review'}</span>`;
-                if (a.status === 3) badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span>`;
-                if (a.status === 4) badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span>`;
-                document.getElementById('articleBadges').innerHTML = badges;
-                
-                if ((a.status === 3 || a.status === 4) && a.managerFeedback) {
-                    document.getElementById('pageFeedbackAlert').style.display = 'block';
-                    document.getElementById('pageFeedbackAlert').style.background = 'rgba(var(--warning-rgb, 245,158,11), 0.1)';
-                    document.getElementById('pageFeedbackAlert').style.borderLeftColor = 'var(--warning)';
-                    document.getElementById('pageFeedbackTitle').style.color = 'var(--warning)';
-                    document.getElementById('pageFeedbackTitle').textContent = 'Manager Feedback / Revision Request';
-                    document.getElementById('pageFeedbackText').textContent = a.managerFeedback;
-                } else if (a.status === 2 && a.managerFeedback) {
-                    document.getElementById('pageFeedbackAlert').style.display = 'block';
-                    document.getElementById('pageFeedbackAlert').style.background = 'rgba(var(--info-rgb, 59,130,246), 0.1)';
-                    document.getElementById('pageFeedbackAlert').style.borderLeftColor = 'var(--info)';
-                    document.getElementById('pageFeedbackTitle').style.color = 'var(--info)';
-                    document.getElementById('pageFeedbackTitle').textContent = '📌 Yazar Revizyonu Tamamladı! (Önceki İnceleme Notunuz Aşağıdadır)';
-                    document.getElementById('pageFeedbackText').textContent = a.managerFeedback;
-                } else {
-                    document.getElementById('pageFeedbackAlert').style.display = 'none';
-                }
+                renderArticleBadges(a);
+                renderArticleFeedbackAlerts(a);
 
                 document.getElementById('articleContent').innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(a.content) : escapeHtml(a.content);
                 loadedArticle = a;
                 const isAuthor = currentUserId > 0 && a.authorUserId === currentUserId;
 
-                if (isManager || (isAuthor && a.status !== 1)) {
-                    document.getElementById('adminActionBar').style.display = 'flex';
-                    await loadCategoriesForEdit();
-                } else {
-                    document.getElementById('adminActionBar').style.display = 'none';
-                }
-
-                if(isManager) {
-                    document.getElementById('managerTip').style.display = 'flex';
-                    const tBtn = document.getElementById('btnTogglePublish');
-                    tBtn.textContent = a.status === 0 ? (t('kb_btn_pub') || 'Publish') : (t('kb_btn_unpub') || 'Unpublish');
-                    if (a.status === 2) {
-                        tBtn.style.display = 'none';
-                        document.getElementById('btnReviewArticle').style.display = 'inline-flex';
-                    } else {
-                        tBtn.style.display = 'inline-flex';
-                        document.getElementById('btnReviewArticle').style.display = 'none';
-                    }
-                } else {
-                    document.getElementById('managerTip').style.display = 'none';
-                    document.getElementById('btnTogglePublish').style.display = 'none';
-                    document.getElementById('btnReviewArticle').style.display = 'none';
-                }
+                await setupManagerControls(a, isAuthor);
             } catch (e) { console.error(e); 
                 showToast(t('kb_toast_load_err') || 'Failed to load article', 'error');
                 document.getElementById('articleTitle').textContent = t('kb_not_found') || 'Article Not Found';
