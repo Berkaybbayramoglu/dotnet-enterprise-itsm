@@ -506,7 +506,7 @@
                   </div>
                   <div style="padding-left: 16px; display: flex; flex-direction: column; gap: 4px;">`;
 
-                for (const [gId, gData] of Object.entries(deptData.groups)) {
+                for (const [_, gData] of Object.entries(deptData.groups)) {
                     const gName = gData.groupData ? gData.groupData.name : 'Unknown Group';
                     blockHtml += `<div class="d-flex align-items-center gap-sm" style="font-size: 13px;"><svg viewBox="0 0 24 24" width="20" height="20" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> <span style="font-weight:500; color:var(--text-main);">${escapeHtml(gName)}</span></div>`;
                     if (gData.users.length > 0) {
@@ -514,7 +514,7 @@
                         gData.users.forEach(u => {
                             const uName = u ? (u.firstName + ' ' + u.lastName) : 'Unknown User';
                             const uId = u ? u.id : 0;
-                            blockHtml += `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${uId})">${getAvatar(uId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></div>`;
+                            blockHtml += `<button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; background:none; border:none; padding:0; font-family:inherit; text-align:left;" onclick="openUserDetails(${uId})">${getAvatar(uId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></button>`;
                         });
                         blockHtml += `</div>`;
                     }
@@ -523,7 +523,7 @@
                 deptData.usersWithoutGroup.forEach(u => {
                     const uName = u ? (u.firstName + ' ' + u.lastName) : 'Unknown User';
                     const uId = u ? u.id : 0;
-                    blockHtml += `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${uId})">${getAvatar(uId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></div>`;
+                    blockHtml += `<button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; background:none; border:none; padding:0; font-family:inherit; text-align:left;" onclick="openUserDetails(${uId})">${getAvatar(uId, uName, u?.profilePhoto, 20)} <span style="color:var(--primary); font-weight:500; font-size: 13px;">${escapeHtml(uName)}</span></button>`;
                 });
 
                 blockHtml += `</div></div>`;
@@ -549,7 +549,7 @@
                 depts.forEach(d => {
                     html += `
                         <li style="margin-bottom: 8px;">
-                            <div style="display:flex; align-items:center; gap:8px; font-weight:600; padding:6px; background:var(--bg-hover); border-radius:4px; cursor:pointer;" onclick="const ul = this.nextElementSibling; ul.style.display = ul.style.display === 'none' ? 'block' : 'none'; const svg = this.querySelector('.dept-chevron'); svg.style.transform = ul.style.display === 'none' ? '' : 'rotate(90deg)';">
+                            <button type="button" style="display:flex; align-items:center; gap:8px; font-weight:600; padding:6px; background:var(--bg-hover); border-radius:4px; cursor:pointer; border:none; width:100%; text-align:left;" onclick="const ul = this.nextElementSibling; ul.style.display = ul.style.display === 'none' ? 'block' : 'none'; const svg = this.querySelector('.dept-chevron'); svg.style.transform = ul.style.display === 'none' ? '' : 'rotate(90deg)';">
                                 <svg class="dept-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
                                 <svg viewBox="0 0 24 24" width="16" height="16" style="fill:${d.color || 'currentColor'};"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
                                 ${escapeHtml(d.name)}
@@ -566,7 +566,7 @@
                                 <li style="margin-bottom: 4px;">
                                     <div style="display:flex; align-items:center; gap:8px; padding:4px;">
                                         <input type="checkbox" class="group-checkbox" value="${g.id}" ${isGrpSelected ? 'checked' : ''}>
-                                        <span style="font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="const ul = this.parentElement.nextElementSibling; ul.style.display = ul.style.display === 'none' ? 'block' : 'none'; const svg = this.querySelector('.grp-chevron'); svg.style.transform = ul.style.display === 'none' ? '' : 'rotate(90deg)';">
+                                        <button type="button" style="font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer; background:none; border:none; padding:0; font-family:inherit;" onclick="const ul = this.parentElement.nextElementSibling; ul.style.display = ul.style.display === 'none' ? 'block' : 'none'; const svg = this.querySelector('.grp-chevron'); svg.style.transform = ul.style.display === 'none' ? '' : 'rotate(90deg)';">
                                             <svg class="grp-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
                                             <svg viewBox="0 0 24 24" width="14" height="14" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                                             ${escapeHtml(g.name)}
@@ -697,7 +697,7 @@
                 
                 const reqUser = globalUsers.find(u => u.id === t.requesterUserId);
                 const getReqName = reqUser?.username || `User ${t.requesterUserId}`;
-                document.getElementById('tReq').innerHTML = `<div class="d-flex align-items-center gap-sm" style="cursor:pointer;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</div>`;
+                document.getElementById('tReq').innerHTML = `<button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; background:none; border:none; padding:0; font-family:inherit; text-align:left;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</button>`;
 
                 document.getElementById('tAssigned').innerHTML = renderAssignments(t, globalUsers, globalGroups, globalLookup);
                 
@@ -1171,7 +1171,7 @@
                                     // Add a link to jump to comment if it still exists
                                     const commentExists = events.some(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
                                     if (commentExists) {
-                                        detailsHtml += `<a href="#" onclick="event.preventDefault(); document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="font-size:10px; display:inline-block; margin-top:4px;">Jump to comment</a>`;
+                                        detailsHtml += `<button type="button" onclick="event.preventDefault(); document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="font-size:10px; display:inline-block; margin-top:4px;">Jump to comment</button>`;
                                     }
                                 } else if (h.action === 'CommentEdited' && h.oldValue && h.newValue) {
                                     const oldEnc = btoa(unescape(encodeURIComponent(h.oldValue)));
