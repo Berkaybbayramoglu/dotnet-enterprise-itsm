@@ -30,7 +30,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private bool ShouldSkipAudit(object entity)
+    private static bool ShouldSkipAudit(object entity)
     {
         if (entity is SystemAuditLog) return true;
         var name = entity.GetType().Name;
@@ -42,7 +42,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
         if (modifiedProperties.Any(p => p.Metadata.Name == "IsDeleted") && entry.Entity.IsDeleted)
         {
-            logs.Add(CreateAuditLog(entityType, entityName, entityId, "Deleted", null, null, null, userId, now));
+            logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Deleted", null, null, null, userId, now)));
             return;
         }
 
@@ -56,24 +56,26 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
             if (original != current)
             {
-                logs.Add(CreateAuditLog(entityType, entityName, entityId, "Updated", propName, original ?? "none", current ?? "none", userId, now));
+                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Updated", propName, original ?? "none", current ?? "none", userId, now)));
             }
         }
     }
 
-    private SystemAuditLog CreateAuditLog(string entityType, string entityName, string entityId, string action, string? fieldName, string? oldValue, string? newValue, string userId, DateTime now)
+    public sealed record AuditLogEntry(string EntityType, string EntityName, string EntityId, string Action, string? FieldName, string? OldValue, string? NewValue, string UserId, DateTime Now);
+
+    private static SystemAuditLog CreateAuditLog(AuditLogEntry entry)
     {
         return new SystemAuditLog
         {
-            EntityType = entityType,
-            EntityName = entityName,
-            EntityId = entityId,
-            Action = action,
-            FieldName = fieldName,
-            OldValue = oldValue,
-            NewValue = newValue,
-            CreatedBy = userId,
-            CreatedAt = now
+            EntityType = entry.EntityType,
+            EntityName = entry.EntityName,
+            EntityId = entry.EntityId,
+            Action = entry.Action,
+            FieldName = entry.FieldName,
+            OldValue = entry.OldValue,
+            NewValue = entry.NewValue,
+            CreatedBy = entry.UserId,
+            CreatedAt = entry.Now
         };
     }
 
@@ -92,66 +94,70 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
         foreach (var entry in entries)
         {
-            if (ShouldSkipAudit(entry.Entity)) continue;
-
-            var entityType = entry.Entity.GetType().Name;
-            var entityName = GetEntityName(entry, context);
-            var entityId = entry.Entity.Id.ToString();
-            
-            var isGroupMember = entityType == "GroupMember";
-
-            if (entry.State == EntityState.Added)
-                logsToAdd.Add(CreateAuditLog(entityType, entityName, entityId, "Created", null, null, isGroupMember ? entityName : null, userId, now));
-            else if (entry.State == EntityState.Deleted)
-                logsToAdd.Add(CreateAuditLog(entityType, entityName, entityId, "Deleted", null, isGroupMember ? entityName : null, null, userId, now));
-            else if (entry.State == EntityState.Modified)
-                ProcessModifiedEntity(entry, logsToAdd, entityType, entityName, entityId, userId, now);
+            if (SystemAuditInterceptor.ShouldSkipAudit(entry.Entity)) continue;
+            ProcessEntry(entry, context, userId, now, logsToAdd);
         }
-
         if (logsToAdd.Count > 0)
         {
             context.Set<SystemAuditLog>().AddRange(logsToAdd);
         }
     }
 
-    private string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
+    private void ProcessEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext context, string userId, DateTime now, List<SystemAuditLog> logsToAdd)
+    {
+        var entityType = entry.Entity.GetType().Name;
+        var entityName = SystemAuditInterceptor.GetEntityName(entry, context);
+        var entityId = entry.Entity.Id.ToString();
+        var isGroupMember = entityType == "GroupMember";
+
+        if (entry.State == EntityState.Added)
+            logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Created", null, null, isGroupMember ? entityName : null, userId, now)));
+        else if (entry.State == EntityState.Deleted)
+            logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Deleted", null, isGroupMember ? entityName : null, null, userId, now)));
+        else if (entry.State == EntityState.Modified)
+            ProcessModifiedEntity(entry, logsToAdd, entityType, entityName, entityId, userId, now);
+    }
+
+    private static string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
     {
         if (entry.Entity.GetType().Name.Contains("GroupMember"))
-        {
-            try 
-            {
-                var uidProp = entry.Property("UserId");
-                var gidProp = entry.Property("GroupId");
-                var uid = (entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? uidProp.CurrentValue : uidProp.OriginalValue)?.ToString();
-                var gid = (entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? gidProp.CurrentValue : gidProp.OriginalValue)?.ToString();
+            return SystemAuditInterceptor.GetGroupMemberName(entry, context);
 
-                string uName = uid ?? "?";
-                string gName = gid ?? "?";
-
-                if (context != null && uid != null && int.TryParse(uid, out int userId))
-                {
-                    var u = context.Set<User>().Local.FirstOrDefault(x => x.Id == userId) ?? context.Set<User>().FirstOrDefault(x => x.Id == userId);
-                    if (u != null) uName = u.Username ?? uName;
-                }
-                if (context != null && gid != null && int.TryParse(gid, out int groupId))
-                {
-                    var g = context.Set<Group>().Local.FirstOrDefault(x => x.Id == groupId) ?? context.Set<Group>().FirstOrDefault(x => x.Id == groupId);
-                    if (g != null) gName = g.Name ?? gName;
-                }
-                return $"User: {uName} -> Group: {gName}";
-            }
-            catch (Exception ex)
-            {
-                return $"GroupMember (Err: {ex.Message})";
-            }
-        }
-
-        // Try to find a Name property, Title property, or just fallback to Type
         var nameProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "Name" || p.Metadata.Name == "Title" || p.Metadata.Name == "Username");
         if (nameProp != null && nameProp.CurrentValue != null)
         {
             return nameProp.CurrentValue.ToString()!;
         }
         return entry.Entity.GetType().Name;
+    }
+
+    private static string GetGroupMemberName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
+    {
+        try 
+        {
+            var uidProp = entry.Property("UserId");
+            var gidProp = entry.Property("GroupId");
+            var uid = (entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? uidProp.CurrentValue : uidProp.OriginalValue)?.ToString();
+            var gid = (entry.State == Microsoft.EntityFrameworkCore.EntityState.Added ? gidProp.CurrentValue : gidProp.OriginalValue)?.ToString();
+
+            string uName = uid ?? "?";
+            string gName = gid ?? "?";
+
+            if (context != null && uid != null && int.TryParse(uid, out int userId))
+            {
+                var u = context.Set<User>().Local.FirstOrDefault(x => x.Id == userId) ?? context.Set<User>().FirstOrDefault(x => x.Id == userId);
+                if (u != null) uName = u.Username ?? uName;
+            }
+            if (context != null && gid != null && int.TryParse(gid, out int groupId))
+            {
+                var g = context.Set<Group>().Local.FirstOrDefault(x => x.Id == groupId) ?? context.Set<Group>().FirstOrDefault(x => x.Id == groupId);
+                if (g != null) gName = g.Name ?? gName;
+            }
+            return $"User: {uName} -> Group: {gName}";
+        }
+        catch (Exception ex)
+        {
+            return $"GroupMember (Err: {ex.Message})";
+        }
     }
 }

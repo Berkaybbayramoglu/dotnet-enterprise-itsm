@@ -25,10 +25,7 @@ public class AssignmentEngine : IAssignmentEngine
 
         foreach (var rule in rules)
         {
-            if (rule.ProjectId.HasValue && rule.ProjectId.Value != ticket.ProjectId) continue;
-            if (rule.CategoryId.HasValue && rule.CategoryId.Value != ticket.CategoryId) continue;
-            if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) continue;
-            if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) continue;
+            if (!IsRuleMatch(rule, ticket)) continue;
 
             if (rule.TargetGroupId.HasValue)
             {
@@ -58,5 +55,14 @@ public class AssignmentEngine : IAssignmentEngine
             // Mark the ticket as assigned in the system implicitly
             return;
         }
+    }
+
+    private static bool IsRuleMatch(ItsTool.Domain.Entities.Organization.AssignmentRule rule, Ticket ticket)
+    {
+        if (rule.ProjectId.HasValue && rule.ProjectId.Value != ticket.ProjectId) return false;
+        if (rule.CategoryId.HasValue && rule.CategoryId.Value != ticket.CategoryId) return false;
+        if (rule.TicketTypeId.HasValue && rule.TicketTypeId.Value != ticket.TypeId) return false;
+        if (rule.PriorityId.HasValue && rule.PriorityId.Value != ticket.PriorityId) return false;
+        return true;
     }
 }

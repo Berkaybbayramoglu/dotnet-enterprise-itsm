@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 const acorn = require('acorn');
 
 ['api.js', 'i18n.js', 'crud-page.js', 'admin-configs.js'].forEach(file => {
