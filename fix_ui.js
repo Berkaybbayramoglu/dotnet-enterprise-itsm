@@ -1,0 +1,5 @@
+const fs = require('node:fs');
+let content = fs.readFileSync('src/ItsTool.Web/wwwroot/js/ui.js', 'utf8');
+content = content.replaceAll(String.raw`replaceAll("'", "\'")`, String.raw`replaceAll("'", "\'")`); // wait, let's use regex
+content = content.replaceAll(/replaceAll\(\\"'\\", \\"\\\\'\\"\)/g, String.raw`replaceAll("'", "\\'")`);
+fs.writeFileSync('src/ItsTool.Web/wwwroot/js/ui.js', content);

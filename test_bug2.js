@@ -5,9 +5,11 @@ const puppeteer = require('puppeteer');
   const page = await browser.newPage();
   
   page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-  page.on('pageerror', error => console.log('PAGE ERROR:', error.message));
+  page.on('pageerror', error => {
+      console.log('PAGE ERROR:', error.message);
+      console.log('STACK:', error.stack);
+  });
   
-  // We need to serve the files first. Let's start a quick server.
   const express = require('express');
   const app = express();
   app.disable('x-powered-by');
