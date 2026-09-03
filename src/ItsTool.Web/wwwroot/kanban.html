@@ -87,7 +87,7 @@
     <script type="module">
         import './js/api.js?v=999';
         import { injectShell } from './js/layout.js?v=999';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=999';
+        import { bindShellActions, showToast } from './js/ui.js?v=999';
         import { t } from './js/i18n.js';
         injectShell();
         
@@ -193,6 +193,56 @@
             }
         }
 
+        function getAssigneeDetailsData(ticket) {
+            let assigneeName = t('kanban_unassigned');
+            let assigneeInitialId = null;
+            let assigneeDetails = [];
+            
+            if (ticket.assignments && ticket.assignments.length > 0) {
+                const activeAssignments = ticket.assignments.filter(a => a.isActive);
+                if (activeAssignments.length > 0) {
+                    const mainAssignee = activeAssignments[0];
+                    if (mainAssignee.userId) {
+                        const u = allUsers.find(x => x.id === mainAssignee.userId);
+                        assigneeName = u ? (u.firstName + ' ' + u.lastName) : `User ${mainAssignee.userId}`;
+                        assigneeInitialId = assigneeName;
+                    } else if (mainAssignee.groupId) {
+                        const g = lookupData.groups?.find(x => x.id === mainAssignee.groupId);
+                        assigneeName = g ? g.name : `Group ${mainAssignee.groupId}`;
+                        assigneeInitialId = assigneeName;
+                    }
+                    if (activeAssignments.length > 1) {
+                        assigneeName += ` (+${activeAssignments.length - 1})`;
+                    }
+                    
+                    let details = [];
+                    activeAssignments.forEach(a => {
+                        if (a.userId) {
+                            const u = allUsers.find(x => x.id === a.userId);
+                            const name = u ? (u.firstName + ' ' + u.lastName) : `User ${a.userId}`;
+                            details.push({ type: 'user', id: a.userId, name: name, email: u ? u.email : '', initial: name.charAt(0).toUpperCase(), isSubItem: false });
+                        } else if (a.groupId) {
+                            const g = lookupData.groups?.find(x => x.id === a.groupId);
+                            const name = g ? g.name : `Group ${a.groupId}`;
+                            details.push({ type: 'group', id: a.groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
+                            
+                            const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
+                            if (groupMembers.length > 0) {
+                                groupMembers.forEach(mu => {
+                                    const muName = mu.firstName + ' ' + mu.lastName;
+                                    details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
+                                });
+                            } else {
+                                details.push({ type: 'empty', id: 0, name: '', email: '', initial: '', isSubItem: true, parentGroupId: a.groupId });
+                            }
+                        }
+                    });
+                    assigneeDetails = details;
+                }
+            }
+            return { assigneeName, assigneeInitialId, assigneeDetails };
+        }
+
         function renderTickets() {
             document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
             const counts = {};
@@ -208,53 +258,7 @@
 
                 counts[sId] = (counts[sId] || 0) + 1;
 
-                // Find active assignment
-                let assigneeName = t('kanban_unassigned');
-                let assigneeInitialId = null;
-                
-                let assigneeDetails = [];
-                    if (ticket.assignments && ticket.assignments.length > 0) {
-                        const activeAssignments = ticket.assignments.filter(a => a.isActive);
-                        if (activeAssignments.length > 0) {
-                            const mainAssignee = activeAssignments[0];
-                            if (mainAssignee.userId) {
-                                const u = allUsers.find(x => x.id === mainAssignee.userId);
-                                assigneeName = u ? (u.firstName + ' ' + u.lastName) : `User ${mainAssignee.userId}`;
-                                assigneeInitialId = assigneeName;
-                            } else if (mainAssignee.groupId) {
-                                const g = lookupData.groups?.find(x => x.id === mainAssignee.groupId);
-                                assigneeName = g ? g.name : `Group ${mainAssignee.groupId}`;
-                                assigneeInitialId = assigneeName;
-                            }
-                            if (activeAssignments.length > 1) {
-                                assigneeName += ` (+${activeAssignments.length - 1})`;
-                            }
-                            
-                            let details = [];
-                            activeAssignments.forEach(a => {
-                                if (a.userId) {
-                                    const u = allUsers.find(x => x.id === a.userId);
-                                    const name = u ? (u.firstName + ' ' + u.lastName) : `User ${a.userId}`;
-                                    details.push({ type: 'user', id: a.userId, name: name, email: u ? u.email : '', initial: name.charAt(0).toUpperCase(), isSubItem: false });
-                                } else if (a.groupId) {
-                                    const g = lookupData.groups?.find(x => x.id === a.groupId);
-                                    const name = g ? g.name : `Group ${a.groupId}`;
-                                    details.push({ type: 'group', id: a.groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
-                                    
-                                    const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
-                                    if (groupMembers.length > 0) {
-                                        groupMembers.forEach(mu => {
-                                            const muName = mu.firstName + ' ' + mu.lastName;
-                                            details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
-                                        });
-                                    } else {
-                                        details.push({ type: 'empty', id: 0, name: '', email: '', initial: '', isSubItem: true, parentGroupId: a.groupId });
-                                    }
-                                }
-                            });
-                            assigneeDetails = details;
-                        }
-                    }
+                const { assigneeName, assigneeInitialId, assigneeDetails } = getAssigneeDetailsData(ticket);
 
                     const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
                     

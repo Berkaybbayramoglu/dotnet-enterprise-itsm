@@ -2,8 +2,8 @@ import { setLanguage, t, getCurrentLanguage } from './i18n.js';
 (function() {
     try {
         const savedTheme = localStorage.getItem('itsm_theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    } catch(e) {}
+        document.documentElement.dataset.theme = savedTheme;
+    } catch(e) { console.error('Theme init failed', e); }
 })();
 
 export const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
@@ -164,6 +164,93 @@ export function closeModal(modalId) {
 }
 
 
+function createAssigneeRow(item, escapeHtml) {
+    const isUser = item.type === 'user';
+    const isEmpty = item.type === 'empty';
+    const isGroup = item.type === 'group';
+    const isSub = item.isSubItem;
+    
+    if (isEmpty) {
+        return `
+        <div class="assignee-subitem-for-${item.parentGroupId}" style="display: none; align-items: center; padding: var(--spacing-md) var(--spacing-xl); padding-left: 56px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
+            <div style="font-size: 13px; color: var(--text-muted); font-style: italic;">Bu grupta kayıtlı kullanıcı bulunmuyor.</div>
+        </div>`;
+    }
+    
+    const iconSize = isSub ? 28 : 36;
+    const iconFontSize = isSub ? 12 : 14;
+    
+    let iconHtml;
+    if (isUser) {
+        iconHtml = `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${escapeHtml(item.initial)}</div>`;
+    } else {
+        let svgWidth;
+        if (isSub) {
+            svgWidth = 14;
+        } else {
+            svgWidth = 18;
+        }
+        iconHtml = `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+             <svg viewBox="0 0 24 24" width="${svgWidth}" height="${svgWidth}" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+           </div>`;
+    }
+           
+    let extraInfo;
+    let fs;
+    if (isSub) {
+        fs = 11;
+    } else {
+        fs = 12;
+    }
+    if (isUser) {
+        extraInfo = `<div style="font-size: ${fs}px; color: var(--text-muted);">${escapeHtml(item.email)}</div>`;
+    } else {
+        extraInfo = `<div style="font-size: ${fs}px; color: var(--text-muted);">Ekip</div>`;
+    }
+    
+    let badge;
+    if (isUser) {
+        badge = `<span class="badge badge-info" style="font-size: 10px;">Kullanıcı</span>`;
+    } else {
+        badge = `<span class="badge badge-warning" style="font-size: 10px;">Ekip</span>`;
+    }
+    
+    const paddingLeft = isSub ? 'var(--spacing-xl)' : 'var(--spacing-lg)';
+    const borderLeft = isSub ? '3px solid rgba(var(--primary-rgb), 0.3)' : '3px solid transparent';
+    const bgColor = isSub ? 'rgba(0,0,0,0.015)' : 'transparent';
+    
+    const nestingArrow = isSub ? `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: var(--text-muted); opacity: 0.6; margin-right: 4px; margin-left: -8px;"><path d="M19 15l-6 6-1.42-1.42L15.17 17H5V5h2v10h8.17l-3.59-3.58L13 10l6 6z"/></svg>` : '';
+    
+    const toggleIcon = isGroup ? `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>` : '';
+    const onClickAttr = isGroup ? `onclick="window.toggleAssigneeGroup(${item.id}, this)"` : '';
+    const cursorAttr = isGroup ? 'cursor: pointer;' : 'cursor: default;';
+    const displayAttr = isSub ? 'display: none;' : 'display: flex;';
+    const classAttr = isSub ? `class="assignee-subitem-for-${item.parentGroupId}"` : '';
+    const tag = isGroup ? 'button' : 'div';
+    const buttonAttrs = isGroup ? `type="button"` : '';
+    let avatarMargin = isSub ? 8 : 12;
+    let nameFs = isSub ? 13 : 14;
+    
+    return `
+        <${tag} ${buttonAttrs} ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; ${cursorAttr}" ${onClickAttr} onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
+            <div style="display: flex; align-items: center; gap: ${avatarMargin}px;">
+                ${nestingArrow}
+                ${iconHtml}
+                <div>
+                    <div style="font-weight: 500; font-size: ${nameFs}px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                        ${escapeHtml(item.name)}
+                        ${!isSub ? badge : ''}
+                    </div>
+                    ${extraInfo}
+                </div>
+            </div>
+            <div style="color: var(--text-muted);">
+                ${toggleIcon}
+            </div>
+        </${tag}>
+    `;
+}
+
 export function showAssigneesModal(encodedData) {
     let data;
     try {
@@ -221,64 +308,7 @@ export function showAssigneesModal(encodedData) {
             }
         };
 
-        const listHtml = data.map(item => {
-            const isUser = item.type === 'user';
-            const isEmpty = item.type === 'empty';
-            const isGroup = item.type === 'group';
-            const isSub = item.isSubItem;
-            
-            if (isEmpty) {
-                return `
-                <div class="assignee-subitem-for-${item.parentGroupId}" style="display: none; align-items: center; padding: var(--spacing-md) var(--spacing-xl); padding-left: 56px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.015);">
-                    <div style="font-size: 13px; color: var(--text-muted); font-style: italic;">Bu grupta kayıtlı kullanıcı bulunmuyor.</div>
-                </div>`;
-            }
-            
-            const iconSize = isSub ? 28 : 36;
-            const iconFontSize = isSub ? 12 : 14;
-            
-            const iconHtml = isUser 
-                ? `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${escapeHtml(item.initial)}</div>`
-                : `<div class="avatar" style="width: ${iconSize}px; height: ${iconSize}px; min-width: ${iconSize}px; font-size: ${iconFontSize}px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                     <svg viewBox="0 0 24 24" width="${isSub?14:18}" height="${isSub?14:18}" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                   </div>`;
-                   
-            const extraInfo = isUser ? `<div style="font-size: ${isSub?11:12}px; color: var(--text-muted);">${escapeHtml(item.email)}</div>` : `<div style="font-size: ${isSub?11:12}px; color: var(--text-muted);">Ekip</div>`;
-            const badge = isUser ? `<span class="badge badge-info" style="font-size: 10px;">Kullanıcı</span>` : `<span class="badge badge-warning" style="font-size: 10px;">Ekip</span>`;
-            
-            const paddingLeft = isSub ? 'var(--spacing-xl)' : 'var(--spacing-lg)';
-            const borderLeft = isSub ? '3px solid rgba(var(--primary-rgb), 0.3)' : '3px solid transparent';
-            const bgColor = isSub ? 'rgba(0,0,0,0.015)' : 'transparent';
-            
-            const nestingArrow = isSub ? `<svg viewBox="0 0 24 24" width="16" height="16" style="fill: var(--text-muted); opacity: 0.6; margin-right: 4px; margin-left: -8px;"><path d="M19 15l-6 6-1.42-1.42L15.17 17H5V5h2v10h8.17l-3.59-3.58L13 10l6 6z"/></svg>` : '';
-            
-            const toggleIcon = isGroup ? `<svg class="toggle-icon" viewBox="0 0 24 24" width="16" height="16" style="fill:currentColor; transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>` : '';
-            const onClickAttr = isGroup ? `onclick="window.toggleAssigneeGroup(${item.id}, this)"` : '';
-            const cursorAttr = isGroup ? 'cursor: pointer;' : 'cursor: default;';
-            const displayAttr = isSub ? 'display: none;' : 'display: flex;';
-            const classAttr = isSub ? `class="assignee-subitem-for-${item.parentGroupId}"` : '';
-            const tag = isGroup ? 'button' : 'div';
-            const buttonAttrs = isGroup ? `type="button"` : '';
-            
-            return `
-                <${tag} ${buttonAttrs} ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; ${cursorAttr}" ${onClickAttr} onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
-                    <div style="display: flex; align-items: center; gap: ${isSub?8:12}px;">
-                        ${nestingArrow}
-                        ${iconHtml}
-                        <div>
-                            <div style="font-weight: 500; font-size: ${isSub?13:14}px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-                                ${escapeHtml(item.name)}
-                                ${!isSub ? badge : ''}
-                            </div>
-                            ${extraInfo}
-                        </div>
-                    </div>
-                    <div style="color: var(--text-muted);">
-                        ${toggleIcon}
-                    </div>
-                </${tag}>
-            `;
-        }).join('');
+        const listHtml = data.map(item => createAssigneeRow(item, escapeHtml)).join('');
         body.innerHTML = listHtml;
     }
 
@@ -440,8 +470,8 @@ export function bindShellActions() {
 
         themeDropdown.querySelectorAll('.theme-option').forEach(opt => {
             opt.addEventListener('click', () => {
-                const selectedTheme = opt.getAttribute('data-theme-id');
-                document.documentElement.setAttribute('data-theme', selectedTheme);
+                const selectedTheme = opt.dataset.themeId;
+                document.documentElement.dataset.theme = selectedTheme;
                 localStorage.setItem('itsm_theme', selectedTheme);
                 
                 // Move checkmark and active class visually
@@ -502,7 +532,7 @@ export function bindShellActions() {
 
         langDropdown.querySelectorAll('.lang-option').forEach(opt => {
             opt.addEventListener('click', () => {
-                const selectedLang = opt.getAttribute('data-lang-id');
+                const selectedLang = opt.dataset.langId;
                 setLanguage(selectedLang);
                 langDropdown.classList.remove('show');
             });
@@ -565,11 +595,11 @@ export function bindShellActions() {
                         let permsHtml = perms.map(p => {
                             const isOverride = overrides.includes(p);
                             const def = allPermsDef.find(x => x.key === p);
-                            const desc = def && def.description ? escapeHtml(def.description) : 'Açıklama bulunmuyor.';
+                            const desc = def?.description ? escapeHtml(def.description) : 'Açıklama bulunmuyor.';
                             return `<div style="font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; gap: 4px;">
                                     <span>${p}</span>
-                                    <button type="button" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replaceAll(`'`, `\\'`).replaceAll(`"`, `&quot;`)}')">
+                                    <button type="button" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); display: inline-flex;" onclick="window.showInfoModal('${p}', '${desc.replaceAll(`'`, String.raw`\'`).replaceAll(`"`, `&quot;`)}')">
                                         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
                                     </button>
                                 </div>
