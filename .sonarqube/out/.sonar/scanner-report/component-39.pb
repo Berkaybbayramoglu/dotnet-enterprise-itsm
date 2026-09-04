@@ -1,1 +1,0 @@
-' 2csXhr6src/ItsTool.Domain/Entities/Ticket/TicketAttachment.cs

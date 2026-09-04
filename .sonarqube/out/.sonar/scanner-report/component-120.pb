@@ -1,1 +1,0 @@
-x 2webXÚhr#src/ItsTool.Web/wwwroot/survey.html

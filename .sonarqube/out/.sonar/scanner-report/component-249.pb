@@ -1,1 +1,0 @@
-ù 2csXhr;src/ItsTool.Application/Interfaces/IPermissionCalculator.cs

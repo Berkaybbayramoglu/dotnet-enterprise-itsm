@@ -1,1 +1,0 @@
-¨ 2csX4hr;src/ItsTool.Infrastructure/Services/EmailTemplateService.cs

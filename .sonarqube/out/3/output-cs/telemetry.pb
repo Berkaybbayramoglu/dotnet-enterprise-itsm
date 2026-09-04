@@ -1,1 +1,0 @@
-rRe/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Infrastructure/ItsTool.Infrastructure.csprojòCSharp12

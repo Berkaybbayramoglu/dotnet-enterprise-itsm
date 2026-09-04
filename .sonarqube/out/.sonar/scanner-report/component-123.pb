@@ -1,1 +1,0 @@
-{ 2webXøhr)src/ItsTool.Web/wwwroot/admin-fields.html

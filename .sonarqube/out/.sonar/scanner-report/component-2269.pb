@@ -1,1 +1,0 @@
-İ 2jsXhrtest2.js

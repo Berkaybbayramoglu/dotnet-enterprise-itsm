@@ -1,1 +1,0 @@
-jR]/home/berkay/Desktop/Turkcell_Staj/itsm-tool/tests/ItsTool.UnitTests/ItsTool.UnitTests.csprojòCSharp12

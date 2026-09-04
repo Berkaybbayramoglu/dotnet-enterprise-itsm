@@ -1,1 +1,0 @@
-• 2csXhrIsrc/ItsTool.Infrastructure/Data/Configurations/DepartmentConfiguration.cs

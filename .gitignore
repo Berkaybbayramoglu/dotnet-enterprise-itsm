@@ -18,3 +18,8 @@ appsettings.Local.json
 # OS generated
 .DS_Store
 Thumbs.db
+
+# SonarQube & Testing
+.sonarqube/
+TestResults/
+node_modules/

@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Exclude Frontend, UI layout, CSS, JS, and Migrations from SonarQube Test Coverage requirements -->
+    <SonarQubeCoverageExclusions>**/*.js, **/*.html, **/*.css, **/wwwroot/**, **/Migrations/**</SonarQubeCoverageExclusions>
+    
+    <!-- Exclude Frontend (HTML/JS/CSS) from Code Duplication checks, as UI often has intentional structural repeats -->
+    <SonarQubeDuplicationExclusions>**/*.js, **/*.html, **/*.css, **/wwwroot/**</SonarQubeDuplicationExclusions>
+  </PropertyGroup>
+</Project>

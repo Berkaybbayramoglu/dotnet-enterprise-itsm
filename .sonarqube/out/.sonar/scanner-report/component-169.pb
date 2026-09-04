@@ -1,1 +1,0 @@
-© 2csX™hr3src/ItsTool.Infrastructure/Services/GroupService.cs

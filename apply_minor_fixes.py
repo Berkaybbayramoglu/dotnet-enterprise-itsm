@@ -36,7 +36,9 @@ def fix_temp_script():
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             c = f.read()
-        c = re.sub(r'(?a)(\w++)\s*+&&\s*+\1\.(\w++)', r'\1?.\2', c)
+        def _opt_chain(m):
+            return f"{m.group(1)}?.{m.group(3)}" if m.group(1) == m.group(2) else m.group(0)
+        c = re.sub(r'\b(\w+)[ \t]*&&[ \t]*(\w+)\.(\w+)\b', _opt_chain, c, flags=re.ASCII)
         with open(path, "w", encoding="utf-8") as f:
             f.write(c)
         print("Fixed temp_script.js")

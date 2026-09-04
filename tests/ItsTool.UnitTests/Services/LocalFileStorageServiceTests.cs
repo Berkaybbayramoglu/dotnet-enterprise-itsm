@@ -24,6 +24,7 @@ public class LocalFileStorageServiceTests
 
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(f => f.ContentType).Returns("application/x-msdownload"); // .exe
+        fileMock.Setup(f => f.FileName).Returns("test.exe");
         
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
     }
@@ -38,6 +39,7 @@ public class LocalFileStorageServiceTests
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(f => f.ContentType).Returns("application/pdf");
         fileMock.Setup(f => f.Length).Returns(15 * 1024 * 1024); // 15MB
+        fileMock.Setup(f => f.FileName).Returns("test.pdf");
         
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveFileAsync(fileMock.Object, 1));
     }
