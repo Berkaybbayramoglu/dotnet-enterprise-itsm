@@ -1,25 +1,9 @@
-const puppeteer = require('puppeteer');
-(async () => {
-    const browser = await puppeteer.launch({ headless: 'new' });
-    const page = await browser.newPage();
-    page.on('response', async res => {
-        console.log(res.request().method() + " " + res.url());
-        if (res.url().includes('api/Roles') && res.request().method() === 'GET') {
-            console.log("ROLES DATA: " + await res.text());
-        }
-    });
-    await page.goto('http://localhost:5246/admin-crud.html?page=roles');
-    
-    // Login
-    await page.waitForSelector('#loginForm input[type="text"]', {timeout: 5000}).catch(() => {});
-    if (await page.$('#loginForm input[type="text"]')) {
-        await page.type('#loginForm input[type="text"]', 'admin');
-        await page.type('#loginForm input[type="password"]', 'Admin123!');
-        await page.click('#loginForm button[type="submit"]');
-        await new Promise(r => setTimeout(r, 2000));
-        await page.goto('http://localhost:5246/admin-crud.html?page=roles');
-    }
-    
-    await new Promise(r => setTimeout(r, 3000));
-    await browser.close();
-})();
+const fs = require('node:fs');
+const content = fs.readFileSync('src/ItsTool.Web/wwwroot/js/ui.js', 'utf8');
+const lines = content.split('\n');
+const line = lines[571]; // 0-indexed for line 572
+for(let i=210; i<250; i++) {
+   if (i < line.length) {
+       console.log(i, line[i], line.codePointAt(i));
+   }
+}

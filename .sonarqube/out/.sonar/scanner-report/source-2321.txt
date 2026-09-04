@@ -1,22 +1,13 @@
-const puppeteer = require('puppeteer');
-(async () => {
-    const browser = await puppeteer.launch({ headless: 'new' });
-    const page = await browser.newPage();
-    page.on('response', async res => {
-        if (res.url().includes('/api/Roles') && res.request().method() === 'GET') {
-            console.log(await res.text());
-        }
-    });
-    await page.goto('http://localhost:5246/admin-crud.html?page=roles');
-    
-    // Login
-    await page.waitForSelector('#loginForm input[type="text"]', {timeout: 5000}).catch(() => {});
-    if (await page.$('#loginForm input[type="text"]')) {
-        await page.type('#loginForm input[type="text"]', 'admin');
-        await page.type('#loginForm input[type="password"]', 'Admin123!');
-        await page.click('#loginForm button[type="submit"]');
-    }
-    
-    await new Promise(r => setTimeout(r, 3000));
-    await browser.close();
-})();
+const fs = require('node:fs');
+const acorn = require('acorn');
+const html = fs.readFileSync('/home/berkay/Desktop/Turkcell_Staj/itsm-tool/src/ItsTool.Web/wwwroot/ticket-detail.html', 'utf8');
+const scriptStart = html.indexOf('<script type="module">') + '<script type="module">'.length;
+const scriptEnd = html.indexOf('</script>', scriptStart);
+const scriptContent = html.substring(scriptStart, scriptEnd);
+try {
+    acorn.parse(scriptContent, { ecmaVersion: 2022, sourceType: 'module' });
+    console.log("Acorn parsing passed!");
+} catch (e) {
+    console.error("Acorn error at line", e.loc.line, "col", e.loc.column);
+    console.error(e.message);
+}

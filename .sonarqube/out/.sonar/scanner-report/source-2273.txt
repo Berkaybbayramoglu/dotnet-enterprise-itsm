@@ -1,6 +1,6 @@
 import re
 
-def fix_processThreadComment():
+def fix_process_thread_comment():
     path = "src/ItsTool.Web/wwwroot/ticket-detail.html"
     with open(path, "r") as f:
         content = f.read()
@@ -14,7 +14,7 @@ def fix_processThreadComment():
         start_idx = content.find(start_str)
         end_idx = content.find(end_str) + len(end_str)
         
-        block = content[start_idx:end_idx]
+        content[start_idx:end_idx]
         
         # New helpers
         helpers = """
@@ -111,4 +111,5 @@ def fix_processThreadComment():
     else:
         print("Failed to find block")
 
-fix_processThreadComment()
+if __name__ == "__main__":
+    fix_process_thread_comment()

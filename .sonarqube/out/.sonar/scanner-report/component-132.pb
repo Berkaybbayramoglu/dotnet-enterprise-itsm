@@ -1,1 +1,1 @@
-„ 2jsX¯hr'src/ItsTool.Web/wwwroot/js/crud-page.js
+„ 2jsX¯hr'src/ItsTool.Web/wwwroot/js/crud-page.js

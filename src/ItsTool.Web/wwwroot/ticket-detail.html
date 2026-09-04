@@ -2349,6 +2349,30 @@
             `;
         }
         
+        
+        function renderUserTooltipContent(user) {
+            const dept = (globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';
+            const userGroups = user.groupIds && user.groupIds.length > 0 
+                ? user.groupIds.map(gid => (globalGroups !== undefined ? globalGroups : []).find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
+                : 'No Groups';
+            const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
+
+            return `
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                    ${getAvatar(user.id, user.firstName, user.profilePhoto, 32)}
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">${escapeHtml(user.firstName + ' ' + user.lastName)}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">@${escapeHtml(user.username)}</div>
+                    </div>
+                </div>
+                <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                    <div><strong style="color:var(--text-muted);">Joined:</strong> ${createdAt}</div>
+                    <div><strong style="color:var(--text-muted);">Dept:</strong> ${escapeHtml(dept)}</div>
+                    <div><strong style="color:var(--text-muted);">Groups:</strong> ${escapeHtml(userGroups)}</div>
+                </div>
+            `;
+        }
+        
         document.addEventListener('mouseover', (e) => {
             const target = e.target.closest('.user-hover-link');
             if (target) {

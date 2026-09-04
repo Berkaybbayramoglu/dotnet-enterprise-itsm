@@ -766,6 +766,23 @@
             return deptBlocks.join('');
         }
 
+        async function loadAllowedTransitions(currentStatusId) {
+            try {
+                const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);
+                const select = document.getElementById("statusSelect");
+                select.innerHTML = "";
+                allowedStatuses.forEach(s => {
+                    const opt = document.createElement("option");
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    select.appendChild(opt);
+                });
+                select.value = currentStatusId;
+            } catch(e) {
+                console.error("Failed to load allowed transitions", e);
+            }
+        }
+        
         async function loadTicket() {
             if (!ticketId) {
                 document.querySelector('.content-area').innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);"><h3>Bilet ID bulunamadı</h3><p>Lütfen geçerli bir bilet seçerek tekrar deneyin.</p></div>';
@@ -1600,8 +1617,7 @@
                     if (h.action === 'CommentReplied') text = t('log_replied_attachment') || `replied with an attachment`;
                     else if (h.action === 'InternalNoteAdded') text = t('log_note_attachment') || `added an internal note with an attachment`;
                     else text = t('log_comment_attachment') || `added a comment with an attachment`;
-                } else {
-                    if (h.action === 'CommentReplied') text = t('log_replied') || `replied to a comment`;
+                } else if (h.action === 'CommentReplied') text = t('log_replied') || `replied to a comment`;
                     else if (h.action === 'InternalNoteAdded') text = t('log_added_note') || `added an internal note`;
                     else text = t('log_added_comment') || `added a comment`;
                 }
@@ -1623,8 +1639,7 @@
                 if (div.innerHTML) {
                     historyList.appendChild(div);
                 }
-            } else {
-                if(div.innerHTML) historyList.appendChild(div);
+            } else if(div.innerHTML) historyList.appendChild(div);
             }
         };
 
@@ -2310,6 +2325,30 @@
         userTooltip.style.cssText = 'position:absolute; display:none; background:var(--bg-surface); border:1px solid var(--border); box-shadow:0 4px 12px rgba(0,0,0,0.15); padding:12px; border-radius:8px; z-index:10000; width:260px; pointer-events:none;';
         document.body.appendChild(userTooltip);
 
+        
+        function renderUserTooltipContent(user) {
+            const dept = (globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';
+            const userGroups = user.groupIds && user.groupIds.length > 0 
+                ? user.groupIds.map(gid => (globalGroups !== undefined ? globalGroups : []).find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
+                : 'No Groups';
+            const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
+
+            return `
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                    ${getAvatar(user.id, user.firstName, user.profilePhoto, 32)}
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">${escapeHtml(user.firstName + ' ' + user.lastName)}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">@${escapeHtml(user.username)}</div>
+                    </div>
+                </div>
+                <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                    <div><strong style="color:var(--text-muted);">Joined:</strong> ${createdAt}</div>
+                    <div><strong style="color:var(--text-muted);">Dept:</strong> ${escapeHtml(dept)}</div>
+                    <div><strong style="color:var(--text-muted);">Groups:</strong> ${escapeHtml(userGroups)}</div>
+                </div>
+            `;
+        }
+        
         
         function renderUserTooltipContent(user) {
             const dept = (globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';

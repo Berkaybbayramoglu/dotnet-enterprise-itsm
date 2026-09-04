@@ -83,67 +83,11 @@ public class UserService : IUserService
         user.IsActive = dto.IsActive;
         user.DepartmentId = dto.DepartmentId;
         
-        if (user.ProfilePhoto != dto.ProfilePhoto)
-        {
-            var oldPhotoStr = string.IsNullOrEmpty(user.ProfilePhoto) ? "None" : "Photo Present";
-            var newPhotoStr = string.IsNullOrEmpty(dto.ProfilePhoto) ? "None" : "Photo Present";
-            
-            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
-            
-            _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
-            {
-                EntityType = "User",
-                EntityId = user.Id.ToString(),
-                EntityName = user.Username,
-                Action = "ProfilePhotoUpdated",
-                FieldName = "ProfilePhoto",
-                OldValue = oldPhotoStr,
-                NewValue = newPhotoStr,
-                CreatedBy = currentUserId
-            });
-        }
-        
-        user.ProfilePhoto = dto.ProfilePhoto;
+        UpdateProfilePhoto(user, dto.ProfilePhoto);
         
         if (dto.GroupIds != null)
         {
-            var existingGroupIds = user.GroupMemberships.Select(g => g.GroupId).ToList();
-            var newGroupIds = dto.GroupIds.ToList();
-            
-            var added = newGroupIds.Except(existingGroupIds).ToList();
-            var removed = existingGroupIds.Except(newGroupIds).ToList();
-
-            if (added.Count > 0 || removed.Count > 0)
-            {
-                var allGroupIds = existingGroupIds.Union(newGroupIds).Distinct().ToList();
-                var groups = await _context.Groups.Where(g => allGroupIds.Contains(g.Id)).ToDictionaryAsync(g => g.Id, g => g.Name);
-
-                var oldGroupNames = string.Join(", ", existingGroupIds.Select(id => groups.TryGetValue(id, out var name) ? name : id.ToString()));
-                var newGroupNames = string.Join(", ", newGroupIds.Select(id => groups.TryGetValue(id, out var name) ? name : id.ToString()));
-
-                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
-
-                _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
-                {
-                    EntityType = "User",
-                    EntityId = user.Id.ToString(),
-                    EntityName = user.Username,
-                    Action = "Updated",
-                    FieldName = "GroupMemberships",
-                    OldValue = string.IsNullOrEmpty(oldGroupNames) ? "-" : oldGroupNames,
-                    NewValue = string.IsNullOrEmpty(newGroupNames) ? "-" : newGroupNames,
-                    CreatedBy = currentUserId
-                });
-            }
-
-            var toRemove = user.GroupMemberships.Where(g => !newGroupIds.Contains(g.GroupId)).ToList();
-            foreach (var rm in toRemove) user.GroupMemberships.Remove(rm);
-            
-            var toAdd = newGroupIds.Where(gid => !existingGroupIds.Contains(gid)).ToList();
-            foreach (var addId in toAdd)
-            {
-                user.GroupMemberships.Add(new GroupMember { GroupId = addId });
-            }
+            await UpdateGroupMemberships(user, dto.GroupIds.ToList());
         }
         
         await _context.SaveChangesAsync();
@@ -193,5 +137,67 @@ public class UserService : IUserService
             });
         }
         await _context.SaveChangesAsync();
+    }
+    
+    private void UpdateProfilePhoto(User user, string? newPhoto)
+    {
+        if (user.ProfilePhoto != newPhoto)
+        {
+            var oldPhotoStr = string.IsNullOrEmpty(user.ProfilePhoto) ? "None" : "Photo Present";
+            var newPhotoStr = string.IsNullOrEmpty(newPhoto) ? "None" : "Photo Present";
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+            
+            _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+            {
+                EntityType = "User",
+                EntityId = user.Id.ToString(),
+                EntityName = user.Username,
+                Action = "ProfilePhotoUpdated",
+                FieldName = "ProfilePhoto",
+                OldValue = oldPhotoStr,
+                NewValue = newPhotoStr,
+                CreatedBy = currentUserId
+            });
+            user.ProfilePhoto = newPhoto;
+        }
+    }
+    
+    private async Task UpdateGroupMemberships(User user, List<int> newGroupIds)
+    {
+        var existingGroupIds = user.GroupMemberships.Select(g => g.GroupId).ToList();
+        var added = newGroupIds.Except(existingGroupIds).ToList();
+        var removed = existingGroupIds.Except(newGroupIds).ToList();
+
+        if (added.Count > 0 || removed.Count > 0)
+        {
+            var allGroupIds = existingGroupIds.Union(newGroupIds).Distinct().ToList();
+            var groups = await _context.Groups.Where(g => allGroupIds.Contains(g.Id)).ToDictionaryAsync(g => g.Id, g => g.Name);
+
+            var oldGroupNames = string.Join(", ", existingGroupIds.Select(id => groups.TryGetValue(id, out var name) ? name : id.ToString()));
+            var newGroupNames = string.Join(", ", newGroupIds.Select(id => groups.TryGetValue(id, out var name) ? name : id.ToString()));
+
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+
+            _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+            {
+                EntityType = "User",
+                EntityId = user.Id.ToString(),
+                EntityName = user.Username,
+                Action = "Updated",
+                FieldName = "GroupMemberships",
+                OldValue = string.IsNullOrEmpty(oldGroupNames) ? "-" : oldGroupNames,
+                NewValue = string.IsNullOrEmpty(newGroupNames) ? "-" : newGroupNames,
+                CreatedBy = currentUserId
+            });
+        }
+
+        var toRemove = user.GroupMemberships.Where(g => !newGroupIds.Contains(g.GroupId)).ToList();
+        foreach (var rm in toRemove) user.GroupMemberships.Remove(rm);
+        
+        var toAdd = newGroupIds.Where(gid => !existingGroupIds.Contains(gid)).ToList();
+        foreach (var addId in toAdd)
+        {
+            user.GroupMemberships.Add(new GroupMember { GroupId = addId });
+        }
     }
 }

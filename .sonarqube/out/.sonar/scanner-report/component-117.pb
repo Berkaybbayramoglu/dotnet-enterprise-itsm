@@ -1,1 +1,1 @@
-u 2webXßhr*src/ItsTool.Web/wwwroot/ticket-detail.html
+u 2webX†hr*src/ItsTool.Web/wwwroot/ticket-detail.html

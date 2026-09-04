@@ -1,1 +1,1 @@
-€ 2jsXÄhr+src/ItsTool.Web/wwwroot/js/notifications.js
+€ 2jsXÄhr+src/ItsTool.Web/wwwroot/js/notifications.js

@@ -1,1 +1,1 @@
-… 2jsX°hr&src/ItsTool.Web/wwwroot/js/mentions.js
+… 2jsX°hr&src/ItsTool.Web/wwwroot/js/mentions.js

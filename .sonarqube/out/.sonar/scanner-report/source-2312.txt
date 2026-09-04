@@ -1,22 +1,17 @@
-const puppeteer = require('puppeteer');
-const express = require('express');
+import re
 
-(async () => {
-  const app = express();
-  app.disable('x-powered-by');
-  app.use(express.static('src/ItsTool.Web/wwwroot'));
-  const server = app.listen(0, async () => {
-    const port = server.address().port;
-    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-    const page = await browser.newPage();
-    
-    // We will evaluate the innerHTML of the body to see if the ERROR text is there
-    await page.goto(`http://localhost:${port}/users.html`);
-    await new Promise(r => setTimeout(r, 1000));
-    const html = await page.evaluate(() => document.body.innerHTML);
-    console.log("BODY START\n" + html.substring(0, 200) + "\nBODY END");
-    
-    await browser.close();
-    server.close();
-  });
-})();
+with open("old-ticket-detail.html", "r", encoding="utf-8") as f:
+    lines = f.readlines()
+
+start = -1
+end = -1
+for i, line in enumerate(lines):
+    if "async function loadTicket()" in line:
+        start = i
+    if start != -1 and line.strip() == "window.openUserDetails = async function(userId) {":
+        end = i - 1
+        break
+
+with open("load_ticket_code.txt", "w", encoding="utf-8") as f:
+    f.writelines(lines[start:end])
+print(f"Lines {start} to {end}")

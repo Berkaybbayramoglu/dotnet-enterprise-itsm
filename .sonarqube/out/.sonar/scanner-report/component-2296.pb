@@ -1,1 +1,1 @@
-ø 2jsXÄhrtemp_script.js
+ø 2jsXhrtest_bug.js

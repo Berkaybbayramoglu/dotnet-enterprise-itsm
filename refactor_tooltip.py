@@ -12,8 +12,7 @@ def fix_tooltip():
         # It's right before 'document.addEventListener('mouseout''
         end_idx = content.find("document.addEventListener('mouseout'", start_idx) - 9
         
-        block = content[start_idx:end_idx]
-        
+
         helpers = """
         function renderUserTooltipContent(user) {
             const dept = (globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';
