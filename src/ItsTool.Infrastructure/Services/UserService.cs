@@ -60,7 +60,7 @@ public class UserService : IUserService
             ProfilePhoto = dto.ProfilePhoto
         };
         
-        if (dto.GroupIds != null && dto.GroupIds.Any())
+        if (dto.GroupIds != null && dto.GroupIds.Length > 0)
         {
             foreach (var groupId in dto.GroupIds)
             {
@@ -110,6 +110,32 @@ public class UserService : IUserService
             var existingGroupIds = user.GroupMemberships.Select(g => g.GroupId).ToList();
             var newGroupIds = dto.GroupIds.ToList();
             
+            var added = newGroupIds.Except(existingGroupIds).ToList();
+            var removed = existingGroupIds.Except(newGroupIds).ToList();
+
+            if (added.Any() || removed.Any())
+            {
+                var allGroupIds = existingGroupIds.Union(newGroupIds).Distinct().ToList();
+                var groups = await _context.Groups.Where(g => allGroupIds.Contains(g.Id)).ToDictionaryAsync(g => g.Id, g => g.Name);
+
+                var oldGroupNames = string.Join(", ", existingGroupIds.Select(id => groups.TryGetValue(id, out var name) ? name : id.ToString()));
+                var newGroupNames = string.Join(", ", newGroupIds.Select(id => groups.TryGetValue(id, out var name) ? name : id.ToString()));
+
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+
+                _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+                {
+                    EntityType = "User",
+                    EntityId = user.Id.ToString(),
+                    EntityName = user.Username,
+                    Action = "Updated",
+                    FieldName = "GroupMemberships",
+                    OldValue = string.IsNullOrEmpty(oldGroupNames) ? "-" : oldGroupNames,
+                    NewValue = string.IsNullOrEmpty(newGroupNames) ? "-" : newGroupNames,
+                    CreatedBy = currentUserId
+                });
+            }
+
             var toRemove = user.GroupMemberships.Where(g => !newGroupIds.Contains(g.GroupId)).ToList();
             foreach (var rm in toRemove) user.GroupMemberships.Remove(rm);
             

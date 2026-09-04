@@ -34,10 +34,10 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
     {
         if (entity is SystemAuditLog) return true;
         var name = entity.GetType().Name;
-        return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification");
+        return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification") || name == "GroupMember";
     }
 
-    private void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
+    private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
     {
         var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
         if (modifiedProperties.Any(p => p.Metadata.Name == "IsDeleted") && entry.Entity.IsDeleted)
@@ -95,7 +95,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         foreach (var entry in entries)
         {
             if (SystemAuditInterceptor.ShouldSkipAudit(entry.Entity)) continue;
-            ProcessEntry(entry, context, userId, now, logsToAdd);
+            SystemAuditInterceptor.ProcessEntry(entry, context, userId, now, logsToAdd);
         }
         if (logsToAdd.Count > 0)
         {
@@ -103,7 +103,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         }
     }
 
-    private void ProcessEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext context, string userId, DateTime now, List<SystemAuditLog> logsToAdd)
+    private static void ProcessEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext context, string userId, DateTime now, List<SystemAuditLog> logsToAdd)
     {
         var entityType = entry.Entity.GetType().Name;
         var entityName = SystemAuditInterceptor.GetEntityName(entry, context);
@@ -115,7 +115,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         else if (entry.State == EntityState.Deleted)
             logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Deleted", null, isGroupMember ? entityName : null, null, userId, now)));
         else if (entry.State == EntityState.Modified)
-            ProcessModifiedEntity(entry, logsToAdd, entityType, entityName, entityId, userId, now);
+            SystemAuditInterceptor.ProcessModifiedEntity(entry, logsToAdd, entityType, entityName, entityId, userId, now);
     }
 
     private static string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)

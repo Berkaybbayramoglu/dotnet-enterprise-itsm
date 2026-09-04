@@ -95,7 +95,27 @@ public class GroupService : IGroupService
         var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
         if (!exists)
         {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+            
             _context.GroupMembers.Add(new GroupMember { GroupId = groupId, UserId = userId });
+            
+            if (user != null && group != null)
+            {
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+                _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+                {
+                    EntityType = "Group",
+                    EntityId = group.Id.ToString(),
+                    EntityName = group.Name,
+                    Action = "MemberAdded",
+                    FieldName = "Members",
+                    OldValue = "-",
+                    NewValue = user.Username,
+                    CreatedBy = currentUserId
+                });
+            }
+            
             await _context.SaveChangesAsync();
         }
     }
@@ -105,7 +125,27 @@ public class GroupService : IGroupService
         var member = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
         if (member != null)
         {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+
             _context.GroupMembers.Remove(member);
+            
+            if (user != null && group != null)
+            {
+                var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+                _context.SystemAuditLogs.Add(new ItsTool.Domain.Entities.SystemAuditLog
+                {
+                    EntityType = "Group",
+                    EntityId = group.Id.ToString(),
+                    EntityName = group.Name,
+                    Action = "MemberRemoved",
+                    FieldName = "Members",
+                    OldValue = user.Username,
+                    NewValue = "-",
+                    CreatedBy = currentUserId
+                });
+            }
+            
             await _context.SaveChangesAsync();
         }
     }
