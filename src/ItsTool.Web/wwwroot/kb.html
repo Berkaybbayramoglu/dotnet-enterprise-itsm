@@ -206,7 +206,7 @@
         
         document.getElementById('btnNewArticle').style.display = 'inline-flex';
         if (!hasManageKb) {
-            document.getElementById('btnNewArticle').setAttribute('data-i18n', 'kb_btn_suggest');
+            document.getElementById('btnNewArticle').dataset.i18n = 'kb_btn_suggest';
             document.getElementById('btnNewArticle').textContent = t('kb_btn_suggest') || '+ Suggest Article';
         }
         
@@ -314,7 +314,8 @@
             if (a.authorName) {
                 const authorSpan = document.createElement('span');
                 authorSpan.className = 'meta-item';
-                authorSpan.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Gönderen: ${escapeHtml(a.authorName)}${a.authorDepartment ? ` (${escapeHtml(a.authorDepartment)})` : ''}`;
+                const authorDeptStr = a.authorDepartment ? ` (${escapeHtml(a.authorDepartment)})` : '';
+                authorSpan.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Gönderen: ${escapeHtml(a.authorName)}${authorDeptStr}`;
                 meta.appendChild(authorSpan);
             }
 
@@ -443,7 +444,7 @@
                 document.getElementById('articleStatus').parentElement.style.display = 'block';
             }
 
-            document.getElementById('modalTitle').setAttribute('data-i18n', hasManageKb ? 'kb_modal_new' : 'kb_btn_suggest');
+            document.getElementById('modalTitle').dataset.i18n = hasManageKb ? 'kb_modal_new' : 'kb_btn_suggest';
             document.getElementById('modalTitle').textContent = hasManageKb ? t('kb_modal_new') : t('kb_btn_suggest') || 'Suggest Article';
             
             if (allCategories.length === 0) {

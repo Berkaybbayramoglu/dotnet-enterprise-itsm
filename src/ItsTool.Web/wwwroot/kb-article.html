@@ -291,7 +291,8 @@
                 
                 if (a.authorName) {
                     document.getElementById('articleAuthor').style.display = 'inline';
-                    document.getElementById('articleAuthor').textContent = ` • Gönderen: ${a.authorName}${a.authorDepartment ? ` (${a.authorDepartment})` : ''}`;
+                    const deptStr = a.authorDepartment ? ` (${a.authorDepartment})` : '';
+                    document.getElementById('articleAuthor').textContent = ` • Gönderen: ${a.authorName}${deptStr}`;
                 }
 
                 document.getElementById('articleViews').textContent = a.viewCount;

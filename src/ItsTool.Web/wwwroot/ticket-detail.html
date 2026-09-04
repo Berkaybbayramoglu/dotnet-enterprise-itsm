@@ -669,7 +669,12 @@
         function buildAssignmentsHtml(assignments, globalGroups, users, deptsLookup) {
             const uniqueAssignmentsMap = new Map();
             assignments.filter(a => a.isActive).forEach(a => {
-                const key = a.userId ? `u_${a.userId}` : (a.groupId ? `g_${a.groupId}` : null);
+                let key = null;
+                if (a.userId) {
+                    key = `u_${a.userId}`;
+                } else if (a.groupId) {
+                    key = `g_${a.groupId}`;
+                }
                 if (key && !uniqueAssignmentsMap.has(key)) {
                     uniqueAssignmentsMap.set(key, a);
                 }
@@ -729,7 +734,7 @@
                 blockHtml += `  </div>`;
                 blockHtml += `  <div style="padding-left: 16px; display: flex; flex-direction: column; gap: 4px;">`;
 
-                for (const [gId, gData] of Object.entries(deptData.groups)) {
+                for (const [_, gData] of Object.entries(deptData.groups)) {
                     if (!gData.groupData) {
                         deptData.usersWithoutGroup.push(...gData.users);
                         continue;
@@ -795,16 +800,6 @@
                 const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
 
                 
-                // Get group name using the same API since we don't have lookup.groups populated initially here, wait let's use the fetch:
-                let groupName = '-';
-                if (t.assignedGroupId) {
-                    try {
-                        const groups = await window.api.getGroups();
-                        const grp = groups.find(x => x.id === t.assignedGroupId);
-                        if (grp) groupName = grp.name;
-                    } catch(e) { console.warn(e); }
-                }
-                
                 document.getElementById('tProject').textContent = projName;
                 document.getElementById('tProject').textContent = projName;
                 
@@ -814,7 +809,7 @@
 
                 let assignHTML = '';
                 if (t.assignments && t.assignments.length > 0) {
-                    const deptsLookup = typeof globalLookup !== 'undefined' && globalLookup.departments ? globalLookup.departments : [];
+                    const deptsLookup = globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : [];
                     assignHTML = buildAssignmentsHtml(t.assignments, globalGroups, users, deptsLookup);
                 } else {
                     assignHTML = '<span class="text-muted">Unassigned</span>';
@@ -1133,7 +1128,7 @@
             link.setAttribute("download", `ticket_${ticketId}_history.csv`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            link.remove();
         };
 
         window.toggleEditMode = function() {
@@ -1318,9 +1313,9 @@
                 
                 // Upload new attachments if selected
                 if (window.pendingUploads && window.pendingUploads.length > 0) {
-                    for (let i = 0; i < window.pendingUploads.length; i++) {
+                    for (const upload of window.pendingUploads) {
                         const formData = new FormData();
-                        formData.append('file', window.pendingUploads[i].file);
+                        formData.append('file', upload.file);
                         await window.api.request(`/Ticket/${ticketId}/attachments`, {
                             method: 'POST',
                             body: formData
@@ -1341,6 +1336,288 @@
                 } else {
                     showToast('Update failed. Dinamik alan kurallarına dikkat edin.', 'error');
                 }
+            }
+        };
+
+        
+        // --- SONARQUBE R15 & R21 REFACTORING HELPERS ---
+        window.resolveTimelineUser = function(id) {
+            if (!id || id === 'none' || id === 'null') return 'None';
+            const u = window.globalUsers ? window.globalUsers.find(x => x.id == id) : null;
+            return u ? escapeHtml(u.firstName + ' ' + u.lastName) : `User ${id}`;
+        };
+
+        window.parseTimelineGrp = function(str) {
+            if(!str) return 'None';
+            const m = str.match(/Grp:(\d+)/);
+            if(m && m[1]) {
+                const g = window.globalGroups ? window.globalGroups.find(x => x.id == m[1]) : null;
+                return g ? escapeHtml(g.name) : `Group ${m[1]}`;
+            }
+            return 'None';
+        };
+
+        window.parseHistoryTransfer = function(val) {
+            if (!val || val === 'Proj:,Grp:') return t('log_none') || 'none';
+            const mProj = val.match(/Proj:(-?\d*)/);
+            const mGrp = val.match(/Grp:(-?\d*)/);
+            const pId = mProj && mProj[1] ? mProj[1] : null;
+            const gId = mGrp && mGrp[1] ? mGrp[1] : null;
+            
+            const pName = pId && pId !== '-1' ? (window.globalLookup && window.globalLookup.projects?.find(x => x.id == pId)?.name || `Project ${pId}`) : (t('log_no_project') || 'No Project');
+            const gName = gId && gId !== '-1' ? (window.globalGroups?.find(x => x.id == gId)?.name || `Group ${gId}`) : (t('log_no_group') || 'No Group');
+            
+            return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
+        };
+
+        window.buildCommentAttachmentHtml = function(contentHtml) {
+            let attachmentsHtml = '';
+            const attachRegex = /\[attachment:(\d+)\]/g;
+            let match;
+            const foundIds = [];
+            while((match = attachRegex.exec(contentHtml)) !== null) {
+                foundIds.push(match[1]);
+            }
+
+            if(foundIds.length > 0) {
+                attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 12px;">` + 
+                    foundIds.map(id => {
+                        const att = window.ticketAttachments?.find(x => x.id == id);
+                        const isImage = att && att.contentType && att.contentType.startsWith('image/');
+                        if (isImage) {
+                            return `<div class="comment-attachment-img-container">
+                                        <img src="/api/Ticket/${ticketId}/attachments/${id}/download" class="comment-attachment-img" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="Attachment" onclick="openLightbox(this.src)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+                                        <a href="/api/Ticket/${ticketId}/attachments/${id}/download" download class="download-btn" title="Download">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                                        </a>
+                                    </div>`;
+                        } else {
+                            const fileName = att ? att.fileName : ('File ' + id);
+                            return `<a href="/api/Ticket/${ticketId}/attachments/${id}/download" target="_blank" style="display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:12px; font-weight:500; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'"><svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> ${escapeHtml(fileName)}</a>`;
+                        }
+                    }).join('') + `</div>`;
+                
+                contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
+            }
+            return { contentHtml, attachmentsHtml };
+        };
+
+        window.processThreadComment = function(e, commentsList) {
+            const div = document.createElement('div');
+            const c = e.data;
+            const isEditedText = c.updatedAt ? (t('log_edited_at') || '(Edited at {0})').replace('{0}', new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) : (t('log_edited_only') || '(Edited)');
+            let isEdited = '';
+            if (c.isEdited) {
+                let titleText = '';
+                if (c.updatedAt) {
+                    titleText = new Date(c.updatedAt).toLocaleString();
+                }
+                isEdited = `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;" title="${titleText}">${isEditedText}</span>`;
+            }
+            
+            div.className = `comment ${c.isInternal ? 'internal' : ''}`;
+            div.id = `comment-${c.id}`;
+            
+            let connectorHtml = '';
+            if (c.parentCommentId) {
+                div.className += ' reply-container';
+                connectorHtml = '<div class="comment-reply-connector"></div>';
+            }
+            
+            let result = window.buildCommentAttachmentHtml(escapeHtml(c.content));
+            let contentHtml = result.contentHtml;
+            let attachmentsHtml = result.attachmentsHtml;
+            
+            div.innerHTML = `
+                ${connectorHtml}
+                <div class="comment-header">
+                    <div class="d-flex align-items-center gap-sm">
+                        ${getAvatar(c.authorUserId, c.authorUserId)}
+                        <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${window.resolveTimelineUser(c.authorUserId)}</strong>
+                        <span>${new Date(e.timestamp).toLocaleString()}</span>
+                        ${isEdited}
+                    </div>
+                    <div class="d-flex align-items-center gap-sm">
+                        ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">${t('ticket_btn_reply') || 'Reply'}</button>
+                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">${t('ticket_btn_edit') || 'Edit'}</button>
+                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">${t('btn_delete') || 'Delete'}</button>
+                    </div>
+                </div>
+                <div id="comment-content-${c.id}" class="comment-body" data-raw-content="${encodeURIComponent(c.content)}">
+                    <div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>
+                    ${attachmentsHtml}
+                </div>
+            <div id="comment-edit-${c.id}" style="display:none; margin-top: 8px;">
+                <div style="border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); padding: 8px;">
+                    <textarea class="form-control" rows="3" id="edit-textarea-${c.id}" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
+                    <div id="edit-attachment-previews-${c.id}" class="d-flex gap-sm flex-wrap mb-sm" style="padding: 0 8px;"></div>
+                    
+                    <div class="d-flex justify-content-between align-items-center" style="padding: 4px 8px; border-top: 1px solid var(--border-light); margin-top: 4px; padding-top: 12px;">
+                        <div class="d-flex align-items-center gap-md">
+                            <button type="button" class="btn btn-ghost" onclick="document.getElementById('editAttachmentInput-${c.id}').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
+                                📎
+                            </button>
+                            <input type="file" id="editAttachmentInput-${c.id}" multiple style="display: none;" onchange="window.uploadEditAttachment(this, ${c.id})">
+                        </div>
+                        
+                        <div class="d-flex gap-sm">
+                            <button class="btn btn-ghost btn-sm" onclick="cancelEditComment(${c.id})">${t('btn_cancel') || 'Cancel'}</button>
+                            <button class="btn btn-primary btn-sm" onclick="saveEditComment(${c.id})" id="btnSaveEdit-${c.id}">${t('btn_save') || 'Save'}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            if (c.parentCommentId) {
+                const parentDiv = document.getElementById(`comment-${c.parentCommentId}`);
+                if (parentDiv) {
+                    let repliesContainer = parentDiv.querySelector('.replies-list');
+                    if (!repliesContainer) {
+                        repliesContainer = document.createElement('div');
+                        repliesContainer.className = 'replies-list';
+                        parentDiv.appendChild(repliesContainer);
+                    }
+                    repliesContainer.appendChild(div);
+                } else {
+                    commentsList.appendChild(div);
+                }
+            } else {
+                commentsList.appendChild(div);
+            }
+        };
+
+        window.buildHistoryText = function(h) {
+            let text = '';
+            const actionKey = h.action === 'Created' ? (t('log_created') || 'Created') : h.action;
+            const noneText = t('log_none') || 'none';
+            const oldVal = h.oldValue || noneText;
+            const newVal = h.newValue || noneText;
+            
+            text = (t('log_changed_general') || `{0} <strong>{1}</strong> from <em>{2}</em> to <em>{3}</em>`)
+                .replace('{0}', actionKey)
+                .replace('{1}', h.fieldName || '')
+                .replace('{2}', escapeHtml(oldVal))
+                .replace('{3}', escapeHtml(newVal));
+            
+            if (h.action === 'Assigned' && h.fieldName === 'AssignedUserId') {
+                text = (t('log_assigned') || `assigned this ticket to <strong>{0}</strong> (was {1})`)
+                    .replace('{0}', window.resolveTimelineUser(h.newValue))
+                    .replace('{1}', window.resolveTimelineUser(h.oldValue));
+            } else if (h.action === 'Transferred') {
+                text = (t('log_transferred') || `transferred this ticket to <strong>{0}</strong> (was {1})`)
+                    .replace('{0}', escapeHtml(window.parseHistoryTransfer(h.newValue)))
+                    .replace('{1}', escapeHtml(window.parseHistoryTransfer(h.oldValue)));
+            } else if (h.action === 'StatusChanged' || h.action === 'Reopened') {
+                const sOld = window.globalLookup?.statuses?.find(x => x.id == h.oldValue)?.name || h.oldValue;
+                const sNew = window.globalLookup?.statuses?.find(x => x.id == h.newValue)?.name || h.newValue;
+                text = (t('log_changed_status') || `changed status from <em>{0}</em> to <em>{1}</em>`)
+                    .replace('{0}', escapeHtml(sOld)).replace('{1}', escapeHtml(sNew));
+            } else if (h.fieldName === 'PriorityId' || h.fieldName === 'Priority') {
+                const pOld = window.globalLookup?.priorities?.find(x => x.id == h.oldValue)?.name || h.oldValue;
+                const pNew = window.globalLookup?.priorities?.find(x => x.id == h.newValue)?.name || h.newValue;
+                text = (t('log_changed_priority') || `changed priority from <em>{0}</em> to <em>{1}</em>`)
+                    .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
+            } else if (h.fieldName === 'CategoryId' || h.fieldName === 'Category') {
+                const cOld = window.globalLookup?.categories?.find(x => x.id == h.oldValue)?.name || h.oldValue;
+                const cNew = window.globalLookup?.categories?.find(x => x.id == h.newValue)?.name || h.newValue;
+                text = (t('log_changed_category') || `changed category from <em>{0}</em> to <em>{1}</em>`)
+                    .replace('{0}', escapeHtml(cOld)).replace('{1}', escapeHtml(cNew));
+            } else if (h.fieldName === 'ProjectId' || h.fieldName === 'Project') {
+                const pOld = window.globalLookup?.projects?.find(x => x.id == h.oldValue)?.name || h.oldValue;
+                const pNew = window.globalLookup?.projects?.find(x => x.id == h.newValue)?.name || h.newValue;
+                text = (t('log_changed_project') || `changed project from <em>{0}</em> to <em>{1}</em>`)
+                    .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
+            } else if (h.action === 'AttachmentAdded') {
+                text = (t('log_attachment_added') || `added attachment <strong>{0}</strong>`).replace('{0}', escapeHtml(h.newValue));
+            } else if (h.action === 'AttachmentDeleted') {
+                text = (t('log_attachment_deleted') || `deleted attachment <strong>{0}</strong>`).replace('{0}', escapeHtml(h.oldValue));
+            } else if (h.action === 'CommentEdited') {
+                text = t('log_edited_comment') || `edited a comment`;
+            } else if (h.action === 'CommentDeleted') {
+                text = t('log_deleted_comment') || `deleted a comment`;
+            } else if (h.action === 'UserMentioned') {
+                text = (t('log_mentioned_user') || `mentioned <strong>{0}</strong> in a comment`).replace('{0}', window.resolveTimelineUser(h.newValue));
+            }
+            return text;
+        };
+
+        window.buildHistoryDetails = function(h, e, events) {
+            let detailsHtml = '';
+            if (h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied' || h.action === 'UserMentioned') {
+                if (h.action === 'UserMentioned' && h.newValue) {
+                    detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${t('log_mentioned_user_prefix') || 'Mentioned User:'} <strong>${window.resolveTimelineUser(h.newValue)}</strong></div>`;
+                } else if (h.newValue) {
+                    detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${window.renderContentWithAttachments(h.newValue)}</div>`;
+                }
+                const commentExists = events.some(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
+                if (commentExists) {
+                    detailsHtml += `<button type="button" onclick="document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); text-decoration: underline; font-size:10px; display:inline-block; margin-top:4px;">${t('log_jump_to_comment') || 'Jump to comment'}</button>`;
+                }
+            } else if (h.action === 'CommentEdited' && h.oldValue && h.newValue) {
+                const oldEnc = btoa(unescape(encodeURIComponent(h.oldValue)));
+                const newEnc = btoa(unescape(encodeURIComponent(h.newValue)));
+                let origAuthor = 'Unknown';
+                let origCreatedAt = 'Unknown';
+                if (h.fieldName && !Number.isNaN(Number(h.fieldName))) {
+                    const origEvent = events.find(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
+                    if (origEvent) {
+                        origAuthor = window.resolveTimelineUser(origEvent.data.authorUserId);
+                        origCreatedAt = new Date(origEvent.timestamp).toLocaleString();
+                    }
+                }
+                const editorName = window.resolveTimelineUser(h.createdBy);
+                const editedAt = new Date(e.timestamp).toLocaleString();
+                detailsHtml = `<button class="btn btn-ghost" style="font-size:11px; padding:4px 8px; margin-top:4px; color:var(--primary); font-weight:600; background:rgba(10, 107, 234, 0.05); border:1px solid rgba(10, 107, 234, 0.1);" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">Detay Gör</button>`;
+            } else if (h.action === 'CommentDeleted' && h.oldValue) {
+                detailsHtml = `<div style="background:var(--bg-danger-light); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border-danger-light); font-size:11px; color:var(--text-danger-strong);"><del>${escapeHtml(h.oldValue)}</del></div>`;
+            }
+            return detailsHtml;
+        };
+
+        window.processHistoryEvent = function(fe, events, historyList, commentLogsList) {
+            const e = fe;
+            const h = e.data;
+            const div = document.createElement('div');
+            let text = '';
+            const isCommentLogOnly = h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied';
+            
+            if (!isCommentLogOnly) {
+                div.className = 'history-event';
+                div.id = `history-${h.id}`;
+                text = window.buildHistoryText(h);
+                const atText = t('log_at') ? ` ${t('log_at')} ` : ' ';
+                div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${window.resolveTimelineUser(h.createdBy)}</strong> ${text}${atText}${new Date(e.timestamp).toLocaleString()}`;
+            } else {
+                if (h.action === 'CommentReplied' || h.action === 'CommentAdded' || h.action === 'InternalNoteAdded') {
+                    const hasAttachment = h.newValue && h.newValue.includes('[attachment:');
+                    if (hasAttachment) {
+                        text = h.action === 'CommentReplied' ? (t('log_replied_attachment') || `replied with an attachment`) : (h.action === 'InternalNoteAdded' ? (t('log_note_attachment') || `added an internal note with an attachment`) : (t('log_comment_attachment') || `added a comment with an attachment`));
+                    } else {
+                        text = h.action === 'CommentReplied' ? (t('log_replied') || `replied to a comment`) : (h.action === 'InternalNoteAdded' ? (t('log_added_note') || `added an internal note`) : (t('log_added_comment') || `added a comment`));
+                    }
+                }
+            }
+            
+            if (h.action === 'CommentEdited' || h.action === 'CommentDeleted' || h.action === 'UserMentioned' || isCommentLogOnly) {
+                let detailsHtml = window.buildHistoryDetails(h, e, events);
+                const logDiv = document.createElement('div');
+                logDiv.className = 'history-event comment-log-item';
+                logDiv.id = `history-${h.id}`;
+                logDiv.style.borderLeft = '2px solid var(--primary)';
+                logDiv.style.backgroundColor = 'transparent';
+                logDiv.style.padding = '4px 0 4px 8px';
+                logDiv.dataset.searchText = `${window.resolveTimelineUser(h.createdBy)} ${text} ${h.oldValue||''} ${h.newValue||''}`.toLowerCase();
+                logDiv.dataset.csvRow = `"${new Date(e.timestamp).toISOString()}","${window.resolveTimelineUser(h.createdBy)}","${text}","${(h.oldValue||'').replaceAll('"', '""')}","${(h.newValue||'').replaceAll('"', '""')}"`;
+                logDiv.innerHTML = `<div style="font-size:11px; color:var(--text-main);"><strong>${window.resolveTimelineUser(h.createdBy)}</strong> ${text}</div><div style="font-size:10px; color:var(--text-muted);">${new Date(e.timestamp).toLocaleString()}</div>${detailsHtml}`;
+                commentLogsList.appendChild(logDiv);
+                
+                if (div.innerHTML) {
+                    historyList.appendChild(div);
+                }
+            } else {
+                if(div.innerHTML) historyList.appendChild(div);
             }
         };
 
@@ -1395,275 +1672,9 @@
 
                 finalEvents.forEach(fe => {
                     if (fe.isThread) {
-                        fe.thread.forEach(e => {
-                            const resolveUser = (id) => {
-                                if (!id || id === 'none' || id === 'null') return 'None';
-                                const u = globalUsers.find(x => x.id == id);
-                                return u ? escapeHtml(u.firstName + ' ' + u.lastName) : `User ${id}`;
-                            };
-                            
-                            const div = document.createElement('div');
-                            const c = e.data;
-                            const isEdited = c.isEdited ? `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;" title="${c.updatedAt ? new Date(c.updatedAt).toLocaleString() : ''}">${c.updatedAt ? (t('log_edited_at') || '(Edited at {0})').replace('{0}', new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) : (t('log_edited_only') || '(Edited)')}</span>` : '';
-                            
-                            div.className = `comment ${c.isInternal ? 'internal' : ''}`;
-                            div.id = `comment-${c.id}`;
-                            
-                            let connectorHtml = '';
-                            if (c.parentCommentId) {
-                                div.className += ' reply-container';
-                                connectorHtml = '<div class="comment-reply-connector"></div>';
-                            }
-                            
-                                
-                                let contentHtml = escapeHtml(c.content);
-                                let attachmentsHtml = '';
-                                const attachRegex = /\[attachment:(\d+)\]/g;
-                                let match;
-                                const foundIds = [];
-                                while((match = attachRegex.exec(contentHtml)) !== null) {
-                                    foundIds.push(match[1]);
-                                }
-
-                                if(foundIds.length > 0) {
-                                    attachmentsHtml = `<div class="d-flex gap-sm mt-sm flex-wrap" style="width: 100%; border-top: 1px solid var(--border-light); padding-top: 12px;">` + 
-                                        foundIds.map(id => {
-                                            const att = window.ticketAttachments?.find(x => x.id == id);
-                                            const isImage = att && att.contentType && att.contentType.startsWith('image/');
-                                            if (isImage) {
-                                                return `<div class="comment-attachment-img-container">
-                                                            <img src="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" class="comment-attachment-img" style="max-width: 150px; border-radius: 4px; box-shadow: var(--shadow-sm); max-height: 150px; object-fit: cover; cursor: pointer; transition: transform 0.2s;" alt="Attachment" onclick="openLightbox(this.src)" onmouseover="this.style.transform=\\'scale(1.05)\\'" onmouseout="this.style.transform=\\'scale(1)\\'"/>
-                                                            <a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" download class="download-btn" title="Download">
-                                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                                                            </a>
-                                                        </div>`;
-                                            } else {
-                                                const fileName = att ? att.fileName : ('File ' + id);
-                                                return `<a href="http://localhost:5246/api/Ticket/${ticketId}/attachments/${id}/download" target="_blank" style="display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg-hover); color:var(--text-main); text-decoration:none; font-size:12px; font-weight:500; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\\'var(--primary)\\'" onmouseout="this.style.borderColor=\\'var(--border)\\'"><svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> ${escapeHtml(fileName)}</a>`;
-                                            }
-                                        }).join('') +
-                                        `</div>`;
-                                    
-                                    contentHtml = contentHtml.replace(/\[attachment:\d+\]/g, '').trim();
-                                }
-                                
-                                div.innerHTML = `
-                                    ${connectorHtml}
-                                    <div class="comment-header">
-                                        <div class="d-flex align-items-center gap-sm">
-                                            ${getAvatar(c.authorUserId, c.authorUserId)}
-                                            <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${resolveUser(c.authorUserId)}</strong>
-                                            <span>${new Date(e.timestamp).toLocaleString()}</span>
-                                            ${isEdited}
-                                        </div>
-                                        <div class="d-flex align-items-center gap-sm">
-                                            ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
-                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">${t('ticket_btn_reply') || 'Reply'}</button>
-                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">${t('ticket_btn_edit') || 'Edit'}</button>
-                                            <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">${t('btn_delete') || 'Delete'}</button>
-                                        </div>
-                                    </div>
-                                    <div id="comment-content-${c.id}" class="comment-body" data-raw-content="${encodeURIComponent(c.content)}">
-                                        <div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>
-                                        ${attachmentsHtml}
-                                    </div>
-                                <div id="comment-edit-${c.id}" style="display:none; margin-top: 8px;">
-                                    <div style="border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); padding: 8px;">
-                                        <textarea class="form-control" rows="3" id="edit-textarea-${c.id}" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
-                                        <div id="edit-attachment-previews-${c.id}" class="d-flex gap-sm flex-wrap mb-sm" style="padding: 0 8px;"></div>
-                                        
-                                        <div class="d-flex justify-content-between align-items-center" style="padding: 4px 8px; border-top: 1px solid var(--border-light); margin-top: 4px; padding-top: 12px;">
-                                            <div class="d-flex align-items-center gap-md">
-                                                <button type="button" class="btn btn-ghost" onclick="document.getElementById('editAttachmentInput-${c.id}').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
-                                                    📎
-                                                </button>
-                                                <input type="file" id="editAttachmentInput-${c.id}" multiple style="display: none;" onchange="window.uploadEditAttachment(this, ${c.id})">
-                                            </div>
-                                            
-                                            <div class="d-flex gap-sm">
-                                                <button class="btn btn-ghost btn-sm" onclick="cancelEditComment(${c.id})">${t('btn_cancel') || 'Cancel'}</button>
-                                                <button class="btn btn-primary btn-sm" onclick="saveEditComment(${c.id})" id="btnSaveEdit-${c.id}">${t('btn_save') || 'Save'}</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            if (c.parentCommentId) {
-                                const parentDiv = document.getElementById(`comment-${c.parentCommentId}`);
-                                if (parentDiv) {
-                                    let repliesContainer = parentDiv.querySelector('.replies-list');
-                                    if (!repliesContainer) {
-                                        repliesContainer = document.createElement('div');
-                                        repliesContainer.className = 'replies-list';
-                                        parentDiv.appendChild(repliesContainer);
-                                    }
-                                    repliesContainer.appendChild(div);
-                                } else {
-                                    commentsList.appendChild(div);
-                                }
-                            } else {
-                                commentsList.appendChild(div);
-                            }
-                        });
+                        fe.thread.forEach(e => window.processThreadComment(e, commentsList));
                     } else {
-                        const e = fe;
-                        const resolveUser = (id) => {
-                            if (!id || id === 'none' || id === 'null') return 'None';
-                            const u = globalUsers.find(x => x.id == id);
-                            return u ? escapeHtml(u.firstName + ' ' + u.lastName) : `User ${id}`;
-                        };
-                        const parseGrp = (str) => {
-                            if(!str) return 'None';
-                            const m = str.match(/Grp:(\d+)/);
-                            if(m && m[1]) {
-                                const g = globalGroups.find(x => x.id == m[1]);
-                                return g ? escapeHtml(g.name) : `Group ${m[1]}`;
-                            }
-                            return 'None';
-                        };
-                        
-                        const div = document.createElement('div');
-                        const h = e.data;
-                        let text = '';
-                        const isCommentLogOnly = h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied';
-                        
-                        if (!isCommentLogOnly) {
-                            div.className = 'history-event';
-                            div.id = `history-${h.id}`;
-                            const actionKey = h.action === 'Created' ? (t('log_created') || 'Created') : h.action;
-                            const noneText = t('log_none') || 'none';
-                            const oldVal = h.oldValue || noneText;
-                            const newVal = h.newValue || noneText;
-                            
-                            text = (t('log_changed_general') || `{0} <strong>{1}</strong> from <em>{2}</em> to <em>{3}</em>`)
-                                .replace('{0}', actionKey)
-                                .replace('{1}', h.fieldName || '')
-                                .replace('{2}', escapeHtml(oldVal))
-                                .replace('{3}', escapeHtml(newVal));
-                            
-                            if (h.action === 'Assigned' && h.fieldName === 'AssignedUserId') {
-                                text = (t('log_assigned') || `assigned this ticket to <strong>{0}</strong> (was {1})`)
-                                    .replace('{0}', resolveUser(h.newValue))
-                                    .replace('{1}', resolveUser(h.oldValue));
-                            } else if (h.action === 'Transferred') {
-                                const parseTransfer = (val) => {
-                                    if (!val || val === 'Proj:,Grp:') return t('log_none') || 'none';
-                                    const mProj = val.match(/Proj:(-?\d*)/);
-                                    const mGrp = val.match(/Grp:(-?\d*)/);
-                                    const pId = mProj && mProj[1] ? mProj[1] : null;
-                                    const gId = mGrp && mGrp[1] ? mGrp[1] : null;
-                                    
-                                    const pName = pId && pId !== '-1' ? (globalLookup.projects?.find(x => x.id == pId)?.name || `Project ${pId}`) : (t('log_no_project') || 'No Project');
-                                    const gName = gId && gId !== '-1' ? (globalGroups?.find(x => x.id == gId)?.name || `Group ${gId}`) : (t('log_no_group') || 'No Group');
-                                    
-                                    return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
-                                };
-                                text = (t('log_transferred') || `transferred this ticket to <strong>{0}</strong> (was {1})`)
-                                    .replace('{0}', escapeHtml(parseTransfer(h.newValue)))
-                                    .replace('{1}', escapeHtml(parseTransfer(h.oldValue)));
-                            } else if (h.action === 'StatusChanged' || h.action === 'Reopened') {
-                                const sOld = globalLookup.statuses?.find(x => x.id == h.oldValue)?.name || h.oldValue;
-                                const sNew = globalLookup.statuses?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = (t('log_changed_status') || `changed status from <em>{0}</em> to <em>{1}</em>`)
-                                    .replace('{0}', escapeHtml(sOld)).replace('{1}', escapeHtml(sNew));
-                            } else if (h.fieldName === 'PriorityId' || h.fieldName === 'Priority') {
-                                const pOld = globalLookup.priorities?.find(x => x.id == h.oldValue)?.name || h.oldValue;
-                                const pNew = globalLookup.priorities?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = (t('log_changed_priority') || `changed priority from <em>{0}</em> to <em>{1}</em>`)
-                                    .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
-                            } else if (h.fieldName === 'CategoryId' || h.fieldName === 'Category') {
-                                const cOld = globalLookup.categories?.find(x => x.id == h.oldValue)?.name || h.oldValue;
-                                const cNew = globalLookup.categories?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = (t('log_changed_category') || `changed category from <em>{0}</em> to <em>{1}</em>`)
-                                    .replace('{0}', escapeHtml(cOld)).replace('{1}', escapeHtml(cNew));
-                            } else if (h.fieldName === 'ProjectId' || h.fieldName === 'Project') {
-                                const pOld = globalLookup.projects?.find(x => x.id == h.oldValue)?.name || h.oldValue;
-                                const pNew = globalLookup.projects?.find(x => x.id == h.newValue)?.name || h.newValue;
-                                text = (t('log_changed_project') || `changed project from <em>{0}</em> to <em>{1}</em>`)
-                                    .replace('{0}', escapeHtml(pOld)).replace('{1}', escapeHtml(pNew));
-                            } else if (h.action === 'AttachmentAdded') {
-                                text = (t('log_attachment_added') || `added attachment <strong>{0}</strong>`).replace('{0}', escapeHtml(h.newValue));
-                            } else if (h.action === 'AttachmentDeleted') {
-                                text = (t('log_attachment_deleted') || `deleted attachment <strong>{0}</strong>`).replace('{0}', escapeHtml(h.oldValue));
-                            } else if (h.action === 'CommentEdited') {
-                                text = t('log_edited_comment') || `edited a comment`;
-                            } else if (h.action === 'CommentDeleted') {
-                                text = t('log_deleted_comment') || `deleted a comment`;
-                            } else if (h.action === 'UserMentioned') {
-                                text = (t('log_mentioned_user') || `mentioned <strong>{0}</strong> in a comment`).replace('{0}', resolveUser(h.newValue));
-                            }
-                            const atText = t('log_at') ? ` ${t('log_at')} ` : ' ';
-                            div.innerHTML = `<strong class="user-hover-link" data-user-id="${h.createdBy}" style="cursor: pointer;">${resolveUser(h.createdBy)}</strong> ${text}${atText}${new Date(e.timestamp).toLocaleString()}`;
-                        } else {
-                            if (h.action === 'CommentReplied' || h.action === 'CommentAdded' || h.action === 'InternalNoteAdded') {
-                                const hasAttachment = h.newValue && h.newValue.includes('[attachment:');
-                                if (hasAttachment) {
-                                    text = h.action === 'CommentReplied' ? (t('log_replied_attachment') || `replied with an attachment`) : (h.action === 'InternalNoteAdded' ? (t('log_note_attachment') || `added an internal note with an attachment`) : (t('log_comment_attachment') || `added a comment with an attachment`));
-                                } else {
-                                    text = h.action === 'CommentReplied' ? (t('log_replied') || `replied to a comment`) : (h.action === 'InternalNoteAdded' ? (t('log_added_note') || `added an internal note`) : (t('log_added_comment') || `added a comment`));
-                                }
-                            }
-                        }
-                        
-                        if (h.action === 'CommentEdited' || h.action === 'CommentDeleted' || h.action === 'UserMentioned' || isCommentLogOnly) {
-                                let detailsHtml = '';
-                                
-                                if (h.action === 'CommentAdded' || h.action === 'InternalNoteAdded' || h.action === 'CommentReplied' || h.action === 'UserMentioned') {
-                                    if (h.action === 'UserMentioned' && h.newValue) {
-                                        detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${t('log_mentioned_user_prefix') || 'Mentioned User:'} <strong>${resolveUser(h.newValue)}</strong></div>`;
-                                    } else if (h.newValue) {
-                                        detailsHtml = `<div style="background:var(--bg-hover); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border); font-size:11px;">${window.renderContentWithAttachments(h.newValue)}</div>`;
-                                    }
-                                    if (h.action === 'CommentReplied' && h.oldValue) {
-                                        // h.oldValue contains parent ID usually for replies or we can link to it. Wait, TicketService sets OldValue=null for replies.
-                                        // Let's just add a link if we can parse the parent. Actually we didn't save parent id in history.
-                                        // We will just provide the content.
-                                    }
-                                    // Add a link to jump to comment if it still exists
-                                    const commentExists = events.some(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
-                                    if (commentExists) {
-                                        detailsHtml += `<button type="button" onclick="document.getElementById('commentLogsModal').classList.remove('active'); setTimeout(() => { const c = document.getElementById('comment-${h.fieldName}'); if(c) { c.scrollIntoView({behavior:'smooth', block:'center'}); c.style.boxShadow = '0 0 0 4px var(--primary-light)'; setTimeout(()=>c.style.boxShadow='none', 3000); } }, 300);" style="border: none; background: none; padding: 0; cursor: pointer; color: var(--primary); text-decoration: underline; font-size:10px; display:inline-block; margin-top:4px;">${t('log_jump_to_comment') || 'Jump to comment'}</button>`;
-                                    }
-                                } else if (h.action === 'CommentEdited' && h.oldValue && h.newValue) {
-                                    const oldEnc = btoa(unescape(encodeURIComponent(h.oldValue)));
-                                    const newEnc = btoa(unescape(encodeURIComponent(h.newValue)));
-                                    let origAuthor = 'Unknown';
-                                    let origCreatedAt = 'Unknown';
-                                    if (h.fieldName && !Number.isNaN(Number(h.fieldName))) {
-                                        const origEvent = events.find(ev => ev.eventType === 'Comment' && ev.data.id == h.fieldName);
-                                        if (origEvent) {
-                                            origAuthor = resolveUser(origEvent.data.authorUserId);
-                                            origCreatedAt = new Date(origEvent.timestamp).toLocaleString();
-                                        }
-                                    }
-                                    const editorName = resolveUser(h.createdBy);
-                                    const editedAt = new Date(e.timestamp).toLocaleString();
-                                    
-                                    detailsHtml = `<button class="btn btn-ghost" style="font-size:11px; padding:4px 8px; margin-top:4px; color:var(--primary); font-weight:600; background:rgba(10, 107, 234, 0.05); border:1px solid rgba(10, 107, 234, 0.1);" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">Detay Gör</button>`;
-                                } else if (h.action === 'CommentDeleted' && h.oldValue) {
-                                    detailsHtml = `<div style="background:var(--bg-danger-light); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border-danger-light); font-size:11px; color:var(--text-danger-strong);"><del>${escapeHtml(h.oldValue)}</del></div>`;
-                                }
-                                
-                                const logDiv = document.createElement('div');
-                                logDiv.className = 'history-event comment-log-item';
-                                logDiv.id = `history-${h.id}`;
-                                logDiv.style.borderLeft = '2px solid var(--primary)';
-                                logDiv.style.backgroundColor = 'transparent';
-                                logDiv.style.padding = '4px 0 4px 8px';
-                                logDiv.dataset.searchText = `${resolveUser(h.createdBy)} ${text} ${h.oldValue||''} ${h.newValue||''}`.toLowerCase();
-                                logDiv.dataset.csvRow = `"${new Date(e.timestamp).toISOString()}","${resolveUser(h.createdBy)}","${text}","${(h.oldValue||'').replaceAll('"', '""')}","${(h.newValue||'').replaceAll('"', '""')}"`;
-                                
-                                logDiv.innerHTML = `<div style="font-size:11px; color:var(--text-main);"><strong>${resolveUser(h.createdBy)}</strong> ${text}</div><div style="font-size:10px; color:var(--text-muted);">${new Date(e.timestamp).toLocaleString()}</div>${detailsHtml}`;
-                                commentLogsList.appendChild(logDiv);
-                                
-                                // ALSO append to main history list (dual-rendering)
-                                if (div.innerHTML) {
-                                    historyList.appendChild(div);
-                                }
-                            } else {
-                                if(div.innerHTML) historyList.appendChild(div);
-                        }
+                        window.processHistoryEvent(fe, events, historyList, commentLogsList);
                     }
                 });
                 
@@ -1677,18 +1688,14 @@
                     setTimeout(() => {
                         const target = document.getElementById(targetId);
                         if (target) {
-                            // Open activity section if target is inside it and it's closed
                             const activitySection = document.getElementById('activitySection');
                             if (activitySection && activitySection.contains(target) && activitySection.style.display === 'none') {
                                 activitySection.style.display = 'block';
                             }
-                            
-                            // Open comment logs modal if target is inside it
                             const modal = target.closest('.modal-overlay');
                             if (modal) {
                                 modal.classList.add('active');
                             }
-                            
                             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             target.style.transition = 'box-shadow 0.5s';
                             target.style.boxShadow = '0 0 0 4px var(--primary-light)';
@@ -1718,6 +1725,7 @@
                 }
             } catch(e) { console.error(e); }
         }
+
 
         window.inlineReplyToComment = (id, forceInternal = false) => {
             // Close any open edit boxes
@@ -2285,7 +2293,7 @@
             link.setAttribute("download", `ticket_${ticketId}_comment_logs.csv`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            link.remove();
         };
         // --- User Tooltip Logic ---
         const userTooltip = document.createElement('div');
@@ -2299,7 +2307,7 @@
                 const userId = target.getAttribute('data-user-id');
                 const user = (typeof globalUsers !== 'undefined' ? globalUsers : []).find(u => u.id == userId);
                 if (user) {
-                    const dept = (typeof globalLookup !== 'undefined' && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';
+                    const dept = (globalLookup !== undefined && globalLookup.departments ? globalLookup.departments : []).find(d => d.id == user.departmentId)?.name || 'No Department';
                     const userGroups = user.groupIds && user.groupIds.length > 0 
                         ? user.groupIds.map(gid => (typeof globalGroups !== 'undefined' ? globalGroups : []).find(g => g.id == gid)?.name || `Group ${gid}`).join(', ') 
                         : 'No Groups';

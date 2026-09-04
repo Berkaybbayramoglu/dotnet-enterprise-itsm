@@ -73,7 +73,7 @@ public class NotificationDispatcher : INotificationDispatcher
         return recipients.Values.ToList();
     }
 
-    private void AddRecipient(Dictionary<int, ResolvedRecipient> recipients, int userId, bool email, int? triggerUserId, string eventKey, string priority = PriorityNormal, string category = CategoryStatusUpdates)
+    private static void AddRecipient(Dictionary<int, ResolvedRecipient> recipients, int userId, bool email, int? triggerUserId, string eventKey, string priority = PriorityNormal, string category = CategoryStatusUpdates)
     {
         if (triggerUserId.HasValue && userId == triggerUserId.Value && eventKey != EventCommentMention) return; 
         

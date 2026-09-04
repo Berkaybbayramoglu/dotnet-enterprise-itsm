@@ -249,59 +249,64 @@
             return { assigneeName, assigneeInitialId: assigneeName, assigneeDetails };
         }
 
+        function buildKanbanCard(ticket, assigneeDetails, assigneeName, assigneeInitialId, sId) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.ondragstart = window.drag;
+            card.dataset.id = ticket.id;
+            card.id = 'ticket-' + ticket.id;
+            card.onclick = (e) => {
+                if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
+                if (typeof window.openTicketPreview === 'function') {
+                    window.openTicketPreview(ticket, lookupData);
+                }
+            };
+            
+            const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
+            
+            card.innerHTML = `
+            <div class="card-header">
+                <a href="/ticket-detail.html?id=${ticket.id}" class="card-number" target="_blank">${escapeHtml(ticket.ticketNumber)}</a>
+                ${getPriorityIcon(ticket.priorityId)}
+            </div>
+            <div class="card-title">${escapeHtml(ticket.title)}</div>
+            <div class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px;" title="${t('kanban_view_assignees')}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
+                ${getAvatar(assigneeInitialId, assigneeName)}
+                <span style="font-size: 12px; font-weight: 500; color: var(--text-main); pointer-events: none;">${escapeHtml(assigneeName)}</span>
+            </div>
+            `;
+            return card;
+        }
+
+        function resolveTicketStatus(ticket) {
+            let sId = ticket.statusId;
+            if (typeof sId === 'string') {
+                const found = statuses.find(x => x.name === sId);
+                sId = found ? found.id : 1;
+            }
+            return sId;
+        }
+
         function renderTickets() {
             document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
             const counts = {};
 
             tickets.forEach(ticket => {
-                // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
-                let sId = ticket.statusId;
-                if(typeof sId === 'string') {
-                    // Try to map name to id for demo if it returns string
-                    const found = statuses.find(x => x.name === sId);
-                    if(found) sId = found.id; else sId = 1;
-                }
-
+                const sId = resolveTicketStatus(ticket);
                 counts[sId] = (counts[sId] || 0) + 1;
 
-                const { assigneeName, assigneeInitialId, assigneeDetails } = getAssigneeDetailsData(ticket);
-
-                    const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
-                    
-                    const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
-                    if (colBody) {
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.draggable = true;
-                        card.ondragstart = window.drag;
-                        card.dataset.id = ticket.id;
-                        card.id = 'ticket-' + ticket.id;
-                        card.onclick = (e) => {
-                            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
-                            if (typeof window.openTicketPreview === 'function') {
-                                window.openTicketPreview(ticket, lookupData);
-                            }
-                        };
-                        
-                        card.innerHTML = `
-                        <div class="card-header">
-                            <a href="/ticket-detail.html?id=${ticket.id}" class="card-number" target="_blank">${escapeHtml(ticket.ticketNumber)}</a>
-                            ${getPriorityIcon(ticket.priorityId)}
-                        </div>
-                        <div class="card-title">${escapeHtml(ticket.title)}</div>
-                        <div class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px;" title="${t('kanban_view_assignees')}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
-                            ${getAvatar(assigneeInitialId, assigneeName)}
-                            <span style="font-size: 12px; font-weight: 500; color: var(--text-main); pointer-events: none;">${escapeHtml(assigneeName)}</span>
-                        </div>
-                    `;
+                const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
+                if (colBody) {
+                    const { assigneeName, assigneeInitialId, assigneeDetails } = getAssigneeDetailsData(ticket);
+                    const card = buildKanbanCard(ticket, assigneeDetails, assigneeName, assigneeInitialId, sId);
                     colBody.appendChild(card);
                 }
             });
 
-            // Update counts
             statuses.forEach(s => {
                 const countBadge = document.getElementById(`count-${s.id}`);
-                if(countBadge) countBadge.textContent = counts[s.id] || 0;
+                if (countBadge) countBadge.textContent = counts[s.id] || 0;
             });
         }
 

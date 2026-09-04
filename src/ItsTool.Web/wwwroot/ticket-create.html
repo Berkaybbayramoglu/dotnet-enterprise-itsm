@@ -280,17 +280,17 @@
                 const files = document.getElementById('ticketAttachments').files;
                 if (files.length > 0) {
                     submitBtn.innerText = t('tc_btn_uploading');
-                    for (let i = 0; i < files.length; i++) {
+                    for (const file of files) {
                         const formData = new FormData();
-                        formData.append('file', files[i]);
+                        formData.append('file', file);
                         try {
                             await window.api.request(`/Ticket/${res.id}/attachments`, {
                                 method: 'POST',
                                 body: formData
                             });
                         } catch(uploadErr) {
-                            console.error('Failed to upload file', files[i].name, uploadErr);
-                            showToast(`Failed to upload ${files[i].name}`, 'error');
+                            console.error('Failed to upload file', file.name, uploadErr);
+                            showToast(`Failed to upload ${file.name}`, 'error');
                         }
                     }
                 }
