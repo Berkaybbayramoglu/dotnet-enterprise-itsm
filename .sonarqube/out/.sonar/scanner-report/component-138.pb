@@ -1,0 +1,1 @@
+Š 2jsXhr6src/ItsTool.Web/wwwroot/js/lib/bootstrap.bundle.min.js

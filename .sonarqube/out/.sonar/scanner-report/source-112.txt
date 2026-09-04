@@ -87,7 +87,7 @@
     <script type="module">
         import './js/api.js?v=999';
         import { injectShell } from './js/layout.js?v=999';
-        import { bindShellActions, showToast, openTicketPreview } from './js/ui.js?v=999';
+        import { bindShellActions, showToast } from './js/ui.js?v=999';
         import { t } from './js/i18n.js';
         injectShell();
         
@@ -167,7 +167,7 @@
                     
                     col.innerHTML = `
                         <div class="column-header" draggable="true" ondragstart="window.colDrag(event)" ondragend="window.dragEnd(event)" style="cursor: grab;">
-                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${t('db_' + s.name.toLowerCase().replace(' ', '_'))}</span>
+                            <span style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; user-select: none;">${t('db_' + s.name.toLowerCase().replaceAll(' ', '_'))}</span>
                             <span class="badge badge-default" id="count-${s.id}">0</span>
                         </div>
                         <div class="column-body" data-status-id="${s.id}" ondragover="window.allowDrop(event)" ondrop="window.drop(event)"></div>
@@ -193,105 +193,128 @@
             }
         }
 
+        function getMainAssigneeName(mainAssignee, totalActive) {
+            let assigneeName = t('kanban_unassigned');
+            if (mainAssignee.userId) {
+                const u = allUsers.find(x => x.id === mainAssignee.userId);
+                assigneeName = u ? (u.firstName + ' ' + u.lastName) : `User ${mainAssignee.userId}`;
+            } else if (mainAssignee.groupId) {
+                const g = lookupData.groups?.find(x => x.id === mainAssignee.groupId);
+                assigneeName = g ? g.name : `Group ${mainAssignee.groupId}`;
+            }
+            if (totalActive > 1) {
+                assigneeName += ` (+${totalActive - 1})`;
+            }
+            return assigneeName;
+        }
+
+        function buildAssigneeDetails(activeAssignments) {
+            const details = [];
+            for (const a of activeAssignments) {
+                if (a.userId) {
+                    processUserAssignment(a.userId, details);
+                } else if (a.groupId) {
+                    processGroupAssignment(a.groupId, details);
+                }
+            }
+            return details;
+        }
+
+        function processUserAssignment(userId, details) {
+            const u = allUsers.find(x => x.id === userId);
+            const name = u ? (u.firstName + ' ' + u.lastName) : `User ${userId}`;
+            details.push({ type: 'user', id: userId, name: name, email: u ? u.email : '', initial: name.charAt(0).toUpperCase(), isSubItem: false });
+        }
+
+        function processGroupAssignment(groupId, details) {
+            const g = lookupData.groups?.find(x => x.id === groupId);
+            const name = g ? g.name : `Group ${groupId}`;
+            details.push({ type: 'group', id: groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
+            
+            const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(groupId));
+            if (groupMembers.length > 0) {
+                for (const mu of groupMembers) {
+                    const muName = mu.firstName + ' ' + mu.lastName;
+                    details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: groupId });
+                }
+            } else {
+                details.push({ type: 'empty', id: 0, name: '', email: '', initial: '', isSubItem: true, parentGroupId: groupId });
+            }
+        }
+
+        function getAssigneeDetailsData(ticket) {
+            if (!ticket.assignments || ticket.assignments.length === 0) {
+                return { assigneeName: t('kanban_unassigned'), assigneeInitialId: null, assigneeDetails: [] };
+            }
+            const activeAssignments = ticket.assignments.filter(a => a.isActive);
+            if (activeAssignments.length === 0) {
+                return { assigneeName: t('kanban_unassigned'), assigneeInitialId: null, assigneeDetails: [] };
+            }
+            
+            const assigneeName = getMainAssigneeName(activeAssignments[0], activeAssignments.length);
+            const assigneeDetails = buildAssigneeDetails(activeAssignments);
+            
+            return { assigneeName, assigneeInitialId: assigneeName, assigneeDetails };
+        }
+
+        function buildKanbanCard(ticket, assigneeDetails, assigneeName, assigneeInitialId, sId) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.ondragstart = window.drag;
+            card.dataset.id = ticket.id;
+            card.id = 'ticket-' + ticket.id;
+            card.onclick = (e) => {
+                if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
+                if (typeof window.openTicketPreview === 'function') {
+                    window.openTicketPreview(ticket, lookupData);
+                }
+            };
+            
+            const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
+            
+            card.innerHTML = `
+            <div class="card-header">
+                <a href="/ticket-detail.html?id=${ticket.id}" class="card-number" target="_blank">${escapeHtml(ticket.ticketNumber)}</a>
+                ${getPriorityIcon(ticket.priorityId)}
+            </div>
+            <div class="card-title">${escapeHtml(ticket.title)}</div>
+            <button type="button" class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px; border:none; background:transparent; width:100%; text-align:left;" title="${t('kanban_view_assignees')}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
+                ${getAvatar(assigneeInitialId, assigneeName)}
+                <span style="font-size: 12px; font-weight: 500; color: var(--text-main); pointer-events: none;">${escapeHtml(assigneeName)}</span>
+            </div>
+            `;
+            return card;
+        }
+
+        function resolveTicketStatus(ticket) {
+            let sId = ticket.statusId;
+            if (typeof sId === 'string') {
+                const found = statuses.find(x => x.name === sId);
+                sId = found ? found.id : 1;
+            }
+            return sId;
+        }
+
         function renderTickets() {
             document.querySelectorAll('.column-body').forEach(c => c.innerHTML = '');
             const counts = {};
 
             tickets.forEach(ticket => {
-                // Normalize statusId for mockup if needed, assume it matches 1-5 or use default
-                let sId = ticket.statusId;
-                if(typeof sId === 'string') {
-                    // Try to map name to id for demo if it returns string
-                    const found = statuses.find(x => x.name === sId);
-                    if(found) sId = found.id; else sId = 1;
-                }
-
+                const sId = resolveTicketStatus(ticket);
                 counts[sId] = (counts[sId] || 0) + 1;
 
-                // Find active assignment
-                let assigneeName = t('kanban_unassigned');
-                let assigneeInitialId = null;
-                
-                let assigneeDetails = [];
-                    if (ticket.assignments && ticket.assignments.length > 0) {
-                        const activeAssignments = ticket.assignments.filter(a => a.isActive);
-                        if (activeAssignments.length > 0) {
-                            const mainAssignee = activeAssignments[0];
-                            if (mainAssignee.userId) {
-                                const u = allUsers.find(x => x.id === mainAssignee.userId);
-                                assigneeName = u ? (u.firstName + ' ' + u.lastName) : `User ${mainAssignee.userId}`;
-                                assigneeInitialId = assigneeName;
-                            } else if (mainAssignee.groupId) {
-                                const g = lookupData.groups?.find(x => x.id === mainAssignee.groupId);
-                                assigneeName = g ? g.name : `Group ${mainAssignee.groupId}`;
-                                assigneeInitialId = assigneeName;
-                            }
-                            if (activeAssignments.length > 1) {
-                                assigneeName += ` (+${activeAssignments.length - 1})`;
-                            }
-                            
-                            let details = [];
-                            activeAssignments.forEach(a => {
-                                if (a.userId) {
-                                    const u = allUsers.find(x => x.id === a.userId);
-                                    const name = u ? (u.firstName + ' ' + u.lastName) : `User ${a.userId}`;
-                                    details.push({ type: 'user', id: a.userId, name: name, email: u ? u.email : '', initial: name.charAt(0).toUpperCase(), isSubItem: false });
-                                } else if (a.groupId) {
-                                    const g = lookupData.groups?.find(x => x.id === a.groupId);
-                                    const name = g ? g.name : `Group ${a.groupId}`;
-                                    details.push({ type: 'group', id: a.groupId, name: name, initial: name.charAt(0).toUpperCase(), isSubItem: false });
-                                    
-                                    const groupMembers = allUsers.filter(u => u.groupIds && u.groupIds.includes(a.groupId));
-                                    if (groupMembers.length > 0) {
-                                        groupMembers.forEach(mu => {
-                                            const muName = mu.firstName + ' ' + mu.lastName;
-                                            details.push({ type: 'user', id: mu.id, name: muName, email: mu.email, initial: muName.charAt(0).toUpperCase(), isSubItem: true, parentGroupId: a.groupId });
-                                        });
-                                    } else {
-                                        details.push({ type: 'empty', id: 0, name: '', email: '', initial: '', isSubItem: true, parentGroupId: a.groupId });
-                                    }
-                                }
-                            });
-                            assigneeDetails = details;
-                        }
-                    }
-
-                    const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
-                    
-                    const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
-                    if (colBody) {
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.draggable = true;
-                        card.ondragstart = window.drag;
-                        card.dataset.id = ticket.id;
-                        card.id = 'ticket-' + ticket.id;
-                        card.onclick = (e) => {
-                            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.assignee-footer')) return;
-                            if (typeof window.openTicketPreview === 'function') {
-                                window.openTicketPreview(ticket, lookupData);
-                            }
-                        };
-                        
-                        card.innerHTML = `
-                        <div class="card-header">
-                            <a href="/ticket-detail.html?id=${ticket.id}" class="card-number" target="_blank">${escapeHtml(ticket.ticketNumber)}</a>
-                            ${getPriorityIcon(ticket.priorityId)}
-                        </div>
-                        <div class="card-title">${escapeHtml(ticket.title)}</div>
-                        <div class="card-footer assignee-footer" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; cursor: pointer; padding: 4px; margin: -4px; border-radius: 4px;" title="${t('kanban_view_assignees')}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" onclick="window.showAssigneesModal('${encodedAssignees}'); event.stopPropagation();">
-                            ${getAvatar(assigneeInitialId, assigneeName)}
-                            <span style="font-size: 12px; font-weight: 500; color: var(--text-main); pointer-events: none;">${escapeHtml(assigneeName)}</span>
-                        </div>
-                    `;
+                const colBody = document.querySelector(`.column-body[data-status-id="${sId}"]`);
+                if (colBody) {
+                    const { assigneeName, assigneeInitialId, assigneeDetails } = getAssigneeDetailsData(ticket);
+                    const card = buildKanbanCard(ticket, assigneeDetails, assigneeName, assigneeInitialId, sId);
                     colBody.appendChild(card);
                 }
             });
 
-            // Update counts
             statuses.forEach(s => {
                 const countBadge = document.getElementById(`count-${s.id}`);
-                if(countBadge) countBadge.textContent = counts[s.id] || 0;
+                if (countBadge) countBadge.textContent = counts[s.id] || 0;
             });
         }
 
@@ -403,7 +426,7 @@
 
             if (target && card) {
                 const newStatusId = Number.parseInt(target.dataset.statusId, 10);
-                const ticketId = Number.parseInt(card.id.replace('ticket-', ''), 10);
+                const ticketId = Number.parseInt(card.id.replaceAll('ticket-', ''), 10);
 
                 try {
                     // Actual API expects string status if we are mapping it, check mock API logic, normally ID

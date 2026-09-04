@@ -1,1 +1,1 @@
-M 2csXhr:src/ItsTool.API/Security/PermissionAuthorizationHandler.cs
+M 2csXhr:src/ItsTool.API/Security/PermissionAuthorizationHandler.cs

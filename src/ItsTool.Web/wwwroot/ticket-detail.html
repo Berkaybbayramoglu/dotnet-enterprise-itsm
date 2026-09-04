@@ -766,6 +766,23 @@
             return deptBlocks.join('');
         }
 
+        async function loadAllowedTransitions(currentStatusId) {
+            try {
+                const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);
+                const select = document.getElementById("statusSelect");
+                select.innerHTML = "";
+                allowedStatuses.forEach(s => {
+                    const opt = document.createElement("option");
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    select.appendChild(opt);
+                });
+                select.value = currentStatusId;
+            } catch(e) {
+                console.error("Failed to load allowed transitions", e);
+            }
+        }
+        
         async function loadTicket() {
             if (!ticketId) {
                 document.querySelector('.content-area').innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);"><h3>Bilet ID bulunamadı</h3><p>Lütfen geçerli bir bilet seçerek tekrar deneyin.</p></div>';
@@ -1600,8 +1617,7 @@
                     if (h.action === 'CommentReplied') text = t('log_replied_attachment') || `replied with an attachment`;
                     else if (h.action === 'InternalNoteAdded') text = t('log_note_attachment') || `added an internal note with an attachment`;
                     else text = t('log_comment_attachment') || `added a comment with an attachment`;
-                } else {
-                    if (h.action === 'CommentReplied') text = t('log_replied') || `replied to a comment`;
+                } else if (h.action === 'CommentReplied') text = t('log_replied') || `replied to a comment`;
                     else if (h.action === 'InternalNoteAdded') text = t('log_added_note') || `added an internal note`;
                     else text = t('log_added_comment') || `added a comment`;
                 }
@@ -1623,8 +1639,7 @@
                 if (div.innerHTML) {
                     historyList.appendChild(div);
                 }
-            } else {
-                if(div.innerHTML) historyList.appendChild(div);
+            } else if(div.innerHTML) historyList.appendChild(div);
             }
         };
 

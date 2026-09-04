@@ -1,0 +1,114 @@
+import re
+
+def fix_processThreadComment():
+    path = "src/ItsTool.Web/wwwroot/ticket-detail.html"
+    with open(path, "r") as f:
+        content = f.read()
+
+    start_str = "window.processThreadComment = function(e, commentsList) {"
+    end_str = """                commentsList.appendChild(div);
+            }
+        };"""
+    
+    if start_str in content and end_str in content:
+        start_idx = content.find(start_str)
+        end_idx = content.find(end_str) + len(end_str)
+        
+        block = content[start_idx:end_idx]
+        
+        # New helpers
+        helpers = """
+        function getCommentEditedHtml(c) {
+            if (!c.isEdited) return '';
+            const isEditedText = c.updatedAt ? (t('log_edited_at') || '(Edited at {0})').replace('{0}', new Date(c.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) : (t('log_edited_only') || '(Edited)');
+            let titleText = '';
+            if (c.updatedAt) titleText = new Date(c.updatedAt).toLocaleString();
+            return `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;" title="${titleText}">${isEditedText}</span>`;
+        }
+
+        function buildCommentHeaderHtml(c, e, isEdited, connectorHtml) {
+            return `
+                ${connectorHtml}
+                <div class="comment-header">
+                    <div class="d-flex align-items-center gap-sm">
+                        ${getAvatar(c.authorUserId, c.authorUserId)}
+                        <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${window.resolveTimelineUser(c.authorUserId)}</strong>
+                        <span>${new Date(e.timestamp).toLocaleString()}</span>
+                        ${isEdited}
+                    </div>
+                    <div class="d-flex align-items-center gap-sm">
+                        ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
+                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineReplyToComment(${c.id}, ${c.isInternal})">${t('ticket_btn_reply') || 'Reply'}</button>
+                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px;" onclick="inlineEditComment(${c.id})">${t('ticket_btn_edit') || 'Edit'}</button>
+                        <button class="btn btn-ghost" style="padding:2px 4px; font-size:12px; color: var(--danger);" onclick="deleteComment(${c.id})">${t('btn_delete') || 'Delete'}</button>
+                    </div>
+                </div>`;
+        }
+
+        function buildCommentEditorHtml(c) {
+            return `
+            <div id="comment-edit-${c.id}" style="display:none; margin-top: 8px;">
+                <div style="border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); padding: 8px;">
+                    <textarea class="form-control" rows="3" id="edit-textarea-${c.id}" style="border: none; box-shadow: none; resize: vertical; margin-bottom: 8px;"></textarea>
+                    <div id="edit-attachment-previews-${c.id}" class="d-flex gap-sm flex-wrap mb-sm" style="padding: 0 8px;"></div>
+                    
+                    <div class="d-flex justify-content-between align-items-center" style="padding: 4px 8px; border-top: 1px solid var(--border-light); margin-top: 4px; padding-top: 12px;">
+                        <div class="d-flex align-items-center gap-md">
+                            <button type="button" class="btn btn-ghost" onclick="document.getElementById('editAttachmentInput-${c.id}').click()" title="Attach File" style="padding: 6px; font-size: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-secondary);">
+                                📎
+                            </button>
+                            <input type="file" id="editAttachmentInput-${c.id}" multiple style="display: none;" onchange="window.uploadEditAttachment(this, ${c.id})">
+                        </div>
+                        
+                        <div class="d-flex gap-sm">
+                            <button class="btn btn-ghost btn-sm" onclick="cancelEditComment(${c.id})">${t('btn_cancel') || 'Cancel'}</button>
+                            <button class="btn btn-primary btn-sm" id="btnSaveEdit-${c.id}" onclick="saveEditComment(${c.id})">${t('btn_save') || 'Save'}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        
+        window.processThreadComment = function(e, commentsList) {
+            const div = document.createElement('div');
+            const c = e.data;
+            const isEdited = getCommentEditedHtml(c);
+            
+            div.className = `comment ${c.isInternal ? 'internal' : ''}`;
+            div.id = `comment-${c.id}`;
+            
+            let connectorHtml = '';
+            if (c.parentCommentId) {
+                div.className += ' reply-container';
+                connectorHtml = '<div class="comment-reply-connector"></div>';
+            }
+            
+            let result = window.buildCommentAttachmentHtml(escapeHtml(c.content));
+            let contentHtml = result.contentHtml;
+            let attachmentsHtml = result.attachmentsHtml;
+            
+            const headerHtml = buildCommentHeaderHtml(c, e, isEdited, connectorHtml);
+            const editorHtml = buildCommentEditorHtml(c);
+            
+            div.innerHTML = headerHtml + `
+                <div id="comment-content-${c.id}" class="comment-body" data-raw-content="${encodeURIComponent(c.content)}">
+                    <div style="margin-bottom: ${attachmentsHtml ? '8px' : '0'}; white-space: pre-wrap;">${contentHtml}</div>
+                    ${attachmentsHtml}
+                </div>` + editorHtml;
+                
+            commentsList.appendChild(div);
+            
+            if (e.thread && e.thread.length > 0) {
+                e.thread.forEach(child => window.processThreadComment(child, commentsList));
+            }
+        };"""
+        
+        content = content[:start_idx] + helpers + content[end_idx:]
+        
+        with open(path, "w") as f:
+            f.write(content)
+        print("Refactored processThreadComment successfully")
+    else:
+        print("Failed to find block")
+
+fix_processThreadComment()

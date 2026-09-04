@@ -1,0 +1,1 @@
+“ 2webX;hr<src/ItsTool.Infrastructure/Templates/Email/BaseTemplate.html

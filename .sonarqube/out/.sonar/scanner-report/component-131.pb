@@ -1,0 +1,1 @@
+ƒ 2jsX§hr+src/ItsTool.Web/wwwroot/js/admin-configs.js

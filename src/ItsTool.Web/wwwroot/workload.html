@@ -128,7 +128,7 @@
     <script type="module">
         import './js/api.js?v=999';
         import { injectShell } from './js/layout.js?v=999';
-        import { bindShellActions, showToast } from './js/ui.js?v=999';
+        import { bindShellActions } from './js/ui.js?v=999';
         import { t } from './js/i18n.js';
         
         injectShell();
@@ -158,10 +158,10 @@
                                     <div class="agent-info">
                                         <div class="agent-name">${window.ui?.escapeHtml(agent.userName) || agent.userName}</div>
                                         <div class="progress-bar">
-                                            <div class="progress-fill" style="width: ${Math.min(agent.openTicketCount * 10, 100)}%; background: ${(() => { if (agent.openTicketCount > 10) return 'var(--danger)'; if (agent.openTicketCount > 5) return 'var(--warning)'; return 'var(--info)'; })()};"></div>
+                                            <div class="progress-fill" style="width: ${Math.min(agent.openTicketCount * 10, 100)}%; background: ${(() => { if (agent.openTicketCount > 10) { return 'var(--danger)'; } else if (agent.openTicketCount > 5) { return 'var(--warning)'; } else { return 'var(--info)'; } })()};"></div>
                                         </div>
                                     </div>
-                                    <div class="agent-count" style="color: ${(() => { if (agent.openTicketCount > 10) return 'var(--danger)'; if (agent.openTicketCount > 5) return '#B36200'; return 'var(--text-main)'; })()};">
+                                    <div class="agent-count" style="color: ${(() => { if (agent.openTicketCount > 10) { return 'var(--danger)'; } else if (agent.openTicketCount > 5) { return '#B36200'; } else { return 'var(--text-main)'; } })()};">
                                         ${agent.openTicketCount}
                                     </div>
                                 </div>

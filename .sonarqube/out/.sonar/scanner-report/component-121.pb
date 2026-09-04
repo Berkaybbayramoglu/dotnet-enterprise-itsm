@@ -1,1 +1,1 @@
-y 2webX¶hr%src/ItsTool.Web/wwwroot/calendar.html
+y 2webX¶hr%src/ItsTool.Web/wwwroot/calendar.html

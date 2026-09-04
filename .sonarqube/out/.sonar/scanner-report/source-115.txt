@@ -158,10 +158,10 @@
                                     <div class="agent-info">
                                         <div class="agent-name">${window.ui?.escapeHtml(agent.userName) || agent.userName}</div>
                                         <div class="progress-bar">
-                                            <div class="progress-fill" style="width: ${Math.min(agent.openTicketCount * 10, 100)}%; background: ${agent.openTicketCount > 10 ? 'var(--danger)' : agent.openTicketCount > 5 ? 'var(--warning)' : 'var(--info)'};"></div>
+                                            <div class="progress-fill" style="width: ${Math.min(agent.openTicketCount * 10, 100)}%; background: ${(() => { if (agent.openTicketCount > 10) return 'var(--danger)'; if (agent.openTicketCount > 5) return 'var(--warning)'; return 'var(--info)'; })()};"></div>
                                         </div>
                                     </div>
-                                    <div class="agent-count" style="color: ${agent.openTicketCount > 10 ? 'var(--danger)' : agent.openTicketCount > 5 ? '#B36200' : 'var(--text-main)'};">
+                                    <div class="agent-count" style="color: ${(() => { if (agent.openTicketCount > 10) return 'var(--danger)'; if (agent.openTicketCount > 5) return '#B36200'; return 'var(--text-main)'; })()};">
                                         ${agent.openTicketCount}
                                     </div>
                                 </div>

@@ -108,8 +108,8 @@
             return recentTickets.length === 0 
                 ? '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-muted);">Henüz bilet yok</td></tr>'
                 : recentTickets.map(t => {
-                    const statusName = (lookup.statuses && lookup.statuses.find(x => x.id === t.statusId)?.name) || 'Bilinmiyor';
-                    const priorityName = (lookup.priorities && lookup.priorities.find(x => x.id === t.priorityId)?.name) || 'Bilinmiyor';
+                    const statusName = (lookup.statuses?.find(x => x.id === t.statusId)?.name) || 'Bilinmiyor';
+                    const priorityName = (lookup.priorities?.find(x => x.id === t.priorityId)?.name) || 'Bilinmiyor';
                     return `
                     <tr style="cursor: pointer;" onclick="openTicketPreview(${t.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTicketPreview(${t.id});}">
                         <td class="text-muted" style="font-family: monospace;">#${t.id}</td>

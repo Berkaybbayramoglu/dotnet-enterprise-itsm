@@ -1,1 +1,1 @@
-p 2webXÁhr#src/ItsTool.Web/wwwroot/kanban.html
+p 2webXØhr#src/ItsTool.Web/wwwroot/kanban.html

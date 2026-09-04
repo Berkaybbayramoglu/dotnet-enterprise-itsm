@@ -1,0 +1,1 @@
+õ 2csXhr;src/ItsTool.Application/Interfaces/IKnowledgeBaseService.cs

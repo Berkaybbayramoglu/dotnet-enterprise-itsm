@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITSM Tool - Create Ticket</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .form-section { background: var(--bg-surface); padding: var(--spacing-lg); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-lg); border: 1px solid var(--border); }
+        .form-section h3 { font-size: 16px; margin-bottom: var(--spacing-md); color: var(--primary); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
+    </style>
+</head>
+<body>
+    <div class="app-shell" data-shell>
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                    </button>
+
+                    <div style="display:flex; align-items:center; gap: 8px;">
+                        <a href="/tickets.html" class="btn btn-ghost" style="padding: 4px;"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></a>
+                        <h2 data-i18n="tc_title">Create New Ticket</h2>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="notification-bell-container dropdown" style="position:relative; margin-right: 16px;">
+                        <button class="btn btn-ghost dropdown-toggle" type="button" id="bellDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="position:relative;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                            <span class="badge" id="notificationBadge" style="display:none; position:absolute; top:4px; right:4px; background:var(--danger); color:white; border-radius:50%; font-size:10px; padding:2px 4px;"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bellDropdown" id="notificationList" style="width: 320px; max-height: 400px; overflow-y:auto;">
+                            <li><h6 class="dropdown-header" data-i18n="topbar_notifications">Notifications</h6></li>
+                            <div id="notificationItems"></div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-center text-muted" onclick="markAllAsRead(event)" data-i18n="topbar_mark_all_read" style="width: 100%; border: none; background: none;">Mark all as read</button></li>
+                        </ul>
+                    </div>
+                    <div class="avatar">U</div>
+                    <button class="btn btn-ghost" id="shellLogoutBtn" data-i18n="topbar_logout">Logout</button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <form id="createForm">
+                        <div class="form-section">
+                        <div class="form-section">
+                            <h3 data-i18n="tc_basic">Basic Details</h3>
+                            <div class="form-group">
+                                <label class="form-label" for="title" data-i18n="tc_lbl_title">Title *</label>
+                                <input class="form-control" type="text" id="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="desc" data-i18n="tc_lbl_desc">Description *</label>
+                                <textarea class="form-control" id="desc" rows="5" required></textarea>
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="estimatedStartDate" data-i18n="ticket_lbl_start_date">Estimated Start Date</label>
+                                    <input class="form-control" type="date" id="estimatedStartDate">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="estimatedEndDate" data-i18n="ticket_lbl_end_date">Estimated End Date</label>
+                                    <input class="form-control" type="date" id="estimatedEndDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 data-i18n="tc_cat">Categorization</h3>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="projectId" data-i18n="tc_lbl_project">Project *</label>
+                                    <select class="form-control" id="projectId" required><option value="" data-i18n="tc_opt_project">Select Project</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="categoryId" data-i18n="tc_lbl_category">Category *</label>
+                                    <select class="form-control" id="categoryId" required><option value="" data-i18n="tc_opt_cat">Select Category</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="typeId" data-i18n="tc_lbl_type">Ticket Type *</label>
+                                    <select class="form-control" id="typeId" required><option value="" data-i18n="tc_opt_type">Select Type</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="priorityId" data-i18n="tc_lbl_priority">Priority *</label>
+                                    <select class="form-control" id="priorityId" required><option value="" data-i18n="tc_opt_priority">Select Priority</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 data-i18n="tc_add">Additional Information</h3>
+                            <div id="dynamicFields">
+                                <div class="empty-state" style="padding: var(--spacing-md);">
+                                    <p style="margin: 0; font-size: 13px;" data-i18n="tc_msg_load_fields">Select Project, Category, and Type to load custom fields.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 data-i18n="tc_attachments">Attachments</h3>
+                            <div class="form-group">
+                                <label class="form-label" for="ticketAttachments" data-i18n="tc_upload">Upload Files (Images, PDFs, etc.)</label>
+                                <input class="form-control" type="file" id="ticketAttachments" multiple accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: var(--spacing-sm);">
+                            <a href="/tickets.html" class="btn btn-ghost" data-i18n="tc_btn_cancel">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="padding: 10px 24px;" data-i18n="tc_btn_submit">Create Ticket</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { injectShell } from './js/layout.js?v=999';
+        import './js/api.js';
+        import { bindShellActions, showToast } from './js/ui.js';
+        import { t } from './js/i18n.js';
+        injectShell();
+        
+        if (!window.api.token) window.location.href = '/login.html';
+        bindShellActions();
+        
+        let currentPlacements = [];
+
+        async function loadLookups() {
+            try {
+                const lookup = await window.api.request('/lookup');
+
+                const populate = (id, data) => {
+                    const sel = document.getElementById(id);
+                    data.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.id;
+                        opt.textContent = d.name;
+                        sel.appendChild(opt);
+                    });
+                };
+
+                populate('projectId', lookup.projects);
+                populate('categoryId', lookup.categories);
+                populate('typeId', lookup.ticketTypes);
+                populate('priorityId', lookup.priorities);
+            } catch (err) {
+                console.error(err);
+                showToast('Failed to load lookup data', 'error');
+            }
+        }
+
+        async function renderSelectField(def, place) {
+            const input = document.createElement('select');
+            input.className = 'form-control';
+            if (def.fieldType === 4) input.multiple = true;
+            
+            const opts = await window.api.getFieldOptions(def.id);
+            opts.forEach(o => {
+                const opt = document.createElement('option');
+                opt.value = o.value;
+                opt.textContent = o.label;
+                input.appendChild(opt);
+            });
+            return input;
+        }
+
+        function renderInputField(def) {
+            const input = document.createElement('input');
+            input.className = 'form-control';
+            if (def.fieldType === 0) input.type = 'text';
+            else if (def.fieldType === 1) input.type = 'number';
+            else if (def.fieldType === 2) input.type = 'date';
+            return input;
+        }
+
+        async function renderDynamicField(place, container) {
+            const def = await window.api.request(`/DynamicForm/definitions/${place.fieldDefinitionId}`);
+            const fg = document.createElement('div');
+            fg.className = 'form-group';
+            
+            const lbl = document.createElement('label');
+            lbl.className = 'form-label';
+            lbl.textContent = def.label + (place.isRequired ? ' *' : '');
+            lbl.setAttribute('for', 'cf_' + def.key);
+            fg.appendChild(lbl);
+
+            let input;
+            if (def.fieldType === 3 || def.fieldType === 4) {
+                input = await renderSelectField(def, place);
+            } else {
+                input = renderInputField(def);
+            }
+
+            input.id = 'cf_' + def.key;
+            if (place.isRequired) input.required = true;
+            
+            fg.appendChild(input);
+            container.appendChild(fg);
+        }
+
+        window.loadDynamicFields = async function() {
+            const pId = document.getElementById('projectId').value;
+            const cId = document.getElementById('categoryId').value;
+            const tId = document.getElementById('typeId').value;
+            
+            if (!pId || !cId || !tId) return;
+
+            const container = document.getElementById('dynamicFields');
+            container.innerHTML = `<p class="text-muted" style="text-align: center; font-size: 13px;">${t('tc_msg_loading')}</p>`;
+
+            try {
+                currentPlacements = await window.api.getPlacements(pId, cId, tId);
+                container.innerHTML = '';
+                
+                if (currentPlacements.length === 0) {
+                    container.innerHTML = `<div class="empty-state" style="padding: var(--spacing-sm);"><p style="margin: 0; font-size: 13px;">${t('tc_msg_no_fields')}</p></div>`;
+                    return;
+                }
+
+                currentPlacements.sort((a,b) => a.sortOrder - b.sortOrder);
+                
+                for (const place of currentPlacements) {
+                    await renderDynamicField(place, container);
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<span class="text-danger">Failed to load fields.</span>';
+            }
+        };
+
+        ['projectId', 'categoryId', 'typeId'].forEach(id => {
+            document.getElementById(id).addEventListener('change', window.loadDynamicFields);
+        });
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customFields = {};
+            
+            const inputs = document.querySelectorAll('#dynamicFields [id^="cf_"]');
+            inputs.forEach(inp => {
+                const key = inp.id.substring(3);
+                if (inp.multiple) {
+                    const vals = Array.from(inp.selectedOptions).map(o => o.value);
+                    customFields[key] = vals.join(',');
+                } else {
+                    customFields[key] = inp.value;
+                }
+            });
+
+            const payload = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('desc').value,
+                projectId: Number.parseInt(document.getElementById('projectId').value, 10),
+                categoryId: Number.parseInt(document.getElementById('categoryId').value, 10),
+                typeId: Number.parseInt(document.getElementById('typeId').value, 10),
+                priorityId: Number.parseInt(document.getElementById('priorityId').value, 10),
+                requesterUserId: 1, // simplified for demo
+                customFields: customFields,
+                estimatedStartDate: document.getElementById('estimatedStartDate').value ? new Date(document.getElementById('estimatedStartDate').value).toISOString() : null,
+                estimatedEndDate: document.getElementById('estimatedEndDate').value ? new Date(document.getElementById('estimatedEndDate').value).toISOString() : null
+            };
+
+            try {
+                const submitBtn = document.querySelector('#createForm button[type="submit"]');
+                submitBtn.innerText = t('tc_btn_creating');
+                submitBtn.disabled = true;
+
+                const res = await window.api.request('/ticket', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                // Upload attachments if any
+                const files = document.getElementById('ticketAttachments').files;
+                if (files.length > 0) {
+                    submitBtn.innerText = t('tc_btn_uploading');
+                    for (const file of files) {
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        try {
+                            await window.api.request(`/Ticket/${res.id}/attachments`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                        } catch(uploadErr) {
+                            console.error('Failed to upload file', file.name, uploadErr);
+                            showToast(`Failed to upload ${file.name}`, 'error');
+                        }
+                    }
+                }
+
+                showToast(t('tc_toast_success'));
+                setTimeout(() => window.location.href = `/ticket-detail.html?id=${res.id}`, 1000);
+            } catch (err) {
+                console.error(err);
+                showToast(t('tc_toast_err'), 'error');
+                const submitBtn = document.querySelector('#createForm button[type="submit"]');
+                submitBtn.innerText = t('tc_btn_submit');
+                submitBtn.disabled = false;
+            }
+        });
+        await loadLookups();
+    </script>
+</body>
+</html>

@@ -1,1 +1,1 @@
-v 2webXKhr'src/ItsTool.Web/wwwroot/admin-crud.html
+v 2webXKhr'src/ItsTool.Web/wwwroot/admin-crud.html

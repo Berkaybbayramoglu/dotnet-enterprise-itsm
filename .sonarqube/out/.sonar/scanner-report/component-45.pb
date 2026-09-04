@@ -1,0 +1,1 @@
+- 2csXhr8src/ItsTool.Domain/Entities/Workflow/WorkflowEntities.cs
