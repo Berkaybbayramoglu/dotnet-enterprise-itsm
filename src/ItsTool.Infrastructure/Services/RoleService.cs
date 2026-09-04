@@ -55,7 +55,7 @@ public class RoleService : IRoleService
         var r = new Role { Name = dto.Name, Description = dto.Description };
         await _repository.AddAsync(r);
         
-        if (dto.Permissions != null && dto.Permissions.Any())
+        if (dto.Permissions != null && dto.Permissions.Length > 0)
         {
             var pIds = await _context.Permissions
                 .Where(p => dto.Permissions.Contains(p.Key))

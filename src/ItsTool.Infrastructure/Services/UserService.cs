@@ -113,7 +113,7 @@ public class UserService : IUserService
             var added = newGroupIds.Except(existingGroupIds).ToList();
             var removed = existingGroupIds.Except(newGroupIds).ToList();
 
-            if (added.Any() || removed.Any())
+            if (added.Count > 0 || removed.Count > 0)
             {
                 var allGroupIds = existingGroupIds.Union(newGroupIds).Distinct().ToList();
                 var groups = await _context.Groups.Where(g => allGroupIds.Contains(g.Id)).ToDictionaryAsync(g => g.Id, g => g.Name);

@@ -95,7 +95,7 @@ export function initMentions(textareaId, ticketId = null) {
         let mentionedIds = [];
         try {
             if (textarea.dataset.mentions) mentionedIds = JSON.parse(textarea.dataset.mentions);
-        } catch(e) {}
+        } catch(e) { console.warn('Mention processing error', e); }
         if (!mentionedIds.includes(userId)) mentionedIds.push(userId);
         textarea.dataset.mentions = JSON.stringify(mentionedIds);
         

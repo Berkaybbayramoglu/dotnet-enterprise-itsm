@@ -220,7 +220,7 @@
         const tabs = ['tabPublished', 'tabPending', 'tabMine'];
         tabs.forEach(tabId => {
             document.getElementById(tabId)?.addEventListener('click', (e) => {
-                currentTab = tabId.replace('tab', '').toLowerCase();
+                currentTab = tabId.replaceAll('tab', '').toLowerCase();
                 tabs.forEach(tId => {
                     const el = document.getElementById(tId);
                     if (el) {
@@ -247,7 +247,7 @@
             const isAuthor = a.authorUserId === currentUserId;
             
             if (hasManageKb || (isAuthor && a.status !== 1)) {
-                actionsHtml = `<div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">`;
+                actionsHtml = `<div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onmousedown="event.stopPropagation()">`;
                 actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(${a.id})">${t('kb_btn_edit')}</button>`;
                 
                 if (hasManageKb) {

@@ -12,6 +12,7 @@ namespace ItsTool.Infrastructure.Services;
 
 public class KnowledgeBaseService : IKnowledgeBaseService
 {
+    private const string KbManagePermission = "kb.manage";
     private readonly ItsToolDbContext _context;
     private readonly IPermissionCalculator _permissionCalculator;
     private readonly ISignalRPusher _signalRPusher;
@@ -59,7 +60,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     public async Task<IEnumerable<KbArticleSummaryDto>> SearchArticlesAsync(int userId, string? keyword, int? categoryId)
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        bool canManageKb = perms.Contains("kb.manage");
+        bool canManageKb = perms.Contains(KbManagePermission);
         bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit"); // Determine internal visibility
 
         var query = _context.KnowledgeArticles
@@ -113,7 +114,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     public async Task<KbArticleDto?> GetArticleAsync(int id, int userId)
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(userId);
-        bool canManageKb = perms.Contains("kb.manage");
+        bool canManageKb = perms.Contains(KbManagePermission);
         bool isStaff = perms.Contains("ticket.manage") || perms.Contains("ticket.assign") || perms.Contains("ticket.edit");
 
         var joined = await (from a in _context.KnowledgeArticles
@@ -156,7 +157,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     public async Task<KbArticleDto> CreateArticleAsync(CreateKbArticleDto dto, int authorId)
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(authorId);
-        bool canManageKb = perms.Contains("kb.manage");
+        bool canManageKb = perms.Contains(KbManagePermission);
 
         var status = dto.Status;
         if (!canManageKb)
@@ -191,7 +192,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         var superAdminRoleId = await _context.Roles.Where(r => r.Name == "SuperAdmin" && !r.IsDeleted).Select(r => r.Id).FirstOrDefaultAsync();
         
         // Option 2: Roles with kb.manage
-        var kbManagePermId = await _context.Permissions.Where(p => p.Name == "kb.manage").Select(p => p.Id).FirstOrDefaultAsync();
+        var kbManagePermId = await _context.Permissions.Where(p => p.Name == KbManagePermission).Select(p => p.Id).FirstOrDefaultAsync();
         
         var kbManageRoleIds = await _context.RolePermissions
             .Where(rp => rp.PermissionId == kbManagePermId && !rp.IsDeleted)
@@ -243,7 +244,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     public async Task UpdateArticleAsync(int id, UpdateKbArticleDto dto, int currentUserId)
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(currentUserId);
-        bool canManageKb = perms.Contains("kb.manage");
+        bool canManageKb = perms.Contains(KbManagePermission);
 
         var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         if (article == null) throw new KeyNotFoundException("Article not found.");
@@ -284,7 +285,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     public async Task ReviewArticleAsync(int id, ReviewKbArticleDto dto, int reviewerId)
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(reviewerId);
-        if (!perms.Contains("kb.manage")) throw new UnauthorizedAccessException("Only KB managers can review articles.");
+        if (!perms.Contains(KbManagePermission)) throw new UnauthorizedAccessException("Only KB managers can review articles.");
 
         var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         if (article == null) throw new KeyNotFoundException("Article not found.");
@@ -305,12 +306,20 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         await _context.SaveChangesAsync();
 
         // Notify author
+        string actionText;
+        if (dto.Status == ArticleStatus.NeedsRevision)
+            actionText = "marked for revision";
+        else if (dto.Status == ArticleStatus.Rejected)
+            actionText = "rejected";
+        else
+            actionText = "published";
+
         var notif = new ItsTool.Domain.Entities.Notification.Notification
         {
             UserId = article.AuthorUserId,
             Type = "kb.reviewed",
             Title = "Article Reviewed",
-            Body = $"Your article '{article.Title}' has been {(dto.Status == ArticleStatus.NeedsRevision ? "marked for revision" : dto.Status == ArticleStatus.Rejected ? "rejected" : "published")}.",
+            Body = $"Your article '{article.Title}' has been {actionText}.",
             EntityType = "KnowledgeArticle",
             EntityId = article.Id,
             Priority = dto.Status == ArticleStatus.Published ? "Low" : "Normal",
@@ -334,7 +343,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     public async Task DeleteArticleAsync(int id, int currentUserId)
     {
         var perms = await _permissionCalculator.CalculateEffectivePermissionsAsync(currentUserId);
-        bool canManageKb = perms.Contains("kb.manage");
+        bool canManageKb = perms.Contains(KbManagePermission);
 
         var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         if (article != null)

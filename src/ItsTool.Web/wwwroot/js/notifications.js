@@ -36,7 +36,7 @@ export async function initNotifications() {
     const notifList = document.getElementById('notificationList');
     if (notifList && !document.getElementById('btnDeleteAllNotifs')) {
         const li = document.createElement('li');
-        li.innerHTML = `<a id="btnDeleteAllNotifs" class="dropdown-item text-center" href="#" onclick="deleteAllNotifications(event)" style="padding: 12px 0; color: var(--danger); font-weight: 500; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; border-top: 1px solid var(--border);">
+        li.innerHTML = `<button type="button" id="btnDeleteAllNotifs" class="dropdown-item text-center" onclick="deleteAllNotifications(event)" style="background:none; border:none; width:100%; padding: 12px 0; color: var(--danger); font-weight: 500; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; border-top: 1px solid var(--border);">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
             ${t ? t('topbar_delete_all') : 'Tamamını Sil'}
         </a>`;
@@ -119,8 +119,7 @@ window.markAllAsRead = async function(e) {
     }
 }
 
-function showToastNotification(payload) {
-    // We can use Bootstrap toast if available or simple custom toast
+function getOrCreateToastContainer() {
     let toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
@@ -131,7 +130,31 @@ function showToastNotification(payload) {
         toastContainer.style.zIndex = '9999';
         document.body.appendChild(toastContainer);
     }
+    return toastContainer;
+}
 
+function getToastIconAndTitle(payload) {
+    let displayTitle = payload.title;
+    let iconSvg = '';
+    
+    if (payload.type === 'comment.mention') { 
+        displayTitle = 'Etiketlendiniz'; 
+        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57V12c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57V12c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>';
+    }
+    else if (payload.type === 'ticket.comment.added') { displayTitle = 'Yeni Yorum'; }
+    else if (payload.type === 'ticket.created') { displayTitle = 'Bilet Oluşturuldu'; }
+    else if (payload.type === 'sla.breached') { displayTitle = 'SLA İhlali'; }
+    else if (payload.type === 'sla.risk') { displayTitle = 'SLA Riski'; }
+    else { displayTitle = displayTitle.replaceAll('Event ', ''); }
+    
+    if (!iconSvg) {
+        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>';
+    }
+    return { displayTitle, iconSvg };
+}
+
+function showToastNotification(payload) {
+    const toastContainer = getOrCreateToastContainer();
     const toastId = 'toast_' + Date.now();
     const borderCol = payload.priority === 'High' ? 'var(--danger)' : 'var(--primary)';
     const iconColor = payload.priority === 'High' ? 'var(--danger)' : 'var(--primary)';
@@ -144,22 +167,7 @@ function showToastNotification(payload) {
         commentId = p[1];
     }
     
-    let displayTitle = payload.title;
-    let iconSvg = '';
-    
-    if (payload.type === 'comment.mention') { 
-        displayTitle = 'Etiketlendiniz'; 
-        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57V12c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57V12c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>';
-    }
-    else if (payload.type === 'ticket.comment.added') { displayTitle = 'Yeni Yorum'; }
-    else if (payload.type === 'ticket.created') { displayTitle = 'Bilet Oluşturuldu'; }
-    else if (payload.type === 'sla.breached') { displayTitle = 'SLA İhlali'; }
-    else if (payload.type === 'sla.risk') { displayTitle = 'SLA Riski'; }
-    else { displayTitle = displayTitle.replace('Event ', ''); }
-    
-    if (!iconSvg) {
-        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>';
-    }
+    const { displayTitle, iconSvg } = getToastIconAndTitle(payload);
 
     let linkUrl = '#';
     if (payload.entityId) {
@@ -207,7 +215,7 @@ function getNotificationTitle(type, defaultTitle) {
     if (type === 'ticket.created') return 'Bilet Oluşturuldu';
     if (type === 'sla.breached') return 'SLA İhlali';
     if (type === 'sla.risk') return 'SLA Riski';
-    return (defaultTitle || '').replace('Event ', '');
+    return (defaultTitle || '').replaceAll('Event ', '');
 }
 
 function getNotificationLink(n, commentId) {
@@ -302,7 +310,7 @@ function createNotificationItem(n) {
         if (!n.isRead) {
             try {
                 await window.api.request(`/notifications/${n.id}/read`, { method: 'POST' });
-            } catch(err) {}
+            } catch(err) { console.warn('Error loading notifications', err); }
         }
         if (linkUrl !== '#') {
             window.location.href = linkUrl;

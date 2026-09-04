@@ -99,7 +99,7 @@ export function initCrudPage(cfg) {
                         <button type="button" class="btn btn-ghost expand-btn" style="padding: 2px 4px; margin-right: 8px; vertical-align: middle;" aria-expanded="false">
                             <svg viewBox="0 0 24 24" width="18" height="18" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
                         </button>
-                        ${buildCellHtml(item, col).replace('<td>', '').replace('</td>', '')}
+                        ${buildCellHtml(item, col).replaceAll('<td>', '').replaceAll('</td>', '')}
                     </td>`;
                 }
                 return buildCellHtml(item, col);

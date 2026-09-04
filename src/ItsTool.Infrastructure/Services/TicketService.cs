@@ -813,7 +813,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUserId != null ? (a.AssignedUser != null ? a.AssignedUser.FirstName + " " + a.AssignedUser.LastName : "") : (a.AssignedGroup != null ? a.AssignedGroup.Name : ""), false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUser != null ? a.AssignedUser.FirstName + " " + a.AssignedUser.LastName : a.AssignedGroup != null ? a.AssignedGroup.Name : "", false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate))
             .ToListAsync();
 
         return new PagedResult<TicketDto>
@@ -871,10 +871,25 @@ public class TicketService : ITicketService
 
         if (ticket == null) return new List<UserDto>();
 
-        var userIds = new HashSet<int>();
-        userIds.Add(ticket.RequesterUserId);
+        var userIds = new HashSet<int> { ticket.RequesterUserId };
 
-        var assignees = ticket.Assignments.Where(a => a.IsActive && !a.IsDeleted).ToList();
+        await AddAssigneeIdsAsync(ticket.Assignments, userIds);
+        await AddProjectMemberIdsAsync(ticket.ProjectId, userIds);
+
+        var users = await _context.Users
+            .Where(u => userIds.Contains(u.Id) && !u.IsDeleted)
+            .ToListAsync();
+
+        return users.Select(u => new UserDto(
+            u.Id, u.Username, u.Email, u.FirstName, u.LastName,
+            u.IsActive, u.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(),
+            u.ProfilePhoto, Array.Empty<int>(), u.CreatedAt
+        ));
+    }
+
+    private async Task AddAssigneeIdsAsync(IEnumerable<TicketAssignment> assignments, HashSet<int> userIds)
+    {
+        var assignees = assignments.Where(a => a.IsActive && !a.IsDeleted).ToList();
         foreach (var a in assignees)
         {
             if (a.AssignedUserId.HasValue) userIds.Add(a.AssignedUserId.Value);
@@ -887,24 +902,17 @@ public class TicketService : ITicketService
                 foreach(var u in groupMembers) userIds.Add(u);
             }
         }
+    }
 
-        if (ticket.ProjectId.HasValue)
+    private async Task AddProjectMemberIdsAsync(int? projectId, HashSet<int> userIds)
+    {
+        if (projectId.HasValue)
         {
             var projectMembers = await _context.ProjectMembers
-                .Where(pm => pm.ProjectId == ticket.ProjectId.Value && !pm.IsDeleted)
+                .Where(pm => pm.ProjectId == projectId.Value && !pm.IsDeleted)
                 .Select(pm => pm.UserId)
                 .ToListAsync();
             foreach(var u in projectMembers) userIds.Add(u);
         }
-
-        var users = await _context.Users
-            .Where(u => userIds.Contains(u.Id) && !u.IsDeleted)
-            .ToListAsync();
-
-        return users.Select(u => new UserDto(
-            u.Id, u.Username, u.Email, u.FirstName, u.LastName,
-            u.IsActive, u.DepartmentId, new int[0], new Dictionary<int, bool>(),
-            u.ProfilePhoto, new int[0], u.CreatedAt
-        ));
     }
 }

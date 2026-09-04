@@ -21,7 +21,7 @@ public class InMemoryEmailQueue : IEmailQueue
 
     public async ValueTask QueueEmailAsync(EmailMessage message)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
         await _queue.Writer.WriteAsync(message);
     }
 
