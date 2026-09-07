@@ -1777,7 +1777,8 @@
                 if (textArea.dataset.mentions) {
                     const rawIds = JSON.parse(textArea.dataset.mentions);
                     mentionedUserIds = rawIds.filter(uid => {
-                        const userObj = window.globalLookup?.users?.find(u => u.id == uid);
+                        const usersArray = Array.isArray(window.globalUsers) ? window.globalUsers : (window.globalUsers?.items || []);
+                        const userObj = usersArray.find(u => u.id == uid);
                         if(userObj) {
                             const nameMention = `@${userObj.firstName} ${userObj.lastName}`;
                             return content.includes(nameMention);
@@ -2105,7 +2106,8 @@
                 if (commentTextarea.dataset.mentions) {
                     const rawIds = JSON.parse(commentTextarea.dataset.mentions);
                     mentionedUserIds = rawIds.filter(uid => {
-                        const userObj = window.globalLookup?.users?.find(u => u.id == uid);
+                        const usersArray = Array.isArray(window.globalUsers) ? window.globalUsers : (window.globalUsers?.items || []);
+                        const userObj = usersArray.find(u => u.id == uid);
                         if(userObj) {
                             const nameMention = `@${userObj.firstName} ${userObj.lastName}`;
                             return content.includes(nameMention);
