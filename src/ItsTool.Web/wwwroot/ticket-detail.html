@@ -267,28 +267,6 @@
         </div>
     </div>
 
-    <!-- Assignee Details Modal -->
-    <div id="assigneeModal" class="modal-overlay">
-        <div class="modal" style="width: min(400px, 90%);">
-            <div class="modal-header">
-                <h2 data-i18n="td_modal_user_details">User Details</h2>
-                <button type="button" class="close-btn" onclick="closeModal('assigneeModal')" aria-label="Close">
-                    <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                </button>
-            </div>
-            <div class="modal-body" style="text-align: center;">
-                <div id="aModalAvatar" style="margin-bottom: 16px;"></div>
-                <h3 id="aModalName" style="margin: 0 0 4px 0;" aria-label="Assignee Name">Assignee</h3>
-                <p id="aModalUsername" class="text-muted" style="margin: 0 0 16px 0; font-size: 13px;"></p>
-                <div style="text-align: left; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                    <div style="margin-bottom: 8px;"><strong data-i18n="td_email">Email:</strong> <span id="aModalEmail"></span></div>
-                    <div style="margin-bottom: 8px;"><strong data-i18n="td_dept">Department:</strong> <span id="aModalDept"></span></div>
-                    <div><strong data-i18n="td_status">Status:</strong> <span id="aModalStatus"></span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 10000; display: flex; flex-direction: column; gap: 8px;"></div>
     
     <!-- Manage Assignees Modal -->
@@ -1072,36 +1050,7 @@
                     }
                 };
 
-        window.openUserDetails = async function(userId) {
-            if (!userId) return;
-            try {
-                const user = await window.api.request(`/Users/${userId}`);
-                if (!user) return;
-                
-                document.getElementById('aModalAvatar').innerHTML = getAvatar(user.id, user.firstName, user.profilePhoto, 80);
-                document.getElementById('aModalName').textContent = user.firstName + ' ' + user.lastName;
-                document.getElementById('aModalUsername').textContent = '@' + user.username;
-                document.getElementById('aModalEmail').textContent = user.email;
-                
-                let deptName = '-';
-                if (user.departmentId) {
-                    try {
-                        const depts = await window.api.request('/Departments');
-                        const d = depts.find(x => x.id === user.departmentId);
-                        if (d) deptName = d.name;
-        
-
-            } catch (e) { console.error(e); }
-                }
-                document.getElementById('aModalDept').textContent = deptName;
-                document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
-                
-                openModal('assigneeModal');
-            } catch(e) {
-                console.error(e);
-                showToast('Failed to load user details', 'error');
-            }
-        };
+        window.openUserDetails = function(userId) { return window.ui.showUserDetails(userId); };
 
         function renderDynamicSelect(def, dp, val) {
             let inputStr = `<select class="form-control dyn-input" data-key="${def.key}" style="max-width:300px;" ${dp.isRequired ? 'required' : ''} ${def.fieldType === 4 ? 'multiple' : ''}>`;

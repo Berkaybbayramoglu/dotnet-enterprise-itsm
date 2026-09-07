@@ -111,41 +111,7 @@
         
         let globalLookupData = {};
 
-        window.openUserDetails = async function(userId) {
-            if (!userId) return;
-            try {
-                const user = await window.api.request(`/Users/${userId}`);
-                if (!user) return;
-                
-                document.getElementById('aModalAvatar').innerHTML = window.ui.getAvatar(user.id, user.firstName);
-                const avatarDiv = document.getElementById('aModalAvatar').querySelector('.avatar');
-                if (avatarDiv) {
-                    avatarDiv.style.width = '80px';
-                    avatarDiv.style.height = '80px';
-                    avatarDiv.style.fontSize = '32px';
-                }
-                
-                document.getElementById('aModalName').textContent = user.firstName + ' ' + user.lastName;
-                document.getElementById('aModalUsername').textContent = '@' + user.username;
-                document.getElementById('aModalEmail').textContent = user.email;
-                
-                let deptName = '-';
-                if (user.departmentId) {
-                    try {
-                        const depts = await window.api.request('/Departments');
-                        const d = depts.find(x => x.id === user.departmentId);
-                        if (d) deptName = d.name;
-                    } catch (e) { console.error(e); }
-                }
-                document.getElementById('aModalDept').textContent = deptName;
-                document.getElementById('aModalStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
-                
-                window.ui.openModal('assigneeModal');
-            } catch(e) {
-                console.error(e);
-                showToast('Kullanıcı detayları yüklenemedi', 'error');
-            }
-        };
+        window.openUserDetails = function(userId) { return window.ui.showUserDetails(userId); };
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
