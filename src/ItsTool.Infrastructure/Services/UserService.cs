@@ -80,6 +80,29 @@ public class UserService : IUserService
         user.Email = dto.Email;
         user.FirstName = dto.FirstName;
         user.LastName = dto.LastName;
+                if (user.IsActive && !dto.IsActive)
+        {
+            var openAssignments = await _context.TicketAssignments
+                .Include(a => a.Ticket)
+                .ThenInclude(t => t.Status)
+                .Where(a => a.AssignedUserId == id && a.IsActive && !a.IsDeleted && (a.Ticket.Status == null || !a.Ticket.Status.IsClosedStatus))
+                .ToListAsync();
+
+            foreach(var a in openAssignments)
+            {
+                a.IsActive = false;
+                
+                _context.TicketHistories.Add(new ItsTool.Domain.Entities.Ticket.TicketHistory
+                {
+                    TicketId = a.TicketId,
+                    Action = "Unassigned",
+                    FieldName = "Assignments",
+                    OldValue = $"User:{id}",
+                    NewValue = "-",
+                    CreatedBy = "System"
+                });
+            }
+        }
         user.IsActive = dto.IsActive;
         user.DepartmentId = dto.DepartmentId;
         
