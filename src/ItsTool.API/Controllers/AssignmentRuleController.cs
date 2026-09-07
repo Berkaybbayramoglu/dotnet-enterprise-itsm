@@ -41,6 +41,19 @@ public class AssignmentRuleController : ControllerBase
         return Ok(dtos);
     }
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(AssignmentRuleDto), 200)]
+    public async Task<IActionResult> GetRuleById(int id)
+    {
+        var rule = await _context.AssignmentRules.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+        if (rule == null) return NotFound();
+        
+        var dto = new AssignmentRuleDto(
+            rule.Id, rule.Name, rule.ProjectId, rule.CategoryId, rule.TicketTypeId, rule.PriorityId, rule.TargetGroupId, rule.TargetUserId, rule.SortOrder, rule.IsActive);
+            
+        return Ok(dto);
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(AssignmentRuleDto), 201)]
     public async Task<IActionResult> CreateRule([FromBody] CreateAssignmentRuleDto dto)

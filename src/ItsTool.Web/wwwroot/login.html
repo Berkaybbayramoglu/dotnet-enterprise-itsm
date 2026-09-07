@@ -25,20 +25,69 @@
         .form-group { text-align: left; }
         .error { color: var(--danger); text-align: center; margin-top: var(--spacing-md); display: none; font-size: 13px; font-weight: 500; }
     </style>
+
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('itsm_theme') || 'light';
+                document.documentElement.dataset.theme = savedTheme;
+                const savedLang = localStorage.getItem('itsm_lang') || 'en';
+                document.documentElement.lang = savedLang;
+            } catch(e) {}
+        })();
+    </script>
+
 </head>
 <body>
+
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px;">
+        <div class="dropdown" style="position:relative;">
+            <button class="btn btn-ghost d-flex align-items-center gap-sm" onclick="this.nextElementSibling.classList.toggle('show')" id="langMenuBtn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c1.96-1.66 3.49-2.93 5.33-3.56C9.81 5.55 9.35 6.75 9.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.24 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                <span id="currentLangText">EN</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" style="position:absolute; right:0; top:100%;">
+                <li><a class="dropdown-item login-lang-opt" href="#" data-lang="tr">🇹🇷 Türkçe</a></li>
+                <li><a class="dropdown-item login-lang-opt" href="#" data-lang="en">🇬🇧 English</a></li>
+            </ul>
+        </div>
+<!-- 
+            
+            
+        -->
+        <div class="dropdown" style="position:relative;">
+            <button class="btn btn-ghost d-flex align-items-center gap-sm" onclick="this.nextElementSibling.classList.toggle('show')" id="themeMenuBtn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" style="position:absolute; right:0; top:100%;">
+                <li><a class="dropdown-item login-theme-opt" href="#" data-theme="light">Light</a></li>
+                <li><a class="dropdown-item login-theme-opt" href="#" data-theme="dark">Dark</a></li>
+                <li><a class="dropdown-item login-theme-opt" href="#" data-theme="dracula">Dracula</a></li>
+                <li><a class="dropdown-item login-theme-opt" href="#" data-theme="monokai">Monokai</a></li>
+                <li><a class="dropdown-item login-theme-opt" href="#" data-theme="github-dark">GitHub Dark</a></li>
+            </ul>
+        </div>
+<!-- 
+            
+            
+            
+            
+            
+        -->
+    </div>
+
     <div class="login-box">
         <div class="login-logo">
             <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg>
         </div>
-        <h1>Welcome Back</h1>
+        <h1 id="lbl_welcome">Welcome Back</h1>
         <form id="loginForm">
             <div class="form-group">
-                <label class="form-label" for="username" for="username">Username or Email</label>
+                <label class="form-label" for="username" id="lbl_username">Username or Email</label>
                 <input id="username" class="form-control" autocomplete="username" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="password">Password</label>
+                <label class="form-label" for="password" id="lbl_password">Password</label>
                 <div style="position: relative;">
                     <input type="password" id="password" class="form-control" autocomplete="current-password" required style="padding-right: 40px;">
                     <button type="button" id="togglePassword" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;">
@@ -48,7 +97,7 @@
                     </button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md); padding: 10px;">Sign In</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md); padding: 10px;" id="lbl_signin">Sign In</button>
             <div id="errorMessage" class="error"></div>
             
             <div id="demoHint" style="margin-top: 24px; padding: 12px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; text-align: left; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
@@ -64,6 +113,61 @@
 
     <script type="module">
         import './js/api.js';
+
+        const translations = {
+            en: { welcome: 'Welcome Back', username: 'Username or Email', password: 'Password', signin: 'Sign In' },
+            tr: { welcome: 'Tekrar Hoşgeldiniz', username: 'Kullanıcı Adı veya E-posta', password: 'Şifre', signin: 'Giriş Yap' }
+        };
+
+        const updateLoginLang = (lang) => {
+            const t = translations[lang] || translations['en'];
+            document.getElementById('lbl_welcome').textContent = t.welcome;
+            document.getElementById('lbl_username').textContent = t.username;
+            document.getElementById('lbl_password').textContent = t.password;
+            document.getElementById('lbl_signin').textContent = t.signin;
+        };
+
+        const currentLang = localStorage.getItem('itsm_lang') || 'en';
+        const langText = document.getElementById('currentLangText');
+        langText.textContent = currentLang.toUpperCase();
+        updateLoginLang(currentLang);
+
+        document.querySelectorAll('.login-lang-opt').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.preventDefault();
+                const val = e.target.dataset.lang;
+            const val = e.target.value;
+            localStorage.setItem('itsm_lang', val);
+            document.documentElement.lang = val;
+            langText.textContent = val.toUpperCase();
+                updateLoginLang(val);
+                e.target.closest('ul').classList.remove('show');
+            });
+        });
+        });
+
+        const currentTheme = localStorage.getItem('itsm_theme') || 'light';
+        
+        
+
+        document.querySelectorAll('.login-theme-opt').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.preventDefault();
+                const val = e.target.dataset.theme;
+            const val = e.target.value;
+            localStorage.setItem('itsm_theme', val);
+            document.documentElement.dataset.theme = val;
+                e.target.closest('ul').classList.remove('show');
+            });
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+            }
+        });
+        });
+
         document.getElementById('togglePassword').addEventListener('click', function (e) {
             const passwordInput = document.getElementById('password');
             const icon = this.querySelector('svg path');

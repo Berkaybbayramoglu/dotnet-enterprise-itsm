@@ -41,6 +41,16 @@ public class SavedFilterController : ControllerBase
         return Ok(filters.Select(f => new SavedFilterDto(f.Id, f.UserId, f.Name, f.QueryJson)));
     }
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(SavedFilterDto), 200)]
+    public async Task<IActionResult> GetFilterById(int id)
+    {
+        var userId = GetCurrentUserId();
+        var filter = await _context.SavedFilters.FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId && !f.IsDeleted);
+        if (filter == null) return NotFound();
+        return Ok(new SavedFilterDto(filter.Id, filter.UserId, filter.Name, filter.QueryJson));
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(SavedFilterDto), 201)]
     public async Task<IActionResult> CreateFilter([FromBody] CreateSavedFilterDto dto)

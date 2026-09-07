@@ -88,8 +88,12 @@ public class KnowledgeBaseController : ControllerBase
     [Authorize(Policy = "RequireKbManage")]
     public async Task<IActionResult> ReviewArticle(int id, ReviewKbArticleDto dto)
     {
-        await _kbService.ReviewArticleAsync(id, dto, GetCurrentUserId());
-        return NoContent();
+        try {
+            await _kbService.ReviewArticleAsync(id, dto, GetCurrentUserId());
+            return NoContent();
+        } catch (System.Exception ex) {
+            return StatusCode(500, ex.ToString());
+        }
     }
 
     [HttpDelete("articles/{id}")]

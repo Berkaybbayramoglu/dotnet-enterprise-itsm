@@ -28,11 +28,10 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
 
-        var requestUsername = request.Username.ToLower();
         var user = await _context.Users
             .FirstOrDefaultAsync(u => 
-                (string.Equals(u.Username, requestUsername, StringComparison.OrdinalIgnoreCase) || 
-                 string.Equals(u.Email, requestUsername, StringComparison.OrdinalIgnoreCase)) && 
+                (EF.Functions.Like(u.Username, request.Username) || 
+                 EF.Functions.Like(u.Email, request.Username)) && 
                 u.IsActive && !u.IsDeleted);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))

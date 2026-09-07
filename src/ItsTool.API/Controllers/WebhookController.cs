@@ -29,6 +29,14 @@ public class WebhookController : ControllerBase
         return Ok(subs);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetWebhookById(int id)
+    {
+        var existing = await _context.WebhookSubscriptions.FindAsync(id);
+        if (existing == null || existing.IsDeleted) return NotFound();
+        return Ok(existing);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateWebhook([FromBody] WebhookSubscription sub)
     {

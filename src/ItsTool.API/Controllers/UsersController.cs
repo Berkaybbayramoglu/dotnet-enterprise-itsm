@@ -21,7 +21,19 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _service.GetAllAsync());
+        var users = await _service.GetAllAsync();
+        
+        bool isAdmin = User.HasClaim("permission", "admin.manage") || User.IsInRole("SuperAdmin");
+        if (!isAdmin)
+        {
+            users = users.Select(u => u with { 
+                Email = "", 
+                RoleIds = System.Array.Empty<int>(), 
+                PermissionOverrides = new Dictionary<int, bool>() 
+            });
+        }
+        
+        return Ok(users);
     }
 
     [HttpGet("{id}")]
@@ -31,6 +43,16 @@ public class UsersController : ControllerBase
     {
         var user = await _service.GetByIdAsync(id);
         if (user == null) return NotFound();
+        bool isAdmin = User.HasClaim("permission", "admin.manage") || User.IsInRole("SuperAdmin");
+        if (!isAdmin)
+        {
+            user = user with { 
+                Email = "", 
+                RoleIds = System.Array.Empty<int>(), 
+                PermissionOverrides = new Dictionary<int, bool>() 
+            };
+        }
+        
         return Ok(user);
     }
 

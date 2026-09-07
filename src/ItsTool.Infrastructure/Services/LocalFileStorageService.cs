@@ -19,7 +19,7 @@ public class LocalFileStorageService : IFileStorageService
 
     public async Task<string> SaveFileAsync(IFormFile file, int ticketId)
     {
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".docx", ".xlsx", ".doc", ".xls", ".txt", ".md", ".csv", ".json", ".xml", ".zip", ".log", ".tex", ".svg", ".rar", ".7z", ".tar.gz", ".tar", ".sql" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".docx", ".xlsx", ".doc", ".xls", ".txt", ".md", ".csv", ".json", ".xml", ".zip", ".log", ".tex", ".svg", ".rar", ".7z", ".tar.gz", ".tar", ".sql", ".py" };
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
         
         if (!allowedExtensions.Contains(ext))

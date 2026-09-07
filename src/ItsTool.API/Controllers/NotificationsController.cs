@@ -35,6 +35,17 @@ public class NotificationsController : ControllerBase
         return Ok(await _service.GetUserNotificationsAsync(userId));
     }
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(NotificationDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNotificationById(int id)
+    {
+        var userId = GetCurrentUserId();
+        var notifications = await _service.GetUserNotificationsAsync(userId);
+        var notif = notifications.FirstOrDefault(n => n.Id == id);
+        if (notif == null) return NotFound();
+        return Ok(notif);
+    }
+
     [HttpPost("{id}/read")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> MarkAsRead(int id)

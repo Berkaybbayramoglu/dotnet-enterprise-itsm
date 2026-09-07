@@ -234,11 +234,11 @@
 
         function buildArticleBadges(a) {
             let badges = '';
-            if (a.visibility === 0) badges += `<span class="badge badge-warning">${t('kb_badge_internal')}</span> `;
-            if (a.status === 0) badges += `<span class="badge badge-default">${t('kb_badge_draft')}</span> `;
-            if (a.status === 2) badges += `<span class="badge badge-info">${t('kb_badge_pending') || 'Pending Review'}</span> `;
-            if (a.status === 3) badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span> `;
-            if (a.status === 4) badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span> `;
+            if (a.visibility == 0 || a.visibility === 'Internal') badges += `<span class="badge badge-warning">${t('kb_badge_internal')}</span> `;
+            if (a.status == 0 || a.status === 'Draft') badges += `<span class="badge badge-default">${t('kb_badge_draft')}</span> `;
+            if (a.status == 2 || a.status === 'PendingReview') badges += `<span class="badge badge-info">${t('kb_badge_pending') || 'Pending Review'}</span> `;
+            if (a.status == 3 || a.status === 'NeedsRevision') badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span> `;
+            if (a.status == 4 || a.status === 'Rejected') badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span> `;
             return badges;
         }
 
@@ -246,20 +246,20 @@
             let actionsHtml = '';
             const isAuthor = a.authorUserId === currentUserId;
             
-            if (hasManageKb || (isAuthor && a.status !== 1)) {
+            if (hasManageKb || (isAuthor && a.status != 1 && a.status !== 'Published')) {
                 actionsHtml = `<div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onmousedown="event.stopPropagation()">`;
-                actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(${a.id})">${t('kb_btn_edit')}</button>`;
+                actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(event, ${a.id})">${t('kb_btn_edit')}</button>`;
                 
                 if (hasManageKb) {
-                    if (a.status === 2) {
+                    if (a.status == 2 || a.status === 'PendingReview') {
                         actionsHtml += `<button type="button" class="btn btn-primary" style="padding: 4px 12px; font-size: 13px;" title="Approve" onclick="quickApproveArticle(event, ${a.id})">${t('kb_btn_approve_pub') || 'Onayla'}</button>`;
-                        actionsHtml += `<button type="button" class="btn btn-secondary" style="padding: 4px 12px; font-size: 13px;" title="Review" onclick="openReviewModal(${a.id})">${t('kb_btn_review') || 'İncele'}</button>`;
+                        actionsHtml += `<button type="button" class="btn btn-secondary" style="padding: 4px 12px; font-size: 13px;" title="Review" onclick="openReviewModal(event, ${a.id})">${t('kb_btn_review') || 'İncele'}</button>`;
                     } else {
-                        actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(${a.id}, ${a.status})">${a.status === 1 ? t('kb_btn_unpub') : t('kb_btn_pub')}</button>`;
+                        actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(event, ${a.id}, '${a.status}')">${(a.status == 1 || a.status === 'Published') ? t('kb_btn_unpub') : t('kb_btn_pub')}</button>`;
                     }
                 }
                 
-                actionsHtml += `<button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(${a.id})">${t('kb_btn_del')}</button>`;
+                actionsHtml += `<button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(event, ${a.id})">${t('kb_btn_del')}</button>`;
                 actionsHtml += `</div>`;
             }
             return actionsHtml;
@@ -269,6 +269,7 @@
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'article-card';
+            btn.dataset.id = a.id;
             btn.addEventListener('click', () => window.openArticle(a.id));
             
             const badges = buildArticleBadges(a);
@@ -343,10 +344,10 @@
                 let filteredArticles = articles;
                 
                 if (currentTab === 'published') {
-                    filteredArticles = articles.filter(a => a.status === 1 || (a.status === 0 && a.authorUserId === currentUserId));
+                    filteredArticles = articles.filter(a => a.status == 1 || a.status === 'Published' || ((a.status == 0 || a.status === 'Draft') && a.authorUserId === currentUserId));
                 } else if (currentTab === 'pending') {
                     // Managers should not see their own pending articles in the "Pending" tab to review themselves
-                    filteredArticles = articles.filter(a => (a.status === 2 || a.status === 3 || a.status === 4) && a.authorUserId !== currentUserId);
+                    filteredArticles = articles.filter(a => (a.status == 2 || a.status === 'PendingReview' || a.status == 3 || a.status === 'NeedsRevision' || a.status == 4 || a.status === 'Rejected') && a.authorUserId !== currentUserId);
                 } else if (currentTab === 'mine') {
                     filteredArticles = articles.filter(a => a.authorUserId === currentUserId);
                 }
@@ -483,7 +484,8 @@
             } catch (e) { console.error(e);  showToast(t('kb_toast_save_err'), 'error');  }
         });
         
-        window.editArticle = async function(id) {
+        window.editArticle = async function(event, id) {
+            if (event) event.stopPropagation();
             try {
                 const article = await window.api.request(`/kb/articles/${id}`);
                 document.getElementById('articleId').value = article.id;
@@ -527,7 +529,8 @@
             }
         };
 
-        window.openReviewModal = function(id) {
+        window.openReviewModal = function(event, id) {
+            if (event) event.stopPropagation();
             document.getElementById('reviewArticleId').value = id;
             document.getElementById('reviewStatus').value = '1';
             document.getElementById('reviewFeedback').value = '';
@@ -564,7 +567,8 @@
             }
         });
         
-        window.togglePublish = async function(id, currentStatus) {
+        window.togglePublish = async function(event, id, currentStatus) {
+            if (event) event.stopPropagation();
             try {
                 const article = await window.api.request(`/kb/articles/${id}`);
                 const payload = {
@@ -572,7 +576,7 @@
                     title: article.title,
                     content: article.content,
                     visibility: article.visibility,
-                    status: currentStatus === 1 ? 0 : 1
+                    status: (currentStatus == 1 || currentStatus === 'Published') ? 0 : 1
                 };
                 await window.api.updateKbArticle(id, payload);
                 showToast(payload.status === 1 ? t('kb_toast_pub') : t('kb_toast_unpub'));
@@ -580,13 +584,57 @@
             } catch (e) { console.error(e);  showToast(t('kb_toast_pub_err'), 'error');  }
         };
         
-        window.deleteArticle = async function(id) {
-            if (!confirm(t('kb_confirm_del'))) return;
-            try {
-                await window.api.deleteKbArticle(id);
-                showToast(t('kb_toast_del'));
-                loadKb();
-            } catch (e) { console.error(e); }
+        window.deleteArticle = async function(event, id) {
+            if (event) {
+                event.stopPropagation();
+            }
+            let confirmed = false;
+            if (window.ui && window.ui.showConfirmModal) {
+                confirmed = await window.ui.showConfirmModal(t('kb_confirm_del_title') || 'Delete Article', t('kb_confirm_del') || 'Are you sure you want to delete this article?');
+            } else {
+                confirmed = confirm(t('kb_confirm_del') || 'Are you sure you want to delete this article?');
+            }
+            if (!confirmed) return;
+            
+            const articleElement = document.querySelector(`.article-card[data-id="${id}"]`);
+            
+            if (window.ui && window.ui.showUndoToast) {
+                if (articleElement) {
+                    articleElement.style.opacity = '0.5';
+                    articleElement.style.pointerEvents = 'none';
+                }
+                
+                window.ui.showUndoToast(
+                    t('kb_toast_del') || 'Article deleted.',
+                    async () => {
+                        // Undo action
+                        if (articleElement) {
+                            articleElement.style.opacity = '1';
+                            articleElement.style.pointerEvents = 'auto';
+                        }
+                    },
+                    async () => {
+                        // Confirm action
+                        try {
+                            await window.api.deleteKbArticle(id);
+                            loadKb();
+                        } catch (e) {
+                            console.error(e);
+                            showToast(t('kb_toast_del_err') || 'Error deleting article', 'error');
+                            if (articleElement) {
+                                articleElement.style.opacity = '1';
+                                articleElement.style.pointerEvents = 'auto';
+                            }
+                        }
+                    }
+                );
+            } else {
+                try {
+                    await window.api.deleteKbArticle(id);
+                    showToast(t('kb_toast_del') || 'Article deleted.');
+                    loadKb();
+                } catch (e) { console.error(e); }
+            }
         };
         
         await loadKb();

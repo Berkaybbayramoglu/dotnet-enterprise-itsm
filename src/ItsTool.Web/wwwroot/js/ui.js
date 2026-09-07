@@ -66,7 +66,10 @@ export function showUndoToast(message, undoFn, ms = 6000) {
     
     return new Promise((resolve) => {
         const toast = document.createElement('div');
-        toast.className = 'toast info undo-toast';
+        toast.className = 'toast undo-toast';
+        toast.style.background = 'var(--bg-surface)';
+        toast.style.color = 'var(--text-main)';
+        toast.style.borderLeft = '4px solid var(--info)';
         toast.setAttribute('role', 'status');
         
         toast.innerHTML = `
@@ -224,7 +227,7 @@ function createAssigneeUserRow(item, escapeHtml) {
     const nameFs = isSub ? 13 : 14;
 
     return `
-        <div ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; cursor: default;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'">
+        <button type="button" ${classAttr} style="${displayAttr} width: 100%; font: inherit; color: inherit; text-align: left; align-items: center; justify-content: space-between; padding: var(--spacing-md) var(--spacing-lg); padding-left: ${paddingLeft}; border-left: ${borderLeft}; border-bottom: 1px solid var(--border); border-top: none; border-right: none; background: ${bgColor}; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='${bgColor}'" onclick="if(window.ui && window.ui.showUserDetails) window.ui.showUserDetails(${item.id})">
             <div style="display: flex; align-items: center; gap: ${avatarMargin}px;">
                 ${nestingArrow}
                 ${iconHtml}
@@ -236,9 +239,7 @@ function createAssigneeUserRow(item, escapeHtml) {
                     ${extraInfo}
                 </div>
             </div>
-            <div style="color: var(--text-muted);">
-            </div>
-        </div>
+        </button>
     `;
 }
 
@@ -550,7 +551,9 @@ export function bindShellActions() {
         panel.style.top = '60px';
         panel.style.right = '20px';
         panel.style.width = '300px';
-        panel.style.background = '#fff';
+        panel.style.background = 'var(--bg-surface)';
+        panel.style.color = 'var(--text-main)';
+        panel.style.border = '1px solid var(--border)';
         panel.style.boxShadow = 'var(--shadow-lg)';
         panel.style.borderRadius = 'var(--radius-md)';
         panel.style.padding = 'var(--spacing-md)';
@@ -761,6 +764,9 @@ export function openTicketPreview(ticketData, lookupData) {
         headerEl.innerHTML = `${escapeHtml(ticketData.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px;">${escapeHtml(statusName)}</span>`;
     }
 
+    const reqBtnHtml = ticketData.requesterUserId ? `<button type="button" class="btn btn-ghost p-0 m-0 d-flex align-items-center gap-sm" style="border:none;" onclick="window.ui.showUserDetails(${ticketData.requesterUserId})">${getAvatar(ticketData.requesterUserId, reqName)} ${escapeHtml(reqName)}</button>` : `<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${escapeHtml(reqName)}</div>`;
+    const assignBtnHtml = ticketData.assignedUserId ? `<button type="button" class="btn btn-ghost p-0 m-0 d-flex align-items-center gap-sm" style="border:none;" onclick="window.ui.showUserDetails(${ticketData.assignedUserId})">${getAvatar(ticketData.assignedUserId, assigneeName)} ${escapeHtml(assigneeName)}</button>` : `<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${escapeHtml(assigneeName)}</div>`;
+
     content.innerHTML = `
         <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">${escapeHtml(ticketData.title)}</div>
         <div style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: var(--spacing-md); color: var(--text-muted); font-size: 14px;">
@@ -769,8 +775,8 @@ export function openTicketPreview(ticketData, lookupData) {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); background: var(--bg-hover); padding: var(--spacing-md); border-radius: var(--radius-md);">
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_priority') || 'Priority'}</div><span class="badge badge-${prioColor}">${escapeHtml(t('db_' + prioName.toLowerCase().replaceAll(' ', '_')) || prioName)}</span></div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_project') || 'Project'} / ${t('ticket_prop_category') || 'Category'}</div><div style="font-size: 14px; font-weight: 500;">${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> ${escapeHtml(catName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_requester') || 'Requester'}</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${getAvatar(ticketData.requesterUserId, reqName)} ${escapeHtml(reqName)}</div></div>
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_assignee') || 'Assignee'}</div><div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${ticketData.assignedUserId ? getAvatar(ticketData.assignedUserId, assigneeName) : ''} ${escapeHtml(assigneeName)}</div></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_requester') || 'Requester'}</div>${reqBtnHtml}</div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_assignee') || 'Assignee'}</div>${assignBtnHtml}</div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_sla_status') || 'SLA Status'}</div><span class="badge badge-success">${t('ticket_sla_on_track') || 'On Track'}</span></div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('audit_col_time') || 'Created At'}</div><div style="font-size: 14px;">${formatDate(ticketData.createdAt)}</div></div>
         </div>
@@ -786,5 +792,72 @@ window.ui = {
     showConfirmModal,
     openModal,
     closeModal,
-    getAvatar
+    getAvatar,
+    showUserDetails
 };
+export async function showUserDetails(userId) {
+    if (!userId) return;
+    try {
+        const user = await window.api.request(`/Users/${userId}`);
+        if (!user) return;
+        
+        let modalOverlay = document.getElementById('globalUserModal');
+        if (!modalOverlay) {
+            modalOverlay = document.createElement('div');
+            modalOverlay.id = 'globalUserModal';
+            modalOverlay.className = 'modal-overlay';
+            modalOverlay.innerHTML = `
+                <div class="modal" style="max-width: 450px;">
+                    <div class="modal-header">
+                        <h2>User Details</h2>
+                        <button type="button" class="close-btn" onclick="closeModal('globalUserModal')" aria-label="Close">
+                            <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="text-align: center; padding: 24px;">
+                        <div id="guAvatar" style="margin-bottom: 16px;"></div>
+                        <h3 id="guName" style="margin-bottom: 4px;"></h3>
+                        <div id="guUsername" style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;"></div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left; background: var(--bg-hover); padding: 16px; border-radius: 8px;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Email</div>
+                                <div id="guEmail" style="font-weight: 500; font-size: 14px; word-break: break-all;"></div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Department</div>
+                                <div id="guDept" style="font-weight: 500; font-size: 14px;"></div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Status</div>
+                                <div id="guStatus"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalOverlay);
+        }
+        
+        document.getElementById('guAvatar').innerHTML = getAvatar(user.id, user.firstName, user.profilePhoto, 80);
+        document.getElementById('guName').textContent = user.firstName + ' ' + user.lastName;
+        document.getElementById('guUsername').textContent = '@' + user.username;
+        document.getElementById('guEmail').textContent = user.email || '-';
+        
+        let deptName = '-';
+        if (user.departmentId) {
+            try {
+                const depts = await window.api.request('/Departments');
+                const d = depts.find(x => x.id === user.departmentId);
+                if (d) deptName = d.name;
+            } catch (e) { console.error(e); }
+        }
+        document.getElementById('guDept').textContent = deptName;
+        document.getElementById('guStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
+        
+        openModal('globalUserModal');
+    } catch(e) {
+        console.error(e);
+        showToast('Failed to load user details', 'error');
+    }
+}

@@ -7,10 +7,18 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:admin.manage")]
+[Authorize]
 public class GroupsController : CrudControllerBase<GroupDto>
 {
     private readonly IGroupService _service;
+
+    
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
+    public new async Task<IActionResult> Delete(int id)
+    {
+        return await base.Delete(id);
+    }
 
     public GroupsController(IGroupService service)
     {
@@ -22,6 +30,7 @@ public class GroupsController : CrudControllerBase<GroupDto>
     protected override Task DeleteEntityAsync(int id) => _service.DeleteAsync(id);
 
     [HttpPost]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateGroupDto dto)
     {
@@ -30,6 +39,7 @@ public class GroupsController : CrudControllerBase<GroupDto>
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateGroupDto dto)
@@ -46,6 +56,7 @@ public class GroupsController : CrudControllerBase<GroupDto>
     }
 
     [HttpPost("{id}/members/{userId}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> AddMember(int id, int userId)
     {
@@ -54,6 +65,7 @@ public class GroupsController : CrudControllerBase<GroupDto>
     }
 
     [HttpDelete("{id}/members/{userId}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RemoveMember(int id, int userId)
     {

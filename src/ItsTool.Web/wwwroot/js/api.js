@@ -54,7 +54,7 @@ class ApiClient {
         if (response.status === 403) {
             const errorText = await response.text();
             console.error(`API Error 403:`, errorText);
-            showToast('Yetkiniz yok veya oturum bilgileri güncel değil — yeniden giriş yapmayı deneyin (403)', 'error');
+            showToast('Yetkiniz yok (403) on: ' + url + ' — yeniden giriş yapmayı deneyin', 'error');
             throw new Error('Forbidden');
         }
 

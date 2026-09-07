@@ -156,7 +156,7 @@
                                 <div class="agent-header">
                                     <div class="avatar">${agent.userName ? agent.userName.charAt(0).toUpperCase() : 'U'}</div>
                                     <div class="agent-info">
-                                        <div class="agent-name">${window.ui?.escapeHtml(agent.userName) || agent.userName}</div>
+                                        <div class="agent-name"><span class="user-hover-link" data-user-id="${agent.userId}" style="cursor: pointer;" onclick="if(window.ui && window.ui.showUserDetails) window.ui.showUserDetails(${agent.userId}); else if(window.openUserDetails) window.openUserDetails(${agent.userId});">${window.ui?.escapeHtml(agent.userName) || agent.userName}</span></div>
                                         <div class="progress-bar">
                                             <div class="progress-fill" style="width: ${Math.min(agent.openTicketCount * 10, 100)}%; background: ${(() => { if (agent.openTicketCount > 10) { return 'var(--danger)'; } else if (agent.openTicketCount > 5) { return 'var(--warning)'; } else { return 'var(--info)'; } })()};"></div>
                                         </div>
@@ -174,6 +174,7 @@
 
         async function init() {
             try {
+                window.globalUsers = await window.api.getUsers();
                 rawWorkload = await window.api.request('/dashboard/department-workload') || [];
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('workloadContainer').style.display = 'grid';
@@ -207,7 +208,62 @@
             renderWorkload(filtered);
         });
 
+        
+        window.globalLookup = await window.api.getLookup().catch(e=>({}));
+        window.globalGroups = await window.api.getGroups().catch(e=>[]);
+        
+        function renderUserTooltipContent(user) {
+            const dept = window.globalLookup?.departments?.find(d => d.id == user.departmentId)?.name || 'None';
+            const userGroups = user.groupIds && window.globalGroups ? user.groupIds.map(gid => window.globalGroups.find(g => g.id == gid)?.name).filter(n => n).join(', ') : 'None';
+            const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
+            const avatar = '<div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">' + (user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U') + '</div>';
+
+            return `
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                    ${avatar}
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">${window.ui?.escapeHtml(user.firstName + ' ' + user.lastName)}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">@${window.ui?.escapeHtml(user.username)}</div>
+                    </div>
+                </div>
+                <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                    <div><strong style="color:var(--text-muted);">Joined:</strong> ${createdAt}</div>
+                    <div><strong style="color:var(--text-muted);">Dept:</strong> ${window.ui?.escapeHtml(dept)}</div>
+                    <div><strong style="color:var(--text-muted);">Groups:</strong> ${window.ui?.escapeHtml(userGroups)}</div>
+                </div>
+            `;
+        }
+
+        const userTooltip = document.getElementById('userTooltip');
+        document.addEventListener('mouseover', (e) => {
+            const target = e.target.closest('.user-hover-link');
+            if (target) {
+                const userId = target.dataset.userId;
+                const user = (window.globalUsers !== undefined ? window.globalUsers : []).find(u => u.id == userId);
+                if (user) {
+                    userTooltip.innerHTML = renderUserTooltipContent(user);
+                    const rect = target.getBoundingClientRect();
+                    userTooltip.style.display = 'block';
+                    let top = rect.bottom + window.scrollY + 8;
+                    let left = rect.left + window.scrollX;
+                    if (top + userTooltip.offsetHeight > window.scrollY + window.innerHeight) top = rect.top + window.scrollY - userTooltip.offsetHeight - 8;
+                    if (left + userTooltip.offsetWidth > window.scrollX + window.innerWidth) left = rect.right + window.scrollX - userTooltip.offsetWidth;
+                    userTooltip.style.top = top + 'px';
+                    userTooltip.style.left = left + 'px';
+                }
+            }
+        });
+        document.addEventListener('mouseout', (e) => {
+            const target = e.target.closest('.user-hover-link');
+            if (target) userTooltip.style.display = 'none';
+        });
+
         init();
+
     </script>
+
+    <!-- User Tooltip -->
+    <div id="userTooltip" style="display: none; position: absolute; background: var(--bg-surface); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; min-width: 200px; color:var(--text-main);"></div>
+
 </body>
 </html>

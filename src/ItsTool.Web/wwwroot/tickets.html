@@ -248,6 +248,9 @@
 
                     const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
                     
+                    const canEdit = window.api.decodedToken?.roles?.includes('SuperAdmin') || window.api.decodedToken?.permissions?.includes('ticket.edit');
+                    const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit')}</a>` : '';
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
@@ -265,7 +268,7 @@
                         <td>
                             <div class="row-actions">
                                 <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>
-                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit')}</a>
+                                ${editBtnHtml}
                             </div>
                         </td>
                     `;

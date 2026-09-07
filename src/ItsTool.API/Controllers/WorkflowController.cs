@@ -24,6 +24,17 @@ public class WorkflowController : ControllerBase
         return Ok(await _service.GetWorkflowsAsync(projectId));
     }
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(WorkflowDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetWorkflowById(int id)
+    {
+        var workflows = await _service.GetWorkflowsAsync(null);
+        var workflow = workflows.FirstOrDefault(w => w.Id == id);
+        if (workflow == null) return NotFound();
+        return Ok(workflow);
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(WorkflowDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateWorkflow([FromBody] CreateWorkflowDto dto)

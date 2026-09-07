@@ -12,7 +12,7 @@ namespace ItsTool.API.Controllers;
 [Authorize]
 public class TicketController : ControllerBase
 {
-    private const string PermissionClaim = "Permission";
+    private const string PermissionClaim = "permission";
     private readonly ITicketService _service;
 
     public TicketController(ITicketService service)

@@ -7,7 +7,7 @@ namespace ItsTool.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequirePermission:admin.manage")]
+[Authorize]
 public class DepartmentsController : ControllerBase
 {
     private readonly IDepartmentService _service;
@@ -35,6 +35,7 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(typeof(DepartmentDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] CreateDepartmentDto dto)
     {
@@ -43,6 +44,7 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateDepartmentDto dto)
@@ -59,6 +61,7 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)

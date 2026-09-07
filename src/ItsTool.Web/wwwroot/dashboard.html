@@ -306,11 +306,11 @@
             
             if (recentTickets.length === 0) return `<div style="color:var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">${t('dash_no_data')}</div>`;
             return recentTickets.map(tData => `
-                <button type="button" style="width: 100%; border: none; text-align: left; display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
+                <button type="button" style="width: 100%; border: none; text-align: left; display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-hover); color: var(--text-main); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-hover)'">
                     <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${tData.ticketNumber}</div>
                     <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tData.title}</div>
                     ${getStatusBadge(getStatusName(tData.statusId))}
-                </div>
+                </button>
             `).join('');
         }
 
@@ -399,12 +399,12 @@
             };
 
             document.getElementById('drillDownList').innerHTML = items.map(tData => `
-                <button type="button" style="width: 100%; border: 1px solid var(--border); text-align: left; display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
+                <button type="button" style="width: 100%; border: 1px solid var(--border); text-align: left; display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-surface); color: var(--text-main); border-radius: 8px; cursor: pointer; transition: 0.2s;" onclick="window.openTicketPreviewWrapper(${tData.id})" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-surface)'">
                     <div style="font-family: monospace; font-weight: 600; color: var(--primary);">${tData.ticketNumber}</div>
                     <div style="flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tData.title}</div>
                     ${getStatusBadge(getStatusName(tData.statusId))}
                     ${getPriorityBadge(getPriorityName(tData.priorityId))}
-                </div>
+                </button>
             `).join('');
         }
 

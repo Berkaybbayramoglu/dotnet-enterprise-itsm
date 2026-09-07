@@ -262,7 +262,7 @@
 
             data.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.dataset.id =, item.id);
+                tr.dataset.id = item.id;
                 const badge = item.isActive ? `<span class="badge badge-success" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="false">Active</span>` : `<span class="badge badge-default" style="cursor:pointer;" data-action="toggleUserStatus" data-id="${item.id}" data-flag="true">Inactive</span>`;
                 tr.innerHTML = `
                     <td style="font-weight: 500;">

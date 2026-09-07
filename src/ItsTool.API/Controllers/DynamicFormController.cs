@@ -21,6 +21,16 @@ public class DynamicFormController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<FieldDefinitionDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDefinitions() => Ok(await _service.GetFieldDefinitionsAsync());
 
+    [HttpGet("definitions/{id}")]
+    [ProducesResponseType(typeof(FieldDefinitionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDefinitionById(int id)
+    {
+        var def = await _service.GetFieldDefinitionByIdAsync(id);
+        if (def == null) return NotFound();
+        return Ok(def);
+    }
+
     [HttpPost("definitions")]
     [Authorize(Policy = "RequirePermission:config.manage")]
     [ProducesResponseType(typeof(FieldDefinitionDto), StatusCodes.Status201Created)]

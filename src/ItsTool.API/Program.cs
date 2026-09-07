@@ -119,7 +119,7 @@ builder.Services.AddAuthorization(options =>
         options.AddPolicy($"RequirePermission:{perm}", policy => 
             policy.Requirements.Add(new PermissionRequirement(perm)));
     }
-    options.AddPolicy("RequireKbManage", policy => policy.RequireClaim("Permission", "kb.manage"));
+    options.AddPolicy("RequireKbManage", policy => policy.RequireClaim("permission", "kb.manage"));
 });
 
 // Minimal CORS
