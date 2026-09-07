@@ -24,8 +24,9 @@ public class NotificationDispatcher : INotificationDispatcher
     private readonly IEmailQueue _emailQueue;
     private readonly IEmailTemplateService _templateService;
     private readonly Microsoft.Extensions.Configuration.IConfiguration _config;
+    private readonly IAiAgentDispatcher _aiAgentDispatcher;
 
-    public NotificationDispatcher(ItsToolDbContext context, IWebhookDispatcher webhookDispatcher, ISignalRPusher signalRPusher, IEmailQueue emailQueue, IEmailTemplateService templateService, Microsoft.Extensions.Configuration.IConfiguration config)
+    public NotificationDispatcher(ItsToolDbContext context, IWebhookDispatcher webhookDispatcher, ISignalRPusher signalRPusher, IEmailQueue emailQueue, IEmailTemplateService templateService, Microsoft.Extensions.Configuration.IConfiguration config, IAiAgentDispatcher aiAgentDispatcher)
     {
         _context = context;
         _webhookDispatcher = webhookDispatcher;
@@ -33,6 +34,7 @@ public class NotificationDispatcher : INotificationDispatcher
         _emailQueue = emailQueue;
         _templateService = templateService;
         _config = config;
+        _aiAgentDispatcher = aiAgentDispatcher;
     }
 
     public async Task DispatchEventAsync(string eventKey, int ticketId, int? triggerUserId = null, string? additionalContext = null)
@@ -44,6 +46,10 @@ public class NotificationDispatcher : INotificationDispatcher
         if (ticket == null) return;
 
         var recipients = await GetRecipientsForEventAsync(eventKey, ticket, triggerUserId, additionalContext);
+        
+        // Dispatch AI Agents regardless of recipients
+        await _aiAgentDispatcher.DispatchAsync(eventKey, ticket);
+        
         if (recipients.Count == 0) return;
 
         await ProcessNotificationsAsync(recipients, eventKey, ticket, additionalContext);
@@ -151,6 +157,7 @@ public class NotificationDispatcher : INotificationDispatcher
                 await addAssignees(false, "Sla");
                 break;
             case "sla.breached":
+            case "sla.breach":
                 await addAssignees(true, "Sla");
                 await addDeptManagers(true, "Sla");
                 break;
@@ -211,9 +218,10 @@ public class NotificationDispatcher : INotificationDispatcher
 
     private async Task SaveNotificationsToDbAsync(List<ResolvedRecipient> recipients, string eventKey, Ticket ticket, string? additionalContext)
     {
+        string humanReadableEvent = GetHumanReadableEventName(eventKey);
         foreach (var recipient in recipients)
         {
-            string notifBody = additionalContext ?? $"Ticket {ticket.TicketNumber}";
+            string notifBody = additionalContext ?? $"#{ticket.TicketNumber} numaralı bilet";
             if (eventKey == EventCommentMention && additionalContext != null && additionalContext.Contains('|'))
             {
                 var parts = additionalContext.Split('|', 2);
@@ -224,7 +232,7 @@ public class NotificationDispatcher : INotificationDispatcher
             {
                 UserId = recipient.UserId,
                 Type = eventKey,
-                Title = $"Event {eventKey}",
+                Title = humanReadableEvent,
                 Body = notifBody,
                 EntityType = "Ticket",
                 EntityId = ticket.Id,
@@ -306,18 +314,24 @@ public class NotificationDispatcher : INotificationDispatcher
     {
         return eventKey switch
         {
-            "ticket.created" => "New Ticket Created",
-            "ticket.assigned" => "Ticket Assigned to You",
-            "ticket.transferred" => "Ticket Transferred",
-            "comment.added" => "New Comment on Ticket",
-            EventCommentMention => "You Were Mentioned",
-            "status.changed" => "Ticket Status Changed",
-            "ticket.reopened" => "Ticket Reopened",
-            "sla.risk" => "SLA Breach Risk",
-            "sla.breached" => "SLA Breached",
-            "critical.unassigned" => "Critical Ticket Unassigned",
-            "survey.low" => "Low Survey Score Received",
-            _ => "ITSM Notification"
+            "ticket.created" => "Bilet Oluşturuldu",
+            "ticket.assigned" => "Bilet Atandı",
+            "ticket.transferred" => "Bilet Aktarıldı",
+            "comment.added" or "ticket.comment.added" => "Yeni Yorum",
+            EventCommentMention => "Etiketlendiniz",
+            "status.changed" => "Bilet Durumu Değişti",
+            "ticket.reopened" => "Bilet Yeniden Açıldı",
+            "ticket.resolved" => "Bilet Çözüldü",
+            "ticket.closed" => "Bilet Kapatıldı",
+            "ticket.closed.survey" => "Memnuniyet Anketi",
+            "sla.risk" => "SLA Riski",
+            "sla.breached" or "sla.breach" => "SLA İhlali",
+            "sla.warning" => "SLA Uyarısı",
+            "critical.unassigned" => "Kritik Bilet Atanmadı",
+            "survey.low" => "Düşük Anket Puanı",
+            "kb.suggested" => "Yeni Makale Önerisi",
+            "kb.reviewed" => "Makale İncelendi",
+            _ => "Sistem Bildirimi"
         };
     }
 }

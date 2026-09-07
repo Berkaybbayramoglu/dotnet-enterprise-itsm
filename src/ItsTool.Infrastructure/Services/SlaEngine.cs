@@ -212,14 +212,14 @@ public class SlaEngine : ISlaEngine
         if (breach)
         {
             sla.FirstResponseBreached = true;
-            await _notificationDispatcher.DispatchEventAsync("sla.breach", sla.TicketId, null, "First Response SLA breached!");
+            await _notificationDispatcher.DispatchEventAsync("sla.breached", sla.TicketId, null, "İlk yanıt SLA süresi aşıldı!");
             await TryEscalateAsync(sla);
         }
         else if (warn)
         {
             sla.FirstResponseWarned = true;
             foreach (var targetUserId in targetUserIds) {
-                await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "First Response SLA approaching breach.");
+                await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Uyarısı", "İlk yanıt SLA süresi dolmak üzere.");
             }
         }
     }
@@ -233,14 +233,14 @@ public class SlaEngine : ISlaEngine
         if (breach)
         {
             sla.ResolutionBreached = true;
-            await _notificationDispatcher.DispatchEventAsync("sla.breach", sla.TicketId, null, "Resolution SLA breached!");
+            await _notificationDispatcher.DispatchEventAsync("sla.breached", sla.TicketId, null, "Çözüm SLA süresi aşıldı!");
             await TryEscalateAsync(sla);
         }
         else if (warn)
         {
             sla.ResolutionWarned = true;
             foreach (var targetUserId in targetUserIds) {
-                await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Warning", "Resolution SLA approaching breach.");
+                await CreateNotificationAsync(targetUserId, sla.TicketId, "SLA Uyarısı", "Çözüm SLA süresi dolmak üzere.");
             }
         }
     }
@@ -295,23 +295,44 @@ public class SlaEngine : ISlaEngine
         return (false, false);
     }
 
+    
     private async Task CreateNotificationAsync(int userId, int ticketId, string title, string message)
     {
+        var ticket = await _context.Tickets.FindAsync(ticketId);
+        string ticketInfo = ticket != null ? $"[{ticket.TicketNumber}] {ticket.Title}" : $"Bilet #{ticketId}";
+        string fullMessage = $"{message} ({ticketInfo})";
+
         _context.Notifications.Add(new Domain.Entities.Notification.Notification
         {
             UserId = userId,
             Title = title,
-            Body = message,
+            Body = fullMessage,
             Type = "sla.warning",
             EntityId = ticketId,
             EntityType = "Ticket"
         });
 
-        // Fire and forget email via stub
         var user = await _context.Users.FindAsync(userId);
         if (user != null)
         {
-            await _emailService.SendEmailAsync(user.Email, title, message);
+            string htmlBody = $@"
+<div style=""font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; color: #333;"">
+    <div style=""max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"">
+        <div style=""border-bottom: 2px solid #ff4d4f; padding-bottom: 10px; margin-bottom: 20px;"">
+            <h2 style=""color: #ff4d4f; margin: 0;"">⚠️ {title}</h2>
+        </div>
+        <div style=""font-size: 16px; line-height: 1.5;"">
+            <p><strong>Uyarı:</strong> {message}</p>
+            <p><strong>Bilet:</strong> <a href=""http://localhost:5246/ticket-detail.html?id={ticketId}"" style=""color: #1890ff; text-decoration: none;"">{ticketInfo}</a></p>
+        </div>
+        <div style=""margin-top: 30px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 15px;"">
+            Bu e-posta ITSM Sistemi tarafından otomatik olarak gönderilmiştir.
+        </div>
+    </div>
+</div>";
+
+            await _emailService.SendEmailAsync(user.Email, $"{title} - {ticketInfo}", htmlBody, true);
         }
     }
+
 }

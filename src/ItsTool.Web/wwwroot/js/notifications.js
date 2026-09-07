@@ -152,21 +152,110 @@ function getOrCreateToastContainer() {
     return toastContainer;
 }
 
+const EVENT_TITLES = {
+    'ticket.assigned': 'Bilet Atandı',
+    'ticket.created': 'Bilet Oluşturuldu',
+    'ticket.transferred': 'Bilet Aktarıldı',
+    'ticket.comment.added': 'Yeni Yorum',
+    'comment.added': 'Yeni Yorum',
+    'comment.mention': 'Etiketlendiniz',
+    'status.changed': 'Durum Değişti',
+    'ticket.reopened': 'Bilet Yeniden Açıldı',
+    'ticket.resolved': 'Bilet Çözüldü',
+    'ticket.closed': 'Bilet Kapatıldı',
+    'ticket.closed.survey': 'Memnuniyet Anketi',
+    'sla.breached': 'SLA İhlali',
+    'sla.breach': 'SLA İhlali',
+    'sla.risk': 'SLA Riski',
+    'sla.warning': 'SLA Uyarısı',
+    'critical.unassigned': 'Kritik Bilet Atanmadı',
+    'survey.low': 'Düşük Anket Puanı',
+    'kb.suggested': 'Yeni Makale Önerisi',
+    'kb.reviewed': 'Makale İncelendi'
+};
+
+const LEGACY_TITLE_MAP = {
+    'new ticket created': 'Bilet Oluşturuldu',
+    'ticket assigned to you': 'Bilet Atandı',
+    'ticket transferred': 'Bilet Aktarıldı',
+    'new comment on ticket': 'Yeni Yorum',
+    'you were mentioned': 'Etiketlendiniz',
+    'ticket status changed': 'Durum Değişti',
+    'ticket reopened': 'Bilet Yeniden Açıldı',
+    'ticket resolved': 'Bilet Çözüldü',
+    'ticket closed': 'Bilet Kapatıldı',
+    'sla breach risk': 'SLA Riski',
+    'sla breached': 'SLA İhlali',
+    'sla warning': 'SLA Uyarısı',
+    'critical ticket unassigned': 'Kritik Bilet Atanmadı',
+    'low survey score received': 'Düşük Anket Puanı',
+    'new knowledge base suggestion': 'Yeni Makale Önerisi',
+    'article reviewed': 'Makale İncelendi',
+    'itsm notification': 'Sistem Bildirimi'
+};
+
+function getNotificationTitle(type, defaultTitle) {
+    if (type && EVENT_TITLES[type.toLowerCase()]) {
+        return EVENT_TITLES[type.toLowerCase()];
+    }
+    let clean = (defaultTitle || '').replaceAll('Event ', '').trim();
+    if (clean && EVENT_TITLES[clean.toLowerCase()]) {
+        return EVENT_TITLES[clean.toLowerCase()];
+    }
+    if (clean && LEGACY_TITLE_MAP[clean.toLowerCase()]) {
+        return LEGACY_TITLE_MAP[clean.toLowerCase()];
+    }
+    if (clean.includes('.')) {
+        const mapped = EVENT_TITLES[clean.toLowerCase()];
+        if (mapped) return mapped;
+        return clean.split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    }
+    return clean || 'Bildirim';
+}
+
+function formatNotificationBody(bodyText) {
+    if (!bodyText) return '';
+    let text = bodyText.trim();
+    if (text === 'Ticket assigned to multiple entities' || text.startsWith('Ticket assigned to')) {
+        return 'Bilet size veya ekibinize atandı.';
+    }
+    if (text === 'A new ticket has been created.') {
+        return 'Yeni bir bilet oluşturuldu.';
+    }
+    if (text === 'A new comment was added.') {
+        return 'Bilete yeni bir yorum eklendi.';
+    }
+    if (text.includes('First Response SLA breached!')) {
+        return text.replace('First Response SLA breached!', 'İlk yanıt SLA süresi aşıldı!');
+    }
+    if (text.includes('Resolution SLA breached!')) {
+        return text.replace('Resolution SLA breached!', 'Çözüm SLA süresi aşıldı!');
+    }
+    if (text.includes('First Response SLA approaching breach.')) {
+        return text.replace('First Response SLA approaching breach.', 'İlk yanıt SLA süresi dolmak üzere!');
+    }
+    if (text.includes('Resolution SLA approaching breach.')) {
+        return text.replace('Resolution SLA approaching breach.', 'Çözüm SLA süresi dolmak üzere!');
+    }
+    if (text.startsWith('Ticket ') && text.length < 20) {
+        return text.replace('Ticket ', 'Bilet #');
+    }
+    return text;
+}
+
 function getToastIconAndTitle(payload) {
-    let displayTitle = payload.title;
+    const displayTitle = getNotificationTitle(payload.type, payload.title);
     let iconSvg = '';
     
     if (payload.type === 'comment.mention') { 
-        displayTitle = 'Etiketlendiniz'; 
         iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57V12c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57V12c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>';
-    }
-    else if (payload.type === 'ticket.comment.added') { displayTitle = 'Yeni Yorum'; }
-    else if (payload.type === 'ticket.created') { displayTitle = 'Bilet Oluşturuldu'; }
-    else if (payload.type === 'sla.breached') { displayTitle = 'SLA İhlali'; }
-    else if (payload.type === 'sla.risk') { displayTitle = 'SLA Riski'; }
-    else { displayTitle = displayTitle.replaceAll('Event ', ''); }
-    
-    if (!iconSvg) {
+    } else if (payload.type && (payload.type.startsWith('sla.') || payload.type === 'sla.breach')) {
+        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>';
+    } else if (payload.type === 'ticket.assigned' || payload.type === 'ticket.transferred') {
+        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+    } else if (payload.type === 'ticket.comment.added' || payload.type === 'comment.added') {
+        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>';
+    } else {
         iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>';
     }
     return { displayTitle, iconSvg };
@@ -180,11 +269,12 @@ function showToastNotification(payload) {
     
     let bodyText = payload.body;
     let commentId = null;
-    if (payload.type === 'comment.mention' && bodyText.includes('|')) {
+    if (payload.type === 'comment.mention' && bodyText && bodyText.includes('|')) {
         const p = bodyText.split('|');
         bodyText = p[0];
         commentId = p[1];
     }
+    bodyText = formatNotificationBody(bodyText);
     
     const { displayTitle, iconSvg } = getToastIconAndTitle(payload);
 
@@ -227,16 +317,6 @@ function showToastNotification(payload) {
     }, 6000);
 }
 
-
-function getNotificationTitle(type, defaultTitle) {
-    if (type === 'comment.mention') return 'Etiketlendiniz';
-    if (type === 'ticket.comment.added') return 'Yeni Yorum';
-    if (type === 'ticket.created') return 'Bilet Oluşturuldu';
-    if (type === 'sla.breached') return 'SLA İhlali';
-    if (type === 'sla.risk') return 'SLA Riski';
-    return (defaultTitle || '').replaceAll('Event ', '');
-}
-
 function getNotificationLink(n, commentId) {
     if (n.entityType === 'Ticket' && n.entityId) {
         return `/ticket-detail.html?id=${n.entityId}` + (commentId ? `&highlight=true&commentId=${commentId}` : '');
@@ -255,6 +335,7 @@ function parseNotificationBody(n) {
         bodyText = p[0];
         commentId = p[1];
     }
+    bodyText = formatNotificationBody(bodyText);
     return { bodyText, commentId };
 }
 

@@ -1,6 +1,6 @@
 // layout.js - Common UI Layout Injector
 import { applyTranslations } from './i18n.js';
-import { initNotifications } from './notifications.js?v=3';
+import { initNotifications } from './notifications.js?v=4';
 
 
 function injectSignalR() {
