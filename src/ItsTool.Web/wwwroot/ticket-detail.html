@@ -37,6 +37,92 @@
         .comment-attachment-img-container .download-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 28px; height: 28px; display: none; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: background 0.2s; }
         .comment-attachment-img-container .download-btn:hover { background: rgba(0,0,0,0.8); }
         .comment-attachment-img-container:hover .download-btn { display: flex; }
+
+        /* Eye-catching AI Copilot Card Styling (Corporate Blue / Emerald / Amber / Teal) */
+        #aiCopilotPanel {
+            background: linear-gradient(180deg, #F0F7FF 0%, var(--bg-surface) 100%);
+            border: 1px solid #BFDBFE;
+            border-top: 3.5px solid #0052CC;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 14px rgba(0, 82, 204, 0.08);
+            position: relative;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .ai-action-btn {
+            font-size: 11px;
+            padding: 7px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+        .ai-action-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+        
+        /* 1. Çözüm Önerisi (Royal Blue) */
+        .ai-btn-suggest {
+            background: #EFF6FF;
+            color: #1D4ED8;
+            border: 1px solid #BFDBFE;
+        }
+        .ai-btn-suggest:hover:not(:disabled) {
+            background: #1D4ED8;
+            color: #FFFFFF;
+            border-color: #1D4ED8;
+            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
+        }
+        
+        /* 2. Bileti Özetle (Emerald Green) */
+        .ai-btn-summarize {
+            background: #ECFDF5;
+            color: #047857;
+            border: 1px solid #A7F3D0;
+        }
+        .ai-btn-summarize:hover:not(:disabled) {
+            background: #047857;
+            color: #FFFFFF;
+            border-color: #047857;
+            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+        }
+        
+        /* 3. Yanıt Taslağı (Warm Amber) */
+        .ai-btn-draft {
+            background: #FFFBEB;
+            color: #B45309;
+            border: 1px solid #FDE68A;
+        }
+        .ai-btn-draft:hover:not(:disabled) {
+            background: #B45309;
+            color: #FFFFFF;
+            border-color: #B45309;
+            box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
+        }
+        
+        /* 4. Soru Sor (Cyan / Teal) */
+        .ai-btn-ask {
+            background: #ECFEFF;
+            color: #0E7490;
+            border: 1px solid #A5F3FC;
+        }
+        .ai-btn-ask:hover:not(:disabled) {
+            background: #0E7490;
+            color: #FFFFFF;
+            border-color: #0E7490;
+            box-shadow: 0 2px 8px rgba(14, 116, 144, 0.25);
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+        }
     </style>
 </head>
 <body>
@@ -156,34 +242,44 @@
 
                     <div class="side-column">
                         <!-- AI Copilot Panel -->
-                        <div class="sidebar-panel mb-md" id="aiCopilotPanel" style="position: relative;">
+                        <div class="sidebar-panel mb-md" id="aiCopilotPanel">
                             <div class="d-flex justify-content-between align-items-center mb-xs">
                                 <div class="d-flex align-items-center gap-xs">
-                                    <h3 style="margin:0; font-size:14px; font-weight: 600; color: var(--text-main);" data-i18n="ai_copilot_title">
+                                    <div style="width: 24px; height: 24px; border-radius: 6px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #0052CC; flex-shrink: 0;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                        </svg>
+                                    </div>
+                                    <h3 style="margin:0; font-size:14px; font-weight: 700; color: #0052CC;" data-i18n="ai_copilot_title">
                                         AI Copilot & Asistan
                                     </h3>
                                 </div>
-                                <span id="aiStatusBadge" class="badge" style="font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--border);">
-                                    ● Kontrol ediliyor...
+                                <span id="aiStatusBadge" class="badge" style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                                    <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite;"></span>
+                                    <span>LLM Aktif</span>
                                 </span>
                             </div>
                             
-                            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.3;" data-i18n="ai_copilot_desc">
+                            <p style="font-size: 11px; color: #475569; margin: 6px 0 10px 0; line-height: 1.35;" data-i18n="ai_copilot_desc">
                                 Bilet çözüm önerisi, özet ve yanıt taslağı alın.
                             </p>
 
                             <!-- Quick Action Buttons -->
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
-                                <button type="button" id="btnAiSuggest" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.triggerAiAction('suggest')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
+                                <button type="button" id="btnAiSuggest" class="ai-action-btn ai-btn-suggest" onclick="window.triggerAiAction('suggest')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"/></svg>
                                     <span data-i18n="ai_btn_suggest">Çözüm Önerisi</span>
                                 </button>
-                                <button type="button" id="btnAiSummarize" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.triggerAiAction('summarize')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
+                                <button type="button" id="btnAiSummarize" class="ai-action-btn ai-btn-summarize" onclick="window.triggerAiAction('summarize')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                     <span data-i18n="ai_btn_summarize">Bileti Özetle</span>
                                 </button>
-                                <button type="button" id="btnAiDraft" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.triggerAiAction('draft')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
+                                <button type="button" id="btnAiDraft" class="ai-action-btn ai-btn-draft" onclick="window.triggerAiAction('draft')">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     <span data-i18n="ai_btn_draft">Yanıt Taslağı</span>
                                 </button>
-                                <button type="button" id="btnAiAsk" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.toggleAiAskInput()" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
+                                <button type="button" id="btnAiAsk" class="ai-action-btn ai-btn-ask" onclick="window.toggleAiAskInput()">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                     <span data-i18n="ai_btn_ask">Soru Sor</span>
                                 </button>
                             </div>
@@ -191,36 +287,36 @@
                             <!-- Ask Input Area (Toggleable) -->
                             <div id="aiAskContainer" style="display: none; margin-bottom: 10px;">
                                 <div style="display: flex; gap: 4px;">
-                                    <input type="text" id="aiQuestionInput" class="form-control" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;" placeholder="Bu bilet hakkında soru sorun..." data-i18n="ai_ask_placeholder" data-i18n-target="placeholder" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.submitAiQuestion();}">
-                                    <button type="button" id="btnAiSubmitAsk" class="btn btn-primary btn-sm ai-action-btn" onclick="window.submitAiQuestion()" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;">
+                                    <input type="text" id="aiQuestionInput" class="form-control" style="font-size: 11px; padding: 6px 10px; border-radius: 6px; border: 1.5px solid #0891B2;" placeholder="Bu bilet hakkında soru sorun..." data-i18n="ai_ask_placeholder" data-i18n-target="placeholder" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.submitAiQuestion();}">
+                                    <button type="button" id="btnAiSubmitAsk" class="btn btn-sm" onclick="window.submitAiQuestion()" style="font-size: 11px; padding: 6px 12px; border-radius: 6px; background: #0891B2; color: white; border: none; font-weight: 600;">
                                         <span data-i18n="ai_ask_btn">Sor</span>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Loading indicator -->
-                            <div id="aiLoadingIndicator" style="display: none; text-align: center; padding: 12px 0;">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 16px; height: 16px; margin-right: 6px;"></div>
-                                <span style="font-size: 12px; color: var(--text-muted);" data-i18n="ai_thinking">Yapay zeka analiz ediyor...</span>
+                            <div id="aiLoadingIndicator" style="display: none; text-align: center; padding: 14px 0;">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 18px; height: 18px; margin-right: 6px;"></div>
+                                <span style="font-size: 12px; font-weight: 500; color: #0052CC;" data-i18n="ai_thinking">Yapay zeka analiz ediyor...</span>
                             </div>
 
                             <!-- Result / Output Area -->
-                            <div id="aiResultArea" style="display: none; background: var(--bg-body); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; margin-top: 6px;">
-                                <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid var(--border-light); padding-bottom: 4px;">
-                                    <strong id="aiResultTitle" style="font-size: 11px; color: var(--text-main); font-weight: 600;">AI Çıktısı</strong>
-                                    <span id="aiResultSource" style="font-size: 9px; color: var(--text-muted);"></span>
+                            <div id="aiResultArea" style="display: none; background: #FFFFFF; border: 1px solid #CBD5E1; border-left: 4px solid #0052CC; border-radius: 6px; padding: 10px; margin-top: 8px; box-shadow: 0 2px 8px rgba(0, 82, 204, 0.06);">
+                                <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <strong id="aiResultTitle" style="font-size: 12px; color: #0052CC; font-weight: 700;">AI Çıktısı</strong>
+                                    <span id="aiResultSource" style="font-size: 9px; font-weight: 600; color: #475569; background: #F1F5F9; padding: 2px 6px; border-radius: 4px;"></span>
                                 </div>
-                                <div id="aiResultContent" style="font-size: 11px; line-height: 1.5; color: var(--text-main); max-height: 220px; overflow-y: auto; white-space: pre-wrap; padding: 4px 0;"></div>
+                                <div id="aiResultContent" style="font-size: 11.5px; line-height: 1.55; color: #1E293B; max-height: 240px; overflow-y: auto; white-space: pre-wrap; padding: 6px 0;"></div>
                                 
-                                <div class="d-flex justify-content-between align-items-center mt-xs" style="border-top: 1px solid var(--border-light); padding-top: 6px;">
-                                    <button type="button" class="btn btn-ghost btn-sm" id="btnCopyAiResult" onclick="window.copyAiResult()" style="font-size: 10px; padding: 2px 6px;">
+                                <div class="d-flex justify-content-between align-items-center mt-xs" style="border-top: 1px solid #E2E8F0; padding-top: 8px;">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnCopyAiResult" onclick="window.copyAiResult()" style="font-size: 10px; padding: 3px 8px; color: #475569;">
                                         <span data-i18n="ai_btn_copy">Kopyala</span>
                                     </button>
                                     <div class="d-flex gap-xs">
-                                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.insertAiIntoComment(false)" style="font-size: 10px; padding: 2px 6px;" title="Yorum alanına aktar">
+                                        <button type="button" class="btn btn-sm" onclick="window.insertAiIntoComment(false)" style="font-size: 10px; padding: 3px 8px; background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; font-weight: 600; border-radius: 4px;" title="Yorum alanına aktar">
                                             <span data-i18n="ai_btn_add_comment">Yoruma Ekle</span>
                                         </button>
-                                        <button type="button" class="btn btn-primary btn-sm" id="btnAiMakeInternal" onclick="window.saveAiAsInternalNote()" style="font-size: 10px; padding: 2px 6px;" title="Doğrudan dahili not olarak bilete kaydet">
+                                        <button type="button" class="btn btn-primary btn-sm" id="btnAiMakeInternal" onclick="window.saveAiAsInternalNote()" style="font-size: 10px; padding: 3px 8px; background: #0052CC; color: white; font-weight: 600; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,82,204,0.3);" title="Doğrudan dahili not olarak bilete kaydet">
                                             <span data-i18n="ai_btn_make_internal">Dahili Not Yap</span>
                                         </button>
                                     </div>
@@ -2747,33 +2843,33 @@
                 if (res && (res.isConfigured || res.configured)) {
                     if (res.isAvailable || res.isEndpointReachable) {
                         badge.className = 'badge';
-                        badge.style.background = 'var(--bg-hover)';
-                        badge.style.color = 'var(--text-main)';
-                        badge.style.border = '1px solid var(--border)';
-                        badge.innerHTML = '<span style="color: var(--success); font-size: 8px; margin-right: 4px; vertical-align: middle;">●</span>' + (res.model ? 'LLM Aktif (' + res.model + ')' : 'LLM Aktif');
-                        badge.title = 'Model: ' + res.model + ' | Endpoint: ' + res.endpoint;
+                        badge.style.background = '#ECFDF5';
+                        badge.style.color = '#047857';
+                        badge.style.border = '1px solid #A7F3D0';
+                        badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite; margin-right: 4px; vertical-align: middle;"></span><span>LLM Aktif</span>';
+                        badge.title = 'Model: ' + (res.model || 'Nvidia') + ' | Endpoint: ' + (res.endpoint || '');
                     } else {
                         badge.className = 'badge';
-                        badge.style.background = 'var(--bg-hover)';
-                        badge.style.color = 'var(--text-muted)';
-                        badge.style.border = '1px solid var(--border)';
-                        badge.innerHTML = '<span style="color: var(--warning); font-size: 8px; margin-right: 4px; vertical-align: middle;">●</span>Yerel Mod';
+                        badge.style.background = '#FFFBEB';
+                        badge.style.color = '#B45309';
+                        badge.style.border = '1px solid #FDE68A';
+                        badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; margin-right: 4px; vertical-align: middle;"></span><span>Yerel Mod</span>';
                         badge.title = 'LLM Sunucusu çevrimdışı. Akıllı kural ve geçmiş bilet analizi devrede.';
                     }
                 } else {
                     badge.className = 'badge';
-                    badge.style.background = 'var(--bg-hover)';
-                    badge.style.color = 'var(--text-muted)';
-                    badge.style.border = '1px solid var(--border)';
-                    badge.innerHTML = '<span style="color: var(--text-muted); font-size: 8px; margin-right: 4px; vertical-align: middle;">○</span>Pasif';
+                    badge.style.background = '#F1F5F9';
+                    badge.style.color = '#475569';
+                    badge.style.border = '1px solid #CBD5E1';
+                    badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#94A3B8; margin-right: 4px; vertical-align: middle;"></span><span>Pasif</span>';
                 }
             } catch (err) {
                 console.warn('AI status check failed:', err);
                 badge.className = 'badge';
-                badge.style.background = 'var(--bg-hover)';
-                badge.style.color = 'var(--text-muted)';
-                badge.style.border = '1px solid var(--border)';
-                badge.innerHTML = '<span style="color: var(--text-muted); font-size: 8px; margin-right: 4px; vertical-align: middle;">●</span>Hazır';
+                badge.style.background = '#ECFDF5';
+                badge.style.color = '#047857';
+                badge.style.border = '1px solid #A7F3D0';
+                badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; margin-right: 4px; vertical-align: middle;"></span><span>Hazır</span>';
                 badge.title = 'AI Asistan servisi hazır.';
             }
         };
