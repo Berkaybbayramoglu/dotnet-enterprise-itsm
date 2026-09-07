@@ -273,8 +273,8 @@
                     <td class="text-muted">${escapeHtml(item.email)}</td>
                     <td>${badge}</td>
                     <td>
-                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">${t('users_roles_title').split(' ')[0]}</button>
-                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">${t('users_overrides_title').split(' ')[0]}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">${t('users_btn_roles') || 'Roles'}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">${t('users_btn_perms') || 'Perms'}</button>
                         <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">${t('users_btn_edit')}</button>
                         <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">${t('users_btn_del')}</button>
                     </td>
