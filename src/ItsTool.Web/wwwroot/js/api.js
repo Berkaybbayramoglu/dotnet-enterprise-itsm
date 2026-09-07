@@ -5,16 +5,40 @@ const API_BASE_URL = 'http://localhost:5246/api';
 class ApiClient {
     constructor() {
         this.token = localStorage.getItem('jwt_token');
+        this.parseToken();
     }
 
     setToken(token) {
         this.token = token;
         localStorage.setItem('jwt_token', token);
+        this.parseToken();
     }
 
     clearToken() {
         this.token = null;
+        this.decodedToken = null;
         localStorage.removeItem('jwt_token');
+    }
+
+    
+    parseToken() {
+        if (!this.token) {
+            this.decodedToken = null;
+            return;
+        }
+        try {
+            const payload = JSON.parse(atob(this.token.split('.')[1]));
+            const roles = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role || [];
+            const permissions = payload.permission || payload.permissions || [];
+            this.decodedToken = {
+                userId: parseInt(payload.sub),
+                roles: Array.isArray(roles) ? roles : [roles],
+                permissions: Array.isArray(permissions) ? permissions : [permissions]
+            };
+        } catch (e) {
+            console.error("Failed to parse token", e);
+            this.decodedToken = null;
+        }
     }
 
     async request(endpoint, options = {}) {
