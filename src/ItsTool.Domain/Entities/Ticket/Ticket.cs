@@ -15,6 +15,7 @@ public class Ticket : BaseEntity {
     public string? ExternalMessageId { get; set; } // Phase 11: Inbound Email Dedupe
     public DateTime? EstimatedStartDate { get; set; }
     public DateTime? EstimatedEndDate { get; set; }
+    public string? ColorHex { get; set; }
 
     public virtual Project.Project? Project { get; set; }
     public virtual Category? Category { get; set; }

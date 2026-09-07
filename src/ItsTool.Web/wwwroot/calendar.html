@@ -100,9 +100,9 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=999';
-        import { injectShell } from './js/layout.js?v=999';
-        import { bindShellActions, showToast } from './js/ui.js';
+        import './js/api.js?v=1002';
+        import { injectShell } from './js/layout.js?v=1002';
+        import { bindShellActions, showToast } from './js/ui.js?v=1002';
         
         injectShell();
         
@@ -110,6 +110,35 @@
         bindShellActions();
         
         let globalLookupData = {};
+
+        // 16 High-contrast, vibrant professional colors
+        const TICKET_PALETTE = [
+            '#2563eb', // Blue
+            '#059669', // Emerald
+            '#d97706', // Amber
+            '#7c3aed', // Purple
+            '#dc2626', // Red
+            '#0891b2', // Cyan
+            '#ea580c', // Orange
+            '#db2777', // Pink
+            '#4f46e5', // Indigo
+            '#16a34a', // Green
+            '#9333ea', // Violet
+            '#0284c7', // Sky
+            '#b45309', // Brown
+            '#e11d48', // Rose
+            '#0d9488', // Dark Teal
+            '#475569'  // Slate
+        ];
+
+        function getTicketColor(t) {
+            if (t.colorHex && t.colorHex.trim() !== '') {
+                return t.colorHex;
+            }
+            const id = parseInt(t.id, 10) || 1;
+            // Prime step multiplier distributes consecutive IDs across high-contrast colors
+            return TICKET_PALETTE[(id * 7) % TICKET_PALETTE.length];
+        }
 
         window.openUserDetails = function(userId) { return window.ui.showUserDetails(userId); };
 
@@ -144,14 +173,16 @@
                                 // FullCalendar exclusive end date logic: add 1 day if it's all-day
                                 endDate.setDate(endDate.getDate() + 1);
                                 
+                                const ticketColor = getTicketColor(t);
                                 let titleStr = `#${t.id} - ${t.title}`;
                                 return {
                                     id: t.id,
                                     title: titleStr,
                                     start: t.estimatedStartDate,
                                     end: endDate.toISOString().split('T')[0],
-                                    backgroundColor: 'var(--primary)',
-                                    borderColor: 'var(--primary-dark)',
+                                    backgroundColor: ticketColor,
+                                    borderColor: ticketColor,
+                                    textColor: '#ffffff',
                                     allDay: true,
                                     extendedProps: {
                                         ticketData: t,
@@ -180,6 +211,8 @@
                     titleWrapper.style.whiteSpace = 'nowrap';
                     titleWrapper.style.overflow = 'hidden';
                     titleWrapper.style.textOverflow = 'ellipsis';
+                    titleWrapper.style.color = '#ffffff';
+                    titleWrapper.style.fontWeight = '600';
                     titleWrapper.innerText = arg.event.title;
                     
                     let assigneesDiv = document.createElement('div');
@@ -234,6 +267,14 @@
                     
                     return { domNodes: [container] };
                 },
+                eventDidMount: function(info) {
+                    const c = info.event.backgroundColor;
+                    if (c) {
+                        info.el.style.setProperty('background-color', c, 'important');
+                        info.el.style.setProperty('border-color', c, 'important');
+                        info.el.style.setProperty('color', '#ffffff', 'important');
+                    }
+                },
                 eventClick: function(info) {
                     info.jsEvent.preventDefault();
                     if (window.openTicketPreview && info.event.extendedProps.ticketData) {
@@ -251,6 +292,12 @@
                         mSelect.value = cm;
                         ySelect.value = current.getFullYear();
                     }
+                }
+            });
+
+            window.addEventListener('ticketColorChanged', function() {
+                if (calendar) {
+                    calendar.refetchEvents();
                 }
             });
             var mSelect = document.getElementById('calendarMonthSelect');

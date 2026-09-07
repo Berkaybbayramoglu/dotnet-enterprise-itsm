@@ -55,7 +55,7 @@ export function showToast(message, type = 'success') {
     }, 3000);
 }
 
-export function showUndoToast(message, undoFn, ms = 6000) {
+export function showUndoToast(message, undoFn, ms = 6000, undoText = 'Geri Al') {
     let container = document.getElementById('toastContainer');
     if (!container) {
         container = document.createElement('div');
@@ -75,7 +75,7 @@ export function showUndoToast(message, undoFn, ms = 6000) {
         toast.innerHTML = `
             <div class="d-flex align-items-center gap-sm" style="flex: 1; justify-content: space-between;">
                 <span style="font-weight: 500;">${message}</span>
-                <button type="button" class="btn btn-secondary btn-undo" style="padding: 4px 8px; font-size: 12px; margin-left: 12px;">Undo</button>
+                <button type="button" class="btn btn-secondary btn-undo" style="padding: 4px 10px; font-size: 12px; margin-left: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: 600;">${undoText}</button>
             </div>
             <div class="undo-progress" style="animation-duration: ${ms}ms;"></div>
         `;
@@ -337,7 +337,7 @@ export function showInfoModal(title, text) {
     openModal(modalId);
 }
 
-export function showConfirmModal(title, text) {
+export function showConfirmModal(title, text, okText = 'Tamam', cancelText = 'İptal') {
     return new Promise((resolve) => {
         let modalId = 'globalConfirmModal';
         let overlay = document.getElementById(modalId);
@@ -366,6 +366,8 @@ export function showConfirmModal(title, text) {
         }
         document.getElementById(`${modalId}-title`).textContent = title;
         document.getElementById(`${modalId}-text`).textContent = text;
+        document.getElementById(`${modalId}-ok`).textContent = okText;
+        document.getElementById(`${modalId}-cancel`).textContent = cancelText;
         
         const closeBtn = document.getElementById(`${modalId}-close`);
         const cancelBtn = document.getElementById(`${modalId}-cancel`);
@@ -787,7 +789,60 @@ export function openTicketPreview(ticketData, lookupData) {
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_sla_status') || 'SLA Status'}</div><span class="badge badge-success">${t('ticket_sla_on_track') || 'On Track'}</span></div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('audit_col_time') || 'Created At'}</div><div style="font-size: 14px;">${formatDate(ticketData.createdAt)}</div></div>
         </div>
+        <div style="margin-top: var(--spacing-md); padding: 10px 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div id="previewColorDot" style="width: 20px; height: 20px; border-radius: 50%; background-color: ${((ticketData.colorHex && ticketData.colorHex.trim() !== '') ? ticketData.colorHex : ['#2563eb','#059669','#d97706','#7c3aed','#dc2626','#0891b2','#ea580c','#db2777','#4f46e5','#16a34a','#9333ea','#0284c7','#b45309','#e11d48','#0d9488','#475569'][((ticketData.id || 1) * 7) % 16])}; border: 1px solid rgba(0,0,0,0.2);"></div>
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">Bilet Rengi</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="color" id="previewColorPicker" value="${((ticketData.colorHex && ticketData.colorHex.trim() !== '') ? ticketData.colorHex : ['#2563eb','#059669','#d97706','#7c3aed','#dc2626','#0891b2','#ea580c','#db2777','#4f46e5','#16a34a','#9333ea','#0284c7','#b45309','#e11d48','#0d9488','#475569'][((ticketData.id || 1) * 7) % 16])}" style="width: 44px; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
+                <button type="button" id="previewSaveColorBtn" class="btn btn-secondary btn-sm" style="font-size: 12px; padding: 6px 12px;">Rengi Kaydet</button>
+            </div>
+        </div>
     `;
+    
+    const colorPicker = document.getElementById('previewColorPicker');
+    const colorDot = document.getElementById('previewColorDot');
+    const saveColorBtn = document.getElementById('previewSaveColorBtn');
+    
+    if (colorPicker && colorDot) {
+        colorPicker.oninput = () => {
+            colorDot.style.backgroundColor = colorPicker.value;
+        };
+    }
+    
+    if (saveColorBtn && colorPicker) {
+        saveColorBtn.onclick = async () => {
+            const newColor = colorPicker.value;
+            saveColorBtn.disabled = true;
+            saveColorBtn.innerText = '...';
+            try {
+                await window.api.request(`/Ticket/${ticketData.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        title: ticketData.title,
+                        description: ticketData.description,
+                        categoryId: ticketData.categoryId,
+                        priorityId: ticketData.priorityId,
+                        customFields: ticketData.customFields || {},
+                        estimatedStartDate: ticketData.estimatedStartDate,
+                        estimatedEndDate: ticketData.estimatedEndDate,
+                        colorHex: newColor
+                    })
+                });
+                ticketData.colorHex = newColor;
+                showToast('Bilet rengi başarıyla kaydedildi!', 'success');
+                window.dispatchEvent(new CustomEvent('ticketColorChanged', { detail: { ticketId: ticketData.id, colorHex: newColor } }));
+            } catch (err) {
+                console.error('Failed to update ticket color', err);
+                showToast('Renk güncellenirken hata oluştu', 'error');
+            } finally {
+                saveColorBtn.disabled = false;
+                saveColorBtn.innerText = 'Rengi Kaydet';
+            }
+        };
+    }
+
     document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${ticketData.id}`;
     openModal('previewModal');
 }
