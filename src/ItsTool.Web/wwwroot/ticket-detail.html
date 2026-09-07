@@ -156,14 +156,14 @@
 
                     <div class="side-column">
                         <!-- AI Copilot Panel -->
-                        <div class="sidebar-panel mb-md" id="aiCopilotPanel" style="border: 1px solid #818cf8; background: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, var(--bg-surface) 100%); position: relative; border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                        <div class="sidebar-panel mb-md" id="aiCopilotPanel" style="position: relative;">
                             <div class="d-flex justify-content-between align-items-center mb-xs">
                                 <div class="d-flex align-items-center gap-xs">
-                                    <h3 style="margin:0; font-size:14px; font-weight: 700; color: #4f46e5;" data-i18n="ai_copilot_title">
+                                    <h3 style="margin:0; font-size:14px; font-weight: 600; color: var(--text-main);" data-i18n="ai_copilot_title">
                                         AI Copilot & Asistan
                                     </h3>
                                 </div>
-                                <span id="aiStatusBadge" class="badge" style="font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; background: rgba(99, 102, 241, 0.1); color: #4f46e5; border: 1px solid rgba(99, 102, 241, 0.3);">
+                                <span id="aiStatusBadge" class="badge" style="font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--border);">
                                     ● Kontrol ediliyor...
                                 </span>
                             </div>
@@ -174,16 +174,16 @@
 
                             <!-- Quick Action Buttons -->
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
-                                <button type="button" id="btnAiSuggest" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.triggerAiAction('suggest')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                <button type="button" id="btnAiSuggest" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.triggerAiAction('suggest')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
                                     <span data-i18n="ai_btn_suggest">Çözüm Önerisi</span>
                                 </button>
-                                <button type="button" id="btnAiSummarize" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.triggerAiAction('summarize')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                <button type="button" id="btnAiSummarize" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.triggerAiAction('summarize')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
                                     <span data-i18n="ai_btn_summarize">Bileti Özetle</span>
                                 </button>
-                                <button type="button" id="btnAiDraft" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.triggerAiAction('draft')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                <button type="button" id="btnAiDraft" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.triggerAiAction('draft')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
                                     <span data-i18n="ai_btn_draft">Yanıt Taslağı</span>
                                 </button>
-                                <button type="button" id="btnAiAsk" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.toggleAiAskInput()" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                <button type="button" id="btnAiAsk" class="btn btn-secondary btn-sm ai-action-btn" onclick="window.toggleAiAskInput()" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 4px; font-weight: 500;">
                                     <span data-i18n="ai_btn_ask">Soru Sor</span>
                                 </button>
                             </div>
@@ -205,9 +205,9 @@
                             </div>
 
                             <!-- Result / Output Area -->
-                            <div id="aiResultArea" style="display: none; background: var(--bg-surface); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 6px; padding: 8px; margin-top: 6px;">
+                            <div id="aiResultArea" style="display: none; background: var(--bg-body); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; margin-top: 6px;">
                                 <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid var(--border-light); padding-bottom: 4px;">
-                                    <strong id="aiResultTitle" style="font-size: 11px; color: #4f46e5;">AI Çıktısı</strong>
+                                    <strong id="aiResultTitle" style="font-size: 11px; color: var(--text-main); font-weight: 600;">AI Çıktısı</strong>
                                     <span id="aiResultSource" style="font-size: 9px; color: var(--text-muted);"></span>
                                 </div>
                                 <div id="aiResultContent" style="font-size: 11px; line-height: 1.5; color: var(--text-main); max-height: 220px; overflow-y: auto; white-space: pre-wrap; padding: 4px 0;"></div>
@@ -1536,8 +1536,8 @@
 
         function buildCommentHeaderHtml(c, e, isEdited, connectorHtml) {
             const isAi = (c.content && (c.content.includes('AI Copilot') || c.content.includes('Multi-Agent') || c.content.includes('[AI Asistan]'))) || c.createdBy === 'AI Copilot' || c.createdBy === 'AI Swarm';
-            const aiBadge = isAi ? '<span class="badge" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center;">AI Copilot</span>' : '';
-            const authorDisplayName = isAi ? 'AI Copilot' : window.resolveTimelineUser(c.authorUserId);
+            const aiBadge = isAi ? '<span class="badge badge-info" style="font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center;">AI Copilot</span>' : '';
+            const authorDisplayName = (c.createdBy === 'AI Copilot' || c.createdBy === 'AI Swarm') ? 'AI Copilot' : window.resolveTimelineUser(c.authorUserId);
 
             return `
                 ${connectorHtml}
@@ -1590,10 +1590,6 @@
             
             div.className = `comment ${c.isInternal ? 'internal' : ''} ${isAi ? 'ai-copilot-comment' : ''}`;
             div.id = `comment-${c.id}`;
-            if (isAi) {
-                div.style.borderLeft = '3px solid #6366f1';
-                div.style.background = 'linear-gradient(180deg, rgba(99, 102, 241, 0.05) 0%, var(--bg-surface) 100%)';
-            }
             
             let connectorHtml = '';
             if (c.parentCommentId) {
@@ -2750,30 +2746,34 @@
                 const res = await window.api.request('/ai/status', { silent: true });
                 if (res && (res.isConfigured || res.configured)) {
                     if (res.isAvailable || res.isEndpointReachable) {
-                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
-                        badge.style.color = '#059669';
-                        badge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
-                        badge.textContent = '● LLM Aktif (' + (res.model || 'Online') + ')';
+                        badge.className = 'badge';
+                        badge.style.background = 'var(--bg-hover)';
+                        badge.style.color = 'var(--text-main)';
+                        badge.style.border = '1px solid var(--border)';
+                        badge.innerHTML = '<span style="color: var(--success); font-size: 8px; margin-right: 4px; vertical-align: middle;">●</span>' + (res.model ? 'LLM Aktif (' + res.model + ')' : 'LLM Aktif');
                         badge.title = 'Model: ' + res.model + ' | Endpoint: ' + res.endpoint;
                     } else {
-                        badge.style.background = 'rgba(245, 158, 11, 0.15)';
-                        badge.style.color = '#d97706';
-                        badge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
-                        badge.textContent = '● Akıllı Asistan Aktif';
+                        badge.className = 'badge';
+                        badge.style.background = 'var(--bg-hover)';
+                        badge.style.color = 'var(--text-muted)';
+                        badge.style.border = '1px solid var(--border)';
+                        badge.innerHTML = '<span style="color: var(--warning); font-size: 8px; margin-right: 4px; vertical-align: middle;">●</span>Yerel Mod';
                         badge.title = 'LLM Sunucusu çevrimdışı. Akıllı kural ve geçmiş bilet analizi devrede.';
                     }
                 } else {
-                    badge.style.background = 'rgba(107, 114, 128, 0.15)';
-                    badge.style.color = '#6b7280';
-                    badge.style.border = '1px solid rgba(107, 114, 128, 0.3)';
-                    badge.textContent = '○ Pasif';
+                    badge.className = 'badge';
+                    badge.style.background = 'var(--bg-hover)';
+                    badge.style.color = 'var(--text-muted)';
+                    badge.style.border = '1px solid var(--border)';
+                    badge.innerHTML = '<span style="color: var(--text-muted); font-size: 8px; margin-right: 4px; vertical-align: middle;">○</span>Pasif';
                 }
             } catch (err) {
                 console.warn('AI status check failed:', err);
-                badge.style.background = 'rgba(245, 158, 11, 0.15)';
-                badge.style.color = '#d97706';
-                badge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
-                badge.textContent = '● Akıllı Asistan Hazır';
+                badge.className = 'badge';
+                badge.style.background = 'var(--bg-hover)';
+                badge.style.color = 'var(--text-muted)';
+                badge.style.border = '1px solid var(--border)';
+                badge.innerHTML = '<span style="color: var(--text-muted); font-size: 8px; margin-right: 4px; vertical-align: middle;">●</span>Hazır';
                 badge.title = 'AI Asistan servisi hazır.';
             }
         };
