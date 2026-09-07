@@ -851,8 +851,8 @@ export async function showUserDetails(userId) {
         let deptName = '-';
         if (user.departmentId) {
             try {
-                const depts = await window.api.request('/Departments');
-                const d = depts.find(x => x.id === user.departmentId);
+                const depts = (window.globalLookup && window.globalLookup.departments) ? window.globalLookup.departments : await window.api.request('/Departments');
+                const d = depts.find(x => x.id == user.departmentId);
                 if (d) deptName = d.name;
             } catch (e) { console.error(e); }
         }
@@ -863,7 +863,7 @@ export async function showUserDetails(userId) {
             try {
                 const allGroups = window.globalGroups || await window.api.getGroups().catch(e=>[]);
                 groupsStr = user.groupIds.map(id => {
-                    const g = allGroups.find(x => x.id === id);
+                    const g = allGroups.find(x => x.id == id);
                     return g ? g.name : `Group ${id}`;
                 }).join(', ');
             } catch(e) { console.error(e); }
