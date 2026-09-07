@@ -70,10 +70,21 @@ KURALLAR:
 3. Başlıkları iki nokta üst üste ile ayır. Maddeleri tire veya yıldız yerine sadece 1., 2. gibi düz sayılarla numaralandır.
 4. Çıktıyı tamamen temiz, sade ve okunabilir düz Türkçe metin olarak üret.";
 
+        // Fetch comments to know what happened so far
+        var comments = await _context.TicketComments
+            .Where(c => c.TicketId == ticketId && !c.IsDeleted)
+            .OrderBy(c => c.CreatedAt)
+            .Take(10)
+            .Select(c => $"[{c.CreatedAt:yyyy-MM-dd HH:mm}] {c.CreatedBy} ({(c.IsInternal ? "Dahili Not" : "Kullanıcı Yorumu")}): {c.Content}")
+            .ToListAsync();
+
+        var commentsStr = comments.Count > 0 ? string.Join("\n", comments) : "Henüz bilet üzerinde yorum veya ek işlem yapılmadı.";
+        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? "Açıklama girilmemiş" : ticket.Description;
+
         var pastTicketsStr = similarTickets.Count > 0 ? JsonSerializer.Serialize(similarTickets, new JsonSerializerOptions { WriteIndented = true }) : "Geçmiş benzer bilet bulunamadı.";
         var kbStr = kbArticles.Count > 0 ? JsonSerializer.Serialize(kbArticles, new JsonSerializerOptions { WriteIndented = true }) : "Eşleşen bilgi bankası makalesi yok.";
 
-        var userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name ?? "Genel"}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nAçıklama: {ticket.Description}\n\nGeçmiş Benzer Çözülmüş Biletler:\n{pastTicketsStr}\n\nİlgili Bilgi Bankası:\n{kbStr}\n\nLütfen BT destek uzmanı için adım adım çözüm önerisi hazırla. Emojisiz ve markdownsız düz metin olarak ver.";
+        var userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name ?? "Genel"}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsStr}\n\nGeçmiş Benzer Çözülmüş Biletler:\n{pastTicketsStr}\n\nİlgili Bilgi Bankası:\n{kbStr}\n\nLütfen bilet detayları ve yorum geçmişinde yaşanan gelişmeler ışığında BT destek uzmanı için adım adım çözüm önerisi hazırla. Emojisiz ve markdownsız düz metin olarak ver.";
 
         string suggestion;
         string source;
@@ -126,6 +137,16 @@ KURALLAR:
         var ticket = await _context.Tickets.Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == ticketId);
         if (ticket == null) return "Bilet bulunamadı.";
 
+        var recentComments = await _context.TicketComments
+            .Where(c => c.TicketId == ticketId && !c.IsDeleted)
+            .OrderBy(c => c.CreatedAt)
+            .Take(5)
+            .Select(c => $"[{c.CreatedAt:yyyy-MM-dd HH:mm}] {c.CreatedBy} ({(c.IsInternal ? "Dahili Not" : "Kullanıcı Yorumu")}): {c.Content}")
+            .ToListAsync();
+
+        var commentsHistory = recentComments.Count > 0 ? string.Join("\n", recentComments) : "Henüz ek bir yorum bulunmuyor.";
+        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? "Açıklama girilmemiş" : ticket.Description;
+
         string systemPrompt = @"Sen profesyonel ve nazik bir BT Destek Uzmanısın.
 Görevin, kullanıcıya talebinin incelendiğini, üzerinde çalışıldığını veya gerekli adımların başlatıldığını bildiren samimi, net ve kurumsal bir e-posta / mesaj taslağı hazırlamaktır.
 KURALLAR:
@@ -133,7 +154,7 @@ KURALLAR:
 2. Kesinlikle markdown formatı kullanma (yıldız *, çift yıldız **, tire -, diyez #, ters tırnak ` vb. işaretler olmamalıdır).
 3. Çıktıyı tamamen sade ve temiz düz Türkçe metin olarak üret.";
 
-        string userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKullanıcı Açıklaması: {ticket.Description}\nLütfen kullanıcı için yanıt taslağı hazırla.";
+        string userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKullanıcı Açıklaması: {ticketDesc}\n\nBiletteki Son Gelişmeler ve Yorumlar:\n{commentsHistory}\n\nLütfen biletin güncel durumunu ve yapılan işlemleri göz önünde bulundurarak kullanıcı için nazik bir yanıt taslağı hazırla.";
 
         var completion = await _llmService.GetCompletionAsync(systemPrompt, userMessage);
         if (!string.IsNullOrEmpty(completion) && !completion.StartsWith("[AI İsteği Başarısız") && !completion.StartsWith("[AI Modülü"))

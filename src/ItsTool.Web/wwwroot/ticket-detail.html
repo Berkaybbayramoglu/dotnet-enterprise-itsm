@@ -2978,7 +2978,7 @@
                 if (loading) loading.style.display = 'none';
 
                 if (res && res.success) {
-                    const rawText = res.suggestion || res.summary || res.draft || res.reply || res.answer || '';
+                    const rawText = res.formatted || res.suggestion || res.summary || res.draft || res.reply || res.answer || '';
                     const text = stripMarkdownAndEmojis(rawText);
                     currentAiResultText = text;
                     if (resultTitle) resultTitle.textContent = title;
