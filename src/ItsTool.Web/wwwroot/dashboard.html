@@ -320,18 +320,19 @@
 
         async function loadDashboard() {
             try {
-                const overview = await window.api.getDashboardOverview();
-                const dist = await window.api.getDashboardDistributions();
+                const [overview, dist, workload, res, lookup, uRes] = await Promise.all([
+                    window.api.getDashboardOverview(),
+                    window.api.getDashboardDistributions(),
+                    fetchSafe(() => window.api.request('/dashboard/department-workload'), []),
+                    fetchSafe(() => window.api.searchTickets({ pageSize: 5 }), {items: []}),
+                    fetchSafe(() => window.api.getLookup(), {}),
+                    fetchSafe(() => window.api.getUsers(), {items: []})
+                ]);
                 
-                const workload = await fetchSafe(() => window.api.request('/dashboard/department-workload'), []);
-                
-                const res = await fetchSafe(() => window.api.searchTickets({ pageSize: 5 }), {items: []});
                 const recentTickets = res.items || [];
                 window.__recentTicketsCache = recentTickets;
                 
-                const lookup = await fetchSafe(() => window.api.getLookup(), {});
                 window.__lookupCache = lookup;
-                const uRes = await fetchSafe(() => window.api.getUsers(), {items: []});
                 window.globalUsers = (uRes && uRes.items) ? uRes.items : (Array.isArray(uRes) ? uRes : []);
 
                 document.getElementById('overviewCards').innerHTML = `
