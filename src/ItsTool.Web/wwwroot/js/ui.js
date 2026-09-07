@@ -748,8 +748,14 @@ export function openTicketPreview(ticketData, lookupData) {
     const prioColors = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
     const prioColor = prioColors[prioName] || 'default';
     const statusName = lookupData.statuses?.find(x => x.id === ticketData.statusId)?.name || 'Unknown';
-    const assigneeName = ticketData.assignedUserId ? `User ${ticketData.assignedUserId}` : t('t_unassigned') || 'Unassigned';
-    const reqName = ticketData.requesterUserId ? `User ${ticketData.requesterUserId}` : 'Unknown';
+    const getFullName = (id) => {
+        const u = window.globalUsers?.find(x => x.id === id);
+        if (u && (u.firstName || u.lastName)) return `${u.firstName || ''} ${u.lastName || ''}`.trim();
+        if (u && u.username) return u.username;
+        return `User ${id}`;
+    };
+    const assigneeName = ticketData.assignedUserId ? getFullName(ticketData.assignedUserId) : t('t_unassigned') || 'Unassigned';
+    const reqName = ticketData.requesterUserId ? getFullName(ticketData.requesterUserId) : 'Unknown';
     
     const formatDate = (d) => {
         if(!d) return '-';
