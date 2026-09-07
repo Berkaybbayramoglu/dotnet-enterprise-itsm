@@ -190,7 +190,7 @@
             
             try {
                 await window.api.login(username, password);
-                window.location.href = '/dashboard.html';
+                window.location.href = '/dashboard.html?v=' + Date.now();
             } catch (err) {
                 console.error(err);
                 errorDiv.textContent = 'Login failed. Please check your credentials.';

@@ -107,7 +107,7 @@ const shellHtml = `
                 <svg viewBox="0 0 24 24" width="24" height="24" style="fill: var(--primary); margin-right: 8px;"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 19H5.83L12 5.83z"/></svg> ITSM Tool
             </div>
             <nav class="sidebar-nav">
-                <a href="/dashboard.html" class="sidebar-nav-item">
+                <a href="/dashboard.html?v=2" class="sidebar-nav-item">
                     <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> <span data-i18n="nav_dashboard">Dashboard</span>
                 </a>
                 <a href="/tickets.html" class="sidebar-nav-item">
