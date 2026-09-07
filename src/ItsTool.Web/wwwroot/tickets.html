@@ -12,6 +12,7 @@
         .ticket-title { font-weight: 600; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: var(--spacing-sm); }
         .ticket-title:hover { color: var(--primary); text-decoration: underline; }
         .ticket-number { color: var(--text-muted); font-size: 12px; }
+        .row-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; opacity: 1 !important; }
         
         @media (max-width: 768px) { .table { min-width: 100% !important; } }
     </style>
@@ -95,10 +96,10 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=999';
-        import { injectShell } from './js/layout.js?v=999';
-        import { bindShellActions, showToast } from './js/ui.js?v=999';
-        import { t } from './js/i18n.js';
+        import './js/api.js?v=1005';
+        import { injectShell } from './js/layout.js?v=1005';
+        import { bindShellActions, showToast, showConfirmModal, showUndoToast } from './js/ui.js?v=1005';
+        import { t } from './js/i18n.js?v=1005';
         injectShell();
         
         if (!window.api.token) window.location.href = '/login.html';
@@ -248,8 +249,14 @@
 
                     const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
                     
-                    const canEdit = window.api.decodedToken?.roles?.includes('SuperAdmin') || window.api.decodedToken?.permissions?.includes('ticket.edit');
-                    const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit')}</a>` : '';
+                    const userRoles = (window.api.decodedToken?.roles || []).map(r => String(r).toLowerCase());
+                    const userPerms = (window.api.decodedToken?.permissions || []).map(p => String(p).toLowerCase());
+                    const isManagerOrAdmin = userRoles.includes('manager') || userRoles.includes('superadmin') || userRoles.includes('admin');
+                    const canEdit = isManagerOrAdmin || userPerms.includes('ticket.edit') || userPerms.includes('ticket.manage') || userPerms.includes('ticket.assign');
+                    const canDelete = isManagerOrAdmin || userPerms.includes('ticket.delete') || userPerms.includes('ticket.manage') || userPerms.includes('ticket.assign');
+                    
+                    const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit') || 'Edit'}</a>` : '';
+                    const deleteBtnHtml = canDelete ? `<button type="button" onclick="window.deleteTicket(${ticketItem.id}, '${escapeHtml(ticketItem.ticketNumber)}')" class="btn btn-ghost" style="color: var(--danger); font-weight: 500;">Sil</button>` : '';
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -269,6 +276,7 @@
                             <div class="row-actions">
                                 <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>
                                 ${editBtnHtml}
+                                ${deleteBtnHtml}
                             </div>
                         </td>
                     `;
@@ -350,6 +358,37 @@
                 search();
             }
         }
+
+        window.deleteTicket = async function(id, ticketNumber) {
+            const confirmed = await showConfirmModal(
+                'Bileti Sil',
+                `${ticketNumber} numaralı bileti silmek istediğinize emin misiniz?\n(Bu işlem sistem denetim kaydına/loguna yazılacaktır)`,
+                'Sil',
+                'İptal'
+            );
+            if (!confirmed) return;
+
+            try {
+                await window.api.request(`/Ticket/${id}`, { method: 'DELETE' });
+                await search();
+
+                // Undo Pattern (Geri Al Bildirimi)
+                showUndoToast(`${ticketNumber} numaralı bilet silindi.`, async () => {
+                    try {
+                        await window.api.request(`/Ticket/${id}/restore`, { method: 'POST' });
+                        showToast(`${ticketNumber} başarıyla geri yüklendi!`, 'success');
+                        await search();
+                    } catch (restoreErr) {
+                        console.error('Geri yükleme hatası', restoreErr);
+                        showToast('Bilet geri yüklenirken bir hata oluştu.', 'error');
+                    }
+                }, 7000, 'Geri Al');
+
+            } catch (e) {
+                console.error('Bilet silme hatası', e);
+                showToast('Bilet silinirken bir hata oluştu.', 'error');
+            }
+        };
 
         document.getElementById('btnSearch').addEventListener('click', search);
         document.getElementById('btnSaveFilter').addEventListener('click', saveFilter);

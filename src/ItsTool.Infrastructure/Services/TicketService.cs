@@ -134,7 +134,8 @@ public class TicketService : ITicketService
             RequesterUserId = dto.RequesterUserId,
             StatusId = defaultStatus.Id,
             EstimatedStartDate = dto.EstimatedStartDate,
-            EstimatedEndDate = dto.EstimatedEndDate
+            EstimatedEndDate = dto.EstimatedEndDate,
+            ColorHex = dto.ColorHex
         };
         _context.Tickets.Add(t);
         await _context.SaveChangesAsync();
@@ -168,9 +169,10 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
 
         await _slaEngine.AttachSlaToTicketAsync(t.Id);
-        await _notificationDispatcher.DispatchEventAsync("ticket.created", t.Id, dto.RequesterUserId, "A new ticket has been created.");
+        await _notificationDispatcher.DispatchEventAsync("ticket.created", t.Id, dto.RequesterUserId, $"#{t.TicketNumber} numaralı yeni bilet oluşturuldu.");
 
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, new List<TicketAssigneeDto>(), null, t.EstimatedStartDate, t.EstimatedEndDate);
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, new List<TicketAssigneeDto>(), null, t.EstimatedStartDate, t.EstimatedEndDate,
+                t.ColorHex);
     }
 
     public async Task<TicketDto?> GetTicketByIdAsync(int id)
@@ -194,7 +196,50 @@ public class TicketService : ITicketService
             a.AssignedUserId != null ? (a.AssignedUser?.FirstName + " " + a.AssignedUser?.LastName) : a.AssignedGroup?.Name,
             a.AssignedUserId != null ? (a.AssignedUser?.IsDeleted ?? false) : (a.AssignedGroup?.IsDeleted ?? false)
         )).ToList();
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields, t.EstimatedStartDate, t.EstimatedEndDate);
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields, t.EstimatedStartDate, t.EstimatedEndDate, t.ColorHex);
+    }
+
+    
+    public async Task DeleteTicketAsync(int id, int currentUserId)
+    {
+        var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        if (t == null) throw new KeyNotFoundException(TicketNotFoundMessage);
+
+        t.IsDeleted = true;
+        t.DeletedAt = DateTime.UtcNow;
+
+        _context.TicketHistories.Add(new ItsTool.Domain.Entities.Ticket.TicketHistory
+        {
+            TicketId = id,
+            Action = "Deleted",
+            FieldName = "System",
+            OldValue = "Active",
+            NewValue = "Deleted",
+            CreatedBy = currentUserId.ToString()
+        });
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RestoreTicketAsync(int id, int currentUserId)
+    {
+        var t = await _context.Tickets.FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted);
+        if (t == null) throw new KeyNotFoundException(TicketNotFoundMessage);
+
+        t.IsDeleted = false;
+        t.DeletedAt = null;
+
+        _context.TicketHistories.Add(new ItsTool.Domain.Entities.Ticket.TicketHistory
+        {
+            TicketId = id,
+            Action = "Restored",
+            FieldName = "System",
+            OldValue = "Deleted",
+            NewValue = "Active",
+            CreatedBy = currentUserId.ToString()
+        });
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateTicketAsync(int id, UpdateTicketDto dto, int currentUserId)
@@ -236,6 +281,8 @@ public class TicketService : ITicketService
         CheckDiff("EstimatedEndDate", t.EstimatedEndDate?.ToString("O"), dto.EstimatedEndDate?.ToString("O"));
         t.EstimatedStartDate = dto.EstimatedStartDate;
         t.EstimatedEndDate = dto.EstimatedEndDate;
+        CheckDiff("ColorHex", t.ColorHex, dto.ColorHex);
+        t.ColorHex = dto.ColorHex;
 
         // Custom fields update logic
         var existingFields = await _context.TicketFieldValues
@@ -355,7 +402,7 @@ public class TicketService : ITicketService
         // Notify for CSAT if status changes to Closed (Assuming 5 is Closed)
         if (dto.NewStatusId == 5 && oldStatus != 5)
         {
-            await _notificationDispatcher.DispatchEventAsync("ticket.closed.survey", t.Id, dto.UserId, "Your ticket has been closed. Please fill out the satisfaction survey.");
+            await _notificationDispatcher.DispatchEventAsync("ticket.closed.survey", t.Id, dto.UserId, $"#{t.TicketNumber} numaralı bilet kapatıldı. Lütfen memnuniyet anketini doldurunuz.");
         }
     }
 
@@ -437,7 +484,7 @@ public class TicketService : ITicketService
         });
 
         await _context.SaveChangesAsync();
-        await _notificationDispatcher.DispatchEventAsync("ticket.assigned", t.Id, dto.AssignerUserId, $"Ticket assigned to multiple entities");
+        await _notificationDispatcher.DispatchEventAsync("ticket.assigned", t.Id, dto.AssignerUserId, $"#{t.TicketNumber} numaralı bilet size veya ekibinize atandı.");
     }
 
     private async Task VerifyHierarchyCheckAsync(Ticket t, AssignTicketDto dto, User? assigner)
@@ -517,6 +564,7 @@ public class TicketService : ITicketService
 
     public async Task<TicketCommentDto> AddCommentAsync(int ticketId, CreateCommentDto dto)
     {
+        var ticket = await _context.Tickets.FindAsync(ticketId);
         var c = new TicketComment
         {
             TicketId = ticketId,
@@ -548,14 +596,13 @@ public class TicketService : ITicketService
         await _context.SaveChangesAsync();
         
         await _slaEngine.ProcessTicketCommentAsync(ticketId, dto.IsInternal);
-        await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, "A new comment was added.");
+        await _notificationDispatcher.DispatchEventAsync("ticket.comment.added", ticketId, dto.AuthorUserId, $"#{ticket?.TicketNumber} numaralı bilete yeni bir yorum eklendi.");
         
         if (dto.MentionedUserIds != null && dto.MentionedUserIds.Length > 0)
         {
-            var ticket = await _context.Tickets.FindAsync(ticketId);
             foreach(var uid in dto.MentionedUserIds)
             {
-                await _notificationDispatcher.DispatchEventAsync("comment.mention", ticketId, dto.AuthorUserId, $"{uid}|You were mentioned in ticket {ticket?.TicketNumber} ({ticket?.Title})|{c.Id}");
+                await _notificationDispatcher.DispatchEventAsync("comment.mention", ticketId, dto.AuthorUserId, $"{uid}|#{ticket?.TicketNumber} ({ticket?.Title}) numaralı bilette sizden bahsedildi.|{c.Id}");
                 
                 _context.TicketHistories.Add(new TicketHistory
                 {
@@ -603,7 +650,7 @@ public class TicketService : ITicketService
             var ticket = await _context.Tickets.FindAsync(ticketId);
             foreach(var uid in dto.MentionedUserIds)
             {
-                await _notificationDispatcher.DispatchEventAsync("comment.mention", ticketId, userId, $"{uid}|You were mentioned in ticket {ticket?.TicketNumber} ({ticket?.Title})|{c.Id}");
+                await _notificationDispatcher.DispatchEventAsync("comment.mention", ticketId, userId, $"{uid}|#{ticket?.TicketNumber} ({ticket?.Title}) numaralı bilette sizden bahsedildi.|{c.Id}");
                 
                 _context.TicketHistories.Add(new TicketHistory
                 {
@@ -813,7 +860,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUser != null ? a.AssignedUser.FirstName + " " + a.AssignedUser.LastName : a.AssignedGroup != null ? a.AssignedGroup.Name : "", false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUser != null ? a.AssignedUser.FirstName + " " + a.AssignedUser.LastName : a.AssignedGroup != null ? a.AssignedGroup.Name : "", false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate, t.ColorHex))
             .ToListAsync();
 
         return new PagedResult<TicketDto>

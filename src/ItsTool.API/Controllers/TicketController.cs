@@ -34,7 +34,8 @@ public class TicketController : ControllerBase
     {
         try
         {
-            var result = await _service.CreateTicketAsync(dto);
+            var forcedDto = dto with { RequesterUserId = GetCurrentUserId() };
+            var result = await _service.CreateTicketAsync(forcedDto);
             return CreatedAtAction(nameof(GetTicket), new { id = result.Id }, result);
         }
         catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
@@ -59,8 +60,51 @@ public class TicketController : ControllerBase
         return Ok(users);
     }
 
+    [HttpDelete("{id}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteTicket(int id)
+    {
+        bool hasDeletePerm = User.IsInRole("SuperAdmin") || 
+                             User.IsInRole("Manager") || 
+                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) || c.Value.Equals("Manager", StringComparison.OrdinalIgnoreCase))) ||
+                             User.HasClaim(c => c.Type == PermissionClaim && (c.Value == "ticket.manage" || c.Value == "ticket.assign" || c.Value == "ticket.delete" || c.Value == "ticket.edit"));
+        
+        if (!hasDeletePerm) return Forbid();
+
+        try
+        {
+            await _service.DeleteTicketAsync(id, GetCurrentUserId());
+            return NoContent();
+        }
+        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
+    }
+
+    [HttpPost("{id}/restore")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> RestoreTicket(int id)
+    {
+        bool hasDeletePerm = User.IsInRole("SuperAdmin") || 
+                             User.IsInRole("Manager") || 
+                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) || c.Value.Equals("Manager", StringComparison.OrdinalIgnoreCase))) ||
+                             User.HasClaim(c => c.Type == PermissionClaim && (c.Value == "ticket.manage" || c.Value == "ticket.assign" || c.Value == "ticket.delete" || c.Value == "ticket.edit"));
+        
+        if (!hasDeletePerm) return Forbid();
+
+        try
+        {
+            await _service.RestoreTicketAsync(id, GetCurrentUserId());
+            return NoContent();
+        }
+        catch (System.Collections.Generic.KeyNotFoundException) { return NotFound(); }
+    }
+
     [HttpPut("{id}")]
-    [Authorize(Policy = "RequirePermission:ticket.edit")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
