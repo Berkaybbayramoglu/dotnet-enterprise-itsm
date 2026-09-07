@@ -427,19 +427,19 @@
         }
 
         function applyLookupFilter(filter, lookupArray, itemName, filterKey) {
-            const obj = window.__lookupCache?.[lookupArray]?.find(s => s.name === itemName);
+            const obj = window.__lookupCache?.[lookupArray]?.find(s => itemName.toLowerCase().split(',').includes(s.name.toLowerCase()));
             if (obj) filter[filterKey] = obj.id;
         }
 
         function buildDrillDownFilter(type) {
             let filter = { pageSize: 50 };
-            const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed');
+            const closedStatus = window.__lookupCache?.statuses?.find(s => s.name === 'Closed' || s.name === 'Kapatıldı');
             const excludeClosed = () => { if (closedStatus) filter.excludeStatusId = closedStatus.id; };
             
             if (type === 'Open Tickets') {
                 excludeClosed();
             } else if (type === 'Critical') {
-                applyLookupFilter(filter, 'priorities', 'Critical', 'priorityId');
+                applyLookupFilter(filter, 'priorities', 'Critical,Kritik', 'priorityId');
                 excludeClosed();
             } else if (type === 'SLA Risk') {
                 filter.slaStatus = 'warning';

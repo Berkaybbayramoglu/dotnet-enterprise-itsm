@@ -46,6 +46,8 @@ public static class TicketQueryHelpers
         if (filter.RequesterUserId.HasValue) query = query.Where(t => t.RequesterUserId == filter.RequesterUserId.Value);
         if (filter.FromDate.HasValue) query = query.Where(t => t.CreatedAt >= filter.FromDate.Value);
         if (filter.ToDate.HasValue) query = query.Where(t => t.CreatedAt <= filter.ToDate.Value);
+        if (filter.Unassigned == true) query = query.Where(t => !t.Assignments.Any(a => a.IsActive && !a.IsDeleted));
+        if (filter.ExcludeStatusId.HasValue) query = query.Where(t => t.StatusId != filter.ExcludeStatusId.Value);
         return query;
     }
 
