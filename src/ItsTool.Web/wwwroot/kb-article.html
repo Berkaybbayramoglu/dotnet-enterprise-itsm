@@ -263,7 +263,7 @@
             if (isManager) {
                 document.getElementById('managerTip').style.display = 'flex';
                 const tBtn = document.getElementById('btnTogglePublish');
-                tBtn.textContent = a.status === 0 ? (t('kb_btn_pub') || 'Publish') : (t('kb_btn_unpub') || 'Unpublish');
+                tBtn.textContent = (a.status === 1 || a.status === 'Published') ? (t('kb_btn_unpub') || 'Unpublish') : (t('kb_btn_pub') || 'Publish');
                 if (a.status === 2) {
                     tBtn.style.display = 'none';
                     document.getElementById('btnReviewArticle').style.display = 'inline-flex';
@@ -429,7 +429,7 @@
 
         document.getElementById('btnTogglePublish')?.addEventListener('click', async () => {
             if(!loadedArticle) return;
-            const newStatus = loadedArticle.status === 0 ? 1 : 0;
+            const newStatus = (loadedArticle.status === 1 || loadedArticle.status === 'Published') ? 0 : 1;
             const oldStatus = loadedArticle.status;
             
             try {
