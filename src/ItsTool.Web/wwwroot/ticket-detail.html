@@ -155,6 +155,79 @@
                     </div>
 
                     <div class="side-column">
+                        <!-- AI Copilot Panel -->
+                        <div class="sidebar-panel mb-md" id="aiCopilotPanel" style="border: 1px solid #818cf8; background: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, var(--bg-surface) 100%); position: relative; border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                            <div class="d-flex justify-content-between align-items-center mb-xs">
+                                <div class="d-flex align-items-center gap-xs">
+                                    <h3 style="margin:0; font-size:14px; font-weight: 700; color: #4f46e5;" data-i18n="ai_copilot_title">
+                                        AI Copilot & Asistan
+                                    </h3>
+                                </div>
+                                <span id="aiStatusBadge" class="badge" style="font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; background: rgba(99, 102, 241, 0.1); color: #4f46e5; border: 1px solid rgba(99, 102, 241, 0.3);">
+                                    ● Kontrol ediliyor...
+                                </span>
+                            </div>
+                            
+                            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.3;" data-i18n="ai_copilot_desc">
+                                Bilet çözüm önerisi, özet ve yanıt taslağı alın.
+                            </p>
+
+                            <!-- Quick Action Buttons -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+                                <button type="button" id="btnAiSuggest" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.triggerAiAction('suggest')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                    <span data-i18n="ai_btn_suggest">Çözüm Önerisi</span>
+                                </button>
+                                <button type="button" id="btnAiSummarize" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.triggerAiAction('summarize')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                    <span data-i18n="ai_btn_summarize">Bileti Özetle</span>
+                                </button>
+                                <button type="button" id="btnAiDraft" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.triggerAiAction('draft')" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                    <span data-i18n="ai_btn_draft">Yanıt Taslağı</span>
+                                </button>
+                                <button type="button" id="btnAiAsk" class="btn btn-outline-primary btn-sm ai-action-btn" onclick="window.toggleAiAskInput()" style="font-size: 11px; padding: 5px 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; font-weight: 500;">
+                                    <span data-i18n="ai_btn_ask">Soru Sor</span>
+                                </button>
+                            </div>
+
+                            <!-- Ask Input Area (Toggleable) -->
+                            <div id="aiAskContainer" style="display: none; margin-bottom: 10px;">
+                                <div style="display: flex; gap: 4px;">
+                                    <input type="text" id="aiQuestionInput" class="form-control" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;" placeholder="Bu bilet hakkında soru sorun..." data-i18n="ai_ask_placeholder" data-i18n-target="placeholder" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.submitAiQuestion();}">
+                                    <button type="button" id="btnAiSubmitAsk" class="btn btn-primary btn-sm ai-action-btn" onclick="window.submitAiQuestion()" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;">
+                                        <span data-i18n="ai_ask_btn">Sor</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Loading indicator -->
+                            <div id="aiLoadingIndicator" style="display: none; text-align: center; padding: 12px 0;">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 16px; height: 16px; margin-right: 6px;"></div>
+                                <span style="font-size: 12px; color: var(--text-muted);" data-i18n="ai_thinking">Yapay zeka analiz ediyor...</span>
+                            </div>
+
+                            <!-- Result / Output Area -->
+                            <div id="aiResultArea" style="display: none; background: var(--bg-surface); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 6px; padding: 8px; margin-top: 6px;">
+                                <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid var(--border-light); padding-bottom: 4px;">
+                                    <strong id="aiResultTitle" style="font-size: 11px; color: #4f46e5;">AI Çıktısı</strong>
+                                    <span id="aiResultSource" style="font-size: 9px; color: var(--text-muted);"></span>
+                                </div>
+                                <div id="aiResultContent" style="font-size: 11px; line-height: 1.5; color: var(--text-main); max-height: 220px; overflow-y: auto; white-space: pre-wrap; padding: 4px 0;"></div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-xs" style="border-top: 1px solid var(--border-light); padding-top: 6px;">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnCopyAiResult" onclick="window.copyAiResult()" style="font-size: 10px; padding: 2px 6px;">
+                                        <span data-i18n="ai_btn_copy">Kopyala</span>
+                                    </button>
+                                    <div class="d-flex gap-xs">
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.insertAiIntoComment(false)" style="font-size: 10px; padding: 2px 6px;" title="Yorum alanına aktar">
+                                            <span data-i18n="ai_btn_add_comment">Yoruma Ekle</span>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" id="btnAiMakeInternal" onclick="window.saveAiAsInternalNote()" style="font-size: 10px; padding: 2px 6px;" title="Doğrudan dahili not olarak bilete kaydet">
+                                            <span data-i18n="ai_btn_make_internal">Dahili Not Yap</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="sidebar-panel" id="sidebarPanelContent">
                             <div class="d-flex justify-content-between align-items-center mb-md">
                                 <h3 style="margin:0; font-size:16px;" data-i18n="ticket_properties">Properties</h3>
@@ -203,6 +276,11 @@
                                 <div class="property-label" data-i18n="ticket_prop_category">Category</div>
                                 <div class="property-value" id="tCategory"></div>
                             </div>
+                            <div class="property-group">
+                                <div class="property-label">Color</div>
+                                <div class="property-value" id="tColorHex"></div>
+                            </div>
+
                             <div class="property-group">
                                 <div class="property-label" data-i18n="ticket_lbl_start_date">Estimated Start Date</div>
                                 <div class="property-value" id="tEstimatedStartDate"></div>
@@ -332,17 +410,17 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=999';
-        import { injectShell } from './js/layout.js';
-        import { bindShellActions, showToast, openModal, closeModal, showConfirmModal, showUndoToast } from './js/ui.js?v=999';
-        import { initMentions } from './js/mentions.js';
-        import { t } from './js/i18n.js?v=999';
+        import './js/api.js?v=1007';
+        import { injectShell } from './js/layout.js?v=1007';
+        import { bindShellActions, showToast, openModal, closeModal, showConfirmModal, showUndoToast } from './js/ui.js?v=1007';
+        import { initMentions } from './js/mentions.js?v=1007';
+        import { t } from './js/i18n.js?v=1007';
         injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
         
-        const canEditTicket = window.api.decodedToken?.roles?.includes('SuperAdmin') || window.api.decodedToken?.permissions?.includes('ticket.edit');
+        const canEditTicket = window.api.decodedToken?.roles?.includes('SuperAdmin') || window.api.decodedToken?.permissions?.includes('ticket.edit') || window.api.decodedToken?.permissions?.includes('ticket.manage') || window.api.decodedToken?.permissions?.includes('ticket.assign');
         if (!canEditTicket) {
             const btnEditInline = document.getElementById('btnEditInline');
             if (btnEditInline) btnEditInline.style.display = 'none';
@@ -359,6 +437,17 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const ticketId = urlParams.get('id');
+
+        const TICKET_PALETTE = [
+            '#2563eb', '#059669', '#d97706', '#7c3aed',
+            '#dc2626', '#0891b2', '#ea580c', '#db2777',
+            '#4f46e5', '#16a34a', '#9333ea', '#0284c7',
+            '#b45309', '#e11d48', '#0d9488', '#475569'
+        ];
+        function getTicketDefaultColor(tid) {
+            const id = parseInt(tid, 10) || 1;
+            return TICKET_PALETTE[(id * 7) % TICKET_PALETTE.length];
+        }
 
         let currentTicket = null;
         let dynamicPlacements = [];
@@ -461,7 +550,42 @@
             const catName = window.globalLookup.categories?.find(x => x.id === currentTicket.categoryId)?.name || '-';
             
             document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(t('db_' + prioName.toLowerCase().replaceAll(' ', '_')) || prioName)}</span>`;
-            document.getElementById('tCategory').textContent = catName;
+            const defaultTicketColor = getTicketDefaultColor(currentTicket.id);
+            const activeColor = (currentTicket.colorHex && currentTicket.colorHex.trim() !== '') ? currentTicket.colorHex : defaultTicketColor;
+            document.getElementById('tColorHex').innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="color" id="instantColorPicker" value="${activeColor}" title="Rengi anında düzenlemek için tıklayın" style="width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:transparent;">
+                    <span id="tColorLabel" style="font-size:13px; font-weight:500;">${currentTicket.colorHex ? currentTicket.colorHex : (activeColor + ' (Otomatik)')}</span>
+                </div>
+            `;
+            const instantPicker = document.getElementById('instantColorPicker');
+            if (instantPicker) {
+                instantPicker.addEventListener('change', async (e) => {
+                    const newColor = e.target.value;
+                    try {
+                        await window.api.request(`/Ticket/${ticketId}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                title: currentTicket.title,
+                                description: currentTicket.description,
+                                categoryId: currentTicket.categoryId,
+                                priorityId: currentTicket.priorityId,
+                                customFields: currentTicket.customFields || {},
+                                estimatedStartDate: currentTicket.estimatedStartDate,
+                                estimatedEndDate: currentTicket.estimatedEndDate,
+                                colorHex: newColor
+                            })
+                        });
+                        currentTicket.colorHex = newColor;
+                        const lbl = document.getElementById('tColorLabel');
+                        if (lbl) lbl.textContent = newColor;
+                        showToast('Bilet rengi başarıyla kaydedildi!', 'success');
+                    } catch (err) {
+                        console.error('Failed to update color', err);
+                        showToast('Renk güncellenirken hata oluştu', 'error');
+                    }
+                });
+            }
             
             const dynContainer = document.getElementById('dynamicFieldsDisplay');
             dynContainer.innerHTML = '';
@@ -851,7 +975,7 @@
                 
                 // Attachments are already fetched earlier
                 
-                const canManage = isSuperAdmin || currentUserPermissions.includes('ticket.manage');
+                const canManage = isSuperAdmin || currentUserPermissions.includes('ticket.manage') || currentUserPermissions.includes('ticket.assign');
                 const canEdit = canManage || (t.requesterUserId === currentUserId);
                 
                 const btnEditInline = document.getElementById('btnEditInline');
@@ -864,6 +988,9 @@
                 if (btnTransfer) btnTransfer.style.display = canManage ? 'inline-block' : 'none';
 
                 loadTimeline();
+                if (typeof window.checkAiStatus === 'function') {
+                    window.checkAiStatus();
+                }
 
 
             } catch (e) { console.error(e); 
@@ -1140,6 +1267,12 @@
             catHtml += '</select>';
             tCategory.innerHTML = catHtml;
 
+            const tColorHex = document.getElementById('tColorHex');
+            if (tColorHex) {
+                tColorHex.innerHTML = `<input type="color" id="inlineEditColorHex" value="${currentTicket.colorHex || getTicketDefaultColor(currentTicket.id)}" class="form-control" style="width: 50px; padding: 2px; cursor: pointer;">`;
+            }
+
+
             const dynContainer = document.getElementById('dynamicFieldsDisplay');
             dynContainer.innerHTML = buildEditDynamicFields(currentTicket, dynamicPlacements);
 
@@ -1166,6 +1299,11 @@
             });
             catHtml += '</select>';
             tCategory.innerHTML = catHtml;
+
+            const tColorHexS = document.getElementById('tColorHex');
+            if (tColorHexS) {
+                tColorHexS.innerHTML = `<input type="color" id="sidebarEditColorHex" value="${currentTicket.colorHex || getTicketDefaultColor(currentTicket.id)}" class="form-control form-control-sm" style="width: 50px; padding: 2px; cursor: pointer;">`;
+            }
 
             const tProject = document.getElementById('tProject');
             let projHtml = '<select id="sidebarEditProject" class="form-control form-control-sm"><option value="">No Project</option>';
@@ -1195,6 +1333,7 @@
 
             const categoryId = Number(document.getElementById('sidebarEditCategory').value);
             const priorityId = Number(document.getElementById('sidebarEditPriority').value);
+            const colorHex = document.getElementById('sidebarEditColorHex')?.value;
             const projectId = document.getElementById('sidebarEditProject').value ? Number(document.getElementById('sidebarEditProject').value) : -1;
             const estimatedStartDate = document.getElementById('sidebarEditStartDate').value ? new Date(document.getElementById('sidebarEditStartDate').value).toISOString() : null;
             const estimatedEndDate = document.getElementById('sidebarEditEndDate').value ? new Date(document.getElementById('sidebarEditEndDate').value).toISOString() : null;
@@ -1203,7 +1342,7 @@
                 // Update basic ticket details (Title and Description don't change, we use current)
                 const hasDateChanges = currentTicket.estimatedStartDate !== estimatedStartDate || currentTicket.estimatedEndDate !== estimatedEndDate;
                 
-                if (categoryId !== currentTicket.categoryId || priorityId !== currentTicket.priorityId || hasDateChanges) {
+                if (categoryId !== currentTicket.categoryId || priorityId !== currentTicket.priorityId || hasDateChanges || colorHex !== currentTicket.colorHex) {
                     await window.api.request(`/Ticket/${ticketId}`, {
                         method: 'PUT',
                         body: JSON.stringify({
@@ -1213,7 +1352,8 @@
                             priorityId: priorityId,
                             customFields: currentTicket.customFields || {},
                             estimatedStartDate: estimatedStartDate,
-                            estimatedEndDate: estimatedEndDate
+                            estimatedEndDate: estimatedEndDate,
+                            colorHex: colorHex
                         })
                     });
                 }
@@ -1277,12 +1417,14 @@
 
             const categoryId = document.getElementById('inlineEditCategory') ? Number(document.getElementById('inlineEditCategory').value) : currentTicket.categoryId;
             const priorityId = document.getElementById('inlineEditPriority') ? Number(document.getElementById('inlineEditPriority').value) : currentTicket.priorityId;
+            const colorHex = document.getElementById('inlineEditColorHex') ? document.getElementById('inlineEditColorHex').value : currentTicket.colorHex;
 
             const payload = {
                 title,
                 description,
                 categoryId: categoryId,
                 priorityId: priorityId,
+                colorHex: colorHex,
                 customFields
             };
 
@@ -1393,14 +1535,19 @@
         }
 
         function buildCommentHeaderHtml(c, e, isEdited, connectorHtml) {
+            const isAi = (c.content && (c.content.includes('AI Copilot') || c.content.includes('Multi-Agent') || c.content.includes('[AI Asistan]'))) || c.createdBy === 'AI Copilot' || c.createdBy === 'AI Swarm';
+            const aiBadge = isAi ? '<span class="badge" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center;">AI Copilot</span>' : '';
+            const authorDisplayName = isAi ? 'AI Copilot' : window.resolveTimelineUser(c.authorUserId);
+
             return `
                 ${connectorHtml}
                 <div class="comment-header">
                     <div class="d-flex align-items-center gap-sm">
                         ${getAvatar(c.authorUserId, c.authorUserId)}
-                        <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${window.resolveTimelineUser(c.authorUserId)}</strong>
+                        <strong class="user-hover-link" data-user-id="${c.authorUserId}" style="cursor: pointer;">${authorDisplayName}</strong>
                         <span>${new Date(e.timestamp).toLocaleString()}</span>
                         ${isEdited}
+                        ${aiBadge}
                     </div>
                     <div class="d-flex align-items-center gap-sm">
                         ${c.isInternal ? '<span class="badge badge-warning">Internal Note</span>' : ''}
@@ -1439,9 +1586,14 @@
             const div = document.createElement('div');
             const c = e.data;
             const isEdited = getCommentEditedHtml(c);
+            const isAi = (c.content && (c.content.includes('AI Copilot') || c.content.includes('Multi-Agent') || c.content.includes('[AI Asistan]'))) || c.createdBy === 'AI Copilot' || c.createdBy === 'AI Swarm';
             
-            div.className = `comment ${c.isInternal ? 'internal' : ''}`;
+            div.className = `comment ${c.isInternal ? 'internal' : ''} ${isAi ? 'ai-copilot-comment' : ''}`;
             div.id = `comment-${c.id}`;
+            if (isAi) {
+                div.style.borderLeft = '3px solid #6366f1';
+                div.style.background = 'linear-gradient(180deg, rgba(99, 102, 241, 0.05) 0%, var(--bg-surface) 100%)';
+            }
             
             let connectorHtml = '';
             if (c.parentCommentId) {
@@ -2571,6 +2723,349 @@
             overlay.style.display = 'flex';
         };
 
+        // ==========================================
+        // AI COPILOT & ASSISTANT LOGIC
+        // ==========================================
+        let currentAiResultText = '';
+
+        function stripMarkdownAndEmojis(text) {
+            if (!text) return '';
+            let cleaned = text
+                .replace(/\*\*/g, '')
+                .replace(/__/g, '')
+                .replace(/`/g, '')
+                .replace(/\*/g, '')
+                .replace(/^[\s]*[-*]\s+/gm, '')
+                .replace(/^[\s]*#+\s*/gm, '')
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)');
+            
+            cleaned = cleaned.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            return cleaned.trim();
+        }
+
+        window.checkAiStatus = async function() {
+            const badge = document.getElementById('aiStatusBadge');
+            if (!badge) return;
+            try {
+                const res = await window.api.request('/ai/status', { silent: true });
+                if (res && (res.isConfigured || res.configured)) {
+                    if (res.isAvailable || res.isEndpointReachable) {
+                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        badge.style.color = '#059669';
+                        badge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                        badge.textContent = '● LLM Aktif (' + (res.model || 'Online') + ')';
+                        badge.title = 'Model: ' + res.model + ' | Endpoint: ' + res.endpoint;
+                    } else {
+                        badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                        badge.style.color = '#d97706';
+                        badge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+                        badge.textContent = '● Akıllı Asistan Aktif';
+                        badge.title = 'LLM Sunucusu çevrimdışı. Akıllı kural ve geçmiş bilet analizi devrede.';
+                    }
+                } else {
+                    badge.style.background = 'rgba(107, 114, 128, 0.15)';
+                    badge.style.color = '#6b7280';
+                    badge.style.border = '1px solid rgba(107, 114, 128, 0.3)';
+                    badge.textContent = '○ Pasif';
+                }
+            } catch (err) {
+                console.warn('AI status check failed:', err);
+                badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                badge.style.color = '#d97706';
+                badge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+                badge.textContent = '● Akıllı Asistan Hazır';
+                badge.title = 'AI Asistan servisi hazır.';
+            }
+        };
+
+        window.toggleAiAskInput = function() {
+            const container = document.getElementById('aiAskContainer');
+            if (!container) return;
+            if (container.style.display === 'none' || !container.style.display) {
+                container.style.display = 'block';
+                const input = document.getElementById('aiQuestionInput');
+                if (input) input.focus();
+            } else {
+                container.style.display = 'none';
+            }
+        };
+
+        let isAiRunning = false;
+
+        function setAiBusyState(busy, activeBtnId, activeLabel) {
+            isAiRunning = busy;
+            const buttons = document.querySelectorAll('.ai-action-btn');
+            buttons.forEach(btn => {
+                btn.disabled = busy;
+                if (busy) {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.55';
+                    btn.style.cursor = 'not-allowed';
+                } else {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }
+            });
+
+            if (busy && activeBtnId) {
+                const activeBtn = document.getElementById(activeBtnId);
+                if (activeBtn) {
+                    if (!activeBtn.dataset.origHtml) {
+                        activeBtn.dataset.origHtml = activeBtn.innerHTML;
+                    }
+                    activeBtn.innerHTML = `<span class="spinner-border spinner-border-sm" style="width:10px;height:10px;margin-right:3px;" role="status"></span> ${activeLabel || 'İşleniyor...'}`;
+                    activeBtn.style.opacity = '0.85';
+                }
+            } else if (!busy) {
+                buttons.forEach(btn => {
+                    if (btn.dataset.origHtml) {
+                        btn.innerHTML = btn.dataset.origHtml;
+                        delete btn.dataset.origHtml;
+                    }
+                });
+            }
+        }
+
+        window.triggerAiAction = async function(actionType) {
+            if (isAiRunning) {
+                showToast('Devam eden bir yapay zeka analizi var, lütfen bekleyin.', 'warning');
+                return;
+            }
+
+            if (!ticketId) {
+                showToast('Bilet ID bulunamadı', 'error');
+                return;
+            }
+
+            let btnId = '';
+            let busyLabel = 'Hazırlanıyor...';
+            if (actionType === 'suggest') {
+                btnId = 'btnAiSuggest';
+                busyLabel = 'Çözülüyor...';
+            } else if (actionType === 'summarize') {
+                btnId = 'btnAiSummarize';
+                busyLabel = 'Özetleniyor...';
+            } else if (actionType === 'draft') {
+                btnId = 'btnAiDraft';
+                busyLabel = 'Yazılıyor...';
+            }
+
+            setAiBusyState(true, btnId, busyLabel);
+
+            const loading = document.getElementById('aiLoadingIndicator');
+            const resultArea = document.getElementById('aiResultArea');
+            const resultTitle = document.getElementById('aiResultTitle');
+            const resultContent = document.getElementById('aiResultContent');
+            const resultSource = document.getElementById('aiResultSource');
+
+            if (loading) loading.style.display = 'block';
+            if (resultArea) resultArea.style.display = 'none';
+
+            let endpoint = '';
+            let method = 'POST';
+            let title = 'AI Çıktısı';
+
+            if (actionType === 'suggest') {
+                endpoint = `/ai/tickets/${ticketId}/suggest-resolution`;
+                title = 'Çözüm Önerisi';
+            } else if (actionType === 'summarize') {
+                endpoint = `/ai/tickets/${ticketId}/summarize`;
+                title = 'Bilet Özeti';
+            } else if (actionType === 'draft') {
+                endpoint = `/ai/tickets/${ticketId}/draft-reply`;
+                title = 'Yanıt Taslağı';
+            }
+
+            try {
+                const res = await window.api.request(endpoint, { method: method, silent: true });
+                if (loading) loading.style.display = 'none';
+
+                if (res && res.success) {
+                    const rawText = res.suggestion || res.summary || res.draft || res.reply || res.answer || '';
+                    const text = stripMarkdownAndEmojis(rawText);
+                    currentAiResultText = text;
+                    if (resultTitle) resultTitle.textContent = title;
+                    if (resultContent) resultContent.textContent = text;
+                    if (resultSource) {
+                        const rawSource = res.source || (res.model ? res.model : 'Akıllı Asistan');
+                        resultSource.textContent = stripMarkdownAndEmojis(rawSource);
+                    }
+                    if (resultArea) resultArea.style.display = 'block';
+                } else {
+                    showToast(res && (res.message || res.error) ? (res.message || res.error) : 'AI yanıt üretemedi', 'error');
+                }
+            } catch (err) {
+                if (loading) loading.style.display = 'none';
+                console.error('AI action failed:', err);
+                const msg = err.message && !err.message.includes('API Error')
+                    ? err.message
+                    : 'AI servisi yanıt vermedi. Lütfen API sunucusunu yeniden başlatın.';
+                showToast(msg, 'error');
+            } finally {
+                setAiBusyState(false);
+            }
+        };
+
+        window.submitAiQuestion = async function() {
+            if (isAiRunning) {
+                showToast('Devam eden bir yapay zeka analizi var, lütfen bekleyin.', 'warning');
+                return;
+            }
+
+            const input = document.getElementById('aiQuestionInput');
+            if (!input) return;
+            const question = input.value.trim();
+            if (!question) {
+                showToast('Lütfen bir soru girin', 'warning');
+                return;
+            }
+
+            if (!ticketId) {
+                showToast('Bilet ID bulunamadı', 'error');
+                return;
+            }
+
+            setAiBusyState(true, 'btnAiSubmitAsk', 'Soruluyor...');
+
+            const loading = document.getElementById('aiLoadingIndicator');
+            const resultArea = document.getElementById('aiResultArea');
+            const resultTitle = document.getElementById('aiResultTitle');
+            const resultContent = document.getElementById('aiResultContent');
+            const resultSource = document.getElementById('aiResultSource');
+
+            if (loading) loading.style.display = 'block';
+            if (resultArea) resultArea.style.display = 'none';
+
+            try {
+                const res = await window.api.request(`/ai/tickets/${ticketId}/ask`, {
+                    method: 'POST',
+                    silent: true,
+                    body: JSON.stringify({ question: question })
+                });
+                if (loading) loading.style.display = 'none';
+
+                if (res && res.success) {
+                    const rawText = res.answer || '';
+                    const text = stripMarkdownAndEmojis(rawText);
+                    currentAiResultText = text;
+                    if (resultTitle) resultTitle.textContent = `Soru: ${question}`;
+                    if (resultContent) resultContent.textContent = text;
+                    if (resultSource) {
+                        resultSource.textContent = stripMarkdownAndEmojis(res.source || 'AI Copilot');
+                    }
+                    if (resultArea) resultArea.style.display = 'block';
+                } else {
+                    showToast(res && (res.message || res.error) ? (res.message || res.error) : 'AI yanıt üretemedi', 'error');
+                }
+            } catch (err) {
+                if (loading) loading.style.display = 'none';
+                console.error('AI question failed:', err);
+                const msg = err.message && !err.message.includes('API Error')
+                    ? err.message
+                    : 'AI servisi yanıt vermedi. Lütfen API sunucusunu yeniden başlatın.';
+                showToast(msg, 'error');
+            } finally {
+                setAiBusyState(false);
+            }
+        };
+
+        window.copyAiResult = async function() {
+            if (!currentAiResultText) return;
+            try {
+                await navigator.clipboard.writeText(currentAiResultText);
+                showToast('AI çıktısı panoya kopyalandı!', 'success');
+            } catch (err) {
+                console.error('Clipboard copy failed:', err);
+                showToast('Panoya kopyalanamadı', 'error');
+            }
+        };
+
+        window.saveAiAsInternalNote = async function() {
+            if (!currentAiResultText) {
+                showToast('Kaydedilecek AI çıktısı bulunamadı', 'warning');
+                return;
+            }
+            if (!ticketId) {
+                showToast('Bilet kimliği bulunamadı', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnAiMakeInternal');
+            const originalContent = btn ? btn.innerHTML : 'Dahili Not Yap';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = 'Ekleniyor...';
+            }
+
+            try {
+                const formattedText = `[AI Asistan]:\n${currentAiResultText}`;
+                await window.api.request(`/Ticket/${ticketId}/comments`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        content: formattedText,
+                        isInternal: true,
+                        parentCommentId: null,
+                        mentionedUserIds: []
+                    })
+                });
+
+                showToast('Dahili not başarıyla eklendi!', 'success');
+                if (typeof loadTimeline === 'function') {
+                    await loadTimeline();
+                }
+                
+                const commentsList = document.getElementById('commentsList');
+                if (commentsList) {
+                    commentsList.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            } catch (err) {
+                console.error('Failed to save AI internal note:', err);
+                showToast('Dahili not eklenirken hata oluştu: ' + (err.message || ''), 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                }
+            }
+        };
+
+        window.insertAiIntoComment = function(isInternal) {
+            if (!currentAiResultText) return;
+            const commentInput = document.getElementById('commentText');
+            if (!commentInput) {
+                showToast('Yorum giriş alanı bulunamadı', 'error');
+                return;
+            }
+
+            const formattedText = `[AI Asistan]:\n${currentAiResultText}`;
+            if (commentInput.value && commentInput.value.trim() !== '') {
+                commentInput.value += '\n\n' + formattedText;
+            } else {
+                commentInput.value = formattedText;
+            }
+
+            const internalCheckbox = document.getElementById('isInternalComment');
+            if (internalCheckbox && isInternal !== undefined) {
+                internalCheckbox.checked = !!isInternal;
+                const label = internalCheckbox.closest('label');
+                if (label) {
+                    label.style.fontWeight = isInternal ? '600' : 'normal';
+                    label.style.color = isInternal ? 'var(--primary)' : 'var(--text-secondary)';
+                }
+            }
+
+            commentInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            commentInput.focus();
+            showToast(isInternal ? 'Dahili not alanına eklendi' : 'Yorum alanına eklendi', 'info');
+        };
+
+        // Auto-check AI status on script initialization
+        setTimeout(() => {
+            if (typeof window.checkAiStatus === 'function') {
+                window.checkAiStatus();
+            }
+        }, 100);
     </script>
 </body>
 </html>

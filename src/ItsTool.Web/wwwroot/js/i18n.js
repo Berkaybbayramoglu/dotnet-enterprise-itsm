@@ -454,7 +454,26 @@ export const translations = {
         "kb_btn_submit_review": "Submit Review",
         "kb_alert_feedback": "Manager Feedback",
         "kb_btn_fix": "Fix & Resubmit",
-        "kb_lbl_contributions": "KB Contributions"
+        "kb_lbl_contributions": "KB Contributions",
+
+        // AI Copilot
+        "ai_copilot_title": "AI Copilot & Assistant",
+        "ai_copilot_desc": "Get AI resolution suggestions, handoff summaries and draft replies.",
+        "ai_btn_suggest": "Resolution Suggestion",
+        "ai_btn_summarize": "Summarize Ticket",
+        "ai_btn_draft": "Draft Reply",
+        "ai_btn_ask": "Ask Copilot",
+        "ai_btn_add_comment": "Insert as Comment",
+        "ai_btn_make_internal": "Save as Internal Note",
+        "ai_btn_copy": "Copy",
+        "ai_btn_copied": "Copied!",
+        "ai_btn_regenerate": "Regenerate",
+        "ai_status_online": "Live LLM Connected",
+        "ai_status_offline": "Smart Local Mode",
+        "ai_thinking": "AI Copilot is analyzing...",
+        "ai_ask_placeholder": "Ask anything about this ticket...",
+        "ai_ask_btn": "Ask",
+        "ai_badge_copilot": "AI Copilot"
     },
     "tr": {
         // Sidebar Navigation
@@ -912,7 +931,26 @@ export const translations = {
         "kb_btn_submit_review": "İncelemeyi Gönder",
         "kb_alert_feedback": "Yönetici Geribildirimi",
         "kb_btn_fix": "Düzelt & Tekrar Gönder",
-        "kb_lbl_contributions": "Bilgi Bankası Katkıları"
+        "kb_lbl_contributions": "Bilgi Bankası Katkıları",
+
+        // AI Copilot
+        "ai_copilot_title": "AI Asistan & Copilot",
+        "ai_copilot_desc": "Yapay zeka ile çözüm önerisi, süreç özeti ve yanıt taslağı alın.",
+        "ai_btn_suggest": "Çözüm Önerisi",
+        "ai_btn_summarize": "Bileti Özetle",
+        "ai_btn_draft": "Yanıt Taslağı",
+        "ai_btn_ask": "Copilot'a Sor",
+        "ai_btn_add_comment": "Yoruma Ekle",
+        "ai_btn_make_internal": "Dahili Not Yap",
+        "ai_btn_copy": "Kopyala",
+        "ai_btn_copied": "Kopyalandı!",
+        "ai_btn_regenerate": "Yeniden Üret",
+        "ai_status_online": "Canlı LLM Bağlı",
+        "ai_status_offline": "Akıllı Yerel Mod",
+        "ai_thinking": "Yapay zeka analiz ediyor...",
+        "ai_ask_placeholder": "Bu bilet hakkında soru sorun...",
+        "ai_ask_btn": "Sor",
+        "ai_badge_copilot": "AI Asistan"
     }
 };
 
