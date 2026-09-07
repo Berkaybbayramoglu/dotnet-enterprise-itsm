@@ -768,7 +768,7 @@ export function openTicketPreview(ticketData, lookupData) {
     const headerEl = modalOverlay.querySelector('.modal-header h2');
     if (headerEl) {
         const translatedStatus = t('db_' + statusName.toLowerCase().replaceAll(' ', '_')) || statusName;
-        headerEl.innerHTML = \`\${escapeHtml(ticketData.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px; text-transform: uppercase;">\${escapeHtml(translatedStatus)}</span>\`;
+        headerEl.innerHTML = `${escapeHtml(ticketData.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px; text-transform: uppercase;">${escapeHtml(translatedStatus)}</span>`;
     }
 
     const reqBtnHtml = ticketData.requesterUserId ? `<button type="button" class="btn btn-ghost p-0 m-0 d-flex align-items-center gap-sm" style="border:none;" onclick="window.ui.showUserDetails(${ticketData.requesterUserId})">${getAvatar(ticketData.requesterUserId, reqName)} ${escapeHtml(reqName)}</button>` : `<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${escapeHtml(reqName)}</div>`;
