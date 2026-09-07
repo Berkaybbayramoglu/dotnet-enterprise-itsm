@@ -31,7 +31,7 @@ class ApiClient {
             const roles = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role || [];
             const permissions = payload.permission || payload.permissions || [];
             this.decodedToken = {
-                userId: parseInt(payload.sub),
+                userId: parseInt(payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.nameid),
                 roles: Array.isArray(roles) ? roles : [roles],
                 permissions: Array.isArray(permissions) ? permissions : [permissions]
             };
@@ -85,7 +85,9 @@ class ApiClient {
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`API Error ${response.status}:`, errorText);
-            showToast(`İşlem başarısız (${response.status})`, 'error');
+            if (!options.silent) {
+                showToast(`İşlem başarısız (${response.status})`, 'error');
+            }
             throw new Error(errorText || 'API Error');
         }
 

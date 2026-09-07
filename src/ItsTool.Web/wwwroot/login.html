@@ -102,13 +102,20 @@
             
             <div id="demoHint" style="margin-top: 24px; padding: 12px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; text-align: left; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
                 <strong style="color: var(--text-main); display: block; margin-bottom: 8px;">Demo Accounts (Pwd: *123!)</strong>
-                <code style="background:transparent; padding:0; color:var(--primary);">admin</code> : SuperAdmin<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">manager</code> : Manager<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">agent1</code> : Agent<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">agent2</code> : Agent (+ticket.close)<br>
-                <code style="background:transparent; padding:0; color:var(--primary);">user1</code> : EndUser
+                <a href="#" onclick="fillLogin(\'admin\')" style="color:var(--primary); text-decoration:none; font-weight:500;">admin</a> : SuperAdmin<br>
+                <a href="#" onclick="fillLogin(\'manager\')" style="color:var(--primary); text-decoration:none; font-weight:500;">manager</a> : Manager<br>
+                <a href="#" onclick="fillLogin(\'agent1\')" style="color:var(--primary); text-decoration:none; font-weight:500;">agent1</a> : Agent<br>
+                <a href="#" onclick="fillLogin(\'agent2\')" style="color:var(--primary); text-decoration:none; font-weight:500;">agent2</a> : Agent (+ticket.close)<br>
+                <a href="#" onclick="fillLogin(\'user1\')" style="color:var(--primary); text-decoration:none; font-weight:500;">user1</a> : EndUser
             </div>
         </form>
+    <script>
+        function fillLogin(username) {
+            document.getElementById("username").value = username;
+            document.getElementById("password").value = "*123!";
+            document.getElementById("loginForm").dispatchEvent(new Event("submit"));
+        }
+    </script>
     </div>
 
     <script type="module">
@@ -132,31 +139,27 @@
         langText.textContent = currentLang.toUpperCase();
         updateLoginLang(currentLang);
 
-        document.querySelectorAll('.login-lang-opt').forEach(opt => {
+                document.querySelectorAll('.login-lang-opt').forEach(opt => {
             opt.addEventListener('click', (e) => {
                 e.preventDefault();
                 const val = e.target.dataset.lang;
-            const val = e.target.value;
-            localStorage.setItem('itsm_lang', val);
-            document.documentElement.lang = val;
-            langText.textContent = val.toUpperCase();
+                localStorage.setItem('itsm_lang', val);
+                document.documentElement.lang = val;
+                langText.textContent = val.toUpperCase();
                 updateLoginLang(val);
                 e.target.closest('ul').classList.remove('show');
             });
         });
-        });
 
         const currentTheme = localStorage.getItem('itsm_theme') || 'light';
-        
-        
+        document.documentElement.dataset.theme = currentTheme;
 
         document.querySelectorAll('.login-theme-opt').forEach(opt => {
             opt.addEventListener('click', (e) => {
                 e.preventDefault();
                 const val = e.target.dataset.theme;
-            const val = e.target.value;
-            localStorage.setItem('itsm_theme', val);
-            document.documentElement.dataset.theme = val;
+                localStorage.setItem('itsm_theme', val);
+                document.documentElement.dataset.theme = val;
                 e.target.closest('ul').classList.remove('show');
             });
         });
@@ -165,7 +168,6 @@
             if (!e.target.closest('.dropdown')) {
                 document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
             }
-        });
         });
 
         document.getElementById('togglePassword').addEventListener('click', function (e) {
