@@ -832,6 +832,10 @@ export async function showUserDetails(userId) {
                                 <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Status</div>
                                 <div id="guStatus"></div>
                             </div>
+                            <div style="grid-column: span 2; margin-top: 8px;">
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Groups</div>
+                                <div id="guGroups" style="font-weight: 500; font-size: 14px; word-break: break-word;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -854,6 +858,18 @@ export async function showUserDetails(userId) {
         }
         document.getElementById('guDept').textContent = deptName;
         document.getElementById('guStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
+        let groupsStr = '-';
+        if (user.groupIds && user.groupIds.length > 0) {
+            try {
+                const allGroups = window.globalGroups || await window.api.getGroups().catch(e=>[]);
+                groupsStr = user.groupIds.map(id => {
+                    const g = allGroups.find(x => x.id === id);
+                    return g ? g.name : `Group ${id}`;
+                }).join(', ');
+            } catch(e) { console.error(e); }
+        }
+        document.getElementById('guGroups').textContent = groupsStr;
+        
         
         openModal('globalUserModal');
     } catch(e) {
