@@ -15,7 +15,10 @@
       <Value>**/*.js,**/*.html,**/*.css,**/wwwroot/**</Value>
     </SonarQubeSetting>
     <SonarQubeSetting Include="sonar.exclusions">
-      <Value>**/Migrations/**,**/bin/**,**/obj/**,**/coverage*.xml,**/*.py,**/*.sh,**/check*.js,**/find_*.js,**/get_*.js,**/fix_*.js,**/test*.js,**/refactor*.py,**/rewrite*.py,**/proof_script.sh,**/generate_files.sh,**/check_admin_me.sh,**/wwwroot/**,**/*.html,**/*.js,**/*.css,src/ItsTool.Web/**</Value>
+      <Value>**/Migrations/**,**/bin/**,**/obj/**,**/coverage*.xml,**/uploads/**,**/*.pdf,**/*.jpeg,**/*.jpg,**/*.png,**/*.gif,**/*.svg,**/*.ico,**/*.py,**/*.sh,**/check*.js,**/find_*.js,**/get_*.js,**/fix_*.js,**/test*.js,**/refactor*.py,**/rewrite*.py,**/proof_script.sh,**/generate_files.sh,**/check_admin_me.sh,**/wwwroot/**,**/*.html,**/*.js,**/*.css,src/ItsTool.Web/**</Value>
+    </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.sourceEncoding">
+      <Value>UTF-8</Value>
     </SonarQubeSetting>
     <SonarQubeSetting Include="sonar.cs.roslyn.ignoreIssues">
       <Value>true</Value>
