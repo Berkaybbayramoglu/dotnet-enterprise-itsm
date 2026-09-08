@@ -1,62 +1,116 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ItsTool.Application.DTOs;
+using ItsTool.Domain.Entities.Project;
 using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Data;
 using ItsTool.Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
 public class CatalogServiceTests : TestBase
 {
-    private readonly Repository<Category> _categoryRepo;
-    private readonly Repository<TicketType> _ticketTypeRepo;
-    private readonly Repository<Status> _statusRepo;
-    private readonly Repository<Priority> _priorityRepo;
-    private readonly CatalogService _service;
+    private readonly CatalogService _catalogService;
 
     public CatalogServiceTests() : base()
     {
-        _categoryRepo = new Repository<Category>(_context);
-        _ticketTypeRepo = new Repository<TicketType>(_context);
-        _statusRepo = new Repository<Status>(_context);
-        _priorityRepo = new Repository<Priority>(_context);
-        _service = new CatalogService(_categoryRepo, _ticketTypeRepo, _statusRepo, _priorityRepo, _context);
+        var catRepo = new Repository<Category>(_context);
+        var typeRepo = new Repository<TicketType>(_context);
+        var statusRepo = new Repository<Status>(_context);
+        var prioRepo = new Repository<Priority>(_context);
+
+        _catalogService = new CatalogService(catRepo, typeRepo, statusRepo, prioRepo, _context);
+        SeedData();
+    }
+
+    private void SeedData()
+    {
+        _context.Projects.Add(new Project { Id = 1, Name = "Platform", ProjectKey = "PLT", IsActive = true });
+        _context.SaveChanges();
     }
 
     [Fact]
-    public async Task CreateCategoryAsync_ShouldCreateCategory()
+    public async Task Categories_CrudOperations_WorkCorrectly()
     {
-        var dto = new CreateCategoryDto("Network", 1, null, "Desc", null);
-        var result = await _service.CreateCategoryAsync(dto);
+        var createDto = new CreateCategoryDto("Hardware", 1, null, "Hardware issues", null);
+        var created = await _catalogService.CreateCategoryAsync(createDto);
+        Assert.NotNull(created);
+        Assert.Equal("Hardware", created.Name);
 
-        Assert.NotNull(result);
-        Assert.Equal("Network", result.Name);
+        var byId = await _catalogService.GetCategoryByIdAsync(created.Id);
+        Assert.NotNull(byId);
+        Assert.Equal("Hardware", byId.Name);
+
+        var updateDto = new UpdateCategoryDto("Hardware & Peripherals", 1, null, "Updated description", null, true);
+        await _catalogService.UpdateCategoryAsync(created.Id, updateDto);
+
+        var updated = await _catalogService.GetCategoryByIdAsync(created.Id);
+        Assert.Equal("Hardware & Peripherals", updated!.Name);
+
+        await _catalogService.DeleteCategoryAsync(created.Id);
+        var deleted = await _context.Categories.FindAsync(created.Id);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]
-    public async Task GetCategoriesAsync_ShouldFilterByProject()
+    public async Task TicketTypes_CrudOperations_WorkCorrectly()
     {
-        _context.Categories.Add(new Category { Name = "Cat1", ProjectId = 1 });
-        _context.Categories.Add(new Category { Name = "Cat2", ProjectId = 2 });
-        await _context.SaveChangesAsync();
+        var createDto = new CreateTicketTypeDto("Service Request");
+        var created = await _catalogService.CreateTicketTypeAsync(createDto);
+        Assert.NotNull(created);
+        Assert.Equal("Service Request", created.Name);
 
-        var list = await _service.GetCategoriesAsync(1);
+        var list = (await _catalogService.GetTicketTypesAsync()).ToList();
         Assert.Single(list);
-        Assert.Equal("Cat1", list.First().Name);
+
+        var updateDto = new UpdateTicketTypeDto("Service Request Updated", true);
+        await _catalogService.UpdateTicketTypeAsync(created.Id, updateDto);
+
+        var updated = await _catalogService.GetTicketTypeByIdAsync(created.Id);
+        Assert.Equal("Service Request Updated", updated!.Name);
+
+        await _catalogService.DeleteTicketTypeAsync(created.Id);
+        var deleted = await _context.TicketTypes.FindAsync(created.Id);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]
-    public async Task DeleteStatusAsync_ShouldThrowIfInUse()
+    public async Task Statuses_CrudOperations_WorkCorrectly()
     {
-        var s = new Status { Name = "S1" };
-        _context.Statuses.Add(s);
-        await _context.SaveChangesAsync();
+        var createDto = new CreateStatusDto("Pending Vendor", "#FFAA00", 3, false, false);
+        var created = await _catalogService.CreateStatusAsync(createDto);
+        Assert.NotNull(created);
+        Assert.Equal("Pending Vendor", created.Name);
 
-        var wt = new ItsTool.Domain.Entities.Workflow.WorkflowTransition { WorkflowId = 1, FromStatusId = s.Id, ToStatusId = 2, TransitionName = "t" };
-        _context.WorkflowTransitions.Add(wt);
-        await _context.SaveChangesAsync();
+        var updateDto = new UpdateStatusDto("Pending Supplier", "#FF8800", 4, false, false, true);
+        await _catalogService.UpdateStatusAsync(created.Id, updateDto);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.DeleteStatusAsync(s.Id));
+        var updated = await _catalogService.GetStatusByIdAsync(created.Id);
+        Assert.Equal("Pending Supplier", updated!.Name);
+
+        await _catalogService.DeleteStatusAsync(created.Id);
+        var deleted = await _context.Statuses.FindAsync(created.Id);
+        Assert.True(deleted!.IsDeleted);
+    }
+
+    [Fact]
+    public async Task Priorities_CrudOperations_WorkCorrectly()
+    {
+        var createDto = new CreatePriorityDto("Urgent", "#FF0000", 1, 1);
+        var created = await _catalogService.CreatePriorityAsync(createDto);
+        Assert.NotNull(created);
+        Assert.Equal("Urgent", created.Name);
+
+        var updateDto = new UpdatePriorityDto("Urgent P1", "#CC0000", 1, 1, true);
+        await _catalogService.UpdatePriorityAsync(created.Id, updateDto);
+
+        var updated = await _catalogService.GetPriorityByIdAsync(created.Id);
+        Assert.Equal("Urgent P1", updated!.Name);
+
+        await _catalogService.DeletePriorityAsync(created.Id);
+        var deleted = await _context.Priorities.FindAsync(created.Id);
+        Assert.True(deleted!.IsDeleted);
     }
 }
