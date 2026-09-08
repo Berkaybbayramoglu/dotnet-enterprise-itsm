@@ -22,4 +22,7 @@ Thumbs.db
 # SonarQube & Testing
 .sonarqube/
 TestResults/
+coverage/
+*.opencover.xml
+coverage.opencover.xml
 node_modules/
