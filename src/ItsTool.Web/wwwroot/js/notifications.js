@@ -2,6 +2,36 @@ import { t } from './i18n.js';
 
 let hubConnection = null;
 
+function setupNotificationActionButtons(notifList) {
+    if (!notifList || document.getElementById('btnDeleteAllNotifs')) return;
+
+    const oldMarkReadBtn = notifList.querySelector('[onclick="markAllAsRead(event)"]');
+    if (oldMarkReadBtn?.parentElement) {
+        const hr = oldMarkReadBtn.parentElement.previousElementSibling;
+        if (hr?.innerHTML?.includes('hr')) hr.remove();
+        oldMarkReadBtn.parentElement.remove();
+    }
+
+    const header = notifList.querySelector('.dropdown-header');
+    if (header?.parentElement) {
+        const actionsLi = document.createElement('li');
+        actionsLi.id = 'notifActionsContainer';
+        actionsLi.innerHTML = `
+            <div style="display: flex; justify-content: space-between; padding: 4px 12px 12px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px;">
+                <button type="button" onclick="markAllAsRead(event)" style="background: none; border: none; color: var(--primary); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    ${t ? t('topbar_mark_all_read') : 'Mark all as read'}
+                </button>
+                <button type="button" id="btnDeleteAllNotifs" onclick="deleteAllNotifications(event)" style="background: none; border: none; color: var(--danger); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                    ${t ? t('topbar_delete_all') : 'Delete All'}
+                </button>
+            </div>
+        `;
+        header.parentElement.after(actionsLi);
+    }
+}
+
 export async function initNotifications() {
     const token = window.api ? window.api.token : localStorage.getItem('jwt_token');
     if (!token) return;
@@ -33,34 +63,7 @@ export async function initNotifications() {
         loadNotifications(); // reload list
     });
 
-    const notifList = document.getElementById('notificationList');
-    if (notifList && !document.getElementById('btnDeleteAllNotifs')) {
-        const oldMarkReadBtn = notifList.querySelector('[onclick="markAllAsRead(event)"]');
-        if (oldMarkReadBtn && oldMarkReadBtn.parentElement) {
-            const hr = oldMarkReadBtn.parentElement.previousElementSibling;
-            if (hr && hr.innerHTML.includes('hr')) hr.remove();
-            oldMarkReadBtn.parentElement.remove();
-        }
-
-        const header = notifList.querySelector('.dropdown-header');
-        if (header && header.parentElement) {
-            const actionsLi = document.createElement('li');
-            actionsLi.id = 'notifActionsContainer';
-            actionsLi.innerHTML = `
-                <div style="display: flex; justify-content: space-between; padding: 4px 12px 12px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px;">
-                    <button type="button" onclick="markAllAsRead(event)" style="background: none; border: none; color: var(--primary); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                        ${t ? t('topbar_mark_all_read') : 'Mark all as read'}
-                    </button>
-                    <button type="button" id="btnDeleteAllNotifs" onclick="deleteAllNotifications(event)" style="background: none; border: none; color: var(--danger); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
-                        ${t ? t('topbar_delete_all') : 'Delete All'}
-                    </button>
-                </div>
-            `;
-            header.parentElement.after(actionsLi);
-        }
-    }
+    setupNotificationActionButtons(document.getElementById('notificationList'));
     
     try {
         await hubConnection.start();
@@ -269,7 +272,7 @@ function showToastNotification(payload) {
     
     let bodyText = payload.body;
     let commentId = null;
-    if (payload.type === 'comment.mention' && bodyText && bodyText.includes('|')) {
+    if (payload.type === 'comment.mention' && bodyText?.includes('|')) {
         const p = bodyText.split('|');
         bodyText = p[0];
         commentId = p[1];

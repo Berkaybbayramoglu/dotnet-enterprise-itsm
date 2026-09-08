@@ -33,7 +33,9 @@
                 document.documentElement.dataset.theme = savedTheme;
                 const savedLang = localStorage.getItem('itsm_lang') || 'en';
                 document.documentElement.lang = savedLang;
-            } catch(e) {}
+            } catch (e) {
+                console.warn('Could not load theme/lang:', e);
+            }
         })();
     </script>
 

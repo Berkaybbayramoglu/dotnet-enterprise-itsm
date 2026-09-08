@@ -234,6 +234,15 @@ class ApiClient {
     async createCategory(data) { return this.request('/catalog/categories', { method: 'POST', body: JSON.stringify(data) }); }
     async updateCategory(id, data) { return this.request(`/catalog/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
     async deleteCategory(id) { return this.request(`/catalog/categories/${id}`, { method: 'DELETE' }); }
+
+    async getSlaPolicies(projectId = '') {
+        return this.request(`/sla/policies${projectId ? '?projectId=' + projectId : ''}`);
+    }
+    async getSlaPolicy(id) { return this.request(`/sla/policies/${id}`); }
+    async createSlaPolicy(data) { return this.request('/sla/policies', { method: 'POST', body: JSON.stringify(data) }); }
+    async updateSlaPolicy(id, data) { return this.request(`/sla/policies/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
+    async deleteSlaPolicy(id) { return this.request(`/sla/policies/${id}`, { method: 'DELETE' }); }
+    async batchUpdateSlaTargets(policyId, data) { return this.request(`/sla/policies/${policyId}/targets/batch`, { method: 'PUT', body: JSON.stringify(data) }); }
 }
 
 window.api = new ApiClient();

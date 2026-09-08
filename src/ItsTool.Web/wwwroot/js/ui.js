@@ -754,7 +754,7 @@ export function openTicketPreview(ticketData, lookupData) {
     const getFullName = (id) => {
         const u = window.globalUsers?.find(x => x.id === id);
         if (u && (u.firstName || u.lastName)) return `${u.firstName || ''} ${u.lastName || ''}`.trim();
-        if (u && u.username) return u.username;
+        if (u?.username) return u.username;
         return `User ${id}`;
     };
     const assigneeName = ticketData.assignedUserId ? getFullName(ticketData.assignedUserId) : t('t_unassigned') || 'Unassigned';
@@ -802,6 +802,13 @@ export function openTicketPreview(ticketData, lookupData) {
         </div>
     `;
     
+    setupPreviewColorPicker(ticketData);
+
+    document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${ticketData.id}`;
+    openModal('previewModal');
+}
+
+function setupPreviewColorPicker(ticketData) {
     const colorPicker = document.getElementById('previewColorPicker');
     const colorDot = document.getElementById('previewColorDot');
     const saveColorBtn = document.getElementById('previewSaveColorBtn');
@@ -843,9 +850,6 @@ export function openTicketPreview(ticketData, lookupData) {
             }
         };
     }
-
-    document.getElementById('previewDetailLink').href = `/ticket-detail.html?id=${ticketData.id}`;
-    openModal('previewModal');
 }
 
 window.ui = {
@@ -858,6 +862,32 @@ window.ui = {
     getAvatar,
     showUserDetails
 };
+async function resolveUserDepartmentName(departmentId) {
+    if (!departmentId) return '-';
+    try {
+        const depts = window.globalLookup?.departments ? window.globalLookup.departments : await window.api.request('/Departments');
+        const d = depts?.find(x => x.id == departmentId);
+        return d ? d.name : '-';
+    } catch (e) {
+        console.error(e);
+        return '-';
+    }
+}
+
+async function resolveUserGroups(groupIds) {
+    if (!groupIds || groupIds.length === 0) return '-';
+    try {
+        const allGroups = window.globalGroups || await window.api.getGroups().catch(() => []);
+        return groupIds.map(id => {
+            const g = allGroups?.find(x => x.id == id);
+            return g ? g.name : `Group ${id}`;
+        }).join(', ');
+    } catch (e) {
+        console.error(e);
+        return '-';
+    }
+}
+
 export async function showUserDetails(userId) {
     if (!userId) return;
     try {
@@ -911,28 +941,9 @@ export async function showUserDetails(userId) {
         document.getElementById('guUsername').textContent = '@' + user.username;
         document.getElementById('guEmail').textContent = user.email || '-';
         
-        let deptName = '-';
-        if (user.departmentId) {
-            try {
-                const depts = (window.globalLookup && window.globalLookup.departments) ? window.globalLookup.departments : await window.api.request('/Departments');
-                const d = depts.find(x => x.id == user.departmentId);
-                if (d) deptName = d.name;
-            } catch (e) { console.error(e); }
-        }
-        document.getElementById('guDept').textContent = deptName;
+        document.getElementById('guDept').textContent = await resolveUserDepartmentName(user.departmentId);
         document.getElementById('guStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
-        let groupsStr = '-';
-        if (user.groupIds && user.groupIds.length > 0) {
-            try {
-                const allGroups = window.globalGroups || await window.api.getGroups().catch(e=>[]);
-                groupsStr = user.groupIds.map(id => {
-                    const g = allGroups.find(x => x.id == id);
-                    return g ? g.name : `Group ${id}`;
-                }).join(', ');
-            } catch(e) { console.error(e); }
-        }
-        document.getElementById('guGroups').textContent = groupsStr;
-        
+        document.getElementById('guGroups').textContent = await resolveUserGroups(user.groupIds);
         
         openModal('globalUserModal');
     } catch(e) {
