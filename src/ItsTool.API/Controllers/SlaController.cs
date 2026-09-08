@@ -21,10 +21,20 @@ public class SlaController : ControllerBase
     }
 
     [HttpGet("policies")]
-    [ProducesResponseType(typeof(IEnumerable<SlaPolicyDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<SlaPolicyDetailDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPolicies([FromQuery] int? projectId)
     {
         return Ok(await _service.GetPoliciesAsync(projectId));
+    }
+
+    [HttpGet("policies/{id}")]
+    [ProducesResponseType(typeof(SlaPolicyDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPolicyById(int id)
+    {
+        var res = await _service.GetPolicyByIdAsync(id);
+        if (res == null) return NotFound();
+        return Ok(res);
     }
 
     [HttpPost("policies")]
@@ -46,9 +56,18 @@ public class SlaController : ControllerBase
 
     [HttpDelete("policies/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeletePolicy(int id)
     {
-        await _service.DeletePolicyAsync(id); return NoContent();
+        try
+        {
+            await _service.DeletePolicyAsync(id);
+            return NoContent();
+        }
+        catch (System.InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("policies/{id}/targets")]
@@ -58,12 +77,28 @@ public class SlaController : ControllerBase
         return Ok(await _service.GetTargetsAsync(id));
     }
 
+    [HttpPut("policies/{id}/targets/batch")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> BatchUpdateTargets(int id, [FromBody] BatchUpdateSlaTargetsDto dto)
+    {
+        try
+        {
+            await _service.BatchUpdateTargetsAsync(id, dto);
+            return NoContent();
+        }
+        catch (System.Collections.Generic.KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [HttpPost("targets")]
     [ProducesResponseType(typeof(SlaTargetDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateTarget([FromBody] CreateSlaTargetDto dto)
     {
         var res = await _service.CreateTargetAsync(dto);
-        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res); // Note: Should probably point to GetTargets
+        return CreatedAtAction(nameof(GetPolicies), new { id = res.Id }, res);
     }
 
     [HttpPut("targets/{id}")]

@@ -113,11 +113,11 @@ public class SlaEngineTests : TestBase
         var dbSla = await _context.TicketSlas.FirstAsync();
         Assert.True(dbSla.FirstResponseBreached);
         
-        _notificationDispatcherMock.Verify(d => d.DispatchEventAsync("sla.breach", 1, null, It.IsAny<string>()), Times.Once);
+        _notificationDispatcherMock.Verify(d => d.DispatchEventAsync("sla.breached", 1, null, It.IsAny<string>()), Times.Once);
 
         // Second run should not create duplicate
         await _slaEngine.CheckBreachesAsync(DateTime.UtcNow);
-        _notificationDispatcherMock.Verify(d => d.DispatchEventAsync("sla.breach", 1, null, It.IsAny<string>()), Times.Once); // Still 1
+        _notificationDispatcherMock.Verify(d => d.DispatchEventAsync("sla.breached", 1, null, It.IsAny<string>()), Times.Once); // Still 1
     }
 
     [Fact]
@@ -144,5 +144,69 @@ public class SlaEngineTests : TestBase
         
         Assert.Equal(60, remaining);
         Assert.Equal(new DateTime(2023, 1, 2, 9, 0, 0), newTime); // Jumps to next day start
+    }
+
+    [Fact]
+    public void EvaluateMetric_ShouldNotWarnPrematurely_WhenPlentyOfTimeRemains()
+    {
+        var created = DateTime.UtcNow;
+        var due = created.AddMinutes(30); // 30 min SLA
+        var now = created.AddMinutes(2);   // 28 min remains
+
+        var (warn, breach) = SlaEngine.EvaluateMetric(due, false, false, now, created);
+
+        Assert.False(warn);
+        Assert.False(breach);
+    }
+
+    [Fact]
+    public void EvaluateMetric_ShouldWarn_WhenWithinThreshold()
+    {
+        var created = DateTime.UtcNow;
+        var due = created.AddMinutes(30); // 30 min SLA, 25% is 7.5 min
+        var now = created.AddMinutes(25);  // 5 min remains <= 7.5 min
+
+        var (warn, breach) = SlaEngine.EvaluateMetric(due, false, false, now, created);
+
+        Assert.True(warn);
+        Assert.False(breach);
+    }
+
+    [Fact]
+    public async Task AttachSlaToTicketAsync_ShouldPrioritizeProjectPolicyOverGlobal()
+    {
+        var proj = new ItsTool.Domain.Entities.Project.Project { Name = "App A", ProjectKey = "APPA" };
+        _context.Projects.Add(proj);
+        var prio = new Priority { Name = "Crit", SeverityLevel = 1 };
+        _context.Priorities.Add(prio);
+        await _context.SaveChangesAsync();
+
+        // Global policy: 60m response
+        var globalPol = new SlaPolicy { Name = "Global Policy", ProjectId = null, IsActive = true };
+        _context.SlaPolicies.Add(globalPol);
+        await _context.SaveChangesAsync();
+        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = globalPol.Id, PriorityId = prio.Id, FirstResponseMinutes = 60, ResolutionMinutes = 600, IsActive = true });
+
+        // Project-specific policy: 15m response
+        var projPol = new SlaPolicy { Name = "App A Policy", ProjectId = proj.Id, IsActive = true };
+        _context.SlaPolicies.Add(projPol);
+        await _context.SaveChangesAsync();
+        _context.SlaTargets.Add(new SlaTarget { SlaPolicyId = projPol.Id, PriorityId = prio.Id, FirstResponseMinutes = 15, ResolutionMinutes = 120, IsActive = true });
+
+        for (int i = 1; i <= 5; i++)
+        {
+            _context.BusinessHours.Add(new BusinessHour { DayOfWeek = (DayOfWeek)i, StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(18, 0, 0), IsWorkingDay = true });
+        }
+        await _context.SaveChangesAsync();
+
+        var ticket = new Ticket { TicketNumber = "T-APP-1", ProjectId = proj.Id, PriorityId = prio.Id };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        await _slaEngine.AttachSlaToTicketAsync(ticket.Id);
+
+        var sla = await _context.TicketSlas.FirstOrDefaultAsync(s => s.TicketId == ticket.Id);
+        Assert.NotNull(sla);
+        Assert.NotNull(sla.FirstResponseDueAt);
     }
 }

@@ -92,13 +92,17 @@ public class SlaEngine : ISlaEngine
         if (ticket == null) return;
 
         var policy = await _context.SlaPolicies
-            .FirstOrDefaultAsync(p => p.IsActive && (p.ProjectId == ticket.ProjectId || p.ProjectId == null));
+            .Where(p => p.IsActive && !p.IsDeleted && (p.ProjectId == ticket.ProjectId || p.ProjectId == null))
+            .OrderByDescending(p => p.ProjectId.HasValue)
+            .FirstOrDefaultAsync();
 
         if (policy == null) return;
 
         var target = await _context.SlaTargets
-            .FirstOrDefaultAsync(t => t.SlaPolicyId == policy.Id && t.PriorityId == ticket.PriorityId && 
-                                      (t.TicketTypeId == ticket.TypeId || t.TicketTypeId == null));
+            .Where(t => t.IsActive && !t.IsDeleted && t.SlaPolicyId == policy.Id && t.PriorityId == ticket.PriorityId && 
+                        (t.TicketTypeId == ticket.TypeId || t.TicketTypeId == null))
+            .OrderByDescending(t => t.TicketTypeId.HasValue)
+            .FirstOrDefaultAsync();
 
         if (target == null) return;
 
@@ -207,7 +211,7 @@ public class SlaEngine : ISlaEngine
     {
         if (sla.FirstResponseMetAt.HasValue || !sla.FirstResponseDueAt.HasValue) return;
 
-        var (warn, breach) = EvaluateMetric(sla.FirstResponseDueAt.Value, sla.FirstResponseWarned, sla.FirstResponseBreached, nowUtc);
+        var (warn, breach) = EvaluateMetric(sla.FirstResponseDueAt.Value, sla.FirstResponseWarned, sla.FirstResponseBreached, nowUtc, sla.CreatedAt);
         
         if (breach)
         {
@@ -228,7 +232,7 @@ public class SlaEngine : ISlaEngine
     {
         if (sla.ResolutionMetAt.HasValue || !sla.ResolutionDueAt.HasValue) return;
 
-        var (warn, breach) = EvaluateMetric(sla.ResolutionDueAt.Value, sla.ResolutionWarned, sla.ResolutionBreached, nowUtc);
+        var (warn, breach) = EvaluateMetric(sla.ResolutionDueAt.Value, sla.ResolutionWarned, sla.ResolutionBreached, nowUtc, sla.CreatedAt);
         
         if (breach)
         {
@@ -249,48 +253,66 @@ public class SlaEngine : ISlaEngine
     {
         if (sla.EscalatedAt.HasValue || sla.Ticket == null) return; // Idempotent check
 
-        var target = await _context.SlaTargets.FirstOrDefaultAsync(t => t.PriorityId == sla.Ticket.PriorityId && (t.TicketTypeId == sla.Ticket.TypeId || t.TicketTypeId == null));
+        var policy = await _context.SlaPolicies
+            .Where(p => p.IsActive && !p.IsDeleted && (p.ProjectId == sla.Ticket.ProjectId || p.ProjectId == null))
+            .OrderByDescending(p => p.ProjectId.HasValue)
+            .FirstOrDefaultAsync();
+
+        if (policy == null || !policy.EscalateOnBreach) return;
+
+        var target = await _context.SlaTargets
+            .Where(t => t.IsActive && !t.IsDeleted && t.SlaPolicyId == policy.Id && t.PriorityId == sla.Ticket.PriorityId && 
+                        (t.TicketTypeId == sla.Ticket.TypeId || t.TicketTypeId == null))
+            .OrderByDescending(t => t.TicketTypeId.HasValue)
+            .FirstOrDefaultAsync();
+
         if (target == null) return;
 
-        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == target.SlaPolicyId);
+        sla.EscalatedAt = DateTime.UtcNow;
         
-        if (policy != null && policy.EscalateOnBreach)
+        // Priority Bump
+        var higherPriority = await _context.Priorities
+            .Where(p => p.SeverityLevel > sla.Ticket.Priority!.SeverityLevel)
+            .OrderBy(p => p.SeverityLevel)
+            .FirstOrDefaultAsync();
+
+        if (higherPriority != null)
         {
-            sla.EscalatedAt = DateTime.UtcNow;
-            
-            // Priority Bump
-            var higherPriority = await _context.Priorities
-                .Where(p => p.SeverityLevel > sla.Ticket.Priority!.SeverityLevel)
-                .OrderBy(p => p.SeverityLevel)
-                .FirstOrDefaultAsync();
+            var oldPriority = sla.Ticket.PriorityId.ToString();
+            sla.Ticket.PriorityId = higherPriority.Id;
 
-            if (higherPriority != null)
+            _context.TicketHistories.Add(new Domain.Entities.Ticket.TicketHistory
             {
-                var oldPriority = sla.Ticket.PriorityId.ToString();
-                sla.Ticket.PriorityId = higherPriority.Id;
-
-                _context.TicketHistories.Add(new Domain.Entities.Ticket.TicketHistory
-                {
-                    TicketId = sla.TicketId,
-                    Action = "Escalated",
-                    FieldName = "PriorityId",
-                    OldValue = oldPriority,
-                    NewValue = higherPriority.Id.ToString(),
-                    CreatedBy = "System"
-                });
-            }
+                TicketId = sla.TicketId,
+                Action = "Escalated",
+                FieldName = "PriorityId",
+                OldValue = oldPriority,
+                NewValue = higherPriority.Id.ToString(),
+                CreatedBy = "System"
+            });
         }
     }
 
-    private static (bool warn, bool breach) EvaluateMetric(DateTime dueAt, bool warned, bool breached, DateTime now)
+    public static (bool warn, bool breach) EvaluateMetric(DateTime dueAt, bool warned, bool breached, DateTime now, DateTime? createdAt = null)
     {
         var timeRemaining = (dueAt - now).TotalMinutes;
         
         if (timeRemaining <= 0 && !breached)
             return (false, true);
             
-        if (timeRemaining > 0 && timeRemaining <= 120 && !warned) // Standardized 120 for warning threshold to keep pure evaluation simple
-            return (true, false);
+        if (timeRemaining > 0 && !warned)
+        {
+            double totalSpan = createdAt.HasValue && dueAt > createdAt.Value
+                ? (dueAt - createdAt.Value).TotalMinutes
+                : 120.0;
+
+            // Warning threshold: 25% of total span, clamped between 5 and 60 minutes
+            // If totalSpan is short, threshold is at most 50% of totalSpan
+            double threshold = Math.Min(totalSpan * 0.5, Math.Max(5.0, Math.Min(60.0, totalSpan * 0.25)));
+
+            if (timeRemaining <= threshold)
+                return (true, false);
+        }
             
         return (false, false);
     }

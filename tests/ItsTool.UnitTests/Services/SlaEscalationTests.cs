@@ -65,7 +65,7 @@ public class SlaEscalationTests : TestBase
         var updatedSla = await _context.TicketSlas.FindAsync(sla.Id);
         Assert.NotNull(updatedSla?.EscalatedAt); // EscalatedAt set
 
-        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breach", ticket.Id, null, It.IsAny<string>()), Times.Once);
+        _mockNotificationDispatcher.Verify(d => d.DispatchEventAsync("sla.breached", ticket.Id, null, It.IsAny<string>()), Times.Once);
     }
 
     [Fact]

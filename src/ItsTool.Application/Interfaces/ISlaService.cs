@@ -6,7 +6,8 @@ namespace ItsTool.Application.Interfaces;
 
 public interface ISlaService
 {
-    Task<IEnumerable<SlaPolicyDto>> GetPoliciesAsync(int? projectId = null);
+    Task<IEnumerable<SlaPolicyDetailDto>> GetPoliciesAsync(int? projectId = null);
+    Task<SlaPolicyDetailDto?> GetPolicyByIdAsync(int id);
     Task<SlaPolicyDto> CreatePolicyAsync(CreateSlaPolicyDto dto);
     Task UpdatePolicyAsync(int id, UpdateSlaPolicyDto dto);
     Task DeletePolicyAsync(int id);
@@ -14,5 +15,6 @@ public interface ISlaService
     Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId);
     Task<SlaTargetDto> CreateTargetAsync(CreateSlaTargetDto dto);
     Task UpdateTargetAsync(int id, UpdateSlaTargetDto dto);
+    Task BatchUpdateTargetsAsync(int policyId, BatchUpdateSlaTargetsDto dto);
     Task DeleteTargetAsync(int id);
 }
