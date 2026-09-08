@@ -147,4 +147,49 @@ public class SlaControllerTests
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equal(targets, okResult.Value);
     }
+
+    [Fact]
+    public async Task CreateTarget_ShouldReturnCreatedAtAction()
+    {
+        var createDto = new CreateSlaTargetDto(1, 1, null, 15, 60);
+        var created = new SlaTargetDto(10, 1, 1, null, 15, 60, true);
+        _serviceMock.Setup(s => s.CreateTargetAsync(createDto)).ReturnsAsync(created);
+
+        var result = await _controller.CreateTarget(createDto);
+
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        Assert.Equal(created, createdResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateTarget_ShouldReturnNoContent_WhenSuccessful()
+    {
+        var updateDto = new UpdateSlaTargetDto(1, null, 20, 120, true);
+        _serviceMock.Setup(s => s.UpdateTargetAsync(10, updateDto)).Returns(Task.CompletedTask);
+
+        var result = await _controller.UpdateTarget(10, updateDto);
+
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateTarget_ShouldReturnNotFound_WhenMissing()
+    {
+        var updateDto = new UpdateSlaTargetDto(1, null, 20, 120, true);
+        _serviceMock.Setup(s => s.UpdateTargetAsync(99, updateDto)).ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.UpdateTarget(99, updateDto);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteTarget_ShouldReturnNoContent()
+    {
+        _serviceMock.Setup(s => s.DeleteTargetAsync(10)).Returns(Task.CompletedTask);
+
+        var result = await _controller.DeleteTarget(10);
+
+        Assert.IsType<NoContentResult>(result);
+    }
 }
