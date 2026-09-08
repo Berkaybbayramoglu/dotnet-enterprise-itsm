@@ -13,6 +13,8 @@ namespace ItsTool.API.Controllers;
 public class TicketController : ControllerBase
 {
     private const string PermissionClaim = "permission";
+    private const string RoleSuperAdmin = "SuperAdmin";
+    private const string RoleManager = "Manager";
     private readonly ITicketService _service;
 
     public TicketController(ITicketService service)
@@ -67,9 +69,9 @@ public class TicketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteTicket(int id)
     {
-        bool hasDeletePerm = User.IsInRole("SuperAdmin") || 
-                             User.IsInRole("Manager") || 
-                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) || c.Value.Equals("Manager", StringComparison.OrdinalIgnoreCase))) ||
+        bool hasDeletePerm = User.IsInRole(RoleSuperAdmin) || 
+                             User.IsInRole(RoleManager) || 
+                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals(RoleSuperAdmin, StringComparison.OrdinalIgnoreCase) || c.Value.Equals(RoleManager, StringComparison.OrdinalIgnoreCase))) ||
                              User.HasClaim(c => c.Type == PermissionClaim && (c.Value == "ticket.manage" || c.Value == "ticket.assign" || c.Value == "ticket.delete" || c.Value == "ticket.edit"));
         
         if (!hasDeletePerm) return Forbid();
@@ -89,9 +91,9 @@ public class TicketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RestoreTicket(int id)
     {
-        bool hasDeletePerm = User.IsInRole("SuperAdmin") || 
-                             User.IsInRole("Manager") || 
-                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) || c.Value.Equals("Manager", StringComparison.OrdinalIgnoreCase))) ||
+        bool hasDeletePerm = User.IsInRole(RoleSuperAdmin) || 
+                             User.IsInRole(RoleManager) || 
+                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals(RoleSuperAdmin, StringComparison.OrdinalIgnoreCase) || c.Value.Equals(RoleManager, StringComparison.OrdinalIgnoreCase))) ||
                              User.HasClaim(c => c.Type == PermissionClaim && (c.Value == "ticket.manage" || c.Value == "ticket.assign" || c.Value == "ticket.delete" || c.Value == "ticket.edit"));
         
         if (!hasDeletePerm) return Forbid();
@@ -297,7 +299,7 @@ public class TicketController : ControllerBase
     public async Task<IActionResult> DeleteAttachment(int id, int attachmentId)
     {
         bool hasManage = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.manage") || 
-                         User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
+                         User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == RoleSuperAdmin);
         try
         {
             await _service.DeleteAttachmentAsync(id, attachmentId, GetCurrentUserId(), hasManage);
@@ -318,7 +320,7 @@ public class TicketController : ControllerBase
     public async Task<IActionResult> GetTimeline(int id)
     {
         bool hasInternalPerm = User.HasClaim(c => c.Type == PermissionClaim && c.Value == "ticket.comment.internal") || 
-                               User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "SuperAdmin");
+                               User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == RoleSuperAdmin);
         return Ok(await _service.GetTimelineAsync(id, hasInternalPerm));
     }
 

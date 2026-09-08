@@ -14,9 +14,14 @@ using Microsoft.Extensions.Logging;
 namespace ItsTool.Infrastructure.Agents;
 
 public record AiSuggestionResult(bool Success, string Suggestion, string Source, string? Model);
+public record SimilarTicketSummary(int Id, string TicketNumber, string Title, string? Description);
+public record KbArticleSummary(int Id, string Title, string Content);
 
 public class ResolutionCopilotAgent
 {
+    private const string DefaultGeneralText = "Genel";
+    private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
+
     private readonly ILlmService _llmService;
     private readonly ItsToolDbContext _context;
     private readonly ILogger<ResolutionCopilotAgent> _logger;
@@ -43,25 +48,8 @@ public class ResolutionCopilotAgent
             return new AiSuggestionResult(false, "Bilet bulunamadı.", "Sistem", null);
         }
 
-        // Find similar past closed tickets
-        var closedStatusIds = await _context.Statuses
-            .Where(s => s.IsClosedStatus)
-            .Select(s => s.Id)
-            .ToListAsync();
-
-        var similarTickets = await _context.Tickets
-            .Where(t => t.CategoryId == ticket.CategoryId && closedStatusIds.Contains(t.StatusId) && t.Id != ticket.Id)
-            .OrderByDescending(t => t.CreatedAt)
-            .Take(3)
-            .Select(t => new { t.Id, t.TicketNumber, t.Title, t.Description })
-            .ToListAsync();
-
-        // Also look for KB articles
-        var kbArticles = await _context.KnowledgeArticles
-            .Where(k => !k.IsDeleted && (k.CategoryId == ticket.CategoryId || k.Title.ToLower().Contains(ticket.Title.ToLower())))
-            .Take(3)
-            .Select(k => new { k.Id, k.Title, Content = k.Content.Length > 150 ? k.Content.Substring(0, 150) + "..." : k.Content })
-            .ToListAsync();
+        var similarTickets = await GetSimilarTicketsAsync(ticket);
+        var kbArticles = await GetRelevantKbArticlesAsync(ticket);
 
         string systemPrompt = @"Sen ITSM (BT Hizmet Yönetimi) sisteminde çalışan uzman bir yapay zeka asistanısın.
 Görevin, BT destek uzmanına atanmış bu bilet için geçmiş çözülmüş biletlere, bilgi bankasına ve en iyi BT pratiklerine dayanarak uygulanabilir, net ve profesyonel bir çözüm rehberi sunmaktır.
@@ -82,10 +70,10 @@ KURALLAR:
         var commentsStr = comments.Count > 0 ? string.Join("\n", comments) : "Henüz bilet üzerinde yorum veya ek işlem yapılmadı.";
         var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? "Açıklama girilmemiş" : ticket.Description;
 
-        var pastTicketsStr = similarTickets.Count > 0 ? JsonSerializer.Serialize(similarTickets, new JsonSerializerOptions { WriteIndented = true }) : "Geçmiş benzer bilet bulunamadı.";
-        var kbStr = kbArticles.Count > 0 ? JsonSerializer.Serialize(kbArticles, new JsonSerializerOptions { WriteIndented = true }) : "Eşleşen bilgi bankası makalesi yok.";
+        var pastTicketsStr = similarTickets.Count > 0 ? JsonSerializer.Serialize(similarTickets, s_jsonOptions) : "Geçmiş benzer bilet bulunamadı.";
+        var kbStr = kbArticles.Count > 0 ? JsonSerializer.Serialize(kbArticles, s_jsonOptions) : "Eşleşen bilgi bankası makalesi yok.";
 
-        var userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name ?? "Genel"}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsStr}\n\nGeçmiş Benzer Çözülmüş Biletler:\n{pastTicketsStr}\n\nİlgili Bilgi Bankası:\n{kbStr}\n\nLütfen bilet detayları ve yorum geçmişinde yaşanan gelişmeler ışığında BT destek uzmanı için adım adım çözüm önerisi hazırla. Emojisiz ve markdownsız düz metin olarak ver.";
+        var userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsStr}\n\nGeçmiş Benzer Çözülmüş Biletler:\n{pastTicketsStr}\n\nİlgili Bilgi Bankası:\n{kbStr}\n\nLütfen bilet detayları ve yorum geçmişinde yaşanan gelişmeler ışığında BT destek uzmanı için adım adım çözüm önerisi hazırla. Emojisiz ve markdownsız düz metin olarak ver.";
 
         string suggestion;
         string source;
@@ -102,7 +90,7 @@ KURALLAR:
         {
             // Intelligent Rule-Based Fallback
             _logger.LogInformation("Using smart heuristic resolution suggestion for ticket {TicketId}", ticketId);
-            suggestion = BuildSmartHeuristicSuggestion(ticket, similarTickets.Cast<dynamic>().ToList(), kbArticles.Cast<dynamic>().ToList());
+            suggestion = BuildSmartHeuristicSuggestion(ticket, similarTickets, kbArticles);
             source = "Akıllı Yerel Asistan";
         }
 
@@ -110,22 +98,58 @@ KURALLAR:
 
         if (postAsComment)
         {
-            var botNote = new TicketComment
-            {
-                TicketId = ticket.Id,
-                AuthorUserId = 1, // Admin / Bot user
-                Content = $"AI Copilot Çözüm Önerisi:\n\n{suggestion}\n\nKaynak: {source}",
-                IsInternal = true,
-                CreatedBy = "AI Copilot",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.TicketComments.Add(botNote);
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("ResolutionCopilotAgent added internal note for ticket {TicketId}", ticket.Id);
+            await PostBotCommentAsync(ticket.Id, suggestion, source);
         }
 
         return new AiSuggestionResult(true, suggestion, source, model);
+    }
+
+    private async Task<List<SimilarTicketSummary>> GetSimilarTicketsAsync(Ticket ticket)
+    {
+        var closedStatusIds = await _context.Statuses
+            .Where(s => s.IsClosedStatus)
+            .Select(s => s.Id)
+            .ToListAsync();
+
+        return await _context.Tickets
+            .Where(t => t.CategoryId == ticket.CategoryId && closedStatusIds.Contains(t.StatusId) && t.Id != ticket.Id)
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(3)
+            .Select(t => new SimilarTicketSummary(t.Id, t.TicketNumber, t.Title, t.Description))
+            .ToListAsync();
+    }
+
+    private async Task<List<KbArticleSummary>> GetRelevantKbArticlesAsync(Ticket ticket)
+    {
+        var rawArticles = await _context.KnowledgeArticles
+            .Where(k => !k.IsDeleted && (k.CategoryId == ticket.CategoryId || k.Title.Contains(ticket.Title, StringComparison.OrdinalIgnoreCase)))
+            .Take(3)
+            .Select(k => new { k.Id, k.Title, k.Content })
+            .ToListAsync();
+
+        return rawArticles
+            .Select(k => new KbArticleSummary(
+                k.Id,
+                k.Title,
+                k.Content.Length > 150 ? string.Concat(k.Content.AsSpan(0, 150), "...") : k.Content))
+            .ToList();
+    }
+
+    private async Task PostBotCommentAsync(int ticketId, string suggestion, string source)
+    {
+        var botNote = new TicketComment
+        {
+            TicketId = ticketId,
+            AuthorUserId = 1, // Admin / Bot user
+            Content = $"AI Copilot Çözüm Önerisi:\n\n{suggestion}\n\nKaynak: {source}",
+            IsInternal = true,
+            CreatedBy = "AI Copilot",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.TicketComments.Add(botNote);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("ResolutionCopilotAgent added internal note for ticket {TicketId}", ticketId);
     }
 
     public async Task RunAsync(Ticket ticket)
@@ -182,7 +206,7 @@ KURALLAR:
             .Where(c => c.TicketId == ticketId && !c.IsDeleted)
             .OrderBy(c => c.CreatedAt)
             .Take(10)
-            .Select(c => $"[{c.CreatedBy} - {(c.IsInternal ? "Dahili" : "Genel")}]: {c.Content}")
+            .Select(c => $"[{c.CreatedBy} - {(c.IsInternal ? "Dahili" : DefaultGeneralText)}]: {c.Content}")
             .ToListAsync();
 
         string commentsSummary = string.Join("\n", comments);
@@ -202,15 +226,15 @@ KURALLAR:
             return CleanPlainText(completion);
         }
 
-        var fallback = $"Sorunuz: \"{question}\"\n\nBilet Bilgisi: #{ticket.TicketNumber} ({ticket.Title})\nKategori: {ticket.Category?.Name ?? "Genel"}, Öncelik: {ticket.Priority?.Name ?? "Normal"}, Durum: {ticket.Status?.Name ?? "İşlemde"}.\n\nYanıt: Bu bilet için belirtilen durum teknik incelemededir.";
+        var fallback = $"Sorunuz: \"{question}\"\n\nBilet Bilgisi: #{ticket.TicketNumber} ({ticket.Title})\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}, Öncelik: {ticket.Priority?.Name ?? "Normal"}, Durum: {ticket.Status?.Name ?? "İşlemde"}.\n\nYanıt: Bu bilet için belirtilen durum teknik incelemededir.";
         return CleanPlainText(fallback);
     }
 
-    private static string BuildSmartHeuristicSuggestion(Ticket ticket, List<dynamic> similarTickets, List<dynamic> kbArticles)
+    private static string BuildSmartHeuristicSuggestion(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Kategori ve Durum Değerlendirmesi:");
-        sb.AppendLine($"Kategori: {ticket.Category?.Name ?? "Genel"}");
+        sb.AppendLine($"Kategori: {ticket.Category?.Name ?? DefaultGeneralText}");
         sb.AppendLine($"Öncelik Düzeyi: {ticket.Priority?.Name ?? "Normal"}");
         sb.AppendLine($"Talep Başlığı: {ticket.Title}");
         sb.AppendLine();
@@ -222,22 +246,24 @@ KURALLAR:
         sb.AppendLine("4. Kullanıcı Onayı: Sorun giderildikten sonra kullanıcı ile iletişime geçerek test etmesini isteyin ve ardından bileti çözüldü olarak işaretleyin.");
         sb.AppendLine();
 
-        if (similarTickets.Count > 0)
+        var ticketList = similarTickets as IList<SimilarTicketSummary> ?? similarTickets.ToList();
+        if (ticketList.Count > 0)
         {
             sb.AppendLine("Geçmiş Benzer Çözülmüş Biletler:");
             int idx = 1;
-            foreach (var t in similarTickets)
+            foreach (var t in ticketList)
             {
                 sb.AppendLine($"{idx++}. Bilet #{t.TicketNumber}: {t.Title}");
             }
             sb.AppendLine();
         }
 
-        if (kbArticles.Count > 0)
+        var articleList = kbArticles as IList<KbArticleSummary> ?? kbArticles.ToList();
+        if (articleList.Count > 0)
         {
             sb.AppendLine("İlgili Bilgi Bankası Makaleleri:");
             int idx = 1;
-            foreach (var kb in kbArticles)
+            foreach (var kb in articleList)
             {
                 sb.AppendLine($"{idx++}. {kb.Title} (/kb-article.html?id={kb.Id})");
             }

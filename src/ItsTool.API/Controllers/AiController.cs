@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Agents;
@@ -7,26 +9,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ItsTool.API.Controllers;
 
+internal static class AiControllerHelper
+{
+    public const string AnalysisInProgressMessage = "Bu bilet için bir yapay zeka analizi zaten devam ediyor. Lütfen önceki işlemin tamamlanmasını bekleyin.";
+    
+    private static readonly ConcurrentDictionary<int, SemaphoreSlim> TicketLocks = new();
+
+    public static SemaphoreSlim GetLock(int ticketId) =>
+        TicketLocks.GetOrAdd(ticketId, _ => new SemaphoreSlim(1, 1));
+}
+
 [ApiController]
 [Route("api/ai")]
 [Authorize]
 public class AiController : ControllerBase
 {
     private readonly ILlmService _llmService;
-    private readonly ResolutionCopilotAgent _copilotAgent;
-    private readonly TicketHandoffSwarm _handoffSwarm;
 
-    public AiController(
-        ILlmService llmService,
-        ResolutionCopilotAgent copilotAgent,
-        TicketHandoffSwarm handoffSwarm)
+    public AiController(ILlmService llmService)
     {
         _llmService = llmService;
-        _copilotAgent = copilotAgent;
-        _handoffSwarm = handoffSwarm;
     }
-
-    public record AskQuestionDto(string Question);
 
     [AllowAnonymous]
     [HttpGet("status")]
@@ -43,104 +46,6 @@ public class AiController : ControllerBase
             isEndpointReachable = isAvailable,
             mode = isAvailable ? "Live LLM" : "Smart Heuristic Engine"
         });
-    }
-
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, System.Threading.SemaphoreSlim> _ticketLocks = new();
-
-    private static System.Threading.SemaphoreSlim GetLock(int ticketId) =>
-        _ticketLocks.GetOrAdd(ticketId, _ => new System.Threading.SemaphoreSlim(1, 1));
-
-    [HttpPost("tickets/{id}/suggest-resolution")]
-    public async Task<IActionResult> SuggestResolution(int id, [FromQuery] bool postAsComment = false)
-    {
-        var sem = GetLock(id);
-        if (!await sem.WaitAsync(0))
-        {
-            return StatusCode(429, new { success = false, message = "Bu bilet için bir yapay zeka analizi zaten devam ediyor. Lütfen önceki işlemin tamamlanmasını bekleyin." });
-        }
-
-        try
-        {
-            var result = await _copilotAgent.GenerateResolutionSuggestionAsync(id, postAsComment);
-            if (!result.Success)
-            {
-                return NotFound(new { message = result.Suggestion });
-            }
-            return Ok(result);
-        }
-        finally
-        {
-            sem.Release();
-        }
-    }
-
-    [HttpPost("tickets/{id}/summarize")]
-    public async Task<IActionResult> Summarize(int id, [FromQuery] bool postAsComment = false)
-    {
-        var sem = GetLock(id);
-        if (!await sem.WaitAsync(0))
-        {
-            return StatusCode(429, new { success = false, message = "Bu bilet için bir yapay zeka analizi zaten devam ediyor. Lütfen önceki işlemin tamamlanmasını bekleyin." });
-        }
-
-        try
-        {
-            var result = await _handoffSwarm.GenerateHandoffSummaryAsync(id, postAsComment);
-            if (!result.Success)
-            {
-                return NotFound(new { message = result.Summary });
-            }
-            return Ok(result);
-        }
-        finally
-        {
-            sem.Release();
-        }
-    }
-
-    [HttpPost("tickets/{id}/draft-reply")]
-    public async Task<IActionResult> DraftReply(int id)
-    {
-        var sem = GetLock(id);
-        if (!await sem.WaitAsync(0))
-        {
-            return StatusCode(429, new { success = false, message = "Bu bilet için bir yapay zeka analizi zaten devam ediyor. Lütfen önceki işlemin tamamlanmasını bekleyin." });
-        }
-
-        try
-        {
-            var draft = await _copilotAgent.DraftReplyAsync(id);
-            return Ok(new { success = true, draft, reply = draft });
-        }
-        finally
-        {
-            sem.Release();
-        }
-    }
-
-    [HttpPost("tickets/{id}/ask")]
-    public async Task<IActionResult> Ask(int id, [FromBody] AskQuestionDto dto)
-    {
-        if (string.IsNullOrWhiteSpace(dto?.Question))
-        {
-            return BadRequest(new { message = "Soru metni boş olamaz." });
-        }
-
-        var sem = GetLock(id);
-        if (!await sem.WaitAsync(0))
-        {
-            return StatusCode(429, new { success = false, message = "Bu bilet için bir yapay zeka analizi zaten devam ediyor. Lütfen önceki işlemin tamamlanmasını bekleyin." });
-        }
-
-        try
-        {
-            var answer = await _copilotAgent.AskQuestionAsync(id, dto.Question);
-            return Ok(new { success = true, answer });
-        }
-        finally
-        {
-            sem.Release();
-        }
     }
 
     [HttpPost("test")]
@@ -167,5 +72,126 @@ public class AiController : ControllerBase
             model = _llmService.GetModelName(),
             testResponse = completion
         });
+    }
+}
+
+[ApiController]
+[Route("api/ai/tickets")]
+[Authorize]
+public class AiTicketCopilotController : ControllerBase
+{
+    private readonly ResolutionCopilotAgent _copilotAgent;
+
+    public AiTicketCopilotController(ResolutionCopilotAgent copilotAgent)
+    {
+        _copilotAgent = copilotAgent;
+    }
+
+    public record AskQuestionDto(string Question);
+
+    [HttpPost("{id}/suggest-resolution")]
+    public async Task<IActionResult> SuggestResolution(int id, [FromQuery] bool postAsComment = false)
+    {
+        var sem = AiControllerHelper.GetLock(id);
+        if (!await sem.WaitAsync(0))
+        {
+            return StatusCode(429, new { success = false, message = AiControllerHelper.AnalysisInProgressMessage });
+        }
+
+        try
+        {
+            var result = await _copilotAgent.GenerateResolutionSuggestionAsync(id, postAsComment);
+            if (!result.Success)
+            {
+                return NotFound(new { message = result.Suggestion });
+            }
+            return Ok(result);
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+
+    [HttpPost("{id}/draft-reply")]
+    public async Task<IActionResult> DraftReply(int id)
+    {
+        var sem = AiControllerHelper.GetLock(id);
+        if (!await sem.WaitAsync(0))
+        {
+            return StatusCode(429, new { success = false, message = AiControllerHelper.AnalysisInProgressMessage });
+        }
+
+        try
+        {
+            var draft = await _copilotAgent.DraftReplyAsync(id);
+            return Ok(new { success = true, draft, reply = draft });
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+
+    [HttpPost("{id}/ask")]
+    public async Task<IActionResult> Ask(int id, [FromBody] AskQuestionDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto?.Question))
+        {
+            return BadRequest(new { message = "Soru metni boş olamaz." });
+        }
+
+        var sem = AiControllerHelper.GetLock(id);
+        if (!await sem.WaitAsync(0))
+        {
+            return StatusCode(429, new { success = false, message = AiControllerHelper.AnalysisInProgressMessage });
+        }
+
+        try
+        {
+            var answer = await _copilotAgent.AskQuestionAsync(id, dto.Question);
+            return Ok(new { success = true, answer });
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+}
+
+[ApiController]
+[Route("api/ai/tickets")]
+[Authorize]
+public class AiTicketHandoffController : ControllerBase
+{
+    private readonly TicketHandoffSwarm _handoffSwarm;
+
+    public AiTicketHandoffController(TicketHandoffSwarm handoffSwarm)
+    {
+        _handoffSwarm = handoffSwarm;
+    }
+
+    [HttpPost("{id}/summarize")]
+    public async Task<IActionResult> Summarize(int id, [FromQuery] bool postAsComment = false)
+    {
+        var sem = AiControllerHelper.GetLock(id);
+        if (!await sem.WaitAsync(0))
+        {
+            return StatusCode(429, new { success = false, message = AiControllerHelper.AnalysisInProgressMessage });
+        }
+
+        try
+        {
+            var result = await _handoffSwarm.GenerateHandoffSummaryAsync(id, postAsComment);
+            if (!result.Success)
+            {
+                return NotFound(new { message = result.Summary });
+            }
+            return Ok(result);
+        }
+        finally
+        {
+            sem.Release();
+        }
     }
 }
