@@ -287,7 +287,7 @@
                             <!-- Ask Input Area (Toggleable) -->
                             <div id="aiAskContainer" style="display: none; margin-bottom: 10px;">
                                 <div style="display: flex; gap: 4px;">
-                                    <input type="text" id="aiQuestionInput" class="form-control" style="font-size: 11px; padding: 6px 10px; border-radius: 6px; border: 1.5px solid #0891B2;" placeholder="Bu bilet hakkında soru sorun..." data-i18n="ai_ask_placeholder" data-i18n-target="placeholder" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.submitAiQuestion();}">
+                                    <input type="text" id="aiQuestionInput" class="form-control" style="font-size: 11px; padding: 6px 10px; border-radius: 6px; border: 1.5px solid #0891B2;" placeholder="Bu bilet hakkında soru sorun..." data-i18n="ai_ask_placeholder" data-i18n-target="placeholder" aria-label="Bilet hakkında soru sorun" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.submitAiQuestion();}">
                                     <button type="button" id="btnAiSubmitAsk" class="btn btn-sm" onclick="window.submitAiQuestion()" style="font-size: 11px; padding: 6px 12px; border-radius: 6px; background: #0891B2; color: white; border: none; font-weight: 600;">
                                         <span data-i18n="ai_ask_btn">Sor</span>
                                     </button>
@@ -541,7 +541,7 @@
             '#b45309', '#e11d48', '#0d9488', '#475569'
         ];
         function getTicketDefaultColor(tid) {
-            const id = parseInt(tid, 10) || 1;
+            const id = Number.parseInt(tid, 10) || 1;
             return TICKET_PALETTE[(id * 7) % TICKET_PALETTE.length];
         }
 
@@ -2441,7 +2441,7 @@
             if (!oldStr && !newStr) return [];
             const oldTokens = oldStr.split(/(\s+)/);
             const newTokens = newStr.split(/(\s+)/);
-            const matrix = Array(oldTokens.length + 1).fill().map(() => Array(newTokens.length + 1).fill(0));
+            const matrix = new Array(oldTokens.length + 1).fill().map(() => new Array(newTokens.length + 1).fill(0));
             for (let i = 1; i <= oldTokens.length; i++) {
                 for (let j = 1; j <= newTokens.length; j++) {
                     if (oldTokens[i-1] === newTokens[j-1]) {
@@ -2473,12 +2473,8 @@
             const oldValRaw = decodeURIComponent(escape(atob(oldB64)));
             const newValRaw = decodeURIComponent(escape(atob(newB64)));
             
-            const attachRegex = /\[attachment:(\d+)\]/g;
-            const oldAtt = [];
-            const newAtt = [];
-            let m;
-            while((m = attachRegex.exec(oldValRaw)) !== null) oldAtt.push(m[1]);
-            while((m = attachRegex.exec(newValRaw)) !== null) newAtt.push(m[1]);
+            const oldAtt = Array.from(oldValRaw.matchAll(/\[attachment:(\d+)\]/g), m => m[1]);
+            const newAtt = Array.from(newValRaw.matchAll(/\[attachment:(\d+)\]/g), m => m[1]);
             
             const oldText = oldValRaw.replace(/\[attachment:\d+\]/g, '').trim();
             const newText = newValRaw.replace(/\[attachment:\d+\]/g, '').trim();
@@ -2823,13 +2819,13 @@
         function stripMarkdownAndEmojis(text) {
             if (!text) return '';
             let cleaned = text
-                .replace(/\*\*/g, '')
-                .replace(/__/g, '')
-                .replace(/`/g, '')
-                .replace(/\*/g, '')
-                .replace(/^[\s]*[-*]\s+/gm, '')
-                .replace(/^[\s]*#+\s*/gm, '')
-                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)');
+                .replaceAll('**', '')
+                .replaceAll('__', '')
+                .replaceAll('`', '')
+                .replaceAll('*', '')
+                .replace(/^[ \t]*[-*][ \t]+/gm, '')
+                .replace(/^[ \t]*#{1,6}[ \t]*/gm, '')
+                .replace(/\[([^\[\]\r\n]+)\]\(([^()\r\n]+)\)/g, '$1 ($2)');
             
             cleaned = cleaned.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             return cleaned.trim();

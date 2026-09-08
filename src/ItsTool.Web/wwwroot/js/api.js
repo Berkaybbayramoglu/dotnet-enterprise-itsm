@@ -31,7 +31,7 @@ class ApiClient {
             const roles = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role || [];
             const permissions = payload.permission || payload.permissions || [];
             this.decodedToken = {
-                userId: parseInt(payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.nameid),
+                userId: Number.parseInt(payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.nameid, 10),
                 roles: Array.isArray(roles) ? roles : [roles],
                 permissions: Array.isArray(permissions) ? permissions : [permissions]
             };

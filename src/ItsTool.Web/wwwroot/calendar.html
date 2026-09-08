@@ -135,7 +135,7 @@
             if (t.colorHex && t.colorHex.trim() !== '') {
                 return t.colorHex;
             }
-            const id = parseInt(t.id, 10) || 1;
+            const id = Number.parseInt(t.id, 10) || 1;
             // Prime step multiplier distributes consecutive IDs across high-contrast colors
             return TICKET_PALETTE[(id * 7) % TICKET_PALETTE.length];
         }

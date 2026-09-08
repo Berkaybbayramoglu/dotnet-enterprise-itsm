@@ -8,9 +8,10 @@ import { setLanguage, t, getCurrentLanguage } from './i18n.js';
 
 export const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
-export const getAvatar = (id, fallback) => {
-    if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border);">?</div>`;
-    return `<div class="avatar" title="${fallback}">${String(fallback || id).charAt(0).toUpperCase()}</div>`;
+export const getAvatar = (id, fallback, profilePhoto, size = 32) => {
+    if (profilePhoto) return `<img src="${profilePhoto}" class="avatar" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;" title="${fallback || ''}">`;
+    if (!id || id === '-') return `<div class="avatar" style="background: var(--bg-hover); color: var(--text-muted); border: 1px dashed var(--border); width:${size}px;height:${size}px;font-size:${size*0.4}px;">?</div>`;
+    return `<div class="avatar" title="${fallback || ''}" style="width:${size}px;height:${size}px;font-size:${size*0.4}px;">${String(fallback || id).charAt(0).toUpperCase()}</div>`;
 };
 
 // ui.js - Reusable UI components
