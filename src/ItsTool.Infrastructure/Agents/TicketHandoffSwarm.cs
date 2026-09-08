@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ItsTool.Application.Interfaces;
 using ItsTool.Domain.Entities.Ticket;
@@ -198,23 +199,23 @@ KURALLAR:
         text = text.Replace("`", "");
         
         // Remove markdown list bullets (- item -> item, * item -> item)
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^[\s]*[-\*]\s+", "");
+        text = Regex.Replace(text, @"(?m)^[\s]*[-\*]\s+", "", RegexOptions.None, TimeSpan.FromSeconds(2));
 
         // Remove standalone asterisks
         text = text.Replace("*", "");
 
         // Remove markdown headers (### Header -> Header)
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^[\s]*#+\s*", "");
+        text = Regex.Replace(text, @"(?m)^[\s]*#+\s*", "", RegexOptions.None, TimeSpan.FromSeconds(2));
 
         // Convert markdown links [Text](url) -> Text (url)
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\[([^\]]+)\]\(([^)]+)\)", "$1 ($2)");
+        text = Regex.Replace(text, @"\[([^\]]+)\]\(([^)]+)\)", "$1 ($2)", RegexOptions.None, TimeSpan.FromSeconds(2));
 
         // Remove all emojis using unicode categories and surrogate pairs
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]", "");
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\p{Cs}|\p{So}|\p{Sk}", "");
+        text = Regex.Replace(text, @"[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]", "", RegexOptions.None, TimeSpan.FromSeconds(2));
+        text = Regex.Replace(text, @"\p{Cs}|\p{So}|\p{Sk}", "", RegexOptions.None, TimeSpan.FromSeconds(2));
 
         // Clean up any double blank lines
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\n{3,}", "\n\n");
+        text = Regex.Replace(text, @"\n{3,}", "\n\n", RegexOptions.None, TimeSpan.FromSeconds(2));
 
         return text.Trim();
     }
