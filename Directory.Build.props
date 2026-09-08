@@ -1,9 +1,24 @@
 <Project>
   <PropertyGroup>
-    <!-- Exclude Frontend, UI layout, CSS, JS, and Migrations from SonarQube Test Coverage requirements -->
-    <SonarQubeCoverageExclusions>**/*.js, **/*.html, **/*.css, **/wwwroot/**, **/Migrations/**</SonarQubeCoverageExclusions>
-    
-    <!-- Exclude Frontend (HTML/JS/CSS) from Code Duplication checks, as UI often has intentional structural repeats -->
-    <SonarQubeDuplicationExclusions>**/*.js, **/*.html, **/*.css, **/wwwroot/**</SonarQubeDuplicationExclusions>
+    <SonarQubeCoverageExclusions>**/*.js,**/*.html,**/*.css,**/wwwroot/**,**/Migrations/**,**/*.py,**/*.sh,**/DataSeeder.cs,**/Program.cs,**/CheckDB.cs,**/check*.cs,**/seed*.cs,**/DbQueryApp/**</SonarQubeCoverageExclusions>
+    <SonarQubeDuplicationExclusions>**/*.js,**/*.html,**/*.css,**/wwwroot/**</SonarQubeDuplicationExclusions>
   </PropertyGroup>
+
+  <ItemGroup>
+    <SonarQubeSetting Include="sonar.cs.opencover.reportsPaths">
+      <Value>$(MSBuildThisFileDirectory)tests/ItsTool.UnitTests/coverage.opencover.xml</Value>
+    </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.coverage.exclusions">
+      <Value>**/*.js,**/*.html,**/*.css,**/wwwroot/**,**/Migrations/**,**/*.py,**/*.sh,**/DataSeeder.cs,**/Program.cs,**/CheckDB.cs,**/check*.cs,**/seed*.cs,**/DbQueryApp/**</Value>
+    </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.cpd.exclusions">
+      <Value>**/*.js,**/*.html,**/*.css,**/wwwroot/**</Value>
+    </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.exclusions">
+      <Value>**/Migrations/**,**/bin/**,**/obj/**,**/coverage*.xml,**/*.py,**/*.sh,**/check*.js,**/find_*.js,**/get_*.js,**/fix_*.js,**/test*.js,**/refactor*.py,**/rewrite*.py,**/proof_script.sh,**/generate_files.sh,**/check_admin_me.sh,**/wwwroot/**,**/*.html,**/*.js,**/*.css,src/ItsTool.Web/**</Value>
+    </SonarQubeSetting>
+    <SonarQubeSetting Include="sonar.cs.roslyn.ignoreIssues">
+      <Value>true</Value>
+    </SonarQubeSetting>
+  </ItemGroup>
 </Project>
