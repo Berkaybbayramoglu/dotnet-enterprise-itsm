@@ -157,7 +157,7 @@ KURALLAR:
         return new AiHandoffResult(true, finalCombined, finalActions, finalCombined, source);
     }
 
-    public async Task RunAsync(Ticket ticket)
+    public virtual async Task RunAsync(Ticket ticket)
     {
         await GenerateHandoffSummaryAsync(ticket.Id, postAsComment: true);
     }

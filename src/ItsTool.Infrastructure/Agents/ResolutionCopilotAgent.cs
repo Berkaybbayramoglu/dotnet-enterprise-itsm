@@ -152,7 +152,7 @@ KURALLAR:
         _logger.LogInformation("ResolutionCopilotAgent added internal note for ticket {TicketId}", ticketId);
     }
 
-    public async Task RunAsync(Ticket ticket)
+    public virtual async Task RunAsync(Ticket ticket)
     {
         await GenerateResolutionSuggestionAsync(ticket.Id, postAsComment: true);
     }
