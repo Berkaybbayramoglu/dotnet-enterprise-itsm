@@ -218,6 +218,8 @@ class ApiClient {
     async assignRole(userId, roleId) { return this.request(`/users/${userId}/roles/${roleId}`, { method: 'POST' }); }
     async revokeRole(userId, roleId) { return this.request(`/users/${userId}/roles/${roleId}`, { method: 'DELETE' }); }
     async setPermissionOverride(userId, permId, isGranted) { return this.request(`/users/${userId}/permissions/${permId}?isGranted=${isGranted}`, { method: 'POST' }); }
+    async removePermissionOverride(userId, permId) { return this.request(`/users/${userId}/permissions/${permId}`, { method: 'DELETE' }); }
+    async resetUserPassword(userId, newPassword) { return this.request(`/users/${userId}/reset-password`, { method: 'POST', body: JSON.stringify({ newPassword }) }); }
     
     async getPermissions() { return this.request('/permissions'); }
 
@@ -242,6 +244,8 @@ class ApiClient {
     async createSlaPolicy(data) { return this.request('/sla/policies', { method: 'POST', body: JSON.stringify(data) }); }
     async updateSlaPolicy(id, data) { return this.request(`/sla/policies/${id}`, { method: 'PUT', body: JSON.stringify(data) }); }
     async deleteSlaPolicy(id) { return this.request(`/sla/policies/${id}`, { method: 'DELETE' }); }
+    async restoreSlaPolicy(id) { return this.request(`/sla/policies/${id}/restore`, { method: 'POST' }); }
+    async getDeletedSlaPolicies() { return this.request('/sla/policies/deleted'); }
     async batchUpdateSlaTargets(policyId, data) { return this.request(`/sla/policies/${policyId}/targets/batch`, { method: 'PUT', body: JSON.stringify(data) }); }
 }
 

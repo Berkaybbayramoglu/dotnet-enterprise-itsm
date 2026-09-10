@@ -727,13 +727,38 @@ h1, h2, h3, h4, h5, h6 {
 .d-flex { display: flex; }
 .align-items-center { align-items: center; }
 .justify-content-between { justify-content: space-between; }
+.gap-xs { gap: 6px; }
 .gap-sm { gap: var(--spacing-sm); }
 .gap-md { gap: var(--spacing-md); }
+.mb-xs { margin-bottom: 4px; }
 .mb-sm { margin-bottom: var(--spacing-sm); }
 .mb-md { margin-bottom: var(--spacing-md); }
 .mt-md { margin-top: var(--spacing-md); }
 .text-muted { color: var(--text-muted); }
 .text-danger { color: var(--danger); }
+
+.close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--text-muted, #64748B);
+    padding: 4px;
+    border-radius: var(--radius-sm, 6px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    width: 32px;
+    height: 32px;
+    box-sizing: border-box;
+}
+.close-btn:hover {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.06));
+    color: var(--text-main, #0F172A);
+}
 
 /* 6. Responsive Design (a11y & Mobile) */
 .mobile-menu-btn {

@@ -32,6 +32,8 @@ public interface IUserService
     Task AssignRoleAsync(int userId, int roleId);
     Task RevokeRoleAsync(int userId, int roleId);
     Task AddPermissionOverrideAsync(int userId, int permissionId, bool isGranted);
+    Task RemovePermissionOverrideAsync(int userId, int permissionId);
+    Task ResetPasswordAsync(int userId, string newPassword);
 }
 
 public interface IProjectService

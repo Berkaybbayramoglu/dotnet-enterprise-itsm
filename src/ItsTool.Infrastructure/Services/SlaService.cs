@@ -195,6 +195,95 @@ public class SlaService : ISlaService
         }
     }
 
+    public async Task RestorePolicyAsync(int id)
+    {
+        var policy = await _context.SlaPolicies.FirstOrDefaultAsync(p => p.Id == id);
+        if (policy == null) throw new KeyNotFoundException(PolicyNotFound);
+
+        policy.IsDeleted = false;
+        policy.IsActive = true;
+
+        var targets = await _context.SlaTargets.Where(t => t.SlaPolicyId == id).ToListAsync();
+        foreach (var t in targets)
+        {
+            t.IsDeleted = false;
+            t.IsActive = true;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<SlaPolicyDetailDto>> GetDeletedPoliciesAsync()
+    {
+        var policies = await _context.SlaPolicies
+            .Where(p => p.IsDeleted)
+            .OrderByDescending(p => p.UpdatedAt ?? p.CreatedAt)
+            .ToListAsync();
+
+        var policyIds = policies.Select(p => p.Id).ToList();
+
+        var targets = await _context.SlaTargets
+            .Where(t => policyIds.Contains(t.SlaPolicyId))
+            .ToListAsync();
+
+        var projects = await _context.Projects
+            .ToDictionaryAsync(pr => pr.Id, pr => pr.Name);
+
+        var priorities = await _context.Priorities
+            .ToDictionaryAsync(pr => pr.Id);
+
+        var ticketTypes = await _context.TicketTypes
+            .ToDictionaryAsync(tt => tt.Id, tt => tt.Name);
+
+        var result = new List<SlaPolicyDetailDto>();
+
+        foreach (var policy in policies)
+        {
+            string? projectName = policy.ProjectId.HasValue && projects.TryGetValue(policy.ProjectId.Value, out var pName) 
+                ? pName 
+                : null;
+
+            var policyTargets = targets
+                .Where(t => t.SlaPolicyId == policy.Id)
+                .Select(t =>
+                {
+                    priorities.TryGetValue(t.PriorityId, out var prio);
+                    string? typeName = t.TicketTypeId.HasValue && ticketTypes.TryGetValue(t.TicketTypeId.Value, out var ttName)
+                        ? ttName
+                        : null;
+
+                    return new SlaTargetItemDto(
+                        t.Id,
+                        t.SlaPolicyId,
+                        t.PriorityId,
+                        prio?.Name ?? $"Öncelik #{t.PriorityId}",
+                        prio?.ColorHex ?? "#8c8c8c",
+                        prio?.SeverityLevel ?? 99,
+                        t.TicketTypeId,
+                        typeName,
+                        t.FirstResponseMinutes,
+                        t.ResolutionMinutes,
+                        t.IsActive
+                    );
+                })
+                .OrderBy(t => t.PrioritySeverityLevel)
+                .ToList();
+
+            result.Add(new SlaPolicyDetailDto(
+                policy.Id,
+                policy.Name,
+                policy.Description,
+                policy.ProjectId,
+                projectName,
+                policy.EscalateOnBreach,
+                policy.IsActive,
+                policyTargets
+            ));
+        }
+
+        return result;
+    }
+
     public async Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId)
     {
         var list = await _context.SlaTargets

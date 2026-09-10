@@ -120,10 +120,10 @@ public class AiTicketCopilotController : ControllerBase
         _copilotAgent = copilotAgent;
     }
 
-    public record AskQuestionDto(string Question);
+    public record AskQuestionDto(string Question, string? Language = "tr");
 
     [HttpPost("{id}/suggest-resolution")]
-    public async Task<IActionResult> SuggestResolution(int id, [FromQuery] bool postAsComment = false)
+    public async Task<IActionResult> SuggestResolution(int id, [FromQuery] bool postAsComment = false, [FromQuery] string language = "tr")
     {
         var sem = AiControllerHelper.GetLock(id);
         if (!await sem.WaitAsync(0))
@@ -133,14 +133,14 @@ public class AiTicketCopilotController : ControllerBase
 
         try
         {
-            var result = await _copilotAgent.GenerateResolutionSuggestionAsync(id, postAsComment);
+            var result = await _copilotAgent.GenerateResolutionSuggestionAsync(id, postAsComment, language);
             if (!result.Success)
             {
                 if (result.Suggestion == "Bilet bulunamadı." || result.Source == "Sistem")
                 {
                     return NotFound(new { message = result.Suggestion });
                 }
-                return BadRequest(new { success = false, message = result.Suggestion, error = result.Suggestion, source = result.Source });
+                return BadRequest(new { success = false, message = result.Suggestion, error = result.Suggestion, source = result.Source, isLlm = result.IsLlm });
             }
             return Ok(result);
         }
@@ -155,7 +155,7 @@ public class AiTicketCopilotController : ControllerBase
     }
 
     [HttpPost("{id}/draft-reply")]
-    public async Task<IActionResult> DraftReply(int id)
+    public async Task<IActionResult> DraftReply(int id, [FromQuery] string language = "tr")
     {
         var sem = AiControllerHelper.GetLock(id);
         if (!await sem.WaitAsync(0))
@@ -165,8 +165,8 @@ public class AiTicketCopilotController : ControllerBase
 
         try
         {
-            var draft = await _copilotAgent.DraftReplyAsync(id);
-            return Ok(new { success = true, draft, reply = draft });
+            var (draft, source, isLlm) = await _copilotAgent.DraftReplyWithSourceAsync(id, language);
+            return Ok(new { success = true, draft, reply = draft, source, isLlm });
         }
         catch (Exception ex)
         {
@@ -179,7 +179,7 @@ public class AiTicketCopilotController : ControllerBase
     }
 
     [HttpPost("{id}/ask")]
-    public async Task<IActionResult> Ask(int id, [FromBody] AskQuestionDto dto)
+    public async Task<IActionResult> Ask(int id, [FromBody] AskQuestionDto dto, [FromQuery] string? language = null)
     {
         if (string.IsNullOrWhiteSpace(dto?.Question))
         {
@@ -194,8 +194,9 @@ public class AiTicketCopilotController : ControllerBase
 
         try
         {
-            var answer = await _copilotAgent.AskQuestionAsync(id, dto.Question);
-            return Ok(new { success = true, answer });
+            var lang = !string.IsNullOrWhiteSpace(dto?.Language) ? dto.Language : (!string.IsNullOrWhiteSpace(language) ? language : "tr");
+            var (answer, source, isLlm) = await _copilotAgent.AskQuestionWithSourceAsync(id, dto!.Question, lang);
+            return Ok(new { success = true, answer, source, isLlm });
         }
         catch (Exception ex)
         {
@@ -221,7 +222,7 @@ public class AiTicketHandoffController : ControllerBase
     }
 
     [HttpPost("{id}/summarize")]
-    public async Task<IActionResult> Summarize(int id, [FromQuery] bool postAsComment = false)
+    public async Task<IActionResult> Summarize(int id, [FromQuery] bool postAsComment = false, [FromQuery] string language = "tr")
     {
         var sem = AiControllerHelper.GetLock(id);
         if (!await sem.WaitAsync(0))
@@ -231,14 +232,14 @@ public class AiTicketHandoffController : ControllerBase
 
         try
         {
-            var result = await _handoffSwarm.GenerateHandoffSummaryAsync(id, postAsComment);
+            var result = await _handoffSwarm.GenerateHandoffSummaryAsync(id, postAsComment, language);
             if (!result.Success)
             {
                 if (result.Summary == "Bilet bulunamadı." || result.Source == "Sistem")
                 {
                     return NotFound(new { message = result.Summary });
                 }
-                return BadRequest(new { success = false, message = result.Summary, error = result.Summary });
+                return BadRequest(new { success = false, message = result.Summary, error = result.Summary, isLlm = result.IsLlm });
             }
             return Ok(result);
         }

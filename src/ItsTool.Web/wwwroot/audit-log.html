@@ -185,12 +185,22 @@
                     const deepLink = resolveAuditDeepLink(a, entityType, entityIdText);
                     const detailSentence = buildAuditDetailSentence(a, creatorName, entityNameText, entityType, mappedOld, mappedNew);
 
+                    const actUpper = (a.action || '').toUpperCase();
+                    let actionBadgeStyle = '';
+                    if (actUpper === 'DELETED') {
+                        actionBadgeStyle = 'background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5;';
+                    } else if (actUpper === 'RESTORED') {
+                        actionBadgeStyle = 'background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0;';
+                    } else if (actUpper === 'CREATED') {
+                        actionBadgeStyle = 'background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE;';
+                    }
+
                     tr.innerHTML = `
                         <td style="font-size: 13px; color: var(--text-muted);">${new Date(a.createdAt).toLocaleString()}</td>
                         <td>${entityLink}</td>
                         <td style="font-family: monospace;">${escapeHtml(creatorName)}</td>
-                        <td><span class="badge badge-default">${escapeHtml(a.action)}</span></td>
-                        <td style="font-size: 13px;">${escapeHtml(a.fieldName) || '-'}</td>
+                        <td><span class="badge badge-default" style="${actionBadgeStyle}">${escapeHtml(a.action)}</span></td>
+                        <td style="font-size: 13px; font-weight: 500;">${escapeHtml(a.fieldName) || '-'}</td>
                         <td>${oldVal}</td>
                         <td>${newVal}</td>
                         <td style="text-align:right; position: sticky; right: 0; background: var(--bg-surface); z-index: 1; box-shadow: -2px 0 5px rgba(0,0,0,0.05);">
@@ -273,6 +283,8 @@
             
             const en = (a.entityName || '').toLowerCase();
             const linkMap = {
+                'slapolicy': `/sla.html`,
+                'sla': `/sla.html`,
                 'rule': `/rules.html?highlight=${entityIdText}`,
                 'webhook': `/webhooks.html?highlight=${entityIdText}`,
                 'knowledgearticle': `/kb-article.html?id=${entityIdText}`,
@@ -290,6 +302,15 @@
         }
 
         function buildAuditDetailSentence(a, creatorName, entityNameText, entityType, mappedOld, mappedNew) {
+            const act = (a.action || '').toUpperCase();
+            if (act === 'DELETED') {
+                const info = mappedOld && mappedOld !== '-' ? `Silinen Kayıt Özeti: ${escapeHtml(mappedOld)}` : 'Kayıt silindi.';
+                return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydını sildi. ${info}`;
+            }
+            if (act === 'RESTORED') {
+                const info = mappedNew && mappedNew !== '-' ? `Durum: ${escapeHtml(mappedNew)}` : '';
+                return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydını geri aldı (Undo / Restore). ${info}`;
+            }
             let sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
             if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
                 sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;

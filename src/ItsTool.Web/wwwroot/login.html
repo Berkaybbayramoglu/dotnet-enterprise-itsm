@@ -99,6 +99,11 @@
                     </button>
                 </div>
             </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+                <button type="button" class="btn-link" onclick="openForgotPasswordModal()" style="background: none; border: none; padding: 0; font-size: 12px; color: var(--primary); cursor: pointer; text-decoration: underline;" id="lbl_forgot_pass">
+                    Şifremi Unuttum?
+                </button>
+            </div>
             <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md); padding: 10px;" id="lbl_signin">Sign In</button>
             <div id="errorMessage" class="error"></div>
             
@@ -201,6 +206,40 @@
                 errorDiv.style.display = 'block';
             }
         });
+
+        window.openForgotPasswordModal = function() {
+            document.getElementById('forgotPasswordModal').style.display = 'flex';
+        };
+        window.closeForgotPasswordModal = function() {
+            document.getElementById('forgotPasswordModal').style.display = 'none';
+        };
     </script>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; z-index: 1000; padding: 16px;">
+        <div class="modal" style="width: min(460px, 100%); background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border);">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Parola Sıfırlama & Kurtarma</h3>
+                <button type="button" class="close-btn" onclick="closeForgotPasswordModal()" style="border: none; background: none; cursor: pointer; font-size: 22px; color: var(--text-muted); line-height: 1;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px; font-size: 13.5px; line-height: 1.6; color: var(--text-main);">
+                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); padding: 12px; border-radius: 6px; margin-bottom: 16px; color: #1E40AF;">
+                    <strong>Kurumsal Güvenlik Politikası:</strong><br>
+                    Hesabınızın parolasını unuttuysanız veya erişiminiz kilitlendiyse sistem yöneticiniz (Admin) ile iletişime geçiniz.
+                </div>
+                <p style="margin: 0 0 12px 0;">
+                    Yöneticiniz, <strong>Kullanıcı Yönetimi</strong> ekranından hesabınızı doğrulayarak size özel anında yeni bir geçici şifre tanımlayacak ve güvenli bir kanal ile sizinle paylaşacaktır.
+                </p>
+                <div style="background: var(--bg-hover); padding: 10px 14px; border-radius: 6px; font-size: 12.5px; color: var(--text-muted);">
+                    <strong>BT Destek & Sistem Yöneticisi İletişim:</strong><br>
+                    E-Posta: <a href="mailto:admin@itsm.local" style="color: var(--primary); font-weight: 600;">admin@itsm.local</a><br>
+                    Dahili Hat: <strong>4444 (IT Helpdesk)</strong>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; display: flex; justify-content: flex-end; border-top: 1px solid var(--border);">
+                <button type="button" class="btn btn-primary btn-sm" onclick="closeForgotPasswordModal()" style="padding: 6px 16px;">Tamam</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

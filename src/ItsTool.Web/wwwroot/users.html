@@ -152,8 +152,18 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="uPassword" data-i18n="users_lbl_pass">Password</label>
-                        <input id="uPassword" class="form-control" placeholder="Leave blank to keep existing (if edit)">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label class="form-label" for="uPassword" style="margin: 0;" data-i18n="users_lbl_pass">Şifre</label>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="window.generateAndFillPassword()" style="font-size: 11.5px; padding: 1px 6px; color: var(--primary); font-weight: 500;">
+                                Rastgele Şifre Üret
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <input id="uPassword" class="form-control" placeholder="Değiştirmek istemiyorsanız boş bırakın" style="flex: 1;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.copyGeneratedPassword()" title="Şifreyi Kopyala" style="padding: 4px 8px;">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="form-group" style="display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="uActive" checked>
@@ -208,6 +218,42 @@
                 <div class="perm-list" id="overrideList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 400px; padding: 12px; border-radius: 8px;">
                     <!-- populated by JS -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal-overlay">
+        <div class="modal" style="width: min(480px, 92%); border-radius: 8px;">
+            <div class="modal-header">
+                <h2 style="font-size: 16px; margin: 0; font-weight: 700;">Kullanıcı Şifresini Sıfırla</h2>
+                <button type="button" class="close-btn" data-action="closeModal" data-target="resetPasswordModal" aria-label="Kapat">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 16px 20px;">
+                <p class="text-muted" style="margin-top:0; font-size: 13px;">
+                    Kullanıcı: <strong id="resetTargetUsername" style="color: var(--text-main);"></strong>
+                </p>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" for="resetNewPasswordInput" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block;">Yeni Geçici Şifre:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="resetNewPasswordInput" class="form-control" style="font-family: monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="window.generateResetPassword()" style="font-size: 12px; white-space: nowrap; padding: 6px 10px;">
+                            Yeniden Üret
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.copyResetPassword()" style="font-size: 12px; white-space: nowrap; padding: 6px 10px;" title="Panoya Kopyala">
+                            Kopyala
+                        </button>
+                    </div>
+                </div>
+                <div id="resetPasswordAlertBox" style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 12px; color: #1E40AF; line-height: 1.45;">
+                    <strong>Şifre Kurtarma Prosedürü:</strong> Bu geçici şifreyi sisteme kaydedip kullanıcıya iletebilirsiniz. Kullanıcı sisteme bu şifre ile anında giriş yapabilir.
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px;">
+                <button type="button" class="btn btn-ghost" data-action="closeModal" data-target="resetPasswordModal">İptal</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmResetPassword" onclick="window.confirmResetPassword()">Şifreyi Kaydet ve Uygula</button>
             </div>
         </div>
     </div>
@@ -273,10 +319,11 @@
                     <td class="text-muted">${escapeHtml(item.email)}</td>
                     <td>${badge}</td>
                     <td>
-                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">${t('users_btn_roles') || 'Roles'}</button>
-                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">${t('users_btn_perms') || 'Perms'}</button>
-                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">${t('users_btn_edit')}</button>
-                        <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">${t('users_btn_del')}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openRolesModal" data-id="${item.id}">${t('users_btn_roles') || 'Roller'}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openOverridesModal" data-id="${item.id}">${t('users_btn_perms') || 'İzinler'}</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px; color: var(--primary); font-weight: 500;" data-action="openResetPasswordModal" data-id="${item.id}" title="Geçici şifre oluşturup sıfırla">Şifre Sıfırla</button>
+                        <button type="button" class="btn btn-ghost" style="padding: 4px 8px;" data-action="openUserModal" data-id="${item.id}">${t('users_btn_edit') || 'Düzenle'}</button>
+                        <button type="button" class="btn btn-ghost" style="color: var(--danger); padding: 4px 8px;" data-action="promptDelete" data-id="${item.id}">${t('users_btn_del') || 'Sil'}</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -453,22 +500,73 @@
             const item = currentData.find(x => x.id === id);
             if (!item) return;
             
-            document.getElementById('oUserName').textContent = item.username;
+            document.getElementById('oUserName').textContent = `${item.firstName} ${item.lastName} (@${item.username})`;
 
             const list = document.getElementById('overrideList');
             list.innerHTML = '';
             
+            // Build the set of permission keys the user inherits from their assigned roles
+            const rolePermKeys = new Set();
+            if (item.roleIds && Array.isArray(item.roleIds) && allRoles && Array.isArray(allRoles)) {
+                item.roleIds.forEach(roleId => {
+                    const role = allRoles.find(r => r.id === roleId);
+                    if (role && Array.isArray(role.permissions)) {
+                        role.permissions.forEach(k => rolePermKeys.add(k));
+                    }
+                });
+            }
+
             allPermissions.forEach(p => {
+                const hasRolePerm = rolePermKeys.has(p.key);
                 const overrideValue = item.permissionOverrides ? item.permissionOverrides[p.id] : undefined;
-                const isGranted = overrideValue === true;
-                const isRevoked = overrideValue === false;
+                const hasCustomOverride = overrideValue !== undefined;
                 
+                // Effective status: explicit override takes precedence over role permissions
+                const isEffectiveGranted = hasCustomOverride ? (overrideValue === true) : hasRolePerm;
+                
+                let badgeHtml = '';
+                let actionBtnHtml = '';
+                
+                if (isEffectiveGranted) {
+                    if (hasCustomOverride) {
+                        badgeHtml = `<span class="badge" style="background:#ECFDF5; color:#047857; border:1px solid #A7F3D0; font-size:11px; padding:2px 6px;">Özel İzinli</span>`;
+                    } else {
+                        badgeHtml = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:11px; padding:2px 6px;">Rollerden İzinli</span>`;
+                    }
+                    // Since user already HAS permission, the only action is to REDDET (Deny/Revoke)
+                    actionBtnHtml = `
+                        <button type="button" class="btn btn-outline btn-sm" style="color:#DC2626; border-color:#FECACA; padding: 3px 8px; font-size:12px; font-weight:600;" onclick="window.setOverride(${p.id}, false)">
+                            ${t('users_btn_deny') || 'Reddet'}
+                        </button>
+                    `;
+                } else {
+                    if (hasCustomOverride) {
+                        badgeHtml = `<span class="badge" style="background:#FEF2F2; color:#B91C1C; border:1px solid #FECACA; font-size:11px; padding:2px 6px;">Özel Engellendi</span>`;
+                    } else {
+                        badgeHtml = `<span class="badge" style="background:#F1F5F9; color:#64748B; border:1px solid #CBD5E1; font-size:11px; padding:2px 6px;">Yetki Yok</span>`;
+                    }
+                    // Since user DOES NOT have permission, the only action is to İZİN VER (Allow/Grant)
+                    actionBtnHtml = `
+                        <button type="button" class="btn btn-outline btn-sm" style="color:#059669; border-color:#A7F3D0; padding: 3px 8px; font-size:12px; font-weight:600;" onclick="window.setOverride(${p.id}, true)">
+                            ${t('users_btn_allow') || 'İzin Ver'}
+                        </button>
+                    `;
+                }
+
+                const resetBtnHtml = hasCustomOverride 
+                    ? `<button type="button" class="btn btn-ghost btn-sm" style="padding: 2px 6px; font-size:11px; color:var(--text-muted);" title="Özel istisnayı kaldırıp rol varsayılanına dön" onclick="window.removeOverride(${p.id})">Sıfırla</button>`
+                    : '';
+
                 list.innerHTML += `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
-                        <span>${p.key} <small class="text-muted" style="display:block;">${p.name}</small></span>
-                        <div style="display: flex; gap: 4px;">
-                            <button type="button" class="btn ${isGranted ? 'btn-success' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" data-action="setOverride" data-id="${p.id}" data-flag="true">${t('users_btn_allow')}</button>
-                            <button type="button" class="btn ${isRevoked ? 'btn-danger' : 'btn-ghost'}" style="padding: 2px 8px; font-size:12px;" data-action="setOverride" data-id="${p.id}" data-flag="false">${t('users_btn_deny')}</button>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-surface); gap: 10px;">
+                        <div style="min-width: 0;">
+                            <div style="font-weight: 600; font-size: 13px; color: var(--text-main);">${escapeHtml(p.key)}</div>
+                            <small class="text-muted" style="display:block; font-size: 11px;">${escapeHtml(p.name || '')}</small>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                            ${badgeHtml}
+                            ${actionBtnHtml}
+                            ${resetBtnHtml}
                         </div>
                     </div>
                 `;
@@ -481,12 +579,108 @@
             if (!activeUserId) return;
             try {
                 await window.api.setPermissionOverride(activeUserId, permId, isGranted);
-                showToast('Override saved');
-                loadData();
-            } catch (err) { console.error(err); 
-                showToast('Failed to save override', 'error');
-                loadData();
-             }
+                showToast(isGranted ? 'Özel izin tanımlandı' : 'İzin engellendi (Reddedildi)');
+                await loadData();
+                window.openOverridesModal(activeUserId);
+            } catch (err) {
+                console.error(err);
+                showToast('İşlem başarısız', 'error');
+            }
+        };
+
+        window.removeOverride = async function(permId) {
+            if (!activeUserId) return;
+            try {
+                await window.api.removePermissionOverride(activeUserId, permId);
+                showToast('Özel istisna kaldırıldı (Rol varsayılanına dönüldü)');
+                await loadData();
+                window.openOverridesModal(activeUserId);
+            } catch (err) {
+                console.error(err);
+                showToast('İstisna kaldırılamadı', 'error');
+            }
+        };
+
+        // Reset Password Management
+        let resetUserId = null;
+        function generateRandomPassword() {
+            const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
+            const numbers = '23456789';
+            let pass = '';
+            for (let i = 0; i < 6; i++) {
+                pass += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            for (let i = 0; i < 2; i++) {
+                pass += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            return pass + '!';
+        }
+
+        window.openResetPasswordModal = function(id) {
+            resetUserId = id;
+            const item = currentData.find(x => x.id === id);
+            if (!item) return;
+
+            document.getElementById('resetTargetUsername').textContent = `${item.firstName} ${item.lastName} (@${item.username})`;
+            const newPass = generateRandomPassword();
+            document.getElementById('resetNewPasswordInput').value = newPass;
+
+            openModal('resetPasswordModal');
+        };
+
+        window.generateResetPassword = function() {
+            document.getElementById('resetNewPasswordInput').value = generateRandomPassword();
+        };
+
+        window.copyResetPassword = function() {
+            const input = document.getElementById('resetNewPasswordInput');
+            if (!input) return;
+            navigator.clipboard.writeText(input.value);
+            showToast('Şifre panoya kopyalandı');
+        };
+
+        window.confirmResetPassword = async function() {
+            if (!resetUserId) return;
+            const newPass = document.getElementById('resetNewPasswordInput').value.trim();
+            if (!newPass) {
+                showToast('Şifre boş olamaz', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btnConfirmResetPassword');
+            if (btn) btn.disabled = true;
+
+            try {
+                await window.api.resetUserPassword(resetUserId, newPass);
+                await navigator.clipboard.writeText(newPass);
+                showToast(`Şifre sıfırlandı! "${newPass}" panoya kopyalandı.`);
+                closeModal('resetPasswordModal');
+            } catch (err) {
+                console.error(err);
+                showToast(err.message || 'Şifre sıfırlanamadı', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        };
+
+        window.generateAndFillPassword = function() {
+            const pass = generateRandomPassword();
+            const input = document.getElementById('uPassword');
+            if (input) {
+                input.value = pass;
+                navigator.clipboard.writeText(pass);
+                showToast(`Geçici şifre oluşturuldu ve kopyalandı: ${pass}`);
+            }
+        };
+
+        window.copyGeneratedPassword = function() {
+            const input = document.getElementById('uPassword');
+            if (input && input.value) {
+                navigator.clipboard.writeText(input.value);
+                showToast('Şifre panoya kopyalandı');
+            } else {
+                showToast('Kopyalanacak şifre bulunamadı', 'warning');
+            }
         };
 
         document.getElementById('btnAssignRole').addEventListener('click', async () => {

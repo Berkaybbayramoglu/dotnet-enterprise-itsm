@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Calendar</title>
-    <link rel="stylesheet" href="css/design-system.css">
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js' integrity="sha384-B1OFx8Gy9GjPu8UbUyXbGQpzll9ubAUQ9agInFJ8NnD7nYG1u/CLR+Sqr5yifl4q" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/design-system.css?v=1008">
+    <script src="js/fullcalendar.global.min.js"></script>
     <style>
         #calendar {
             background: var(--bg-surface);
@@ -103,6 +103,7 @@
         import './js/api.js?v=1002';
         import { injectShell } from './js/layout.js?v=1002';
         import { bindShellActions, showToast } from './js/ui.js?v=1002';
+        import { getCurrentLanguage, t } from './js/i18n.js?v=1002';
         
         injectShell();
         
@@ -142,7 +143,7 @@
 
         window.openUserDetails = function(userId) { return window.ui.showUserDetails(userId); };
 
-        document.addEventListener('DOMContentLoaded', async function() {
+        async function initCalendar() {
             try {
                 const lookup = await window.api.getLookup();
                 globalLookupData = {
@@ -154,9 +155,85 @@
             } catch(err) {
                 console.warn('Lookup data failed', err);
             }
+
+            const currentLang = getCurrentLanguage();
+            const isTr = currentLang === 'tr';
+
+            const trLocale = {
+                code: 'tr',
+                week: {
+                    dow: 1, // Hafta Pazartesi başlar
+                    doy: 7
+                },
+                buttonText: {
+                    prev: 'Geri',
+                    next: 'İleri',
+                    today: 'Bugün',
+                    month: 'Ay',
+                    week: 'Hafta',
+                    day: 'Gün',
+                    list: 'Ajanda'
+                },
+                weekText: 'Hf',
+                allDayText: 'Tüm gün',
+                moreLinkText: function(n) {
+                    return '+ daha fazla ' + n;
+                },
+                noEventsText: 'Gösterilecek etkinlik yok'
+            };
+
+            const mSelect = document.getElementById('calendarMonthSelect');
+            const ySelect = document.getElementById('calendarYearSelect');
+
+            if (mSelect) {
+                const monthNamesTr = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+                const monthNamesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                const monthNames = isTr ? monthNamesTr : monthNamesEn;
+                mSelect.innerHTML = monthNames.map((name, idx) => {
+                    const val = (idx + 1).toString().padStart(2, '0');
+                    return `<option value="${val}">${name}</option>`;
+                }).join('');
+            }
+            
+            if (ySelect) {
+                // Populate years dynamically (-5 to +5 years from now)
+                const currentYear = new Date().getFullYear();
+                ySelect.innerHTML = '';
+                for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+                    let opt = document.createElement('option');
+                    opt.value = y;
+                    opt.text = y;
+                    ySelect.appendChild(opt);
+                }
+            }
+
             var calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+
+            if (typeof FullCalendar === 'undefined') {
+                console.error("FullCalendar is not defined");
+                calendarEl.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">Takvim kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.</div>';
+                return;
+            }
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                locales: [trLocale],
+                locale: isTr ? 'tr' : 'en',
+                firstDay: 1,
+                buttonText: isTr ? {
+                    today: 'Bugün',
+                    month: 'Ay',
+                    week: 'Hafta',
+                    day: 'Gün',
+                    list: 'Ajanda'
+                } : {
+                    today: 'Today',
+                    month: 'Month',
+                    week: 'Week',
+                    day: 'Day',
+                    list: 'List'
+                },
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -166,10 +243,12 @@
                     try {
                         const res = await window.api.searchTickets({ keyword: '', pageSize: 1000 });
                         
-                        const events = res.items
+                        const events = (res.items || [])
                             .filter(t => t.estimatedStartDate || t.estimatedEndDate)
                             .map(t => {
-                                const endDate = t.estimatedEndDate ? new Date(t.estimatedEndDate) : new Date(t.estimatedStartDate);
+                                const startStr = (t.estimatedStartDate || t.estimatedEndDate).split('T')[0];
+                                const endStr = (t.estimatedEndDate || t.estimatedStartDate).split('T')[0];
+                                const endDate = new Date(endStr);
                                 // FullCalendar exclusive end date logic: add 1 day if it's all-day
                                 endDate.setDate(endDate.getDate() + 1);
                                 
@@ -178,7 +257,7 @@
                                 return {
                                     id: t.id,
                                     title: titleStr,
-                                    start: t.estimatedStartDate,
+                                    start: startStr,
                                     end: endDate.toISOString().split('T')[0],
                                     backgroundColor: ticketColor,
                                     borderColor: ticketColor,
@@ -284,14 +363,10 @@
                     }
                 },
                 datesSet: function(info) {
-                    var current = calendar.getDate();
+                    var current = info.view ? info.view.currentStart : new Date();
                     var cm = (current.getMonth() + 1).toString().padStart(2, '0');
-                    var mSelect = document.getElementById('calendarMonthSelect');
-                    var ySelect = document.getElementById('calendarYearSelect');
-                    if (mSelect && ySelect) {
-                        mSelect.value = cm;
-                        ySelect.value = current.getFullYear();
-                    }
+                    if (mSelect) mSelect.value = cm;
+                    if (ySelect) ySelect.value = current.getFullYear();
                 }
             });
 
@@ -300,27 +375,14 @@
                     calendar.refetchEvents();
                 }
             });
-            var mSelect = document.getElementById('calendarMonthSelect');
-            var ySelect = document.getElementById('calendarYearSelect');
-            
-            if (mSelect && ySelect) {
-                // Populate years dynamically (-5 to +5 years from now)
-                const currentYear = new Date().getFullYear();
-                for (let y = currentYear - 5; y <= currentYear + 5; y++) {
-                    let opt = document.createElement('option');
-                    opt.value = y;
-                    opt.text = y;
-                    ySelect.appendChild(opt);
-                }
-            }
-            
+
             calendar.render();
 
             if (mSelect && ySelect) {
                 const jumpToDate = () => {
                     const y = ySelect.value;
                     const m = mSelect.value;
-                    if (y && m) {
+                    if (y && m && calendar) {
                         calendar.gotoDate(`${y}-${m}-01`);
                     }
                 };
@@ -328,7 +390,13 @@
                 mSelect.addEventListener('change', jumpToDate);
                 ySelect.addEventListener('change', jumpToDate);
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCalendar);
+        } else {
+            initCalendar();
+        }
     </script>
 </body>
 </html>

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ItsTool.Infrastructure.Agents;
 
-public record AiSuggestionResult(bool Success, string Suggestion, string Source, string? Model);
+public record AiSuggestionResult(bool Success, string Suggestion, string Source, string? Model, bool IsLlm = false);
 public record SimilarTicketSummary(int Id, string TicketNumber, string Title, string? Description);
 public record KbArticleSummary(int Id, string Title, string Content);
 
@@ -33,9 +33,9 @@ public class ResolutionCopilotAgent
         _logger = logger;
     }
 
-    public async Task<AiSuggestionResult> GenerateResolutionSuggestionAsync(int ticketId, bool postAsComment = false)
+    public async Task<AiSuggestionResult> GenerateResolutionSuggestionAsync(int ticketId, bool postAsComment = false, string language = "tr")
     {
-        _logger.LogInformation("ResolutionCopilotAgent generating suggestion for ticket {TicketId}", ticketId);
+        _logger.LogInformation("ResolutionCopilotAgent generating suggestion for ticket {TicketId} (lang: {Language})", ticketId, language);
 
         var ticket = await _context.Tickets
             .Include(t => t.Category)
@@ -45,13 +45,22 @@ public class ResolutionCopilotAgent
 
         if (ticket == null)
         {
-            return new AiSuggestionResult(false, "Bilet bulunamadı.", "Sistem", null);
+            return new AiSuggestionResult(false, "Bilet bulunamadı.", "Sistem", null, false);
         }
 
+        var isEn = string.Equals(language, "en", StringComparison.OrdinalIgnoreCase);
         var similarTickets = await GetSimilarTicketsAsync(ticket);
         var kbArticles = await GetRelevantKbArticlesAsync(ticket);
 
-        string systemPrompt = @"Sen ITSM (BT Hizmet Yönetimi) sisteminde çalışan uzman bir yapay zeka asistanısın.
+        string systemPrompt = isEn
+            ? @"You are an expert AI assistant working in an ITSM (IT Service Management) system.
+Your task is to provide an actionable, clear, and professional resolution guide for the IT support specialist assigned to this ticket, based on past resolved tickets, knowledge base articles, and best IT practices.
+RULES:
+1. Absolutely do NOT use any emojis.
+2. Absolutely do NOT use markdown formatting (no asterisks *, no double asterisks **, no dashes -, no hashtags #, no backticks ` etc.).
+3. Separate sections with colons. Number items using plain numbers like 1., 2. instead of dashes or bullets.
+4. Generate the output entirely in plain, clean, readable English."
+            : @"Sen ITSM (BT Hizmet Yönetimi) sisteminde çalışan uzman bir yapay zeka asistanısın.
 Görevin, BT destek uzmanına atanmış bu bilet için geçmiş çözülmüş biletlere, bilgi bankasına ve en iyi BT pratiklerine dayanarak uygulanabilir, net ve profesyonel bir çözüm rehberi sunmaktır.
 KURALLAR:
 1. Kesinlikle hiçbir emoji kullanma.
@@ -67,16 +76,19 @@ KURALLAR:
             .Select(c => $"[{c.CreatedAt:yyyy-MM-dd HH:mm}] {c.CreatedBy} ({(c.IsInternal ? "Dahili Not" : "Kullanıcı Yorumu")}): {c.Content}")
             .ToListAsync();
 
-        var commentsStr = comments.Count > 0 ? string.Join("\n", comments) : "Henüz bilet üzerinde yorum veya ek işlem yapılmadı.";
-        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? "Açıklama girilmemiş" : ticket.Description;
+        var commentsStr = comments.Count > 0 ? string.Join("\n", comments) : (isEn ? "No comments or additional actions on this ticket yet." : "Henüz bilet üzerinde yorum veya ek işlem yapılmadı.");
+        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? (isEn ? "No description provided" : "Açıklama girilmemiş") : ticket.Description;
 
-        var pastTicketsStr = similarTickets.Count > 0 ? JsonSerializer.Serialize(similarTickets, s_jsonOptions) : "Geçmiş benzer bilet bulunamadı.";
-        var kbStr = kbArticles.Count > 0 ? JsonSerializer.Serialize(kbArticles, s_jsonOptions) : "Eşleşen bilgi bankası makalesi yok.";
+        var pastTicketsStr = similarTickets.Count > 0 ? JsonSerializer.Serialize(similarTickets, s_jsonOptions) : (isEn ? "No similar resolved tickets found." : "Geçmiş benzer bilet bulunamadı.");
+        var kbStr = kbArticles.Count > 0 ? JsonSerializer.Serialize(kbArticles, s_jsonOptions) : (isEn ? "No matching knowledge base articles." : "Eşleşen bilgi bankası makalesi yok.");
 
-        var userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsStr}\n\nGeçmiş Benzer Çözülmüş Biletler:\n{pastTicketsStr}\n\nİlgili Bilgi Bankası:\n{kbStr}\n\nLütfen bilet detayları ve yorum geçmişinde yaşanan gelişmeler ışığında BT destek uzmanı için adım adım çözüm önerisi hazırla. Emojisiz ve markdownsız düz metin olarak ver.";
+        var userMessage = isEn
+            ? $"Ticket No: {ticket.TicketNumber}\nTitle: {ticket.Title}\nCategory: {ticket.Category?.Name ?? "General"}\nPriority: {ticket.Priority?.Name ?? "Normal"}\nDescription: {ticketDesc}\n\nComment and Action History:\n{commentsStr}\n\nPast Similar Resolved Tickets:\n{pastTicketsStr}\n\nRelated Knowledge Base:\n{kbStr}\n\nPlease prepare a step-by-step resolution recommendation for the IT support technician in light of the ticket details and progress in comments. Provide output as plain text without emojis or markdown in English."
+            : $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsStr}\n\nGeçmiş Benzer Çözülmüş Biletler:\n{pastTicketsStr}\n\nİlgili Bilgi Bankası:\n{kbStr}\n\nLütfen bilet detayları ve yorum geçmişinde yaşanan gelişmeler ışığında BT destek uzmanı için adım adım çözüm önerisi hazırla. Emojisiz ve markdownsız düz metin olarak ver.";
 
         string suggestion;
         string source;
+        bool isLlm = false;
         string? model = _llmService.GetModelName();
 
         var completion = await _llmService.GetCompletionAsync(systemPrompt, userMessage);
@@ -85,6 +97,7 @@ KURALLAR:
         {
             suggestion = CleanPlainText(completion);
             source = $"Canlı LLM ({model})";
+            isLlm = true;
         }
         else
         {
@@ -93,13 +106,16 @@ KURALLAR:
                 var errMsg = completion.StartsWith("[AI İsteği Başarısız: ")
                     ? completion.Substring("[AI İsteği Başarısız: ".Length).TrimEnd(']')
                     : completion;
-                return new AiSuggestionResult(false, $"LLM Bağlantısı Kurulamadı: {errMsg}", "LLM Bağlantı Hatası", model);
+                return new AiSuggestionResult(false, $"LLM Bağlantısı Kurulamadı: {errMsg}", "LLM Bağlantı Hatası", model, false);
             }
 
             // Intelligent Rule-Based Fallback
             _logger.LogInformation("Using smart heuristic resolution suggestion for ticket {TicketId}", ticketId);
-            suggestion = BuildSmartHeuristicSuggestion(ticket, similarTickets, kbArticles);
+            suggestion = isEn 
+                ? BuildSmartHeuristicSuggestionEn(ticket, similarTickets, kbArticles) 
+                : BuildSmartHeuristicSuggestion(ticket, similarTickets, kbArticles);
             source = "Akıllı Yerel Asistan";
+            isLlm = false;
         }
 
         suggestion = CleanPlainText(suggestion);
@@ -109,7 +125,7 @@ KURALLAR:
             await PostBotCommentAsync(ticket.Id, suggestion, source);
         }
 
-        return new AiSuggestionResult(true, suggestion, source, model);
+        return new AiSuggestionResult(true, suggestion, source, model, isLlm);
     }
 
     private async Task<List<SimilarTicketSummary>> GetSimilarTicketsAsync(Ticket ticket)
@@ -166,10 +182,17 @@ KURALLAR:
         await GenerateResolutionSuggestionAsync(ticket.Id, postAsComment: true);
     }
 
-    public async Task<string> DraftReplyAsync(int ticketId)
+    public async Task<string> DraftReplyAsync(int ticketId, string language = "tr")
     {
+        var (draft, _, _) = await DraftReplyWithSourceAsync(ticketId, language);
+        return draft;
+    }
+
+    public async Task<(string Draft, string Source, bool IsLlm)> DraftReplyWithSourceAsync(int ticketId, string language = "tr")
+    {
+        var isEn = string.Equals(language, "en", StringComparison.OrdinalIgnoreCase);
         var ticket = await _context.Tickets.Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == ticketId);
-        if (ticket == null) return "Bilet bulunamadı.";
+        if (ticket == null) return (isEn ? "Ticket not found." : "Bilet bulunamadı.", "Sistem", false);
 
         var recentComments = await _context.TicketComments
             .Where(c => c.TicketId == ticketId && !c.IsDeleted)
@@ -178,22 +201,31 @@ KURALLAR:
             .Select(c => $"[{c.CreatedAt:yyyy-MM-dd HH:mm}] {c.CreatedBy} ({(c.IsInternal ? "Dahili Not" : "Kullanıcı Yorumu")}): {c.Content}")
             .ToListAsync();
 
-        var commentsHistory = recentComments.Count > 0 ? string.Join("\n", recentComments) : "Henüz ek bir yorum bulunmuyor.";
-        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? "Açıklama girilmemiş" : ticket.Description;
+        var commentsHistory = recentComments.Count > 0 ? string.Join("\n", recentComments) : (isEn ? "No additional comments yet." : "Henüz ek bir yorum bulunmuyor.");
+        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? (isEn ? "No description provided" : "Açıklama girilmemiş") : ticket.Description;
 
-        string systemPrompt = @"Sen profesyonel ve nazik bir BT Destek Uzmanısın.
+        string systemPrompt = isEn
+            ? @"You are a professional and courteous IT Support Specialist.
+Your task is to draft a polite, clear, and corporate email / message template to inform the user that their request has been received, is being worked on, or necessary actions have been started.
+RULES:
+1. Absolutely do NOT use any emojis.
+2. Absolutely do NOT use markdown formatting (no asterisks *, no double asterisks **, no dashes -, no hashtags #, no backticks ` etc.).
+3. Produce clean, plain text in English."
+            : @"Sen profesyonel ve nazik bir BT Destek Uzmanısın.
 Görevin, kullanıcıya talebinin incelendiğini, üzerinde çalışıldığını veya gerekli adımların başlatıldığını bildiren samimi, net ve kurumsal bir e-posta / mesaj taslağı hazırlamaktır.
 KURALLAR:
 1. Kesinlikle hiçbir emoji kullanma.
 2. Kesinlikle markdown formatı kullanma (yıldız *, çift yıldız **, tire -, diyez #, ters tırnak ` vb. işaretler olmamalıdır).
 3. Çıktıyı tamamen sade ve temiz düz Türkçe metin olarak üret.";
 
-        string userMessage = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKullanıcı Açıklaması: {ticketDesc}\n\nBiletteki Son Gelişmeler ve Yorumlar:\n{commentsHistory}\n\nLütfen biletin güncel durumunu ve yapılan işlemleri göz önünde bulundurarak kullanıcı için nazik bir yanıt taslağı hazırla.";
+        string userMessage = isEn
+            ? $"Ticket No: {ticket.TicketNumber}\nTitle: {ticket.Title}\nUser Description: {ticketDesc}\n\nRecent Updates and Comments:\n{commentsHistory}\n\nPlease draft a polite reply template in plain English for the requester based on the ticket status and actions taken."
+            : $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKullanıcı Açıklaması: {ticketDesc}\n\nBiletteki Son Gelişmeler ve Yorumlar:\n{commentsHistory}\n\nLütfen biletin güncel durumunu ve yapılan işlemleri göz önünde bulundurarak kullanıcı için nazik bir yanıt taslağı hazırla.";
 
         var completion = await _llmService.GetCompletionAsync(systemPrompt, userMessage);
         if (!string.IsNullOrEmpty(completion) && !completion.StartsWith("[AI İsteği Başarısız") && !completion.StartsWith("[AI Modülü"))
         {
-            return CleanPlainText(completion);
+            return (CleanPlainText(completion), $"Canlı LLM ({_llmService.GetModelName()})", true);
         }
 
         if (_llmService.IsFallbackDisabled())
@@ -205,19 +237,28 @@ KURALLAR:
         }
 
         // Smart fallback template
-        var fallback = $"Merhaba,\n\n#{ticket.TicketNumber} numaralı \"{ticket.Title}\" konulu talebiniz tarafımıza ulaşmış ve teknik ekibimiz tarafından incelemeye alınmıştır.\n\nKonuyla ilgili gerekli kontroller yapılmakta olup, en kısa sürede tarafınıza bilgilendirme yapılacaktır. Eklemek istediğiniz ilave bir detay veya ekran görüntüsü varsa bu mesaja yanıt verebilirsiniz.\n\nİyi çalışmalar dileriz,\nBT Destek Ekibi";
-        return CleanPlainText(fallback);
+        var fallback = isEn
+            ? $"Hello,\n\nYour request #{ticket.TicketNumber} regarding \"{ticket.Title}\" has been received and is currently being investigated by our technical support team.\n\nAll necessary checks are in progress, and we will update you as soon as possible. If you have any additional details or error screenshots to provide, please reply to this message.\n\nBest regards,\nIT Support Team"
+            : $"Merhaba,\n\n#{ticket.TicketNumber} numaralı \"{ticket.Title}\" konulu talebiniz tarafımıza ulaşmış ve teknik ekibimiz tarafından incelemeye alınmıştır.\n\nKonuyla ilgili gerekli kontroller yapılmakta olup, en kısa sürede tarafınıza bilgilendirme yapılacaktır. Eklemek istediğiniz ilave bir detay veya ekran görüntüsü varsa bu mesaja yanıt verebilirsiniz.\n\nİyi çalışmalar dileriz,\nBT Destek Ekibi";
+        return (CleanPlainText(fallback), "Akıllı Yerel Asistan", false);
     }
 
-    public async Task<string> AskQuestionAsync(int ticketId, string question)
+    public async Task<string> AskQuestionAsync(int ticketId, string question, string language = "tr")
     {
+        var (answer, _, _) = await AskQuestionWithSourceAsync(ticketId, question, language);
+        return answer;
+    }
+
+    public async Task<(string Answer, string Source, bool IsLlm)> AskQuestionWithSourceAsync(int ticketId, string question, string language = "tr")
+    {
+        var isEn = string.Equals(language, "en", StringComparison.OrdinalIgnoreCase);
         var ticket = await _context.Tickets
             .Include(t => t.Category)
             .Include(t => t.Priority)
             .Include(t => t.Status)
             .FirstOrDefaultAsync(t => t.Id == ticketId);
 
-        if (ticket == null) return "Bilet bulunamadı.";
+        if (ticket == null) return (isEn ? "Ticket not found." : "Bilet bulunamadı.", "Sistem", false);
 
         var comments = await _context.TicketComments
             .Where(c => c.TicketId == ticketId && !c.IsDeleted)
@@ -228,19 +269,28 @@ KURALLAR:
 
         string commentsSummary = string.Join("\n", comments);
 
-        string systemPrompt = @"Sen ITSM sisteminde bilet verilerini analiz eden uzman bir BT Asistanısın.
+        string systemPrompt = isEn
+            ? @"You are an expert IT Assistant analyzing ticket data in an ITSM system.
+Answer the user's question about this ticket accurately, concisely, and helpfully based on ticket details and comment history.
+RULES:
+1. Absolutely do NOT use any emojis.
+2. Absolutely do NOT use markdown formatting (no asterisks *, no double asterisks **, no dashes -, no hashtags #, no backticks ` etc.).
+3. Produce clean, plain text in English."
+            : @"Sen ITSM sisteminde bilet verilerini analiz eden uzman bir BT Asistanısın.
 Kullanıcının bu bilet hakkında sorduğu sorulara bilet detayları ve yorum geçmişine dayanarak net, doğru ve yardımcı yanıtlar ver (Türkçe).
 KURALLAR:
 1. Kesinlikle hiçbir emoji kullanma.
 2. Kesinlikle markdown formatı kullanma (yıldız *, çift yıldız **, tire -, diyez #, ters tırnak ` vb. işaretler olmamalıdır).
 3. Çıktıyı tamamen sade ve temiz düz Türkçe metin olarak üret.";
 
-        string userMessage = $"Bilet Bilgileri:\nNo: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name}\nÖncelik: {ticket.Priority?.Name}\nDurum: {ticket.Status?.Name}\nAçıklama: {ticket.Description}\n\nYorum Geçmişi:\n{commentsSummary}\n\nKullanıcı Sorusu: {question}";
+        string userMessage = isEn
+            ? $"Ticket Details:\nNo: {ticket.TicketNumber}\nTitle: {ticket.Title}\nCategory: {ticket.Category?.Name}\nPriority: {ticket.Priority?.Name}\nStatus: {ticket.Status?.Name}\nDescription: {ticket.Description}\n\nComment History:\n{commentsSummary}\n\nUser Question: {question}\n\nPlease answer the question in plain English."
+            : $"Bilet Bilgileri:\nNo: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nKategori: {ticket.Category?.Name}\nÖncelik: {ticket.Priority?.Name}\nDurum: {ticket.Status?.Name}\nAçıklama: {ticket.Description}\n\nYorum Geçmişi:\n{commentsSummary}\n\nKullanıcı Sorusu: {question}";
 
         var completion = await _llmService.GetCompletionAsync(systemPrompt, userMessage);
         if (!string.IsNullOrEmpty(completion) && !completion.StartsWith("[AI İsteği Başarısız") && !completion.StartsWith("[AI Modülü"))
         {
-            return CleanPlainText(completion);
+            return (CleanPlainText(completion), $"Canlı LLM ({_llmService.GetModelName()})", true);
         }
 
         if (_llmService.IsFallbackDisabled())
@@ -251,8 +301,55 @@ KURALLAR:
             throw new InvalidOperationException($"LLM Bağlantısı Kurulamadı: {errMsg}");
         }
 
-        var fallback = $"Sorunuz: \"{question}\"\n\nBilet Bilgisi: #{ticket.TicketNumber} ({ticket.Title})\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}, Öncelik: {ticket.Priority?.Name ?? "Normal"}, Durum: {ticket.Status?.Name ?? "İşlemde"}.\n\nYanıt: Bu bilet için belirtilen durum teknik incelemededir.";
-        return CleanPlainText(fallback);
+        var fallback = isEn
+            ? $"Question: \"{question}\"\n\nTicket Information: #{ticket.TicketNumber} ({ticket.Title})\nCategory: {ticket.Category?.Name ?? "General"}, Priority: {ticket.Priority?.Name ?? "Normal"}, Status: {ticket.Status?.Name ?? "In Progress"}.\n\nAnswer: The situation described for this ticket is currently under technical review."
+            : $"Sorunuz: \"{question}\"\n\nBilet Bilgisi: #{ticket.TicketNumber} ({ticket.Title})\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}, Öncelik: {ticket.Priority?.Name ?? "Normal"}, Durum: {ticket.Status?.Name ?? "İşlemde"}.\n\nYanıt: Bu bilet için belirtilen durum teknik incelemededir.";
+        return (CleanPlainText(fallback), "Akıllı Yerel Asistan", false);
+    }
+
+    private static string BuildSmartHeuristicSuggestionEn(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Category and Status Assessment:");
+        sb.AppendLine($"Category: {ticket.Category?.Name ?? "General"}");
+        sb.AppendLine($"Priority Level: {ticket.Priority?.Name ?? "Normal"}");
+        sb.AppendLine($"Ticket Title: {ticket.Title}");
+        sb.AppendLine();
+
+        sb.AppendLine("Recommended Resolution and Diagnostic Steps:");
+        sb.AppendLine("1. Initial Investigation and Verification: Reproduce the error scenario described by the user or inspect relevant system logs.");
+        sb.AppendLine("2. Access and Permissions: Verify the user account's roles and permissions for the affected service.");
+        sb.AppendLine("3. Service Availability: Inspect the operational status of the relevant server, gateway, or database services via the monitoring console.");
+        sb.AppendLine("4. User Confirmation: Once the problem is remediated, contact the requester to confirm resolution, then mark the ticket as resolved.");
+        sb.AppendLine();
+
+        var ticketList = similarTickets as IList<SimilarTicketSummary> ?? similarTickets.ToList();
+        if (ticketList.Count > 0)
+        {
+            sb.AppendLine("Past Similar Resolved Tickets:");
+            int idx = 1;
+            foreach (var t in ticketList)
+            {
+                sb.AppendLine($"{idx++}. Ticket #{t.TicketNumber}: {t.Title}");
+            }
+            sb.AppendLine();
+        }
+
+        var articleList = kbArticles as IList<KbArticleSummary> ?? kbArticles.ToList();
+        if (articleList.Count > 0)
+        {
+            sb.AppendLine("Related Knowledge Base Articles:");
+            int idx = 1;
+            foreach (var kb in articleList)
+            {
+                sb.AppendLine($"{idx++}. {kb.Title} (/kb-article.html?id={kb.Id})");
+            }
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("Note: When live AI support is connected, these recommendations are synthesized dynamically by the LLM.");
+
+        return CleanPlainText(sb.ToString());
     }
 
     private static string BuildSmartHeuristicSuggestion(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)

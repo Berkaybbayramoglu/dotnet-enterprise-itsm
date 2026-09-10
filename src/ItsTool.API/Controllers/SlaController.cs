@@ -70,6 +70,29 @@ public class SlaController : ControllerBase
         }
     }
 
+    [HttpPost("policies/{id}/restore")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RestorePolicy(int id)
+    {
+        try
+        {
+            await _service.RestorePolicyAsync(id);
+            return NoContent();
+        }
+        catch (System.Collections.Generic.KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpGet("policies/deleted")]
+    [ProducesResponseType(typeof(IEnumerable<SlaPolicyDetailDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDeletedPolicies()
+    {
+        return Ok(await _service.GetDeletedPoliciesAsync());
+    }
+
     [HttpGet("policies/{id}/targets")]
     [ProducesResponseType(typeof(IEnumerable<SlaTargetDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTargets(int id)

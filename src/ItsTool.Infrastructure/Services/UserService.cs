@@ -106,6 +106,11 @@ public class UserService : IUserService
         user.IsActive = dto.IsActive;
         user.DepartmentId = dto.DepartmentId;
         
+        if (!string.IsNullOrWhiteSpace(dto.Password))
+        {
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+        }
+        
         UpdateProfilePhoto(user, dto.ProfilePhoto);
         
         if (dto.GroupIds != null)
@@ -159,6 +164,26 @@ public class UserService : IUserService
                 IsGranted = isGranted
             });
         }
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RemovePermissionOverrideAsync(int userId, int permissionId)
+    {
+        var over = await _context.UserPermissionOverrides
+            .FirstOrDefaultAsync(o => o.UserId == userId && o.PermissionId == permissionId);
+        if (over != null)
+        {
+            _context.UserPermissionOverrides.Remove(over);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task ResetPasswordAsync(int userId, string newPassword)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null) throw new KeyNotFoundException("User not found");
+        
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         await _context.SaveChangesAsync();
     }
     

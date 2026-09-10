@@ -125,4 +125,33 @@ public class UsersController : ControllerBase
         await _service.AddPermissionOverrideAsync(id, permissionId, isGranted);
         return NoContent();
     }
+
+    [HttpDelete("{id}/permissions/{permissionId}")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RemovePermissionOverride(int id, int permissionId)
+    {
+        await _service.RemovePermissionOverrideAsync(id, permissionId);
+        return NoContent();
+    }
+
+    [HttpPost("{id}/reset-password")]
+    [Authorize(Policy = "RequirePermission:admin.manage")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResetPassword(int id, [FromBody] ResetPasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.NewPassword))
+            return BadRequest(new { message = "Yeni şifre boş olamaz." });
+
+        try
+        {
+            await _service.ResetPasswordAsync(id, dto.NewPassword);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }

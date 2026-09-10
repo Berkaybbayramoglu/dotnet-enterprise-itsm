@@ -11,6 +11,8 @@ public interface ISlaService
     Task<SlaPolicyDto> CreatePolicyAsync(CreateSlaPolicyDto dto);
     Task UpdatePolicyAsync(int id, UpdateSlaPolicyDto dto);
     Task DeletePolicyAsync(int id);
+    Task RestorePolicyAsync(int id);
+    Task<IEnumerable<SlaPolicyDetailDto>> GetDeletedPoliciesAsync();
 
     Task<IEnumerable<SlaTargetDto>> GetTargetsAsync(int policyId);
     Task<SlaTargetDto> CreateTargetAsync(CreateSlaTargetDto dto);

@@ -287,13 +287,38 @@ public class NotificationDispatcher : INotificationDispatcher
             string baseUrl = _config["AppBaseUrl"] ?? string.Empty;
             string ticketUrl = $"{baseUrl.TrimEnd('/')}/ticket-detail.html?id={ticket.Id}";
             
+            string badgeColor = "#2563eb";
+            string badgeBg = "#eff6ff";
+            if (eventKey.Contains("breach", StringComparison.OrdinalIgnoreCase))
+            {
+                badgeColor = "#dc2626";
+                badgeBg = "#fef2f2";
+            }
+            else if (eventKey.Contains("warning", StringComparison.OrdinalIgnoreCase))
+            {
+                badgeColor = "#ea580c";
+                badgeBg = "#fff7ed";
+            }
+            else if (eventKey.Contains("risk", StringComparison.OrdinalIgnoreCase))
+            {
+                badgeColor = "#d97706";
+                badgeBg = "#fffbeb";
+            }
+
+            var priority = ticket.Priority?.Name ?? (_context.Priorities.Find(ticket.PriorityId)?.Name ?? "Normal");
+            var status = ticket.Status?.Name ?? (_context.Statuses.Find(ticket.StatusId)?.Name ?? "Açık");
+
             var templateData = new Dictionary<string, string>
             {
                 { "EventName", humanReadableEvent },
                 { "TicketNumber", ticket.TicketNumber },
                 { "Title", ticket.Title },
                 { "Context", finalBody },
-                { "AppUrl", ticketUrl }
+                { "AppUrl", ticketUrl },
+                { "Priority", priority },
+                { "Status", status },
+                { "BadgeColor", badgeColor },
+                { "BadgeBg", badgeBg }
             };
 
             string htmlBody = _templateService.GenerateEmailBody(eventKey, templateData);

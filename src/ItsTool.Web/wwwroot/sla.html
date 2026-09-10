@@ -133,7 +133,7 @@
         .time-pill svg {
             fill: var(--text-muted);
         }
-        .modal {
+        .modal-overlay {
             display: none;
             position: fixed;
             z-index: 1050;
@@ -141,10 +141,14 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
+            overflow-y: auto;
             background-color: rgba(0,0,0,0.5);
             align-items: center;
             justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex !important;
         }
         .modal-content {
             background-color: var(--bg-surface);
@@ -250,6 +254,9 @@
                         <p class="text-muted" style="margin: 4px 0 0 0; font-size: 13px;" data-i18n="sla_desc">Genel sistem ve uygulama bazlı ilk yanıt (geri dönme) ve çözüm süresi hedeflerini yapılandırın.</p>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="button" class="btn btn-outline" id="btnShowDeletedPolicies" style="font-size: 13px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 6px; vertical-align: middle;"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12z"/></svg> <span>Silinen Politikalar</span>
+                        </button>
                         <button type="button" class="btn btn-primary" id="btnCreatePolicyModal">
                             <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 6px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> <span data-i18n="sla_new_policy">Yeni SLA Politikası</span>
                         </button>
@@ -309,7 +316,7 @@
     </div>
 
     <!-- Edit Policy & Targets Modal -->
-    <div class="modal" id="editPolicyModal" aria-labelledby="editModalTitle">
+    <div class="modal-overlay" id="editPolicyModal" aria-labelledby="editModalTitle">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 id="editModalTitle" style="margin:0; font-size: 16px;">SLA Politikasını Düzenle</h4>
@@ -362,7 +369,7 @@
     </div>
 
     <!-- Create New Policy Modal -->
-    <div class="modal" id="createPolicyModal" aria-labelledby="createModalTitle">
+    <div class="modal-overlay" id="createPolicyModal" aria-labelledby="createModalTitle">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 id="createModalTitle" style="margin:0; font-size: 16px;">Yeni Uygulama SLA Politikası</h4>
@@ -416,7 +423,7 @@
     </div>
 
     <!-- Confirm Delete Modal -->
-    <div class="modal" id="deleteConfirmModal" aria-labelledby="deleteModalTitle">
+    <div class="modal-overlay" id="deleteConfirmModal" aria-labelledby="deleteModalTitle">
         <div class="modal-content" style="max-width: 440px;">
             <div class="modal-header">
                 <h4 id="deleteModalTitle" style="margin:0; font-size: 16px; color: var(--danger);">SLA Politikasını Sil</h4>
@@ -424,7 +431,7 @@
             </div>
             <div class="modal-body">
                 <p id="deleteConfirmText">Bu SLA politikasını silmek istediğinize emin misiniz?</p>
-                <p class="text-muted" style="font-size: 12px; margin: 0;">Silme işleminden sonra bu uygulamaya ait yeni biletler Genel Sistem SLA Politikasını kullanacaktır.</p>
+                <p class="text-muted" style="font-size: 12px; margin: 0;">Silme işleminden sonra bu uygulamaya ait yeni biletler Genel Sistem SLA Politikasını kullanacaktır. Dilediğiniz zaman "Geri Al" butonu veya Silinen Politikalar menüsünden geri alabilirsiniz.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost" onclick="closeModal('deleteConfirmModal')">İptal</button>
@@ -433,10 +440,32 @@
         </div>
     </div>
 
+    <!-- Deleted Policies (Trash / Recovery) Modal -->
+    <div class="modal-overlay" id="deletedPoliciesModal" aria-labelledby="deletedModalTitle">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h4 id="deletedModalTitle" style="margin:0; font-size: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" style="fill: var(--text-muted);"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                    Silinen SLA Politikaları (Geri Al)
+                </h4>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('deletedPoliciesModal')" aria-label="Kapat">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 450px; overflow-y: auto;">
+                <p class="text-muted" style="font-size: 13px; margin: 0 0 14px 0;">Silinen politikalar kalıcı olarak yok edilmez. Yanındaki "Geri Al" butonuna basarak anında tekrar aktif edebilirsiniz.</p>
+                <div id="deletedPoliciesList">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal('deletedPoliciesModal')">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { injectShell } from './js/layout.js?v=999';
         import './js/api.js';
-        import { bindShellActions, showToast, openModal, closeModal } from './js/ui.js';
+        import { bindShellActions, showToast, showUndoToast, openModal, closeModal } from './js/ui.js';
         import { t } from './js/i18n.js';
 
         injectShell();
@@ -450,6 +479,25 @@
         let allProjects = [];
         let allPriorities = [];
         let policyToDelete = null;
+        let policyNameToDelete = null;
+        let isGlobalPolicyExpanded = true;
+
+        function toggleGlobalPolicy() {
+            isGlobalPolicyExpanded = !isGlobalPolicyExpanded;
+            const content = document.getElementById('globalPolicyContent');
+            const chevron = document.getElementById('globalPolicyChevron');
+            const label = document.getElementById('globalToggleLabel');
+            if (content) {
+                content.style.display = isGlobalPolicyExpanded ? 'block' : 'none';
+            }
+            if (chevron) {
+                chevron.style.transform = isGlobalPolicyExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
+            if (label) {
+                label.textContent = isGlobalPolicyExpanded ? 'Daralt' : 'Genişlet';
+            }
+        }
+        window.toggleGlobalPolicy = toggleGlobalPolicy;
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -587,7 +635,7 @@
             if (globalPolicy) {
                 globalContainer.innerHTML = `
                     <div class="policy-card global-policy" data-id="${globalPolicy.id}">
-                        <div class="policy-header">
+                        <div class="policy-header" id="globalPolicyHeader" style="cursor: pointer; user-select: none;">
                             <div class="policy-title-area">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -601,24 +649,32 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <button type="button" class="btn btn-outline btn-edit-policy" data-id="${globalPolicy.id}" style="font-size: 13px;">
+                                <button type="button" class="btn btn-outline btn-edit-policy" data-id="${globalPolicy.id}" style="font-size: 13px;" onclick="event.stopPropagation(); window.openEditPolicyModal(${globalPolicy.id});">
                                     <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Düzenle
+                                </button>
+                                <button type="button" class="btn btn-ghost" id="btnToggleGlobal" style="font-size: 13px; display: flex; align-items: center; gap: 4px; padding: 6px 10px;" title="Aç / Kapat">
+                                    <span id="globalToggleLabel">${isGlobalPolicyExpanded ? 'Daralt' : 'Genişlet'}</span>
+                                    <svg id="globalPolicyChevron" viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; transition: transform 0.2s ease; transform: ${isGlobalPolicyExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};">
+                                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
-                        <table class="target-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 25%;">Öncelik Seviyesi</th>
-                                    <th style="width: 35%;">İlk Yanıt (Geri Dönme) Hedefi</th>
-                                    <th style="width: 30%;">Çözüm Süresi Hedefi</th>
-                                    <th style="width: 10%;">Durum</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${renderTargetRows(globalPolicy.targets)}
-                            </tbody>
-                        </table>
+                        <div id="globalPolicyContent" style="display: ${isGlobalPolicyExpanded ? 'block' : 'none'};">
+                            <table class="target-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Öncelik Seviyesi</th>
+                                        <th style="width: 35%;">İlk Yanıt (Geri Dönme) Hedefi</th>
+                                        <th style="width: 30%;">Çözüm Süresi Hedefi</th>
+                                        <th style="width: 10%;">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${renderTargetRows(globalPolicy.targets)}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
             } else {
@@ -660,7 +716,7 @@
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px; align-items: center;">
-                                    <button type="button" class="btn btn-outline btn-edit-policy" data-id="${p.id}" style="font-size: 13px;">
+                                    <button type="button" class="btn btn-outline btn-edit-policy" data-id="${p.id}" onclick="window.openEditPolicyModal(${p.id});" style="font-size: 13px;">
                                         <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Düzenle
                                     </button>
                                     <button type="button" class="btn btn-ghost btn-delete-policy" data-id="${p.id}" data-name="${escapeHtml(p.name)}" style="color: var(--danger); font-size: 13px;">
@@ -687,7 +743,7 @@
             }
         }
 
-        // Handle clicks on Edit and Delete buttons
+        // Handle clicks on Edit, Delete and Accordion buttons
         document.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.btn-edit-policy');
             if (editBtn) {
@@ -701,9 +757,19 @@
                 const id = Number.parseInt(deleteBtn.dataset.id, 10);
                 const name = deleteBtn.dataset.name;
                 policyToDelete = id;
-                document.getElementById('deleteConfirmText').textContent = `"${name}" SLA politikasını silmek istediğinize emin misiniz?`;
+                policyNameToDelete = name;
+                document.getElementById('deleteConfirmText').innerHTML = `<strong>"${escapeHtml(name)}"</strong> SLA politikasını silmek istediğinize emin misiniz?`;
                 openModal('deleteConfirmModal');
                 return;
+            }
+
+            const globalHeader = e.target.closest('#globalPolicyHeader');
+            const toggleBtn = e.target.closest('#btnToggleGlobal');
+            if (globalHeader || toggleBtn) {
+                if (!e.target.closest('.btn-edit-policy')) {
+                    toggleGlobalPolicy();
+                    return;
+                }
             }
         });
 
@@ -773,6 +839,7 @@
 
             openModal('editPolicyModal');
         }
+        window.openEditPolicyModal = openEditModal;
 
         // Save Edit Modal
         document.getElementById('editPolicyForm').addEventListener('submit', async (e) => {
@@ -947,34 +1014,122 @@
             }
         });
 
-        // Confirm Delete Action
+        // Confirm Delete Action with Undo
         document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
             if (!policyToDelete) return;
+            const targetId = policyToDelete;
+            const targetName = policyNameToDelete || 'SLA Politikası';
             const btn = document.getElementById('btnConfirmDelete');
             btn.disabled = true;
 
             try {
-                await window.api.deleteSlaPolicy(policyToDelete);
+                await window.api.deleteSlaPolicy(targetId);
                 closeModal('deleteConfirmModal');
-                showToast('SLA politikası başarıyla silindi.');
                 await loadPolicies();
+
+                // Show Undo Toast with 10-second active window
+                showUndoToast(
+                    `"${escapeHtml(targetName)}" silindi.`,
+                    async () => {
+                        try {
+                            await window.api.restoreSlaPolicy(targetId);
+                            showToast(`"${escapeHtml(targetName)}" başarıyla geri alındı (Undo).`, 'success');
+                            await loadPolicies();
+                        } catch (err) {
+                            console.error("Undo error:", err);
+                            showToast('Geri alma başarısız: ' + (err.message || ''), 'error');
+                        }
+                    },
+                    10000,
+                    '↩️ Geri Al (Undo)'
+                );
             } catch (err) {
                 console.error("Error deleting policy:", err);
                 showToast(err.message || 'Politika silinemedi.', 'error');
             } finally {
                 btn.disabled = false;
                 policyToDelete = null;
+                policyNameToDelete = null;
+            }
+        });
+
+        // Deleted Policies (Trash / Recovery) logic
+        async function loadDeletedPolicies() {
+            const listEl = document.getElementById('deletedPoliciesList');
+            if (!listEl) return;
+            listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Yükleniyor...</div>';
+            
+            try {
+                const deletedList = await window.api.getDeletedSlaPolicies();
+                if (!deletedList || deletedList.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="padding: 30px; text-align: center; color: var(--text-muted); background: var(--bg-surface-secondary); border-radius: var(--radius-md);">
+                            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: var(--text-muted); opacity: 0.5; margin-bottom: 8px;"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/></svg>
+                            <div>Silinmiş herhangi bir SLA politikası bulunmuyor.</div>
+                        </div>`;
+                    return;
+                }
+
+                listEl.innerHTML = deletedList.map(p => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: var(--text-main);">${escapeHtml(p.name)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                                ${p.projectName ? `<span class="badge" style="font-size: 10px; margin-right: 6px;">${escapeHtml(p.projectName)}</span>` : '<span class="badge" style="font-size: 10px; margin-right: 6px;">Genel</span>'}
+                                ${escapeHtml(p.description || 'Açıklama yok')}
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-restore-policy" data-id="${p.id}" data-name="${escapeHtml(p.name)}" style="font-size: 12px; color: var(--success); border-color: var(--success);">
+                            <svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C23.79 11.22 19.98 8 12.5 8z"/></svg> Geri Al (Kurtar)
+                        </button>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Failed to load deleted policies", err);
+                listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Silinen politikalar yüklenemedi.</div>';
+            }
+        }
+
+        const btnShowDeleted = document.getElementById('btnShowDeletedPolicies');
+        if (btnShowDeleted) {
+            btnShowDeleted.addEventListener('click', () => {
+                loadDeletedPolicies();
+                openModal('deletedPoliciesModal');
+            });
+        }
+
+        document.addEventListener('click', async (e) => {
+            const restoreBtn = e.target.closest('.btn-restore-policy');
+            if (restoreBtn) {
+                const id = Number.parseInt(restoreBtn.dataset.id, 10);
+                const name = restoreBtn.dataset.name;
+                restoreBtn.disabled = true;
+                restoreBtn.textContent = 'Geri alınıyor...';
+                try {
+                    await window.api.restoreSlaPolicy(id);
+                    showToast(`"${escapeHtml(name)}" başarıyla geri yüklendi.`, 'success');
+                    await loadDeletedPolicies();
+                    await loadPolicies();
+                } catch (err) {
+                    console.error("Restore failed", err);
+                    showToast(err.message || 'Geri yükleme başarısız', 'error');
+                    restoreBtn.disabled = false;
+                }
             }
         });
 
         // Close modal when clicking on overlay background
         window.addEventListener('click', (event) => {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = "none";
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
             }
         });
 
-        document.addEventListener('DOMContentLoaded', initPage);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
     </script>
 </body>
 </html>

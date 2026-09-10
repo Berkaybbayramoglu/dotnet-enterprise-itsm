@@ -20,7 +20,10 @@ public class EmailTemplateService : IEmailTemplateService
 
     public string GenerateEmailBody(string eventKey, Dictionary<string, string> templateData)
     {
-        var templateFile = Path.Combine(_templatePath, "BaseTemplate.html");
+        string templateFileName = eventKey.StartsWith("sla.", StringComparison.OrdinalIgnoreCase) 
+            ? "SlaEmailTemplate.html" 
+            : "BaseTemplate.html";
+        var templateFile = Path.Combine(_templatePath, templateFileName);
         
         string templateContent;
         try
@@ -31,8 +34,16 @@ public class EmailTemplateService : IEmailTemplateService
             }
             else
             {
-                _logger.LogWarning("Email template {TemplateFile} not found. Using fallback text.", templateFile);
-                templateContent = "<h2>{{EventName}}</h2><p>{{Context}}</p><p><a href=\"{{AppUrl}}\">View Ticket {{TicketNumber}}</a></p>";
+                var fallbackFile = Path.Combine(_templatePath, "BaseTemplate.html");
+                if (File.Exists(fallbackFile))
+                {
+                    templateContent = File.ReadAllText(fallbackFile);
+                }
+                else
+                {
+                    _logger.LogWarning("Email template {TemplateFile} not found. Using fallback text.", templateFile);
+                    templateContent = "<h2>{{EventName}}</h2><p>{{Context}}</p><p><a href=\"{{AppUrl}}\">View Ticket {{TicketNumber}}</a></p>";
+                }
             }
         }
         catch (Exception ex)

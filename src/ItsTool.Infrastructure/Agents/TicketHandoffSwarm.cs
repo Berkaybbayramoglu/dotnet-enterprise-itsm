@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ItsTool.Infrastructure.Agents;
 
-public record AiHandoffResult(bool Success, string Summary, string Actions, string Formatted, string Source);
+public record AiHandoffResult(bool Success, string Summary, string Actions, string Formatted, string Source, bool IsLlm = false);
 
 public class TicketHandoffSwarm
 {
@@ -27,9 +27,9 @@ public class TicketHandoffSwarm
         _logger = logger;
     }
 
-    public async Task<AiHandoffResult> GenerateHandoffSummaryAsync(int ticketId, bool postAsComment = false)
+    public async Task<AiHandoffResult> GenerateHandoffSummaryAsync(int ticketId, bool postAsComment = false, string language = "tr")
     {
-        _logger.LogInformation("TicketHandoffSwarm generating summary for ticket {TicketId}", ticketId);
+        _logger.LogInformation("TicketHandoffSwarm generating summary for ticket {TicketId} (lang: {Language})", ticketId, language);
 
         var ticket = await _context.Tickets
             .Include(t => t.Category)
@@ -39,8 +39,10 @@ public class TicketHandoffSwarm
 
         if (ticket == null)
         {
-            return new AiHandoffResult(false, "Bilet bulunamadı.", "", "", "Sistem");
+            return new AiHandoffResult(false, "Bilet bulunamadı.", "", "", "Sistem", false);
         }
+
+        var isEn = string.Equals(language, "en", StringComparison.OrdinalIgnoreCase);
 
         var comments = await _context.TicketComments
             .Where(c => c.TicketId == ticket.Id && !c.IsDeleted)
@@ -61,7 +63,9 @@ public class TicketHandoffSwarm
             int idx = 1;
             foreach (var c in comments)
             {
-                var typeStr = c.IsInternal ? "Dahili Not" : "Kullanıcı Yorumu";
+                var typeStr = c.IsInternal 
+                    ? (isEn ? "Internal Note" : "Dahili Not") 
+                    : (isEn ? "User Comment" : "Kullanıcı Yorumu");
                 var line = $"[{c.Date}] {c.Author} ({typeStr}): {c.Content}";
                 sbComments.AppendLine($"{idx++}. {line}");
                 recentCommentSnippets.Add(line);
@@ -70,13 +74,25 @@ public class TicketHandoffSwarm
         }
         else
         {
-            commentsText = "Bu bilet üzerinde henüz herhangi bir yorum veya ek işlem kaydı bulunmamaktadır.";
+            commentsText = isEn 
+                ? "There are currently no comments or additional action records on this ticket."
+                : "Bu bilet üzerinde henüz herhangi bir yorum veya ek işlem kaydı bulunmamaktadır.";
         }
 
-        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) ? "Kullanıcı tarafından açıklama girilmemiş." : ticket.Description;
+        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) 
+            ? (isEn ? "No description entered by user." : "Kullanıcı tarafından açıklama girilmemiş.") 
+            : ticket.Description;
 
         // Agent 1: Summarizer
-        var summarizerPrompt = @"Sen bir BT Destek Yönetimi (ITSM) yapay zeka asistanısın.
+        var summarizerPrompt = isEn
+            ? @"You are an IT Service Management (ITSM) AI Assistant.
+Your task is to carefully read the entire history of a ticket (title, description, and all comments/updates) and summarize the technical status into a clear and professional 3-4 sentence paragraph in plain English.
+IMPORTANT: If there are actions, solutions attempted, or discussions in the comment history, include them in the summary.
+RULES:
+1. Absolutely do NOT use any emojis.
+2. Absolutely do NOT use markdown formatting (no asterisks *, no double asterisks **, no dashes -, no hashtags #, no backticks ` etc.).
+3. Write completely clean, plain English text."
+            : @"Sen bir BT Destek Yönetimi (ITSM) yapay zeka asistanısın.
 Görevin, bir biletin tüm geçmişini (başlık, açıklama ve bilet üzerindeki tüm yorumları/gelişmeleri) dikkatlice okuyup teknik durumu 3-4 cümlelik net ve profesyonel bir paragrafa özetlemektir.
 ÖNEMLİ: Eğer yorum geçmişinde yaşanan gelişmeler, denenen çözümler veya yapılan konuşmalar varsa, bunları mutlaka özetin içine 'şu işlemler yapıldı / şu durum bildirildi' şeklinde dahil et.
 KURALLAR:
@@ -84,12 +100,24 @@ KURALLAR:
 2. Kesinlikle markdown formatı kullanma (yıldız *, çift yıldız **, tire -, diyez #, ters tırnak ` vb. işaretler olmamalıdır).
 3. Tamamen sade, temiz ve akıcı düz Türkçe metin olarak yaz.";
 
-        var summarizerMsg = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nKategori: {ticket.Category?.Name ?? "Genel"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsText}\n\nLütfen biletin açıklamasını ve yorum geçmişinde yaşanan gelişmeleri kapsayan teknik özeti çıkar. Emojisiz ve markdownsız düz metin olarak ver.";
+        var summarizerMsg = isEn
+            ? $"Ticket No: {ticket.TicketNumber}\nTitle: {ticket.Title}\nPriority: {ticket.Priority?.Name ?? "Normal"}\nCategory: {ticket.Category?.Name ?? "General"}\nDescription: {ticketDesc}\n\nComment and Action History:\n{commentsText}\n\nPlease generate a technical summary covering the description and developments in comments. Provide plain text without emojis or markdown in English."
+            : $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nKategori: {ticket.Category?.Name ?? "Genel"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsText}\n\nLütfen biletin açıklamasını ve yorum geçmişinde yaşanan gelişmeleri kapsayan teknik özeti çıkar. Emojisiz ve markdownsız düz metin olarak ver.";
         
         var summaryTask = _llmService.GetCompletionAsync(summarizerPrompt, summarizerMsg);
 
         // Agent 2: Action Extractor
-        var extractorPrompt = @"Sen bir ITSM yapay zeka ajanısın.
+        var extractorPrompt = isEn
+            ? @"You are an ITSM AI Agent.
+Your task is to analyze the ticket details and comment history to extract:
+1. Completed Actions and Discussion: What steps have been attempted or discussed so far? (If no comments, say 'No actions taken yet')
+2. Pending Action: What is the next required step and from whom?
+RULES:
+1. Absolutely do NOT use any emojis.
+2. Absolutely do NOT use markdown formatting.
+3. Number items using plain numbers like 1., 2. instead of dashes or bullets.
+4. Write completely clean, plain English text."
+            : @"Sen bir ITSM yapay zeka ajanısın.
 Görevin, biletin detaylarını ve özellikle varsa yorum geçmişini inceleyip şu iki temel bilgiyi net maddeler halinde çıkarmaktır:
 1. Yapılan İşlemler ve Konuşulanlar: Bilette şu ana kadar hangi adımlar denendi, neler konuşuldu? (Yorum yoksa 'Henüz bir işlem yapılmadı' de)
 2. Bekleyen Aksiyon: Şu an kimden ne bekleniyor, sıradaki adım nedir?
@@ -99,7 +127,9 @@ KURALLAR:
 3. Maddeleri tire veya yıldız yerine sadece 1., 2. gibi düz sayılarla numaralandır.
 4. Tamamen sade ve temiz düz Türkçe metin olarak yaz.";
 
-        var extractorMsg = $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsText}\n\nLütfen denenen adımları, yorumlarda konuşulanları ve bekleyen sonraki aksiyonu çıkar. Emojisiz ve markdownsız düz metin olarak ver.";
+        var extractorMsg = isEn
+            ? $"Ticket No: {ticket.TicketNumber}\nTitle: {ticket.Title}\nDescription: {ticketDesc}\n\nComment and Action History:\n{commentsText}\n\nPlease extract attempted steps, discussed points and next pending action. Plain text without emojis or markdown in English."
+            : $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsText}\n\nLütfen denenen adımları, yorumlarda konuşulanları ve bekleyen sonraki aksiyonu çıkar. Emojisiz ve markdownsız düz metin olarak ver.";
 
         var extractorTask = _llmService.GetCompletionAsync(extractorPrompt, extractorMsg);
 
@@ -111,6 +141,7 @@ KURALLAR:
         string finalSummary;
         string finalActions;
         string source;
+        bool isLlm = false;
 
         if (!string.IsNullOrEmpty(summary) && !summary.StartsWith("[AI İsteği Başarısız") && !summary.StartsWith("[AI Modülü") &&
             !string.IsNullOrEmpty(extractedActions) && !extractedActions.StartsWith("[AI İsteği Başarısız") && !extractedActions.StartsWith("[AI Modülü"))
@@ -118,24 +149,31 @@ KURALLAR:
             finalSummary = CleanPlainText(summary);
             finalActions = CleanPlainText(extractedActions);
             source = $"Canlı LLM Swarm ({_llmService.GetModelName()})";
+            isLlm = true;
         }
         else
         {
             _logger.LogInformation("Using smart heuristic handoff summary for ticket {TicketId}", ticketId);
-            var (hSummary, hActions) = BuildSmartHeuristicHandoff(ticket, comments.Count, recentCommentSnippets);
+            var (hSummary, hActions) = isEn 
+                ? BuildSmartHeuristicHandoffEn(ticket, comments.Count, recentCommentSnippets)
+                : BuildSmartHeuristicHandoff(ticket, comments.Count, recentCommentSnippets);
             finalSummary = hSummary;
             finalActions = hActions;
             source = "Akıllı Yerel Asistan";
+            isLlm = false;
         }
 
         finalSummary = CleanPlainText(finalSummary);
         finalActions = CleanPlainText(finalActions);
 
+        var headerLabel = isEn ? "Summary:" : "Özet:";
+        var actionsLabel = isEn ? "Developments and Pending Actions:" : "Gelişmeler ve Bekleyen Aksiyonlar:";
         var finalCombined = string.IsNullOrWhiteSpace(finalActions)
             ? finalSummary
-            : $"Özet:\n{finalSummary}\n\nGelişmeler ve Bekleyen Aksiyonlar:\n{finalActions}";
+            : $"{headerLabel}\n{finalSummary}\n\n{actionsLabel}\n{finalActions}";
 
-        var finalFormatted = $"{finalCombined}\n\nKaynak: {source}";
+        var sourceLabel = isEn ? "Source:" : "Kaynak:";
+        var finalFormatted = $"{finalCombined}\n\n{sourceLabel} {source}";
 
         if (postAsComment)
         {
@@ -154,7 +192,33 @@ KURALLAR:
             _logger.LogInformation("TicketHandoffSwarm added handoff summary for ticket {TicketId}", ticket.Id);
         }
 
-        return new AiHandoffResult(true, finalCombined, finalActions, finalCombined, source);
+        return new AiHandoffResult(true, finalCombined, finalActions, finalCombined, source, isLlm);
+    }
+
+    private static (string Summary, string Actions) BuildSmartHeuristicHandoffEn(Ticket ticket, int commentCount, List<string>? recentComments = null)
+    {
+        var desc = string.IsNullOrWhiteSpace(ticket.Description) ? "No description provided." : ticket.Description;
+        var summary = $"Ticket #{ticket.TicketNumber} titled \"{ticket.Title}\" was created on {ticket.CreatedAt:dd.MM.yyyy HH:mm}. Ticket description: \"{desc}\". There are currently {commentCount} actions or comments recorded on this ticket.";
+
+        var actions = new StringBuilder();
+        if (recentComments != null && recentComments.Count > 0)
+        {
+            actions.AppendLine("1. Recent Actions and Comments:");
+            foreach (var rc in recentComments.Take(3))
+            {
+                actions.AppendLine($"   {rc}");
+            }
+            actions.AppendLine($"2. Priority Level: Being handled at {ticket.Priority?.Name ?? "Normal"} priority.");
+            actions.AppendLine("3. Next Pending Action: The assigned specialist is expected to continue investigation and update the user.");
+        }
+        else
+        {
+            actions.AppendLine("1. Current Status: Ticket is currently in review and handoff process.");
+            actions.AppendLine($"2. Priority Level: Being handled at {ticket.Priority?.Name ?? "Normal"} priority.");
+            actions.AppendLine("3. Next Pending Action: Newly assigned team should review logs and provide initial technical update.");
+        }
+
+        return (CleanPlainText(summary), CleanPlainText(actions.ToString()));
     }
 
     public virtual async Task RunAsync(Ticket ticket)

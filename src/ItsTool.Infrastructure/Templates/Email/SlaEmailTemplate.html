@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr" xml:lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{EventName}} - ITSM Servis Masası</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            background-color: #f1f5f9;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrapper {
+            padding: 32px 16px;
+            background-color: #f1f5f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .top-stripe {
+            height: 6px;
+            background: {{BadgeColor}};
+        }
+        .header {
+            background: #ffffff;
+            padding: 24px 32px 16px 32px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .brand-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        .content {
+            padding: 32px;
+        }
+        .alert-banner {
+            background: {{BadgeBg}};
+            border: 1px solid {{BadgeColor}};
+            border-left: 6px solid {{BadgeColor}};
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        .alert-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: {{BadgeColor}};
+            margin: 0 0 6px 0;
+        }
+        .alert-message {
+            font-size: 14px;
+            color: #334155;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .ticket-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .detail-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+        .detail-label {
+            display: table-cell;
+            width: 32%;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            vertical-align: top;
+        }
+        .detail-value {
+            display: table-cell;
+            width: 68%;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            vertical-align: top;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .btn-container {
+            text-align: center;
+            margin: 32px 0 16px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #2563eb;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+        .footer {
+            padding: 24px 32px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            line-height: 1.5;
+        }
+        .footer p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="top-stripe"></div>
+            <div class="header">
+                <div>
+                    <div class="brand-title">Turkcell ITSM Portalı</div>
+                    <div class="brand-subtitle">Servis Seviyesi Hedefi (SLA) Bildirim Sistemi</div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="alert-banner">
+                    <div class="alert-title">{{EventName}}</div>
+                    <div class="alert-message">{{Context}}</div>
+                </div>
+                
+                <div class="ticket-card">
+                    <div class="detail-row">
+                        <div class="detail-label">Bilet Numarası:</div>
+                        <div class="detail-value" style="color: #2563eb;">{{TicketNumber}}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Bilet Başlığı:</div>
+                        <div class="detail-value">{{Title}}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Öncelik:</div>
+                        <div class="detail-value"><span class="badge">{{Priority}}</span></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Durum:</div>
+                        <div class="detail-value"><span class="badge">{{Status}}</span></div>
+                    </div>
+                </div>
+                
+                <p style="font-size: 13px; color: #64748b; text-align: center; margin: 0 0 16px 0;">
+                    SLA hedeflerinin aşılmasını önlemek veya süreci tamamlamak için lütfen gecikmeden bilet detayını inceleyin.
+                </p>
+
+                <div class="btn-container">
+                    <a href="{{AppUrl}}" class="btn">Bileti İncele ve Aksiyon Al &rarr;</a>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Bu e-posta Turkcell ITSM Servis Masası tarafından otomatik olarak gönderilmiştir.</p>
+                <p>Lütfen bu e-postaya doğrudan yanıt vermeyiniz. Detaylar ve işlem geçmişi için portala giriş yapınız.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

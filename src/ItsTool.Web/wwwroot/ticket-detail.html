@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Ticket Detail</title>
-    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/design-system.css?v=1008">
     <style>
         .detail-container { display: grid; grid-template-columns: minmax(0, 2fr) 300px; gap: var(--spacing-lg); }
         .ticket-header { margin-bottom: var(--spacing-md); }
@@ -243,32 +243,43 @@
                     <div class="side-column">
                         <!-- AI Copilot Panel -->
                         <div class="sidebar-panel mb-md" id="aiCopilotPanel">
-                            <div class="d-flex justify-content-between align-items-center mb-xs">
-                                <div class="d-flex align-items-center gap-xs">
-                                    <div style="width: 24px; height: 24px; border-radius: 6px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #0052CC; flex-shrink: 0;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- Row 1: Title & Settings Button -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 7px; min-width: 0;">
+                                    <div style="width: 26px; height: 26px; min-width: 26px; border-radius: 6px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #0052CC; flex-shrink: 0;">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
                                         </svg>
                                     </div>
-                                    <h3 style="margin:0; font-size:14px; font-weight: 700; color: #0052CC;" data-i18n="ai_copilot_title">
-                                        AI Copilot & Asistan
+                                    <h3 style="margin: 0; font-size: 13.5px; font-weight: 700; color: #0052CC; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-i18n="ai_copilot_title">
+                                        AI Asistan & Copilot
                                     </h3>
                                 </div>
-                                <div class="d-flex align-items-center gap-xs">
-                                    <span id="aiStatusBadge" class="badge" onclick="window.openLlmSettingsModal()" style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer;" title="LLM Durumu (Ayarlar için tıklayın)">
-                                        <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite;"></span>
-                                        <span>LLM Aktif</span>
-                                    </span>
-                                    <button type="button" class="btn btn-ghost btn-sm" onclick="window.openLlmSettingsModal()" style="padding: 2px 4px; color: #475569; border-radius: 4px; line-height: 1;" title="Yapay Zeka ve Model Ayarları">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                                        </svg>
-                                    </button>
+                                <button type="button" class="btn btn-ghost btn-sm" onclick="window.openLlmSettingsModal()" style="padding: 3px 7px; color: #475569; border: 1px solid #CBD5E1; background: #FFFFFF; border-radius: 5px; line-height: 1; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); flex-shrink: 0;" title="Yapay Zeka ve Model Ayarları">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                    </svg>
+                                    <span style="font-size: 10.5px; font-weight: 600;" data-i18n="ai_settings_btn">Ayarlar</span>
+                                </button>
+                            </div>
+
+                            <!-- Row 2: Status Indicator & Output Language Selector -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; padding: 4px 6px; background: rgba(255,255,255,0.75); border: 1px solid #E2E8F0; border-radius: 6px;">
+                                <div id="aiStatusBadge" class="badge" onclick="window.openLlmSettingsModal()" style="font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; max-width: 175px; overflow: hidden; text-overflow: ellipsis;" title="LLM Durumu (Ayarlar için tıklayın)">
+                                    <span id="aiStatusDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; flex-shrink: 0;"></span>
+                                    <span id="aiStatusText" style="overflow: hidden; text-overflow: ellipsis;">LLM Bağlı Değil (Kural Motoru)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                    <label for="aiResponseLang" style="font-size: 10px; font-weight: 600; color: #64748B; margin: 0;" data-i18n="ai_lang_label">Dil:</label>
+                                    <select id="aiResponseLang" onchange="window.onAiLanguageChanged(this.value)" style="font-size: 10px; font-weight: 600; padding: 2px 4px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; color: #0F172A; cursor: pointer;" aria-label="Yapay zeka yanıt dili">
+                                        <option value="tr">🇹🇷 TR</option>
+                                        <option value="en">🇬🇧 EN</option>
+                                    </select>
                                 </div>
                             </div>
                             
-                            <p style="font-size: 11px; color: #475569; margin: 6px 0 10px 0; line-height: 1.35;" data-i18n="ai_copilot_desc">
+                            <p style="font-size: 11px; color: #475569; margin: 4px 0 10px 0; line-height: 1.35;" data-i18n="ai_copilot_desc">
                                 Bilet çözüm önerisi, özet ve yanıt taslağı alın.
                             </p>
 
@@ -312,8 +323,19 @@
                             <div id="aiResultArea" style="display: none; background: #FFFFFF; border: 1px solid #CBD5E1; border-left: 4px solid #0052CC; border-radius: 6px; padding: 10px; margin-top: 8px; box-shadow: 0 2px 8px rgba(0, 82, 204, 0.06);">
                                 <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
                                     <strong id="aiResultTitle" style="font-size: 12px; color: #0052CC; font-weight: 700;">AI Çıktısı</strong>
-                                    <span id="aiResultSource" style="font-size: 9px; font-weight: 600; color: #475569; background: #F1F5F9; padding: 2px 6px; border-radius: 4px;"></span>
+                                    <span id="aiResultSource" style="font-size: 9.5px; font-weight: 600; padding: 2px 6px; border-radius: 4px;"></span>
                                 </div>
+
+                                <!-- Prominent notice if LLM is disconnected and fallback rule engine was used -->
+                                <div id="aiFallbackNotice" style="display: none; align-items: flex-start; gap: 6px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; font-size: 10.5px; color: #92400E; line-height: 1.35;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top: 1px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    <div>
+                                        <strong id="aiFallbackNoticeTitle">LLM Bağlantısı Yok:</strong>
+                                        <span id="aiFallbackNoticeDesc">Bu içerik bilet verilerine dayalı akıllı kural motoru tarafından üretilmiştir. Gerçek yapay zeka çıktısı için </span>
+                                        <a href="javascript:void(0)" onclick="window.openLlmSettingsModal()" style="color: #0052CC; text-decoration: underline; font-weight: 600;">Model Ayarları</a>'ndan LLM bağlayabilirsiniz.
+                                    </div>
+                                </div>
+
                                 <div id="aiResultContent" style="font-size: 11.5px; line-height: 1.55; color: #1E293B; max-height: 240px; overflow-y: auto; white-space: pre-wrap; padding: 6px 0;"></div>
                                 
                                 <div class="d-flex justify-content-between align-items-center mt-xs" style="border-top: 1px solid #E2E8F0; padding-top: 8px;">
@@ -516,26 +538,35 @@
     <!-- LLM Model & API Settings Modal -->
     <div id="llmSettingsModal" class="modal-overlay">
         <div class="modal" style="width: min(560px, 92%); max-height: 90vh; display: flex; flex-direction: column; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0; padding: 14px 18px;">
-                <div class="d-flex align-items-center gap-xs">
-                    <span style="font-size: 20px;">🤖</span>
+            <div class="modal-header" style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: #EFF6FF; border: 1px solid #DBEAFE; display: flex; align-items: center; justify-content: center; color: #0052CC; flex-shrink: 0;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                    </div>
                     <div>
-                        <h2 style="margin:0; font-size:16px; font-weight: 700; color: #0F172A;">Yapay Zeka (LLM) & Model Ayarları</h2>
+                        <h2 style="margin:0; font-size:15px; font-weight: 700; color: #0F172A;">Yapay Zeka (LLM) & Model Ayarları</h2>
                         <small style="color: #64748B; font-size: 11px;">Çözüm önerisi, bilet özeti ve yanıt taslağı için model seçin</small>
                     </div>
                 </div>
-                <button type="button" class="close-btn" onclick="window.closeLlmSettingsModal()" aria-label="Kapat">&times;</button>
+                <button type="button" class="close-btn" onclick="window.closeLlmSettingsModal()" aria-label="Kapat" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.15s ease;" title="Kapat">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
             <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 18px;">
                 <!-- Preset Quick Buttons -->
                 <div class="mb-md">
                     <label class="form-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; color: #334155;">Hızlı Sağlayıcı Seçimi (Hazır Şablonlar):</label>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('ollama')" style="font-size: 11px; padding: 4px 8px;">🦙 Ollama (Yerel)</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('lmstudio')" style="font-size: 11px; padding: 4px 8px;">🖥️ LM Studio (Yerel)</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('openai')" style="font-size: 11px; padding: 4px 8px;">🤖 OpenAI (GPT-4o)</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('claude')" style="font-size: 11px; padding: 4px 8px;">🎭 Anthropic (Claude 3.5)</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('custom')" style="font-size: 11px; padding: 4px 8px;">⚡ Özel / Diğer</button>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('ollama')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">Ollama (Yerel)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('lmstudio')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">LM Studio (Yerel)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('openai')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">OpenAI (GPT-4o)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('claude')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">Anthropic (Claude)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('custom')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">Özel / Diğer</button>
                     </div>
                 </div>
 
@@ -563,16 +594,38 @@
                 <!-- API Key -->
                 <div class="form-group mb-sm">
                     <label class="form-label" for="llmApiKey" style="font-weight: 600; font-size: 12px;">API Anahtarı (API Key):</label>
-                    <input type="password" id="llmApiKey" class="form-control" placeholder="Yerel LLM için boş bırakabilirsiniz veya sk-..." style="font-size: 12px;">
-                    <small style="color: #64748B; font-size: 11px; display:block; margin-top:2px;">Bulut sağlayıcılar için zorunludur (OpenAI, Claude, Groq vb.).</small>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="llmApiKey" class="form-control" placeholder="Yerel LLM için boş bırakabilirsiniz veya sk-..." style="font-size: 12px; padding-right: 36px; font-family: monospace;">
+                        <button type="button" id="btnToggleApiKey" onclick="window.toggleApiKeyVisibility()" style="position: absolute; right: 6px; background: none; border: none; cursor: pointer; color: #64748B; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s;" title="API Anahtarını Göster/Gizle" aria-label="API Anahtarını Göster veya Gizle">
+                            <svg id="iconEyeShow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg id="iconEyeHide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <small style="color: #64748B; font-size: 11px; display:block; margin-top:2px;">Bulut sağlayıcılar için zorunludur (OpenAI, Claude, Groq vb.). Göz simgesine basarak anahtarı görebilirsiniz.</small>
+                </div>
+
+                <!-- Default Language -->
+                <div class="form-group mb-sm">
+                    <label class="form-label" for="llmDefaultLang" style="font-weight: 600; font-size: 12px;">Yanıt Dili (Response Language):</label>
+                    <select id="llmDefaultLang" class="form-control" style="font-size: 12px;" onchange="window.onAiLanguageChanged(this.value)">
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="en">🇬🇧 English</option>
+                    </select>
                 </div>
 
                 <!-- Model Selection / Input -->
                 <div class="form-group mb-sm">
                     <div class="d-flex justify-content-between align-items-center mb-xs">
                         <label class="form-label" for="llmModel" style="margin:0; font-weight: 600; font-size: 12px;">Model Adı:</label>
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="window.fetchAvailableLlmModels()" style="font-size: 11px; padding: 1px 6px; color: #0052CC; font-weight: 600;">
-                            🔄 Modelleri Getir
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="window.fetchAvailableLlmModels()" style="font-size: 11.5px; padding: 2px 8px; color: #0052CC; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                            <span>Modelleri Getir</span>
                         </button>
                     </div>
                     <div style="display: flex; gap: 6px;">
@@ -597,8 +650,9 @@
                 </div>
             </div>
             <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: #F8FAFC; border-top: 1px solid #E2E8F0;">
-                <button type="button" id="btnTestLlm" class="btn btn-secondary btn-sm" onclick="window.testLlmConnection()" style="font-size: 12px; padding: 6px 12px;">
-                    <span id="btnTestLlmText">🔌 Bağlantıyı Test Et</span>
+                <button type="button" id="btnTestLlm" class="btn btn-secondary btn-sm" onclick="window.testLlmConnection()" style="font-size: 12px; padding: 6px 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span id="btnTestLlmText">Bağlantıyı Test Et</span>
                 </button>
                 <div class="d-flex gap-xs">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="window.closeLlmSettingsModal()" style="font-size: 12px;">İptal</button>
@@ -1211,105 +1265,124 @@
 
 // Setup Manage Assignees Modal
         window.openAssignModal = async () => {
-                    const container = document.getElementById('assignTreeContainer');
-                    container.innerHTML = '<div style="text-align:center; padding: 20px;">Loading tree...</div>';
-                    openModal('manageAssigneesModal');
+            const container = document.getElementById('assignTreeContainer');
+            container.innerHTML = '<div style="text-align:center; padding: 20px;">Yükleniyor...</div>';
+            openModal('manageAssigneesModal');
+            
+            try {
+                if (!currentTicket || !currentTicket.assignments) {
+                    currentTicket = await window.api.request(`/Ticket/${ticketId}`);
+                }
+                const activeAssignments = (currentTicket?.assignments || []).filter(a => a.isActive);
+                const assignedUserIds = new Set(activeAssignments.filter(a => a.userId).map(a => a.userId));
+                const assignedGroupIds = new Set(activeAssignments.filter(a => a.groupId).map(a => a.groupId));
+
+                const deptsRes = await window.api.request('/departments').catch(() => ({ items: [] }));
+                const grpsRes = await window.api.request('/groups').catch(() => ({ items: [] }));
+                const usrsRes = await window.api.getUsers();
+                const depts = Array.isArray(deptsRes) ? deptsRes : (deptsRes.items || []);
+                const grps = Array.isArray(grpsRes) ? grpsRes : (grpsRes.items || []);
+                const usrs = Array.isArray(usrsRes) ? usrsRes : (usrsRes.items || []);
+                
+                let html = '<ul style="list-style:none; padding:0; margin:0; font-size:14px;">';
+                
+                // Departments level
+                depts.forEach(d => {
+                    const dGroups = grps.filter(g => g.departmentId === d.id);
                     
-                    try {
-                        const deptsRes = await window.api.request('/departments').catch(() => ({ items: [] }));
-                        const grpsRes = await window.api.request('/groups').catch(() => ({ items: [] }));
-                        const usrsRes = await window.api.getUsers();
-                        const depts = Array.isArray(deptsRes) ? deptsRes : (deptsRes.items || []);
-                        const grps = Array.isArray(grpsRes) ? grpsRes : (grpsRes.items || []);
-                        const usrs = Array.isArray(usrsRes) ? usrsRes : (usrsRes.items || []);
-                        
-                        let html = '<ul style="list-style:none; padding:0; margin:0; font-size:14px;">';
-                        
-                        // Departments level
-                        depts.forEach(d => {
+                    // Check if dept has any selected group or user
+                    const deptHasAssignedGroup = dGroups.some(g => assignedGroupIds.has(g.id));
+                    const deptHasAssignedUser = dGroups.some(g => {
+                        const gUsers = usrs.filter(u => u.groupIds && u.groupIds.includes(g.id));
+                        return gUsers.some(u => assignedUserIds.has(u.id));
+                    });
+                    const deptExpanded = deptHasAssignedGroup || deptHasAssignedUser;
+
+                    html += `
+                        <li style="margin-bottom: 8px;">
+                            <button type="button" style="display:flex; align-items:center; gap:8px; font-weight:600; padding:6px; background:var(--bg-hover); border-radius:4px; cursor:pointer; width:100%; border:none; text-align:left;" onclick="const ul = this.nextElementSibling; if (ul.style.display === 'none') { ul.style.display = 'block'; this.querySelector('.dept-chevron').style.transform = 'rotate(90deg)'; } else { ul.style.display = 'none'; this.querySelector('.dept-chevron').style.transform = ''; }">
+                                <svg class="dept-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s; transform: ${deptExpanded ? 'rotate(90deg)' : 'none'};"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                                <svg viewBox="0 0 24 24" width="16" height="16" style="fill:${d.color || 'currentColor'};"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                                ${escapeHtml(d.name)}
+                            </button>
+                            <ul style="list-style:none; padding-left:24px; margin-top:8px; display:${deptExpanded ? 'block' : 'none'};">
+                    `;
+                    
+                    if (dGroups.length === 0) {
+                        html += `<li style="color:var(--text-muted); font-size:12px; padding:4px;">Grup yok</li>`;
+                    } else {
+                        dGroups.forEach(g => {
+                            const isGrpSelected = assignedGroupIds.has(g.id);
+                            const gUsers = usrs.filter(u => u.groupIds && u.groupIds.includes(g.id));
+                            const grpHasAssignedUser = gUsers.some(u => assignedUserIds.has(u.id));
+                            const grpExpanded = isGrpSelected || grpHasAssignedUser;
+
                             html += `
-                                <li style="margin-bottom: 8px;">
-                                    <button type="button" style="display:flex; align-items:center; gap:8px; font-weight:600; padding:6px; background:var(--bg-hover); border-radius:4px; cursor:pointer; width:100%; border:none; text-align:left;" onclick="const ul = this.nextElementSibling; if (ul.style.display === 'none') { ul.style.display = 'block'; this.querySelector('.dept-chevron').style.transform = 'rotate(90deg)'; } else { ul.style.display = 'none'; this.querySelector('.dept-chevron').style.transform = ''; }">
-                                        <svg class="dept-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
-                                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill:${d.color || 'currentColor'};"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
-                                        ${escapeHtml(d.name)}
-                                    </button>
-                                    <ul style="list-style:none; padding-left:24px; margin-top:8px; display:none;">
+                                <li style="margin-bottom: 4px;">
+                                    <div style="display:flex; align-items:center; gap:8px; padding:4px;">
+                                        <input type="checkbox" class="group-checkbox" value="${g.id}" ${isGrpSelected ? 'checked' : ''}>
+                                        <button type="button" style="font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer; background:none; border:none; padding:0; text-align:left;" onclick="const ul = this.parentElement.nextElementSibling; if (ul.style.display === 'none') { ul.style.display = 'block'; this.querySelector('.grp-chevron').style.transform = 'rotate(90deg)'; } else { ul.style.display = 'none'; this.querySelector('.grp-chevron').style.transform = ''; }">
+                                            <svg class="grp-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s; transform: ${grpExpanded ? 'rotate(90deg)' : 'none'};"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                                            <svg viewBox="0 0 24 24" width="14" height="14" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                            ${escapeHtml(g.name)}
+                                        </button>
+                                    </div>
+                                    <ul style="list-style:none; padding-left:24px; margin-top:4px; display:${grpExpanded ? 'block' : 'none'};">
                             `;
                             
-                            const dGroups = grps.filter(g => g.departmentId === d.id);
-                            if (dGroups.length === 0) {
-                                html += `<li style="color:var(--text-muted); font-size:12px; padding:4px;">No groups</li>`;
+                            if (gUsers.length === 0) {
+                                html += `<li style="color:var(--text-muted); font-size:12px; padding:4px;">Kullanıcı yok</li>`;
                             } else {
-                                dGroups.forEach(g => {
-                                    const isGrpSelected = t.assignments?.some(a => a.isActive && a.groupId === g.id);
+                                gUsers.forEach(u => {
+                                    const isUsrSelected = assignedUserIds.has(u.id);
                                     html += `
-                                        <li style="margin-bottom: 4px;">
-                                            <div style="display:flex; align-items:center; gap:8px; padding:4px;">
-                                                <input type="checkbox" class="group-checkbox" value="${g.id}" ${isGrpSelected ? 'checked' : ''}>
-                                                <button type="button" style="font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer; background:none; border:none; padding:0; text-align:left;" onclick="const ul = this.parentElement.nextElementSibling; if (ul.style.display === 'none') { ul.style.display = 'block'; this.querySelector('.grp-chevron').style.transform = 'rotate(90deg)'; } else { ul.style.display = 'none'; this.querySelector('.grp-chevron').style.transform = ''; }">
-                                                    <svg class="grp-chevron" viewBox="0 0 24 24" width="16" height="16" style="transition: transform 0.2s;"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
-                                                    <svg viewBox="0 0 24 24" width="14" height="14" style="fill:var(--text-muted)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                                                    ${escapeHtml(g.name)}
-                                                </button>
-                                            </div>
-                                            <ul style="list-style:none; padding-left:24px; margin-top:4px; display:none;">
+                                        <li style="padding:2px 4px;">
+                                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                                <input type="checkbox" class="user-checkbox" value="${u.id}" ${isUsrSelected ? 'checked' : ''}>
+                                                ${getAvatar(u.id, u.firstName, u.profilePhoto, 16)}
+                                                <span style="font-size:13px;">${escapeHtml(u.firstName + ' ' + u.lastName)} <span style="color:var(--text-muted);">(@${escapeHtml(u.username)})</span></span>
+                                            </label>
+                                        </li>
                                     `;
-                                    
-                                    const gUsers = usrs.filter(u => u.groupIds && u.groupIds.includes(g.id));
-                                    if (gUsers.length === 0) {
-                                        html += `<li style="color:var(--text-muted); font-size:12px; padding:4px;">No users</li>`;
-                                    } else {
-                                        gUsers.forEach(u => {
-                                            const isUsrSelected = t.assignments?.some(a => a.isActive && a.userId === u.id);
-                                            html += `
-                                                <li style="padding:2px 4px;">
-                                                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                                                        <input type="checkbox" class="user-checkbox" value="${u.id}" ${isUsrSelected ? 'checked' : ''}>
-                                                        ${getAvatar(u.id, u.firstName, u.profilePhoto, 16)}
-                                                        <span style="font-size:13px;">${escapeHtml(u.firstName + ' ' + u.lastName)} <span style="color:var(--text-muted);">(@${escapeHtml(u.username)})</span></span>
-                                                    </label>
-                                                </li>
-                                            `;
-                                        });
-                                    }
-                                    html += `</ul></li>`;
                                 });
                             }
                             html += `</ul></li>`;
                         });
-                        
-                        html += '</ul>';
-                        container.innerHTML = html;
-                        
-                    } catch (err) {
-                        console.error("Error loading assign tree", err);
-                        container.innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Failed to load tree data.</div>';
                     }
-                };
+                    html += `</ul></li>`;
+                });
+                
+                html += '</ul>';
+                container.innerHTML = html;
+                
+            } catch (err) {
+                console.error("Error loading assign tree", err);
+                container.innerHTML = '<div style="color:var(--danger); padding:20px; text-align:center;">Atama ağacı yüklenemedi.</div>';
+            }
+        };
 
         document.getElementById('btnSubmitAssign').onclick = async () => {
-                    const uChecks = document.querySelectorAll('.user-checkbox:checked');
-                    const gChecks = document.querySelectorAll('.group-checkbox:checked');
-                    
-                    const uIds = [...new Set(Array.from(uChecks).map(c => Number.parseInt(c.value, 10)))];
-                    const gIds = [...new Set(Array.from(gChecks).map(c => Number.parseInt(c.value, 10)))];
-                    
-                    if (uIds.length === 0 && gIds.length === 0) {
-                        showToast('Lütfen en az bir atama yapın.', 'warning');
-                        return;
-                    }
-                    
-                    try {
-                        const req = { userIds: uIds, groupIds: gIds };
-                        await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(req) });
-                        showToast('Assignments updated successfully');
+            const uChecks = document.querySelectorAll('#assignTreeContainer .user-checkbox:checked');
+            const gChecks = document.querySelectorAll('#assignTreeContainer .group-checkbox:checked');
+            
+            const uIds = [...new Set(Array.from(uChecks).map(c => Number.parseInt(c.value, 10)))];
+            const gIds = [...new Set(Array.from(gChecks).map(c => Number.parseInt(c.value, 10)))];
+            
+            try {
+                const req = { userIds: uIds, groupIds: gIds };
+                await window.api.request(`/Ticket/${ticketId}/assign`, { method: 'POST', body: JSON.stringify(req) });
+                if (uIds.length === 0 && gIds.length === 0) {
+                    showToast('Tüm atamalar kaldırıldı (Bilet atamasız).');
+                } else {
+                    showToast('Atamalar başarıyla güncellendi.');
+                }
+                closeModal('manageAssigneesModal');
                 window.location.reload();
-                    } catch (e) {
-                        console.error(e);
-                        showToast('Assignment failed', 'error');
-                    }
-                };
+            } catch (e) {
+                console.error(e);
+                showToast('Atama işlemi başarısız: ' + (e.message || ''), 'error');
+            }
+        };
 
 // Setup Assignment Tree Modal
         window.openAssignmentTree = async () => {
@@ -2952,14 +3025,16 @@
                 resultContent.innerHTML = `
                     <div style="background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #EF4444; border-radius: 6px; padding: 12px; margin: 4px 0;">
                         <div style="color: #991B1B; font-weight: 700; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span>⚠️ LLM Bağlantısı Kurulamadı</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <span>LLM Bağlantısı Kurulamadı</span>
                         </div>
                         <p style="margin: 0 0 10px 0; font-size: 11.5px; color: #7F1D1D; line-height: 1.5;">
                             ${cleanErr}
                         </p>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-sm btn-primary" onclick="window.openLlmSettingsModal()" style="font-size: 11px; padding: 4px 10px; background: #0052CC; color: white; border: none; border-radius: 4px; font-weight: 600;">
-                                ⚙️ Model & API Ayarlarını Aç
+                            <button type="button" class="btn btn-sm btn-primary" onclick="window.openLlmSettingsModal()" style="font-size: 11.5px; padding: 5px 12px; background: #0052CC; color: white; border: none; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                <span>Model & API Ayarlarını Aç</span>
                             </button>
                         </div>
                     </div>
@@ -2968,9 +3043,37 @@
             resultArea.style.display = 'block';
         }
 
+        window.toggleApiKeyVisibility = function() {
+            const input = document.getElementById('llmApiKey');
+            const eyeShow = document.getElementById('iconEyeShow');
+            const eyeHide = document.getElementById('iconEyeHide');
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (eyeShow) eyeShow.style.display = 'none';
+                if (eyeHide) eyeHide.style.display = 'block';
+            } else {
+                input.type = 'password';
+                if (eyeShow) eyeShow.style.display = 'block';
+                if (eyeHide) eyeHide.style.display = 'none';
+            }
+        };
+
+        window.onAiLanguageChanged = function(lang) {
+            localStorage.setItem('itsm_ai_lang', lang);
+            const wLang = document.getElementById('aiResponseLang');
+            const mLang = document.getElementById('llmDefaultLang');
+            if (wLang && wLang.value !== lang) wLang.value = lang;
+            if (mLang && mLang.value !== lang) mLang.value = lang;
+            showToast(lang === 'en' ? 'AI response language set to English' : 'Yapay zeka yanıt dili Türkçe olarak ayarlandı', 'info');
+        };
+
         window.checkAiStatus = async function() {
             const badge = document.getElementById('aiStatusBadge');
             if (!badge) return;
+            const curLang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'tr';
+            const isEn = curLang === 'en';
+
             try {
                 const res = await window.api.request('/ai/status', { silent: true });
                 if (res) {
@@ -2979,21 +3082,21 @@
                         badge.style.background = '#ECFDF5';
                         badge.style.color = '#047857';
                         badge.style.border = '1px solid #A7F3D0';
-                        badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite; margin-right: 4px; vertical-align: middle;"></span><span>LLM: ${res.model || 'Aktif'}</span>`;
+                        badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">LLM: ${res.model || 'Aktif'}</span>`;
                         badge.title = `Sağlayıcı: ${res.provider || 'LLM'} | Model: ${res.model} | Endpoint: ${res.endpoint}\n(Ayarları değiştirmek için tıklayın)`;
                     } else if (res.fallbackToHeuristic) {
                         badge.className = 'badge';
                         badge.style.background = '#FFFBEB';
                         badge.style.color = '#B45309';
                         badge.style.border = '1px solid #FDE68A';
-                        badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; margin-right: 4px; vertical-align: middle;"></span><span>Yerel Mod</span>';
+                        badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">${isEn ? 'No LLM (Rule Engine)' : 'LLM Bağlı Değil (Kural Motoru)'}</span>`;
                         badge.title = `LLM sunucusuna ulaşılamadı (${res.endpoint}). Akıllı yerel kurallar aktif.\n(Model ayarlarını açmak için tıklayın)`;
                     } else {
                         badge.className = 'badge';
                         badge.style.background = '#FEF2F2';
                         badge.style.color = '#B91C1C';
                         badge.style.border = '1px solid #FECACA';
-                        badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle;"></span><span>LLM Bağlantısı Yok</span>';
+                        badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">${isEn ? 'No LLM Connection' : 'LLM Bağlantısı Yok'}</span>`;
                         badge.title = `LLM bağlantısı kapalı (${res.endpoint}).\n(Ayarları düzenlemek için tıklayın)`;
                     }
                 }
@@ -3003,7 +3106,7 @@
                 badge.style.background = '#FEF2F2';
                 badge.style.color = '#B91C1C';
                 badge.style.border = '1px solid #FECACA';
-                badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle;"></span><span>LLM Bağlantısı Yok</span>';
+                badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">${isEn ? 'No LLM Connection' : 'LLM Bağlantısı Yok'}</span>`;
             }
         };
 
@@ -3014,6 +3117,11 @@
             
             const statusBox = document.getElementById('llmTestStatusBox');
             if (statusBox) statusBox.style.display = 'none';
+
+            // Sync default language in modal
+            const savedLang = localStorage.getItem('itsm_ai_lang') || 'tr';
+            const modalLang = document.getElementById('llmDefaultLang');
+            if (modalLang) modalLang.value = savedLang;
 
             try {
                 const res = await window.api.request('/ai/config', { silent: true });
@@ -3159,21 +3267,40 @@
                     statusBox.style.background = '#ECFDF5';
                     statusBox.style.color = '#065F46';
                     statusBox.style.border = '1px solid #A7F3D0';
-                    statusBox.innerHTML = `<strong>✅ Bağlantı Başarılı!</strong> (${res.latencyMs || 0} ms)<br><small style="color:#047857;">Model: <code>${res.model}</code> | Yanıt: ${res.testResponse || 'OK'}</small>`;
+                    statusBox.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:6px; font-weight:700; margin-bottom:4px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Bağlantı Başarılı</span>
+                            <span style="font-weight:400; font-size:11px; color:#047857;">(${res.latencyMs || 0} ms)</span>
+                        </div>
+                        <small style="color:#047857; display:block;">Model: <code>${res.model}</code> | Yanıt: ${res.testResponse || 'OK'}</small>
+                    `;
                 } else {
                     statusBox.style.background = '#FEF2F2';
                     statusBox.style.color = '#991B1B';
                     statusBox.style.border = '1px solid #FECACA';
-                    statusBox.innerHTML = `<strong>❌ Bağlantı Kurulamadı:</strong><br>${res && res.message ? res.message : 'LLM servisi yanıt vermedi.'}`;
+                    statusBox.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:6px; font-weight:700; margin-bottom:4px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            <span>Bağlantı Kurulamadı</span>
+                        </div>
+                        <div style="font-size:11.5px; color:#7F1D1D;">${res && res.message ? res.message : 'LLM servisi yanıt vermedi.'}</div>
+                    `;
                 }
             } catch (err) {
                 statusBox.style.background = '#FEF2F2';
                 statusBox.style.color = '#991B1B';
                 statusBox.style.border = '1px solid #FECACA';
-                statusBox.innerHTML = `<strong>❌ Hata:</strong> ${err.message || 'Ağ hatası oluştu.'}`;
+                statusBox.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:6px; font-weight:700; margin-bottom:4px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <span>Hata Oluştu</span>
+                    </div>
+                    <div style="font-size:11.5px; color:#7F1D1D;">${err.message || 'Ağ hatası oluştu.'}</div>
+                `;
             } finally {
                 if (btn) btn.disabled = false;
-                if (btnText) btnText.textContent = '🔌 Bağlantıyı Test Et';
+                if (btnText) btnText.textContent = 'Bağlantıyı Test Et';
             }
         };
 
@@ -3275,17 +3402,20 @@
                 return;
             }
 
+            const lang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'tr';
+            const isEn = lang === 'en';
+
             let btnId = '';
-            let busyLabel = 'Hazırlanıyor...';
+            let busyLabel = isEn ? 'Processing...' : 'Hazırlanıyor...';
             if (actionType === 'suggest') {
                 btnId = 'btnAiSuggest';
-                busyLabel = 'Çözülüyor...';
+                busyLabel = isEn ? 'Solving...' : 'Çözülüyor...';
             } else if (actionType === 'summarize') {
                 btnId = 'btnAiSummarize';
-                busyLabel = 'Özetleniyor...';
+                busyLabel = isEn ? 'Summarizing...' : 'Özetleniyor...';
             } else if (actionType === 'draft') {
                 btnId = 'btnAiDraft';
-                busyLabel = 'Yazılıyor...';
+                busyLabel = isEn ? 'Drafting...' : 'Yazılıyor...';
             }
 
             setAiBusyState(true, btnId, busyLabel);
@@ -3301,17 +3431,17 @@
 
             let endpoint = '';
             let method = 'POST';
-            let title = 'AI Çıktısı';
+            let title = isEn ? 'AI Output' : 'AI Çıktısı';
 
             if (actionType === 'suggest') {
-                endpoint = `/ai/tickets/${ticketId}/suggest-resolution`;
-                title = 'Çözüm Önerisi';
+                endpoint = `/ai/tickets/${ticketId}/suggest-resolution?language=${lang}`;
+                title = isEn ? 'Resolution Suggestion' : 'Çözüm Önerisi';
             } else if (actionType === 'summarize') {
-                endpoint = `/ai/tickets/${ticketId}/summarize`;
-                title = 'Bilet Özeti';
+                endpoint = `/ai/tickets/${ticketId}/summarize?language=${lang}`;
+                title = isEn ? 'Ticket Summary' : 'Bilet Özeti';
             } else if (actionType === 'draft') {
-                endpoint = `/ai/tickets/${ticketId}/draft-reply`;
-                title = 'Yanıt Taslağı';
+                endpoint = `/ai/tickets/${ticketId}/draft-reply?language=${lang}`;
+                title = isEn ? 'Draft Reply' : 'Yanıt Taslağı';
             }
 
             try {
@@ -3324,10 +3454,38 @@
                     currentAiResultText = text;
                     if (resultTitle) resultTitle.textContent = title;
                     if (resultContent) resultContent.textContent = text;
+                    
+                    const isLiveLlm = res.isLlm === true || (res.source && (res.source.includes('Canlı LLM') || res.source.includes('Live LLM')));
+                    const fallbackNotice = document.getElementById('aiFallbackNotice');
+                    const fallbackNoticeTitle = document.getElementById('aiFallbackNoticeTitle');
+                    const fallbackNoticeDesc = document.getElementById('aiFallbackNoticeDesc');
+
                     if (resultSource) {
-                        const rawSource = res.source || (res.model ? res.model : 'Akıllı Asistan');
-                        resultSource.textContent = stripMarkdownAndEmojis(rawSource);
+                        if (isLiveLlm) {
+                            resultSource.style.background = '#ECFDF5';
+                            resultSource.style.color = '#047857';
+                            resultSource.style.border = '1px solid #A7F3D0';
+                            resultSource.innerHTML = `⚡ ${stripMarkdownAndEmojis(res.source || (isEn ? 'Live LLM' : 'Canlı LLM'))}`;
+                        } else {
+                            resultSource.style.background = '#FEF3C7';
+                            resultSource.style.color = '#92400E';
+                            resultSource.style.border = '1px solid #FCD34D';
+                            resultSource.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${isEn ? 'Rule Engine (No LLM)' : 'Kural Motoru (LLM Bağlı Değil)'}`;
+                        }
                     }
+
+                    if (fallbackNotice) {
+                        if (isLiveLlm) {
+                            fallbackNotice.style.display = 'none';
+                        } else {
+                            fallbackNotice.style.display = 'flex';
+                            if (fallbackNoticeTitle) fallbackNoticeTitle.textContent = isEn ? 'No Active LLM Connection:' : 'LLM Bağlantısı Yok:';
+                            if (fallbackNoticeDesc) fallbackNoticeDesc.textContent = isEn 
+                                ? ' This response was generated by the fallback rule engine. To enable real AI, configure ' 
+                                : ' Bu içerik bilet verilerine dayalı akıllı kural motoru tarafından üretilmiştir. Gerçek yapay zeka çıktısı için ';
+                        }
+                    }
+
                     if (resultArea) resultArea.style.display = 'block';
                 } else {
                     const errMsg = (res && (res.message || res.error)) ? (res.message || res.error) : 'AI yanıt üretemedi';
@@ -3338,7 +3496,7 @@
                 console.error('AI action failed:', err);
                 const msg = err.message && !err.message.includes('API Error')
                     ? err.message
-                    : 'AI servisine ulaşılamadı. Lütfen LLM bağlantı ve model ayarlarını kontrol edin.';
+                    : (isEn ? 'Could not reach AI service. Please verify LLM connection and settings.' : 'AI servisine ulaşılamadı. Lütfen LLM bağlantı ve model ayarlarını kontrol edin.');
                 displayAiErrorCard(msg, title);
             } finally {
                 setAiBusyState(false);
@@ -3364,7 +3522,10 @@
                 return;
             }
 
-            setAiBusyState(true, 'btnAiSubmitAsk', 'Soruluyor...');
+            const lang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'tr';
+            const isEn = lang === 'en';
+
+            setAiBusyState(true, 'btnAiSubmitAsk', isEn ? 'Asking...' : 'Soruluyor...');
 
             const loading = document.getElementById('aiLoadingIndicator');
             const resultArea = document.getElementById('aiResultArea');
@@ -3376,10 +3537,10 @@
             if (resultArea) resultArea.style.display = 'none';
 
             try {
-                const res = await window.api.request(`/ai/tickets/${ticketId}/ask`, {
+                const res = await window.api.request(`/ai/tickets/${ticketId}/ask?language=${lang}`, {
                     method: 'POST',
                     silent: true,
-                    body: JSON.stringify({ question: question })
+                    body: JSON.stringify({ question: question, language: lang })
                 });
                 if (loading) loading.style.display = 'none';
 
@@ -3387,23 +3548,52 @@
                     const rawText = res.answer || '';
                     const text = stripMarkdownAndEmojis(rawText);
                     currentAiResultText = text;
-                    if (resultTitle) resultTitle.textContent = `Soru: ${question}`;
+                    if (resultTitle) resultTitle.textContent = `${isEn ? 'Question:' : 'Soru:'} ${question}`;
                     if (resultContent) resultContent.textContent = text;
+                    
+                    const isLiveLlm = res.isLlm === true || (res.source && (res.source.includes('Canlı LLM') || res.source.includes('Live LLM')));
+                    const fallbackNotice = document.getElementById('aiFallbackNotice');
+                    const fallbackNoticeTitle = document.getElementById('aiFallbackNoticeTitle');
+                    const fallbackNoticeDesc = document.getElementById('aiFallbackNoticeDesc');
+
                     if (resultSource) {
-                        resultSource.textContent = stripMarkdownAndEmojis(res.source || 'AI Copilot');
+                        if (isLiveLlm) {
+                            resultSource.style.background = '#ECFDF5';
+                            resultSource.style.color = '#047857';
+                            resultSource.style.border = '1px solid #A7F3D0';
+                            resultSource.innerHTML = `⚡ ${stripMarkdownAndEmojis(res.source || (isEn ? 'Live LLM' : 'Canlı LLM'))}`;
+                        } else {
+                            resultSource.style.background = '#FEF3C7';
+                            resultSource.style.color = '#92400E';
+                            resultSource.style.border = '1px solid #FCD34D';
+                            resultSource.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${isEn ? 'Rule Engine (No LLM)' : 'Kural Motoru (LLM Bağlı Değil)'}`;
+                        }
                     }
+
+                    if (fallbackNotice) {
+                        if (isLiveLlm) {
+                            fallbackNotice.style.display = 'none';
+                        } else {
+                            fallbackNotice.style.display = 'flex';
+                            if (fallbackNoticeTitle) fallbackNoticeTitle.textContent = isEn ? 'No Active LLM Connection:' : 'LLM Bağlantısı Yok:';
+                            if (fallbackNoticeDesc) fallbackNoticeDesc.textContent = isEn 
+                                ? ' This response was generated by the fallback rule engine. To enable real AI, configure ' 
+                                : ' Bu içerik bilet verilerine dayalı akıllı kural motoru tarafından üretilmiştir. Gerçek yapay zeka çıktısı için ';
+                        }
+                    }
+
                     if (resultArea) resultArea.style.display = 'block';
                 } else {
                     const errMsg = (res && (res.message || res.error)) ? (res.message || res.error) : 'AI yanıt üretemedi';
-                    displayAiErrorCard(errMsg, `Soru: ${question}`);
+                    displayAiErrorCard(errMsg, `${isEn ? 'Question:' : 'Soru:'} ${question}`);
                 }
             } catch (err) {
                 if (loading) loading.style.display = 'none';
                 console.error('AI question failed:', err);
                 const msg = err.message && !err.message.includes('API Error')
                     ? err.message
-                    : 'AI servisine ulaşılamadı. Lütfen LLM bağlantı ve model ayarlarını kontrol edin.';
-                displayAiErrorCard(msg, `Soru: ${question}`);
+                    : (isEn ? 'Could not reach AI service. Please verify LLM connection and settings.' : 'AI servisine ulaşılamadı. Lütfen LLM bağlantı ve model ayarlarını kontrol edin.');
+                displayAiErrorCard(msg, `${isEn ? 'Question:' : 'Soru:'} ${question}`);
             } finally {
                 setAiBusyState(false);
             }

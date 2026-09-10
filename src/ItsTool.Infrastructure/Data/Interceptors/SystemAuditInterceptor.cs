@@ -2,6 +2,9 @@ using ItsTool.Domain.Common;
 using ItsTool.Domain.Entities;
 using ItsTool.Domain.Entities.Config;
 using ItsTool.Domain.Entities.Organization;
+using ItsTool.Domain.Entities.SLA;
+using ItsTool.Domain.Entities.Project;
+using ItsTool.Domain.Entities.Ticket;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -37,13 +40,49 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification") || name == "GroupMember";
     }
 
-    private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
+    private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext? context, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
     {
         var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
-        if (modifiedProperties.Any(p => p.Metadata.Name == "IsDeleted") && entry.Entity.IsDeleted)
+        var isDeletedProp = modifiedProperties.FirstOrDefault(p => p.Metadata.Name == "IsDeleted");
+        if (isDeletedProp != null)
         {
-            logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Deleted", null, null, null, userId, now)));
-            return;
+            var isNowDeleted = entry.Entity.IsDeleted;
+            var wasDeleted = (bool)(isDeletedProp.OriginalValue ?? false);
+
+            if (isNowDeleted && !wasDeleted)
+            {
+                // Soft Deleted
+                var summary = GetEntitySummary(entry, context);
+                var fieldLabel = entityType == "SlaPolicy" ? "SLA Politikası" : "Kayıt Durumu";
+                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
+                    entityType, 
+                    entityName, 
+                    entityId, 
+                    "Deleted", 
+                    fieldLabel, 
+                    summary, 
+                    "Silindi (Soft Deleted)", 
+                    userId, 
+                    now)));
+                return;
+            }
+            else if (!isNowDeleted && wasDeleted)
+            {
+                // Restored (Undo)
+                var summary = GetEntitySummary(entry, context);
+                var fieldLabel = entityType == "SlaPolicy" ? "SLA Politikası" : "Kayıt Durumu";
+                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
+                    entityType, 
+                    entityName, 
+                    entityId, 
+                    "Restored", 
+                    fieldLabel, 
+                    "Silindi (Soft Deleted)", 
+                    $"Aktif / Geri Alındı ({summary})", 
+                    userId, 
+                    now)));
+                return;
+            }
         }
 
         foreach (var prop in modifiedProperties)
@@ -111,11 +150,82 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         var isGroupMember = entityType == "GroupMember";
 
         if (entry.State == EntityState.Added)
+        {
             logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Created", null, null, isGroupMember ? entityName : null, userId, now)));
+        }
         else if (entry.State == EntityState.Deleted)
-            logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Deleted", null, isGroupMember ? entityName : null, null, userId, now)));
+        {
+            var summary = GetEntitySummary(entry, context);
+            var fieldLabel = entityType == "SlaPolicy" ? "SLA Politikası" : "Kayıt Durumu";
+            logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
+                entityType, 
+                entityName, 
+                entityId, 
+                "Deleted", 
+                fieldLabel, 
+                isGroupMember ? entityName : summary, 
+                "Kalıcı Silindi", 
+                userId, 
+                now)));
+        }
         else if (entry.State == EntityState.Modified)
-            SystemAuditInterceptor.ProcessModifiedEntity(entry, logsToAdd, entityType, entityName, entityId, userId, now);
+        {
+            SystemAuditInterceptor.ProcessModifiedEntity(entry, context, logsToAdd, entityType, entityName, entityId, userId, now);
+        }
+    }
+
+    private static string GetEntitySummary(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
+    {
+        try
+        {
+            if (entry.Entity is SlaPolicy sla)
+            {
+                string projectName = "Genel Sistem";
+                if (sla.ProjectId.HasValue && context != null)
+                {
+                    var proj = context.Set<Project>().Local.FirstOrDefault(p => p.Id == sla.ProjectId.Value)
+                               ?? context.Set<Project>().FirstOrDefault(p => p.Id == sla.ProjectId.Value);
+                    if (proj != null) projectName = proj.Name;
+                    else projectName = $"Proje #{sla.ProjectId.Value}";
+                }
+
+                string targetsSummary = "";
+                if (context != null)
+                {
+                    var targets = context.Set<SlaTarget>()
+                        .Where(t => t.SlaPolicyId == sla.Id)
+                        .ToList();
+                    if (targets.Count > 0)
+                    {
+                        var priorities = context.Set<Priority>().ToList();
+                        var targetDescriptions = targets.Select(t =>
+                        {
+                            var prioName = priorities.FirstOrDefault(pr => pr.Id == t.PriorityId)?.Name ?? $"Öncelik {t.PriorityId}";
+                            return $"{prioName}: Yanıt {t.FirstResponseMinutes}dk / Çözüm {t.ResolutionMinutes}dk";
+                        });
+                        targetsSummary = " | Hedefler: [" + string.Join(", ", targetDescriptions) + "]";
+                    }
+                }
+
+                var desc = string.IsNullOrWhiteSpace(sla.Description) ? "" : $" | Açıklama: {sla.Description}";
+                var esc = sla.EscalateOnBreach ? " | Eskalasyon: Açık" : " | Eskalasyon: Kapalı";
+                return $"Politika: {sla.Name} | Kapsam: {projectName}{esc}{desc}{targetsSummary}";
+            }
+
+            // General entity summary
+            var props = entry.Properties
+                .Where(p => p.Metadata.Name != "Id" && p.Metadata.Name != "CreatedAt" && p.Metadata.Name != "UpdatedAt" && p.Metadata.Name != "IsDeleted" && p.Metadata.Name != "PasswordHash")
+                .Select(p => $"{p.Metadata.Name}: {p.OriginalValue ?? p.CurrentValue}")
+                .Where(s => !s.EndsWith(": ") && !s.EndsWith(": null"))
+                .Take(6);
+            
+            var joined = string.Join(" | ", props);
+            return string.IsNullOrWhiteSpace(joined) ? entry.Entity.GetType().Name : joined;
+        }
+        catch
+        {
+            return entry.Entity.GetType().Name;
+        }
     }
 
     private static string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)

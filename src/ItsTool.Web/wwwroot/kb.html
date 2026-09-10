@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Knowledge Base</title>
-    <link rel="stylesheet" href="css/design-system.css">
-    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" integrity="sha384-cPa8kzsYWhqpAfWOLWYIw3V0BhPi/m3lrd8tBTPxr2NrYCHRVZ7xy1cEoRGOM/03" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/design-system.css?v=1008">
+    <link href="css/quill.snow.css" rel="stylesheet">
     <style>
         /* Quill dark mode overrides for the editor container */
         .ql-container { font-family: inherit; font-size: 14px; }
@@ -181,7 +181,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js" integrity="sha384-QUJ+ckWz1M+a7w0UfG1sEn4pPrbQwSxGm/1TIPyioqXBrwuT9l4f9gdHWLDLbVWI" crossorigin="anonymous"></script>
+    <script src="js/quill.min.js"></script>
     <script type="module">
         import './js/api.js?v=999';
         import { injectShell } from './js/layout.js?v=999';
@@ -236,6 +236,7 @@
             let badges = '';
             if (a.visibility == 0 || a.visibility === 'Internal') badges += `<span class="badge badge-warning">${t('kb_badge_internal')}</span> `;
             if (a.status == 0 || a.status === 'Draft') badges += `<span class="badge badge-default">${t('kb_badge_draft')}</span> `;
+            if (a.status == 1 || a.status === 'Published') badges += `<span class="badge badge-success">${t('kb_badge_published') || 'Yayında'}</span> `;
             if (a.status == 2 || a.status === 'PendingReview') badges += `<span class="badge badge-info">${t('kb_badge_pending') || 'Pending Review'}</span> `;
             if (a.status == 3 || a.status === 'NeedsRevision') badges += `<span class="badge badge-warning" style="background: rgba(var(--warning-rgb, 245,158,11), 0.2); color: var(--warning);">${t('kb_badge_needs_rev') || 'Needs Revision'}</span> `;
             if (a.status == 4 || a.status === 'Rejected') badges += `<span class="badge badge-danger">${t('kb_badge_rejected') || 'Rejected'}</span> `;
@@ -245,8 +246,9 @@
         function buildArticleActions(a, currentUserId, hasManageKb) {
             let actionsHtml = '';
             const isAuthor = a.authorUserId === currentUserId;
+            const isPublished = a.status == 1 || a.status === 'Published';
             
-            if (hasManageKb || (isAuthor && a.status != 1 && a.status !== 'Published')) {
+            if (hasManageKb || (isAuthor && !isPublished)) {
                 actionsHtml = `<div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">`;
                 actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(event, ${a.id})">${t('kb_btn_edit')}</button>`;
                 
@@ -255,7 +257,7 @@
                         actionsHtml += `<button type="button" class="btn btn-primary" style="padding: 4px 12px; font-size: 13px;" title="Approve" onclick="quickApproveArticle(event, ${a.id})">${t('kb_btn_approve_pub') || 'Onayla'}</button>`;
                         actionsHtml += `<button type="button" class="btn btn-secondary" style="padding: 4px 12px; font-size: 13px;" title="Review" onclick="openReviewModal(event, ${a.id})">${t('kb_btn_review') || 'İncele'}</button>`;
                     } else {
-                        actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(event, ${a.id}, '${a.status}')">${(a.status == 1 || a.status === 'Published') ? t('kb_btn_unpub') : t('kb_btn_pub')}</button>`;
+                        actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(event, ${a.id}, '${a.status}')">${isPublished ? (t('kb_btn_unpub') || 'Yayından Kaldır') : (t('kb_btn_pub') || 'Yayınla')}</button>`;
                     }
                 }
                 
@@ -344,7 +346,7 @@
                 let filteredArticles = articles;
                 
                 if (currentTab === 'published') {
-                    filteredArticles = articles.filter(a => a.status == 1 || a.status === 'Published' || ((a.status == 0 || a.status === 'Draft') && a.authorUserId === currentUserId));
+                    filteredArticles = articles.filter(a => a.status == 1 || a.status === 'Published');
                 } else if (currentTab === 'pending') {
                     // Managers should not see their own pending articles in the "Pending" tab to review themselves
                     filteredArticles = articles.filter(a => (a.status == 2 || a.status === 'PendingReview' || a.status == 3 || a.status === 'NeedsRevision' || a.status == 4 || a.status === 'Rejected') && a.authorUserId !== currentUserId);
@@ -571,15 +573,17 @@
             if (event) event.stopPropagation();
             try {
                 const article = await window.api.request(`/kb/articles/${id}`);
+                const isCurrentlyPublished = (currentStatus == 1 || currentStatus === 'Published' || article.status == 1 || article.status === 'Published');
+                const newStatus = isCurrentlyPublished ? 0 : 1;
                 const payload = {
                     categoryId: article.categoryId,
                     title: article.title,
                     content: article.content,
                     visibility: article.visibility,
-                    status: (currentStatus == 1 || currentStatus === 'Published') ? 0 : 1
+                    status: newStatus
                 };
                 await window.api.updateKbArticle(id, payload);
-                showToast(payload.status === 1 ? t('kb_toast_pub') : t('kb_toast_unpub'));
+                showToast(newStatus === 1 ? (t('kb_toast_pub') || 'Makale yayınlandı.') : (t('kb_toast_unpub') || 'Makale yayından kaldırıldı.'));
                 loadKb();
             } catch (e) { console.error(e);  showToast(t('kb_toast_pub_err'), 'error');  }
         };
