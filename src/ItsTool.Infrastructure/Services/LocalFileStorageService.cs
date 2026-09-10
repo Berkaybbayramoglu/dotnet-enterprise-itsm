@@ -11,9 +11,16 @@ public class LocalFileStorageService : IFileStorageService
     public LocalFileStorageService(IConfiguration configuration)
     {
         _basePath = configuration["FileStorage:BasePath"] ?? "uploads";
-        if (!Directory.Exists(_basePath))
+        try
         {
-            Directory.CreateDirectory(_basePath);
+            if (!Directory.Exists(_basePath))
+            {
+                Directory.CreateDirectory(_basePath);
+            }
+        }
+        catch
+        {
+            // Directory creation will be retried on write operations if initial creation fails
         }
     }
 

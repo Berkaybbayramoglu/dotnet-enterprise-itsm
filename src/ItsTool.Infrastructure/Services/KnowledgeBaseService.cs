@@ -84,8 +84,8 @@ public class KnowledgeBaseService : IKnowledgeBaseService
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {
-            var kw = keyword;
-            query = query.Where(a => a.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || a.Content.Contains(kw, StringComparison.OrdinalIgnoreCase));
+            var kw = keyword.ToLower();
+            query = query.Where(a => a.Title.ToLower().Contains(kw) || a.Content.ToLower().Contains(kw));
         }
 
         var joinedQuery = from a in query

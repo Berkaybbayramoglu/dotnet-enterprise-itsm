@@ -43,6 +43,9 @@ COPY --from=publish /app/publish .
 # Web frontend statik dosyalarını wwwroot altına kopyala
 COPY src/ItsTool.Web/wwwroot/ ./wwwroot/
 
+# Dosya yüklemeleri için uploads dizinini oluştur ve app kullanıcısına yetki ver
+RUN mkdir -p /app/uploads && chown -R app:app /app
+
 # Güvenlik: Container içinde root olmayan 'app' kullanıcısı ile çalıştır
 USER app
 

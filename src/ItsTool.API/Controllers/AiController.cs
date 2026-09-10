@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using ItsTool.Infrastructure.Agents;
 using Microsoft.AspNetCore.Authorization;
@@ -36,21 +37,53 @@ public class AiController : ControllerBase
     public async Task<IActionResult> GetStatus()
     {
         bool isAvailable = await _llmService.IsAvailableAsync();
+        var config = _llmService.GetCurrentConfig() ?? new LlmConfigDto();
+        var endpoint = config.Endpoint ?? _llmService.GetEndpoint();
+        var model = config.Model ?? _llmService.GetModelName();
         return Ok(new
         {
-            configured = !string.IsNullOrEmpty(_llmService.GetEndpoint()),
-            isConfigured = !string.IsNullOrEmpty(_llmService.GetEndpoint()),
-            endpoint = _llmService.GetEndpoint(),
-            model = _llmService.GetModelName(),
+            configured = !string.IsNullOrEmpty(endpoint),
+            isConfigured = !string.IsNullOrEmpty(endpoint),
+            endpoint = endpoint,
+            model = model,
+            provider = config.Provider ?? "Custom",
+            fallbackToHeuristic = config.FallbackToHeuristic,
             isAvailable = isAvailable,
             isEndpointReachable = isAvailable,
-            mode = isAvailable ? "Live LLM" : "Smart Heuristic Engine"
+            mode = isAvailable ? $"Live LLM ({model})" : (config.FallbackToHeuristic ? "Smart Heuristic Engine" : "LLM Offline")
         });
     }
 
-    [HttpPost("test")]
-    public async Task<IActionResult> TestConnection()
+    [HttpGet("config")]
+    public IActionResult GetConfig()
     {
+        return Ok(new { success = true, config = _llmService.GetCurrentConfig() });
+    }
+
+    [HttpPost("config")]
+    public IActionResult UpdateConfig([FromBody] LlmConfigDto dto)
+    {
+        if (dto == null) return BadRequest(new { success = false, message = "Geçersiz yapılandırma verisi." });
+        _llmService.UpdateConfig(dto);
+        return Ok(new { success = true, message = "LLM ayarları başarıyla güncellendi.", config = _llmService.GetCurrentConfig() });
+    }
+
+    [HttpGet("models")]
+    public async Task<IActionResult> GetModels([FromQuery] string? endpoint = null, [FromQuery] string? apiKey = null)
+    {
+        var models = await _llmService.GetAvailableModelsAsync(endpoint, apiKey);
+        return Ok(new { success = true, models });
+    }
+
+    [HttpPost("test")]
+    public async Task<IActionResult> TestConnection([FromBody] LlmConfigDto? customConfig = null)
+    {
+        if (customConfig != null)
+        {
+            var result = await _llmService.TestConnectionAsync(customConfig);
+            return Ok(result);
+        }
+
         var isOnline = await _llmService.IsAvailableAsync();
         if (!isOnline)
         {
@@ -103,9 +136,17 @@ public class AiTicketCopilotController : ControllerBase
             var result = await _copilotAgent.GenerateResolutionSuggestionAsync(id, postAsComment);
             if (!result.Success)
             {
-                return NotFound(new { message = result.Suggestion });
+                if (result.Suggestion == "Bilet bulunamadı." || result.Source == "Sistem")
+                {
+                    return NotFound(new { message = result.Suggestion });
+                }
+                return BadRequest(new { success = false, message = result.Suggestion, error = result.Suggestion, source = result.Source });
             }
             return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message, error = ex.Message });
         }
         finally
         {
@@ -127,6 +168,10 @@ public class AiTicketCopilotController : ControllerBase
             var draft = await _copilotAgent.DraftReplyAsync(id);
             return Ok(new { success = true, draft, reply = draft });
         }
+        catch (Exception ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message, error = ex.Message });
+        }
         finally
         {
             sem.Release();
@@ -138,7 +183,7 @@ public class AiTicketCopilotController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(dto?.Question))
         {
-            return BadRequest(new { message = "Soru metni boş olamaz." });
+            return BadRequest(new { success = false, message = "Soru metni boş olamaz." });
         }
 
         var sem = AiControllerHelper.GetLock(id);
@@ -151,6 +196,10 @@ public class AiTicketCopilotController : ControllerBase
         {
             var answer = await _copilotAgent.AskQuestionAsync(id, dto.Question);
             return Ok(new { success = true, answer });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message, error = ex.Message });
         }
         finally
         {
@@ -185,9 +234,17 @@ public class AiTicketHandoffController : ControllerBase
             var result = await _handoffSwarm.GenerateHandoffSummaryAsync(id, postAsComment);
             if (!result.Success)
             {
-                return NotFound(new { message = result.Summary });
+                if (result.Summary == "Bilet bulunamadı." || result.Source == "Sistem")
+                {
+                    return NotFound(new { message = result.Summary });
+                }
+                return BadRequest(new { success = false, message = result.Summary, error = result.Summary });
             }
             return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message, error = ex.Message });
         }
         finally
         {

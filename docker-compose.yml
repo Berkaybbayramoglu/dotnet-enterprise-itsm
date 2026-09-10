@@ -43,6 +43,8 @@ services:
       - Jwt__Secret=${JWT_SECRET:-enterprise_super_secret_jwt_key_turkcell_itsm_2026!}
       - Jwt__Issuer=ItsToolAPI
       - Jwt__Audience=ItsToolClient
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - itstool-network
 

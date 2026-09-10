@@ -88,6 +88,14 @@ KURALLAR:
         }
         else
         {
+            if (_llmService.IsFallbackDisabled())
+            {
+                var errMsg = completion.StartsWith("[AI İsteği Başarısız: ")
+                    ? completion.Substring("[AI İsteği Başarısız: ".Length).TrimEnd(']')
+                    : completion;
+                return new AiSuggestionResult(false, $"LLM Bağlantısı Kurulamadı: {errMsg}", "LLM Bağlantı Hatası", model);
+            }
+
             // Intelligent Rule-Based Fallback
             _logger.LogInformation("Using smart heuristic resolution suggestion for ticket {TicketId}", ticketId);
             suggestion = BuildSmartHeuristicSuggestion(ticket, similarTickets, kbArticles);
@@ -121,8 +129,9 @@ KURALLAR:
 
     private async Task<List<KbArticleSummary>> GetRelevantKbArticlesAsync(Ticket ticket)
     {
+        var titleLower = ticket.Title?.ToLower() ?? string.Empty;
         var rawArticles = await _context.KnowledgeArticles
-            .Where(k => !k.IsDeleted && (k.CategoryId == ticket.CategoryId || k.Title.Contains(ticket.Title, StringComparison.OrdinalIgnoreCase)))
+            .Where(k => !k.IsDeleted && (k.CategoryId == ticket.CategoryId || (!string.IsNullOrEmpty(titleLower) && k.Title.ToLower().Contains(titleLower))))
             .Take(3)
             .Select(k => new { k.Id, k.Title, k.Content })
             .ToListAsync();
@@ -187,6 +196,14 @@ KURALLAR:
             return CleanPlainText(completion);
         }
 
+        if (_llmService.IsFallbackDisabled())
+        {
+            var errMsg = completion.StartsWith("[AI İsteği Başarısız: ")
+                ? completion.Substring("[AI İsteği Başarısız: ".Length).TrimEnd(']')
+                : completion;
+            throw new InvalidOperationException($"LLM Bağlantısı Kurulamadı: {errMsg}");
+        }
+
         // Smart fallback template
         var fallback = $"Merhaba,\n\n#{ticket.TicketNumber} numaralı \"{ticket.Title}\" konulu talebiniz tarafımıza ulaşmış ve teknik ekibimiz tarafından incelemeye alınmıştır.\n\nKonuyla ilgili gerekli kontroller yapılmakta olup, en kısa sürede tarafınıza bilgilendirme yapılacaktır. Eklemek istediğiniz ilave bir detay veya ekran görüntüsü varsa bu mesaja yanıt verebilirsiniz.\n\nİyi çalışmalar dileriz,\nBT Destek Ekibi";
         return CleanPlainText(fallback);
@@ -224,6 +241,14 @@ KURALLAR:
         if (!string.IsNullOrEmpty(completion) && !completion.StartsWith("[AI İsteği Başarısız") && !completion.StartsWith("[AI Modülü"))
         {
             return CleanPlainText(completion);
+        }
+
+        if (_llmService.IsFallbackDisabled())
+        {
+            var errMsg = completion.StartsWith("[AI İsteği Başarısız: ")
+                ? completion.Substring("[AI İsteği Başarısız: ".Length).TrimEnd(']')
+                : completion;
+            throw new InvalidOperationException($"LLM Bağlantısı Kurulamadı: {errMsg}");
         }
 
         var fallback = $"Sorunuz: \"{question}\"\n\nBilet Bilgisi: #{ticket.TicketNumber} ({ticket.Title})\nKategori: {ticket.Category?.Name ?? DefaultGeneralText}, Öncelik: {ticket.Priority?.Name ?? "Normal"}, Durum: {ticket.Status?.Name ?? "İşlemde"}.\n\nYanıt: Bu bilet için belirtilen durum teknik incelemededir.";

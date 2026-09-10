@@ -38,7 +38,14 @@ public class SlaCheckerService : BackgroundService
                 _logger.LogError(ex, "Error occurred executing SLA check.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Check every 5 minutes
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Check every 5 minutes
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
         }
     }
 }

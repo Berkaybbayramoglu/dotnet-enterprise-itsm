@@ -254,10 +254,18 @@
                                         AI Copilot & Asistan
                                     </h3>
                                 </div>
-                                <span id="aiStatusBadge" class="badge" style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
-                                    <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite;"></span>
-                                    <span>LLM Aktif</span>
-                                </span>
+                                <div class="d-flex align-items-center gap-xs">
+                                    <span id="aiStatusBadge" class="badge" onclick="window.openLlmSettingsModal()" style="font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer;" title="LLM Durumu (Ayarlar için tıklayın)">
+                                        <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite;"></span>
+                                        <span>LLM Aktif</span>
+                                    </span>
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="window.openLlmSettingsModal()" style="padding: 2px 4px; color: #475569; border-radius: 4px; line-height: 1;" title="Yapay Zeka ve Model Ayarları">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             
                             <p style="font-size: 11px; color: #475569; margin: 6px 0 10px 0; line-height: 1.35;" data-i18n="ai_copilot_desc">
@@ -500,6 +508,101 @@
             <div class="modal-body" style="flex: 1; overflow-y: auto;">
                 <div id="commentLogsList" style="display: flex; flex-direction: column; gap: 8px;">
                     <!-- Logs go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LLM Model & API Settings Modal -->
+    <div id="llmSettingsModal" class="modal-overlay">
+        <div class="modal" style="width: min(560px, 92%); max-height: 90vh; display: flex; flex-direction: column; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0; padding: 14px 18px;">
+                <div class="d-flex align-items-center gap-xs">
+                    <span style="font-size: 20px;">🤖</span>
+                    <div>
+                        <h2 style="margin:0; font-size:16px; font-weight: 700; color: #0F172A;">Yapay Zeka (LLM) & Model Ayarları</h2>
+                        <small style="color: #64748B; font-size: 11px;">Çözüm önerisi, bilet özeti ve yanıt taslağı için model seçin</small>
+                    </div>
+                </div>
+                <button type="button" class="close-btn" onclick="window.closeLlmSettingsModal()" aria-label="Kapat">&times;</button>
+            </div>
+            <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 18px;">
+                <!-- Preset Quick Buttons -->
+                <div class="mb-md">
+                    <label class="form-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; color: #334155;">Hızlı Sağlayıcı Seçimi (Hazır Şablonlar):</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('ollama')" style="font-size: 11px; padding: 4px 8px;">🦙 Ollama (Yerel)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('lmstudio')" style="font-size: 11px; padding: 4px 8px;">🖥️ LM Studio (Yerel)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('openai')" style="font-size: 11px; padding: 4px 8px;">🤖 OpenAI (GPT-4o)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('claude')" style="font-size: 11px; padding: 4px 8px;">🎭 Anthropic (Claude 3.5)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('custom')" style="font-size: 11px; padding: 4px 8px;">⚡ Özel / Diğer</button>
+                    </div>
+                </div>
+
+                <!-- Provider -->
+                <div class="form-group mb-sm">
+                    <label class="form-label" for="llmProvider" style="font-weight: 600; font-size: 12px;">Sağlayıcı Tipi:</label>
+                    <select id="llmProvider" class="form-control" onchange="window.onLlmProviderChanged()" style="font-size: 13px;">
+                        <option value="Ollama">Ollama (Yerel LLM - Llama 3, Mistral, Qwen)</option>
+                        <option value="LMStudio">LM Studio (Yerel LLM Sunucusu)</option>
+                        <option value="OpenAI">OpenAI (ChatGPT, GPT-4o, Codex)</option>
+                        <option value="Anthropic">Anthropic Claude (Claude 3.5 Sonnet / Haiku)</option>
+                        <option value="Custom">Özel OpenAI Uyumlu API (Groq, vLLM, DeepSeek)</option>
+                    </select>
+                </div>
+
+                <!-- Endpoint URL -->
+                <div class="form-group mb-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-xs">
+                        <label class="form-label" for="llmEndpoint" style="margin:0; font-weight: 600; font-size: 12px;">API Endpoint URL:</label>
+                        <small style="color: #64748B; font-size: 11px;">Docker içi: host.docker.internal</small>
+                    </div>
+                    <input type="text" id="llmEndpoint" class="form-control" placeholder="http://host.docker.internal:11434/v1/chat/completions" style="font-size: 12px; font-family: monospace;">
+                </div>
+
+                <!-- API Key -->
+                <div class="form-group mb-sm">
+                    <label class="form-label" for="llmApiKey" style="font-weight: 600; font-size: 12px;">API Anahtarı (API Key):</label>
+                    <input type="password" id="llmApiKey" class="form-control" placeholder="Yerel LLM için boş bırakabilirsiniz veya sk-..." style="font-size: 12px;">
+                    <small style="color: #64748B; font-size: 11px; display:block; margin-top:2px;">Bulut sağlayıcılar için zorunludur (OpenAI, Claude, Groq vb.).</small>
+                </div>
+
+                <!-- Model Selection / Input -->
+                <div class="form-group mb-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-xs">
+                        <label class="form-label" for="llmModel" style="margin:0; font-weight: 600; font-size: 12px;">Model Adı:</label>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="window.fetchAvailableLlmModels()" style="font-size: 11px; padding: 1px 6px; color: #0052CC; font-weight: 600;">
+                            🔄 Modelleri Getir
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="llmModel" class="form-control" placeholder="örn. llama3:8b, gpt-4o, claude-3-5-sonnet-20241022" style="font-size: 12px; flex: 1;">
+                        <select id="llmModelSelect" class="form-control" style="display:none; max-width: 45%; font-size: 12px;" onchange="window.onModelSelected(this.value)">
+                            <option value="">-- Yüklü Modeller --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fallback to heuristic -->
+                <div class="form-group mb-md" style="margin-top: 12px; background: #F8FAFC; padding: 10px; border-radius: 6px; border: 1px solid #E2E8F0;">
+                    <label class="d-flex align-items-center gap-xs" style="font-size: 12px; cursor: pointer; font-weight: 600; color: #1E293B; margin: 0;">
+                        <input type="checkbox" id="llmFallback" checked style="width:16px; height:16px; accent-color: #0052CC;">
+                        <span>LLM ulaşılamazsa Akıllı Kural Motoru yedek olarak çalışsın</span>
+                    </label>
+                    <small style="color: #64748B; font-size: 11px; margin-left: 24px; display: block; margin-top: 3px;">İşaret kaldırılırsa, LLM bağlantısı koptuğunda arayüzde doğrudan net hata uyarısı verilir.</small>
+                </div>
+
+                <!-- Test Connection Status Box -->
+                <div id="llmTestStatusBox" style="display: none; border-radius: 6px; padding: 10px 12px; margin-top: 10px; font-size: 12px; line-height: 1.45;">
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: #F8FAFC; border-top: 1px solid #E2E8F0;">
+                <button type="button" id="btnTestLlm" class="btn btn-secondary btn-sm" onclick="window.testLlmConnection()" style="font-size: 12px; padding: 6px 12px;">
+                    <span id="btnTestLlmText">🔌 Bağlantıyı Test Et</span>
+                </button>
+                <div class="d-flex gap-xs">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="window.closeLlmSettingsModal()" style="font-size: 12px;">İptal</button>
+                    <button type="button" id="btnSaveLlm" class="btn btn-primary btn-sm" onclick="window.saveLlmConfig()" style="font-size: 12px; padding: 6px 16px; font-weight: 600; background: #0052CC;">Kaydet</button>
                 </div>
             </div>
         </div>
@@ -2831,42 +2934,284 @@
             return cleaned.trim();
         }
 
+        function displayAiErrorCard(errorText, contextTitle) {
+            const resultArea = document.getElementById('aiResultArea');
+            const resultTitle = document.getElementById('aiResultTitle');
+            const resultContent = document.getElementById('aiResultContent');
+            const resultSource = document.getElementById('aiResultSource');
+
+            if (!resultArea) return;
+            if (resultTitle) resultTitle.textContent = contextTitle ? `${contextTitle} (Bağlantı Hatası)` : 'Yapay Zeka Hatası';
+            if (resultSource) resultSource.textContent = 'LLM Ulaşılamadı';
+
+            // Clean error text from raw HTML tags
+            let cleanErr = errorText ? errorText.replace(/<[^>]*>?/gm, '').trim() : 'Yapay zeka servisine ulaşılamadı.';
+            if (cleanErr.length > 300) cleanErr = cleanErr.substring(0, 300) + '...';
+
+            if (resultContent) {
+                resultContent.innerHTML = `
+                    <div style="background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #EF4444; border-radius: 6px; padding: 12px; margin: 4px 0;">
+                        <div style="color: #991B1B; font-weight: 700; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span>⚠️ LLM Bağlantısı Kurulamadı</span>
+                        </div>
+                        <p style="margin: 0 0 10px 0; font-size: 11.5px; color: #7F1D1D; line-height: 1.5;">
+                            ${cleanErr}
+                        </p>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-sm btn-primary" onclick="window.openLlmSettingsModal()" style="font-size: 11px; padding: 4px 10px; background: #0052CC; color: white; border: none; border-radius: 4px; font-weight: 600;">
+                                ⚙️ Model & API Ayarlarını Aç
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            resultArea.style.display = 'block';
+        }
+
         window.checkAiStatus = async function() {
             const badge = document.getElementById('aiStatusBadge');
             if (!badge) return;
             try {
                 const res = await window.api.request('/ai/status', { silent: true });
-                if (res && (res.isConfigured || res.configured)) {
+                if (res) {
                     if (res.isAvailable || res.isEndpointReachable) {
                         badge.className = 'badge';
                         badge.style.background = '#ECFDF5';
                         badge.style.color = '#047857';
                         badge.style.border = '1px solid #A7F3D0';
-                        badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite; margin-right: 4px; vertical-align: middle;"></span><span>LLM Aktif</span>';
-                        badge.title = 'Model: ' + (res.model || 'Nvidia') + ' | Endpoint: ' + (res.endpoint || '');
-                    } else {
+                        badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite; margin-right: 4px; vertical-align: middle;"></span><span>LLM: ${res.model || 'Aktif'}</span>`;
+                        badge.title = `Sağlayıcı: ${res.provider || 'LLM'} | Model: ${res.model} | Endpoint: ${res.endpoint}\n(Ayarları değiştirmek için tıklayın)`;
+                    } else if (res.fallbackToHeuristic) {
                         badge.className = 'badge';
                         badge.style.background = '#FFFBEB';
                         badge.style.color = '#B45309';
                         badge.style.border = '1px solid #FDE68A';
                         badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; margin-right: 4px; vertical-align: middle;"></span><span>Yerel Mod</span>';
-                        badge.title = 'LLM Sunucusu çevrimdışı. Akıllı kural ve geçmiş bilet analizi devrede.';
+                        badge.title = `LLM sunucusuna ulaşılamadı (${res.endpoint}). Akıllı yerel kurallar aktif.\n(Model ayarlarını açmak için tıklayın)`;
+                    } else {
+                        badge.className = 'badge';
+                        badge.style.background = '#FEF2F2';
+                        badge.style.color = '#B91C1C';
+                        badge.style.border = '1px solid #FECACA';
+                        badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle;"></span><span>LLM Bağlantısı Yok</span>';
+                        badge.title = `LLM bağlantısı kapalı (${res.endpoint}).\n(Ayarları düzenlemek için tıklayın)`;
                     }
-                } else {
-                    badge.className = 'badge';
-                    badge.style.background = '#F1F5F9';
-                    badge.style.color = '#475569';
-                    badge.style.border = '1px solid #CBD5E1';
-                    badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#94A3B8; margin-right: 4px; vertical-align: middle;"></span><span>Pasif</span>';
                 }
             } catch (err) {
                 console.warn('AI status check failed:', err);
                 badge.className = 'badge';
-                badge.style.background = '#ECFDF5';
-                badge.style.color = '#047857';
-                badge.style.border = '1px solid #A7F3D0';
-                badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; margin-right: 4px; vertical-align: middle;"></span><span>Hazır</span>';
-                badge.title = 'AI Asistan servisi hazır.';
+                badge.style.background = '#FEF2F2';
+                badge.style.color = '#B91C1C';
+                badge.style.border = '1px solid #FECACA';
+                badge.innerHTML = '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle;"></span><span>LLM Bağlantısı Yok</span>';
+            }
+        };
+
+        window.openLlmSettingsModal = async function() {
+            const modal = document.getElementById('llmSettingsModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            
+            const statusBox = document.getElementById('llmTestStatusBox');
+            if (statusBox) statusBox.style.display = 'none';
+
+            try {
+                const res = await window.api.request('/ai/config', { silent: true });
+                if (res && res.config) {
+                    const c = res.config;
+                    const providerEl = document.getElementById('llmProvider');
+                    const endpointEl = document.getElementById('llmEndpoint');
+                    const apiKeyEl = document.getElementById('llmApiKey');
+                    const modelEl = document.getElementById('llmModel');
+                    const fallbackEl = document.getElementById('llmFallback');
+
+                    if (providerEl) providerEl.value = c.provider || 'Custom';
+                    if (endpointEl) endpointEl.value = c.endpoint || '';
+                    if (apiKeyEl) apiKeyEl.value = c.apiKey || '';
+                    if (modelEl) modelEl.value = c.model || '';
+                    if (fallbackEl) fallbackEl.checked = c.fallbackToHeuristic !== false;
+                }
+            } catch (e) {
+                console.warn('Could not fetch LLM config:', e);
+            }
+        };
+
+        window.closeLlmSettingsModal = function() {
+            const modal = document.getElementById('llmSettingsModal');
+            if (modal) modal.classList.remove('active');
+        };
+
+        window.applyLlmPreset = function(preset) {
+            const providerEl = document.getElementById('llmProvider');
+            const endpointEl = document.getElementById('llmEndpoint');
+            const apiKeyEl = document.getElementById('llmApiKey');
+            const modelEl = document.getElementById('llmModel');
+
+            if (preset === 'ollama') {
+                if (providerEl) providerEl.value = 'Ollama';
+                if (endpointEl) endpointEl.value = 'http://host.docker.internal:11434/v1/chat/completions';
+                if (modelEl) modelEl.value = 'llama3';
+                if (apiKeyEl) { apiKeyEl.value = ''; apiKeyEl.placeholder = 'Yerel için boş bırakın'; }
+            } else if (preset === 'lmstudio') {
+                if (providerEl) providerEl.value = 'LMStudio';
+                if (endpointEl) endpointEl.value = 'http://host.docker.internal:1234/v1/chat/completions';
+                if (modelEl) modelEl.value = 'nvidia/nemotron-3-nano-4b';
+                if (apiKeyEl) { apiKeyEl.value = ''; apiKeyEl.placeholder = 'Yerel için boş bırakın'; }
+            } else if (preset === 'openai') {
+                if (providerEl) providerEl.value = 'OpenAI';
+                if (endpointEl) endpointEl.value = 'https://api.openai.com/v1/chat/completions';
+                if (modelEl) modelEl.value = 'gpt-4o';
+                if (apiKeyEl) apiKeyEl.placeholder = 'sk-... (OpenAI API Key)';
+            } else if (preset === 'claude') {
+                if (providerEl) providerEl.value = 'Anthropic';
+                if (endpointEl) endpointEl.value = 'https://api.anthropic.com/v1/messages';
+                if (modelEl) modelEl.value = 'claude-3-5-sonnet-20241022';
+                if (apiKeyEl) apiKeyEl.placeholder = 'sk-ant-... (Anthropic API Key)';
+            } else if (preset === 'custom') {
+                if (providerEl) providerEl.value = 'Custom';
+                if (endpointEl) endpointEl.value = 'https://api.groq.com/openai/v1/chat/completions';
+                if (modelEl) modelEl.value = 'llama-3.3-70b-versatile';
+            }
+        };
+
+        window.onLlmProviderChanged = function() {
+            const provider = document.getElementById('llmProvider')?.value;
+            if (provider === 'Ollama') window.applyLlmPreset('ollama');
+            else if (provider === 'LMStudio') window.applyLlmPreset('lmstudio');
+            else if (provider === 'OpenAI') window.applyLlmPreset('openai');
+            else if (provider === 'Anthropic') window.applyLlmPreset('claude');
+        };
+
+        window.fetchAvailableLlmModels = async function() {
+            const endpoint = document.getElementById('llmEndpoint')?.value || '';
+            const apiKey = document.getElementById('llmApiKey')?.value || '';
+            const modelSelect = document.getElementById('llmModelSelect');
+            const modelInput = document.getElementById('llmModel');
+
+            showToast('Modeller sorgulanıyor...', 'info');
+
+            try {
+                const query = `?endpoint=${encodeURIComponent(endpoint)}&apiKey=${encodeURIComponent(apiKey)}`;
+                const res = await window.api.request(`/ai/models${query}`, { silent: true });
+                if (res && res.success && res.models && res.models.length > 0) {
+                    if (modelSelect) {
+                        modelSelect.innerHTML = '<option value="">-- Yüklü Modeller (' + res.models.length + ') --</option>';
+                        res.models.forEach(m => {
+                            const opt = document.createElement('option');
+                            opt.value = m.id;
+                            opt.textContent = m.name || m.id;
+                            modelSelect.appendChild(opt);
+                        });
+                        modelSelect.style.display = 'block';
+                    }
+                    showToast(`${res.models.length} model tespit edildi!`, 'success');
+                } else {
+                    showToast('Model listesi alınamadı. Model adını manuel yazabilirsiniz.', 'warning');
+                }
+            } catch (err) {
+                console.warn('Fetch models error:', err);
+                showToast('Model sorgulanamadı. Model adını manuel yazabilirsiniz.', 'warning');
+            }
+        };
+
+        window.onModelSelected = function(modelId) {
+            if (!modelId) return;
+            const modelInput = document.getElementById('llmModel');
+            if (modelInput) modelInput.value = modelId;
+        };
+
+        window.testLlmConnection = async function() {
+            const btn = document.getElementById('btnTestLlm');
+            const btnText = document.getElementById('btnTestLlmText');
+            const statusBox = document.getElementById('llmTestStatusBox');
+            if (!statusBox) return;
+
+            const config = {
+                provider: document.getElementById('llmProvider')?.value || 'Custom',
+                endpoint: document.getElementById('llmEndpoint')?.value?.trim() || '',
+                apiKey: document.getElementById('llmApiKey')?.value?.trim() || '',
+                model: document.getElementById('llmModel')?.value?.trim() || '',
+                fallbackToHeuristic: document.getElementById('llmFallback')?.checked !== false,
+                timeoutSeconds: 12
+            };
+
+            if (!config.endpoint) {
+                showToast('Lütfen bir Endpoint URL girin', 'warning');
+                return;
+            }
+
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:12px;height:12px;" role="status"></span> Test ediliyor...';
+            statusBox.style.display = 'block';
+            statusBox.style.background = '#F1F5F9';
+            statusBox.style.color = '#334155';
+            statusBox.style.border = '1px solid #CBD5E1';
+            statusBox.innerHTML = 'Sunucuya test sinyali gönderiliyor...';
+
+            try {
+                const res = await window.api.request('/ai/test', {
+                    method: 'POST',
+                    body: JSON.stringify(config),
+                    silent: true
+                });
+
+                if (res && res.success) {
+                    statusBox.style.background = '#ECFDF5';
+                    statusBox.style.color = '#065F46';
+                    statusBox.style.border = '1px solid #A7F3D0';
+                    statusBox.innerHTML = `<strong>✅ Bağlantı Başarılı!</strong> (${res.latencyMs || 0} ms)<br><small style="color:#047857;">Model: <code>${res.model}</code> | Yanıt: ${res.testResponse || 'OK'}</small>`;
+                } else {
+                    statusBox.style.background = '#FEF2F2';
+                    statusBox.style.color = '#991B1B';
+                    statusBox.style.border = '1px solid #FECACA';
+                    statusBox.innerHTML = `<strong>❌ Bağlantı Kurulamadı:</strong><br>${res && res.message ? res.message : 'LLM servisi yanıt vermedi.'}`;
+                }
+            } catch (err) {
+                statusBox.style.background = '#FEF2F2';
+                statusBox.style.color = '#991B1B';
+                statusBox.style.border = '1px solid #FECACA';
+                statusBox.innerHTML = `<strong>❌ Hata:</strong> ${err.message || 'Ağ hatası oluştu.'}`;
+            } finally {
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.textContent = '🔌 Bağlantıyı Test Et';
+            }
+        };
+
+        window.saveLlmConfig = async function() {
+            const btn = document.getElementById('btnSaveLlm');
+            const config = {
+                provider: document.getElementById('llmProvider')?.value || 'Custom',
+                endpoint: document.getElementById('llmEndpoint')?.value?.trim() || '',
+                apiKey: document.getElementById('llmApiKey')?.value?.trim() || '',
+                model: document.getElementById('llmModel')?.value?.trim() || '',
+                fallbackToHeuristic: document.getElementById('llmFallback')?.checked !== false,
+                timeoutSeconds: 30
+            };
+
+            if (!config.endpoint) {
+                showToast('Endpoint URL zorunludur', 'warning');
+                return;
+            }
+
+            if (btn) btn.disabled = true;
+            try {
+                const res = await window.api.request('/ai/config', {
+                    method: 'POST',
+                    body: JSON.stringify(config)
+                });
+
+                if (res && res.success) {
+                    showToast('LLM ayarları başarıyla kaydedildi!', 'success');
+                    window.closeLlmSettingsModal();
+                    await window.checkAiStatus();
+                } else {
+                    showToast(res && res.message ? res.message : 'Kaydetme başarısız', 'error');
+                }
+            } catch (err) {
+                console.error('Save LLM config error:', err);
+                showToast('Ayarlar kaydedilemedi: ' + err.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
             }
         };
 
@@ -2985,15 +3330,16 @@
                     }
                     if (resultArea) resultArea.style.display = 'block';
                 } else {
-                    showToast(res && (res.message || res.error) ? (res.message || res.error) : 'AI yanıt üretemedi', 'error');
+                    const errMsg = (res && (res.message || res.error)) ? (res.message || res.error) : 'AI yanıt üretemedi';
+                    displayAiErrorCard(errMsg, title);
                 }
             } catch (err) {
                 if (loading) loading.style.display = 'none';
                 console.error('AI action failed:', err);
                 const msg = err.message && !err.message.includes('API Error')
                     ? err.message
-                    : 'AI servisi yanıt vermedi. Lütfen API sunucusunu yeniden başlatın.';
-                showToast(msg, 'error');
+                    : 'AI servisine ulaşılamadı. Lütfen LLM bağlantı ve model ayarlarını kontrol edin.';
+                displayAiErrorCard(msg, title);
             } finally {
                 setAiBusyState(false);
             }
@@ -3048,15 +3394,16 @@
                     }
                     if (resultArea) resultArea.style.display = 'block';
                 } else {
-                    showToast(res && (res.message || res.error) ? (res.message || res.error) : 'AI yanıt üretemedi', 'error');
+                    const errMsg = (res && (res.message || res.error)) ? (res.message || res.error) : 'AI yanıt üretemedi';
+                    displayAiErrorCard(errMsg, `Soru: ${question}`);
                 }
             } catch (err) {
                 if (loading) loading.style.display = 'none';
                 console.error('AI question failed:', err);
                 const msg = err.message && !err.message.includes('API Error')
                     ? err.message
-                    : 'AI servisi yanıt vermedi. Lütfen API sunucusunu yeniden başlatın.';
-                showToast(msg, 'error');
+                    : 'AI servisine ulaşılamadı. Lütfen LLM bağlantı ve model ayarlarını kontrol edin.';
+                displayAiErrorCard(msg, `Soru: ${question}`);
             } finally {
                 setAiBusyState(false);
             }

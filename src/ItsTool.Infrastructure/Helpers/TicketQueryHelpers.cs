@@ -55,11 +55,11 @@ public static class TicketQueryHelpers
     {
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
         {
-            var kw = filter.Keyword;
+            var kw = filter.Keyword.ToLower();
             query = query.Where(t => 
-                t.TicketNumber.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
-                t.Title.Contains(kw, StringComparison.OrdinalIgnoreCase) || 
-                t.Description.Contains(kw, StringComparison.OrdinalIgnoreCase));
+                t.TicketNumber.ToLower().Contains(kw) || 
+                t.Title.ToLower().Contains(kw) || 
+                (t.Description != null && t.Description.ToLower().Contains(kw)));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.SlaStatus))
