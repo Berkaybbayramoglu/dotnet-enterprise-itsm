@@ -1,0 +1,31 @@
+# ITSM Tool - Git Attributes Specification
+# Auto-detect text files and normalize line endings
+* text=auto eol=lf
+
+# C# and .NET project files
+*.cs text diff=csharp eol=lf
+*.csproj text diff=csharp eol=lf
+*.sln text eol=crlf
+*.props text eol=lf
+*.json text eol=lf
+
+# Web frontend files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Markdown and documentation
+*.md text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.dll binary
+*.pdb binary
