@@ -140,6 +140,75 @@ public class ResolutionCopilotAgentTests : TestBase
         Assert.Contains("Ağ trafiği kontrol ediliyor", answer);
     }
 
+    [Fact]
+    public async Task DraftReplyAsync_ShouldReturnNotFound_WhenTicketDoesNotExist()
+    {
+        var draft = await _agent.DraftReplyAsync(999);
+        Assert.Equal("Bilet bulunamadı.", draft);
+    }
+
+    [Fact]
+    public async Task AskQuestionAsync_ShouldReturnNotFound_WhenTicketDoesNotExist()
+    {
+        var answer = await _agent.AskQuestionAsync(999, "Herhangi bir soru");
+        Assert.Equal("Bilet bulunamadı.", answer);
+    }
+
+    [Fact]
+    public async Task DraftReplyAsync_ShouldFallback_WhenLlmFails()
+    {
+        var ticket = new Ticket
+        {
+            TicketNumber = "T-5",
+            Title = "Printer error",
+            Description = "Paper jam",
+            CategoryId = 1,
+            PriorityId = 1,
+            StatusId = 1,
+            TypeId = 1,
+            RequesterUserId = 1
+        };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        _mockLlm.Setup(l => l.GetCompletionAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync("[AI İsteği Başarısız] Timeout");
+
+        var draft = await _agent.DraftReplyAsync(ticket.Id);
+        Assert.NotNull(draft);
+        Assert.Contains("incelemeye alınmıştır", draft);
+        Assert.Contains("Printer error", draft);
+    }
+
+    [Fact]
+    public async Task GenerateResolutionSuggestionAsync_ShouldPostBotComment_WhenPostAsCommentIsTrue()
+    {
+        var ticket = new Ticket
+        {
+            TicketNumber = "T-6",
+            Title = "Outlook sync issue",
+            Description = "Emails not updating",
+            CategoryId = 1,
+            PriorityId = 1,
+            StatusId = 1,
+            TypeId = 1,
+            RequesterUserId = 1
+        };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        _mockLlm.Setup(l => l.GetCompletionAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync("1. Check cached exchange mode.\n2. Restart Outlook.");
+
+        var result = await _agent.GenerateResolutionSuggestionAsync(ticket.Id, postAsComment: true);
+
+        Assert.True(result.Success);
+        var comment = _context.TicketComments.FirstOrDefault(c => c.TicketId == ticket.Id);
+        Assert.NotNull(comment);
+        Assert.True(comment.IsInternal);
+        Assert.Contains("Check cached exchange mode", comment.Content);
+    }
+
     [Theory]
     [InlineData("**Bold text**", "Bold text")]
     [InlineData("# Header Title", "Header Title")]

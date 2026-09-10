@@ -6,8 +6,8 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![SonarQube](https://img.shields.io/badge/SonarQube-PASSED%20(A)-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white)](http://localhost:9000)
 [![CI Pipeline](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-353%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
-[![Coverage](https://img.shields.io/badge/Code%20Coverage-85.3%25-success?style=for-the-badge&logo=codecov&logoColor=white)](tests/ItsTool.UnitTests)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-358%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
+[![Coverage](https://img.shields.io/badge/Code%20Coverage-85.34%25-success?style=for-the-badge&logo=codecov&logoColor=white)](tests/ItsTool.UnitTests)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 <p align="center">
@@ -109,8 +109,8 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 | Metrik | Sonuç | Durum |
 | :---: | :---: | :---: |
 | **Quality Gate** | **PASSED (OK)** | 🟢 Başarılı |
-| **Birim Testleri** | **353 / 353 Geçti** | 🟢 %100 Başarı |
-| **Satır Test Kapsamı (Line Coverage)** | **%85.3** | 🟢 Yüksek Kapsam |
+| **Birim Testleri** | **358 / 358 Geçti** | 🟢 %100 Başarı |
+| **Satır Test Kapsamı (Line Coverage)** | **%85.34** | 🟢 Yüksek Kapsam |
 | **Bugs** | **0** | 🟢 Sıfır Hata |
 | **Vulnerabilities** | **0** | 🟢 Güvenli |
 | **Security Hotspots** | **0** | 🟢 İncelendi |
@@ -127,10 +127,10 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 +------------------------+--------+--------+--------+
 | ItsTool.Domain         | 93.43% | 100%   | 93.43% |
 | ItsTool.Application    | 84.16% | 100%   | 82.84% |
-| ItsTool.Infrastructure | 82.72% | 56.28% | 88.47% |
-| ItsTool.API            | 91.80% | 68.75% | 96.62% |
+| ItsTool.Infrastructure | 82.72% | 56.49% | 88.47% |
+| ItsTool.API            | 92.12% | 68.75% | 96.62% |
 +------------------------+--------+--------+--------+
-| TOPLAM ORTALAMA        | 85.27% | 57.95% | 90.35% |
+| TOPLAM ORTALAMA        | 85.34% | 58.12% | 90.35% |
 +------------------------+--------+--------+--------+
 ```
 

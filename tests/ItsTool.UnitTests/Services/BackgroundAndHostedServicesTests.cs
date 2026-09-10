@@ -56,6 +56,40 @@ public class BackgroundAndHostedServicesTests
     }
 
     [Fact]
+    public async Task SlaCheckerService_ShouldCatchAndLogException_WhenEngineFails()
+    {
+        var slaEngineMock = new Mock<ISlaEngine>();
+        slaEngineMock.Setup(e => e.CheckBreachesAsync(It.IsAny<DateTime>()))
+            .ThrowsAsync(new InvalidOperationException("DB error in SLA checker"));
+
+        var serviceProviderMock = new Mock<IServiceProvider>();
+        var scopeMock = new Mock<IServiceScope>();
+        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+        scopeMock.Setup(s => s.ServiceProvider).Returns(serviceProviderMock.Object);
+        scopeFactoryMock.Setup(f => f.CreateScope()).Returns(scopeMock.Object);
+        serviceProviderMock.Setup(sp => sp.GetService(typeof(IServiceScopeFactory)))
+            .Returns(scopeFactoryMock.Object);
+        serviceProviderMock.Setup(sp => sp.GetService(typeof(ISlaEngine)))
+            .Returns(slaEngineMock.Object);
+
+        var loggerMock = new Mock<ILogger<SlaCheckerService>>();
+        var service = new SlaCheckerService(serviceProviderMock.Object, loggerMock.Object);
+
+        using var cts = new CancellationTokenSource();
+        cts.CancelAfter(50);
+
+        var ex = await Record.ExceptionAsync(async () =>
+        {
+            await service.StartAsync(cts.Token);
+            await Task.Delay(100);
+            await service.StopAsync(CancellationToken.None);
+        });
+
+        Assert.Null(ex);
+    }
+
+    [Fact]
     public async Task EmailBackgroundService_ShouldDequeueAndSendEmail()
     {
         var emailQueueMock = new Mock<IEmailQueue>();
