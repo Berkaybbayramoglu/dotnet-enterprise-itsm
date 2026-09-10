@@ -1,0 +1,30 @@
+# Git & CI/CD
+.git
+.github
+.gitignore
+.gitattributes
+
+# IDE & Editor files
+.vs
+.vscode
+.idea
+*.user
+*.suo
+
+# Build & Compilation Artifacts
+**/bin
+**/obj
+**/TestResults
+coverage
+*.opencover.xml
+
+# Documentation & Scratch Files
+docs
+scripts
+*.log
+*.md
+.editorconfig
+.sonarqube
+
+# Tests (Prod imajında birim test kodlarına ihtiyaç yoktur)
+tests

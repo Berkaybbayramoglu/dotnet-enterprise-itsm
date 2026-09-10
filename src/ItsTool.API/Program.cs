@@ -21,6 +21,10 @@ if (!Directory.Exists(webRootPath))
 {
     webRootPath = Path.Combine(currentDir, "..", "ItsTool.Web", "wwwroot");
 }
+if (!Directory.Exists(webRootPath))
+{
+    webRootPath = Path.Combine(currentDir, "wwwroot");
+}
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {

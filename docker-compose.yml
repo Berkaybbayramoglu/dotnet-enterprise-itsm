@@ -1,0 +1,55 @@
+services:
+  # --------------------------------------------------------------------------
+  # 1. PostgreSQL Veritabanı Servisi
+  # --------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: itstool-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: itsm_tool
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Postgres123!}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d itsm_tool"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - itstool-network
+
+  # --------------------------------------------------------------------------
+  # 2. ITSM Tool Uygulaması (API + Web Frontend)
+  # --------------------------------------------------------------------------
+  itstool-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itstool-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5246:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - AutoSeed=true
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=itsm_tool;Username=postgres;Password=${DB_PASSWORD:-Postgres123!}
+      - Jwt__Secret=${JWT_SECRET:-enterprise_super_secret_jwt_key_turkcell_itsm_2026!}
+      - Jwt__Issuer=ItsToolAPI
+      - Jwt__Audience=ItsToolClient
+    networks:
+      - itstool-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  itstool-network:
+    driver: bridge
