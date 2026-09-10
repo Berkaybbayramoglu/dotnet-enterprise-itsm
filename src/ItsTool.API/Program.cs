@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.SignalR;
 using ItsTool.API.Hubs;
 using System.Text;
+using Microsoft.OpenApi.Models;
 
 var currentDir = Directory.GetCurrentDirectory();
 var webRootPath = Path.Combine(currentDir, "src", "ItsTool.Web", "wwwroot");
@@ -30,7 +31,48 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ITSM Tool API",
+        Version = "v1",
+        Description = "Enterprise IT Service Management (ITSM) RESTful Web API with Clean Architecture, EAV Dynamic Forms, Multi-Agent AI Copilot, and Real-Time SignalR Notifications.",
+        Contact = new OpenApiContact
+        {
+            Name = "TEAM-SMS / Berkay Bayramoğlu",
+            Email = "berkaybbayramoglu@gmail.com"
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT License"
+        }
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 
