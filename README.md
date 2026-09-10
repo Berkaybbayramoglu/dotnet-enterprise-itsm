@@ -17,7 +17,7 @@
   <i>Clean Architecture • Entity-Attribute-Value (EAV) Dinamik Formlar • AI Resolution Copilot • Gerçek Zamanlı SignalR • Dinamik SLA Motoru</i>
 </p>
 
-[Özellikler](#-öne-çıkan-özellikler) • [Mimari](#-sistem-mimarisi) • [Test & SonarQube](#-kod-kalitesi--sonarqube) • [Kurulum](#-hızlı-kurulum) • [Demo Hesaplar](#-demo-hesaplar) • [API Dokümantasyonu](#-api-mimarisi--başlıca-endpointler)
+[Özellikler](#-öne-çıkan-özellikler) • [Mimari](#-sistem-mimarisi) • [AI / LLM Mimarisi](#-yapay-zeka-ai--llm-copilot-mimarisi) • [Test & SonarQube](#-kod-kalitesi--sonarqube) • [Kurulum](#-hızlı-kurulum) • [Demo Hesaplar](#-demo-hesaplar) • [API Dokümantasyonu](#-api-mimarisi--başlıca-endpointler)
 
 ---
 
@@ -131,9 +131,120 @@ itsm-tool/
 │   ├── ItsTool.API/             # ASP.NET Core Web API, JWT Auth, SignalR Hub, Controller'lar
 │   └── ItsTool.Web/             # Vanilla JS, responsive HTML5 sayfaları ve statik varlıklar (wwwroot)
 ├── tests/
-│   └── ItsTool.UnitTests/       # 302 birim ve entegrasyon testi, InMemory SQLite altyapısı
+│   └── ItsTool.UnitTests/       # 358 birim ve entegrasyon testi, InMemory SQLite altyapısı
 └── docs/                        # Mimari tasarım, ERD, gereksinim ve geliştirme notları
 ```
+
+---
+
+## 🧠 Yapay Zeka (AI / LLM) Copilot Mimarisi
+
+ITSM Tool, destek temsilcilerinin operasyonel yükünü hafifletmek, bilet çözüm sürelerini (MTTR) minimize etmek ve yanıt kalitesini standartlaştırmak için **hibrit ve çok katmanlı bir yapay zeka mimarisine** sahiptir.
+
+### 📐 AI Copilot Akış Şeması
+
+```mermaid
+flowchart TD
+    subgraph Client ["İstemci Katmanı (Web UI)"]
+        Widget["AI Copilot Paneli (ticket-detail.html)"]
+        LangSel["Dil Seçici (🇹🇷 TR / 🇬🇧 EN)"]
+        ModalSettings["Model Ayarları & API Key Modal"]
+    end
+
+    subgraph API ["Sunum Katmanı (ItsTool.API)"]
+        AiCtrl["AiController"]
+        Endpoints["/suggest-resolution<br/>/draft-reply<br/>/summarize<br/>/ask<br/>/status<br/>/models"]
+    end
+
+    subgraph CoreAgents ["Ajan & İş Mantığı (ItsTool.Infrastructure)"]
+        Copilot["ResolutionCopilotAgent"]
+        HandoffSwarm["TicketHandoffSwarm"]
+        ContextAggregator["Bağlam Toplayıcı (RAG-Lite)"]
+    end
+
+    subgraph DataContext ["Veri Tabanı & Bağlam"]
+        DB_Tickets[("Bilet Detayları & Yorumlar")]
+        DB_KB[("Bilgi Bankası Makaleleri")]
+        DB_Custom[("EAV Dinamik Alanlar")]
+    end
+
+    subgraph ExecutionBridge ["Çalıştırma & Karar Katmanı"]
+        HealthCheck{"LLM Bağlantısı Aktif mi?"}
+        LiveLLM["Canlı LLM Konnektörü (OpenAI Uyumlu)"]
+        HeuristicFallback["Akıllı Kural & Şablon Motoru (Fallback)"]
+    end
+
+    subgraph Providers ["LLM Sağlayıcıları (Yerel & Bulut)"]
+        Ollama["Ollama (Llama 3 / Mistral / Qwen)"]
+        LMStudio["LM Studio / vLLM / Localhost"]
+        OpenAI["OpenAI (GPT-4o / GPT-4o-mini)"]
+    end
+
+    Widget -->|1. Kullanıcı Aksiyonu| AiCtrl
+    LangSel -.->|Dil Tercihi: tr/en| AiCtrl
+    ModalSettings -.->|Model & API Key Yapılandırması| AiCtrl
+    AiCtrl --> Endpoints
+    Endpoints --> Copilot
+    Endpoints --> HandoffSwarm
+
+    Copilot --> ContextAggregator
+    HandoffSwarm --> ContextAggregator
+    ContextAggregator <--> DB_Tickets
+    ContextAggregator <--> DB_KB
+    ContextAggregator <--> DB_Custom
+
+    ContextAggregator --> HealthCheck
+    HealthCheck -- "Evet (Endpoint Erişilebilir)" --> LiveLLM
+    HealthCheck -- "Hayır (Offline / Hata)" --> HeuristicFallback
+
+    LiveLLM --> Ollama
+    LiveLLM --> LMStudio
+    LiveLLM --> OpenAI
+
+    LiveLLM -->|Sonuç + isLlm: true| Widget
+    HeuristicFallback -->|Sonuç + isLlm: false (Uyarı Rozeti)| Widget
+```
+
+---
+
+### 🔑 AI Mimarimizin 6 Temel İlkesi
+
+#### 1. 🛡️ Çift Modlu Çalışma & Kesintisiz Hizmet Garantisi (Dual-Engine Fallback)
+- **Problem:** Bulut tabanlı LLM API'larında ağ kesintileri, hız kısıtlamaları (rate-limit) veya yerel modellerde bellek yetersizliği yaşandığında destek teknisyeninin ekranı donmamalıdır.
+- **Çözüm:** Sistem **Sıfır Kesinti (Zero Downtime)** prensibiyle çalışır:
+  - Canlı LLM bağlantısı varsa derinlemesine model çıktısı alınır (`isLlm: true`).
+  - LLM erişilemezse veya kapalıysa, sistem **asla hata fırlatmaz**; anında bilet kategorisini, önceliğini, geçmiş müdahalelerini ve ilgili KB makalelerini analiz eden **yerel kural motoruna (Smart Heuristic Fallback)** devredilir (`isLlm: false`).
+  - Kullanıcı arayüzünde şeffaflık sağlanarak yanıtın kural motorundan geldiği ve harici model bağlamak için ayarların kontrol edilmesi gerektiği açıkça belirtilir.
+
+#### 2. 📚 RAG-Lite & Bağlamsal Zenginleştirme (Context Grounding)
+LLM modeline sadece bilet başlığı gönderilmez. Doğruluk oranını artırmak ve halüsinasyonları önlemek için prompt context'i şu verilerle zenginleştirilir:
+- **Bilet Temel Verileri:** Başlık, açıklama, kategori, öncelik, talep tipi ve durum.
+- **EAV Dinamik Alanlar:** Varsa sunucu adı, etkilenen kullanıcı sayısı, hata kodları vb.
+- **Zaman Çizelgesi & Yorumlar:** Son kullanıcı ile teknisyen arasındaki tüm geçmiş diyaloglar ve iç notlar (internal notes).
+- **Bilgi Bankası Eşleştirmesi:** Kategori ve etiket bazlı en alakalı onaylı KB makaleleri prompt'a eklenerek modele *"Kurumsal prosedürlere sadık kalarak yanıtla"* talimatı verilir.
+
+#### 3. 🌐 Çok Dilli Zeka & Prompt Sentezi (TR / EN)
+- Arayüz üzerinden tek tıkla **🇹🇷 TR** veya **🇬🇧 EN** yanıt dili seçilebilir ve tercih `localStorage` üzerinde saklanır.
+- Backend ajanları (`ResolutionCopilotAgent`, `TicketHandoffSwarm`), seçilen dile göre dinamik sistem talimatları ve kullanıcı prompt'ları oluşturur:
+  - **Türkçe:** Kurumsal ve profesyonel Türkçe ITIL dili ile çözüm adımları ve müşteri bildirimleri.
+  - **İngilizce:** Uluslararası IT destek standartlarına (`Best regards`, `Diagnostic steps`, `Actionable troubleshooting`) tam uyumlu İngilizce çıktılar.
+  - LLM bağlı olmadığında dahi yerel motor, seçilen dilde profesyonel şablonlar üretir.
+
+#### 4. 🔌 Evrensel Model Uyumluluğu (OpenAI-Compatible Multi-Provider)
+Sistem tek bir sağlayıcıya kilitlenmez (`Vendor Lock-in` yoktur). Standart OpenAI Chat Completions REST API spesifikasyonunu destekler:
+- **Yerel Modeller (Zero-Cost / Offline):** [Ollama](https://ollama.ai/) (`Llama 3`, `Mistral`, `Qwen 2.5`, `Phi-3`), [LM Studio](https://lmstudio.ai/), [vLLM](https://github.com/vllm-project/vllm).
+- **Bulut Modelleri:** OpenAI (`GPT-4o`, `GPT-4o-mini`), Azure OpenAI, Anthropic Claude (uyumlu proxy'ler üzerinden).
+- **Docker İçi Ağ İletişimi:** `docker-compose.yml` içerisindeki `host.docker.internal:host-gateway` köprüsü sayesinde, Docker içinde koşan ITSM Tool, host makinede çalışan yerel Ollama/LM Studio servislerine doğrudan `http://host.docker.internal:11434` üzerinden erişebilir.
+
+#### 5. 👥 Çoklu Ajan ve Görev Ayrımı (Agentic Specialization)
+- **`ResolutionCopilotAgent`:** Teşhis adımları, muhtemel kök nedenler, ilgili KB makaleleri ve son kullanıcıya iletilecek hazır e-posta/yorum taslaklarını üretir.
+- **`TicketHandoffSwarm`:** Vardiya değişimlerinde veya 2. Seviye desteğe eskalasyonda biletin geçmişini, çözülemeyen darboğazları ve bir sonraki teknisyenin yapması gerekenleri özetleyen devir (handoff) notları hazırlar.
+
+#### 6. 🎨 Sezgisel Arayüz & Güvenli Model Yönetimi
+- **Göz İkonlu API Anahtarı:** Model ayarları penceresinde API anahtarı güvenle maskelenir (`type="password"`), istenildiğinde göz ikonu ile açık metne dönüştürülüp kontrol edilebilir.
+- **Üst Üste Binmeyen 2 Satırlı Başlık:** Dar yan panellerde taşma ve çakışmaları önleyen modern başlık ve durum göstergesi.
+- **Canlı Gecikme Testi:** Model ayarlarından tek tıkla test isteği gönderilerek milisaniye cinsinden yanıt süresi (`latency`) ve model sağlığı ölçülür.
+- **Tek Tıkla Yanıta Aktarma:** Üretilen taslak tek tıkla kopyalanabilir veya doğrudan biletin yanıt kutusuna aktarılabilir.
 
 ---
 
