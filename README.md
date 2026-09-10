@@ -145,44 +145,44 @@ ITSM Tool, destek temsilcilerinin operasyonel yükünü hafifletmek, bilet çöz
 
 ```mermaid
 flowchart TD
-    subgraph Client ["İstemci Katmanı (Web UI)"]
-        Widget["AI Copilot Paneli (ticket-detail.html)"]
-        LangSel["Dil Seçici (🇹🇷 TR / 🇬🇧 EN)"]
-        ModalSettings["Model Ayarları & API Key Modal"]
+    subgraph Client ["İstemci Katmanı - Web UI"]
+        Widget["AI Copilot Paneli"]
+        LangSel["Dil Seçici (TR / EN)"]
+        ModalSettings["Model Ayarları ve API Key"]
     end
 
-    subgraph API ["Sunum Katmanı (ItsTool.API)"]
+    subgraph API ["Sunum Katmanı - ItsTool.API"]
         AiCtrl["AiController"]
-        Endpoints["/suggest-resolution<br/>/draft-reply<br/>/summarize<br/>/ask<br/>/status<br/>/models"]
+        Endpoints["AI Uç Noktaları (Suggest / Draft / Summarize / Ask)"]
     end
 
-    subgraph CoreAgents ["Ajan & İş Mantığı (ItsTool.Infrastructure)"]
+    subgraph CoreAgents ["Ajan ve İş Mantığı - ItsTool.Infrastructure"]
         Copilot["ResolutionCopilotAgent"]
         HandoffSwarm["TicketHandoffSwarm"]
-        ContextAggregator["Bağlam Toplayıcı (RAG-Lite)"]
+        ContextAggregator["Bağlam Toplayıcı - RAG Lite"]
     end
 
-    subgraph DataContext ["Veri Tabanı & Bağlam"]
-        DB_Tickets[("Bilet Detayları & Yorumlar")]
+    subgraph DataContext ["Veri Tabanı ve Bağlam"]
+        DB_Tickets[("Bilet Detayları ve Yorumlar")]
         DB_KB[("Bilgi Bankası Makaleleri")]
         DB_Custom[("EAV Dinamik Alanlar")]
     end
 
-    subgraph ExecutionBridge ["Çalıştırma & Karar Katmanı"]
+    subgraph ExecutionBridge ["Çalıştırma ve Karar Katmanı"]
         HealthCheck{"LLM Bağlantısı Aktif mi?"}
-        LiveLLM["Canlı LLM Konnektörü (OpenAI Uyumlu)"]
-        HeuristicFallback["Akıllı Kural & Şablon Motoru (Fallback)"]
+        LiveLLM["Canlı LLM Konnektörü - OpenAI Uyumlu"]
+        HeuristicFallback["Akıllı Kural Motoru - Yerel Fallback"]
     end
 
-    subgraph Providers ["LLM Sağlayıcıları (Yerel & Bulut)"]
-        Ollama["Ollama (Llama 3 / Mistral / Qwen)"]
+    subgraph Providers ["LLM Sağlayıcıları - Yerel ve Bulut"]
+        Ollama["Ollama - Llama 3 / Mistral / Qwen"]
         LMStudio["LM Studio / vLLM / Localhost"]
-        OpenAI["OpenAI (GPT-4o / GPT-4o-mini)"]
+        OpenAI["OpenAI - GPT-4o / GPT-4o-mini"]
     end
 
     Widget -->|1. Kullanıcı Aksiyonu| AiCtrl
-    LangSel -.->|Dil Tercihi: tr/en| AiCtrl
-    ModalSettings -.->|Model & API Key Yapılandırması| AiCtrl
+    LangSel -.->|Dil Tercihi: TR / EN| AiCtrl
+    ModalSettings -.->|Model ve API Key Yapılandırması| AiCtrl
     AiCtrl --> Endpoints
     Endpoints --> Copilot
     Endpoints --> HandoffSwarm
@@ -194,15 +194,15 @@ flowchart TD
     ContextAggregator <--> DB_Custom
 
     ContextAggregator --> HealthCheck
-    HealthCheck -- "Evet (Endpoint Erişilebilir)" --> LiveLLM
-    HealthCheck -- "Hayır (Offline / Hata)" --> HeuristicFallback
+    HealthCheck -->|Evet - Canlı Bağlantı| LiveLLM
+    HealthCheck -->|Hayır - Çevrimdışı veya Hata| HeuristicFallback
 
     LiveLLM --> Ollama
     LiveLLM --> LMStudio
     LiveLLM --> OpenAI
 
-    LiveLLM -->|Sonuç + isLlm: true| Widget
-    HeuristicFallback -->|Sonuç + isLlm: false (Uyarı Rozeti)| Widget
+    LiveLLM -->|Sonuç: isLlm = true| Widget
+    HeuristicFallback -->|Sonuç: isLlm = false / Uyarı Rozeti| Widget
 ```
 
 ---
