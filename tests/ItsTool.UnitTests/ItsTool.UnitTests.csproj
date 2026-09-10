@@ -14,7 +14,7 @@
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
     <CoverletOutput>./coverage.opencover.xml</CoverletOutput>
-    <Exclude>[*]ItsTool.Infrastructure.Migrations.*,[*]*.Migrations.*,[*]ItsTool.Infrastructure.Data.DataSeeder,[*]ItsTool.API.Program,[*]*.CheckDB*,[*]*.check*</Exclude>
+    <Exclude>[*]ItsTool.Infrastructure.Migrations.*,[*]*.Migrations.*,[*]ItsTool.Infrastructure.Data.DataSeeder,[*]ItsTool.API.Program</Exclude>
     <ExcludeByFile>**/Migrations/**/*.cs,**/Data/DataSeeder.cs,**/Program.cs</ExcludeByFile>
   </PropertyGroup>
 

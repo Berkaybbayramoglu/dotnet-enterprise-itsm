@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <SonarQubeCoverageExclusions>**/*.js,**/*.html,**/*.css,**/wwwroot/**,**/Migrations/**,**/*.py,**/*.sh,**/DataSeeder.cs,**/Program.cs,**/CheckDB.cs,**/check*.cs,**/seed*.cs,**/DbQueryApp/**,**/ItsToolDbContextFactory.cs</SonarQubeCoverageExclusions>
+    <SonarQubeCoverageExclusions>**/*.js,**/*.html,**/*.css,**/wwwroot/**,**/Migrations/**,**/DataSeeder.cs,**/Program.cs,**/ItsToolDbContextFactory.cs</SonarQubeCoverageExclusions>
     <SonarQubeDuplicationExclusions>**/*.js,**/*.html,**/*.css,**/wwwroot/**</SonarQubeDuplicationExclusions>
   </PropertyGroup>
 
@@ -9,13 +9,13 @@
       <Value>$(MSBuildThisFileDirectory)tests/ItsTool.UnitTests/coverage.opencover.xml</Value>
     </SonarQubeSetting>
     <SonarQubeSetting Include="sonar.coverage.exclusions">
-      <Value>**/*.js,**/*.html,**/*.css,**/wwwroot/**,**/Migrations/**,**/*.py,**/*.sh,**/DataSeeder.cs,**/Program.cs,**/CheckDB.cs,**/check*.cs,**/seed*.cs,**/DbQueryApp/**,**/ItsToolDbContextFactory.cs</Value>
+      <Value>**/*.js,**/*.html,**/*.css,**/wwwroot/**,**/Migrations/**,**/DataSeeder.cs,**/Program.cs,**/ItsToolDbContextFactory.cs</Value>
     </SonarQubeSetting>
     <SonarQubeSetting Include="sonar.cpd.exclusions">
       <Value>**/*.js,**/*.html,**/*.css,**/wwwroot/**</Value>
     </SonarQubeSetting>
     <SonarQubeSetting Include="sonar.exclusions">
-      <Value>**/Migrations/**,**/bin/**,**/obj/**,**/coverage*.xml,**/uploads/**,**/*.pdf,**/*.jpeg,**/*.jpg,**/*.png,**/*.gif,**/*.svg,**/*.ico,**/*.py,**/*.sh,**/check*.js,**/find_*.js,**/get_*.js,**/fix_*.js,**/test*.js,**/refactor*.py,**/rewrite*.py,**/proof_script.sh,**/generate_files.sh,**/check_admin_me.sh,**/wwwroot/**,**/*.html,**/*.js,**/*.css,src/ItsTool.Web/**,**/ItsToolDbContextFactory.cs</Value>
+      <Value>**/Migrations/**,**/bin/**,**/obj/**,**/coverage*.xml,**/uploads/**,**/*.pdf,**/*.jpeg,**/*.jpg,**/*.png,**/*.gif,**/*.svg,**/*.ico,**/wwwroot/**,**/*.html,**/*.js,**/*.css,src/ItsTool.Web/**,**/ItsToolDbContextFactory.cs</Value>
     </SonarQubeSetting>
     <SonarQubeSetting Include="sonar.sourceEncoding">
       <Value>UTF-8</Value>
