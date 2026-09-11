@@ -103,7 +103,7 @@ graph TD
         EF["Entity Framework Core (DbContext)"]
         Audit["SystemAuditInterceptor (Change Tracker)"]
         SlaEngine["SlaEngine (Background SLA Worker)"]
-        AiCopilot["ResolutionCopilotAgent (LLM Connector)"]
+        AiCopilot["AI Çözüm Asistanı (LLM Konnektörü)"]
         SignalR["NotificationDispatcher (Realtime Hub)"]
     end
 
@@ -157,8 +157,8 @@ flowchart TD
     end
 
     subgraph CoreAgents ["Ajan ve İş Mantığı - ItsTool.Infrastructure"]
-        Copilot["ResolutionCopilotAgent"]
-        HandoffSwarm["TicketHandoffSwarm"]
+        Copilot["Çözüm ve Yanıt Asistanı"]
+        HandoffSwarm["Bilet Devir ve Özetleme Ajanı"]
         ContextAggregator["Bağlam Toplayıcı - RAG Lite"]
     end
 
@@ -225,7 +225,7 @@ LLM modeline sadece bilet başlığı gönderilmez. Doğruluk oranını artırma
 
 #### 3. 🌐 Çok Dilli Zeka & Prompt Sentezi (TR / EN)
 - Arayüz üzerinden tek tıkla **🇹🇷 TR** veya **🇬🇧 EN** yanıt dili seçilebilir ve tercih `localStorage` üzerinde saklanır.
-- Backend ajanları (`ResolutionCopilotAgent`, `TicketHandoffSwarm`), seçilen dile göre dinamik sistem talimatları ve kullanıcı prompt'ları oluşturur:
+- Arka plandaki akıllı ajanlar (**Çözüm ve Yanıt Asistanı** ile **Bilet Devir ve Özetleme Ajanı**), seçilen dile göre dinamik sistem talimatları ve kullanıcı prompt'ları oluşturur:
   - **Türkçe:** Kurumsal ve profesyonel Türkçe ITIL dili ile çözüm adımları ve müşteri bildirimleri.
   - **İngilizce:** Uluslararası IT destek standartlarına (`Best regards`, `Diagnostic steps`, `Actionable troubleshooting`) tam uyumlu İngilizce çıktılar.
   - LLM bağlı olmadığında dahi yerel motor, seçilen dilde profesyonel şablonlar üretir.
@@ -237,8 +237,8 @@ Sistem tek bir sağlayıcıya kilitlenmez (`Vendor Lock-in` yoktur). Standart Op
 - **Docker İçi Ağ İletişimi:** `docker-compose.yml` içerisindeki `host.docker.internal:host-gateway` köprüsü sayesinde, Docker içinde koşan ITSM Tool, host makinede çalışan yerel Ollama/LM Studio servislerine doğrudan `http://host.docker.internal:11434` üzerinden erişebilir.
 
 #### 5. 👥 Çoklu Ajan ve Görev Ayrımı (Agentic Specialization)
-- **`ResolutionCopilotAgent`:** Teşhis adımları, muhtemel kök nedenler, ilgili KB makaleleri ve son kullanıcıya iletilecek hazır e-posta/yorum taslaklarını üretir.
-- **`TicketHandoffSwarm`:** Vardiya değişimlerinde veya 2. Seviye desteğe eskalasyonda biletin geçmişini, çözülemeyen darboğazları ve bir sonraki teknisyenin yapması gerekenleri özetleyen devir (handoff) notları hazırlar.
+- **Çözüm ve Yanıt Asistanı (Resolution Copilot):** Bilet için teşhis adımları, muhtemel kök nedenler, ilgili bilgi bankası (KB) makaleleri ve son kullanıcıya iletilebilecek hazır e-posta / yorum taslaklarını üretir.
+- **Bilet Devir ve Özetleme Ajanı (Ticket Handoff):** Vardiya değişimlerinde, teknisyen atamalarında veya 2. Seviye (Tier-2) uzman desteğe eskalasyonlarda biletin tüm geçmişini, teknik darboğazları ve bir sonraki teknisyenin atması gereken adımları özetleyen devir notları hazırlar.
 
 #### 6. 🎨 Sezgisel Arayüz & Güvenli Model Yönetimi
 - **Göz İkonlu API Anahtarı:** Model ayarları penceresinde API anahtarı güvenle maskelenir (`type="password"`), istenildiğinde göz ikonu ile açık metne dönüştürülüp kontrol edilebilir.
