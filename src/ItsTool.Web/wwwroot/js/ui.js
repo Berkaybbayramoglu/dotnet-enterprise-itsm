@@ -540,17 +540,19 @@ export function bindShellActions() {
         });
 
         // Keyboard Shortcuts Topbar Button
-        const shortcutsBtn = document.createElement('button');
-        shortcutsBtn.className = 'btn btn-ghost';
-        shortcutsBtn.id = 'topbarShortcutsBtn';
-        shortcutsBtn.style.padding = '6px';
-        shortcutsBtn.style.borderRadius = '50%';
-        shortcutsBtn.title = `${t('kbd_shortcuts_title') || 'Klavye Kısayolları'} (?)`;
-        shortcutsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>`;
-        shortcutsBtn.addEventListener('click', () => {
-            openShortcutsModal();
-        });
-        topbarRight.insertBefore(shortcutsBtn, topbarRight.firstChild);
+        if (!document.getElementById('topbarShortcutsBtn')) {
+            const shortcutsBtn = document.createElement('button');
+            shortcutsBtn.className = 'btn btn-ghost';
+            shortcutsBtn.id = 'topbarShortcutsBtn';
+            shortcutsBtn.style.padding = '6px';
+            shortcutsBtn.style.borderRadius = '50%';
+            shortcutsBtn.title = `${t('kbd_shortcuts_title') || 'Klavye Kısayolları'} (?)`;
+            shortcutsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>`;
+            shortcutsBtn.addEventListener('click', () => {
+                openShortcutsModal();
+            });
+            topbarRight.insertBefore(shortcutsBtn, topbarRight.firstChild);
+        }
     }
 
     // Profile Panel Logic
@@ -807,28 +809,39 @@ export function initGlobalKeyboardShortcuts() {
 
     document.addEventListener('keydown', (e) => {
         const activeTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
-        const isEditable = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT' || (document.activeElement && document.activeElement.isContentEditable);
+        const isEditable = activeTag === 'INPUT' || 
+                           activeTag === 'TEXTAREA' || 
+                           activeTag === 'SELECT' || 
+                           (document.activeElement && (document.activeElement.isContentEditable || (typeof document.activeElement.closest === 'function' && document.activeElement.closest('[contenteditable="true"], .ql-editor'))));
 
         if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay.active, .modal.active').forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.modal-overlay.active, .modal.active, .modal-overlay[style*="display: block"], .modal-overlay[style*="display: flex"]').forEach(m => {
+                m.classList.remove('active');
+                if (m.style && m.style.display && m.style.display !== 'none') m.style.display = 'none';
+            });
             document.querySelectorAll('.dropdown-menu.show').forEach(d => d.classList.remove('show'));
             const profilePanel = document.getElementById('myProfilePanel');
             if (profilePanel) profilePanel.style.display = 'none';
+            const kbdModal = document.getElementById('shortcutsHelpModal');
+            if (kbdModal) kbdModal.classList.remove('active');
             return;
         }
 
         if (isEditable) return;
 
-        if (e.key === '/' || e.code === 'Slash') {
+        // Help modal shortcut: ? or Shift+/
+        if (e.key === '?' || (e.shiftKey && (e.key === '/' || e.code === 'Slash'))) {
+            e.preventDefault();
+            openShortcutsModal();
+        }
+        // Search focus shortcut: / (without shift or modifier keys)
+        else if (!e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && (e.key === '/' || e.code === 'Slash')) {
             const searchInput = document.getElementById('searchInput') || document.querySelector('input[type="search"]') || document.getElementById('filterTicket');
             if (searchInput) {
                 e.preventDefault();
                 searchInput.focus();
                 if (typeof searchInput.select === 'function') searchInput.select();
             }
-        } else if (e.key === '?' || (e.shiftKey && (e.key === '/' || e.code === 'Slash'))) {
-            e.preventDefault();
-            openShortcutsModal();
         } else if (!e.ctrlKey && !e.altKey && !e.metaKey) {
             const k = e.key.toLowerCase();
             if (k === 'n') {

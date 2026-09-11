@@ -19,3 +19,11 @@ dotnet test tests/ItsTool.UnitTests/ItsTool.UnitTests.csproj \
 
 echo ""
 echo "Coverage report generated at tests/ItsTool.UnitTests/coverage.opencover.xml"
+
+if command -v node >/dev/null 2>&1; then
+  echo ""
+  echo "=================================================="
+  echo "  Frontend & Keyboard Shortcuts Unit Tests"
+  echo "=================================================="
+  node --test tests/frontend/keyboard-shortcuts.test.js
+fi
