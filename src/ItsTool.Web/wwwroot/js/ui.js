@@ -538,6 +538,19 @@ export function bindShellActions() {
                 langDropdown.classList.remove('show');
             }
         });
+
+        // Keyboard Shortcuts Topbar Button
+        const shortcutsBtn = document.createElement('button');
+        shortcutsBtn.className = 'btn btn-ghost';
+        shortcutsBtn.id = 'topbarShortcutsBtn';
+        shortcutsBtn.style.padding = '6px';
+        shortcutsBtn.style.borderRadius = '50%';
+        shortcutsBtn.title = `${t('kbd_shortcuts_title') || 'Klavye Kısayolları'} (?)`;
+        shortcutsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>`;
+        shortcutsBtn.addEventListener('click', () => {
+            openShortcutsModal();
+        });
+        topbarRight.insertBefore(shortcutsBtn, topbarRight.firstChild);
     }
 
     // Profile Panel Logic
@@ -630,8 +643,19 @@ export function bindShellActions() {
                                     ${permsHtml || `<div style="font-size:12px;">${t('users_roles_none') || 'No permissions'}</div>`}
                                 </div>
                             </div>
+                            <div style="border-top: 1px solid var(--border); margin-top: 14px; padding-top: 10px;">
+                                <button type="button" class="btn btn-ghost btn-sm" id="profileShortcutsBtn" style="width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 12px; color: var(--text-muted); padding: 6px 8px; border-radius: var(--radius-sm);">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+                                    <span>${t('kbd_shortcuts_title') || 'Klavye Kısayolları'}</span>
+                                    <kbd style="margin-left: auto; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 10px; font-weight: 600;">?</kbd>
+                                </button>
+                            </div>
                         `;
                         loaded = true;
+                        document.getElementById('profileShortcutsBtn')?.addEventListener('click', () => {
+                            panel.style.display = 'none';
+                            openShortcutsModal();
+                        });
                     } catch (err) { console.error(err); 
                         panel.innerHTML = '<div class="text-danger">Failed to load profile details.</div>';
                      }
