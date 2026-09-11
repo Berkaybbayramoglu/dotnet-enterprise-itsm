@@ -81,11 +81,12 @@
                 <div class="table-container" style="overflow-x: hidden;">
                     <table class="table" style="table-layout: fixed; width: 100%;">
                         <colgroup>
-                            <col style="width: 40%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
+                            <col style="width: 28%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 16%;">
+                            <col style="width: 18%;">
+                            <col style="width: 14%;">
                         </colgroup>
                         <thead>
                             <tr>
@@ -93,6 +94,7 @@
                                 <th data-i18n="t_col_status">Status</th>
                                 <th data-i18n="t_col_priority">Priority</th>
                                 <th data-i18n="t_col_assignee">Assignee</th>
+                                <th data-i18n="t_col_sla">SLA Süresi</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -106,10 +108,10 @@
     </div>
 
     <script type="module">
-        import './js/api.js?v=1005';
-        import { injectShell } from './js/layout.js?v=1005';
-        import { bindShellActions, showToast, showConfirmModal, showUndoToast } from './js/ui.js?v=1005';
-        import { t } from './js/i18n.js?v=1005';
+        import './js/api.js?v=1006';
+        import { injectShell } from './js/layout.js?v=1006';
+        import { bindShellActions, showToast, showConfirmModal, showUndoToast } from './js/ui.js?v=1006';
+        import { t } from './js/i18n.js?v=1006';
         injectShell();
         
         if (!window.api.token) window.location.href = '/login.html';
@@ -229,7 +231,7 @@
                 }
 
                 if (filteredItems.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5">
+                    tbody.innerHTML = `<tr><td colspan="6">
                         <div class="empty-state">
                             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
                             <h3>${t('t_no_tickets')}</h3>
@@ -241,7 +243,9 @@
                 }
 
                 filteredItems.forEach(ticketItem => {
-                    const statusName = lookupData.statuses?.find(s => s.id === ticketItem.statusId)?.name || 'Unknown';
+                    const statusObj = lookupData.statuses?.find(s => s.id === ticketItem.statusId);
+                    const statusName = statusObj?.name || 'Unknown';
+                    const isClosed = statusObj?.isClosedStatus ?? false;
                     const prioName = lookupData.priorities?.find(p => p.id === ticketItem.priorityId)?.name || 'Normal';
                     
                     let assigneeName = t('t_unassigned');
@@ -269,41 +273,21 @@
                     const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit') || 'Edit'}</a>` : '';
                     const deleteBtnHtml = canDelete ? `<button type="button" onclick="window.deleteTicket(${ticketItem.id}, '${escapeHtml(ticketItem.ticketNumber)}')" class="btn btn-ghost" style="color: var(--danger); font-weight: 500;">Sil</button>` : '';
 
-                    // SLA Badge calculation
-                    let slaBadgeHtml = '';
-                    if (ticketItem.sla) {
-                        const isBreached = ticketItem.sla.resolutionBreached || ticketItem.sla.firstResponseBreached || (ticketItem.sla.resolutionDueAt && new Date(ticketItem.sla.resolutionDueAt) < new Date());
-                        if (isBreached) {
-                            slaBadgeHtml = `<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:11px; font-weight:600; margin-left:6px; flex-shrink:0;" title="SLA Çözüm Hedefi Aşıldı">⚠️ ${t('sla_breached') || 'SLA Aşıldı'}</span>`;
-                        } else if (ticketItem.sla.resolutionDueAt) {
-                            const diffMs = new Date(ticketItem.sla.resolutionDueAt) - new Date();
-                            const diffMins = Math.floor(diffMs / 60000);
-                            if (diffMins <= 60 && diffMins >= 0) {
-                                slaBadgeHtml = `<span class="badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-size:11px; font-weight:600; margin-left:6px; flex-shrink:0;" title="Kalan Çözüm Süresi">⏳ ${Math.max(1, diffMins)} ${t('sla_remaining_min') || 'dk kaldı'}</span>`;
-                            } else if (diffMins <= 1440 && diffMins > 60) {
-                                const diffHrs = Math.round(diffMins / 60);
-                                slaBadgeHtml = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:11px; font-weight:600; margin-left:6px; flex-shrink:0;" title="Kalan Çözüm Süresi">🕒 ${diffHrs} ${t('sla_remaining_hr') || 'saat kaldı'}</span>`;
-                            }
-                        }
-                    }
-
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
-                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="ticket-title" style="flex: 1; min-width: 0;">
-                                    <div>
-                                        <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(ticketItem.ticketNumber)}</span>
-                                        <span style="font-size: 11px; color: var(--text-muted);">#${ticketItem.id}</span>
-                                    </div>
-                                    <span style="margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(ticketItem.title)}</span>
-                                </a>
-                                ${slaBadgeHtml}
-                            </div>
+                            <a href="/ticket-detail.html?id=${ticketItem.id}" class="ticket-title" style="display: block;">
+                                <div>
+                                    <span class="ticket-number" style="display:inline-block; font-size: 14px; font-weight: 600; color: var(--primary);">${escapeHtml(ticketItem.ticketNumber)}</span>
+                                    <span style="font-size: 11px; color: var(--text-muted); margin-left: 4px;">#${ticketItem.id}</span>
+                                </div>
+                                <div style="margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">${escapeHtml(ticketItem.title)}</div>
+                            </a>
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
                         <td>${getPriorityBadge(prioName)}</td>
                         <td><button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; border:none; background:none; padding:0; text-align:left; font:inherit; color:inherit;" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none;">${escapeHtml(assigneeName)}</span></button></td>
+                        <td>${renderSlaCell(ticketItem.sla, isClosed)}</td>
                         <td>
                             <div class="row-actions">
                                 <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>
@@ -315,6 +299,114 @@
                     tbody.appendChild(tr);
                 });
             } catch (e) { console.error(e); showToast('Search failed', 'error'); }
+        }
+
+        function renderSlaCell(sla, isClosed) {
+            if (!sla) {
+                return `<span style="color: var(--text-muted); font-size: 12px;">—</span>`;
+            }
+
+            const now = new Date();
+            
+            // First Response
+            const hasFirstResp = !!sla.firstResponseDueAt;
+            const firstRespDate = hasFirstResp ? new Date(sla.firstResponseDueAt) : null;
+            const isFirstRespMet = !!sla.firstResponseMetAt;
+            const isFirstRespBreached = sla.firstResponseBreached || (!isFirstRespMet && firstRespDate && firstRespDate < now);
+
+            // Resolution
+            const hasRes = !!sla.resolutionDueAt;
+            const resDate = hasRes ? new Date(sla.resolutionDueAt) : null;
+            const isResMet = !!sla.resolutionMetAt || isClosed;
+            const isResBreached = sla.resolutionBreached || (!isResMet && resDate && resDate < now);
+
+            if (isClosed) {
+                if (isResBreached || isFirstRespBreached) {
+                    return `<div>
+                        <span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:11px; font-weight:600;">⚠️ ${t('sla_breached') || 'SLA Aşıldı'}</span>
+                        <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">${t('t_filter_closed') || 'Kapatıldı'}</div>
+                    </div>`;
+                }
+                return `<div>
+                    <span class="badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; font-size:11px; font-weight:600;">✅ ${t('sla_met') || 'Karşılandı'}</span>
+                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">${t('sla_completed') || 'Tamamlandı'}</div>
+                </div>`;
+            }
+
+            if (sla.pausedAt) {
+                return `<div>
+                    <span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; font-size:11px; font-weight:600;">⏸️ ${t('sla_paused') || 'Duraklatıldı'}</span>
+                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">Beklemede</div>
+                </div>`;
+            }
+
+            // Active ticket:
+            // 1. Resolution breached:
+            if (isResBreached) {
+                const resDateStr = resDate ? resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+                return `<div>
+                    <span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:11px; font-weight:700;">⚠️ ${t('sla_res_breached') || 'Çözüm Aşıldı'}</span>
+                    <div style="font-size:10px; color:var(--danger); margin-top:2px; font-weight:500;">${t('sla_target_prefix') || 'Hedef:'} ${resDateStr}</div>
+                </div>`;
+            }
+
+            // 2. First response breached (resolution still pending):
+            if (isFirstRespBreached) {
+                const resDiffMs = resDate ? resDate - now : 0;
+                const resRemainStr = formatRemaining(resDiffMs);
+                const resDateStr = resDate ? resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+                return `<div>
+                    <span class="badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; font-size:11px; font-weight:700;">⚠️ ${t('sla_first_resp_breached') || 'İlk Yanıt Aşıldı'}</span>
+                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" title="Çözüm Hedefi: ${resDateStr}">Çözüm: ${resRemainStr}</div>
+                </div>`;
+            }
+
+            // 3. Normal countdown
+            if (resDate) {
+                const diffMs = resDate - now;
+                const diffMins = Math.floor(diffMs / 60000);
+                const resDateStr = resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+                let badgeStyle = '';
+                let badgeText = '';
+
+                if (diffMins <= 0) {
+                    badgeStyle = 'background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-weight:700;';
+                    badgeText = `⚠️ ${t('sla_breached') || 'Süre Doldu'}`;
+                } else if (diffMins <= 60) {
+                    badgeStyle = 'background:#FEF2F2; color:#DC2626; border:1px solid #FECACA; font-weight:700;';
+                    badgeText = `⏳ ${Math.max(1, diffMins)} ${t('sla_mins_left') || 'dk kaldı'}`;
+                } else if (diffMins <= 1440) {
+                    const hrs = Math.floor(diffMins / 60);
+                    const mins = diffMins % 60;
+                    badgeStyle = 'background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-weight:600;';
+                    badgeText = `🕒 ${hrs} sa ${mins} dk`;
+                } else {
+                    const days = Math.ceil(diffMins / 1440);
+                    badgeStyle = 'background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-weight:600;';
+                    badgeText = `📅 ${days} ${t('sla_days_left') || 'gün kaldı'}`;
+                }
+
+                return `<div>
+                    <span class="badge" style="${badgeStyle} font-size:11px;">${badgeText}</span>
+                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" title="Hedef Tarih">Hedef: ${resDateStr}</div>
+                </div>`;
+            }
+
+            return `<span style="color: var(--text-muted); font-size: 12px;">—</span>`;
+        }
+
+        function formatRemaining(diffMs) {
+            if (diffMs <= 0) return 'Süre doldu';
+            const mins = Math.floor(diffMs / 60000);
+            if (mins <= 60) return `${Math.max(1, mins)} dk kaldı`;
+            if (mins <= 1440) {
+                const hrs = Math.floor(mins / 60);
+                const rm = mins % 60;
+                return `${hrs} sa ${rm} dk kaldı`;
+            }
+            const days = Math.ceil(mins / 1440);
+            return `${days} gün kaldı`;
         }
 
         async function exportCsv() {
