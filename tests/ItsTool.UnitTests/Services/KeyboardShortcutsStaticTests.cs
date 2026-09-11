@@ -93,4 +93,32 @@ public class KeyboardShortcutsStaticTests
         var content = File.ReadAllText(filePath);
         Assert.Contains("bindShellActions()", content);
     }
+
+    [Fact]
+    public void TicketsHtml_And_I18n_ContainSlaTableLayoutAndTranslations()
+    {
+        var repoRoot = GetRepositoryRoot();
+        var ticketsPath = Path.Combine(repoRoot, "src", "ItsTool.Web", "wwwroot", "tickets.html");
+        var i18nPath = Path.Combine(repoRoot, "src", "ItsTool.Web", "wwwroot", "js", "i18n.js");
+
+        Assert.True(File.Exists(ticketsPath), "tickets.html must exist");
+        Assert.True(File.Exists(i18nPath), "i18n.js must exist");
+
+        var ticketsContent = File.ReadAllText(ticketsPath);
+        var i18nContent = File.ReadAllText(i18nPath);
+
+        // Tickets table layout checks
+        Assert.Contains("overflow-x: auto;", ticketsContent);
+        Assert.Contains("min-width: 920px;", ticketsContent);
+        Assert.Contains(".sla-badge", ticketsContent);
+        Assert.Contains("text-transform: none;", ticketsContent);
+        Assert.Contains(".row-actions", ticketsContent);
+
+        // i18n SLA keys check
+        Assert.Contains("\"sla_first_resp_breached\":", i18nContent);
+        Assert.Contains("\"sla_res_breached\":", i18nContent);
+        Assert.Contains("\"sla_days_left\":", i18nContent);
+        Assert.Contains("\"sla_mins_left\":", i18nContent);
+    }
 }
+

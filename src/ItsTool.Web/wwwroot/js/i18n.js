@@ -531,7 +531,22 @@ export const translations = {
         "btn_export_csv": "Export CSV",
         "sla_breached": "SLA Breached",
         "sla_remaining_min": "mins left",
-        "sla_remaining_hr": "hrs left"
+        "sla_remaining_hr": "hrs left",
+        "sla_first_resp_breached": "First Response Breached",
+        "sla_res_breached": "Resolution Breached",
+        "sla_days_left": "days left",
+        "sla_mins_left": "mins left",
+        "sla_short_hr": "h",
+        "sla_short_min": "m",
+        "sla_met": "Met",
+        "sla_completed": "Completed",
+        "sla_paused": "Paused",
+        "sla_target_prefix": "Target:",
+        "sla_resolution_prefix": "Resolution:",
+        "sla_expired": "Expired",
+        "sla_on_track": "On Track",
+        "sla_on_hold": "On Hold",
+        "ticket_btn_delete": "Delete"
     },
     "tr": {
         // Sidebar Navigation
@@ -1066,7 +1081,22 @@ export const translations = {
         "btn_export_csv": "CSV Olarak İndir",
         "sla_breached": "SLA Aşıldı",
         "sla_remaining_min": "dk kaldı",
-        "sla_remaining_hr": "saat kaldı"
+        "sla_remaining_hr": "saat kaldı",
+        "sla_first_resp_breached": "İlk Yanıt Aşıldı",
+        "sla_res_breached": "Çözüm Aşıldı",
+        "sla_days_left": "gün kaldı",
+        "sla_mins_left": "dk kaldı",
+        "sla_short_hr": "sa",
+        "sla_short_min": "dk",
+        "sla_met": "Karşılandı",
+        "sla_completed": "Tamamlandı",
+        "sla_paused": "Duraklatıldı",
+        "sla_target_prefix": "Hedef:",
+        "sla_resolution_prefix": "Çözüm:",
+        "sla_expired": "Süre doldu",
+        "sla_on_track": "Süresinde",
+        "sla_on_hold": "Beklemede",
+        "ticket_btn_delete": "Sil"
     }
 };
 
@@ -1088,11 +1118,13 @@ export function setLanguage(langCode) {
 }
 
 /**
- * Helper function for dynamic JS translations
+ * Helper function for dynamic JS translations with fallback support
  */
-export function t(key) {
+export function t(key, fallback = null) {
     const lang = getCurrentLanguage();
-    return translations[lang]?.[key] || key;
+    const val = translations[lang]?.[key];
+    if (val !== undefined && val !== null) return val;
+    return fallback !== null ? fallback : key;
 }
 
 /**

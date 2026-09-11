@@ -12,7 +12,44 @@
         .ticket-title { font-weight: 600; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: var(--spacing-sm); }
         .ticket-title:hover { color: var(--primary); text-decoration: underline; }
         .ticket-number { color: var(--text-muted); font-size: 12px; }
-        .row-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; opacity: 1 !important; }
+        .row-actions { 
+            display: flex; 
+            gap: 4px; 
+            align-items: center; 
+            justify-content: flex-end; 
+            opacity: 1 !important; 
+            white-space: nowrap;
+        }
+        .row-actions .btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .sla-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: none;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+
+        .sla-subtext {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
         
         @media (max-width: 768px) { .table { min-width: 100% !important; } }
     </style>
@@ -78,15 +115,15 @@
                     <button type="button" class="btn btn-ghost btn-sm" id="btnClearRecentTickets" onclick="window.clearRecentTickets()" style="margin-left: auto; font-size: 11px; padding: 2px 6px; color: var(--text-muted);" title="Geçmişi Temizle" data-i18n="recent_tickets_clear">Temizle</button>
                 </div>
 
-                <div class="table-container" style="overflow-x: hidden;">
-                    <table class="table" style="table-layout: fixed; width: 100%;">
+                <div class="table-container" style="overflow-x: auto;">
+                    <table class="table" style="table-layout: fixed; width: 100%; min-width: 920px;">
                         <colgroup>
-                            <col style="width: 28%;">
-                            <col style="width: 12%;">
-                            <col style="width: 12%;">
-                            <col style="width: 16%;">
-                            <col style="width: 18%;">
-                            <col style="width: 14%;">
+                            <col style="width: 25%;">
+                            <col style="width: 11%;">
+                            <col style="width: 10%;">
+                            <col style="width: 15%;">
+                            <col style="width: 20%;">
+                            <col style="width: 19%;">
                         </colgroup>
                         <thead>
                             <tr>
@@ -94,8 +131,8 @@
                                 <th data-i18n="t_col_status">Status</th>
                                 <th data-i18n="t_col_priority">Priority</th>
                                 <th data-i18n="t_col_assignee">Assignee</th>
-                                <th data-i18n="t_col_sla">SLA Süresi</th>
-                                <th></th>
+                                <th data-i18n="t_col_sla" style="min-width: 140px;">SLA Süresi</th>
+                                <th style="min-width: 160px; text-align: right;"></th>
                             </tr>
                         </thead>
                         <tbody id="ticketList">
@@ -270,8 +307,8 @@
                     const canEdit = isManagerOrAdmin || userPerms.includes('ticket.edit') || userPerms.includes('ticket.manage') || userPerms.includes('ticket.assign');
                     const canDelete = isManagerOrAdmin || userPerms.includes('ticket.delete') || userPerms.includes('ticket.manage') || userPerms.includes('ticket.assign');
                     
-                    const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit') || 'Edit'}</a>` : '';
-                    const deleteBtnHtml = canDelete ? `<button type="button" onclick="window.deleteTicket(${ticketItem.id}, '${escapeHtml(ticketItem.ticketNumber)}')" class="btn btn-ghost" style="color: var(--danger); font-weight: 500;">Sil</button>` : '';
+                    const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit', 'Düzenle')}</a>` : '';
+                    const deleteBtnHtml = canDelete ? `<button type="button" onclick="window.deleteTicket(${ticketItem.id}, '${escapeHtml(ticketItem.ticketNumber)}')" class="btn btn-ghost" style="color: var(--danger); font-weight: 500;">${t('ticket_btn_delete', 'Sil')}</button>` : '';
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -286,11 +323,11 @@
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
                         <td>${getPriorityBadge(prioName)}</td>
-                        <td><button type="button" class="d-flex align-items-center gap-sm" style="cursor:pointer; border:none; background:none; padding:0; text-align:left; font:inherit; color:inherit;" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none;">${escapeHtml(assigneeName)}</span></button></td>
+                        <td><button type="button" style="cursor:pointer; border:none; background:none; padding:0; text-align:left; font:inherit; color:inherit; max-width:100%; display:flex; align-items:center; gap:var(--spacing-sm);" title="Tüm atananları gör" onclick="window.showAssigneesModal('${encodedAssignees}')">${getAvatar(assigneeInitialId, assigneeName)} <span style="pointer-events: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(assigneeName)}</span></button></td>
                         <td>${renderSlaCell(ticketItem.sla, isClosed)}</td>
-                        <td>
+                        <td style="text-align: right; white-space: nowrap;">
                             <div class="row-actions">
-                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view')}</a>
+                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost">${t('t_btn_view', 'Görüntüle')}</a>
                                 ${editBtnHtml}
                                 ${deleteBtnHtml}
                             </div>
@@ -323,20 +360,20 @@
             if (isClosed) {
                 if (isResBreached || isFirstRespBreached) {
                     return `<div>
-                        <span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:11px; font-weight:600;">⚠️ ${t('sla_breached') || 'SLA Aşıldı'}</span>
-                        <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">${t('t_filter_closed') || 'Kapatıldı'}</div>
+                        <span class="sla-badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;">⚠️ ${t('sla_breached', 'SLA Aşıldı')}</span>
+                        <div class="sla-subtext">${t('t_filter_closed', 'Kapatıldı')}</div>
                     </div>`;
                 }
                 return `<div>
-                    <span class="badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; font-size:11px; font-weight:600;">✅ ${t('sla_met') || 'Karşılandı'}</span>
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">${t('sla_completed') || 'Tamamlandı'}</div>
+                    <span class="sla-badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC;">✅ ${t('sla_met', 'Karşılandı')}</span>
+                    <div class="sla-subtext">${t('sla_completed', 'Tamamlandı')}</div>
                 </div>`;
             }
 
             if (sla.pausedAt) {
                 return `<div>
-                    <span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; font-size:11px; font-weight:600;">⏸️ ${t('sla_paused') || 'Duraklatıldı'}</span>
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">Beklemede</div>
+                    <span class="sla-badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1;">⏸️ ${t('sla_paused', 'Duraklatıldı')}</span>
+                    <div class="sla-subtext">${t('sla_on_hold', 'Beklemede')}</div>
                 </div>`;
             }
 
@@ -345,8 +382,8 @@
             if (isResBreached) {
                 const resDateStr = resDate ? resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
                 return `<div>
-                    <span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:11px; font-weight:700;">⚠️ ${t('sla_res_breached') || 'Çözüm Aşıldı'}</span>
-                    <div style="font-size:10px; color:var(--danger); margin-top:2px; font-weight:500;">${t('sla_target_prefix') || 'Hedef:'} ${resDateStr}</div>
+                    <span class="sla-badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;">⚠️ ${t('sla_res_breached', 'Çözüm Aşıldı')}</span>
+                    <div class="sla-subtext" style="color:var(--danger); font-weight:500;">${t('sla_target_prefix', 'Hedef:')} ${resDateStr}</div>
                 </div>`;
             }
 
@@ -356,8 +393,8 @@
                 const resRemainStr = formatRemaining(resDiffMs);
                 const resDateStr = resDate ? resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
                 return `<div>
-                    <span class="badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; font-size:11px; font-weight:700;">⚠️ ${t('sla_first_resp_breached') || 'İlk Yanıt Aşıldı'}</span>
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" title="Çözüm Hedefi: ${resDateStr}">Çözüm: ${resRemainStr}</div>
+                    <span class="sla-badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D;">⚠️ ${t('sla_first_resp_breached', 'İlk Yanıt Aşıldı')}</span>
+                    <div class="sla-subtext" title="${t('sla_target_prefix', 'Hedef:')} ${resDateStr}">${t('sla_resolution_prefix', 'Çözüm:')} ${resRemainStr}</div>
                 </div>`;
             }
 
@@ -371,25 +408,25 @@
                 let badgeText = '';
 
                 if (diffMins <= 0) {
-                    badgeStyle = 'background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-weight:700;';
-                    badgeText = `⚠️ ${t('sla_breached') || 'Süre Doldu'}`;
+                    badgeStyle = 'background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;';
+                    badgeText = `⚠️ ${t('sla_breached', 'Süre Doldu')}`;
                 } else if (diffMins <= 60) {
-                    badgeStyle = 'background:#FEF2F2; color:#DC2626; border:1px solid #FECACA; font-weight:700;';
-                    badgeText = `⏳ ${Math.max(1, diffMins)} ${t('sla_mins_left') || 'dk kaldı'}`;
+                    badgeStyle = 'background:#FEF2F2; color:#DC2626; border:1px solid #FECACA;';
+                    badgeText = `⏳ ${Math.max(1, diffMins)} ${t('sla_mins_left', 'dk kaldı')}`;
                 } else if (diffMins <= 1440) {
                     const hrs = Math.floor(diffMins / 60);
                     const mins = diffMins % 60;
-                    badgeStyle = 'background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-weight:600;';
-                    badgeText = `🕒 ${hrs} sa ${mins} dk`;
+                    badgeStyle = 'background:#FEF3C7; color:#92400E; border:1px solid #FCD34D;';
+                    badgeText = `🕒 ${hrs} ${t('sla_short_hr', 'sa')} ${mins} ${t('sla_mins_left', 'dk kaldı')}`;
                 } else {
                     const days = Math.ceil(diffMins / 1440);
-                    badgeStyle = 'background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-weight:600;';
-                    badgeText = `📅 ${days} ${t('sla_days_left') || 'gün kaldı'}`;
+                    badgeStyle = 'background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE;';
+                    badgeText = `📅 ${days} ${t('sla_days_left', 'gün kaldı')}`;
                 }
 
                 return `<div>
-                    <span class="badge" style="${badgeStyle} font-size:11px;">${badgeText}</span>
-                    <div style="font-size:10px; color:var(--text-muted); margin-top:2px;" title="Hedef Tarih">Hedef: ${resDateStr}</div>
+                    <span class="sla-badge" style="${badgeStyle}">${badgeText}</span>
+                    <div class="sla-subtext" title="${t('sla_target_prefix', 'Hedef:')} ${resDateStr}">${t('sla_target_prefix', 'Hedef:')} ${resDateStr}</div>
                 </div>`;
             }
 
@@ -397,16 +434,16 @@
         }
 
         function formatRemaining(diffMs) {
-            if (diffMs <= 0) return 'Süre doldu';
+            if (diffMs <= 0) return t('sla_expired', 'Süre doldu');
             const mins = Math.floor(diffMs / 60000);
-            if (mins <= 60) return `${Math.max(1, mins)} dk kaldı`;
+            if (mins <= 60) return `${Math.max(1, mins)} ${t('sla_mins_left', 'dk kaldı')}`;
             if (mins <= 1440) {
                 const hrs = Math.floor(mins / 60);
                 const rm = mins % 60;
-                return `${hrs} sa ${rm} dk kaldı`;
+                return `${hrs} ${t('sla_short_hr', 'sa')} ${rm} ${t('sla_mins_left', 'dk kaldı')}`;
             }
             const days = Math.ceil(mins / 1440);
-            return `${days} gün kaldı`;
+            return `${days} ${t('sla_days_left', 'gün kaldı')}`;
         }
 
         async function exportCsv() {
