@@ -2,7 +2,9 @@ namespace ItsTool.Application.DTOs;
 
 public record TicketAssigneeDto(int Id, int? UserId, int? GroupId, int? ParentAssignmentId, int AssignedByUserId, bool IsActive, DateTime CreatedAt, string? AssigneeName = null, bool IsAssigneeDeleted = false);
 
-public record TicketDto(int Id, string TicketNumber, string Title, string Description, int? ProjectId, int CategoryId, int TypeId, int StatusId, int PriorityId, int RequesterUserId, List<TicketAssigneeDto> Assignments, Dictionary<string, string>? CustomFields = null, DateTime? EstimatedStartDate = null, DateTime? EstimatedEndDate = null, string? ColorHex = null);
+public record TicketSlaInfoDto(DateTime? ResolutionDueAt, bool ResolutionWarned, bool ResolutionBreached, bool FirstResponseBreached, DateTime? FirstResponseDueAt);
+
+public record TicketDto(int Id, string TicketNumber, string Title, string Description, int? ProjectId, int CategoryId, int TypeId, int StatusId, int PriorityId, int RequesterUserId, List<TicketAssigneeDto> Assignments, Dictionary<string, string>? CustomFields = null, DateTime? EstimatedStartDate = null, DateTime? EstimatedEndDate = null, string? ColorHex = null, TicketSlaInfoDto? Sla = null);
 public record CreateTicketDto(string Title, string Description, int? ProjectId, int CategoryId, int TypeId, int PriorityId, int RequesterUserId, Dictionary<string, string> CustomFields, DateTime? EstimatedStartDate = null, DateTime? EstimatedEndDate = null, string? ColorHex = null);
 public record UpdateTicketDto(string Title, string Description, int CategoryId, int PriorityId, Dictionary<string, string> CustomFields, DateTime? EstimatedStartDate = null, DateTime? EstimatedEndDate = null, string? ColorHex = null);
 

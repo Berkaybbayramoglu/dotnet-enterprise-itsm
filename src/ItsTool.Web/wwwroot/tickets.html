@@ -66,6 +66,13 @@
                         <button type="button" class="btn btn-secondary" id="filterClosed" aria-pressed="false" data-i18n="t_filter_closed">Kapalı</button>
                         <button type="button" class="btn btn-secondary" id="filterAll" aria-pressed="false" data-i18n="t_filter_all">Tümü</button>
                     </fieldset>
+                <div id="recentTicketsContainer" style="display: none; align-items: center; gap: 8px; margin-bottom: 16px; padding: 8px 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; flex-wrap: wrap;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                        <span data-i18n="recent_tickets_title">Son İnceledikleriniz:</span>
+                    </span>
+                    <div id="recentTicketsList" style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;"></div>
+                    <button type="button" class="btn btn-ghost btn-sm" id="btnClearRecentTickets" onclick="window.clearRecentTickets()" style="margin-left: auto; font-size: 11px; padding: 2px 6px; color: var(--text-muted);" title="Geçmişi Temizle" data-i18n="recent_tickets_clear">Temizle</button>
                 </div>
 
                 <div class="table-container" style="overflow-x: hidden;">
@@ -223,7 +230,8 @@
                         <div class="empty-state">
                             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
                             <h3>${t('t_no_tickets')}</h3>
-                            <p>${t('t_adjust_search')}</p>
+                            <p style="margin-bottom: 12px;">${t('t_adjust_search')}</p>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.clearTicketFilters()">${t('btn_reset_filter') || 'Filtreleri Temizle'}</button>
                         </div>
                     </td></tr>`;
                     return;
@@ -258,16 +266,37 @@
                     const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit') || 'Edit'}</a>` : '';
                     const deleteBtnHtml = canDelete ? `<button type="button" onclick="window.deleteTicket(${ticketItem.id}, '${escapeHtml(ticketItem.ticketNumber)}')" class="btn btn-ghost" style="color: var(--danger); font-weight: 500;">Sil</button>` : '';
 
+                    // SLA Badge calculation
+                    let slaBadgeHtml = '';
+                    if (ticketItem.sla) {
+                        const isBreached = ticketItem.sla.resolutionBreached || ticketItem.sla.firstResponseBreached || (ticketItem.sla.resolutionDueAt && new Date(ticketItem.sla.resolutionDueAt) < new Date());
+                        if (isBreached) {
+                            slaBadgeHtml = `<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:11px; font-weight:600; margin-left:6px; flex-shrink:0;" title="SLA Çözüm Hedefi Aşıldı">⚠️ ${t('sla_breached') || 'SLA Aşıldı'}</span>`;
+                        } else if (ticketItem.sla.resolutionDueAt) {
+                            const diffMs = new Date(ticketItem.sla.resolutionDueAt) - new Date();
+                            const diffMins = Math.floor(diffMs / 60000);
+                            if (diffMins <= 60 && diffMins >= 0) {
+                                slaBadgeHtml = `<span class="badge" style="background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-size:11px; font-weight:600; margin-left:6px; flex-shrink:0;" title="Kalan Çözüm Süresi">⏳ ${Math.max(1, diffMins)} ${t('sla_remaining_min') || 'dk kaldı'}</span>`;
+                            } else if (diffMins <= 1440 && diffMins > 60) {
+                                const diffHrs = Math.round(diffMins / 60);
+                                slaBadgeHtml = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:11px; font-weight:600; margin-left:6px; flex-shrink:0;" title="Kalan Çözüm Süresi">🕒 ${diffHrs} ${t('sla_remaining_hr') || 'saat kaldı'}</span>`;
+                            }
+                        }
+                    }
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
-                            <a href="/ticket-detail.html?id=${ticketItem.id}" class="ticket-title">
-                                <div>
-                                    <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(ticketItem.ticketNumber)}</span>
-                                    <span style="font-size: 11px; color: var(--text-muted);">#${ticketItem.id}</span>
-                                </div>
-                                <span style="margin-left: 8px;">${escapeHtml(ticketItem.title)}</span>
-                            </a>
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
+                                <a href="/ticket-detail.html?id=${ticketItem.id}" class="ticket-title" style="flex: 1; min-width: 0;">
+                                    <div>
+                                        <span class="ticket-number" style="display:block; font-size: 14px; color: var(--primary);">${escapeHtml(ticketItem.ticketNumber)}</span>
+                                        <span style="font-size: 11px; color: var(--text-muted);">#${ticketItem.id}</span>
+                                    </div>
+                                    <span style="margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(ticketItem.title)}</span>
+                                </a>
+                                ${slaBadgeHtml}
+                            </div>
                         </td>
                         <td>${getStatusBadge(statusName)}</td>
                         <td>${getPriorityBadge(prioName)}</td>
@@ -390,11 +419,87 @@
             }
         };
 
+        function renderRecentTickets() {
+            const container = document.getElementById('recentTicketsContainer');
+            const list = document.getElementById('recentTicketsList');
+            if (!container || !list) return;
+
+            try {
+                const raw = localStorage.getItem('itsm_recent_tickets');
+                const tickets = JSON.parse(raw || '[]');
+                if (!Array.isArray(tickets) || tickets.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+
+                list.innerHTML = '';
+                tickets.forEach(item => {
+                    const chip = document.createElement('div');
+                    chip.style.display = 'inline-flex';
+                    chip.style.alignItems = 'center';
+                    chip.style.gap = '4px';
+                    chip.style.background = 'var(--bg-hover)';
+                    chip.style.border = '1px solid var(--border)';
+                    chip.style.borderRadius = '16px';
+                    chip.style.padding = '2px 8px';
+                    chip.style.fontSize = '12px';
+
+                    chip.innerHTML = `
+                        <a href="/ticket-detail.html?id=${item.id}" style="color: var(--text-main); text-decoration: none; font-weight: 500;" title="${escapeHtml(item.title || '')}">
+                            <span style="color: var(--primary); font-weight: 600;">${escapeHtml(item.ticketNumber || '')}</span>
+                            <span style="max-width: 140px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;">${escapeHtml(item.title || '')}</span>
+                        </a>
+                        <button type="button" style="border: none; background: none; color: var(--text-muted); cursor: pointer; padding: 0 2px; font-size: 12px; line-height: 1;" title="Kaldır" onclick="window.removeRecentTicket(${item.id})">&times;</button>
+                    `;
+                    list.appendChild(chip);
+                });
+
+                container.style.display = 'flex';
+            } catch (e) {
+                console.warn('Failed to render recent tickets', e);
+                container.style.display = 'none';
+            }
+        }
+
+        window.removeRecentTicket = function(ticketId) {
+            try {
+                let tickets = JSON.parse(localStorage.getItem('itsm_recent_tickets') || '[]');
+                if (Array.isArray(tickets)) {
+                    tickets = tickets.filter(t => t.id !== ticketId);
+                    localStorage.setItem('itsm_recent_tickets', JSON.stringify(tickets));
+                    renderRecentTickets();
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        window.clearRecentTickets = function() {
+            localStorage.removeItem('itsm_recent_tickets');
+            renderRecentTickets();
+            showToast('Son görüntülenen biletler temizlendi', 'info');
+        };
+
+        window.clearTicketFilters = function() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('savedFilters').value = '';
+            activeFilterState = 'all';
+            document.querySelectorAll('#statusFilterGroup button').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
+            const filterAllBtn = document.getElementById('filterAll');
+            if (filterAllBtn) {
+                filterAllBtn.classList.add('active');
+                filterAllBtn.setAttribute('aria-pressed', 'true');
+            }
+            search();
+        };
+
         document.getElementById('btnSearch').addEventListener('click', search);
         document.getElementById('btnSaveFilter').addEventListener('click', saveFilter);
         document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
         document.getElementById('savedFilters').addEventListener('change', loadFilter);
         await loadFiltersDropdown();
+        renderRecentTickets();
         await search();
     </script>
 </body>

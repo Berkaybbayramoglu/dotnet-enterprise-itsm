@@ -8,6 +8,7 @@ using ItsTool.Domain.Entities.Organization;
 using ItsTool.Domain.Entities.Project;
 using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Domain.Entities.Workflow;
+using ItsTool.Domain.Entities.SLA;
 using ItsTool.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -511,6 +512,87 @@ public class TicketServiceTests : TestBase
 
         var transitions = await _ticketService.GetAllowedTransitionsAsync(ticket.Id, userId: 1);
         Assert.NotNull(transitions);
+    }
+
+    [Fact]
+    public async Task GetTicketByIdAsync_WithTicketSla_MapsSlaInfoSuccessfully()
+    {
+        var dueTime = DateTime.UtcNow.AddHours(2);
+        var ticket = new Ticket
+        {
+            TicketNumber = "ALP-SLA-1",
+            Title = "SLA Map Test",
+            CategoryId = 1,
+            PriorityId = 1,
+            StatusId = 1,
+            TypeId = 1,
+            ProjectId = 1,
+            RequesterUserId = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        var ticketSla = new TicketSla
+        {
+            TicketId = ticket.Id,
+            ResolutionDueAt = dueTime,
+            ResolutionBreached = false,
+            ResolutionWarned = true,
+            FirstResponseBreached = false
+        };
+        _context.TicketSlas.Add(ticketSla);
+        await _context.SaveChangesAsync();
+
+        var result = await _ticketService.GetTicketByIdAsync(ticket.Id);
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.Sla);
+        Assert.Equal(dueTime, result.Sla.ResolutionDueAt);
+        Assert.True(result.Sla.ResolutionWarned);
+        Assert.False(result.Sla.ResolutionBreached);
+    }
+
+    [Fact]
+    public async Task SearchTicketsAsync_WithTicketSla_MapsSlaInfoSuccessfully()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(It.IsAny<int>()))
+            .ReturnsAsync(new HashSet<string> { "ticket.view" });
+
+        var dueTime = DateTime.UtcNow.AddMinutes(45);
+        var ticket = new Ticket
+        {
+            TicketNumber = "ALP-SLA-SEARCH-1",
+            Title = "SLA Search Test",
+            CategoryId = 1,
+            PriorityId = 1,
+            StatusId = 1,
+            TypeId = 1,
+            ProjectId = 1,
+            RequesterUserId = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        var ticketSla = new TicketSla
+        {
+            TicketId = ticket.Id,
+            ResolutionDueAt = dueTime,
+            ResolutionBreached = false,
+            ResolutionWarned = false,
+            FirstResponseBreached = false
+        };
+        _context.TicketSlas.Add(ticketSla);
+        await _context.SaveChangesAsync();
+
+        var searchResult = await _ticketService.SearchTicketsAsync(new TicketSearchFilterDto { Keyword = "ALP-SLA-SEARCH-1" }, userId: 1);
+
+        Assert.NotNull(searchResult);
+        var foundTicket = Assert.Single(searchResult.Items);
+        Assert.NotNull(foundTicket.Sla);
+        Assert.Equal(dueTime, foundTicket.Sla.ResolutionDueAt);
+        Assert.False(foundTicket.Sla.ResolutionBreached);
     }
 }
 

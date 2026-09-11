@@ -178,7 +178,13 @@
                 <div class="detail-container" id="content" style="display:none;">
                     <div class="main-column">
                         <div class="ticket-header">
-                            <div class="ticket-number" id="tNumber"></div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <div class="ticket-number" id="tNumber"></div>
+                                <button type="button" class="btn btn-ghost btn-sm" id="btnCopyTicket" onclick="window.copyTicketDetails()" title="Bilet numarasını ve bağlantısını panoya kopyala" style="padding: 2px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); border-radius: 4px; border: 1px solid var(--border); background: var(--bg-surface);">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                    <span data-i18n="td_btn_copy_ticket">Kopyala</span>
+                                </button>
+                            </div>
                             <h1 class="ticket-title" id="tTitle">Loading Title...</h1>
                         </div>
                         
@@ -794,6 +800,47 @@
             } catch(e) { console.error("Failed to load dynamic fields meta", e); }
         }
 
+        window.copyTicketDetails = async function() {
+            if (!currentTicket) return;
+            const textToCopy = `${currentTicket.ticketNumber} - ${window.location.href}`;
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(textToCopy);
+                } else {
+                    const temp = document.createElement('textarea');
+                    temp.value = textToCopy;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(temp);
+                }
+                showToast(`${currentTicket.ticketNumber} ve bağlantısı panoya kopyalandı!`, 'success');
+            } catch (e) {
+                console.error('Kopyalama hatası', e);
+                showToast('Kopyalama başarısız oldu.', 'error');
+            }
+        };
+
+        function saveRecentlyViewedTicket(ticket) {
+            if (!ticket || !ticket.id) return;
+            try {
+                const storageKey = 'itsm_recent_tickets';
+                let recent = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                if (!Array.isArray(recent)) recent = [];
+                recent = recent.filter(r => r.id !== ticket.id);
+                recent.unshift({
+                    id: ticket.id,
+                    ticketNumber: ticket.ticketNumber,
+                    title: ticket.title,
+                    viewedAt: Date.now()
+                });
+                if (recent.length > 5) recent = recent.slice(0, 5);
+                localStorage.setItem(storageKey, JSON.stringify(recent));
+            } catch (e) {
+                console.warn('Could not save recent ticket', e);
+            }
+        }
+
         function renderTicketData() {
             document.getElementById('tNumber').textContent = currentTicket.ticketNumber;
             document.getElementById('tTitle').textContent = currentTicket.title;
@@ -856,6 +903,7 @@
             document.getElementById('tEstimatedEndDate').textContent = formatDate(currentTicket.estimatedEndDate);
 
             renderMainAttachments();
+            saveRecentlyViewedTicket(currentTicket);
         }
 
         window.pendingDeletions = window.pendingDeletions || new Set();

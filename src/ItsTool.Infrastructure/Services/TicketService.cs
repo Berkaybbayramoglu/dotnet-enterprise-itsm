@@ -183,6 +183,7 @@ public class TicketService : ITicketService
                 .ThenInclude(a => a.AssignedUser)
             .Include(x => x.Assignments)
                 .ThenInclude(a => a.AssignedGroup)
+            .Include(x => x.TicketSla)
             .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (t == null) return null;
 
@@ -196,7 +197,16 @@ public class TicketService : ITicketService
             a.AssignedUserId != null ? (a.AssignedUser?.FirstName + " " + a.AssignedUser?.LastName) : a.AssignedGroup?.Name,
             a.AssignedUserId != null ? (a.AssignedUser?.IsDeleted ?? false) : (a.AssignedGroup?.IsDeleted ?? false)
         )).ToList();
-        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields, t.EstimatedStartDate, t.EstimatedEndDate, t.ColorHex);
+
+        var slaInfo = t.TicketSla != null ? new TicketSlaInfoDto(
+            t.TicketSla.ResolutionDueAt,
+            t.TicketSla.ResolutionWarned,
+            t.TicketSla.ResolutionBreached,
+            t.TicketSla.FirstResponseBreached,
+            t.TicketSla.FirstResponseDueAt
+        ) : null;
+
+        return new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, assignees, customFields, t.EstimatedStartDate, t.EstimatedEndDate, t.ColorHex, slaInfo);
     }
 
     
@@ -860,7 +870,7 @@ public class TicketService : ITicketService
         var tickets = await query
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUser != null ? a.AssignedUser.FirstName + " " + a.AssignedUser.LastName : a.AssignedGroup != null ? a.AssignedGroup.Name : "", false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate, t.ColorHex))
+            .Select(t => new TicketDto(t.Id, t.TicketNumber, t.Title, t.Description, t.ProjectId, t.CategoryId, t.TypeId, t.StatusId, t.PriorityId, t.RequesterUserId, t.Assignments.Where(a => a.IsActive && !a.IsDeleted).Select(a => new TicketAssigneeDto(a.Id, a.AssignedUserId, a.AssignedGroupId, a.ParentAssignmentId, a.AssignedByUserId, a.IsActive, a.CreatedAt, a.AssignedUser != null ? a.AssignedUser.FirstName + " " + a.AssignedUser.LastName : a.AssignedGroup != null ? a.AssignedGroup.Name : "", false)).ToList(), null, t.EstimatedStartDate, t.EstimatedEndDate, t.ColorHex, t.TicketSla != null ? new TicketSlaInfoDto(t.TicketSla.ResolutionDueAt, t.TicketSla.ResolutionWarned, t.TicketSla.ResolutionBreached, t.TicketSla.FirstResponseBreached, t.TicketSla.FirstResponseDueAt) : null))
             .ToListAsync();
 
         return new PagedResult<TicketDto>

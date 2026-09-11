@@ -514,7 +514,22 @@ export const translations = {
         "ai_thinking": "AI Copilot is analyzing...",
         "ai_ask_placeholder": "Ask anything about this ticket...",
         "ai_ask_btn": "Ask",
-        "ai_badge_copilot": "AI Copilot"
+        "ai_badge_copilot": "AI Copilot",
+        "td_btn_copy_ticket": "Copy Link",
+        "kbd_shortcuts_title": "Keyboard Shortcuts",
+        "kbd_search": "Focus search input",
+        "kbd_close": "Close open modals / menus",
+        "kbd_new_ticket": "Create new ticket",
+        "kbd_tickets": "Go to tickets list",
+        "kbd_dashboard": "Go to dashboard",
+        "kbd_help": "Open / close shortcuts help",
+        "recent_tickets_title": "Recently Viewed:",
+        "recent_tickets_clear": "Clear",
+        "btn_reset_filter": "Reset Filters",
+        "btn_export_csv": "Export CSV",
+        "sla_breached": "SLA Breached",
+        "sla_remaining_min": "mins left",
+        "sla_remaining_hr": "hrs left"
     },
     "tr": {
         // Sidebar Navigation
@@ -1032,7 +1047,22 @@ export const translations = {
         "ai_thinking": "Yapay zeka analiz ediyor...",
         "ai_ask_placeholder": "Bu bilet hakkında soru sorun...",
         "ai_ask_btn": "Sor",
-        "ai_badge_copilot": "AI Asistan"
+        "ai_badge_copilot": "AI Asistan",
+        "td_btn_copy_ticket": "Kopyala",
+        "kbd_shortcuts_title": "Klavye Kısayolları",
+        "kbd_search": "Arama kutusuna odaklan",
+        "kbd_close": "Açık modalları / menüleri kapat",
+        "kbd_new_ticket": "Yeni bilet oluştur",
+        "kbd_tickets": "Biletler listesine git",
+        "kbd_dashboard": "Kontrol paneline git",
+        "kbd_help": "Kısayol yardım penceresini aç/kapat",
+        "recent_tickets_title": "Son İnceledikleriniz:",
+        "recent_tickets_clear": "Temizle",
+        "btn_reset_filter": "Filtreleri Sıfırla",
+        "btn_export_csv": "CSV Olarak İndir",
+        "sla_breached": "SLA Aşıldı",
+        "sla_remaining_min": "dk kaldı",
+        "sla_remaining_hr": "saat kaldı"
     }
 };
 
