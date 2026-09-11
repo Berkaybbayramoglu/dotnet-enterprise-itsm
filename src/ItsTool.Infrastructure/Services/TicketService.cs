@@ -154,12 +154,20 @@ public class TicketService : ITicketService
             }
         }
 
+        var prio = await _context.Priorities.FindAsync(t.PriorityId);
+        var prioName = prio?.Name ?? $"Öncelik #{t.PriorityId}";
+        var cat = await _context.Categories.FindAsync(t.CategoryId);
+        var catName = cat?.Name ?? "Genel";
+        var proj = await _context.Projects.FindAsync(t.ProjectId);
+        var projName = proj != null ? $"{proj.Name} ({proj.ProjectKey})" : "Proje";
+
         _context.TicketHistories.Add(new TicketHistory
         {
             TicketId = t.Id,
             Action = "Created",
-            FieldName = "Ticket",
-            NewValue = t.TicketNumber,
+            FieldName = "Yeni Bilet",
+            OldValue = "-",
+            NewValue = $"{t.TicketNumber} — {t.Title} (Öncelik: {prioName}, Kategori: {catName}, Proje: {projName})",
             CreatedBy = dto.RequesterUserId.ToString()
         });
         await _context.SaveChangesAsync();

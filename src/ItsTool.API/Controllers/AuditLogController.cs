@@ -25,7 +25,20 @@ public class AuditLogController : ControllerBase
     public async Task<IActionResult> GetAuditLogs([FromQuery] AuditLogFilterDto filter)
     {
         var ticketQuery = _context.TicketHistories.AsQueryable();
-        var systemQuery = _context.SystemAuditLogs.AsQueryable();
+        var systemQuery = _context.SystemAuditLogs
+            .Where(s => s.EntityId != "0" 
+                     && s.FieldName != "PasswordHash"
+                     && s.EntityType != "Ticket" 
+                     && s.EntityType != "TicketSla" 
+                     && s.EntityType != "ProjectSequence"
+                     && s.EntityType != "RolePermission"
+                     && s.EntityType != "UserRole"
+                     && s.EntityType != "GroupRole"
+                     && s.EntityType != "WorkflowTransition"
+                     && s.EntityType != "BusinessHour"
+                     && s.EntityType != "FormFieldPlacement"
+                     && s.EntityType != "SlaTarget")
+            .AsQueryable();
         
         bool isTicketFiltered = false;
 

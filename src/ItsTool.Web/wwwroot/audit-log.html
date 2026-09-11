@@ -221,7 +221,7 @@
                         <td>${entityLink}</td>
                         <td style="font-family: monospace;">${escapeHtml(creatorName)}</td>
                         <td><span class="badge badge-default" style="${actionBadgeStyle}">${escapeHtml(a.action)}</span></td>
-                        <td style="font-size: 13px; font-weight: 500;">${escapeHtml(a.fieldName) || '-'}</td>
+                        <td style="font-size: 13px; font-weight: 500;">${escapeHtml(formatAuditFieldName(a.fieldName)) || '-'}</td>
                         <td>${oldVal}</td>
                         <td>${newVal}</td>
                         <td style="text-align:right; position: sticky; right: 0; background: var(--bg-surface); z-index: 1; box-shadow: -2px 0 5px rgba(0,0,0,0.05);">
@@ -244,6 +244,40 @@
                 console.error(e);
                 showToast('Failed to load audit logs. You might not have the required permissions.', 'error');
             }
+        }
+
+        function formatAuditFieldName(name) {
+            if (!name || name === '-') return '-';
+            const dict = {
+                'Ticket': 'Yeni Bilet',
+                'Title': 'Başlık',
+                'Description': 'Açıklama',
+                'StatusId': 'Durum',
+                'PriorityId': 'Öncelik',
+                'CategoryId': 'Kategori',
+                'ProjectId': 'Proje',
+                'TypeId': 'Bilet Tipi',
+                'AssignedUserId': 'Atanan Kullanıcı',
+                'AssignedGroupId': 'Atanan Grup',
+                'Transfer': 'Departman/Grup Aktarımı',
+                'CommentAdded': 'Yorum Eklendi',
+                'InternalNoteAdded': 'İç Not Eklendi',
+                'CommentEdited': 'Yorum Düzenlendi',
+                'CommentDeleted': 'Yorum Silindi',
+                'AttachmentAdded': 'Ek Dosya Eklendi',
+                'AttachmentDeleted': 'Ek Dosya Silindi',
+                'UserMentioned': 'Kullanıcı Etiketlendi',
+                'IsDeleted': 'Silinme Durumu',
+                'IsActive': 'Aktiflik Durumu',
+                'Email': 'E-posta',
+                'FullName': 'Ad Soyad',
+                'DepartmentId': 'Departman',
+                'RoleId': 'Rol',
+                'ColorHex': 'Renk Kodu',
+                'EstimatedStartDate': 'Tahmini Başlangıç',
+                'EstimatedEndDate': 'Tahmini Bitiş'
+            };
+            return dict[name] || name;
         }
 
         function resolveAuditMappedValues(a, lookup, users) {
@@ -332,7 +366,15 @@
                 const info = mappedNew && mappedNew !== '-' ? `Durum: ${escapeHtml(mappedNew)}` : '';
                 return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydını geri aldı (Undo / Restore). ${info}`;
             }
-            let sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(a.fieldName || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
+            if (act === 'CREATED') {
+                const info = mappedNew && mappedNew !== '-' ? `Detaylar: ${escapeHtml(mappedNew)}` : '';
+                return `${escapeHtml(creatorName)}, yeni bir ${escapeHtml(entityType)} kaydı oluşturdu ('${escapeHtml(entityNameText)}'). ${info}`.trim();
+            }
+            if (act === 'COMMENTADDED' || act === 'INTERNALNOTEADDED') {
+                return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' biletine yeni bir ${act === 'INTERNALNOTEADDED' ? 'iç not' : 'yorum'} ekledi.`;
+            }
+            const fieldPretty = formatAuditFieldName(a.fieldName);
+            let sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(fieldPretty || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
             if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
                 sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;
             }
@@ -381,7 +423,7 @@
                     entityNameText,
                     creatorName,
                     a.action || '',
-                    a.fieldName || '',
+                    formatAuditFieldName(a.fieldName || ''),
                     mappedOld || '',
                     mappedNew || ''
                 ].map(cell => `"${(cell || '').toString().replaceAll('"', '""')}"`).join(',');

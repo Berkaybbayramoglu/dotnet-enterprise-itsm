@@ -1,6 +1,8 @@
 using ItsTool.Domain.Common;
 using ItsTool.Domain.Entities;
 using ItsTool.Domain.Entities.Config;
+using ItsTool.Domain.Entities.Auth;
+using ItsTool.Domain.Entities.KnowledgeBase;
 using ItsTool.Domain.Entities.Organization;
 using ItsTool.Domain.Entities.SLA;
 using ItsTool.Domain.Entities.Project;
@@ -15,6 +17,8 @@ namespace ItsTool.Infrastructure.Data.Interceptors;
 public class SystemAuditInterceptor : SaveChangesInterceptor
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private bool _isSavingAuditLogs = false;
+    private readonly List<(SystemAuditLog Log, BaseEntity Entity)> _pendingAddedLogs = new();
 
     public SystemAuditInterceptor(IHttpContextAccessor httpContextAccessor)
     {
@@ -23,21 +27,93 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
-        GenerateAuditLogs(eventData.Context);
+        if (!_isSavingAuditLogs)
+        {
+            GenerateAuditLogs(eventData.Context);
+        }
         return base.SavingChanges(eventData, result);
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
-        GenerateAuditLogs(eventData.Context);
+        if (!_isSavingAuditLogs)
+        {
+            GenerateAuditLogs(eventData.Context);
+        }
         return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+
+    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    {
+        if (!_isSavingAuditLogs && _pendingAddedLogs.Count > 0 && eventData.Context != null)
+        {
+            try
+            {
+                _isSavingAuditLogs = true;
+                foreach (var (log, entity) in _pendingAddedLogs)
+                {
+                    log.EntityId = entity.Id.ToString();
+                    eventData.Context.Set<SystemAuditLog>().Add(log);
+                }
+                eventData.Context.SaveChanges();
+            }
+            finally
+            {
+                _pendingAddedLogs.Clear();
+                _isSavingAuditLogs = false;
+            }
+        }
+        return base.SavedChanges(eventData, result);
+    }
+
+    public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+    {
+        if (!_isSavingAuditLogs && _pendingAddedLogs.Count > 0 && eventData.Context != null)
+        {
+            try
+            {
+                _isSavingAuditLogs = true;
+                foreach (var (log, entity) in _pendingAddedLogs)
+                {
+                    log.EntityId = entity.Id.ToString();
+                    eventData.Context.Set<SystemAuditLog>().Add(log);
+                }
+                await eventData.Context.SaveChangesAsync(cancellationToken);
+            }
+            finally
+            {
+                _pendingAddedLogs.Clear();
+                _isSavingAuditLogs = false;
+            }
+        }
+        return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 
     private static bool ShouldSkipAudit(object entity)
     {
         if (entity is SystemAuditLog) return true;
         var name = entity.GetType().Name;
-        return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification") || name == "GroupMember";
+
+        if (name == "Ticket" ||
+            name == "TicketSla" ||
+            name == "ProjectSequence" ||
+            name == "RolePermission" ||
+            name == "UserRole" ||
+            name == "GroupRole" ||
+            name == "WorkflowTransition" ||
+            name == "BusinessHour" ||
+            name == "FormFieldPlacement" ||
+            name == "SlaTarget" ||
+            name == "TicketFieldValue" ||
+            name == "TicketAttachment" ||
+            name == "TicketWatcher" ||
+            name == "TicketAssignment" ||
+            name == "RefreshToken")
+        {
+            return true;
+        }
+
+        return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification") || name.Contains("Preference");
     }
 
     private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext? context, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
@@ -89,6 +165,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         {
             string propName = prop.Metadata.Name;
             if (propName == "UpdatedAt" || propName == "CreatedAt" || propName == "DeletedAt") continue;
+            if (propName == "PasswordHash" || propName == "SecurityStamp" || propName == "ConcurrencyStamp" || propName == "ViewCount") continue;
 
             var original = prop.OriginalValue?.ToString();
             var current = prop.CurrentValue?.ToString();
@@ -131,10 +208,11 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
         var logsToAdd = new List<SystemAuditLog>();
 
+        _pendingAddedLogs.Clear();
         foreach (var entry in entries)
         {
             if (SystemAuditInterceptor.ShouldSkipAudit(entry.Entity)) continue;
-            SystemAuditInterceptor.ProcessEntry(entry, context, userId, now, logsToAdd);
+            ProcessEntry(entry, context, userId, now, logsToAdd);
         }
         if (logsToAdd.Count > 0)
         {
@@ -142,7 +220,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         }
     }
 
-    private static void ProcessEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext context, string userId, DateTime now, List<SystemAuditLog> logsToAdd)
+    private void ProcessEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext context, string userId, DateTime now, List<SystemAuditLog> logsToAdd)
     {
         var entityType = entry.Entity.GetType().Name;
         var entityName = SystemAuditInterceptor.GetEntityName(entry, context);
@@ -151,7 +229,18 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
         if (entry.State == EntityState.Added)
         {
-            logsToAdd.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Created", null, null, isGroupMember ? entityName : null, userId, now)));
+            var summary = GetEntitySummary(entry, context);
+            var log = CreateAuditLog(new AuditLogEntry(
+                entityType, 
+                entityName, 
+                "0", 
+                "Created", 
+                "Yeni Kayıt", 
+                "-", 
+                summary, 
+                userId, 
+                now));
+            _pendingAddedLogs.Add((log, entry.Entity));
         }
         else if (entry.State == EntityState.Deleted)
         {
@@ -212,9 +301,68 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
                 return $"Politika: {sla.Name} | Kapsam: {projectName}{esc}{desc}{targetsSummary}";
             }
 
+            if (entry.Entity is User u)
+            {
+                var fullName = string.IsNullOrWhiteSpace($"{u.FirstName} {u.LastName}".Trim()) ? u.Username : $"{u.FirstName} {u.LastName}".Trim();
+                return $"Kullanıcı: {fullName} (@{u.Username}, {u.Email}) | Departman ID: {(u.DepartmentId.HasValue ? u.DepartmentId.Value.ToString() : "Yok")}";
+            }
+
+            if (entry.Entity is Project p)
+            {
+                return $"Proje: {p.Name} (Anahtar: {p.ProjectKey}) | Durum: {p.Status}{(string.IsNullOrWhiteSpace(p.Description) ? "" : $" | Açıklama: {p.Description}")}";
+            }
+
+            if (entry.Entity is Category c)
+            {
+                return $"Kategori: {c.Name}{(string.IsNullOrWhiteSpace(c.Description) ? "" : $" | Açıklama: {c.Description}")}";
+            }
+
+            if (entry.Entity is Department d)
+            {
+                return $"Departman: {d.Name}{(string.IsNullOrWhiteSpace(d.Description) ? "" : $" | Açıklama: {d.Description}")}{(d.ManagerUserId.HasValue ? $" | Yönetici ID: {d.ManagerUserId}" : "")}";
+            }
+
+            if (entry.Entity is Group g)
+            {
+                return $"Grup: {g.Name}{(g.DepartmentId.HasValue ? $" | Departman ID: {g.DepartmentId}" : "")}";
+            }
+
+            if (entry.Entity is Role r)
+            {
+                return $"Rol: {r.Name}{(string.IsNullOrWhiteSpace(r.Description) ? "" : $" | Açıklama: {r.Description}")}";
+            }
+
+            if (entry.Entity is KnowledgeArticle ka)
+            {
+                return $"Makale: {ka.Title} | Kategori #{ka.CategoryId} | Durum: {ka.Status}";
+            }
+
+            if (entry.Entity is AssignmentRule ar)
+            {
+                return $"Atama Kuralı: {ar.Name} | Sıra: {ar.SortOrder}";
+            }
+
+            if (entry.Entity is WebhookSubscription ws)
+            {
+                return $"Webhook: {ws.Url} | Olaylar: {ws.EventsCsv}";
+            }
+
+            if (entry.Entity.GetType().Name == "GroupMember")
+            {
+                return GetGroupMemberName(entry, context);
+            }
+
             // General entity summary
             var props = entry.Properties
-                .Where(p => p.Metadata.Name != "Id" && p.Metadata.Name != "CreatedAt" && p.Metadata.Name != "UpdatedAt" && p.Metadata.Name != "IsDeleted" && p.Metadata.Name != "PasswordHash")
+                .Where(p => p.Metadata.Name != "Id" && 
+                            p.Metadata.Name != "CreatedAt" && 
+                            p.Metadata.Name != "UpdatedAt" && 
+                            p.Metadata.Name != "DeletedAt" && 
+                            p.Metadata.Name != "IsDeleted" && 
+                            p.Metadata.Name != "PasswordHash" &&
+                            p.Metadata.Name != "SecurityStamp" &&
+                            p.Metadata.Name != "ConcurrencyStamp" &&
+                            p.Metadata.Name != "Secret")
                 .Select(p => $"{p.Metadata.Name}: {p.OriginalValue ?? p.CurrentValue}")
                 .Where(s => !s.EndsWith(": ") && !s.EndsWith(": null"))
                 .Take(6);
@@ -233,7 +381,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         if (entry.Entity.GetType().Name.Contains("GroupMember"))
             return SystemAuditInterceptor.GetGroupMemberName(entry, context);
 
-        var nameProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "Name" || p.Metadata.Name == "Title" || p.Metadata.Name == "Username");
+        var nameProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "Name" || p.Metadata.Name == "Title" || p.Metadata.Name == "Username" || p.Metadata.Name == "Url");
         if (nameProp != null && nameProp.CurrentValue != null)
         {
             return nameProp.CurrentValue.ToString()!;
