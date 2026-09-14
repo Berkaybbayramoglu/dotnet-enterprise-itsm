@@ -12,6 +12,473 @@
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 <p align="center">
+  <b>🌐 Language / Dil:</b>
+  <a href="#-english"><b>🇬🇧 English Documentation</b></a> • <a href="#-türkçe"><b>🇹🇷 Türkçe Dokümantasyon</b></a>
+</p>
+
+---
+
+</div>
+
+# 🇬🇧 English
+
+<p align="center">
+  <b>A modern, modular, AI-assisted, next-generation IT Service Management (ITSM) platform fully aligned with enterprise ITIL standards.</b>
+  <br />
+  <i>Clean Architecture • Entity-Attribute-Value (EAV) Dynamic Forms • AI Resolution Copilot • Real-Time SignalR • Dynamic SLA Engine</i>
+</p>
+
+[Features](#-key-features) • [Tech Stack](#️-detailed-technology-stack) • [Architecture & Design](#-how-it-was-built-architecture--design-choices) • [System Architecture](#️-system-architecture) • [AI / LLM Architecture](#-artificial-intelligence-ai--llm-copilot-architecture) • [Keyboard Shortcuts](#️-keyboard-shortcuts-power-user-hotkeys) • [Code Quality & SonarQube](#-code-quality--sonarqube) • [Quick Start](#-quick-start) • [Demo Accounts](#-demo-accounts) • [API Documentation](#-api-architecture--key-endpoints)
+
+---
+
+## 🌟 Key Features
+
+| Category | Capability & Description |
+| :--- | :--- |
+| 🤖 **AI Resolution Copilot** | Analyzes ticket history, technician-user discussions, and past resolved tickets to produce **automated resolution plans**, **draft responses**, **knowledge base article matches**, and **intelligent handoff summaries**. |
+| ⏱️ **Dynamic SLA Engine** | Priority and project-specific first-response & resolution target times; automatic counter pause on `On Hold`; business hours calculation and **proactive pre-breach escalation warnings**. |
+| 📋 **EAV Dynamic Form Engine** | Define custom fields per project and category without altering the database schema (Text, Number, Date, Dropdown, Multi-Select). |
+| 🔄 **State Machine & Workflows** | ITIL-aligned Incident / Request lifecycle; dynamically governed transition rules via the admin console (`WorkflowTransitions`). |
+| 🛡️ **Advanced Authorization (RBAC+)** | Built on Role-Based Access Control (RBAC), augmented with a **Claim Override** architecture that allows adding or revoking individual permissions per user. |
+| ⚡ **Real-Time Communication (SignalR)** | Ticket assignments, status changes, SLA alerts, and `@mention` notifications are instantly pushed to client browsers. |
+| 📊 **Admin Dashboard & Analytics** | KPI cards, SLA compliance trends, department/agent workload heatmaps, filtering, and CSV/PDF export. |
+| 🔍 **Knowledge Base (KB)** | Frequently asked questions, category hierarchy, rich-text markdown articles, view counters, and four-eyes approval workflow. |
+| 🎨 **Zero-Bloat Vanilla UI** | Dependency-free, lightning-fast responsive interface featuring **Dark / Light theme** and **TR / EN multilingual** support. |
+
+---
+
+## 🛠️ Detailed Technology Stack
+
+| Area | Technology & Library | Purpose & Architectural Role |
+| :--- | :--- | :--- |
+| **Backend** | **.NET 8 (C# 12)** / ASP.NET Core | High-performance, asynchronous, and modular RESTful API architecture |
+| **Database & ORM** | **PostgreSQL 16** / **EF Core 8** (Npgsql) | Relational data persistence, Code-First migrations, Transactions & Interceptors |
+| **Real-Time Communication** | **ASP.NET Core SignalR** | Instant push notifications for assignments, status changes, and SLA alerts |
+| **Artificial Intelligence (AI)** | **Multi-Agent AI Copilot (LLM)** | Resolution recommendations and draft generation analyzing past tickets & KB |
+| **Frontend** | **Vanilla JS (ES6+ Modules)**, HTML5, CSS3 | Zero-bloat, ultra-fast render, Dark/Light theme, and i18n localization dictionary |
+| **Charts & Visualization** | **Chart.js** & **Bootstrap 5 (Grid/Modal)** | Dynamic KPI, SLA compliance, and ticket distribution charts on executive dashboards |
+| **Containerization** | **Docker** & **Docker Compose** | Multi-stage build lightweight production images and one-command PostgreSQL orchestration |
+| **Continuous Integration (CI)** | **GitHub Actions** | Automated Ubuntu provisioning, build, and test verification on pushes and PRs |
+| **Unit Testing** | **xUnit**, **Moq**, **Coverlet** | 534 unit tests with 96.89% line coverage and 95.09% branch coverage |
+| **Static Code Analysis** | **SonarQube** | Full Quality Gate pass with 0 Bugs, 0 Vulnerabilities, and 0 Code Smells |
+| **API Documentation** | **Swagger / OpenAPI (Swashbuckle)** | Interactive API testing documentation with JWT Bearer authentication support |
+| **Security** | **JWT & Claim Override (RBAC+)** | PBKDF2 salted hashing, per-user claim overrides, and ReDoS-preventing regex timeouts |
+
+---
+
+## 💡 How It Was Built (Architecture & Design Choices)
+
+1. **Clean Architecture (Onion Architecture):**
+   - Dependencies strictly point inward (`Domain` <- `Application` <- `Infrastructure` <- `API`).
+   - `ItsTool.Domain` consists purely of C# POCO objects with zero third-party database dependencies, keeping business rules framework-agnostic.
+2. **EAV (Entity-Attribute-Value) Dynamic Form Engine:**
+   - Different projects (e.g., "Employee Department" for HR, "Git Commit Hash" for Software) demand distinct fields. Instead of frequent table alters, the EAV pattern enables dynamic form field definitions directly from the admin UI.
+3. **Dynamic Workflow State Machine:**
+   - Which roles can transition an "Open" ticket to "Resolved"? These rules are not hardcoded in C# logic; they are dynamically configured and validated through the `WorkflowTransitions` table.
+4. **Resilient Background Services (Hosted Background Services):**
+   - `SlaCheckerService`: Runs every minute in the background to identify tickets approaching breach or already breached, pushing audio-visual alerts to relevant agents via SignalR.
+   - `EmailBackgroundService`: Asynchronously consumes outgoing emails via an `InMemoryEmailQueue` without blocking the HTTP request pipeline.
+5. **Automated Audit Trail (SystemAuditInterceptor):**
+   - Hooked into EF Core's Change Tracker, this interceptor automatically records previous and updated values along with actor metadata to `SystemAuditLogs` whenever a ticket or user entity is mutated.
+
+---
+
+## 🏛️ System Architecture
+
+The project strictly follows **Clean Architecture (Onion Architecture)** principles, targeting loose coupling and high testability across all system layers:
+
+```mermaid
+graph TD
+    subgraph UI ["Client Layer (Vanilla SPA)"]
+        HTML["Responsive HTML5 / CSS3"]
+        JS["Modular Vanilla JS (API Client, UI, SignalR)"]
+    end
+
+    subgraph API ["Presentation Layer (ItsTool.API)"]
+        Controllers["RESTful Controllers & Auth Filters"]
+        Hubs["SignalR Notification Hub"]
+        Swagger["OpenAPI / Swagger Docs"]
+    end
+
+    subgraph Core ["Application Core (ItsTool.Application & Domain)"]
+        DTOs["DTOs, ViewModels & Validators"]
+        Interfaces["Service & Repository Abstractions"]
+        Entities["Domain POCO Entities (Auditable, SoftDelete)"]
+        EAV["EAV Dynamic Field Engine"]
+    end
+
+    subgraph Infra ["Infrastructure Layer (ItsTool.Infrastructure)"]
+        EF["Entity Framework Core (DbContext)"]
+        Audit["SystemAuditInterceptor (Change Tracker)"]
+        SlaEngine["SlaEngine (Background SLA Worker)"]
+        AiCopilot["AI Resolution Copilot (LLM Connector)"]
+        SignalR["NotificationDispatcher (Realtime Hub)"]
+    end
+
+    subgraph Data ["Data Storage & External"]
+        PG[("PostgreSQL Database")]
+        LLM["AI / LLM Service"]
+    end
+
+    UI --> API
+    API --> Core
+    API --> Infra
+    Infra --> Core
+    Infra --> PG
+    Infra --> LLM
+```
+
+### 📁 Directory Structure
+
+```
+itsm-tool/
+├── src/
+│   ├── ItsTool.Domain/          # Pure business models, Entities, EAV structures, Base interfaces
+│   ├── ItsTool.Application/     # Use-case interfaces, DTOs, service contracts, validators
+│   ├── ItsTool.Infrastructure/  # EF Core DbContext, PostgreSQL mappings, SLA & AI services
+│   ├── ItsTool.API/             # ASP.NET Core Web API, JWT Auth, SignalR Hub, Controllers
+│   └── ItsTool.Web/             # Vanilla JS, responsive HTML5 pages, and static assets (wwwroot)
+├── tests/
+│   └── ItsTool.UnitTests/       # 534 unit tests, comprehensive branch boosters, InMemory SQLite
+└── docs/                        # Architectural design, ERD diagrams, requirements, development notes
+```
+
+---
+
+## 🧠 Artificial Intelligence (AI / LLM) Copilot Architecture
+
+ITSM Tool features a **hybrid, multi-layered artificial intelligence architecture** engineered to alleviate operational load for support engineers, minimize Mean Time to Resolution (MTTR), and standardize resolution quality.
+
+### 📐 AI Copilot Flowchart
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client Layer - Web UI"]
+        Widget["AI Copilot Panel"]
+        LangSel["Language Selector (TR / EN)"]
+        ModalSettings["Model Settings & API Key"]
+    end
+
+    subgraph API ["Presentation Layer - ItsTool.API"]
+        AiCtrl["AiController"]
+        Endpoints["AI Endpoints (Suggest / Draft / Summarize / Ask)"]
+    end
+
+    subgraph CoreAgents ["Agents & Business Logic - ItsTool.Infrastructure"]
+        Copilot["Resolution Copilot Agent"]
+        HandoffSwarm["Ticket Handoff Swarm Agent"]
+        ContextAggregator["Context Aggregator - Structured RAG"]
+    end
+
+    subgraph DataContext ["Database & Context Store"]
+        DB_Tickets[("Ticket Details & Discussions")]
+        DB_KB[("Knowledge Base Articles")]
+        DB_Custom[("EAV Dynamic Fields")]
+    end
+
+    subgraph ExecutionBridge ["Execution & Decision Layer"]
+        HealthCheck{"Is LLM Active & Reachable?"}
+        LiveLLM["Live LLM Connector - OpenAI Compatible"]
+        HeuristicFallback["Smart Heuristic Fallback Engine"]
+    end
+
+    subgraph Providers ["LLM Providers - Local & Cloud"]
+        Ollama["Ollama - Llama 3 / Mistral / Qwen"]
+        LMStudio["LM Studio / vLLM / Localhost"]
+        OpenAI["OpenAI - GPT-4o / GPT-4o-mini"]
+    end
+
+    Widget -->|1. User Action| AiCtrl
+    LangSel -.->|Language Choice: TR / EN| AiCtrl
+    ModalSettings -.->|Model & API Key Config| AiCtrl
+    AiCtrl --> Endpoints
+    Endpoints --> Copilot
+    Endpoints --> HandoffSwarm
+
+    Copilot --> ContextAggregator
+    HandoffSwarm --> ContextAggregator
+    ContextAggregator <--> DB_Tickets
+    ContextAggregator <--> DB_KB
+    ContextAggregator <--> DB_Custom
+
+    ContextAggregator --> HealthCheck
+    HealthCheck -->|Yes - Live Connection| LiveLLM
+    HealthCheck -->|No - Offline or Error| HeuristicFallback
+
+    LiveLLM --> Ollama
+    LiveLLM --> LMStudio
+    LiveLLM --> OpenAI
+
+    LiveLLM -->|Result: isLlm = true| Widget
+    HeuristicFallback -->|Result: isLlm = false / Heuristic Badge| Widget
+```
+
+---
+
+### 🔑 The 6 Core Pillars of Our AI Architecture
+
+#### 1. 🛡️ Dual-Engine Fallback & High Availability Guarantee
+- **Problem:** When cloud-hosted LLM APIs suffer outages, rate-limits, or local models encounter out-of-memory states, technician dashboards must never freeze.
+- **Solution:** The platform operates under a strict **Zero Downtime** philosophy:
+  - If a live LLM connection is healthy, deep generative model outputs are rendered (`isLlm: true`).
+  - If the LLM is unreachable or disabled, the system **never throws an exception**; it seamlessly delegates to the **Smart Heuristic Fallback Engine** (`isLlm: false`), which analyzes category, priority, historical interventions, and related KB articles locally.
+  - UI transparency informs the user that the resolution was generated via the rule engine, advising model configuration checks if an external LLM is preferred.
+
+#### 2. 📚 Structured Multi-Source Hybrid RAG Architecture
+Rather than relying on ungrounded free-text vector searches, ITSM Tool utilizes a purpose-built **Structured Multi-Source Hybrid RAG** architecture tailored for enterprise IT support. By unifying relational data hierarchies, verified enterprise knowledge bases, and historical ticket experience, it provides zero-hallucination context grounding.
+
+##### 🔄 RAG Workflow & Stages:
+1. **Taxonomy & Entity-Filtered Retrieval:**
+   - Evaluates the active ticket's category (`CategoryId`), priority (`PriorityId`), and tags.
+   - Searches historical closed and resolved tickets (`GetSimilarTicketsAsync`) to retrieve verified ground-truth references (*Few-Shot In-Context Learning*).
+2. **Knowledge Base Lexical & Semantic Retrieval (KB Retrieval):**
+   - Queries the corporate Knowledge Base (`KnowledgeArticles`) based on ticket title and category.
+   - Injects approved guides, standard operating procedures (SOPs), and FAQs to impart institutional authority.
+3. **Temporal Discussion & Timeline Retrieval:**
+   - Pulls user comments and technician internal notes (`TicketComments`) in chronological order.
+   - Ensures the AI knows exactly what steps have been attempted, recent user feedback, and active diagnostic blockers.
+4. **Schema-Aware Dynamic Field Retrieval (EAV):**
+   - Aggregates dynamic custom fields attached to the ticket (`Server Name`, `Error Code`, `Affected Department`, etc.).
+5. **Context Augmentation & Prompt Injection Layer:**
+   - Synthesizes all retrieved signals (Ticket + Similar Cases + KB Guides + Timeline) into structured JSON and semantic text blocks.
+   - Instructs the model: *"Rely strictly upon the provided verified solutions and enterprise SOPs to construct a step-by-step action plan without fabricating assumptions."*
+6. **Dual-Engine Synthesis:**
+   - **Live LLM:** OpenAI-compatible local/cloud models synthesize the enriched context into clean, professional guidance.
+   - **Smart Heuristic Fallback:** When LLM access is unavailable, the RAG context is processed directly by the local rule engine without disruption.
+
+##### 🎯 Why Structured RAG Over Generic Vector Databases?
+- **Zero Hallucination:** Models do not guess; they ground their output on real tickets previously solved and verified by human IT engineers.
+- **Ultra-Low Latency & Zero Cost:** Eliminates external vector database dependencies (Pinecone, Qdrant, etc.) and embedding API costs. Leverages PostgreSQL's optimized indexes to complete retrieval in **under 5 milliseconds**.
+
+#### 3. 🌐 Multilingual Intelligence & Dynamic Prompt Synthesis (TR / EN)
+- Switch between **🇹🇷 TR** or **🇬🇧 EN** resolution languages with a single click; preferences are persisted in `localStorage`.
+- Background agents (**Resolution Copilot** and **Ticket Handoff Swarm**) dynamically formulate system instructions and prompts per language:
+  - **Turkish:** Professional enterprise ITIL terminology for action steps and customer replies.
+  - **English:** Aligned with international IT support standards (`Best regards`, `Diagnostic steps`, `Actionable troubleshooting`).
+  - Even without an LLM connection, the heuristic fallback engine renders formatted templates in the chosen language.
+
+#### 4. 🔌 Universal Model Compatibility (OpenAI-Compatible Multi-Provider)
+Zero vendor lock-in. Full compliance with the standard OpenAI Chat Completions REST API specification:
+- **Local Models (Zero-Cost / Offline):** [Ollama](https://ollama.ai/) (`Llama 3`, `Mistral`, `Qwen 2.5`, `Phi-3`), [LM Studio](https://lmstudio.ai/), [vLLM](https://github.com/vllm-project/vllm).
+- **Cloud Models:** OpenAI (`GPT-4o`, `GPT-4o-mini`), Azure OpenAI, Anthropic Claude (via compatible proxies).
+- **Docker Networking Bridge:** Via the `host.docker.internal:host-gateway` bridge in `docker-compose.yml`, the containerized application communicates directly with local Ollama / LM Studio instances running on the host via `http://host.docker.internal:11434`.
+
+#### 5. 👥 Agentic Specialization & Separation of Duties
+- **Resolution Copilot Agent:** Diagnoses root causes, recommends knowledge articles, generates step-by-step action items, and drafts customer-ready responses.
+- **Ticket Handoff Swarm Agent:** Summarizes entire ticket histories, technical bottlenecks, and pending actions during shift changes or Tier-2 escalations.
+
+#### 6. 🎨 Intuitive User Experience & Secure Model Governance
+- **Masked API Keys with Visibility Toggle:** API keys are protected behind password inputs with an interactive eye toggle icon.
+- **Non-Overlapping Header:** Dual-line responsive header layout preventing visual collisions in narrow side drawers.
+- **Live Latency Benchmark:** Single-click test probe measuring real-time round-trip latency in milliseconds.
+- **One-Click Draft Injection:** Instant copy or direct injection into the active ticket reply textarea.
+
+---
+
+## 🧪 Code Quality & SonarQube
+
+The codebase adheres strictly to enterprise software engineering principles and static code analysis standards. **SonarQube Quality Gate** has passed with full honors:
+
+<div align="center">
+
+| Metric | Result | Status |
+| :---: | :---: | :---: |
+| **Quality Gate** | **PASSED (OK)** | 🟢 Passed |
+| **Unit Tests** | **534 / 534 Passed** | 🟢 100% Success |
+| **Line Coverage** | **96.89%** | 🟢 High Coverage |
+| **Branch Coverage** | **95.09%** | 🟢 High Coverage |
+| **Bugs** | **0** | 🟢 Zero Bug |
+| **Vulnerabilities** | **0** | 🟢 Secure |
+| **Security Hotspots** | **0** | 🟢 Reviewed |
+| **Code Smells** | **0** | 🟢 Clean Code |
+| **Duplications** | **1.2%** (<3.0% threshold) | 🟢 Excellent |
+
+</div>
+
+### 📊 Layer-by-Layer Test Coverage Breakdown
+
+```
++------------------------+--------+--------+--------+
+| Module                 | Line   | Branch | Method |
++------------------------+--------+--------+--------+
+| ItsTool.Domain         | 94.90% | 100%   | 94.90% |
+| ItsTool.Application    | 99.60% | 100%   | 99.57% |
+| ItsTool.Infrastructure | 97.57% | 95.09% | 96.13% |
+| ItsTool.API            | 94.35% | 95.08% | 98.30% |
++------------------------+--------+--------+--------+
+| TOTAL AVERAGE          | 96.89% | 95.09% | 96.92% |
++------------------------+--------+--------+--------+
+```
+
+### 🔄 Continuous Integration (CI/CD Pipeline)
+
+The automated GitHub Actions CI workflow (`.github/workflows/ci.yml`) runs on every `push` and `pull_request`:
+1. **Environment Setup:** Configures .NET 8 SDK on Ubuntu latest.
+2. **Compilation:** Restores solution dependencies and compiles `ItsTool.sln` in `Release` configuration.
+3. **Automated Testing:** Executes all 534 unit tests to enforce zero-regression guarantees.
+4. **Coverage Reporting:** Generates OpenCover format XML coverage reports uploaded as CI artifacts.
+
+---
+
+## 🚀 Quick Start
+
+### 🐳 Method 1: One-Command Execution via Docker (Recommended)
+
+Launch the full suite without installing PostgreSQL or .NET SDK locally:
+
+```bash
+# Clone the repository
+git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
+cd itsm-Tool
+
+# Build and start all containers
+docker compose up -d --build
+```
+
+> 💡 *PostgreSQL 16 and ITSM Tool API containers launch automatically, applying database schema migrations and seeding demo accounts.*  
+> Open your browser and navigate to **`http://localhost:5246`** to log in.  
+> To shut down containers: `docker compose down`
+
+---
+
+### 💻 Method 2: Local Development Setup (Manual)
+
+#### 1. Prerequisites
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [PostgreSQL 14+](https://www.postgresql.org/download/)
+- [Git](https://git-scm.com/)
+
+#### 2. Clone the Repository
+```bash
+git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
+cd itsm-Tool
+```
+
+#### 3. Database Configuration
+Create a database named `itsm_tool` in PostgreSQL and configure `src/ItsTool.API/appsettings.Development.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=itsm_tool;Username=postgres;Password=YOUR_PASSWORD"
+  }
+}
+```
+
+#### 4. Run the Application
+
+**Terminal 1 — API Server:**
+```bash
+dotnet run --project src/ItsTool.API
+```
+> 💡 *Note: The API initializes the schema on first boot and invokes `DataSeeder` to seed projects, groups, SLA policies, and demo users.*
+
+**Terminal 2 — Web Client:**
+```bash
+dotnet run --project src/ItsTool.Web
+```
+
+Open **`http://localhost:5246`** in your browser.
+
+#### 5. Execute Unit Tests
+```bash
+dotnet test tests/ItsTool.UnitTests/ItsTool.UnitTests.csproj /p:CollectCoverage=true
+```
+
+---
+
+## 🔑 Demo Accounts
+
+Pre-seeded accounts ready upon system initialization (**Password for all accounts:** `123456`):
+
+| Username | Role | Scope of Authority |
+| :--- | :--- | :--- |
+| `admin` | **SuperAdmin** | Full system control; SLA policies, Projects, Roles, Users, and Dynamic Forms |
+| `manager` | **Manager** | Analytics, SLA reviews, Executive dashboard, and KB article approval |
+| `agent1` | **Agent** | Standard Support Engineer; resolve tickets, status updates, handoffs |
+| `agent2` | **Agent (Override)** | Standard Agent + Granular Claim Override granting `ticket.close` capability |
+| `user1` | **EndUser** | End User; create requests, track tickets, satisfaction surveys |
+
+---
+
+## ⌨️ Keyboard Shortcuts (Power-User Hotkeys)
+
+Global keyboard shortcuts are enabled across all interfaces for rapid navigation and high accessibility:
+
+| Key / Shortcut | Function | Description |
+| :---: | :--- | :--- |
+| <kbd>/</kbd> | **Quick Search** | Instantly focuses the page search bar (`#searchInput`) and selects text. |
+| <kbd>Esc</kbd> | **Dismiss Modals** | Closes any open modals, dropdown menus, and profile panels. |
+| <kbd>?</kbd> or <kbd>Shift</kbd> + <kbd>/</kbd> | **Shortcuts Guide** | Toggles the interactive keyboard shortcut help dialog. |
+| <kbd>N</kbd> | **New Ticket** | Opens the ticket creation form (`/ticket-create.html`). |
+| <kbd>T</kbd> | **Ticket List** | Navigates to the ticket list and search page (`/tickets.html`). |
+| <kbd>D</kbd> | **Dashboard** | Navigates to the executive dashboard (`/dashboard.html`). |
+
+> 💡 **Shortcuts Discovery & UI Integration:**
+> - **Topbar:** Click the **keyboard icon (⌨️)** in the top navigation bar at any time to open the cheat sheet.
+> - **Profile Drawer:** Clicking your user avatar opens the drawer containing a **"Keyboard Shortcuts (?)"** quick link.
+> - **Search Bar Badge:** A subtle `<kbd>/</kbd>` badge on the search input reminds users of the hotkey.
+> - **Input-Aware Guard:** Hotkeys automatically disable while typing inside form fields (`input`, `textarea`), preventing accidental navigation.
+
+---
+
+## 📡 API Architecture & Key Endpoints
+
+All endpoints are fully documented and testable interactively via Swagger UI (`http://localhost:5246/swagger`).
+
+<details>
+<summary><b>🔍 View Primary REST API Endpoints Table</b></summary>
+
+| Module | Method | Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **Auth** | `POST` | `/api/auth/login` | JWT token issuance and credential verification |
+| **Tickets** | `GET` | `/api/ticket` | Paginated, filtered ticket list |
+| | `POST` | `/api/ticket` | Create new ticket (including dynamic fields) |
+| | `GET` | `/api/ticket/{id}` | Ticket details, discussions, attachments, audit logs |
+| | `POST` | `/api/ticket/{id}/transition` | Apply permitted workflow state transition |
+| | `POST` | `/api/ticket/{id}/assign` | Reassign ticket to technician or support group |
+| **SLA** | `GET` | `/api/sla/policies` | Retrieve active SLA policies and target thresholds |
+| | `PUT` | `/api/sla/policies/{id}` | Update SLA policy parameters |
+| **AI Copilot** | `POST` | `/api/ai/tickets/{id}/suggest-resolution` | Generate AI-grounded resolution plan |
+| | `POST` | `/api/ai/tickets/{id}/draft-reply` | Generate drafted response for end-user communication |
+| | `POST` | `/api/ai/tickets/{id}/summarize` | Summarize ticket history and discussion timeline |
+| **Dashboard** | `GET` | `/api/dashboard/overview` | KPI counts and SLA compliance percentages |
+| | `GET` | `/api/dashboard/distributions` | Priority, category, and status distributions |
+| **KB** | `GET` | `/api/knowledgebase/articles` | Query published articles and full-text search |
+| **Dynamic Forms** | `GET` | `/api/dynamicform/fields` | Query custom dynamic form field definitions |
+
+</details>
+
+---
+
+## 🔒 Security & Standards
+
+- **Authorization:** Claim-based JWT Bearer authentication with granular privilege evaluation.
+- **Audit Trail:** EF Core `SystemAuditInterceptor` captures comprehensive historical changelogs across entities.
+- **ReDoS Mitigation:** Strict regex execution timeouts across search and HTML sanitization routines (CWE-1333).
+- **Cryptographic Security:** PBKDF2 with HMAC-SHA256 password salting via ASP.NET Identity PasswordHasher.
+- **Soft Deletion:** Preserves referential integrity and prevents accidental data loss via `ISoftDelete`.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+  <b>Author:</b> Berkay Bayramoğlu • <a href="mailto:berkaybbayramoglu@gmail.com">berkaybbayramoglu@gmail.com</a>
+  <br />
+  <sub>If you find this project valuable, please consider giving it a ⭐️ <b>Star</b> on GitHub!</sub>
+</div>
+
+---
+
+# 🇹🇷 Türkçe
+
+<p align="center">
   <b>Modern, modüler, yapay zeka destekli ve kurumsal ITIL süreçleriyle tam uyumlu yeni nesil BT Hizmet Yönetimi (ITSM) Platformu.</b>
   <br />
   <i>Clean Architecture • Entity-Attribute-Value (EAV) Dinamik Formlar • AI Resolution Copilot • Gerçek Zamanlı SignalR • Dinamik SLA Motoru</i>
@@ -20,8 +487,6 @@
 [Özellikler](#-öne-çıkan-özellikler) • [Mimari](#-sistem-mimarisi) • [AI / LLM Mimarisi](#-yapay-zeka-ai--llm-copilot-mimarisi) • [Klavye Kısayolları](#-klavye-kısayolları-power-user-hotkeys) • [Test & SonarQube](#-kod-kalitesi--sonarqube) • [Kurulum](#-hızlı-kurulum) • [Demo Hesaplar](#-demo-hesaplar) • [API Dokümantasyonu](#-api-mimarisi--başlıca-endpointler)
 
 ---
-
-</div>
 
 ## 🌟 Öne Çıkan Özellikler
 
