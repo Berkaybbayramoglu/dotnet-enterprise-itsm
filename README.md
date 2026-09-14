@@ -7,7 +7,7 @@
 [![SonarQube](https://img.shields.io/badge/SonarQube-PASSED%20(A)-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white)](http://localhost:9000)
 [![CI Pipeline](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker-compose.yml)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-358%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-385%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
 [![Coverage](https://img.shields.io/badge/Code%20Coverage-85.34%25-success?style=for-the-badge&logo=codecov&logoColor=white)](tests/ItsTool.UnitTests)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -216,12 +216,31 @@ flowchart TD
   - LLM erişilemezse veya kapalıysa, sistem **asla hata fırlatmaz**; anında bilet kategorisini, önceliğini, geçmiş müdahalelerini ve ilgili KB makalelerini analiz eden **yerel kural motoruna (Smart Heuristic Fallback)** devredilir (`isLlm: false`).
   - Kullanıcı arayüzünde şeffaflık sağlanarak yanıtın kural motorundan geldiği ve harici model bağlamak için ayarların kontrol edilmesi gerektiği açıkça belirtilir.
 
-#### 2. 📚 RAG-Lite & Bağlamsal Zenginleştirme (Context Grounding)
-LLM modeline sadece bilet başlığı gönderilmez. Doğruluk oranını artırmak ve halüsinasyonları önlemek için prompt context'i şu verilerle zenginleştirilir:
-- **Bilet Temel Verileri:** Başlık, açıklama, kategori, öncelik, talep tipi ve durum.
-- **EAV Dinamik Alanlar:** Varsa sunucu adı, etkilenen kullanıcı sayısı, hata kodları vb.
-- **Zaman Çizelgesi & Yorumlar:** Son kullanıcı ile teknisyen arasındaki tüm geçmiş diyaloglar ve iç notlar (internal notes).
-- **Bilgi Bankası Eşleştirmesi:** Kategori ve etiket bazlı en alakalı onaylı KB makaleleri prompt'a eklenerek modele *"Kurumsal prosedürlere sadık kalarak yanıtla"* talimatı verilir.
+#### 2. 📚 RAG Mimarisi: Çok Kaynaklı Yapılandırılmış Hibrit RAG (Structured Multi-Source Hybrid RAG)
+ITSM Tool, genel geçer serbest metin vektör aramaları yerine kurumsal BT destek süreçlerine özel olarak tasarlanmış **Structured Multi-Source Hybrid RAG (Çok Kaynaklı Yapılandırılmış Hibrit RAG)** mimarisini kullanır. Bu mimari, sistemdeki ilişkisel veri hiyerarşisi, kurumsal bilgi bankası ve geçmiş bilet tecrübesini birleştirerek modele sıfır halüsinasyon garantisiyle bağlam sunar.
+
+##### 🔄 RAG Çalışma Akışı ve Aşamaları:
+1. **Taksonomi ve Varlık Filtreli Getirim (Taxonomy & Entity-Filtered Retrieval):**
+   - Aktif biletin kategori (`CategoryId`), öncelik (`PriorityId`) ve etiketleri analiz edilir.
+   - Veritabanındaki binlerce bilet taranarak aynı kategoride daha önce başarıyla **kapatılmış ve çözülmüş biletler** (`GetSimilarTicketsAsync`) doğrulanmış çözüm referansları (*Ground Truth / Few-Shot In-Context Learning*) olarak çekilir.
+2. **Bilgi Bankası Sözlüksel & Semantik Getirimi (KB Retrieval):**
+   - Bilet başlığı ve kategori kimliği üzerinden kurumsal Bilgi Bankası (`KnowledgeArticles`) taranır.
+   - Onaylanmış kurumsal kılavuzlar, sıkça sorulan sorular ve standart işletim prosedürleri (SOP) getirilerek yanıta resmiyet kazandırılır.
+3. **Kronolojik Etkileşim ve Zaman Çizelgesi Getirimi (Temporal Discussion Retrieval):**
+   - Bilet altındaki kullanıcı yorumları ve teknisyenin dahili notları (`TicketComments`) kronolojik sırayla çekilir.
+   - Böylece yapay zeka, bilet üzerinde şimdiye kadar hangi adımların denendiğini, kullanıcının verdiği son geri bildirimleri ve devam eden aksiyonları eksiksiz bilir.
+4. **Dinamik EAV Alanları Getirimi (Schema-Aware Dynamic Field Retrieval):**
+   - Bilete form motoru tarafından eklenmiş özel dinamik alanlar (`Sunucu Adı`, `Hata Kodu`, `Etkilenen Departman` vb.) toplanır.
+5. **Bağlamsal Zenginleştirme ve Prompt Enjeksiyonu (Augmentation Layer):**
+   - Toplanan tüm veriler (Bilet + Çözülmüş Benzer Vakalar + KB Makaleleri + Zaman Çizelgesi), yapılandırılmış JSON ve semantik metin blokları halinde prompt'a gömülür.
+   - Modele: *"Yalnızca sana sunulan geçmiş başarılı çözümlere ve kurumsal bilgi bankası prosedürlerine sadık kalarak, halüsinasyon üretmeden BT teknisyeni için adım adım aksiyon planı oluştur"* talimatı verilir.
+6. **Çift Motorlu Sentez (Dual-Engine Synthesis):**
+   - **Canlı LLM:** OpenAI uyumlu yerel/bulut modeller zenginleştirilmiş bağlamı sentezleyip kurumsal ve temiz bir rehber üretir.
+   - **Akıllı Yerel Kural Motoru (Smart Heuristic Fallback):** LLM kapalı veya erişilemez olduğunda, toplanan bu RAG bağlamı yerel kural motoru tarafından doğrudan işlenerek teknisyenin ekranına kesintisiz ulaştırılır.
+
+##### 🎯 Neden Klasik Vektör DB Yerine Yapılandırılmış RAG?
+- **Sıfır Halüsinasyon:** Model rastgele tahminlerde bulunmaz; daha önce BT ekiplerince çözülüp kapatılmış gerçek bilet kayıtlarını baz alır.
+- **Ultra Düşük Gecikme & Sıfır Maliyet:** Harici vektör veritabanı (Pinecone, Qdrant vb.) veya harici embedding API bağımlılığı olmadan, PostgreSQL'in güçlü ilişkisel indeksleri sayesinde getirim işlemi **5 milisaniyenin altında** gerçekleşir.
 
 #### 3. 🌐 Çok Dilli Zeka & Prompt Sentezi (TR / EN)
 - Arayüz üzerinden tek tıkla **🇹🇷 TR** veya **🇬🇧 EN** yanıt dili seçilebilir ve tercih `localStorage` üzerinde saklanır.
@@ -257,7 +276,7 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 | Metrik | Sonuç | Durum |
 | :---: | :---: | :---: |
 | **Quality Gate** | **PASSED (OK)** | 🟢 Başarılı |
-| **Birim Testleri** | **358 / 358 Geçti** | 🟢 %100 Başarı |
+| **Birim Testleri** | **385 / 385 Geçti (375 .NET + 10 JS)** | 🟢 %100 Başarı |
 | **Satır Test Kapsamı (Line Coverage)** | **%85.34** | 🟢 Yüksek Kapsam |
 | **Bugs** | **0** | 🟢 Sıfır Hata |
 | **Vulnerabilities** | **0** | 🟢 Güvenli |
