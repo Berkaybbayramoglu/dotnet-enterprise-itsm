@@ -1364,18 +1364,18 @@
             let overallBadge = '';
             if (isClosed) {
                 if (isResBreached || isFirstRespBreached) {
-                    overallBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:10px; font-weight:600;">⚠️ İhlal Edildi</span>';
+                    overallBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:10px; font-weight:600;">İhlal Edildi</span>';
                 } else {
-                    overallBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; font-size:10px; font-weight:600;">✅ Karşılandı</span>';
+                    overallBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; font-size:10px; font-weight:600;">Karşılandı</span>';
                 }
             } else if (sla.pausedAt) {
-                overallBadge = '<span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; font-size:10px; font-weight:600;">⏸️ Duraklatıldı</span>';
+                overallBadge = '<span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; font-size:10px; font-weight:600;">Duraklatıldı</span>';
             } else if (isResBreached) {
-                overallBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:10px; font-weight:700;">⚠️ Çözüm Aşıldı</span>';
+                overallBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:10px; font-weight:700;">Çözüm Aşıldı</span>';
             } else if (isFirstRespBreached) {
-                overallBadge = '<span class="badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; font-size:10px; font-weight:700;">⚠️ İlk Yanıt Aşıldı</span>';
+                overallBadge = '<span class="badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; font-size:10px; font-weight:700;">İlk Yanıt Aşıldı</span>';
             } else {
-                overallBadge = '<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:10px; font-weight:600;">🟢 Süresinde</span>';
+                overallBadge = '<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:10px; font-weight:600;">Süresinde</span>';
             }
             document.getElementById('tSlaOverallBadge').innerHTML = overallBadge;
 
@@ -1385,9 +1385,9 @@
             if (firstRespDate) {
                 firstRespDateText = firstRespDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 if (isFirstRespMet) {
-                    firstRespBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; font-size:10px;">✅ Karşılandı</span>';
+                    firstRespBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; font-size:10px;">Karşılandı</span>';
                 } else if (isFirstRespBreached) {
-                    firstRespBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; font-size:10px; font-weight:700;">⚠️ Aşıldı</span>';
+                    firstRespBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; font-size:10px; font-weight:700;">Aşıldı</span>';
                 } else {
                     const diffMs = firstRespDate - now;
                     firstRespBadge = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
@@ -1402,9 +1402,9 @@
             if (resDate) {
                 resDateText = resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 if (isResMet) {
-                    resBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; font-size:10px;">✅ Karşılandı</span>';
+                    resBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; font-size:10px;">Karşılandı</span>';
                 } else if (isResBreached) {
-                    resBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; font-size:10px; font-weight:700;">⚠️ Aşıldı</span>';
+                    resBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; font-size:10px; font-weight:700;">Aşıldı</span>';
                 } else {
                     const diffMs = resDate - now;
                     resBadge = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:10px;">${formatRemainingTime(diffMs)}</span>`;

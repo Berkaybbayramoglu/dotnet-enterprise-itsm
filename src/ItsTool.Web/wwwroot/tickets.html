@@ -360,19 +360,19 @@
             if (isClosed) {
                 if (isResBreached || isFirstRespBreached) {
                     return `<div>
-                        <span class="sla-badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;">⚠️ ${t('sla_breached', 'SLA Aşıldı')}</span>
+                        <span class="sla-badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;">${t('sla_breached', 'SLA Aşıldı')}</span>
                         <div class="sla-subtext">${t('t_filter_closed', 'Kapatıldı')}</div>
                     </div>`;
                 }
                 return `<div>
-                    <span class="sla-badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC;">✅ ${t('sla_met', 'Karşılandı')}</span>
+                    <span class="sla-badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC;">${t('sla_met', 'Karşılandı')}</span>
                     <div class="sla-subtext">${t('sla_completed', 'Tamamlandı')}</div>
                 </div>`;
             }
 
             if (sla.pausedAt) {
                 return `<div>
-                    <span class="sla-badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1;">⏸️ ${t('sla_paused', 'Duraklatıldı')}</span>
+                    <span class="sla-badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1;">${t('sla_paused', 'Duraklatıldı')}</span>
                     <div class="sla-subtext">${t('sla_on_hold', 'Beklemede')}</div>
                 </div>`;
             }
@@ -382,7 +382,7 @@
             if (isResBreached) {
                 const resDateStr = resDate ? resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
                 return `<div>
-                    <span class="sla-badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;">⚠️ ${t('sla_res_breached', 'Çözüm Aşıldı')}</span>
+                    <span class="sla-badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;">${t('sla_res_breached', 'Çözüm Aşıldı')}</span>
                     <div class="sla-subtext" style="color:var(--danger); font-weight:500;">${t('sla_target_prefix', 'Hedef:')} ${resDateStr}</div>
                 </div>`;
             }
@@ -393,7 +393,7 @@
                 const resRemainStr = formatRemaining(resDiffMs);
                 const resDateStr = resDate ? resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
                 return `<div>
-                    <span class="sla-badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D;">⚠️ ${t('sla_first_resp_breached', 'İlk Yanıt Aşıldı')}</span>
+                    <span class="sla-badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D;">${t('sla_first_resp_breached', 'İlk Yanıt Aşıldı')}</span>
                     <div class="sla-subtext" title="${t('sla_target_prefix', 'Hedef:')} ${resDateStr}">${t('sla_resolution_prefix', 'Çözüm:')} ${resRemainStr}</div>
                 </div>`;
             }
@@ -409,19 +409,19 @@
 
                 if (diffMins <= 0) {
                     badgeStyle = 'background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;';
-                    badgeText = `⚠️ ${t('sla_breached', 'Süre Doldu')}`;
+                    badgeText = `${t('sla_breached', 'Süre Doldu')}`;
                 } else if (diffMins <= 60) {
                     badgeStyle = 'background:#FEF2F2; color:#DC2626; border:1px solid #FECACA;';
-                    badgeText = `⏳ ${Math.max(1, diffMins)} ${t('sla_mins_left', 'dk kaldı')}`;
+                    badgeText = `${Math.max(1, diffMins)} ${t('sla_mins_left', 'dk kaldı')}`;
                 } else if (diffMins <= 1440) {
                     const hrs = Math.floor(diffMins / 60);
                     const mins = diffMins % 60;
                     badgeStyle = 'background:#FEF3C7; color:#92400E; border:1px solid #FCD34D;';
-                    badgeText = `🕒 ${hrs} ${t('sla_short_hr', 'sa')} ${mins} ${t('sla_mins_left', 'dk kaldı')}`;
+                    badgeText = `${hrs} ${t('sla_short_hr', 'sa')} ${mins} ${t('sla_mins_left', 'dk kaldı')}`;
                 } else {
                     const days = Math.ceil(diffMins / 1440);
                     badgeStyle = 'background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE;';
-                    badgeText = `📅 ${days} ${t('sla_days_left', 'gün kaldı')}`;
+                    badgeText = `${days} ${t('sla_days_left', 'gün kaldı')}`;
                 }
 
                 return `<div>
