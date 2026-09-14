@@ -62,6 +62,17 @@ public class TicketController : ControllerBase
         return Ok(users);
     }
 
+    private static readonly HashSet<string> AllowedDeleteRoles = new(StringComparer.OrdinalIgnoreCase) { RoleSuperAdmin, RoleManager };
+    private static readonly HashSet<string> AllowedDeletePermissions = new() { "ticket.manage", "ticket.assign", "ticket.delete", "ticket.edit" };
+
+    private bool HasTicketDeletePermission()
+    {
+        if (User.IsInRole(RoleSuperAdmin) || User.IsInRole(RoleManager)) return true;
+        return User.Claims.Any(c => 
+            (c.Type == ClaimTypes.Role && AllowedDeleteRoles.Contains(c.Value)) ||
+            (c.Type == PermissionClaim && AllowedDeletePermissions.Contains(c.Value)));
+    }
+
     [HttpDelete("{id}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -69,12 +80,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DeleteTicket(int id)
     {
-        bool hasDeletePerm = User.IsInRole(RoleSuperAdmin) || 
-                             User.IsInRole(RoleManager) || 
-                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals(RoleSuperAdmin, StringComparison.OrdinalIgnoreCase) || c.Value.Equals(RoleManager, StringComparison.OrdinalIgnoreCase))) ||
-                             User.HasClaim(c => c.Type == PermissionClaim && (c.Value == "ticket.manage" || c.Value == "ticket.assign" || c.Value == "ticket.delete" || c.Value == "ticket.edit"));
-        
-        if (!hasDeletePerm) return Forbid();
+        if (!HasTicketDeletePermission()) return Forbid();
 
         try
         {
@@ -91,12 +97,7 @@ public class TicketController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RestoreTicket(int id)
     {
-        bool hasDeletePerm = User.IsInRole(RoleSuperAdmin) || 
-                             User.IsInRole(RoleManager) || 
-                             User.HasClaim(c => c.Type == ClaimTypes.Role && (c.Value.Equals(RoleSuperAdmin, StringComparison.OrdinalIgnoreCase) || c.Value.Equals(RoleManager, StringComparison.OrdinalIgnoreCase))) ||
-                             User.HasClaim(c => c.Type == PermissionClaim && (c.Value == "ticket.manage" || c.Value == "ticket.assign" || c.Value == "ticket.delete" || c.Value == "ticket.edit"));
-        
-        if (!hasDeletePerm) return Forbid();
+        if (!HasTicketDeletePermission()) return Forbid();
 
         try
         {

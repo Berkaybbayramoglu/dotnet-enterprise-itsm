@@ -89,7 +89,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 
-    private static bool ShouldSkipAudit(object entity)
+    internal static bool ShouldSkipAudit(object entity)
     {
         if (entity is SystemAuditLog) return true;
         var name = entity.GetType().Name;
@@ -116,7 +116,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification") || name.Contains("Preference");
     }
 
-    private static bool TryProcessSoftDeleteOrRestore(
+    internal static bool TryProcessSoftDeleteOrRestore(
         Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry,
         List<SystemAuditLog> logs,
         List<Microsoft.EntityFrameworkCore.ChangeTracking.PropertyEntry> modifiedProperties,
@@ -148,7 +148,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return false;
     }
 
-    private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, AuditEntityContext ctx)
+    internal static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, AuditEntityContext ctx)
     {
         var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
         if (TryProcessSoftDeleteOrRestore(entry, logs, modifiedProperties, ctx))
@@ -259,7 +259,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         }
     }
 
-    private static string GetEntitySummary(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
+    internal static string GetEntitySummary(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
     {
         try
         {
@@ -276,7 +276,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         }
     }
 
-    private static string? GetSpecificEntitySummary(object entity, DbContext? context)
+    internal static string? GetSpecificEntitySummary(object entity, DbContext? context)
     {
         return entity switch
         {
@@ -294,7 +294,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         };
     }
 
-    private static string GetUserSummary(User u)
+    internal static string GetUserSummary(User u)
     {
         var fullName = $"{u.FirstName} {u.LastName}".Trim();
         var displayName = string.IsNullOrWhiteSpace(fullName) ? u.Username : fullName;
@@ -302,13 +302,13 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return $"Kullanıcı: {displayName} (@{u.Username}, {u.Email}) | Departman ID: {dept}";
     }
 
-    private static string GetProjectSummary(Project p)
+    internal static string GetProjectSummary(Project p)
     {
         var desc = string.IsNullOrWhiteSpace(p.Description) ? "" : $" | Açıklama: {p.Description}";
         return $"Proje: {p.Name} (Anahtar: {p.ProjectKey}) | Durum: {p.Status}{desc}";
     }
 
-    private static string GetSlaSummary(SlaPolicy sla, DbContext? context)
+    internal static string GetSlaSummary(SlaPolicy sla, DbContext? context)
     {
         string projectName = "Genel Sistem";
         if (sla.ProjectId.HasValue && context != null)
@@ -341,7 +341,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return $"Politika: {sla.Name} | Kapsam: {projectName}{esc}{desc}{targetsSummary}";
     }
 
-    private static string GetGeneralPropertiesSummary(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    internal static string GetGeneralPropertiesSummary(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
     {
         var props = entry.Properties
             .Where(p => p.Metadata.Name != "Id" && 
@@ -361,7 +361,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return string.IsNullOrWhiteSpace(joined) ? entry.Entity.GetType().Name : joined;
     }
 
-    private static string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
+    internal static string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
     {
         if (entry.Entity.GetType().Name.Contains("GroupMember"))
             return SystemAuditInterceptor.GetGroupMemberName(entry, context);
@@ -374,7 +374,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return entry.Entity.GetType().Name;
     }
 
-    private static string GetGroupMemberName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
+    internal static string GetGroupMemberName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
     {
         try 
         {

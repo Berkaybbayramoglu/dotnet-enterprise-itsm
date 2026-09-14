@@ -346,7 +346,7 @@ public class NotificationDispatcher : INotificationDispatcher
         }
     }
 
-    private static string GetHumanReadableEventName(string eventKey)
+    internal static string GetHumanReadableEventName(string eventKey)
     {
         return eventKey switch
         {

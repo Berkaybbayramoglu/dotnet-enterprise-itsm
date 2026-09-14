@@ -7,8 +7,8 @@
 [![SonarQube](https://img.shields.io/badge/SonarQube-PASSED%20(A)-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white)](http://localhost:9000)
 [![CI Pipeline](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker-compose.yml)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-385%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
-[![Coverage](https://img.shields.io/badge/Code%20Coverage-85.34%25-success?style=for-the-badge&logo=codecov&logoColor=white)](tests/ItsTool.UnitTests)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-534%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
+[![Coverage](https://img.shields.io/badge/Code%20Coverage-96.89%25-success?style=for-the-badge&logo=codecov&logoColor=white)](tests/ItsTool.UnitTests)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 <p align="center">
@@ -276,8 +276,9 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 | Metrik | Sonuç | Durum |
 | :---: | :---: | :---: |
 | **Quality Gate** | **PASSED (OK)** | 🟢 Başarılı |
-| **Birim Testleri** | **385 / 385 Geçti (375 .NET + 10 JS)** | 🟢 %100 Başarı |
-| **Satır Test Kapsamı (Line Coverage)** | **%85.34** | 🟢 Yüksek Kapsam |
+| **Birim Testleri** | **534 / 534 Geçti** | 🟢 %100 Başarı |
+| **Satır Test Kapsamı (Line Coverage)** | **%96.89** | 🟢 Yüksek Kapsam |
+| **Dal Test Kapsamı (Branch Coverage)** | **%95.09** | 🟢 Yüksek Kapsam |
 | **Bugs** | **0** | 🟢 Sıfır Hata |
 | **Vulnerabilities** | **0** | 🟢 Güvenli |
 | **Security Hotspots** | **0** | 🟢 İncelendi |
@@ -292,12 +293,12 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 +------------------------+--------+--------+--------+
 | Modül                  | Satır  | Dal    | Metot  |
 +------------------------+--------+--------+--------+
-| ItsTool.Domain         | 93.43% | 100%   | 93.43% |
-| ItsTool.Application    | 84.16% | 100%   | 82.84% |
-| ItsTool.Infrastructure | 82.72% | 56.49% | 88.47% |
-| ItsTool.API            | 92.12% | 68.75% | 96.62% |
+| ItsTool.Domain         | 94.90% | 100%   | 94.90% |
+| ItsTool.Application    | 99.60% | 100%   | 99.57% |
+| ItsTool.Infrastructure | 97.57% | 95.09% | 96.13% |
+| ItsTool.API            | 94.35% | 95.08% | 98.30% |
 +------------------------+--------+--------+--------+
-| TOPLAM ORTALAMA        | 85.34% | 58.12% | 90.35% |
+| TOPLAM ORTALAMA        | 96.89% | 95.09% | 96.92% |
 +------------------------+--------+--------+--------+
 ```
 
@@ -306,7 +307,7 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 GitHub Actions üzerinde koşan otomatik CI pipeline (`.github/workflows/ci.yml`), repoya yapılan her `push` ve `pull_request` işleminde:
 1. **Ortam Hazırlığı:** Ubuntu üzerinde .NET 8 SDK'sını yapılandırır.
 2. **Derleme:** Çözümün (`ItsTool.sln`) bağımlılıklarını geri yükler ve `Release` modda derler.
-3. **Otomatik Testler:** 353 birim testini çalıştırarak kod kalitesini garanti eder.
+3. **Otomatik Testler:** 534 birim testini çalıştırarak kod kalitesini garanti eder.
 4. **Kapsam Raporlama:** OpenCover formatında test kapsamı raporu oluşturup CI artifact olarak saklar.
 
 ---

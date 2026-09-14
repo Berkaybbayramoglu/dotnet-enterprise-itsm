@@ -15,6 +15,7 @@ using Xunit;
 
 namespace ItsTool.UnitTests.Services;
 
+[Collection("LlmTests")]
 public class LlmServiceTests : IDisposable
 {
     private readonly Mock<ILogger<LlmService>> _loggerMock = new();

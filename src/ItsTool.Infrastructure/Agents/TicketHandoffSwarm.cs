@@ -221,7 +221,7 @@ KURALLAR:
         return new AiHandoffResult(true, finalCombined, finalActions, finalCombined, source, isLlm);
     }
 
-    private static (string Summary, string Actions) BuildSmartHeuristicHandoffEn(Ticket ticket, int commentCount, List<string>? recentComments = null)
+    internal static (string Summary, string Actions) BuildSmartHeuristicHandoffEn(Ticket ticket, int commentCount, List<string>? recentComments = null)
     {
         var desc = string.IsNullOrWhiteSpace(ticket.Description) ? "No description provided." : ticket.Description;
         var summary = $"Ticket #{ticket.TicketNumber} titled \"{ticket.Title}\" was created on {ticket.CreatedAt:dd.MM.yyyy HH:mm}. Ticket description: \"{desc}\". There are currently {commentCount} actions or comments recorded on this ticket.";
@@ -252,7 +252,7 @@ KURALLAR:
         await GenerateHandoffSummaryAsync(ticket.Id, postAsComment: true);
     }
 
-    private static (string Summary, string Actions) BuildSmartHeuristicHandoff(Ticket ticket, int commentCount, List<string>? recentComments = null)
+    internal static (string Summary, string Actions) BuildSmartHeuristicHandoff(Ticket ticket, int commentCount, List<string>? recentComments = null)
     {
         var desc = string.IsNullOrWhiteSpace(ticket.Description) ? "Açıklama girilmemiş" : ticket.Description;
         var summary = $"#{ticket.TicketNumber} numaralı \"{ticket.Title}\" talebi {ticket.CreatedAt:dd.MM.yyyy HH:mm} tarihinde oluşturulmuştur. Talep açıklaması: \"{desc}\". Bilet üzerinde şu ana kadar {commentCount} adet işlem veya yorum kaydı bulunmaktadır.";

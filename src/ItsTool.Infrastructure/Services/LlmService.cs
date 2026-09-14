@@ -227,7 +227,7 @@ public class LlmService : ILlmService
         return [];
     }
 
-    private static List<LlmModelDto> ParseV1ModelsJson(string json)
+    internal static List<LlmModelDto> ParseV1ModelsJson(string json)
     {
         var models = new List<LlmModelDto>();
         using var doc = JsonDocument.Parse(json);
@@ -271,7 +271,7 @@ public class LlmService : ILlmService
         return [];
     }
 
-    private static List<LlmModelDto> ParseOllamaTagsJson(string json)
+    internal static List<LlmModelDto> ParseOllamaTagsJson(string json)
     {
         var models = new List<LlmModelDto>();
         using var doc = JsonDocument.Parse(json);
@@ -592,7 +592,7 @@ public class LlmService : ILlmService
         return GetEffectiveConfig();
     }
 
-    private static string ParseOpenAiResponse(string json)
+    internal static string ParseOpenAiResponse(string json)
     {
         if (string.IsNullOrWhiteSpace(json)) return string.Empty;
         try
@@ -614,7 +614,7 @@ public class LlmService : ILlmService
         return string.Empty;
     }
 
-    private static string ParseAnthropicResponse(string json)
+    internal static string ParseAnthropicResponse(string json)
     {
         if (string.IsNullOrWhiteSpace(json)) return string.Empty;
         try
@@ -638,7 +638,7 @@ public class LlmService : ILlmService
         return string.Empty;
     }
 
-    private static string TranslateHttpException(HttpRequestException ex, string endpoint)
+    internal static string TranslateHttpException(HttpRequestException ex, string endpoint)
     {
         var msg = ex.Message;
         if (msg.Contains("Connection refused", StringComparison.OrdinalIgnoreCase) || ex.InnerException is System.Net.Sockets.SocketException)
@@ -652,7 +652,7 @@ public class LlmService : ILlmService
         return $"Ağ bağlantı hatası: {msg}";
     }
 
-    private static string FormatErrorMessage(string rawError, System.Net.HttpStatusCode statusCode)
+    internal static string FormatErrorMessage(string rawError, System.Net.HttpStatusCode statusCode)
     {
         if (string.IsNullOrWhiteSpace(rawError)) return $"HTTP {(int)statusCode}";
         try
@@ -671,7 +671,7 @@ public class LlmService : ILlmService
         return rawError.Length > 200 ? string.Concat(rawError.AsSpan(0, 200), "...") : rawError;
     }
 
-    private static string MaskApiKey(string? apiKey)
+    internal static string MaskApiKey(string? apiKey)
     {
         if (string.IsNullOrWhiteSpace(apiKey)) return string.Empty;
         if (apiKey.Length <= 8) return "********";

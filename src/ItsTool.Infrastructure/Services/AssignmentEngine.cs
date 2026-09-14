@@ -57,7 +57,7 @@ public class AssignmentEngine : IAssignmentEngine
         }
     }
 
-    private static bool IsRuleMatch(ItsTool.Domain.Entities.Organization.AssignmentRule rule, Ticket ticket)
+    internal static bool IsRuleMatch(ItsTool.Domain.Entities.Organization.AssignmentRule rule, Ticket ticket)
     {
         if (rule.ProjectId.HasValue && rule.ProjectId.Value != ticket.ProjectId) return false;
         if (rule.CategoryId.HasValue && rule.CategoryId.Value != ticket.CategoryId) return false;

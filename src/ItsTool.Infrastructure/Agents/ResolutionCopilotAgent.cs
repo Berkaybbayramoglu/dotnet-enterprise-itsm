@@ -355,7 +355,7 @@ KURALLAR:
         return (CleanPlainText(fallback), "Akıllı Yerel Asistan", false);
     }
 
-    private static string BuildSmartHeuristicSuggestionEn(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)
+    internal static string BuildSmartHeuristicSuggestionEn(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Category and Status Assessment:");
@@ -400,7 +400,7 @@ KURALLAR:
         return CleanPlainText(sb.ToString());
     }
 
-    private static string BuildSmartHeuristicSuggestion(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)
+    internal static string BuildSmartHeuristicSuggestion(Ticket ticket, IEnumerable<SimilarTicketSummary> similarTickets, IEnumerable<KbArticleSummary> kbArticles)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Kategori ve Durum Değerlendirmesi:");
