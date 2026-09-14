@@ -191,6 +191,7 @@ public class UserService : IUserService
         if (user == null) throw new KeyNotFoundException("User not found");
         
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.MustChangePassword = true;
         await _context.SaveChangesAsync();
     }
     

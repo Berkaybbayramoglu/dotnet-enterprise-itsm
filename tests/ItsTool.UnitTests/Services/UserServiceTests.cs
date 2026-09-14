@@ -189,4 +189,28 @@ public class UserServiceTests : TestBase
         Assert.NotNull(po);
         Assert.True(po.IsGranted);
     }
+
+    [Fact]
+    public async Task ResetPasswordAsync_ShouldUpdatePasswordHashAndSetMustChangePasswordTrue()
+    {
+        var user = new User
+        {
+            Username = "resetuser",
+            Email = "reset@example.com",
+            FirstName = "Reset",
+            LastName = "User",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("OldPassword123!"),
+            MustChangePassword = false
+        };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        await _userService.ResetPasswordAsync(user.Id, "TemporaryPass123!");
+
+        var updatedUser = await _context.Users.FindAsync(user.Id);
+        Assert.NotNull(updatedUser);
+        Assert.True(updatedUser.MustChangePassword);
+        Assert.True(BCrypt.Net.BCrypt.Verify("TemporaryPass123!", updatedUser.PasswordHash));
+    }
 }
+

@@ -8,6 +8,7 @@ public class User : BaseEntity {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string? ProfilePhoto { get; set; }
+    public bool MustChangePassword { get; set; } = false;
     public int? DepartmentId { get; set; }
     public virtual Department? Department { get; set; }
     public virtual ICollection<GroupMember> GroupMemberships { get; set; } = new List<GroupMember>();

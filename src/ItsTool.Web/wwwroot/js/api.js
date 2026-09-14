@@ -59,7 +59,8 @@ class ApiClient {
             this.decodedToken = {
                 userId: Number.parseInt(payload.sub || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] || payload.nameid, 10),
                 roles: Array.isArray(roles) ? roles : [roles],
-                permissions: Array.isArray(permissions) ? permissions : [permissions]
+                permissions: Array.isArray(permissions) ? permissions : [permissions],
+                mustChangePassword: payload.mustChangePassword === 'true' || payload.mustChangePassword === true
             };
         } catch (e) {
             console.error("Failed to parse token", e);
@@ -143,6 +144,17 @@ class ApiClient {
             body: JSON.stringify({ username, password })
         });
         this.setToken(res.token);
+        return res;
+    }
+
+    async changePassword(newPassword, confirmPassword) {
+        const res = await this.request('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ newPassword, confirmPassword })
+        });
+        if (res && res.token) {
+            this.setToken(res.token);
+        }
         return res;
     }
 

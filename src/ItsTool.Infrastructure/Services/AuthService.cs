@@ -46,7 +46,9 @@ public class AuthService : IAuthService
 
         var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
 
-        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+        var token = user.MustChangePassword
+            ? _tokenService.GenerateToken(user.Id, user.Username, roles, permissions, true)
+            : _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
 
         var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
 
@@ -55,7 +57,8 @@ public class AuthService : IAuthService
             ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
             Username: user.Username,
             Roles: roles,
-            Permissions: permissions
+            Permissions: permissions,
+            MustChangePassword: user.MustChangePassword
         );
     }
 
@@ -97,7 +100,8 @@ public class AuthService : IAuthService
             Permissions: permissions,
             Overrides: overrides,
             KbArticleCount: kbCount,
-            ProfilePhoto: user.ProfilePhoto
+            ProfilePhoto: user.ProfilePhoto,
+            MustChangePassword: user.MustChangePassword
         );
     }
 
@@ -116,7 +120,9 @@ public class AuthService : IAuthService
 
         var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
 
-        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+        var token = user.MustChangePassword
+            ? _tokenService.GenerateToken(user.Id, user.Username, roles, permissions, true)
+            : _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
 
         var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
 
@@ -125,7 +131,54 @@ public class AuthService : IAuthService
             ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
             Username: user.Username,
             Roles: roles,
-            Permissions: permissions
+            Permissions: permissions,
+            MustChangePassword: user.MustChangePassword
+        );
+    }
+
+    public async Task<AuthResponseDto> ChangePasswordAsync(int userId, ChangePasswordRequestDto request)
+    {
+        if (request == null)
+            throw new ArgumentException("İstek verisi boş olamaz.");
+
+        if (string.IsNullOrWhiteSpace(request.NewPassword) || string.IsNullOrWhiteSpace(request.ConfirmPassword))
+            throw new ArgumentException("Yeni şifre ve şifre tekrarı boş olamaz.");
+
+        if (request.NewPassword != request.ConfirmPassword)
+            throw new ArgumentException("Girilen şifreler birbiriyle eşleşmiyor.");
+
+        if (request.NewPassword.Length < 6)
+            throw new ArgumentException("Yeni şifre en az 6 karakter uzunluğunda olmalıdır.");
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && !u.IsDeleted);
+
+        if (user == null)
+            throw new UnauthorizedAccessException("Kullanıcı bulunamadı veya hesabı aktif değil.");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        user.MustChangePassword = false;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        var roles = await _context.UserRoles
+            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive && !ur.Role.IsDeleted && !ur.IsDeleted)
+            .Select(ur => ur.Role!.Name)
+            .ToListAsync();
+
+        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+
+        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+
+        return new AuthResponseDto(
+            Token: token,
+            ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            Username: user.Username,
+            Roles: roles,
+            Permissions: permissions,
+            MustChangePassword: false
         );
     }
 }

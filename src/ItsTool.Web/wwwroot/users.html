@@ -248,7 +248,7 @@
                     </div>
                 </div>
                 <div id="resetPasswordAlertBox" style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 12px; color: #1E40AF; line-height: 1.45;">
-                    <strong>Şifre Kurtarma Prosedürü:</strong> Bu geçici şifreyi sisteme kaydedip kullanıcıya iletebilirsiniz. Kullanıcı sisteme bu şifre ile anında giriş yapabilir.
+                    <strong>Şifre Kurtarma Prosedürü:</strong> Bu geçici şifreyi sisteme kaydedip kullanıcıya iletebilirsiniz. Kullanıcı bu şifreyle sisteme ilk girişinde otomatik olarak kendi yeni şifresini belirleyecektir.
                 </div>
             </div>
             <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px;">
@@ -653,7 +653,7 @@
             try {
                 await window.api.resetUserPassword(resetUserId, newPass);
                 await navigator.clipboard.writeText(newPass);
-                showToast(`Şifre sıfırlandı! "${newPass}" panoya kopyalandı.`);
+                showToast(`Şifre sıfırlandı ve panoya kopyalandı! Kullanıcı ilk girişinde yeni şifresini belirleyecektir.`, 'success');
                 closeModal('resetPasswordModal');
             } catch (err) {
                 console.error(err);

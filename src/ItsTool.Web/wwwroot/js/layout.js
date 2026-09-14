@@ -185,5 +185,147 @@ const shellHtml = `
         if (typeof applyTranslations === 'function') {
             applyTranslations();
         }
+
+        checkMustChangePassword();
     }
+}
+
+const EYE_OPEN = 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z';
+const EYE_CLOSED = 'M12 7c-2.76 0-5 2.24-5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z';
+
+export async function checkMustChangePassword() {
+    if (typeof window === 'undefined' || !window.api) return;
+    try {
+        let mustChange = false;
+        if (window.api.decodedToken && window.api.decodedToken.mustChangePassword) {
+            mustChange = true;
+        } else if (window.api.token) {
+            const me = await window.api.getMe();
+            if (me && me.mustChangePassword) mustChange = true;
+        }
+
+        if (mustChange) {
+            showMandatoryPasswordModal();
+        }
+    } catch(e) {
+        console.warn('Could not check mustChangePassword:', e);
+    }
+}
+
+function showMandatoryPasswordModal() {
+    if (document.getElementById('mandatoryPasswordModalOverlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'mandatoryPasswordModalOverlay';
+    overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 999999; padding: 16px;';
+
+    overlay.innerHTML = `
+        <div style="width: min(440px, 100%); background: var(--bg-surface); border-radius: var(--radius-lg, 12px); border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); overflow: hidden;">
+            <div style="padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(37,99,235,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px;">🔑</div>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Yeni Şifrenizi Belirleyin</h3>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">İlk girişiniz veya şifreniz sıfırlandı.</div>
+                </div>
+            </div>
+            <div style="padding: 20px 24px;">
+                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); padding: 10px 12px; border-radius: 6px; margin-bottom: 16px; font-size: 12.5px; color: #1E40AF; line-height: 1.45;">
+                    Güvenliğiniz için lütfen yeni ve kalıcı bir şifre belirleyiniz. Bu işlem tamamlanmadan sisteme devam edilemez.
+                </div>
+                <form id="modalForcePasswordForm">
+                    <div class="form-group" style="margin-bottom: 14px; text-align: left;">
+                        <label class="form-label" for="mForceNewPass" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block;">Yeni Şifre</label>
+                        <div style="position: relative;">
+                            <input type="password" id="mForceNewPass" class="form-control" autocomplete="new-password" required minlength="6" placeholder="En az 6 karakter" style="padding-right: 40px; font-size: 13.5px;">
+                            <button type="button" id="mToggleNewPass" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;" title="Göster/Gizle">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="${EYE_OPEN}"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px; text-align: left;">
+                        <label class="form-label" for="mForceConfirmPass" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block;">Yeni Şifre (Tekrar)</label>
+                        <div style="position: relative;">
+                            <input type="password" id="mForceConfirmPass" class="form-control" autocomplete="new-password" required minlength="6" placeholder="Şifrenizi tekrar girin" style="padding-right: 40px; font-size: 13.5px;">
+                            <button type="button" id="mToggleConfirmPass" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;" title="Göster/Gizle">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="${EYE_OPEN}"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="mForceError" style="color: var(--danger); font-size: 12px; margin-bottom: 12px; display: none; font-weight: 500;"></div>
+                    <div id="mForceSuccess" style="color: var(--success); font-size: 12px; margin-bottom: 12px; display: none; font-weight: 600;"></div>
+                    <button type="submit" class="btn btn-primary" id="mBtnSubmitForcePass" style="width: 100%; justify-content: center; padding: 9px 16px; font-weight: 600; font-size: 13.5px;">Şifreyi Kaydet ve Devam Et</button>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const setupToggle = (inputId, btnId) => {
+        const inp = document.getElementById(inputId);
+        const btn = document.getElementById(btnId);
+        if (!inp || !btn) return;
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const icon = btn.querySelector('svg path');
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                btn.style.color = 'var(--primary)';
+                if (icon) icon.setAttribute('d', EYE_CLOSED);
+            } else {
+                inp.type = 'password';
+                btn.style.color = 'var(--text-muted)';
+                if (icon) icon.setAttribute('d', EYE_OPEN);
+            }
+        });
+    };
+
+    setupToggle('mForceNewPass', 'mToggleNewPass');
+    setupToggle('mForceConfirmPass', 'mToggleConfirmPass');
+
+    document.getElementById('modalForcePasswordForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const p1 = document.getElementById('mForceNewPass').value;
+        const p2 = document.getElementById('mForceConfirmPass').value;
+        const err = document.getElementById('mForceError');
+        const scs = document.getElementById('mForceSuccess');
+        const btn = document.getElementById('mBtnSubmitForcePass');
+
+        err.style.display = 'none';
+        scs.style.display = 'none';
+
+        if (!p1 || !p2) {
+            err.textContent = 'Lütfen her iki şifre alanını da doldurunuz.';
+            err.style.display = 'block';
+            return;
+        }
+        if (p1.length < 6) {
+            err.textContent = 'Yeni şifre en az 6 karakter olmalıdır.';
+            err.style.display = 'block';
+            return;
+        }
+        if (p1 !== p2) {
+            err.textContent = 'Girilen şifreler birbiriyle eşleşmiyor.';
+            err.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Kaydediliyor...';
+
+        try {
+            await window.api.changePassword(p1, p2);
+            scs.textContent = 'Şifreniz başarıyla kaydedildi!';
+            scs.style.display = 'block';
+            setTimeout(() => {
+                overlay.remove();
+            }, 800);
+        } catch (error) {
+            err.textContent = error.message || 'Şifre güncellenemedi.';
+            err.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Şifreyi Kaydet ve Devam Et';
+        }
+    });
 }

@@ -145,4 +145,87 @@ public class AuthServiceTests : TestBase
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.RefreshTokenAsync(9999));
     }
+
+    [Fact]
+    public async Task LoginAsync_WhenMustChangePasswordIsTrue_ReturnsMustChangePasswordTrue()
+    {
+        // Arrange
+        var password = "tempPassword123!";
+        var user = new User
+        {
+            Username = "mustchangeuser",
+            Email = "mustchange@test.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            IsActive = true,
+            MustChangePassword = true
+        };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
+            .ReturnsAsync(new HashSet<string> { "ticket.view" });
+
+        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>(), true))
+            .Returns("token_must_change");
+
+        var request = new LoginRequestDto("mustchangeuser", password);
+
+        // Act
+        var result = await _authService.LoginAsync(request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.MustChangePassword);
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_ValidRequest_UpdatesPasswordAndClearsFlag()
+    {
+        // Arrange
+        var user = new User
+        {
+            Username = "changeuser",
+            Email = "change@test.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("OldPass123!"),
+            IsActive = true,
+            MustChangePassword = true
+        };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
+            .ReturnsAsync(new HashSet<string> { "ticket.view" });
+
+        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>(), false))
+            .Returns("fresh_token");
+
+        var request = new ChangePasswordRequestDto("BrandNewPassword123!", "BrandNewPassword123!");
+
+        // Act
+        var result = await _authService.ChangePasswordAsync(user.Id, request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.MustChangePassword);
+
+        var updatedUser = await _context.Users.FindAsync(user.Id);
+        Assert.NotNull(updatedUser);
+        Assert.False(updatedUser.MustChangePassword);
+        Assert.True(BCrypt.Net.BCrypt.Verify("BrandNewPassword123!", updatedUser.PasswordHash));
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_MismatchPasswords_ThrowsArgumentException()
+    {
+        var request = new ChangePasswordRequestDto("Password123!", "DifferentPass123!");
+        await Assert.ThrowsAsync<ArgumentException>(() => _authService.ChangePasswordAsync(1, request));
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_ShortPassword_ThrowsArgumentException()
+    {
+        var request = new ChangePasswordRequestDto("123", "123");
+        await Assert.ThrowsAsync<ArgumentException>(() => _authService.ChangePasswordAsync(1, request));
+    }
 }
+

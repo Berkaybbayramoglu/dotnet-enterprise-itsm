@@ -18,10 +18,16 @@ public class TokenService : ITokenService
 
     public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
+        return GenerateToken(userId, username, roles, permissions, false);
+    }
+
+    public string GenerateToken(int userId, string username, IEnumerable<string> roles, IEnumerable<string> permissions, bool mustChangePassword)
+    {
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(ClaimTypes.Name, username)
+            new Claim(ClaimTypes.Name, username),
+            new Claim("mustChangePassword", mustChangePassword ? "true" : "false")
         };
 
         foreach (var role in roles)

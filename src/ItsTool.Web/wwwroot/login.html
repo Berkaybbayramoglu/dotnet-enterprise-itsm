@@ -116,6 +116,47 @@
                 <button type="button" class="btn-link" onclick="fillLogin('user1')" style="background:none; border:none; padding:0; font:inherit; cursor:pointer; color:var(--primary); text-decoration:none; font-weight:500;">user1</button> : EndUser
             </div>
         </form>
+
+        <!-- Force Password Change Container -->
+        <div id="forcePasswordContainer" style="display: none; text-align: left;">
+            <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: #1E40AF; line-height: 1.5;">
+                <strong id="lbl_force_alert_title">Şifreniz Sıfırlandı</strong><br>
+                <span id="lbl_force_alert_desc">Geçici şifrenizle giriş yaptınız. Güvenliğiniz için lütfen yeni ve kalıcı bir şifre belirleyiniz.</span>
+            </div>
+
+            <form id="forcePasswordForm">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" for="forceNewPassword" id="lbl_force_new_pwd" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; display: block;">Yeni Şifre</label>
+                    <div style="position: relative;">
+                        <input type="password" id="forceNewPassword" class="form-control" autocomplete="new-password" required minlength="6" placeholder="Yeni şifrenizi girin" style="padding-right: 40px;">
+                        <button type="button" id="toggleForceNewPassword" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;" title="Şifreyi Göster/Gizle">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;" id="lbl_force_min_chars">En az 6 karakter olmalıdır.</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" for="forceConfirmPassword" id="lbl_force_confirm_pwd" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; display: block;">Yeni Şifre (Tekrar)</label>
+                    <div style="position: relative;">
+                        <input type="password" id="forceConfirmPassword" class="form-control" autocomplete="new-password" required minlength="6" placeholder="Yeni şifrenizi tekrar girin" style="padding-right: 40px;">
+                        <button type="button" id="toggleForceConfirmPassword" tabindex="-1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0; display: flex; align-items: center; justify-content: center;" title="Şifreyi Göster/Gizle">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="forcePasswordError" class="error" style="margin-bottom: 12px; display: none;"></div>
+                <div id="forcePasswordSuccess" style="color: var(--success); font-size: 13px; font-weight: 600; text-align: center; margin-bottom: 12px; display: none;"></div>
+
+                <button type="submit" class="btn btn-primary" id="btnSubmitForcePassword" style="width: 100%; justify-content: center; padding: 10px; font-weight: 600;">Şifremi Belirle ve Giriş Yap</button>
+            </form>
+        </div>
+
     <script>
         function fillLogin(username) {
             document.getElementById("username").value = username;
@@ -129,24 +170,73 @@
         import './js/api.js';
 
         const translations = {
-            en: { welcome: 'Welcome Back', username: 'Username or Email', password: 'Password', signin: 'Sign In' },
-            tr: { welcome: 'Tekrar Hoşgeldiniz', username: 'Kullanıcı Adı veya E-posta', password: 'Şifre', signin: 'Giriş Yap' }
+            en: { 
+                welcome: 'Welcome Back', 
+                username: 'Username or Email', 
+                password: 'Password', 
+                signin: 'Sign In',
+                forgot: 'Forgot Password?',
+                forceTitle: 'Set Your New Password',
+                forceAlertTitle: 'Temporary Password — Set Your Password',
+                forceAlertDesc: 'You logged in with a temporary password. For security, please set your new permanent password.',
+                forceNewPwd: 'New Password',
+                forceConfirmPwd: 'Confirm New Password',
+                forceMinChars: 'Must be at least 6 characters.',
+                forceBtn: 'Save Password & Sign In',
+                forceMismatch: 'Passwords do not match.',
+                forceEmpty: 'Please fill in both password fields.',
+                forceShort: 'Password must be at least 6 characters.',
+                forceSuccess: 'Password set successfully! Redirecting...'
+            },
+            tr: { 
+                welcome: 'Tekrar Hoşgeldiniz', 
+                username: 'Kullanıcı Adı veya E-posta', 
+                password: 'Şifre', 
+                signin: 'Giriş Yap',
+                forgot: 'Şifremi Unuttum?',
+                forceTitle: 'Yeni Şifrenizi Belirleyin',
+                forceAlertTitle: 'Geçici Şifre — Yeni Şifrenizi Belirleyin',
+                forceAlertDesc: 'Geçici şifrenizle giriş yaptınız. Güvenliğiniz için lütfen yeni ve kalıcı bir şifre belirleyiniz.',
+                forceNewPwd: 'Yeni Şifre',
+                forceConfirmPwd: 'Yeni Şifre (Tekrar)',
+                forceMinChars: 'En az 6 karakter olmalıdır.',
+                forceBtn: 'Şifremi Belirle ve Giriş Yap',
+                forceMismatch: 'Girilen şifreler birbiriyle eşleşmiyor.',
+                forceEmpty: 'Lütfen tüm şifre alanlarını doldurunuz.',
+                forceShort: 'Yeni şifre en az 6 karakter olmalıdır.',
+                forceSuccess: 'Şifreniz başarıyla belirlendi! Yönlendiriliyorsunuz...'
+            }
         };
 
         const updateLoginLang = (lang) => {
             const t = translations[lang] || translations['en'];
-            document.getElementById('lbl_welcome').textContent = t.welcome;
+            const welcomeEl = document.getElementById('lbl_welcome');
+            const forceContainer = document.getElementById('forcePasswordContainer');
+            if (forceContainer && forceContainer.style.display !== 'none') {
+                welcomeEl.textContent = t.forceTitle;
+            } else {
+                welcomeEl.textContent = t.welcome;
+            }
             document.getElementById('lbl_username').textContent = t.username;
             document.getElementById('lbl_password').textContent = t.password;
             document.getElementById('lbl_signin').textContent = t.signin;
+            const forgotEl = document.getElementById('lbl_forgot_pass');
+            if (forgotEl) forgotEl.textContent = t.forgot;
+
+            document.getElementById('lbl_force_alert_title').textContent = t.forceAlertTitle;
+            document.getElementById('lbl_force_alert_desc').textContent = t.forceAlertDesc;
+            document.getElementById('lbl_force_new_pwd').textContent = t.forceNewPwd;
+            document.getElementById('lbl_force_confirm_pwd').textContent = t.forceConfirmPwd;
+            document.getElementById('lbl_force_min_chars').textContent = t.forceMinChars;
+            document.getElementById('btnSubmitForcePassword').textContent = t.forceBtn;
         };
 
-        const currentLang = localStorage.getItem('itsm_lang') || 'en';
+        const currentLang = localStorage.getItem('itsm_lang') || 'tr';
         const langText = document.getElementById('currentLangText');
         langText.textContent = currentLang.toUpperCase();
         updateLoginLang(currentLang);
 
-                document.querySelectorAll('.login-lang-opt').forEach(opt => {
+        document.querySelectorAll('.login-lang-opt').forEach(opt => {
             opt.addEventListener('click', (e) => {
                 e.preventDefault();
                 const val = e.target.dataset.lang;
@@ -177,42 +267,153 @@
             }
         });
 
-        document.getElementById('togglePassword').addEventListener('click', function (e) {
-            const passwordInput = document.getElementById('password');
-            const icon = this.querySelector('svg path');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.setAttribute('d', 'M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-2.5c4.73 0 9 3.11 11 7.5-1.73 4.39-6 7.5-11 7.5S2 16.39.27 12c1.73-4.39 6-7.5 11-7.5zm0 13c3.87 0 7.33-2.11 9.17-5.5C19.33 8.61 15.87 6.5 12 6.5S4.67 8.61 2.83 12c1.84 3.39 5.3 5.5 9.17 5.5zm4.07-7.96l-1.42 1.42C14.54 10.5 14 11.19 14 12c0 1.1-.9 2-2 2-.81 0-1.5-.54-1.84-1.28l-1.42 1.42C9.43 14.85 10.63 15.5 12 15.5c1.93 0 3.5-1.57 3.5-3.5 0-1.37-.65-2.57-1.36-3.26z'); // Just a crossed eye placeholder or similar, or just keep same icon
-                this.style.color = 'var(--primary)';
-            } else {
-                passwordInput.type = 'password';
-                icon.setAttribute('d', 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z');
-                this.style.color = 'var(--text-muted)';
-            }
-        });
+        // Eye toggle helper
+        const EYE_OPEN = 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z';
+        const EYE_CLOSED = 'M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-2.5c4.73 0 9 3.11 11 7.5-1.73 4.39-6 7.5-11 7.5S2 16.39.27 12c1.73-4.39 6-7.5 11-7.5zm0 13c3.87 0 7.33-2.11 9.17-5.5C19.33 8.61 15.87 6.5 12 6.5S4.67 8.61 2.83 12c1.84 3.39 5.3 5.5 9.17 5.5zm4.07-7.96l-1.42 1.42C14.54 10.5 14 11.19 14 12c0 1.1-.9 2-2 2-.81 0-1.5-.54-1.84-1.28l-1.42 1.42C9.43 14.85 10.63 15.5 12 15.5c1.93 0 3.5-1.57 3.5-3.5 0-1.37-.65-2.57-1.36-3.26z';
 
+        function bindEyeToggle(inputId, buttonId) {
+            const btn = document.getElementById(buttonId);
+            const input = document.getElementById(inputId);
+            if (!btn || !input) return;
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const icon = btn.querySelector('svg path');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    btn.style.color = 'var(--primary)';
+                    if (icon) icon.setAttribute('d', EYE_CLOSED);
+                } else {
+                    input.type = 'password';
+                    btn.style.color = 'var(--text-muted)';
+                    if (icon) icon.setAttribute('d', EYE_OPEN);
+                }
+            });
+        }
+
+        bindEyeToggle('password', 'togglePassword');
+        bindEyeToggle('forceNewPassword', 'toggleForceNewPassword');
+        bindEyeToggle('forceConfirmPassword', 'toggleForceConfirmPassword');
+
+        // Normal Login Form
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('lbl_signin');
             
+            errorDiv.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = '...';
+
             try {
-                await window.api.login(username, password);
-                window.location.href = '/dashboard.html?v=' + Date.now();
+                const res = await window.api.login(username, password);
+                if (res && res.mustChangePassword) {
+                    // Switch to Force Password Change step!
+                    const lang = localStorage.getItem('itsm_lang') || 'tr';
+                    const t = translations[lang] || translations['tr'];
+                    document.getElementById('loginForm').style.display = 'none';
+                    const demoHint = document.getElementById('demoHint');
+                    if (demoHint) demoHint.style.display = 'none';
+                    document.getElementById('lbl_welcome').textContent = t.forceTitle;
+                    document.getElementById('forcePasswordContainer').style.display = 'block';
+                    document.getElementById('forceNewPassword').focus();
+                } else {
+                    window.location.href = '/dashboard.html?v=' + Date.now();
+                }
             } catch (err) {
                 console.error(err);
-                errorDiv.textContent = 'Login failed. Please check your credentials.';
+                const lang = localStorage.getItem('itsm_lang') || 'tr';
+                errorDiv.textContent = lang === 'tr' ? 'Giriş başarısız. Lütfen bilgilerinizi kontrol ediniz.' : 'Login failed. Please check your credentials.';
                 errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = translations[lang]?.signin || 'Sign In';
+            }
+        });
+
+        // Force Password Form
+        document.getElementById('forcePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPass = document.getElementById('forceNewPassword').value;
+            const confirmPass = document.getElementById('forceConfirmPassword').value;
+            const errDiv = document.getElementById('forcePasswordError');
+            const successDiv = document.getElementById('forcePasswordSuccess');
+            const btn = document.getElementById('btnSubmitForcePassword');
+            const lang = localStorage.getItem('itsm_lang') || 'tr';
+            const t = translations[lang] || translations['tr'];
+
+            errDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            if (!newPass || !confirmPass) {
+                errDiv.textContent = t.forceEmpty;
+                errDiv.style.display = 'block';
+                return;
+            }
+            if (newPass.length < 6) {
+                errDiv.textContent = t.forceShort;
+                errDiv.style.display = 'block';
+                return;
+            }
+            if (newPass !== confirmPass) {
+                errDiv.textContent = t.forceMismatch;
+                errDiv.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = lang === 'tr' ? 'Kaydediliyor...' : 'Saving...';
+
+            try {
+                await window.api.changePassword(newPass, confirmPass);
+                successDiv.textContent = t.forceSuccess;
+                successDiv.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html?v=' + Date.now();
+                }, 1000);
+            } catch (err) {
+                console.error('Password change error:', err);
+                errDiv.textContent = err.message || (lang === 'tr' ? 'Şifre güncellenirken bir hata oluştu.' : 'Error updating password.');
+                errDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = t.forceBtn;
             }
         });
 
         window.openForgotPasswordModal = function() {
-            document.getElementById('forgotPasswordModal').style.display = 'flex';
+            const m = document.getElementById('forgotPasswordModal');
+            if (m) {
+                m.style.display = 'flex';
+                m.offsetHeight; // force reflow for smooth transition
+                m.classList.add('active');
+            }
         };
         window.closeForgotPasswordModal = function() {
-            document.getElementById('forgotPasswordModal').style.display = 'none';
+            const m = document.getElementById('forgotPasswordModal');
+            if (m) {
+                m.classList.remove('active');
+                setTimeout(() => {
+                    if (!m.classList.contains('active')) {
+                        m.style.display = 'none';
+                    }
+                }, 200);
+            }
         };
+
+        // Close on backdrop click
+        document.getElementById('forgotPasswordModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                window.closeForgotPasswordModal();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.closeForgotPasswordModal();
+            }
+        });
     </script>
 
     <!-- Forgot Password Modal -->

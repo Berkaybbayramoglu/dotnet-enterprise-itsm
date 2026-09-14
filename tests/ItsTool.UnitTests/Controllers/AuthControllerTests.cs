@@ -139,4 +139,65 @@ public class AuthControllerTests
 
         Assert.IsType<UnauthorizedResult>(result);
     }
+
+    [Fact]
+    public async Task ChangePassword_ShouldReturnOk_WhenRequestIsValid()
+    {
+        var request = new ChangePasswordRequestDto("NewPassword123!", "NewPassword123!");
+        var expectedResponse = new AuthResponseDto("new_token", DateTime.UtcNow.AddHours(1), "testuser", new[] { "Admin" }, new[] { "ticket.view" }, false);
+        _authServiceMock.Setup(s => s.ChangePasswordAsync(1, request)).ReturnsAsync(expectedResponse);
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "mock"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+
+        var result = await _controller.ChangePassword(request);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(expectedResponse, okResult.Value);
+    }
+
+    [Fact]
+    public async Task ChangePassword_ShouldReturnBadRequest_WhenServiceThrowsArgumentException()
+    {
+        var request = new ChangePasswordRequestDto("pass1", "pass2");
+        _authServiceMock.Setup(s => s.ChangePasswordAsync(1, request)).ThrowsAsync(new ArgumentException("Girilen şifreler birbiriyle eşleşmiyor."));
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "mock"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+
+        var result = await _controller.ChangePassword(request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task ChangePassword_ShouldReturnUnauthorized_WhenClaimIsMissingOrInvalid()
+    {
+        var request = new ChangePasswordRequestDto("pass1", "pass1");
+        var user = new ClaimsPrincipal(new ClaimsIdentity());
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+
+        var result = await _controller.ChangePassword(request);
+
+        Assert.IsType<UnauthorizedResult>(result);
+    }
 }
+

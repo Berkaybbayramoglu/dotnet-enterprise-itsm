@@ -7,7 +7,8 @@ public record AuthResponseDto(
     DateTime ExpiresAt, 
     string Username, 
     IEnumerable<string> Roles, 
-    IEnumerable<string> Permissions);
+    IEnumerable<string> Permissions,
+    bool MustChangePassword = false);
 
 public record MeResponseDto(
     int Id, 
@@ -18,4 +19,7 @@ public record MeResponseDto(
     IEnumerable<string> Permissions,
     IEnumerable<string> Overrides,
     int KbArticleCount,
-    string? ProfilePhoto);
+    string? ProfilePhoto,
+    bool MustChangePassword = false);
+
+public record ChangePasswordRequestDto(string NewPassword, string ConfirmPassword);
