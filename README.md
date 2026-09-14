@@ -349,8 +349,8 @@ Launch the full suite without installing PostgreSQL or .NET SDK locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
-cd itsm-Tool
+git clone https://github.com/Berkaybbayramoglu/dotnet-enterprise-itsm.git
+cd dotnet-enterprise-itsm
 
 # Build and start all containers
 docker compose up -d --build
@@ -371,8 +371,8 @@ docker compose up -d --build
 
 #### 2. Clone the Repository
 ```bash
-git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
-cd itsm-Tool
+git clone https://github.com/Berkaybbayramoglu/dotnet-enterprise-itsm.git
+cd dotnet-enterprise-itsm
 ```
 
 #### 3. Database Configuration
@@ -487,7 +487,7 @@ All endpoints are fully documented and testable interactively via Swagger UI (`h
 
 ## Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Berkaybbayramoglu/itsm-Tool/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Berkaybbayramoglu/dotnet-enterprise-itsm/issues).
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -848,8 +848,8 @@ Projeyi makinenize PostgreSQL veya .NET SDK kurmanıza gerek kalmadan Docker ile
 
 ```bash
 # Projeyi klonlayın
-git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
-cd itsm-Tool
+git clone https://github.com/Berkaybbayramoglu/dotnet-enterprise-itsm.git
+cd dotnet-enterprise-itsm
 
 # Konteynerleri derleyin ve başlatın
 docker compose up -d --build
@@ -870,8 +870,8 @@ docker compose up -d --build
 
 #### 2. Projeyi Klonlayın
 ```bash
-git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
-cd itsm-Tool
+git clone https://github.com/Berkaybbayramoglu/dotnet-enterprise-itsm.git
+cd dotnet-enterprise-itsm
 ```
 
 #### 3. Veritabanı Yapılandırması
@@ -986,7 +986,7 @@ Tüm endpoint'ler Swagger / OpenAPI UI üzerinden interaktif olarak test edilebi
 
 ## Katkıda Bulunma
 
-Katkılarınızı, hata bildirimlerinizi ve özellik önerilerinizi memnuniyetle karşılıyoruz! [Issues sayfası](https://github.com/Berkaybbayramoglu/itsm-Tool/issues) üzerinden bize katılabilirsiniz.
+Katkılarınızı, hata bildirimlerinizi ve özellik önerilerinizi memnuniyetle karşılıyoruz! [Issues sayfası](https://github.com/Berkaybbayramoglu/dotnet-enterprise-itsm/issues) üzerinden bize katılabilirsiniz.
 
 1. Projeyi Fork'layın
 2. Yeni bir Dal Açın (`git checkout -b feature/YeniOzellik`)
