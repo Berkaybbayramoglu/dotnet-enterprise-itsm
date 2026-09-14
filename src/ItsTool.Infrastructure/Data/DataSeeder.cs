@@ -231,6 +231,47 @@ public class DataSeeder
         {
             await CreateOrUpdateUserAsync(u, existingUsers, itDept, existingRoles, existingPermissions);
         }
+
+        // Auto-assign roles for any users in the DB that currently have no role
+        var endUserRole = existingRoles.FirstOrDefault(r => r.Name == "EndUser");
+        var superAdminRole = existingRoles.FirstOrDefault(r => r.Name == "SuperAdmin");
+        var agentRole = existingRoles.FirstOrDefault(r => r.Name == "Agent");
+
+        var allUsersInDb = await _context.Users.Include(u => u.UserRoles).Where(u => !u.IsDeleted).ToListAsync();
+        foreach (var user in allUsersInDb)
+        {
+            if (!user.UserRoles.Any(ur => !ur.IsDeleted && ur.IsActive))
+            {
+                var roleToAssign = (user.Username.Contains("admin", StringComparison.OrdinalIgnoreCase) || 
+                                    user.Username.Contains("engineer", StringComparison.OrdinalIgnoreCase) || 
+                                    user.Email.Contains("berkay", StringComparison.OrdinalIgnoreCase)) 
+                                    ? superAdminRole : endUserRole;
+                if (roleToAssign != null)
+                {
+                    _context.UserRoles.Add(new ItsTool.Domain.Entities.Auth.UserRole { UserId = user.Id, RoleId = roleToAssign.Id });
+                }
+            }
+        }
+
+        // Auto-assign Agent role for groups that currently have no group roles
+        if (agentRole != null)
+        {
+            var assignedGroupIds = await _context.GroupRoles
+                .Where(gr => !gr.IsDeleted && gr.IsActive)
+                .Select(gr => gr.GroupId)
+                .Distinct()
+                .ToListAsync();
+
+            var groupsWithoutRoles = await _context.Groups
+                .Where(g => !g.IsDeleted && !assignedGroupIds.Contains(g.Id))
+                .ToListAsync();
+
+            foreach (var g in groupsWithoutRoles)
+            {
+                _context.GroupRoles.Add(new ItsTool.Domain.Entities.Auth.GroupRole { GroupId = g.Id, RoleId = agentRole.Id });
+            }
+        }
+
         await _context.SaveChangesAsync();
     }
 

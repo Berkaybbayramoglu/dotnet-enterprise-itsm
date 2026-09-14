@@ -100,4 +100,32 @@ public class AuthService : IAuthService
             ProfilePhoto: user.ProfilePhoto
         );
     }
+
+    public async Task<AuthResponseDto> RefreshTokenAsync(int userId)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && !u.IsDeleted);
+
+        if (user == null)
+            throw new UnauthorizedAccessException("User not found or inactive.");
+
+        var roles = await _context.UserRoles
+            .Where(ur => ur.UserId == user.Id && ur.Role != null && ur.Role.IsActive && !ur.Role.IsDeleted && !ur.IsDeleted)
+            .Select(ur => ur.Role!.Name)
+            .ToListAsync();
+
+        var permissions = await _permissionCalculator.CalculateEffectivePermissionsAsync(user.Id);
+
+        var token = _tokenService.GenerateToken(user.Id, user.Username, roles, permissions);
+
+        var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryMinutes"] ?? "120");
+
+        return new AuthResponseDto(
+            Token: token,
+            ExpiresAt: DateTime.UtcNow.AddMinutes(expiryMinutes),
+            Username: user.Username,
+            Roles: roles,
+            Permissions: permissions
+        );
+    }
 }

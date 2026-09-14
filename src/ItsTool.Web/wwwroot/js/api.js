@@ -6,6 +6,32 @@ class ApiClient {
     constructor() {
         this.token = localStorage.getItem('jwt_token');
         this.parseToken();
+        if (this.token && this.decodedToken && (!this.decodedToken.roles || this.decodedToken.roles.length === 0 || !this.decodedToken.permissions || this.decodedToken.permissions.length === 0)) {
+            this.refreshToken().catch(() => {});
+        }
+    }
+
+    async refreshToken() {
+        if (!this.token) return null;
+        try {
+            const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.token) {
+                    this.setToken(data.token);
+                    return data.token;
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to refresh token', e);
+        }
+        return null;
     }
 
     setToken(token) {
@@ -76,10 +102,18 @@ class ApiClient {
         }
 
         if (response.status === 403) {
+            if (!options._retried403 && this.token) {
+                const refreshed = await this.refreshToken();
+                if (refreshed) {
+                    return await this.request(endpoint, { ...options, _retried403: true });
+                }
+            }
             const errorText = await response.text();
-            console.error(`API Error 403:`, errorText);
-            showToast('Yetkiniz yok (403) on: ' + url + ' — yeniden giriş yapmayı deneyin', 'error');
-            throw new Error('Forbidden');
+            console.error(`API Error 403 on ${endpoint}:`, errorText);
+            if (!options.silent) {
+                showToast('Bu işlemi yapmaya veya bu sayfayı görüntülemeye yetkiniz bulunmuyor (403).', 'error');
+            }
+            throw new Error(`Forbidden: ${endpoint}`);
         }
 
         if (!response.ok) {

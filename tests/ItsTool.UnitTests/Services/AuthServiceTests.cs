@@ -114,4 +114,35 @@ public class AuthServiceTests : TestBase
         Assert.Equal("fake_jwt_token", result.Token);
         Assert.Equal("testuser", result.Username);
     }
+
+    [Fact]
+    public async Task RefreshTokenAsync_ValidUser_ShouldReturnNewToken()
+    {
+        // Arrange
+        var user = new User { Username = "refreshuser", Email = "refresh@test.com", PasswordHash = "hash", IsActive = true };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        _permissionCalculatorMock.Setup(x => x.CalculateEffectivePermissionsAsync(user.Id))
+            .ReturnsAsync(new HashSet<string> { "ticket.view" });
+
+        _tokenServiceMock.Setup(x => x.GenerateToken(user.Id, user.Username, It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<string>>()))
+            .Returns("new_refreshed_token");
+
+        // Act
+        var result = await _authService.RefreshTokenAsync(user.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("new_refreshed_token", result.Token);
+        Assert.Equal("refreshuser", result.Username);
+        Assert.Contains("ticket.view", result.Permissions);
+    }
+
+    [Fact]
+    public async Task RefreshTokenAsync_NonExistentUser_ShouldThrowUnauthorizedAccessException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.RefreshTokenAsync(9999));
+    }
 }

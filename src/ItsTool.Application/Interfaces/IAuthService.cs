@@ -11,4 +11,5 @@ public interface IAuthService
 {
     Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
     Task<MeResponseDto> GetMeAsync(int userId);
+    Task<AuthResponseDto> RefreshTokenAsync(int userId);
 }

@@ -102,4 +102,41 @@ public class AuthControllerTests
 
         Assert.IsType<UnauthorizedResult>(result);
     }
+
+    [Fact]
+    public async Task RefreshToken_ShouldReturnOk_WhenUserIsAuthenticated()
+    {
+        var authDto = new AuthResponseDto("new_token", DateTime.UtcNow.AddHours(1), "testuser", new[] { "Admin" }, new[] { "ticket.view" });
+        _authServiceMock.Setup(s => s.RefreshTokenAsync(1)).ReturnsAsync(authDto);
+
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, "1")
+        }, "mock"));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+
+        var result = await _controller.RefreshToken();
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(authDto, okResult.Value);
+    }
+
+    [Fact]
+    public async Task RefreshToken_ShouldReturnUnauthorized_WhenClaimIsMissingOrInvalid()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity());
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+
+        var result = await _controller.RefreshToken();
+
+        Assert.IsType<UnauthorizedResult>(result);
+    }
 }

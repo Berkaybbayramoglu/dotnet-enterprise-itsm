@@ -56,4 +56,27 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
     }
+
+    [Authorize]
+    [HttpPost("refresh")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdStr, out int userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var result = await _authService.RefreshTokenAsync(userId);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+    }
 }

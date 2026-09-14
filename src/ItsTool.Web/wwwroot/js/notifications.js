@@ -372,7 +372,7 @@ function createNotificationItem(n) {
                     <div style="font-size: 11px; color: #999;">${new Date(n.createdAt).toLocaleString()}</div>
                     <div class="d-flex gap-sm">
                         <button type="button" class="btn btn-outline-secondary" style="padding: 2px 8px; font-size: 11px; border-radius: 4px;" onclick="event.preventDefault(); event.stopPropagation(); window.showInfoModal('${t ? t('notif_detail') : 'Bildirim Detayı'}', '${bodyText.replaceAll("'", String.raw`\'`).replaceAll('"', '&quot;')}');">${t ? t('notif_detail_btn') : 'Detay'}</button>
-                        <a href="${linkUrl}" class="btn btn-primary" style="padding: 2px 8px; font-size: 11px; border-radius: 4px; color: white; text-decoration: none;" onclick="event.stopPropagation();">Git</a>
+                        <a href="${linkUrl}" class="btn btn-primary" style="padding: 2px 8px; font-size: 11px; border-radius: 4px; color: white; text-decoration: none;" onclick="event.stopPropagation(); if (window.api && !${Boolean(n.isRead)}) { window.api.request('/notifications/${n.id}/read', { method: 'POST' }).catch(()=>{}); }">Git</a>
                     </div>
                 </div>
             </div>

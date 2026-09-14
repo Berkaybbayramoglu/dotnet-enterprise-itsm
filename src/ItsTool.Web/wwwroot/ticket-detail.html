@@ -736,8 +736,8 @@
         let isEditMode = false;
         
         window.globalLookup = {};
+        window.globalUsers = [];
         let globalUsers = [];
-        
         window.globalGroups = [];
 
         let currentUserId = 0;
@@ -1121,9 +1121,12 @@
             }
             
             const grouped = {};
+            const safeGroups = Array.isArray(globalGroups) ? globalGroups : (window.globalGroups || []);
+            const safeUsers = Array.isArray(users) ? users : (window.globalUsers || []);
+
             activeAssignments.forEach(a => {
                 if (a.groupId) {
-                    const g = globalGroups.find(x => x.id === a.groupId);
+                    const g = safeGroups.find(x => x.id === a.groupId);
                     const dId = g?.departmentId || 'none';
                     if (!grouped[dId]) grouped[dId] = { groups: {}, usersWithoutGroup: [] };
                     if (!grouped[dId].groups[a.groupId]) grouped[dId].groups[a.groupId] = { groupData: g, users: [] };
@@ -1132,7 +1135,7 @@
             
             activeAssignments.forEach(a => {
                 if (a.userId) {
-                    const u = window.globalUsers.find(x => x.id === a.userId);
+                    const u = safeUsers.find(x => x.id === a.userId);
                     const dId = u?.departmentId || 'none';
                     if (!grouped[dId]) grouped[dId] = { groups: {}, usersWithoutGroup: [] };
                     
@@ -1225,17 +1228,20 @@
             }
             try {
                 let lookup = {};
-                
                 let users = [];
                 try { 
-                    lookup = await window.api.getLookup(); 
-                    users = await window.api.getUsers();
+                    lookup = await window.api.getLookup() || {}; 
+                    users = await window.api.getUsers() || [];
                     window.globalLookup = lookup;
                     window.globalUsers = users;
-                    window.globalGroups = await window.api.getGroups();
-    
+                    window.globalGroups = await window.api.getGroups() || [];
+                } catch (e) { 
+                    console.error('Lookup failed', e); 
+                }
 
-            } catch (e) { console.error(e);  console.warn('Lookup failed', e);  }
+                window.globalLookup = window.globalLookup || {};
+                window.globalUsers = window.globalUsers || [];
+                window.globalGroups = window.globalGroups || [];
 
                 const t = await window.api.request(`/Ticket/${ticketId}`);
                 currentTicket = t;
@@ -1245,61 +1251,81 @@
                     window.ticketAttachments = await window.api.request(`/Ticket/${ticketId}/attachments`);
                 } catch (e) {
                     console.error("Failed to load attachments", e);
+                    window.ticketAttachments = [];
                 }
                 
-                await loadDynamicFieldsMeta();
-                await renderTicketData();
-                
-                const projName = lookup.projects?.find(x => x.id === t.projectId)?.name || '-';
+                try {
+                    await loadDynamicFieldsMeta();
+                } catch (e) {
+                    console.error("Failed to load dynamic fields meta", e);
+                }
 
+                try {
+                    await renderTicketData();
+                } catch (e) {
+                    console.error("Failed to render ticket data", e);
+                }
                 
-                document.getElementById('tProject').textContent = projName;
-                document.getElementById('tProject').textContent = projName;
+                const projName = window.globalLookup?.projects?.find(x => x.id === t.projectId)?.name || '-';
+                const projEl = document.getElementById('tProject');
+                if (projEl) projEl.textContent = projName;
                 
-                const reqUser = window.globalUsers.find(u => u.id === t.requesterUserId);
-                const getReqName = reqUser?.username || `User ${t.requesterUserId}`;
-                document.getElementById('tReq').innerHTML = `<button type="button" class="btn btn-ghost d-flex align-items-center gap-sm p-0 m-0 user-hover-link" data-user-id="${t.requesterUserId}" style="border:none; text-align:left;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</button>`;
+                const reqUser = (window.globalUsers || []).find(u => u.id === t.requesterUserId);
+                const getReqName = reqUser ? (reqUser.firstName ? `${reqUser.firstName} ${reqUser.lastName}` : reqUser.username) : (t.requesterName || `User ${t.requesterUserId}`);
+                const reqEl = document.getElementById('tReq');
+                if (reqEl) {
+                    reqEl.innerHTML = `<button type="button" class="btn btn-ghost d-flex align-items-center gap-sm p-0 m-0 user-hover-link" data-user-id="${t.requesterUserId}" style="border:none; text-align:left;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</button>`;
+                }
 
                 let assignHTML = '';
                 if (t.assignments && t.assignments.length > 0) {
-                    const deptsLookup = window.globalLookup !== undefined && window.globalLookup.departments ? window.globalLookup.departments : [];
-                    assignHTML = buildAssignmentsHtml(t.assignments, window.globalGroups, users, deptsLookup);
+                    const deptsLookup = window.globalLookup && window.globalLookup.departments ? window.globalLookup.departments : [];
+                    assignHTML = buildAssignmentsHtml(t.assignments, window.globalGroups, window.globalUsers, deptsLookup);
                 } else {
                     assignHTML = '<span class="text-muted">Unassigned</span>';
                 }
-                document.getElementById('tAssigned').innerHTML = assignHTML;
-
-                
-
-                
+                const assignedEl = document.getElementById('tAssigned');
+                if (assignedEl) assignedEl.innerHTML = assignHTML;
 
                 try {
                     const allowedStatuses = await window.api.request(`/Ticket/${ticketId}/allowed-transitions`);
                     const select = document.getElementById('statusSelect');
-                    select.innerHTML = '';
-                    allowedStatuses.forEach(s => {
-                        const opt = document.createElement('option');
-                        opt.value = s.id;
-                        opt.textContent = s.name;
-                        select.appendChild(opt);
-                    });
-                    select.value = t.statusId;
+                    if (select) {
+                        select.innerHTML = '';
+                        allowedStatuses.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s.id;
+                            opt.textContent = s.name;
+                            select.appendChild(opt);
+                        });
+                        if (!allowedStatuses.some(s => s.id === t.statusId)) {
+                            const curStatus = (window.globalLookup?.statuses || []).find(s => s.id === t.statusId);
+                            const opt = document.createElement('option');
+                            opt.value = t.statusId;
+                            opt.textContent = curStatus ? curStatus.name : `Status #${t.statusId}`;
+                            select.prepend(opt);
+                        }
+                        select.value = t.statusId;
+                    }
                 } catch(e) {
                     console.error("Failed to load allowed transitions", e);
                 }
 
-                if (t.statusId === 5) {
-                    document.getElementById('csatLink').style.display = 'block';
-                    document.getElementById('surveyBtn').href = `/survey.html?id=${t.id}`;
-                } else {
-                    document.getElementById('csatLink').style.display = 'none';
+                const csatLink = document.getElementById('csatLink');
+                const surveyBtn = document.getElementById('surveyBtn');
+                if (csatLink && surveyBtn) {
+                    if (t.statusId === 5) {
+                        csatLink.style.display = 'block';
+                        surveyBtn.href = `/survey.html?id=${t.id}`;
+                    } else {
+                        csatLink.style.display = 'none';
+                    }
                 }
 
                 renderDetailSla(t.sla, t.statusId);
 
-                document.getElementById('content').style.display = 'grid';
-                
-                // Attachments are already fetched earlier
+                const contentEl = document.getElementById('content');
+                if (contentEl) contentEl.style.display = 'grid';
                 
                 const canManage = isSuperAdmin || currentUserPermissions.includes('ticket.manage') || currentUserPermissions.includes('ticket.assign');
                 const canEdit = canManage || (t.requesterUserId === currentUserId);
@@ -1318,14 +1344,31 @@
                     window.checkAiStatus();
                 }
 
-
-            } catch (e) { console.error(e); 
-                let errEl = document.querySelector('tbody') || document.querySelector('.content-area');
+            } catch (e) { 
+                console.error('Failed to load ticket:', e); 
+                let errEl = document.querySelector('.content-area');
                 if (errEl) {
-                    errEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Veri yüklenemedi — API\'yi kontrol et</div>';
-                 }
-                console.error(e);
-                showToast('Error loading ticket', 'error'); 
+                    const is403 = e.message && (e.message.includes('403') || e.message.includes('Forbidden'));
+                    const is404 = e.message && (e.message.includes('404') || e.message.includes('Not Found'));
+                    let message = 'Veri yüklenemedi — API veya bağlantınızı kontrol edin.';
+                    if (is403) {
+                        message = 'Bu bileti görüntüleme yetkiniz bulunmuyor (403).';
+                    } else if (is404) {
+                        message = 'Bilet bulunamadı veya silinmiş olabilir (404).';
+                    }
+                    errEl.innerHTML = `
+                        <div style="padding: 60px 20px; text-align: center;">
+                            <div style="font-size: 40px; margin-bottom: 12px;">${is403 ? '🔒' : '⚠️'}</div>
+                            <h3 style="color: var(--text-main); margin-bottom: 8px;">${escapeHtml(message)}</h3>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Hata detayı: ${escapeHtml(e.message || 'Bilinmeyen hata')}</p>
+                            <a href="/tickets.html" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                                Bilet Listesine Dön
+                            </a>
+                        </div>
+                    `;
+                }
+                showToast(e.message && e.message.includes('403') ? 'Yetkisiz erişim (403)' : 'Bilet yüklenemedi', 'error'); 
             }
             
             setTimeout(() => {
@@ -2255,9 +2298,13 @@
                 else if (highlightHistoryId) targetId = `history-${highlightHistoryId}`;
                 
                 if (targetId) {
-                    setTimeout(() => {
+                    const highlightFn = () => {
                         const target = document.getElementById(targetId);
                         if (target) {
+                            const commentsSection = document.getElementById('commentsSection');
+                            if (commentsSection && commentsSection.contains(target) && commentsSection.style.display === 'none') {
+                                commentsSection.style.display = 'block';
+                            }
                             const activitySection = document.getElementById('activitySection');
                             if (activitySection && activitySection.contains(target) && activitySection.style.display === 'none') {
                                 activitySection.style.display = 'block';
@@ -2267,11 +2314,21 @@
                                 modal.classList.add('active');
                             }
                             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            target.style.transition = 'box-shadow 0.5s';
+                            target.style.transition = 'box-shadow 0.4s, background-color 0.4s';
                             target.style.boxShadow = '0 0 0 4px var(--primary-light)';
-                            setTimeout(() => { target.style.boxShadow = 'none'; }, 3000);
+                            target.style.borderRadius = '6px';
+                            setTimeout(() => { 
+                                target.style.boxShadow = 'none'; 
+                            }, 3500);
+                            return true;
                         }
-                    }, 500);
+                        return false;
+                    };
+                    setTimeout(() => {
+                        if (!highlightFn()) {
+                            setTimeout(highlightFn, 500);
+                        }
+                    }, 300);
                 }
 
                 const focusTarget = urlParams.get('focus');

@@ -67,9 +67,16 @@ public class UserService : IUserService
                 user.GroupMemberships.Add(new GroupMember { GroupId = groupId });
             }
         }
+
+        var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "EndUser");
+        if (defaultRole != null)
+        {
+            user.UserRoles.Add(new UserRole { RoleId = defaultRole.Id });
+        }
         
         await _repository.AddAsync(user);
-        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, Array.Empty<int>(), new Dictionary<int, bool>(), user.ProfilePhoto, user.GroupMemberships.Select(g => g.GroupId).ToArray(), user.CreatedAt);
+        var roleIds = user.UserRoles.Select(ur => ur.RoleId).ToArray();
+        return new UserDto(user.Id, user.Username, user.Email, user.FirstName, user.LastName, user.IsActive, user.DepartmentId, roleIds, new Dictionary<int, bool>(), user.ProfilePhoto, user.GroupMemberships.Select(g => g.GroupId).ToArray(), user.CreatedAt);
     }
 
     public async Task UpdateAsync(int id, UpdateUserDto dto)
