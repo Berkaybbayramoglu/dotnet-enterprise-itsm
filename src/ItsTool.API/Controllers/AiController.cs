@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ItsTool.API.Controllers;
 
-internal static class AiControllerHelper
+public static class AiControllerHelper
 {
     public const string AnalysisInProgressMessage = "Bu bilet için bir yapay zeka analizi zaten devam ediyor. Lütfen önceki işlemin tamamlanmasını bekleyin.";
     

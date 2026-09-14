@@ -85,6 +85,31 @@ public class AdditionalCoverageTests
     }
 
     [Fact]
+    public void EmailTemplateService_ShouldHandleUnknownEvent_AndException()
+    {
+        var loggerMock = new Mock<ILogger<EmailTemplateService>>();
+        var service = new EmailTemplateService(loggerMock.Object);
+
+        var data = new Dictionary<string, string>
+        {
+            { "EventName", "Custom Unknown" },
+            { "Context", "Context details" },
+            { "AppUrl", "http://localhost:5246" },
+            { "TicketNumber", "TICK-999" }
+        };
+
+        // 1. Unknown event -> fallback
+        var html1 = service.GenerateEmailBody("non_existent_event_999", data);
+        Assert.Contains("Custom Unknown", html1);
+        Assert.Contains("TICK-999", html1);
+
+        // 2. Invalid character -> throws ArgumentException, caught by catch block
+        var html2 = service.GenerateEmailBody("invalid\0name", data);
+        Assert.Contains("Custom Unknown", html2);
+        Assert.Contains("TICK-999", html2);
+    }
+
+    [Fact]
     public async Task SystemAuditService_ShouldLogEntityChange()
     {
         var db = CreateDbContext("AuditServiceDb");

@@ -192,4 +192,42 @@ public class SlaServiceTests : TestBase
         var deletedTgtEntity = await _context.SlaTargets.FindAsync(target.Id);
         Assert.True(deletedTgtEntity!.IsDeleted);
     }
+
+    [Fact]
+    public async Task GetDeletedPoliciesAsync_And_RestorePolicyAsync_ShouldWorkProperly()
+    {
+        var dto = new CreateSlaPolicyDto(
+            Name: "Policy to Delete",
+            Description: "Testing deleted list and restore",
+            ProjectId: 1,
+            EscalateOnBreach: false,
+            Targets: new List<CreateSlaTargetDto>
+            {
+                new(SlaPolicyId: 0, PriorityId: 1, TicketTypeId: 1, FirstResponseMinutes: 10, ResolutionMinutes: 60)
+            }
+        );
+        var created = await _slaService.CreatePolicyAsync(dto);
+
+        // Delete policy
+        await _slaService.DeletePolicyAsync(created.Id);
+
+        // Fetch deleted policies
+        var deletedList = (await _slaService.GetDeletedPoliciesAsync()).ToList();
+        Assert.NotEmpty(deletedList);
+        var deletedPolicy = deletedList.FirstOrDefault(p => p.Id == created.Id);
+        Assert.NotNull(deletedPolicy);
+        Assert.Equal("Policy to Delete", deletedPolicy.Name);
+        Assert.NotEmpty(deletedPolicy.Targets);
+
+        // Restore policy
+        await _slaService.RestorePolicyAsync(created.Id);
+
+        var restored = await _context.SlaPolicies.FindAsync(created.Id);
+        Assert.NotNull(restored);
+        Assert.False(restored.IsDeleted);
+        Assert.True(restored.IsActive);
+
+        var restoredTargets = _context.SlaTargets.Where(t => t.SlaPolicyId == created.Id).ToList();
+        Assert.All(restoredTargets, t => Assert.False(t.IsDeleted));
+    }
 }

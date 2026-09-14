@@ -174,4 +174,57 @@ public class UsersControllerTests
 
         Assert.IsType<NoContentResult>(result);
     }
+
+    [Fact]
+    public async Task GetById_AsNonAdmin_ShouldMaskSensitiveData()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "User") }, "mock"));
+        _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext { User = user } };
+
+        var userDto = new UserDto(1, "test", "test@test.com", "First", "Last", true, null, new[] { 1 }, new Dictionary<int, bool> { { 1, true } }, null, new int[0], DateTime.UtcNow);
+        _serviceMock.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(userDto);
+
+        var result = await _controller.GetById(1);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        var masked = Assert.IsType<UserDto>(ok.Value);
+        Assert.Empty(masked.Email);
+        Assert.Empty(masked.RoleIds);
+        Assert.Empty(masked.PermissionOverrides);
+    }
+
+    [Fact]
+    public async Task RemovePermissionOverride_ShouldReturnNoContent()
+    {
+        _serviceMock.Setup(s => s.RemovePermissionOverrideAsync(1, 5)).Returns(Task.CompletedTask);
+
+        var result = await _controller.RemovePermissionOverride(1, 5);
+
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ShouldReturnBadRequest_WhenPasswordEmpty()
+    {
+        var result = await _controller.ResetPassword(1, new ResetPasswordDto("   "));
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ShouldReturnNotFound_WhenUserDoesNotExist()
+    {
+        _serviceMock.Setup(s => s.ResetPasswordAsync(99, "NewPass123!")).ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.ResetPassword(99, new ResetPasswordDto("NewPass123!"));
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ShouldReturnNoContent_WhenSuccessful()
+    {
+        _serviceMock.Setup(s => s.ResetPasswordAsync(1, "NewPass123!")).Returns(Task.CompletedTask);
+
+        var result = await _controller.ResetPassword(1, new ResetPasswordDto("NewPass123!"));
+        Assert.IsType<NoContentResult>(result);
+    }
 }

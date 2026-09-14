@@ -594,5 +594,126 @@ public class TicketServiceTests : TestBase
         Assert.Equal(dueTime, foundTicket.Sla.ResolutionDueAt);
         Assert.False(foundTicket.Sla.ResolutionBreached);
     }
+
+    [Fact]
+    public async Task AddCommentAsync_And_UpdateCommentAsync_ShouldRecordHistoriesAndNotify()
+    {
+        var ticket = new Ticket
+        {
+            TicketNumber = "ALP-COMM-1",
+            Title = "Comment Test Ticket",
+            CategoryId = 1,
+            PriorityId = 1,
+            StatusId = 1,
+            TypeId = 1,
+            ProjectId = 1,
+            RequesterUserId = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        // 1. Regular comment
+        var regularComment = await _ticketService.AddCommentAsync(ticket.Id, new CreateCommentDto(
+            Content: "Normal user comment",
+            IsInternal: false,
+            AuthorUserId: 1,
+            ParentCommentId: null,
+            MentionedUserIds: new[] { 2 }
+        ));
+        Assert.NotNull(regularComment);
+        Assert.Equal("Normal user comment", regularComment.Content);
+        Assert.False(regularComment.IsInternal);
+
+        // 2. Internal note
+        var internalNote = await _ticketService.AddCommentAsync(ticket.Id, new CreateCommentDto(
+            Content: "Internal diagnostic note",
+            IsInternal: true,
+            AuthorUserId: 1,
+            ParentCommentId: null,
+            MentionedUserIds: null
+        ));
+        Assert.True(internalNote.IsInternal);
+
+        // 3. Reply comment
+        var replyComment = await _ticketService.AddCommentAsync(ticket.Id, new CreateCommentDto(
+            Content: "Reply to user comment",
+            IsInternal: false,
+            AuthorUserId: 2,
+            ParentCommentId: regularComment.Id,
+            MentionedUserIds: null
+        ));
+        Assert.Equal(regularComment.Id, replyComment.ParentCommentId);
+
+        // 4. Update comment by author
+        var updated = await _ticketService.UpdateCommentAsync(ticket.Id, regularComment.Id, new UpdateCommentDto("Edited comment text"), userId: 1, hasEditPerm: false);
+        Assert.Equal("Edited comment text", updated.Content);
+        Assert.True(updated.IsEdited);
+
+        // 5. Update comment by non-author with permission
+        var updatedByAdmin = await _ticketService.UpdateCommentAsync(ticket.Id, regularComment.Id, new UpdateCommentDto("Admin edited text"), userId: 2, hasEditPerm: true);
+        Assert.Equal("Admin edited text", updatedByAdmin.Content);
+
+        // 6. Update comment unauthorized
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            _ticketService.UpdateCommentAsync(ticket.Id, regularComment.Id, new UpdateCommentDto("Hacker edit"), userId: 99, hasEditPerm: false));
+
+        // 7. Update non-existent comment
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            _ticketService.UpdateCommentAsync(ticket.Id, 99999, new UpdateCommentDto("No comment"), userId: 1, hasEditPerm: true));
+    }
+
+    [Fact]
+    public async Task GetEligibleUsersForTicketAsync_ShouldReturnRequesterAssigneesAndProjectMembers()
+    {
+        var ticket = new Ticket
+        {
+            TicketNumber = "ALP-ELIG-1",
+            Title = "Eligible Users Ticket",
+            CategoryId = 1,
+            PriorityId = 1,
+            StatusId = 1,
+            TypeId = 1,
+            ProjectId = 1,
+            RequesterUserId = 1,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        // Add user assignment
+        var assignUser = new TicketAssignment
+        {
+            TicketId = ticket.Id,
+            AssignedUserId = 2,
+            IsActive = true
+        };
+        _context.TicketAssignments.Add(assignUser);
+
+        // Add group assignment with member 1
+        var groupMember = new GroupMember { GroupId = 1, UserId = 1 };
+        _context.GroupMembers.Add(groupMember);
+        var assignGroup = new TicketAssignment
+        {
+            TicketId = ticket.Id,
+            AssignedGroupId = 1,
+            IsActive = true
+        };
+        _context.TicketAssignments.Add(assignGroup);
+
+        // Add project member 2
+        var projMember = new ProjectMember { ProjectId = 1, UserId = 2 };
+        _context.ProjectMembers.Add(projMember);
+        await _context.SaveChangesAsync();
+
+        var users = (await _ticketService.GetEligibleUsersForTicketAsync(ticket.Id)).ToList();
+        Assert.NotEmpty(users);
+        Assert.Contains(users, u => u.Id == 1);
+        Assert.Contains(users, u => u.Id == 2);
+
+        // Non-existent ticket
+        var empty = await _ticketService.GetEligibleUsersForTicketAsync(99999);
+        Assert.Empty(empty);
+    }
 }
 

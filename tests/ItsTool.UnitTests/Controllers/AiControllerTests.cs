@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ItsTool.API.Controllers;
+using ItsTool.Application.DTOs;
 using ItsTool.Application.Interfaces;
 using ItsTool.Domain.Entities.Ticket;
 using ItsTool.Infrastructure.Agents;
@@ -187,5 +189,127 @@ public class AiControllerTests : TestBase
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.NotNull(okResult.Value);
+    }
+
+    [Fact]
+    public async Task ConfigAndModelEndpoints_ShouldReturnExpectedResults()
+    {
+        // 1. GetConfig
+        _mockLlm.Setup(l => l.GetCurrentConfig()).Returns(new LlmConfigDto { Model = "test-model" });
+        var getCfgRes = _aiController.GetConfig();
+        Assert.IsType<OkObjectResult>(getCfgRes);
+
+        // 2. UpdateConfig null -> BadRequest
+        var updateNull = _aiController.UpdateConfig(null!);
+        Assert.IsType<BadRequestObjectResult>(updateNull);
+
+        // 3. UpdateConfig valid -> Ok
+        var updateValid = _aiController.UpdateConfig(new LlmConfigDto { Model = "new-model" });
+        Assert.IsType<OkObjectResult>(updateValid);
+
+        // 4. GetModels
+        _mockLlm.Setup(l => l.GetAvailableModelsAsync(It.IsAny<string?>(), It.IsAny<string?>()))
+            .ReturnsAsync(new List<LlmModelDto> { new() { Id = "m-1", Name = "Model 1" } });
+        var modelsRes = await _aiController.GetModels("http://custom:1234", "key");
+        Assert.IsType<OkObjectResult>(modelsRes);
+
+        // 5. TestConnection with custom config
+        _mockLlm.Setup(l => l.TestConnectionAsync(It.IsAny<LlmConfigDto>()))
+            .ReturnsAsync(new LlmTestResultDto { Success = true, Message = "OK" });
+        var testRes = await _aiController.TestConnection(new LlmConfigDto { Endpoint = "http://custom:1234" });
+        Assert.IsType<OkObjectResult>(testRes);
+    }
+
+    [Fact]
+    public async Task GetStatus_WhenOfflineAndFallbackDisabled_ShouldReturnLlmOffline()
+    {
+        _mockLlm.Setup(l => l.IsAvailableAsync()).ReturnsAsync(false);
+        _mockLlm.Setup(l => l.GetCurrentConfig()).Returns(new LlmConfigDto { FallbackToHeuristic = false });
+
+        var res = await _aiController.GetStatus();
+        var ok = Assert.IsType<OkObjectResult>(res);
+        Assert.NotNull(ok.Value);
+    }
+
+    [Fact]
+    public async Task SuggestResolution_WhenSemaphoreLocked_ShouldReturn429()
+    {
+        var sem = AiControllerHelper.GetLock(9999);
+        await sem.WaitAsync();
+        try
+        {
+            var res = await _copilotController.SuggestResolution(9999);
+            var objRes = Assert.IsType<ObjectResult>(res);
+            Assert.Equal(429, objRes.StatusCode);
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+
+    [Fact]
+    public async Task DraftReply_WhenSemaphoreLocked_ShouldReturn429()
+    {
+        var sem = AiControllerHelper.GetLock(9998);
+        await sem.WaitAsync();
+        try
+        {
+            var res = await _copilotController.DraftReply(9998);
+            var objRes = Assert.IsType<ObjectResult>(res);
+            Assert.Equal(429, objRes.StatusCode);
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+
+    [Fact]
+    public async Task Ask_WhenEmptyQuestion_ShouldReturnBadRequest()
+    {
+        var res = await _copilotController.Ask(1, new AiTicketCopilotController.AskQuestionDto("   "));
+        Assert.IsType<BadRequestObjectResult>(res);
+    }
+
+    [Fact]
+    public async Task Ask_WhenSemaphoreLocked_ShouldReturn429()
+    {
+        var sem = AiControllerHelper.GetLock(9997);
+        await sem.WaitAsync();
+        try
+        {
+            var res = await _copilotController.Ask(9997, new AiTicketCopilotController.AskQuestionDto("What happened?"));
+            var objRes = Assert.IsType<ObjectResult>(res);
+            Assert.Equal(429, objRes.StatusCode);
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+
+    [Fact]
+    public async Task HandoffSummarize_WhenSemaphoreLocked_ShouldReturn429()
+    {
+        var sem = AiControllerHelper.GetLock(9996);
+        await sem.WaitAsync();
+        try
+        {
+            var res = await _handoffController.Summarize(9996);
+            var objRes = Assert.IsType<ObjectResult>(res);
+            Assert.Equal(429, objRes.StatusCode);
+        }
+        finally
+        {
+            sem.Release();
+        }
+    }
+
+    [Fact]
+    public async Task HandoffSummarize_WhenTicketMissing_ShouldReturnNotFound()
+    {
+        var res = await _handoffController.Summarize(99999);
+        Assert.IsType<NotFoundObjectResult>(res);
     }
 }

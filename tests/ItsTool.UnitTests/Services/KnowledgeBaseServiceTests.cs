@@ -7,6 +7,7 @@ using ItsTool.Application.Interfaces;
 using ItsTool.Domain.Entities.KnowledgeBase;
 using ItsTool.Domain.Entities.Organization;
 using ItsTool.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
@@ -252,5 +253,143 @@ public class KnowledgeBaseServiceTests : TestBase
 
         var results = await _kbService.SearchArticlesAsync(userId: 1, keyword: "Secret", categoryId: null);
         Assert.Empty(results);
+    }
+
+    [Fact]
+    public async Task UpdateArticleAsync_ByAuthor_ToPendingReview_TransitionsAndNotifies()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(1))
+            .ReturnsAsync(new HashSet<string>());
+
+        var article = new KnowledgeArticle
+        {
+            Title = "Draft to Review",
+            Content = "Initial content",
+            CategoryId = 1,
+            AuthorUserId = 1,
+            Status = ArticleStatus.Draft,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        var updateDto = new UpdateKbArticleDto(
+            CategoryId: 1,
+            Title: "Draft to Review Updated",
+            Content: "Updated content",
+            Status: ArticleStatus.PendingReview,
+            Visibility: ArticleVisibility.Internal
+        );
+
+        await _kbService.UpdateArticleAsync(article.Id, updateDto, currentUserId: 1);
+
+        var updated = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.NotNull(updated);
+        Assert.Equal(ArticleStatus.PendingReview, updated.Status);
+    }
+
+    [Fact]
+    public async Task ReviewArticleAsync_ByDifferentManager_PublishesAndNotifiesAuthor()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(2))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var article = new KnowledgeArticle
+        {
+            Title = "Author Article",
+            Content = "Content needing review",
+            CategoryId = 1,
+            AuthorUserId = 1,
+            Status = ArticleStatus.PendingReview,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        var reviewDto = new ReviewKbArticleDto(
+            Status: ArticleStatus.Published,
+            Feedback: "Harika içerik, onaylandı."
+        );
+
+        await _kbService.ReviewArticleAsync(article.Id, reviewDto, reviewerId: 2);
+
+        var reviewed = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.NotNull(reviewed);
+        Assert.Equal(ArticleStatus.Published, reviewed.Status);
+        Assert.Contains("onaylandı", reviewed.ManagerFeedback);
+
+        var notif = await _context.Notifications.FirstOrDefaultAsync(n => n.UserId == 1 && n.EntityType == "KnowledgeArticle");
+        Assert.NotNull(notif);
+        Assert.Contains("published", notif.Body);
+    }
+
+    [Theory]
+    [InlineData(ArticleStatus.NeedsRevision, "marked for revision")]
+    [InlineData(ArticleStatus.Rejected, "rejected")]
+    public async Task ReviewArticleAsync_RevisionAndRejectedBranches_ShouldSetStatusAndFeedback(ArticleStatus status, string expectedText)
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(2))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var article = new KnowledgeArticle
+        {
+            Title = "Article Under Review",
+            Content = "Needs changes",
+            CategoryId = 1,
+            AuthorUserId = 1,
+            Status = ArticleStatus.PendingReview,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        var reviewDto = new ReviewKbArticleDto(Status: status, Feedback: "Revizyon gerekli");
+        await _kbService.ReviewArticleAsync(article.Id, reviewDto, reviewerId: 2);
+
+        var reviewed = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.NotNull(reviewed);
+        Assert.Equal(status, reviewed.Status);
+
+        var notif = await _context.Notifications.FirstOrDefaultAsync(n => n.UserId == 1 && n.Body.Contains(expectedText));
+        Assert.NotNull(notif);
+    }
+
+    [Fact]
+    public async Task DeleteArticleAsync_PermissionsAndAuthorScenarios()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(1))
+            .ReturnsAsync(new HashSet<string>());
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(2))
+            .ReturnsAsync(new HashSet<string>());
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(3))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var article = new KnowledgeArticle
+        {
+            Title = "Delete Test",
+            Content = "Test",
+            CategoryId = 1,
+            AuthorUserId = 1,
+            Status = ArticleStatus.Draft,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        // Non-author non-manager cannot delete
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            _kbService.DeleteArticleAsync(article.Id, currentUserId: 2));
+
+        // Author can delete
+        await _kbService.DeleteArticleAsync(article.Id, currentUserId: 1);
+        var deleted = await _context.KnowledgeArticles.FindAsync(article.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted.IsDeleted);
+
+        // Manager can also delete
+        deleted.IsDeleted = false;
+        await _context.SaveChangesAsync();
+        await _kbService.DeleteArticleAsync(article.Id, currentUserId: 3);
+        Assert.True(deleted.IsDeleted);
     }
 }

@@ -183,4 +183,60 @@ public class KnowledgeBaseControllerTests
 
         Assert.IsType<NoContentResult>(result);
     }
+
+    [Fact]
+    public async Task UpdateArticle_WhenKeyNotFound_ShouldReturnNotFound()
+    {
+        var dto = new UpdateKbArticleDto(1, "Upd", "Content", ArticleStatus.Draft, ArticleVisibility.Public);
+        _serviceMock.Setup(s => s.UpdateArticleAsync(99, dto, 1)).ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.UpdateArticle(99, dto);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateArticle_WhenUnauthorized_ShouldReturnForbid()
+    {
+        var dto = new UpdateKbArticleDto(1, "Upd", "Content", ArticleStatus.Draft, ArticleVisibility.Public);
+        _serviceMock.Setup(s => s.UpdateArticleAsync(1, dto, 1)).ThrowsAsync(new System.UnauthorizedAccessException());
+
+        var result = await _controller.UpdateArticle(1, dto);
+
+        Assert.IsType<ForbidResult>(result);
+    }
+
+    [Fact]
+    public async Task ReviewArticle_WhenKeyNotFound_ShouldReturnNotFound()
+    {
+        var dto = new ReviewKbArticleDto(ArticleStatus.Published, null);
+        _serviceMock.Setup(s => s.ReviewArticleAsync(99, dto, 1)).ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.ReviewArticle(99, dto);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task ReviewArticle_WhenUnauthorized_ShouldReturnForbid()
+    {
+        var dto = new ReviewKbArticleDto(ArticleStatus.Published, null);
+        _serviceMock.Setup(s => s.ReviewArticleAsync(1, dto, 1)).ThrowsAsync(new System.UnauthorizedAccessException());
+
+        var result = await _controller.ReviewArticle(1, dto);
+
+        Assert.IsType<ForbidResult>(result);
+    }
+
+    [Fact]
+    public async Task ReviewArticle_WhenGenericException_ShouldReturn500()
+    {
+        var dto = new ReviewKbArticleDto(ArticleStatus.Published, null);
+        _serviceMock.Setup(s => s.ReviewArticleAsync(1, dto, 1)).ThrowsAsync(new System.Exception("Critical DB failure"));
+
+        var result = await _controller.ReviewArticle(1, dto);
+
+        var statusResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(500, statusResult.StatusCode);
+    }
 }
