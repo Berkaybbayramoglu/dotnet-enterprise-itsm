@@ -1,15 +1,23 @@
 <div align="center">
 
-# ⚡ ITSM Tool — Enterprise IT Service Management Suite
+# ⚡ ITSM Tool — Enterprise .NET 8 IT Service Management & AI Copilot Suite
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0%20LTS-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![ITIL 4 Ready](https://img.shields.io/badge/ITIL%204-Aligned-008080?style=for-the-badge&logo=itil&logoColor=white)](https://www.axelos.com/certifications/itil-service-management)
+[![Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20%2F%20Onion-blueviolet?style=for-the-badge)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![SonarQube](https://img.shields.io/badge/SonarQube-PASSED%20(A)-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white)](http://localhost:9000)
 [![CI Pipeline](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker-compose.yml)
 [![Unit Tests](https://img.shields.io/badge/Unit%20Tests-534%20Passed-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](tests/ItsTool.UnitTests)
 [![Coverage](https://img.shields.io/badge/Code%20Coverage-96.89%25-success?style=for-the-badge&logo=codecov&logoColor=white)](tests/ItsTool.UnitTests)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
+<p align="center">
+  <b>Production-ready, modular, and AI-powered IT Service Management platform natively built for the modern .NET ecosystem.</b>
+  <br />
+  <i>Clean Architecture • Entity-Attribute-Value (EAV) Dynamic Forms • Structured Hybrid RAG Copilot • Real-Time SignalR • Dynamic SLA Engine</i>
+</p>
 
 <p align="center">
   <b>🌐 Language / Dil:</b>
@@ -22,13 +30,7 @@
 
 # 🇬🇧 English
 
-<p align="center">
-  <b>A modern, modular, AI-assisted, next-generation IT Service Management (ITSM) platform fully aligned with enterprise ITIL standards.</b>
-  <br />
-  <i>Clean Architecture • Entity-Attribute-Value (EAV) Dynamic Forms • AI Resolution Copilot • Real-Time SignalR • Dynamic SLA Engine</i>
-</p>
-
-[Features](#-key-features) • [Tech Stack](#️-detailed-technology-stack) • [Architecture & Design](#-how-it-was-built-architecture--design-choices) • [System Architecture](#️-system-architecture) • [AI / LLM Architecture](#-artificial-intelligence-ai--llm-copilot-architecture) • [Keyboard Shortcuts](#️-keyboard-shortcuts-power-user-hotkeys) • [Code Quality & SonarQube](#-code-quality--sonarqube) • [Quick Start](#-quick-start) • [Demo Accounts](#-demo-accounts) • [API Documentation](#-api-architecture--key-endpoints)
+[Features](#-key-features) • [Why ITSM Tool?](#-why-itsm-tool-the-open-source-gap) • [Tech Stack](#️-detailed-technology-stack) • [Architecture & Design](#-how-it-was-built-architecture--design-choices) • [System Architecture](#️-system-architecture) • [AI & RAG Architecture](#-artificial-intelligence-ai--llm-copilot-architecture) • [Quality & SonarQube](#-code-quality--sonarqube) • [Quick Start](#-quick-start) • [Roadmap](#-roadmap) • [Contributing](#-contributing)
 
 ---
 
@@ -36,15 +38,33 @@
 
 | Category | Capability & Description |
 | :--- | :--- |
-| 🤖 **AI Resolution Copilot** | Analyzes ticket history, technician-user discussions, and past resolved tickets to produce **automated resolution plans**, **draft responses**, **knowledge base article matches**, and **intelligent handoff summaries**. |
-| ⏱️ **Dynamic SLA Engine** | Priority and project-specific first-response & resolution target times; automatic counter pause on `On Hold`; business hours calculation and **proactive pre-breach escalation warnings**. |
-| 📋 **EAV Dynamic Form Engine** | Define custom fields per project and category without altering the database schema (Text, Number, Date, Dropdown, Multi-Select). |
+| 🤖 **AI Resolution Copilot** | Analyzes ticket history, technician discussions, and past resolved cases to produce **grounded resolution steps**, **customer-ready draft replies**, **KB article matches**, and **intelligent handoff summaries**. |
+| ⏱️ **Dynamic SLA Engine** | Configurable first-response & resolution target thresholds by priority/project; automatic counter pause on `On Hold`; business hours calculation and **proactive pre-breach escalation warnings**. |
+| 📋 **EAV Dynamic Form Engine** | Define custom fields per project and category without database schema alterations (Text, Number, Date, Dropdown, Multi-Select). |
 | 🔄 **State Machine & Workflows** | ITIL-aligned Incident / Request lifecycle; dynamically governed transition rules via the admin console (`WorkflowTransitions`). |
 | 🛡️ **Advanced Authorization (RBAC+)** | Built on Role-Based Access Control (RBAC), augmented with a **Claim Override** architecture that allows adding or revoking individual permissions per user. |
 | ⚡ **Real-Time Communication (SignalR)** | Ticket assignments, status changes, SLA alerts, and `@mention` notifications are instantly pushed to client browsers. |
 | 📊 **Admin Dashboard & Analytics** | KPI cards, SLA compliance trends, department/agent workload heatmaps, filtering, and CSV/PDF export. |
-| 🔍 **Knowledge Base (KB)** | Frequently asked questions, category hierarchy, rich-text markdown articles, view counters, and four-eyes approval workflow. |
+| 🔍 **Knowledge Base (KB)** | Frequently asked questions, category hierarchy, rich-text markdown articles, view counters, and **Four-Eyes Approval** workflow. |
 | 🎨 **Zero-Bloat Vanilla UI** | Dependency-free, lightning-fast responsive interface featuring **Dark / Light theme** and **TR / EN multilingual** support. |
+
+---
+
+## 💡 Why ITSM Tool? (The Open-Source Gap)
+
+While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** (GLPI, osTicket, FreeScout) or **Ruby** (Zammad) codebases, enterprise engineering teams running .NET have historically lacked a modern, ITIL-compliant, production-grade service management platform.
+
+**ITSM Tool fills this market gap** by delivering a pure **.NET 8 LTS (C# 12)** Clean Architecture solution equipped with modern enterprise features:
+
+| Capability | ITSM Tool (.NET 8) | Legacy Open-Source (osTicket / GLPI) | Commercial Giants (ServiceNow / Jira SM) |
+| :--- | :---: | :---: | :---: |
+| **Technology Stack** | **Modern .NET 8 LTS & C# 12** | PHP 7/8 / Perl | Proprietary Cloud Monolith |
+| **Architecture** | **Clean / Onion Architecture** | Procedural / Monolithic | Black-box SaaS |
+| **AI Copilot & RAG** | **Built-in (Zero-Cost Local & Cloud)** | ❌ None | 💰 Expensive Enterprise Add-on |
+| **Dynamic Form Schemas** | **Entity-Attribute-Value (EAV)** | Hardcoded SQL Columns | Complex Custom Table Schema |
+| **Real-Time Push** | **Native WebSockets (SignalR)** | Polling / Cron Refresh | Webhooks / Polling |
+| **Test Verification** | **534 Tests (96.89% Line, 95.09% Branch)** | Variable / Sparse | Closed-Source Proprietary |
+| **Self-Hosted Deployment** | **One-Command Docker Compose** | Complex LAMP / Extension Stack | SaaS Only / No Self-Hosting |
 
 ---
 
@@ -452,6 +472,31 @@ All endpoints are fully documented and testable interactively via Swagger UI (`h
 
 ---
 
+## 🗺️ Roadmap
+
+- [x] **Core ITSM & ITIL Foundation:** Incident & Request Management lifecycle with state transitions.
+- [x] **EAV Dynamic Forms:** Custom schema builder without database migrations.
+- [x] **AI Resolution Copilot:** Structured Multi-Source Hybrid RAG with Dual-Engine Fallback.
+- [x] **Governance & Security:** Four-Eyes approval principle and RBAC+ claim overrides.
+- [x] **Quality Assurance:** 534 unit tests with >95% branch coverage & SonarQube A Quality Gate.
+- [ ] **v1.1 — CMDB & Asset Management:** Hardware & software configuration item relationship mapping.
+- [ ] **v1.2 — ChatOps & Webhooks:** Native Slack & Microsoft Teams incident alerting bots.
+- [ ] **v1.3 — Semantic Embedding Cache:** Native `pgvector` hybrid search layer for large-scale enterprise KB articles.
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Berkaybbayramoglu/itsm-Tool/issues).
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: add AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
 ## 🔒 Security & Standards
 
 - **Authorization:** Claim-based JWT Bearer authentication with granular privilege evaluation.
@@ -484,7 +529,7 @@ This project is licensed under the [MIT License](LICENSE).
   <i>Clean Architecture • Entity-Attribute-Value (EAV) Dinamik Formlar • AI Resolution Copilot • Gerçek Zamanlı SignalR • Dinamik SLA Motoru</i>
 </p>
 
-[Özellikler](#-öne-çıkan-özellikler) • [Mimari](#-sistem-mimarisi) • [AI / LLM Mimarisi](#-yapay-zeka-ai--llm-copilot-mimarisi) • [Klavye Kısayolları](#-klavye-kısayolları-power-user-hotkeys) • [Test & SonarQube](#-kod-kalitesi--sonarqube) • [Kurulum](#-hızlı-kurulum) • [Demo Hesaplar](#-demo-hesaplar) • [API Dokümantasyonu](#-api-mimarisi--başlıca-endpointler)
+[Özellikler](#-öne-çıkan-özellikler) • [Neden ITSM Tool?](#-neden-itsm-tool-açık-kaynak-ekosistemindeki-büyük-boşluk) • [Teknoloji Yığını](#️-detaylı-teknoloji-yığını-tech-stack) • [Mimari](#-sistem-mimarisi) • [AI / LLM Mimarisi](#-yapay-zeka-ai--llm-copilot-mimarisi) • [Klavye Kısayolları](#-klavye-kısayolları-power-user-hotkeys) • [Test & SonarQube](#-kod-kalitesi--sonarqube) • [Kurulum](#-hızlı-kurulum) • [Yol Haritası](#-yol-haritası-roadmap) • [Demo Hesaplar](#-demo-hesaplar) • [API Dokümantasyonu](#-api-mimarisi--başlıca-endpointler)
 
 ---
 
@@ -499,8 +544,26 @@ This project is licensed under the [MIT License](LICENSE).
 | 🛡️ **Gelişmiş Yetkilendirme (RBAC+)** | Rol Tabanlı Erişim Kontrolü (RBAC) üzerine inşa edilmiş, kullanıcı bazında tekil izin ekleme/çıkarma sağlayan **Claim Override** mimarisi. |
 | ⚡ **Gerçek Zamanlı İletişim (SignalR)** | Bilet atamaları, durum güncellemeleri, SLA uyarıları ve `@bahsetme` bildirimleri anlık olarak tarayıcıya iletilir. |
 | 📊 **Yönetici Paneli & Analitik** | KPI kartları, SLA uyum grafikleri, departman/teknisyen iş yükü ısı haritaları, filtreleme ve CSV/PDF dışa aktarma. |
-| 🔍 **Bilgi Bankası (KB)** | Sıkça sorulan sorular, kategori hiyerarşisi, zengin içerikli makaleler, görüntülenme sayaçları ve onay mekanizması. |
+| 🔍 **Bilgi Bankası (KB)** | Sıkça sorulan sorular, kategori hiyerarşisi, zengin içerikli makaleler, görüntülenme sayaçları ve **Dört Göz Onayı (Four-Eyes Principle)** mekanizması. |
 | 🎨 **Zero-Bloat Vanilla UI** | Ağır JS framework'leri olmadan ultra hızlı çalışan, responsive, **Dark / Light tema** ve **TR / EN çoklu dil** destekli modern arayüz. |
+
+---
+
+## 💡 Neden ITSM Tool? (Açık Kaynak Ekosistemindeki Büyük Boşluk)
+
+Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçların ezici çoğunluğu eski **PHP** (GLPI, osTicket, FreeScout) veya **Ruby** (Zammad) teknolojileriyle geliştirilmiştir. .NET ekosisteminde kurumsal standartlarda, ITIL uyumlu ve modern açık kaynaklı bir ITSM çözümü neredeyse hiç bulunmamaktadır.
+
+**ITSM Tool bu büyük boşluğu doldurur:** .NET 8 LTS ve C# 12'nin yüksek performansını, Clean Architecture (Soğan Mimarisi), dinamik EAV formları ve **Çok Kaynaklı Yapılandırılmış Hibrit RAG (Structured Multi-Source Hybrid RAG)** yapay zeka ajanlarıyla harmanlayarak kurumsal ölçekte eksiksiz bir çözüm sunar.
+
+| Yetenek / Özellik | ITSM Tool (.NET 8) | Geleneksel Açık Kaynak (osTicket / GLPI) | Ticari Çözümler (ServiceNow / Jira SM) |
+| :--- | :---: | :---: | :---: |
+| **Teknoloji Yığını** | **Modern .NET 8 LTS & C# 12** | PHP 7/8 / Perl | Kapalı Bulut Monoliti |
+| **Yazılım Mimarisi** | **Clean / Onion Architecture** | Prosedürel / Monolitik | Kapalı Kutu SaaS |
+| **AI Copilot & RAG** | **Yerleşik (Sıfır Maliyetli Yerel + Bulut)** | ❌ Mevcut Değil | 💰 Çok Yüksek Lisans Maliyeti |
+| **Dinamik Form Yapısı** | **Entity-Attribute-Value (EAV)** | Sabit SQL Tabloları | Karmaşık Özel Tablolar |
+| **Canlı Bildirimler** | **Yerel WebSockets (SignalR)** | Periyodik Yenileme (Polling) | Webhooks / Polling |
+| **Test & Kalite** | **534 Test (%96.89 Satır, SonarQube A)** | Düşük / Belirsiz | Kapalı Kod |
+| **Dağıtım / Kurulum** | **Tek Komutla Docker Compose** | Karmaşık LAMP / Eklenti Kurulumu | Yalnızca SaaS / Sunucuya Kurulamaz |
 
 ---
 
@@ -516,7 +579,7 @@ This project is licensed under the [MIT License](LICENSE).
 | **Grafik & Görselleştirme** | **Chart.js** & **Bootstrap 5 (Grid/Modal)** | Yönetici dashboard'unda KPI, SLA uyum ve bilet dağılım grafiklerinin dinamik çizimi |
 | **Konteynerizasyon** | **Docker** & **Docker Compose** | Multi-stage build ile hafif üretim imajları ve tek komutla izole PostgreSQL orkestrasyonu |
 | **Sürekli Entegrasyon (CI)**| **GitHub Actions** | Push ve PR'larda otomatik Ubuntu ortamı kurulumu, derleme ve test doğrulama |
-| **Birim Testleri** | **xUnit**, **Moq**, **Coverlet** | 358 birim testi ve %85.34 satır kapsamı (Line Coverage) |
+| **Birim Testleri** | **xUnit**, **Moq**, **Coverlet** | 534 birim testi, %96.89 satır kapsamı ve %95.09 dal kapsamı |
 | **Statik Kod Analizi** | **SonarQube** | 0 Bug, 0 Güvenlik Açığı, 0 Code Smell ile tam Kalite Kapısı (Quality Gate) onayı |
 | **API Dokümantasyonu** | **Swagger / OpenAPI (Swashbuckle)** | JWT Bearer kimlik doğrulaması destekli interaktif API test arayüzü |
 | **Güvenlik** | **JWT & Claim Override (RBAC+)** | PBKDF2 parola tuzlama, kullanıcı bazlı tekil izin ezme, ReDoS önleyici Regex zaman aşımları |
@@ -596,7 +659,7 @@ itsm-tool/
 │   ├── ItsTool.API/             # ASP.NET Core Web API, JWT Auth, SignalR Hub, Controller'lar
 │   └── ItsTool.Web/             # Vanilla JS, responsive HTML5 sayfaları ve statik varlıklar (wwwroot)
 ├── tests/
-│   └── ItsTool.UnitTests/       # 358 birim ve entegrasyon testi, InMemory SQLite altyapısı
+│   └── ItsTool.UnitTests/       # 534 birim ve entegrasyon testi, InMemory SQLite altyapısı
 └── docs/                        # Mimari tasarım, ERD, gereksinim ve geliştirme notları
 ```
 
@@ -805,13 +868,13 @@ docker compose up -d --build
 - [PostgreSQL 14+](https://www.postgresql.org/download/)
 - [Git](https://git-scm.com/)
 
-### 2. Projeyi Klonlayın
+#### 2. Projeyi Klonlayın
 ```bash
 git clone https://github.com/Berkaybbayramoglu/itsm-Tool.git
 cd itsm-Tool
 ```
 
-### 3. Veritabanı Yapılandırması
+#### 3. Veritabanı Yapılandırması
 PostgreSQL sunucunuzda `itsm_tool` adında bir veritabanı oluşturun ve `src/ItsTool.API/appsettings.Development.json` dosyasındaki bağlantı dizesini düzenleyin:
 
 ```json
@@ -822,7 +885,7 @@ PostgreSQL sunucunuzda `itsm_tool` adında bir veritabanı oluşturun ve `src/It
 }
 ```
 
-### 4. Uygulamayı Başlatın
+#### 4. Uygulamayı Başlatın
 
 **Terminal 1 — API Sunucusu:**
 ```bash
@@ -837,7 +900,7 @@ dotnet run --project src/ItsTool.Web
 
 Tarayıcınızdan **`http://localhost:5246`** adresine giderek uygulamayı kullanmaya başlayabilirsiniz.
 
-### 5. Birim Testlerini Çalıştırma
+#### 5. Birim Testlerini Çalıştırma
 ```bash
 dotnet test tests/ItsTool.UnitTests/ItsTool.UnitTests.csproj /p:CollectCoverage=true
 ```
@@ -905,6 +968,31 @@ Tüm endpoint'ler Swagger / OpenAPI UI üzerinden interaktif olarak test edilebi
 | **Dynamic Forms** | `GET` | `/api/dynamicform/fields` | Dinamik alan tanımları |
 
 </details>
+
+---
+
+## 🗺️ Yol Haritası (Roadmap)
+
+- [x] **Temel ITSM & ITIL Altyapısı:** Olay (Incident) ve Talep (Request) yönetimi yaşam döngüsü ve durum geçişleri.
+- [x] **EAV Dinamik Form Motoru:** Veritabanı şeması değiştirmeden anlık özel alan mimarisi.
+- [x] **AI Resolution Copilot:** Çok Kaynaklı Hibrit RAG ve Çift Motorlu Akıllı Fallback.
+- [x] **Denetim ve Güvenlik:** Dört Göz Onay Prensibi ve RBAC+ yetkilendirme.
+- [x] **Kalite Güvencesi:** 534 birim testi, >%95 dal kapsamı ve SonarQube A Kalite Kapısı.
+- [ ] **v1.1 — CMDB & Varlık Yönetimi (Asset Management):** Donanım ve yazılım varlıklarının ilişkisel konfigürasyon haritası.
+- [ ] **v1.2 — ChatOps & Bildirim Botları:** Slack ve Microsoft Teams olay bildirim ve komut botları.
+- [ ] **v1.3 — Semantik Vektör Önbelleği:** Büyük ölçekli kurumsal KB makaleleri için yerleşik `pgvector` hibrit arama katmanı.
+
+---
+
+## 🤝 Katkıda Bulunma (Contributing)
+
+Katkılarınızı, hata bildirimlerinizi ve özellik önerilerinizi memnuniyetle karşılıyoruz! [Issues sayfası](https://github.com/Berkaybbayramoglu/itsm-Tool/issues) üzerinden bize katılabilirsiniz.
+
+1. Projeyi Fork'layın
+2. Yeni bir Dal Açın (`git checkout -b feature/YeniOzellik`)
+3. Değişikliklerinizi Commit Edin (`git commit -m 'feat: yeni özellik eklendi'`)
+4. Dalınızı Push Edin (`git push origin feature/YeniOzellik`)
+5. Bir Pull Request Açın
 
 ---
 
