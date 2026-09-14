@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ ITSM Tool — Enterprise .NET 8 IT Service Management & AI Copilot Suite
+# ITSM Tool — Enterprise .NET 8 IT Service Management & AI Copilot Platform
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0%20LTS-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -30,27 +30,27 @@
 
 # 🇬🇧 English
 
-[Features](#-key-features) • [Why ITSM Tool?](#-why-itsm-tool-the-open-source-gap) • [Tech Stack](#️-detailed-technology-stack) • [Architecture & Design](#-how-it-was-built-architecture--design-choices) • [System Architecture](#️-system-architecture) • [AI & RAG Architecture](#-artificial-intelligence-ai--llm-copilot-architecture) • [Quality & SonarQube](#-code-quality--sonarqube) • [Quick Start](#-quick-start) • [Roadmap](#-roadmap) • [Contributing](#-contributing)
+[Features](#key-features) • [Why ITSM Tool?](#why-itsm-tool-the-open-source-gap) • [Tech Stack](#technology-stack) • [Architecture & Design](#architecture--design-decisions) • [System Architecture](#system-architecture) • [AI & RAG](#artificial-intelligence-ai--llm-architecture) • [Quality & SonarQube](#code-quality--sonarqube) • [Quick Start](#quick-start) • [Roadmap](#roadmap) • [Contributing](#contributing)
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 | Category | Capability & Description |
 | :--- | :--- |
-| 🤖 **AI Resolution Copilot** | Analyzes ticket history, technician discussions, and past resolved cases to produce **grounded resolution steps**, **customer-ready draft replies**, **KB article matches**, and **intelligent handoff summaries**. |
-| ⏱️ **Dynamic SLA Engine** | Configurable first-response & resolution target thresholds by priority/project; automatic counter pause on `On Hold`; business hours calculation and **proactive pre-breach escalation warnings**. |
-| 📋 **EAV Dynamic Form Engine** | Define custom fields per project and category without database schema alterations (Text, Number, Date, Dropdown, Multi-Select). |
-| 🔄 **State Machine & Workflows** | ITIL-aligned Incident / Request lifecycle; dynamically governed transition rules via the admin console (`WorkflowTransitions`). |
-| 🛡️ **Advanced Authorization (RBAC+)** | Built on Role-Based Access Control (RBAC), augmented with a **Claim Override** architecture that allows adding or revoking individual permissions per user. |
-| ⚡ **Real-Time Communication (SignalR)** | Ticket assignments, status changes, SLA alerts, and `@mention` notifications are instantly pushed to client browsers. |
-| 📊 **Admin Dashboard & Analytics** | KPI cards, SLA compliance trends, department/agent workload heatmaps, filtering, and CSV/PDF export. |
-| 🔍 **Knowledge Base (KB)** | Frequently asked questions, category hierarchy, rich-text markdown articles, view counters, and **Four-Eyes Approval** workflow. |
-| 🎨 **Zero-Bloat Vanilla UI** | Dependency-free, lightning-fast responsive interface featuring **Dark / Light theme** and **TR / EN multilingual** support. |
+| **AI Resolution Copilot** | Analyzes ticket history, technician discussions, and past resolved cases to produce **grounded resolution steps**, **customer-ready draft replies**, **KB article matches**, and **intelligent handoff summaries**. |
+| **Dynamic SLA Engine** | Configurable first-response & resolution target thresholds by priority/project; automatic counter pause on `On Hold`; business hours calculation and **proactive pre-breach escalation warnings**. |
+| **EAV Dynamic Form Engine** | Define custom fields per project and category without database schema alterations (Text, Number, Date, Dropdown, Multi-Select). |
+| **State Machine & Workflows** | ITIL-aligned Incident / Request lifecycle; dynamically governed transition rules via the admin console (`WorkflowTransitions`). |
+| **Advanced Authorization (RBAC+)** | Built on Role-Based Access Control (RBAC), augmented with a **Claim Override** architecture that allows adding or revoking individual permissions per user. |
+| **Real-Time Communication (SignalR)** | Ticket assignments, status changes, SLA alerts, and `@mention` notifications are instantly pushed to client browsers. |
+| **Admin Dashboard & Analytics** | KPI cards, SLA compliance trends, department/agent workload heatmaps, filtering, and CSV/PDF export. |
+| **Knowledge Base (KB)** | Frequently asked questions, category hierarchy, rich-text markdown articles, view counters, and **Four-Eyes Approval** workflow. |
+| **Zero-Bloat Vanilla UI** | Dependency-free, lightning-fast responsive interface featuring **Dark / Light theme** and **TR / EN multilingual** support. |
 
 ---
 
-## 💡 Why ITSM Tool? (The Open-Source Gap)
+## Why ITSM Tool? (The Open-Source Gap)
 
 While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** (GLPI, osTicket, FreeScout) or **Ruby** (Zammad) codebases, enterprise engineering teams running .NET have historically lacked a modern, ITIL-compliant, production-grade service management platform.
 
@@ -60,7 +60,7 @@ While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** 
 | :--- | :---: | :---: | :---: |
 | **Technology Stack** | **Modern .NET 8 LTS & C# 12** | PHP 7/8 / Perl | Proprietary Cloud Monolith |
 | **Architecture** | **Clean / Onion Architecture** | Procedural / Monolithic | Black-box SaaS |
-| **AI Copilot & RAG** | **Built-in (Zero-Cost Local & Cloud)** | ❌ None | 💰 Expensive Enterprise Add-on |
+| **AI Copilot & RAG** | **Built-in (Zero-Cost Local & Cloud)** | Not Available | Commercial Add-on (Paid) |
 | **Dynamic Form Schemas** | **Entity-Attribute-Value (EAV)** | Hardcoded SQL Columns | Complex Custom Table Schema |
 | **Real-Time Push** | **Native WebSockets (SignalR)** | Polling / Cron Refresh | Webhooks / Polling |
 | **Test Verification** | **534 Tests (96.89% Line, 95.09% Branch)** | Variable / Sparse | Closed-Source Proprietary |
@@ -68,7 +68,7 @@ While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** 
 
 ---
 
-## 🛠️ Detailed Technology Stack
+## Technology Stack
 
 | Area | Technology & Library | Purpose & Architectural Role |
 | :--- | :--- | :--- |
@@ -87,7 +87,7 @@ While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** 
 
 ---
 
-## 💡 How It Was Built (Architecture & Design Choices)
+## Architecture & Design Decisions
 
 1. **Clean Architecture (Onion Architecture):**
    - Dependencies strictly point inward (`Domain` <- `Application` <- `Infrastructure` <- `API`).
@@ -104,7 +104,7 @@ While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** 
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 The project strictly follows **Clean Architecture (Onion Architecture)** principles, targeting loose coupling and high testability across all system layers:
 
@@ -149,7 +149,7 @@ graph TD
     Infra --> LLM
 ```
 
-### 📁 Directory Structure
+### Directory Structure
 
 ```
 itsm-tool/
@@ -166,11 +166,11 @@ itsm-tool/
 
 ---
 
-## 🧠 Artificial Intelligence (AI / LLM) Copilot Architecture
+## Artificial Intelligence (AI / LLM) Architecture
 
 ITSM Tool features a **hybrid, multi-layered artificial intelligence architecture** engineered to alleviate operational load for support engineers, minimize Mean Time to Resolution (MTTR), and standardize resolution quality.
 
-### 📐 AI Copilot Flowchart
+### AI Copilot Flowchart
 
 ```mermaid
 flowchart TD
@@ -236,19 +236,19 @@ flowchart TD
 
 ---
 
-### 🔑 The 6 Core Pillars of Our AI Architecture
+### Core Pillars of the AI Architecture
 
-#### 1. 🛡️ Dual-Engine Fallback & High Availability Guarantee
+#### 1. Dual-Engine Fallback & High Availability
 - **Problem:** When cloud-hosted LLM APIs suffer outages, rate-limits, or local models encounter out-of-memory states, technician dashboards must never freeze.
 - **Solution:** The platform operates under a strict **Zero Downtime** philosophy:
   - If a live LLM connection is healthy, deep generative model outputs are rendered (`isLlm: true`).
   - If the LLM is unreachable or disabled, the system **never throws an exception**; it seamlessly delegates to the **Smart Heuristic Fallback Engine** (`isLlm: false`), which analyzes category, priority, historical interventions, and related KB articles locally.
   - UI transparency informs the user that the resolution was generated via the rule engine, advising model configuration checks if an external LLM is preferred.
 
-#### 2. 📚 Structured Multi-Source Hybrid RAG Architecture
+#### 2. Structured Multi-Source Hybrid RAG
 Rather than relying on ungrounded free-text vector searches, ITSM Tool utilizes a purpose-built **Structured Multi-Source Hybrid RAG** architecture tailored for enterprise IT support. By unifying relational data hierarchies, verified enterprise knowledge bases, and historical ticket experience, it provides zero-hallucination context grounding.
 
-##### 🔄 RAG Workflow & Stages:
+##### RAG Workflow and Stages
 1. **Taxonomy & Entity-Filtered Retrieval:**
    - Evaluates the active ticket's category (`CategoryId`), priority (`PriorityId`), and tags.
    - Searches historical closed and resolved tickets (`GetSimilarTicketsAsync`) to retrieve verified ground-truth references (*Few-Shot In-Context Learning*).
@@ -267,28 +267,28 @@ Rather than relying on ungrounded free-text vector searches, ITSM Tool utilizes 
    - **Live LLM:** OpenAI-compatible local/cloud models synthesize the enriched context into clean, professional guidance.
    - **Smart Heuristic Fallback:** When LLM access is unavailable, the RAG context is processed directly by the local rule engine without disruption.
 
-##### 🎯 Why Structured RAG Over Generic Vector Databases?
+##### Structured RAG vs Generic Vector Databases
 - **Zero Hallucination:** Models do not guess; they ground their output on real tickets previously solved and verified by human IT engineers.
 - **Ultra-Low Latency & Zero Cost:** Eliminates external vector database dependencies (Pinecone, Qdrant, etc.) and embedding API costs. Leverages PostgreSQL's optimized indexes to complete retrieval in **under 5 milliseconds**.
 
-#### 3. 🌐 Multilingual Intelligence & Dynamic Prompt Synthesis (TR / EN)
-- Switch between **🇹🇷 TR** or **🇬🇧 EN** resolution languages with a single click; preferences are persisted in `localStorage`.
+#### 3. Multilingual Intelligence & Dynamic Prompt Synthesis
+- Switch between **TR** or **EN** resolution languages with a single click; preferences are persisted in `localStorage`.
 - Background agents (**Resolution Copilot** and **Ticket Handoff Swarm**) dynamically formulate system instructions and prompts per language:
   - **Turkish:** Professional enterprise ITIL terminology for action steps and customer replies.
   - **English:** Aligned with international IT support standards (`Best regards`, `Diagnostic steps`, `Actionable troubleshooting`).
   - Even without an LLM connection, the heuristic fallback engine renders formatted templates in the chosen language.
 
-#### 4. 🔌 Universal Model Compatibility (OpenAI-Compatible Multi-Provider)
+#### 4. Universal Model Compatibility (OpenAI-Compatible)
 Zero vendor lock-in. Full compliance with the standard OpenAI Chat Completions REST API specification:
 - **Local Models (Zero-Cost / Offline):** [Ollama](https://ollama.ai/) (`Llama 3`, `Mistral`, `Qwen 2.5`, `Phi-3`), [LM Studio](https://lmstudio.ai/), [vLLM](https://github.com/vllm-project/vllm).
 - **Cloud Models:** OpenAI (`GPT-4o`, `GPT-4o-mini`), Azure OpenAI, Anthropic Claude (via compatible proxies).
 - **Docker Networking Bridge:** Via the `host.docker.internal:host-gateway` bridge in `docker-compose.yml`, the containerized application communicates directly with local Ollama / LM Studio instances running on the host via `http://host.docker.internal:11434`.
 
-#### 5. 👥 Agentic Specialization & Separation of Duties
+#### 5. Agentic Specialization & Separation of Concerns
 - **Resolution Copilot Agent:** Diagnoses root causes, recommends knowledge articles, generates step-by-step action items, and drafts customer-ready responses.
 - **Ticket Handoff Swarm Agent:** Summarizes entire ticket histories, technical bottlenecks, and pending actions during shift changes or Tier-2 escalations.
 
-#### 6. 🎨 Intuitive User Experience & Secure Model Governance
+#### 6. User Experience & Secure Model Governance
 - **Masked API Keys with Visibility Toggle:** API keys are protected behind password inputs with an interactive eye toggle icon.
 - **Non-Overlapping Header:** Dual-line responsive header layout preventing visual collisions in narrow side drawers.
 - **Live Latency Benchmark:** Single-click test probe measuring real-time round-trip latency in milliseconds.
@@ -296,7 +296,7 @@ Zero vendor lock-in. Full compliance with the standard OpenAI Chat Completions R
 
 ---
 
-## 🧪 Code Quality & SonarQube
+## Code Quality & SonarQube
 
 The codebase adheres strictly to enterprise software engineering principles and static code analysis standards. **SonarQube Quality Gate** has passed with full honors:
 
@@ -304,19 +304,19 @@ The codebase adheres strictly to enterprise software engineering principles and 
 
 | Metric | Result | Status |
 | :---: | :---: | :---: |
-| **Quality Gate** | **PASSED (OK)** | 🟢 Passed |
-| **Unit Tests** | **534 / 534 Passed** | 🟢 100% Success |
-| **Line Coverage** | **96.89%** | 🟢 High Coverage |
-| **Branch Coverage** | **95.09%** | 🟢 High Coverage |
-| **Bugs** | **0** | 🟢 Zero Bug |
-| **Vulnerabilities** | **0** | 🟢 Secure |
-| **Security Hotspots** | **0** | 🟢 Reviewed |
-| **Code Smells** | **0** | 🟢 Clean Code |
-| **Duplications** | **1.2%** (<3.0% threshold) | 🟢 Excellent |
+| **Quality Gate** | **PASSED (OK)** | Passed |
+| **Unit Tests** | **534 / 534 Passed** | 100% Success |
+| **Line Coverage** | **96.89%** | High Coverage |
+| **Branch Coverage** | **95.09%** | High Coverage |
+| **Bugs** | **0** | Zero Bugs |
+| **Vulnerabilities** | **0** | Verified Secure |
+| **Security Hotspots** | **0** | Reviewed |
+| **Code Smells** | **0** | Clean Code |
+| **Duplications** | **1.2%** (<3.0% threshold) | Excellent |
 
 </div>
 
-### 📊 Layer-by-Layer Test Coverage Breakdown
+### Test Coverage by Layer
 
 ```
 +------------------------+--------+--------+--------+
@@ -331,7 +331,7 @@ The codebase adheres strictly to enterprise software engineering principles and 
 +------------------------+--------+--------+--------+
 ```
 
-### 🔄 Continuous Integration (CI/CD Pipeline)
+### Continuous Integration (CI/CD Pipeline)
 
 The automated GitHub Actions CI workflow (`.github/workflows/ci.yml`) runs on every `push` and `pull_request`:
 1. **Environment Setup:** Configures .NET 8 SDK on Ubuntu latest.
@@ -341,9 +341,9 @@ The automated GitHub Actions CI workflow (`.github/workflows/ci.yml`) runs on ev
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### 🐳 Method 1: One-Command Execution via Docker (Recommended)
+### Option 1: Docker Compose (Recommended)
 
 Launch the full suite without installing PostgreSQL or .NET SDK locally:
 
@@ -356,13 +356,13 @@ cd itsm-Tool
 docker compose up -d --build
 ```
 
-> 💡 *PostgreSQL 16 and ITSM Tool API containers launch automatically, applying database schema migrations and seeding demo accounts.*  
+> **Note:** PostgreSQL 16 and ITSM Tool API containers launch automatically, applying database schema migrations and seeding demo accounts.*  
 > Open your browser and navigate to **`http://localhost:5246`** to log in.  
 > To shut down containers: `docker compose down`
 
 ---
 
-### 💻 Method 2: Local Development Setup (Manual)
+### Option 2: Local Development Setup (Manual)
 
 #### 1. Prerequisites
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -392,7 +392,7 @@ Create a database named `itsm_tool` in PostgreSQL and configure `src/ItsTool.API
 ```bash
 dotnet run --project src/ItsTool.API
 ```
-> 💡 *Note: The API initializes the schema on first boot and invokes `DataSeeder` to seed projects, groups, SLA policies, and demo users.*
+> **Note:** The API initializes the schema on first boot and invokes `DataSeeder` to seed projects, groups, SLA policies, and demo users.
 
 **Terminal 2 — Web Client:**
 ```bash
@@ -408,7 +408,7 @@ dotnet test tests/ItsTool.UnitTests/ItsTool.UnitTests.csproj /p:CollectCoverage=
 
 ---
 
-## 🔑 Demo Accounts
+## Demo Accounts
 
 Pre-seeded accounts ready upon system initialization (**Password for all accounts:** `123456`):
 
@@ -422,7 +422,7 @@ Pre-seeded accounts ready upon system initialization (**Password for all account
 
 ---
 
-## ⌨️ Keyboard Shortcuts (Power-User Hotkeys)
+## Keyboard Shortcuts
 
 Global keyboard shortcuts are enabled across all interfaces for rapid navigation and high accessibility:
 
@@ -435,20 +435,20 @@ Global keyboard shortcuts are enabled across all interfaces for rapid navigation
 | <kbd>T</kbd> | **Ticket List** | Navigates to the ticket list and search page (`/tickets.html`). |
 | <kbd>D</kbd> | **Dashboard** | Navigates to the executive dashboard (`/dashboard.html`). |
 
-> 💡 **Shortcuts Discovery & UI Integration:**
-> - **Topbar:** Click the **keyboard icon (⌨️)** in the top navigation bar at any time to open the cheat sheet.
+> **Shortcuts Discovery & UI Integration:**
+> - **Topbar:** Click the **keyboard icon (Klavye)** in the top navigation bar at any time to open the cheat sheet.
 > - **Profile Drawer:** Clicking your user avatar opens the drawer containing a **"Keyboard Shortcuts (?)"** quick link.
 > - **Search Bar Badge:** A subtle `<kbd>/</kbd>` badge on the search input reminds users of the hotkey.
 > - **Input-Aware Guard:** Hotkeys automatically disable while typing inside form fields (`input`, `textarea`), preventing accidental navigation.
 
 ---
 
-## 📡 API Architecture & Key Endpoints
+## API Architecture & Key Endpoints
 
 All endpoints are fully documented and testable interactively via Swagger UI (`http://localhost:5246/swagger`).
 
 <details>
-<summary><b>🔍 View Primary REST API Endpoints Table</b></summary>
+<summary><b>View Primary REST API Endpoints Table</b></summary>
 
 | Module | Method | Endpoint | Description |
 | :--- | :--- | :--- | :--- |
@@ -472,7 +472,7 @@ All endpoints are fully documented and testable interactively via Swagger UI (`h
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [x] **Core ITSM & ITIL Foundation:** Incident & Request Management lifecycle with state transitions.
 - [x] **EAV Dynamic Forms:** Custom schema builder without database migrations.
@@ -485,7 +485,7 @@ All endpoints are fully documented and testable interactively via Swagger UI (`h
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Berkaybbayramoglu/itsm-Tool/issues).
 
@@ -497,7 +497,7 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 
 ---
 
-## 🔒 Security & Standards
+## Security & Compliance
 
 - **Authorization:** Claim-based JWT Bearer authentication with granular privilege evaluation.
 - **Audit Trail:** EF Core `SystemAuditInterceptor` captures comprehensive historical changelogs across entities.
@@ -507,7 +507,7 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
 
@@ -529,27 +529,27 @@ This project is licensed under the [MIT License](LICENSE).
   <i>Clean Architecture • Entity-Attribute-Value (EAV) Dinamik Formlar • AI Resolution Copilot • Gerçek Zamanlı SignalR • Dinamik SLA Motoru</i>
 </p>
 
-[Özellikler](#-öne-çıkan-özellikler) • [Neden ITSM Tool?](#-neden-itsm-tool-açık-kaynak-ekosistemindeki-büyük-boşluk) • [Teknoloji Yığını](#️-detaylı-teknoloji-yığını-tech-stack) • [Mimari](#-sistem-mimarisi) • [AI / LLM Mimarisi](#-yapay-zeka-ai--llm-copilot-mimarisi) • [Klavye Kısayolları](#-klavye-kısayolları-power-user-hotkeys) • [Test & SonarQube](#-kod-kalitesi--sonarqube) • [Kurulum](#-hızlı-kurulum) • [Yol Haritası](#-yol-haritası-roadmap) • [Demo Hesaplar](#-demo-hesaplar) • [API Dokümantasyonu](#-api-mimarisi--başlıca-endpointler)
+[Özellikler](#temel-özellikler) • [Neden ITSM Tool?](#neden-itsm-tool) • [Teknoloji Yığını](#teknoloji-yığını) • [Mimari](#sistem-mimarisi-1) • [AI Mimarisi](#yapay-zeka-ai--llm-mimarisi) • [Klavye Kısayolları](#klavye-kısayolları) • [Test & SonarQube](#kod-kalitesi-ve-sonarqube) • [Kurulum](#hızlı-kurulum-1) • [Yol Haritası](#yol-haritası-roadmap) • [Demo Hesaplar](#hazır-demo-hesaplar) • [API Dokümantasyonu](#api-mimarisi-ve-başlıca-endpointler)
 
 ---
 
-## 🌟 Öne Çıkan Özellikler
+## Temel Özellikler
 
 | Kategori | Yetenek & Açıklama |
 | :--- | :--- |
-| 🤖 **AI Resolution Copilot** | Bilet geçmişi, kullanıcı yorumları ve benzer biletleri analiz ederek **otomatik çözüm önerileri**, **taslak yanıtlar**, **makale eşleştirmeleri** ve **akıllı devir (handoff)** özetleri üretir. |
-| ⏱️ **Dinamik SLA Motoru** | Öncelik ve proje bazlı özelleştirilebilir ilk yanıt & çözüm süreleri; bekleme durumunda (`On Hold`) otomatik sayaç durdurma; mesai saati hesaplaması ve **ihlal öncesi proaktif eskalasyon uyarıları**. |
-| 📋 **EAV Dinamik Form Motoru** | Kod değişikliği gerektirmeden proje ve kategori bazlı özel alan tanımlama (Metin, Sayı, Tarih, Açılır Liste, Çoklu Seçim). |
-| 🔄 **Durum Makinesi & İş Akışları** | ITIL uyumlu Incident / Request yaşam döngüsü; admin panelinden dinamik olarak yönetilen durum geçiş kuralları (`WorkflowTransitions`). |
-| 🛡️ **Gelişmiş Yetkilendirme (RBAC+)** | Rol Tabanlı Erişim Kontrolü (RBAC) üzerine inşa edilmiş, kullanıcı bazında tekil izin ekleme/çıkarma sağlayan **Claim Override** mimarisi. |
-| ⚡ **Gerçek Zamanlı İletişim (SignalR)** | Bilet atamaları, durum güncellemeleri, SLA uyarıları ve `@bahsetme` bildirimleri anlık olarak tarayıcıya iletilir. |
-| 📊 **Yönetici Paneli & Analitik** | KPI kartları, SLA uyum grafikleri, departman/teknisyen iş yükü ısı haritaları, filtreleme ve CSV/PDF dışa aktarma. |
-| 🔍 **Bilgi Bankası (KB)** | Sıkça sorulan sorular, kategori hiyerarşisi, zengin içerikli makaleler, görüntülenme sayaçları ve **Dört Göz Onayı (Four-Eyes Principle)** mekanizması. |
-| 🎨 **Zero-Bloat Vanilla UI** | Ağır JS framework'leri olmadan ultra hızlı çalışan, responsive, **Dark / Light tema** ve **TR / EN çoklu dil** destekli modern arayüz. |
+| **AI Resolution Copilot** | Bilet geçmişi, kullanıcı yorumları ve benzer biletleri analiz ederek **otomatik çözüm önerileri**, **taslak yanıtlar**, **makale eşleştirmeleri** ve **akıllı devir (handoff)** özetleri üretir. |
+| **Dinamik SLA Motoru** | Öncelik ve proje bazlı özelleştirilebilir ilk yanıt & çözüm süreleri; bekleme durumunda (`On Hold`) otomatik sayaç durdurma; mesai saati hesaplaması ve **ihlal öncesi proaktif eskalasyon uyarıları**. |
+| **EAV Dinamik Form Motoru** | Kod değişikliği gerektirmeden proje ve kategori bazlı özel alan tanımlama (Metin, Sayı, Tarih, Açılır Liste, Çoklu Seçim). |
+| **Durum Makinesi ve İş Akışları** | ITIL uyumlu Incident / Request yaşam döngüsü; admin panelinden dinamik olarak yönetilen durum geçiş kuralları (`WorkflowTransitions`). |
+| **Gelişmiş Yetkilendirme (RBAC+)** | Rol Tabanlı Erişim Kontrolü (RBAC) üzerine inşa edilmiş, kullanıcı bazında tekil izin ekleme/çıkarma sağlayan **Claim Override** mimarisi. |
+| **Gerçek Zamanlı İletişim (SignalR)** | Bilet atamaları, durum güncellemeleri, SLA uyarıları ve `@bahsetme` bildirimleri anlık olarak tarayıcıya iletilir. |
+| **Yönetici Paneli ve Analitik** | KPI kartları, SLA uyum grafikleri, departman/teknisyen iş yükü ısı haritaları, filtreleme ve CSV/PDF dışa aktarma. |
+| **Bilgi Bankası (KB)** | Sıkça sorulan sorular, kategori hiyerarşisi, zengin içerikli makaleler, görüntülenme sayaçları ve **Dört Göz Onayı (Four-Eyes Principle)** mekanizması. |
+| **Zero-Bloat Vanilla UI** | Ağır JS framework'leri olmadan ultra hızlı çalışan, responsive, **Dark / Light tema** ve **TR / EN çoklu dil** destekli modern arayüz. |
 
 ---
 
-## 💡 Neden ITSM Tool? (Açık Kaynak Ekosistemindeki Büyük Boşluk)
+## Neden ITSM Tool?
 
 Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçların ezici çoğunluğu eski **PHP** (GLPI, osTicket, FreeScout) veya **Ruby** (Zammad) teknolojileriyle geliştirilmiştir. .NET ekosisteminde kurumsal standartlarda, ITIL uyumlu ve modern açık kaynaklı bir ITSM çözümü neredeyse hiç bulunmamaktadır.
 
@@ -559,7 +559,7 @@ Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçları
 | :--- | :---: | :---: | :---: |
 | **Teknoloji Yığını** | **Modern .NET 8 LTS & C# 12** | PHP 7/8 / Perl | Kapalı Bulut Monoliti |
 | **Yazılım Mimarisi** | **Clean / Onion Architecture** | Prosedürel / Monolitik | Kapalı Kutu SaaS |
-| **AI Copilot & RAG** | **Yerleşik (Sıfır Maliyetli Yerel + Bulut)** | ❌ Mevcut Değil | 💰 Çok Yüksek Lisans Maliyeti |
+| **AI Copilot & RAG** | **Yerleşik (Sıfır Maliyetli Yerel + Bulut)** | Desteklenmiyor | Ücretli Kurumsal Eklenti |
 | **Dinamik Form Yapısı** | **Entity-Attribute-Value (EAV)** | Sabit SQL Tabloları | Karmaşık Özel Tablolar |
 | **Canlı Bildirimler** | **Yerel WebSockets (SignalR)** | Periyodik Yenileme (Polling) | Webhooks / Polling |
 | **Test & Kalite** | **534 Test (%96.89 Satır, SonarQube A)** | Düşük / Belirsiz | Kapalı Kod |
@@ -567,7 +567,7 @@ Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçları
 
 ---
 
-## 🛠️ Detaylı Teknoloji Yığını (Tech Stack)
+## Teknoloji Yığını
 
 | Alan | Teknoloji & Kütüphane | Kullanım Amacı & Mimari Rolü |
 | :--- | :--- | :--- |
@@ -586,7 +586,7 @@ Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçları
 
 ---
 
-## 💡 Nasıl Yapıldı? (Mimari ve Tasarım Tercihleri)
+## Mimari ve Tasarım Tercihleri
 
 1. **Clean Architecture (Onion Mimarisi):**
    - Bağımlılıklar daima dıştan içe (Domain <- Application <- Infrastructure <- API) doğrudur.
@@ -603,7 +603,7 @@ Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçları
 
 ---
 
-## 🏛️ Sistem Mimarisi
+## Sistem Mimarisi
 
 Proje, **Clean Architecture (Onion Architecture)** prensiplerine tam sadık kalınarak katmanlar arası gevşek bağlılık (loose coupling) ve yüksek test edilebilirlik hedefiyle inşa edilmiştir:
 
@@ -648,7 +648,7 @@ graph TD
     Infra --> LLM
 ```
 
-### 📁 Katman Yapısı
+### Dizin ve Katman Yapısı
 
 ```
 itsm-tool/
@@ -665,11 +665,11 @@ itsm-tool/
 
 ---
 
-## 🧠 Yapay Zeka (AI / LLM) Copilot Mimarisi
+## Yapay Zeka (AI / LLM) Mimarisi
 
 ITSM Tool, destek temsilcilerinin operasyonel yükünü hafifletmek, bilet çözüm sürelerini (MTTR) minimize etmek ve yanıt kalitesini standartlaştırmak için **hibrit ve çok katmanlı bir yapay zeka mimarisine** sahiptir.
 
-### 📐 AI Copilot Akış Şeması
+### AI Copilot Akış Şeması
 
 ```mermaid
 flowchart TD
@@ -735,19 +735,19 @@ flowchart TD
 
 ---
 
-### 🔑 AI Mimarimizin 6 Temel İlkesi
+### AI Mimarisinin Temel İlkeleri
 
-#### 1. 🛡️ Çift Modlu Çalışma & Kesintisiz Hizmet Garantisi (Dual-Engine Fallback)
+#### 1. Çift Modlu Çalışma ve Kesintisiz Hizmet (Dual-Engine Fallback)
 - **Problem:** Bulut tabanlı LLM API'larında ağ kesintileri, hız kısıtlamaları (rate-limit) veya yerel modellerde bellek yetersizliği yaşandığında destek teknisyeninin ekranı donmamalıdır.
 - **Çözüm:** Sistem **Sıfır Kesinti (Zero Downtime)** prensibiyle çalışır:
   - Canlı LLM bağlantısı varsa derinlemesine model çıktısı alınır (`isLlm: true`).
   - LLM erişilemezse veya kapalıysa, sistem **asla hata fırlatmaz**; anında bilet kategorisini, önceliğini, geçmiş müdahalelerini ve ilgili KB makalelerini analiz eden **yerel kural motoruna (Smart Heuristic Fallback)** devredilir (`isLlm: false`).
   - Kullanıcı arayüzünde şeffaflık sağlanarak yanıtın kural motorundan geldiği ve harici model bağlamak için ayarların kontrol edilmesi gerektiği açıkça belirtilir.
 
-#### 2. 📚 RAG Mimarisi: Çok Kaynaklı Yapılandırılmış Hibrit RAG (Structured Multi-Source Hybrid RAG)
+#### 2. Çok Kaynaklı Yapılandırılmış Hibrit RAG Mimarisi
 ITSM Tool, genel geçer serbest metin vektör aramaları yerine kurumsal BT destek süreçlerine özel olarak tasarlanmış **Structured Multi-Source Hybrid RAG (Çok Kaynaklı Yapılandırılmış Hibrit RAG)** mimarisini kullanır. Bu mimari, sistemdeki ilişkisel veri hiyerarşisi, kurumsal bilgi bankası ve geçmiş bilet tecrübesini birleştirerek modele sıfır halüsinasyon garantisiyle bağlam sunar.
 
-##### 🔄 RAG Çalışma Akışı ve Aşamaları:
+##### RAG Çalışma Akışı ve Aşamaları
 1. **Taksonomi ve Varlık Filtreli Getirim (Taxonomy & Entity-Filtered Retrieval):**
    - Aktif biletin kategori (`CategoryId`), öncelik (`PriorityId`) ve etiketleri analiz edilir.
    - Veritabanındaki binlerce bilet taranarak aynı kategoride daha önce başarıyla **kapatılmış ve çözülmüş biletler** (`GetSimilarTicketsAsync`) doğrulanmış çözüm referansları (*Ground Truth / Few-Shot In-Context Learning*) olarak çekilir.
@@ -766,28 +766,28 @@ ITSM Tool, genel geçer serbest metin vektör aramaları yerine kurumsal BT dest
    - **Canlı LLM:** OpenAI uyumlu yerel/bulut modeller zenginleştirilmiş bağlamı sentezleyip kurumsal ve temiz bir rehber üretir.
    - **Akıllı Yerel Kural Motoru (Smart Heuristic Fallback):** LLM kapalı veya erişilemez olduğunda, toplanan bu RAG bağlamı yerel kural motoru tarafından doğrudan işlenerek teknisyenin ekranına kesintisiz ulaştırılır.
 
-##### 🎯 Neden Klasik Vektör DB Yerine Yapılandırılmış RAG?
+##### Yapılandırılmış RAG ile Klasik Vektör Veritabanı Karşılaştırması
 - **Sıfır Halüsinasyon:** Model rastgele tahminlerde bulunmaz; daha önce BT ekiplerince çözülüp kapatılmış gerçek bilet kayıtlarını baz alır.
 - **Ultra Düşük Gecikme & Sıfır Maliyet:** Harici vektör veritabanı (Pinecone, Qdrant vb.) veya harici embedding API bağımlılığı olmadan, PostgreSQL'in güçlü ilişkisel indeksleri sayesinde getirim işlemi **5 milisaniyenin altında** gerçekleşir.
 
-#### 3. 🌐 Çok Dilli Zeka & Prompt Sentezi (TR / EN)
-- Arayüz üzerinden tek tıkla **🇹🇷 TR** veya **🇬🇧 EN** yanıt dili seçilebilir ve tercih `localStorage` üzerinde saklanır.
+#### 3. Çok Dilli Destek ve Dinamik Prompt Sentezi
+- Arayüz üzerinden tek tıkla **TR** veya **EN** yanıt dili seçilebilir ve tercih `localStorage` üzerinde saklanır.
 - Arka plandaki akıllı ajanlar (**Çözüm ve Yanıt Asistanı** ile **Bilet Devir ve Özetleme Ajanı**), seçilen dile göre dinamik sistem talimatları ve kullanıcı prompt'ları oluşturur:
   - **Türkçe:** Kurumsal ve profesyonel Türkçe ITIL dili ile çözüm adımları ve müşteri bildirimleri.
   - **İngilizce:** Uluslararası IT destek standartlarına (`Best regards`, `Diagnostic steps`, `Actionable troubleshooting`) tam uyumlu İngilizce çıktılar.
   - LLM bağlı olmadığında dahi yerel motor, seçilen dilde profesyonel şablonlar üretir.
 
-#### 4. 🔌 Evrensel Model Uyumluluğu (OpenAI-Compatible Multi-Provider)
+#### 4. Evrensel Model Uyumluluğu (OpenAI Uyumlu)
 Sistem tek bir sağlayıcıya kilitlenmez (`Vendor Lock-in` yoktur). Standart OpenAI Chat Completions REST API spesifikasyonunu destekler:
 - **Yerel Modeller (Zero-Cost / Offline):** [Ollama](https://ollama.ai/) (`Llama 3`, `Mistral`, `Qwen 2.5`, `Phi-3`), [LM Studio](https://lmstudio.ai/), [vLLM](https://github.com/vllm-project/vllm).
 - **Bulut Modelleri:** OpenAI (`GPT-4o`, `GPT-4o-mini`), Azure OpenAI, Anthropic Claude (uyumlu proxy'ler üzerinden).
 - **Docker İçi Ağ İletişimi:** `docker-compose.yml` içerisindeki `host.docker.internal:host-gateway` köprüsü sayesinde, Docker içinde koşan ITSM Tool, host makinede çalışan yerel Ollama/LM Studio servislerine doğrudan `http://host.docker.internal:11434` üzerinden erişebilir.
 
-#### 5. 👥 Çoklu Ajan ve Görev Ayrımı (Agentic Specialization)
+#### 5. Çoklu Ajan ve Görev Ayrımı (Agentic Specialization)
 - **Çözüm ve Yanıt Asistanı (Resolution Copilot):** Bilet için teşhis adımları, muhtemel kök nedenler, ilgili bilgi bankası (KB) makaleleri ve son kullanıcıya iletilebilecek hazır e-posta / yorum taslaklarını üretir.
 - **Bilet Devir ve Özetleme Ajanı (Ticket Handoff):** Vardiya değişimlerinde, teknisyen atamalarında veya 2. Seviye (Tier-2) uzman desteğe eskalasyonlarda biletin tüm geçmişini, teknik darboğazları ve bir sonraki teknisyenin atması gereken adımları özetleyen devir notları hazırlar.
 
-#### 6. 🎨 Sezgisel Arayüz & Güvenli Model Yönetimi
+#### 6. Kullanıcı Arayüzü ve Model Yönetimi
 - **Göz İkonlu API Anahtarı:** Model ayarları penceresinde API anahtarı güvenle maskelenir (`type="password"`), istenildiğinde göz ikonu ile açık metne dönüştürülüp kontrol edilebilir.
 - **Üst Üste Binmeyen 2 Satırlı Başlık:** Dar yan panellerde taşma ve çakışmaları önleyen modern başlık ve durum göstergesi.
 - **Canlı Gecikme Testi:** Model ayarlarından tek tıkla test isteği gönderilerek milisaniye cinsinden yanıt süresi (`latency`) ve model sağlığı ölçülür.
@@ -795,7 +795,7 @@ Sistem tek bir sağlayıcıya kilitlenmez (`Vendor Lock-in` yoktur). Standart Op
 
 ---
 
-## 🧪 Kod Kalitesi & SonarQube
+## Kod Kalitesi ve SonarQube
 
 Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sıkı sıkıya bağlıdır. **SonarQube Kalite Kapısı (Quality Gate)** tüm metriklerde tam başarı sağlamıştır:
 
@@ -803,19 +803,19 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 
 | Metrik | Sonuç | Durum |
 | :---: | :---: | :---: |
-| **Quality Gate** | **PASSED (OK)** | 🟢 Başarılı |
-| **Birim Testleri** | **534 / 534 Geçti** | 🟢 %100 Başarı |
-| **Satır Test Kapsamı (Line Coverage)** | **%96.89** | 🟢 Yüksek Kapsam |
-| **Dal Test Kapsamı (Branch Coverage)** | **%95.09** | 🟢 Yüksek Kapsam |
-| **Bugs** | **0** | 🟢 Sıfır Hata |
-| **Vulnerabilities** | **0** | 🟢 Güvenli |
-| **Security Hotspots** | **0** | 🟢 İncelendi |
-| **Code Smells** | **0** | 🟢 Temiz Kod |
-| **Kod Tekrarı (Duplications)** | **%1.2** (<%3.0 eşiği) | 🟢 Mükemmel |
+| **Quality Gate** | **PASSED (OK)** | Başarılı |
+| **Birim Testleri** | **534 / 534 Geçti** | %100 Başarı |
+| **Satır Test Kapsamı (Line Coverage)** | **%96.89** | Yüksek Kapsam |
+| **Dal Test Kapsamı (Branch Coverage)** | **%95.09** | Yüksek Kapsam |
+| **Bugs** | **0** | Sıfır Hata |
+| **Vulnerabilities** | **0** | Güvenli |
+| **Security Hotspots** | **0** | İncelendi |
+| **Code Smells** | **0** | Temiz Kod |
+| **Kod Tekrarı (Duplications)** | **%1.2** (<%3.0 eşiği) | Mükemmel |
 
 </div>
 
-### 📊 Katman Bazlı Test Kapsamı
+### Katman Bazlı Test Kapsamı
 
 ```
 +------------------------+--------+--------+--------+
@@ -830,7 +830,7 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 +------------------------+--------+--------+--------+
 ```
 
-### 🔄 Sürekli Entegrasyon (CI/CD Pipeline)
+### Sürekli Entegrasyon (CI/CD Pipeline)
 
 GitHub Actions üzerinde koşan otomatik CI pipeline (`.github/workflows/ci.yml`), repoya yapılan her `push` ve `pull_request` işleminde:
 1. **Ortam Hazırlığı:** Ubuntu üzerinde .NET 8 SDK'sını yapılandırır.
@@ -840,9 +840,9 @@ GitHub Actions üzerinde koşan otomatik CI pipeline (`.github/workflows/ci.yml`
 
 ---
 
-## 🚀 Hızlı Kurulum
+## Hızlı Kurulum
 
-### 🐳 Yöntem 1: Docker ile Tek Komutla Çalıştırma (Önerilen)
+### Seçenek 1: Docker Compose ile Kurulum (Önerilen)
 
 Projeyi makinenize PostgreSQL veya .NET SDK kurmanıza gerek kalmadan Docker ile tek komutla başlatabilirsiniz:
 
@@ -855,13 +855,13 @@ cd itsm-Tool
 docker compose up -d --build
 ```
 
-> 💡 *PostgreSQL 16 ve ITSM Tool API konteynerleri otomatik ayağa kalkar, veritabanı şeması migrate edilir ve demo veriler tohumlanır.*  
+> **Note:** PostgreSQL 16 ve ITSM Tool API konteynerleri otomatik ayağa kalkar, veritabanı şeması migrate edilir ve demo veriler tohumlanır.*  
 > Tarayıcınızdan **`http://localhost:5246`** adresine giderek hemen giriş yapabilirsiniz.  
 > Konteynerleri durdurmak için: `docker compose down`
 
 ---
 
-### 💻 Yöntem 2: Yerel Geliştirme Ortamı (Manuel)
+### Seçenek 2: Yerel Geliştirme Ortamı (Manuel)
 
 #### 1. Gereksinimler
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -891,7 +891,7 @@ PostgreSQL sunucunuzda `itsm_tool` adında bir veritabanı oluşturun ve `src/It
 ```bash
 dotnet run --project src/ItsTool.API
 ```
-> 💡 *Not: API ilk açılışta veritabanı şemasını otomatik oluşturur ve `DataSeeder` ile örnek projeleri, grupları, SLA politikalarını ve demo kullanıcıları tohumlar.*
+> **Not:** API ilk açılışta veritabanı şemasını otomatik oluşturur ve `DataSeeder` ile örnek projeleri, grupları, SLA politikalarını ve demo kullanıcıları tohumlar.*
 
 **Terminal 2 — Web Kullanıcı Arayüzü:**
 ```bash
@@ -907,7 +907,7 @@ dotnet test tests/ItsTool.UnitTests/ItsTool.UnitTests.csproj /p:CollectCoverage=
 
 ---
 
-## 🔑 Demo Hesaplar
+## Hazır Demo Hesaplar
 
 Sistem başlatıldığında hazır gelen test kullanıcıları (**Tüm şifreler:** `123456`):
 
@@ -921,7 +921,7 @@ Sistem başlatıldığında hazır gelen test kullanıcıları (**Tüm şifreler
 
 ---
 
-## ⌨️ Klavye Kısayolları (Power-User Hotkeys)
+## Klavye Kısayolları
 
 Sistem genelinde hızlı gezinme, operasyonel hız ve erişilebilirlik için global klavye kısayolları tanımlanmıştır. Herhangi bir ekrandayken fare kullanmadan kritik aksiyonları tetikleyebilirsiniz:
 
@@ -934,20 +934,20 @@ Sistem genelinde hızlı gezinme, operasyonel hız ve erişilebilirlik için glo
 | <kbd>T</kbd> | **Biletler Listesi** | Bilet listesi ve arama sayfasına (`/tickets.html`) yönlendirir. |
 | <kbd>D</kbd> | **Dashboard** | Genel kontrol paneline (`/dashboard.html`) yönlendirir. |
 
-> 💡 **Kısayolları Keşfetme & UI Erişimi:**
-> - **Üst Çubuk (Topbar):** Tüm sayfaların sağ üst köşesinde yer alan **klavye simgesine (⌨️)** tıklayarak kısayol rehberine her an ulaşabilirsiniz.
+> **Kısayolları Keşfetme ve Arayüz Erişimi:**
+> - **Üst Çubuk (Topbar):** Tüm sayfaların sağ üst köşesinde yer alan **klavye simgesine (Klavye)** tıklayarak kısayol rehberine her an ulaşabilirsiniz.
 > - **Profil Paneli:** Sağ üstteki kullanıcı avatarına tıklandığında açılan profil penceresinin altında **"Klavye Kısayolları (?)"** bağlantısı bulunur.
 > - **Arama Çubuğu Rozeti:** Biletler sayfasında arama kutusunun sağında yer alan `<kbd>/</kbd>` etiketi, kısayol kullanımını görsel olarak hatırlatır.
 > - **Akıllı Odaklama:** Form giriş alanlarında (input, textarea vb.) yazı yazarken kısayollar harf yazımınızı engellemez, yalnızca serbest gezinme esnasında tetiklenir.
 
 ---
 
-## 📡 API Mimarisi & Başlıca Endpoint'ler
+## API Mimarisi ve Başlıca Endpoint'ler
 
 Tüm endpoint'ler Swagger / OpenAPI UI üzerinden interaktif olarak test edilebilir (`http://localhost:5246/swagger`).
 
 <details>
-<summary><b>🔍 Başlıca REST API Endpoint Listesini Görüntüle</b></summary>
+<summary><b>Başlıca REST API Endpoint Listesini Görüntüle</b></summary>
 
 | Modül | Metot | Endpoint | Açıklama |
 | :--- | :--- | :--- | :--- |
@@ -971,7 +971,7 @@ Tüm endpoint'ler Swagger / OpenAPI UI üzerinden interaktif olarak test edilebi
 
 ---
 
-## 🗺️ Yol Haritası (Roadmap)
+## Yol Haritası (Roadmap)
 
 - [x] **Temel ITSM & ITIL Altyapısı:** Olay (Incident) ve Talep (Request) yönetimi yaşam döngüsü ve durum geçişleri.
 - [x] **EAV Dinamik Form Motoru:** Veritabanı şeması değiştirmeden anlık özel alan mimarisi.
@@ -984,7 +984,7 @@ Tüm endpoint'ler Swagger / OpenAPI UI üzerinden interaktif olarak test edilebi
 
 ---
 
-## 🤝 Katkıda Bulunma (Contributing)
+## Katkıda Bulunma
 
 Katkılarınızı, hata bildirimlerinizi ve özellik önerilerinizi memnuniyetle karşılıyoruz! [Issues sayfası](https://github.com/Berkaybbayramoglu/itsm-Tool/issues) üzerinden bize katılabilirsiniz.
 
@@ -996,7 +996,7 @@ Katkılarınızı, hata bildirimlerinizi ve özellik önerilerinizi memnuniyetle
 
 ---
 
-## 🔒 Güvenlik & Standartlar
+## Güvenlik ve Uyumluluk
 
 - **Yetkilendirme:** Claim tabanlı JWT Bearer Token ile güvenli kimlik doğrulama.
 - **Audit Trail:** EF Core `SystemAuditInterceptor` ile tüm varlık ekleme, güncelleme ve silme işlemlerinde kullanıcı ve zaman damgalı tam denetim izi.
@@ -1006,7 +1006,7 @@ Katkılarınızı, hata bildirimlerinizi ve özellik önerilerinizi memnuniyetle
 
 ---
 
-## 📄 Lisans
+## Lisans
 
 Bu proje [MIT Lisansı](LICENSE) kapsamında lisanslanmıştır.
 
