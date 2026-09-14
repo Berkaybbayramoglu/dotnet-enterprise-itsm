@@ -247,21 +247,40 @@
             let actionsHtml = '';
             const isAuthor = a.authorUserId === currentUserId;
             const isPublished = a.status == 1 || a.status === 'Published';
+            const isPending = a.status == 2 || a.status === 'PendingReview';
+            const isDraft = a.status == 0 || a.status === 'Draft';
+            const isNeedsRevision = a.status == 3 || a.status === 'NeedsRevision';
             
-            if (hasManageKb || (isAuthor && !isPublished)) {
-                actionsHtml = `<div class="article-actions" style="display:flex; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">`;
-                actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(event, ${a.id})">${t('kb_btn_edit')}</button>`;
+            if (hasManageKb || isAuthor) {
+                actionsHtml = `<div class="article-actions" style="display:flex; align-items:center; gap: 8px; margin-top: 12px; margin-left: auto;" onclick="event.stopPropagation()">`;
                 
-                if (hasManageKb) {
-                    if (a.status == 2 || a.status === 'PendingReview') {
+                if (isAuthor) {
+                    // DÖRT GÖZ İLKESİ: Yazar ASLA kendi makalesini onaylayamaz veya doğrudan yayınlayamaz.
+                    actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(event, ${a.id})">${t('kb_btn_edit') || 'Düzenle'}</button>`;
+                    
+                    if (isDraft || isNeedsRevision) {
+                        actionsHtml += `<button type="button" class="btn btn-primary" style="padding: 4px 12px; font-size: 12px;" title="Onaya Gönder" onclick="submitForApproval(event, ${a.id})">${t('kb_btn_submit_approval') || 'Onaya Gönder'}</button>`;
+                    } else if (isPending) {
+                        actionsHtml += `<span class="badge" style="background: rgba(59,130,246,0.12); color: var(--primary); font-size: 11px; padding: 4px 8px; border-radius: 4px;">${t('kb_waiting_other_manager') || 'Farklı bir yönetici onayı bekleniyor'}</span>`;
+                    } else if (isPublished && hasManageKb) {
+                        actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Yayından Kaldır" onclick="togglePublish(event, ${a.id}, '${a.status}')">${t('kb_btn_unpub') || 'Yayından Kaldır'}</button>`;
+                    }
+                    
+                    actionsHtml += `<button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(event, ${a.id})">${t('kb_btn_del') || 'Sil'}</button>`;
+                } else if (hasManageKb) {
+                    // FARKLI BİR YÖNETİCİ: Başkasının önerdiği makaleyi inceleyebilir, onaylayabilir veya yayından kaldırabilir.
+                    actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Edit" onclick="editArticle(event, ${a.id})">${t('kb_btn_edit') || 'Düzenle'}</button>`;
+                    
+                    if (isPending) {
                         actionsHtml += `<button type="button" class="btn btn-primary" style="padding: 4px 12px; font-size: 13px;" title="Approve" onclick="quickApproveArticle(event, ${a.id})">${t('kb_btn_approve_pub') || 'Onayla'}</button>`;
                         actionsHtml += `<button type="button" class="btn btn-secondary" style="padding: 4px 12px; font-size: 13px;" title="Review" onclick="openReviewModal(event, ${a.id})">${t('kb_btn_review') || 'İncele'}</button>`;
                     } else {
                         actionsHtml += `<button type="button" class="btn btn-ghost" style="padding: 4px;" title="Toggle Publish" onclick="togglePublish(event, ${a.id}, '${a.status}')">${isPublished ? (t('kb_btn_unpub') || 'Yayından Kaldır') : (t('kb_btn_pub') || 'Yayınla')}</button>`;
                     }
+                    
+                    actionsHtml += `<button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(event, ${a.id})">${t('kb_btn_del') || 'Sil'}</button>`;
                 }
                 
-                actionsHtml += `<button type="button" class="btn btn-ghost text-danger" style="padding: 4px;" title="Delete" onclick="deleteArticle(event, ${a.id})">${t('kb_btn_del')}</button>`;
                 actionsHtml += `</div>`;
             }
             return actionsHtml;
@@ -348,8 +367,8 @@
                 if (currentTab === 'published') {
                     filteredArticles = articles.filter(a => a.status == 1 || a.status === 'Published');
                 } else if (currentTab === 'pending') {
-                    // Managers should not see their own pending articles in the "Pending" tab to review themselves
-                    filteredArticles = articles.filter(a => (a.status == 2 || a.status === 'PendingReview' || a.status == 3 || a.status === 'NeedsRevision' || a.status == 4 || a.status === 'Rejected') && a.authorUserId !== currentUserId);
+                    // Yöneticiler sadece başkalarının önerdiği onay bekleyen makaleleri görür. Kimse kendi makalesine bakamaz.
+                    filteredArticles = articles.filter(a => (a.status == 2 || a.status === 'PendingReview') && a.authorUserId !== currentUserId);
                 } else if (currentTab === 'mine') {
                     filteredArticles = articles.filter(a => a.authorUserId === currentUserId);
                 }
@@ -434,7 +453,13 @@
             quill.root.innerHTML = '';
             document.getElementById('articleContent').value = '';
             document.getElementById('articleVisibility').value = '1';
-            document.getElementById('articleStatus').value = '0';
+            
+            const statusSelect = document.getElementById('articleStatus');
+            statusSelect.innerHTML = `
+                <option value="0">${t('kb_opt_draft') || 'Taslak'}</option>
+                <option value="2">${t('kb_opt_submit_review') || 'Onaya Gönder (Yönetici İncelemesi)'}</option>
+            `;
+            statusSelect.value = '2';
             
             document.getElementById('authorFeedbackAlert').style.display = 'none';
             document.getElementById('btnSaveArticle').textContent = t('kb_btn_save') || 'Save Article';
@@ -465,25 +490,26 @@
             if (!form.checkValidity()) { form.reportValidity(); return; }
             
             const id = document.getElementById('articleId').value;
+            const statusVal = Number.parseInt(document.getElementById('articleStatus').value, 10);
             const payload = {
                 categoryId: Number.parseInt(document.getElementById('articleCategory').value, 10),
                 title: document.getElementById('articleTitle').value,
                 content: document.getElementById('articleContent').value,
                 visibility: Number.parseInt(document.getElementById('articleVisibility').value, 10),
-                status: Number.parseInt(document.getElementById('articleStatus').value, 10)
+                status: isNaN(statusVal) ? 2 : statusVal
             };
             
             try {
                 if (id) {
                     await window.api.updateKbArticle(id, payload);
-                    showToast(t('kb_toast_updated'));
+                    showToast(payload.status === 2 ? (t('kb_toast_submitted_approval') || 'Makale onay için yöneticilere iletildi.') : t('kb_toast_updated'));
                 } else {
                     await window.api.createKbArticle(payload);
-                    showToast(t('kb_toast_created'));
+                    showToast(payload.status === 2 ? (t('kb_toast_submitted_approval') || 'Makale oluşturuldu ve onay için yöneticilere iletildi.') : t('kb_toast_created'));
                 }
                 closeModal('articleModal');
                 loadKb();
-            } catch (e) { console.error(e);  showToast(t('kb_toast_save_err'), 'error');  }
+            } catch (e) { console.error(e);  showToast(e.message || t('kb_toast_save_err'), 'error');  }
         });
         
         window.editArticle = async function(event, id) {
@@ -496,7 +522,22 @@
                 quill.root.innerHTML = article.content || '';
                 document.getElementById('articleContent').value = article.content || '';
                 document.getElementById('articleVisibility').value = article.visibility;
-                document.getElementById('articleStatus').value = article.status;
+                
+                const statusSelect = document.getElementById('articleStatus');
+                if (article.status == 1 || article.status === 'Published') {
+                    statusSelect.innerHTML = `
+                        <option value="1">${t('kb_opt_published') || 'Yayında'}</option>
+                        <option value="0">${t('kb_btn_unpub') || 'Taslak (Yayından Kaldır)'}</option>
+                    `;
+                    statusSelect.value = '1';
+                } else {
+                    statusSelect.innerHTML = `
+                        <option value="0">${t('kb_opt_draft') || 'Taslak'}</option>
+                        <option value="2">${t('kb_opt_submit_review') || 'Onaya Gönder (Yönetici İncelemesi)'}</option>
+                    `;
+                    statusSelect.value = (article.status == 2 || article.status === 'PendingReview' || article.status == 3 || article.status === 'NeedsRevision') ? '2' : '0';
+                }
+
                 document.getElementById('modalTitle').textContent = t('kb_modal_edit');
                 
                 if (allCategories.length === 0) {
@@ -527,7 +568,7 @@
                 loadKb();
             } catch (e) {
                 console.error(e);
-                showToast(t('kb_toast_save_err') || 'Error approving article.', 'error');
+                showToast(e.message || t('kb_toast_save_err') || 'Error approving article.', 'error');
             }
         };
 
@@ -565,7 +606,7 @@
                 loadKb();
             } catch (e) {
                 console.error(e);
-                showToast(t('kb_toast_save_err'), 'error');
+                showToast(e.message || t('kb_toast_save_err'), 'error');
             }
         });
         
@@ -574,6 +615,13 @@
             try {
                 const article = await window.api.request(`/kb/articles/${id}`);
                 const isCurrentlyPublished = (currentStatus == 1 || currentStatus === 'Published' || article.status == 1 || article.status === 'Published');
+                
+                // Dört Göz İlkesi: Yazar kendi makalesini doğrudan yayınlayamaz
+                if (!isCurrentlyPublished && article.authorUserId === currentUserId) {
+                    showToast(t('kb_self_publish_err') || 'Kendi önerdiğiniz makaleyi onaylayamaz veya yayınlayamazsınız. Farklı bir yönetici incelemelidir.', 'error');
+                    return;
+                }
+
                 const newStatus = isCurrentlyPublished ? 0 : 1;
                 const payload = {
                     categoryId: article.categoryId,
@@ -585,7 +633,27 @@
                 await window.api.updateKbArticle(id, payload);
                 showToast(newStatus === 1 ? (t('kb_toast_pub') || 'Makale yayınlandı.') : (t('kb_toast_unpub') || 'Makale yayından kaldırıldı.'));
                 loadKb();
-            } catch (e) { console.error(e);  showToast(t('kb_toast_pub_err'), 'error');  }
+            } catch (e) { console.error(e);  showToast(e.message || t('kb_toast_pub_err'), 'error');  }
+        };
+
+        window.submitForApproval = async function(event, id) {
+            if (event) event.stopPropagation();
+            try {
+                const article = await window.api.request(`/kb/articles/${id}`);
+                const payload = {
+                    categoryId: article.categoryId,
+                    title: article.title,
+                    content: article.content,
+                    visibility: article.visibility,
+                    status: 2 // PendingReview
+                };
+                await window.api.updateKbArticle(id, payload);
+                showToast(t('kb_toast_submitted_approval') || 'Makale inceleme ve onay için yöneticilere iletildi.');
+                loadKb();
+            } catch (e) {
+                console.error(e);
+                showToast(e.message || t('kb_toast_save_err') || 'Onaya gönderilirken hata oluştu.', 'error');
+            }
         };
         
         window.deleteArticle = async function(event, id) {

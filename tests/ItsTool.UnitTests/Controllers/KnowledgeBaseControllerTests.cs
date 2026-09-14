@@ -149,6 +149,32 @@ public class KnowledgeBaseControllerTests
     }
 
     [Fact]
+    public async Task ReviewArticle_WhenInvalidOperationException_ShouldReturnBadRequest()
+    {
+        var dto = new ReviewKbArticleDto(ArticleStatus.Published, null);
+        _serviceMock.Setup(s => s.ReviewArticleAsync(1, dto, 1))
+            .ThrowsAsync(new System.InvalidOperationException("Cannot self approve"));
+
+        var result = await _controller.ReviewArticle(1, dto);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.NotNull(badRequest.Value);
+    }
+
+    [Fact]
+    public async Task UpdateArticle_WhenInvalidOperationException_ShouldReturnBadRequest()
+    {
+        var dto = new UpdateKbArticleDto(1, "Upd", "Content", ArticleStatus.Published, ArticleVisibility.Public);
+        _serviceMock.Setup(s => s.UpdateArticleAsync(1, dto, 1))
+            .ThrowsAsync(new System.InvalidOperationException("Cannot self publish"));
+
+        var result = await _controller.UpdateArticle(1, dto);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.NotNull(badRequest.Value);
+    }
+
+    [Fact]
     public async Task DeleteArticle_ShouldReturnNoContent()
     {
         _serviceMock.Setup(s => s.DeleteArticleAsync(1, 1)).Returns(Task.CompletedTask);

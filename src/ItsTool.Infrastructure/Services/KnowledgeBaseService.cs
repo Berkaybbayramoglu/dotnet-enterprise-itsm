@@ -66,6 +66,9 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         var query = _context.KnowledgeArticles
             .Where(a => !a.IsDeleted);
 
+        // Taslaklar yazara özeldir; henüz onaya sunulmamış taslakları başkaları göremez
+        query = query.Where(a => a.Status != ArticleStatus.Draft || a.AuthorUserId == userId);
+
         if (!canManageKb)
         {
             query = query.Where(a => a.Status == ArticleStatus.Published || a.AuthorUserId == userId);
@@ -160,7 +163,13 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         bool canManageKb = perms.Contains(KbManagePermission);
 
         var status = dto.Status;
-        if (!canManageKb)
+        // Dört Göz İlkesi: Yöneticiler dahil hiçbir yazar kendi önerdiği makaleyi doğrudan Published yapamaz.
+        // Taslak değilse, farklı bir yöneticinin onayına düşmek üzere PendingReview yapılır.
+        if (status == ArticleStatus.Published)
+        {
+            status = ArticleStatus.PendingReview;
+        }
+        else if (!canManageKb && status != ArticleStatus.Draft)
         {
             status = ArticleStatus.PendingReview;
         }
@@ -254,23 +263,34 @@ public class KnowledgeBaseService : IKnowledgeBaseService
             throw new UnauthorizedAccessException("You do not have permission to edit this article.");
         }
 
-        if (!canManageKb)
+        // Dört Göz İlkesi: Yazar kendi henüz yayınlanmamış makalesini doğrudan Published yapamaz.
+        if (article.AuthorUserId == currentUserId && dto.Status == ArticleStatus.Published && article.Status != ArticleStatus.Published)
+        {
+            throw new InvalidOperationException("Kendi önerdiğiniz makaleyi doğrudan yayınlayamazsınız. Makaleniz inceleme ve onay için farklı bir yöneticinin onay kuyruğuna düşmelidir.");
+        }
+
+        var previousStatus = article.Status;
+
+        if (article.AuthorUserId == currentUserId)
         {
             if (dto.Status == ArticleStatus.Draft)
             {
                 article.Status = ArticleStatus.Draft;
             }
-            else
+            else if (dto.Status == ArticleStatus.PendingReview || (previousStatus != ArticleStatus.Published && dto.Status != ArticleStatus.Draft))
             {
-                // If author is editing and not saving as draft, force status back to PendingReview
-                if (article.Status == ArticleStatus.NeedsRevision)
+                article.Status = ArticleStatus.PendingReview;
+                if (previousStatus != ArticleStatus.PendingReview)
                 {
                     await NotifyManagersOfSuggestionAsync(article.Id, dto.Title);
                 }
-                article.Status = ArticleStatus.PendingReview;
+            }
+            else if (previousStatus == ArticleStatus.Published && canManageKb)
+            {
+                article.Status = dto.Status;
             }
         }
-        else
+        else if (canManageKb)
         {
             article.Status = dto.Status;
         }
@@ -289,6 +309,12 @@ public class KnowledgeBaseService : IKnowledgeBaseService
 
         var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         if (article == null) throw new KeyNotFoundException("Article not found.");
+
+        // Dört Göz İlkesi: Yöneticiler kendi önerdikleri makaleleri kendileri onaylayamaz veya yayınlayamaz.
+        if (article.AuthorUserId == reviewerId)
+        {
+            throw new InvalidOperationException("Kendi önerdiğiniz makaleyi kendiniz onaylayamaz veya yayınlayamazsınız. Farklı bir yönetici tarafından incelenip onaylanmalıdır.");
+        }
 
         var reviewer = await _context.Users.FirstOrDefaultAsync(u => u.Id == reviewerId);
         var reviewerName = reviewer != null ? $"{reviewer.FirstName} {reviewer.LastName}".Trim() : "Yönetici";

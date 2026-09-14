@@ -80,18 +80,48 @@ public class KnowledgeBaseController : ControllerBase
     [HttpPut("articles/{id}")]
     public async Task<IActionResult> UpdateArticle(int id, UpdateKbArticleDto dto)
     {
-        await _kbService.UpdateArticleAsync(id, dto, GetCurrentUserId());
-        return NoContent();
+        try
+        {
+            await _kbService.UpdateArticleAsync(id, dto, GetCurrentUserId());
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     [HttpPost("articles/{id}/review")]
     [Authorize(Policy = "RequireKbManage")]
     public async Task<IActionResult> ReviewArticle(int id, ReviewKbArticleDto dto)
     {
-        try {
+        try
+        {
             await _kbService.ReviewArticleAsync(id, dto, GetCurrentUserId());
             return NoContent();
-        } catch (System.Exception ex) {
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (System.Exception ex)
+        {
             return StatusCode(500, ex.ToString());
         }
     }

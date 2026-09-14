@@ -153,4 +153,104 @@ public class KnowledgeBaseServiceTests : TestBase
         Assert.NotNull(fetched);
         Assert.Equal(6, fetched.ViewCount);
     }
+
+    [Fact]
+    public async Task ReviewArticleAsync_WhenReviewerIsAuthor_ThrowsInvalidOperationException()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(1))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var article = new KnowledgeArticle
+        {
+            Title = "My Own Suggestion",
+            Content = "Author trying to approve own article",
+            CategoryId = 1,
+            AuthorUserId = 1,
+            Status = ArticleStatus.PendingReview,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        var reviewDto = new ReviewKbArticleDto(ArticleStatus.Published, "Self approving");
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _kbService.ReviewArticleAsync(article.Id, reviewDto, reviewerId: 1));
+
+        Assert.Contains("kendi", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task UpdateArticleAsync_WhenAuthorTriesToDirectPublish_ThrowsInvalidOperationException()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(1))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var article = new KnowledgeArticle
+        {
+            Title = "My Draft Article",
+            Content = "Author trying to bypass review and publish directly",
+            CategoryId = 1,
+            AuthorUserId = 1,
+            Status = ArticleStatus.Draft,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(article);
+        await _context.SaveChangesAsync();
+
+        var updateDto = new UpdateKbArticleDto(
+            CategoryId: 1,
+            Title: "My Draft Article",
+            Content: "Updated content",
+            Status: ArticleStatus.Published,
+            Visibility: ArticleVisibility.Public
+        );
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _kbService.UpdateArticleAsync(article.Id, updateDto, currentUserId: 1));
+
+        Assert.Contains("kendi", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CreateArticleAsync_ByManager_WithPublishStatus_ForcesPendingReview()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(1))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var dto = new CreateKbArticleDto(
+            CategoryId: 1,
+            Title: "Manager New Guide",
+            Content: "Guide content",
+            Status: ArticleStatus.Published,
+            Visibility: ArticleVisibility.Public
+        );
+
+        var article = await _kbService.CreateArticleAsync(dto, authorId: 1);
+
+        Assert.NotNull(article);
+        Assert.Equal(ArticleStatus.PendingReview, article.Status);
+    }
+
+    [Fact]
+    public async Task SearchArticlesAsync_DoesNotReturnOtherUsersDrafts()
+    {
+        _permCalcMock.Setup(p => p.CalculateEffectivePermissionsAsync(1))
+            .ReturnsAsync(new HashSet<string> { "kb.manage" });
+
+        var draftArticle = new KnowledgeArticle
+        {
+            Title = "User 2 Secret Draft",
+            Content = "Unpublished draft",
+            CategoryId = 1,
+            AuthorUserId = 2,
+            Status = ArticleStatus.Draft,
+            CreatedAt = DateTime.UtcNow
+        };
+        _context.KnowledgeArticles.Add(draftArticle);
+        await _context.SaveChangesAsync();
+
+        var results = await _kbService.SearchArticlesAsync(userId: 1, keyword: "Secret", categoryId: null);
+        Assert.Empty(results);
+    }
 }

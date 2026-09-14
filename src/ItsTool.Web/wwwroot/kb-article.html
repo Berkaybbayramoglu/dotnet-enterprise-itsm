@@ -63,6 +63,7 @@
                     
                     <div id="adminActionBar" style="display: none; justify-content: flex-end; gap: 8px; margin-bottom: 16px;">
                         <button type="button" class="btn btn-primary" id="btnReviewArticle" style="display:none;" data-i18n="kb_btn_review">Review</button>
+                        <button type="button" class="btn btn-primary" id="btnSubmitForApproval" style="display:none;" data-i18n="kb_btn_submit_approval">Onaya Gönder</button>
                         <button type="button" class="btn btn-ghost" id="btnTogglePublish"></button>
                         <button type="button" class="btn btn-secondary" id="btnEditArticle" data-i18n="kb_btn_edit">Edit</button>
                         <button type="button" class="btn btn-danger" id="btnDeleteArticle" data-i18n="kb_btn_del">Delete</button>
@@ -228,7 +229,7 @@
             document.getElementById('articleBadges').innerHTML = badges;
         }
 
-        function renderArticleFeedbackAlerts(a) {
+        function renderArticleFeedbackAlerts(a, isAuthor) {
             const alertBox = document.getElementById('pageFeedbackAlert');
             const titleBox = document.getElementById('pageFeedbackTitle');
             const textBox = document.getElementById('pageFeedbackText');
@@ -240,41 +241,76 @@
                 titleBox.style.color = 'var(--warning)';
                 titleBox.textContent = 'Manager Feedback / Revision Request';
                 textBox.textContent = a.managerFeedback;
-            } else if (a.status === 2 && a.managerFeedback) {
+            } else if (a.status === 2 && a.managerFeedback && !isAuthor) {
                 alertBox.style.display = 'block';
                 alertBox.style.background = 'rgba(var(--info-rgb, 59,130,246), 0.1)';
                 alertBox.style.borderLeftColor = 'var(--info)';
                 titleBox.style.color = 'var(--info)';
                 titleBox.textContent = '📌 Yazar Revizyonu Tamamladı! (Önceki İnceleme Notunuz Aşağıdadır)';
                 textBox.textContent = a.managerFeedback;
+            } else if (a.status === 2 && isAuthor) {
+                alertBox.style.display = 'block';
+                alertBox.style.background = 'rgba(var(--info-rgb, 59,130,246), 0.1)';
+                alertBox.style.borderLeftColor = 'var(--info)';
+                titleBox.style.color = 'var(--info)';
+                titleBox.textContent = '📌 Makale Onay Bekliyor';
+                textBox.textContent = 'Bu makale inceleme ve onay için yöneticilere iletilmiştir. Kalite ve güvenlik standartları (dört göz ilkesi) gereği farklı bir yöneticinin incelemesi beklenmektedir.';
             } else {
                 alertBox.style.display = 'none';
             }
         }
 
         async function setupManagerControls(a, isAuthor) {
-            if (isManager || (isAuthor && a.status !== 1)) {
+            if (isManager || isAuthor) {
                 document.getElementById('adminActionBar').style.display = 'flex';
                 await loadCategoriesForEdit();
             } else {
                 document.getElementById('adminActionBar').style.display = 'none';
             }
 
-            if (isManager) {
-                document.getElementById('managerTip').style.display = 'flex';
-                const tBtn = document.getElementById('btnTogglePublish');
-                tBtn.textContent = (a.status === 1 || a.status === 'Published') ? (t('kb_btn_unpub') || 'Unpublish') : (t('kb_btn_pub') || 'Publish');
-                if (a.status === 2) {
-                    tBtn.style.display = 'none';
-                    document.getElementById('btnReviewArticle').style.display = 'inline-flex';
-                } else {
+            const tBtn = document.getElementById('btnTogglePublish');
+            const rBtn = document.getElementById('btnReviewArticle');
+            const sBtn = document.getElementById('btnSubmitForApproval');
+            const isPublished = (a.status === 1 || a.status === 'Published');
+            const isPending = (a.status === 2 || a.status === 'PendingReview');
+            const isDraftOrRevision = (a.status === 0 || a.status === 'Draft' || a.status === 3 || a.status === 'NeedsRevision');
+
+            if (isAuthor) {
+                // DÖRT GÖZ İLKESİ: Yazar kendi makalesini inceleyemez veya doğrudan yayınlayamaz.
+                rBtn.style.display = 'none';
+                document.getElementById('managerTip').style.display = 'none';
+
+                if (isPublished && isManager) {
                     tBtn.style.display = 'inline-flex';
-                    document.getElementById('btnReviewArticle').style.display = 'none';
+                    tBtn.textContent = t('kb_btn_unpub') || 'Yayından Kaldır';
+                } else {
+                    tBtn.style.display = 'none';
+                }
+
+                if (isDraftOrRevision) {
+                    sBtn.style.display = 'inline-flex';
+                    sBtn.textContent = t('kb_btn_submit_approval') || 'Onaya Gönder';
+                } else {
+                    sBtn.style.display = 'none';
+                }
+            } else if (isManager) {
+                // FARKLI YÖNETİCİ
+                document.getElementById('managerTip').style.display = 'flex';
+                sBtn.style.display = 'none';
+                
+                if (isPending) {
+                    tBtn.style.display = 'none';
+                    rBtn.style.display = 'inline-flex';
+                } else {
+                    rBtn.style.display = 'none';
+                    tBtn.style.display = 'inline-flex';
+                    tBtn.textContent = isPublished ? (t('kb_btn_unpub') || 'Yayından Kaldır') : (t('kb_btn_pub') || 'Yayınla');
                 }
             } else {
                 document.getElementById('managerTip').style.display = 'none';
-                document.getElementById('btnTogglePublish').style.display = 'none';
-                document.getElementById('btnReviewArticle').style.display = 'none';
+                tBtn.style.display = 'none';
+                rBtn.style.display = 'none';
+                sBtn.style.display = 'none';
             }
         }
 
@@ -298,7 +334,8 @@
                 document.getElementById('articleViews').textContent = a.viewCount;
                 
                 renderArticleBadges(a);
-                renderArticleFeedbackAlerts(a);
+                const isAuthor = currentUserId > 0 && a.authorUserId === currentUserId;
+                renderArticleFeedbackAlerts(a, isAuthor);
 
                 document.getElementById('articleContent').innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(a.content) : escapeHtml(a.content);
                 loadedArticle = a;
@@ -373,22 +410,31 @@
             document.getElementById('editArticleVisibility').value = loadedArticle.visibility;
             
             const statusSel = document.getElementById('editArticleStatus');
-            if (!isManager) {
+            const isAuthor = currentUserId > 0 && loadedArticle.authorUserId === currentUserId;
+            const isPublished = (loadedArticle.status === 1 || loadedArticle.status === 'Published');
+            
+            if (isAuthor && !isPublished) {
                 statusSel.innerHTML = `
-                    <option value="0">${t('kb_opt_draft') || 'Draft'}</option>
-                    <option value="2">Gönder (Onaya Sun)</option>
+                    <option value="0">${t('kb_opt_draft') || 'Taslak'}</option>
+                    <option value="2">${t('kb_opt_submit_review') || 'Onaya Gönder (Yönetici İncelemesi)'}</option>
                 `;
-                if (loadedArticle.status === 3) {
-                    statusSel.value = "2";
-                } else if (loadedArticle.status === 0) {
-                    statusSel.value = "0";
-                } else {
-                    statusSel.value = "2";
-                }
+                statusSel.value = (loadedArticle.status === 2 || loadedArticle.status === 3) ? "2" : "0";
+            } else if (isPublished) {
+                statusSel.innerHTML = `
+                    <option value="1">${t('kb_opt_published') || 'Yayında'}</option>
+                    <option value="0">${t('kb_btn_unpub') || 'Taslak (Yayından Kaldır)'}</option>
+                `;
+                statusSel.value = "1";
+            } else if (!isManager) {
+                statusSel.innerHTML = `
+                    <option value="0">${t('kb_opt_draft') || 'Taslak'}</option>
+                    <option value="2">${t('kb_opt_submit_review') || 'Onaya Gönder'}</option>
+                `;
+                statusSel.value = (loadedArticle.status === 0) ? "0" : "2";
             } else {
                 statusSel.innerHTML = `
-                    <option value="0">${t('kb_opt_draft') || 'Draft'}</option>
-                    <option value="1">${t('kb_opt_published') || 'Published'}</option>
+                    <option value="0">${t('kb_opt_draft') || 'Taslak'}</option>
+                    <option value="1">${t('kb_opt_published') || 'Yayında'}</option>
                     <option value="2">${t('kb_badge_pending') || 'Pending Review'}</option>
                     <option value="3">${t('kb_badge_needs_rev') || 'Needs Revision'}</option>
                 `;
@@ -412,24 +458,49 @@
         });
 
         document.getElementById('btnSaveArticle')?.addEventListener('click', async () => {
+            const statusVal = Number.parseInt(document.getElementById('editArticleStatus').value, 10);
             const data = {
                 title: document.getElementById('editArticleTitle').value,
                 categoryId: Number.parseInt(document.getElementById('editArticleCategory').value, 10),
                 visibility: Number.parseInt(document.getElementById('editArticleVisibility').value, 10),
-                status: Number.parseInt(document.getElementById('editArticleStatus').value, 10),
+                status: isNaN(statusVal) ? 2 : statusVal,
                 content: document.getElementById('editArticleContent').value
             };
             try {
                 await window.api.request(`/kb/articles/${articleId}`, { method: 'PUT', body: JSON.stringify(data) });
                 closeModal('articleModal');
-                showToast('Article updated successfully.');
+                showToast(data.status === 2 ? (t('kb_toast_submitted_approval') || 'Makale onay için yöneticilere iletildi.') : (t('kb_toast_updated') || 'Article updated successfully.'));
                 loadArticle();
-            } catch (e) { console.error(e);  showToast('Update failed', 'error');  }
+            } catch (e) { console.error(e);  showToast(e.message || 'Update failed', 'error');  }
+        });
+
+        document.getElementById('btnSubmitForApproval')?.addEventListener('click', async () => {
+            if (!loadedArticle) return;
+            try {
+                const payload = {
+                    title: loadedArticle.title,
+                    categoryId: loadedArticle.categoryId,
+                    visibility: loadedArticle.visibility,
+                    status: 2, // PendingReview
+                    content: loadedArticle.content
+                };
+                await window.api.request(`/kb/articles/${articleId}`, { method: 'PUT', body: JSON.stringify(payload) });
+                showToast(t('kb_toast_submitted_approval') || 'Makale onay için yöneticilere iletildi.');
+                loadArticle();
+            } catch (e) {
+                console.error(e);
+                showToast(e.message || 'Onaya gönderilirken hata oluştu.', 'error');
+            }
         });
 
         document.getElementById('btnTogglePublish')?.addEventListener('click', async () => {
             if(!loadedArticle) return;
-            const newStatus = (loadedArticle.status === 1 || loadedArticle.status === 'Published') ? 0 : 1;
+            const isCurrentlyPublished = (loadedArticle.status === 1 || loadedArticle.status === 'Published');
+            if (!isCurrentlyPublished && loadedArticle.authorUserId === currentUserId) {
+                showToast(t('kb_self_publish_err') || 'Kendi önerdiğiniz makaleyi onaylayamaz veya yayınlayamazsınız. Farklı bir yönetici incelemelidir.', 'error');
+                return;
+            }
+            const newStatus = isCurrentlyPublished ? 0 : 1;
             const oldStatus = loadedArticle.status;
             
             try {
@@ -444,7 +515,7 @@
                 });
             } catch (e) { console.error(e); 
                 loadedArticle.status = oldStatus;
-                showToast('Failed to change publish status.', 'error');
+                showToast(e.message || 'Failed to change publish status.', 'error');
              }
         });
 
@@ -504,7 +575,7 @@
         let selectedTextForReview = '';
 
         document.getElementById('articleContent').addEventListener('mouseup', (e) => {
-            if (!isManager) return;
+            if (!isManager || (loadedArticle && loadedArticle.authorUserId === currentUserId)) return;
             const selection = window.getSelection();
             const text = selection.toString().trim();
             
