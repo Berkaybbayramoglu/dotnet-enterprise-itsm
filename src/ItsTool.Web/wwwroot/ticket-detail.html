@@ -272,10 +272,10 @@
 
                             <!-- Row 2: Status Indicator & Output Language Selector -->
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; padding: 4px 6px; background: rgba(255,255,255,0.75); border: 1px solid #E2E8F0; border-radius: 6px;">
-                                <div id="aiStatusBadge" class="badge" onclick="window.openLlmSettingsModal()" style="font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; max-width: 175px; overflow: hidden; text-overflow: ellipsis;" title="LLM Durumu (Ayarlar için tıklayın)">
+                                <button type="button" id="aiStatusBadge" class="badge" onclick="window.openLlmSettingsModal()" style="font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; max-width: 175px; overflow: hidden; text-overflow: ellipsis; outline: none;" title="LLM Durumu (Ayarlar için tıklayın)">
                                     <span id="aiStatusDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; flex-shrink: 0;"></span>
                                     <span id="aiStatusText" style="overflow: hidden; text-overflow: ellipsis;">LLM Bağlı Değil (Kural Motoru)</span>
-                                </div>
+                                </button>
                                 <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
                                     <label for="aiResponseLang" style="font-size: 10px; font-weight: 600; color: #64748B; margin: 0;" data-i18n="ai_lang_label">Dil:</label>
                                     <select id="aiResponseLang" onchange="window.onAiLanguageChanged(this.value)" style="font-size: 10px; font-weight: 600; padding: 2px 4px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; color: #0F172A; cursor: pointer;" aria-label="Yapay zeka yanıt dili">
@@ -313,7 +313,7 @@
                             <div id="aiAskContainer" style="display: none; margin-bottom: 10px;">
                                 <div style="display: flex; gap: 4px;">
                                     <input type="text" id="aiQuestionInput" class="form-control" style="font-size: 11px; padding: 6px 10px; border-radius: 6px; border: 1.5px solid #0891B2;" placeholder="Bu bilet hakkında soru sorun..." data-i18n="ai_ask_placeholder" data-i18n-target="placeholder" aria-label="Bilet hakkında soru sorun" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.submitAiQuestion();}">
-                                    <button type="button" id="btnAiSubmitAsk" class="btn btn-sm" onclick="window.submitAiQuestion()" style="font-size: 11px; padding: 6px 12px; border-radius: 6px; background: #0891B2; color: white; border: none; font-weight: 600;">
+                                    <button type="button" id="btnAiSubmitAsk" class="btn btn-sm" onclick="window.submitAiQuestion()" style="font-size: 11px; padding: 6px 12px; border-radius: 6px; background: #0e7490; color: white; border: none; font-weight: 600;">
                                         <span data-i18n="ai_ask_btn">Sor</span>
                                     </button>
                                 </div>
@@ -321,7 +321,7 @@
 
                             <!-- Loading indicator -->
                             <div id="aiLoadingIndicator" style="display: none; text-align: center; padding: 14px 0;">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 18px; height: 18px; margin-right: 6px;"></div>
+                                <output class="spinner-border spinner-border-sm text-primary" style="width: 18px; height: 18px; margin-right: 6px;"></output>
                                 <span style="font-size: 12px; font-weight: 500; color: #0052CC;" data-i18n="ai_thinking">Yapay zeka analiz ediyor...</span>
                             </div>
 
@@ -338,7 +338,7 @@
                                     <div>
                                         <strong id="aiFallbackNoticeTitle">LLM Bağlantısı Yok:</strong>
                                         <span id="aiFallbackNoticeDesc">Bu içerik bilet verilerine dayalı akıllı kural motoru tarafından üretilmiştir. Gerçek yapay zeka çıktısı için </span>
-                                        <a href="javascript:void(0)" onclick="window.openLlmSettingsModal()" style="color: #0052CC; text-decoration: underline; font-weight: 600;">Model Ayarları</a>'ndan LLM bağlayabilirsiniz.
+                                        <button type="button" onclick="window.openLlmSettingsModal()" style="background:none; border:none; padding:0; margin:0; font:inherit; color: #0052CC; text-decoration: underline; font-weight: 600; cursor: pointer; display: inline;">Model Ayarları</button>'ndan LLM bağlayabilirsiniz.
                                     </div>
                                 </div>
 
@@ -589,7 +589,7 @@
             <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 18px;">
                 <!-- Preset Quick Buttons -->
                 <div class="mb-md">
-                    <label class="form-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; color: #334155;">Hızlı Sağlayıcı Seçimi (Hazır Şablonlar):</label>
+                    <div class="form-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; color: #334155;">Hızlı Sağlayıcı Seçimi (Hazır Şablonlar):</div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('ollama')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">Ollama (Yerel)</button>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('lmstudio')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">LM Studio (Yerel)</button>
@@ -659,7 +659,7 @@
                     </div>
                     <div style="display: flex; gap: 6px;">
                         <input type="text" id="llmModel" class="form-control" placeholder="örn. llama3:8b, gpt-4o, claude-3-5-sonnet-20241022" style="font-size: 12px; flex: 1;">
-                        <select id="llmModelSelect" class="form-control" style="display:none; max-width: 45%; font-size: 12px;" onchange="window.onModelSelected(this.value)">
+                        <select id="llmModelSelect" class="form-control" aria-label="Yüklü Modeller Listesi" style="display:none; max-width: 45%; font-size: 12px;" onchange="window.onModelSelected(this.value)">
                             <option value="">-- Yüklü Modeller --</option>
                         </select>
                     </div>
@@ -870,7 +870,6 @@
             document.getElementById('tDesc').textContent = currentTicket.description || 'No description provided.';
             
             const prioName = window.globalLookup.priorities?.find(x => x.id === currentTicket.priorityId)?.name || 'Normal';
-            const catName = window.globalLookup.categories?.find(x => x.id === currentTicket.categoryId)?.name || '-';
             
             document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(t('db_' + prioName.toLowerCase().replaceAll(' ', '_')) || prioName)}</span>`;
             const defaultTicketColor = getTicketDefaultColor(currentTicket.id);
@@ -3223,7 +3222,7 @@
                 .replaceAll('*', '')
                 .replace(/^[ \t]*[-*][ \t]+/gm, '')
                 .replace(/^[ \t]*#{1,6}[ \t]*/gm, '')
-                .replace(/\[([^\[\]\r\n]+)\]\(([^()\r\n]+)\)/g, '$1 ($2)');
+                .replace(/\[([^[\r\n\]]+)\]\(([^()\r\n]+)\)/g, '$1 ($2)');
             
             cleaned = cleaned.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             return cleaned.trim();
@@ -3416,7 +3415,6 @@
             const endpoint = document.getElementById('llmEndpoint')?.value || '';
             const apiKey = document.getElementById('llmApiKey')?.value || '';
             const modelSelect = document.getElementById('llmModelSelect');
-            const modelInput = document.getElementById('llmModel');
 
             showToast('Modeller sorgulanıyor...', 'info');
 

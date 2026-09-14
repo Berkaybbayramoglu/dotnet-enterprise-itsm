@@ -339,7 +339,6 @@
 
                 document.getElementById('articleContent').innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(a.content) : escapeHtml(a.content);
                 loadedArticle = a;
-                const isAuthor = currentUserId > 0 && a.authorUserId === currentUserId;
 
                 await setupManagerControls(a, isAuthor);
             } catch (e) { console.error(e); 
@@ -463,7 +462,7 @@
                 title: document.getElementById('editArticleTitle').value,
                 categoryId: Number.parseInt(document.getElementById('editArticleCategory').value, 10),
                 visibility: Number.parseInt(document.getElementById('editArticleVisibility').value, 10),
-                status: isNaN(statusVal) ? 2 : statusVal,
+                status: Number.isNaN(statusVal) ? 2 : statusVal,
                 content: document.getElementById('editArticleContent').value
             };
             try {

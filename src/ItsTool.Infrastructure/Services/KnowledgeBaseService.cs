@@ -165,11 +165,7 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         var status = dto.Status;
         // Dört Göz İlkesi: Yöneticiler dahil hiçbir yazar kendi önerdiği makaleyi doğrudan Published yapamaz.
         // Taslak değilse, farklı bir yöneticinin onayına düşmek üzere PendingReview yapılır.
-        if (status == ArticleStatus.Published)
-        {
-            status = ArticleStatus.PendingReview;
-        }
-        else if (!canManageKb && status != ArticleStatus.Draft)
+        if (status == ArticleStatus.Published || (!canManageKb && status != ArticleStatus.Draft))
         {
             status = ArticleStatus.PendingReview;
         }
@@ -258,48 +254,54 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         var article = await _context.KnowledgeArticles.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         if (article == null) throw new KeyNotFoundException("Article not found.");
 
-        if (!canManageKb && article.AuthorUserId != currentUserId)
+        bool isAuthor = article.AuthorUserId == currentUserId;
+        if (!canManageKb && !isAuthor)
         {
             throw new UnauthorizedAccessException("You do not have permission to edit this article.");
         }
 
         // Dört Göz İlkesi: Yazar kendi henüz yayınlanmamış makalesini doğrudan Published yapamaz.
-        if (article.AuthorUserId == currentUserId && dto.Status == ArticleStatus.Published && article.Status != ArticleStatus.Published)
+        if (isAuthor && dto.Status == ArticleStatus.Published && article.Status != ArticleStatus.Published)
         {
             throw new InvalidOperationException("Kendi önerdiğiniz makaleyi doğrudan yayınlayamazsınız. Makaleniz inceleme ve onay için farklı bir yöneticinin onay kuyruğuna düşmelidir.");
         }
 
-        var previousStatus = article.Status;
-
-        if (article.AuthorUserId == currentUserId)
-        {
-            if (dto.Status == ArticleStatus.Draft)
-            {
-                article.Status = ArticleStatus.Draft;
-            }
-            else if (dto.Status == ArticleStatus.PendingReview || (previousStatus != ArticleStatus.Published && dto.Status != ArticleStatus.Draft))
-            {
-                article.Status = ArticleStatus.PendingReview;
-                if (previousStatus != ArticleStatus.PendingReview)
-                {
-                    await NotifyManagersOfSuggestionAsync(article.Id, dto.Title);
-                }
-            }
-            else if (previousStatus == ArticleStatus.Published && canManageKb)
-            {
-                article.Status = dto.Status;
-            }
-        }
-        else if (canManageKb)
-        {
-            article.Status = dto.Status;
-        }
+        await ApplyArticleStatusTransitionAsync(article, dto.Status, isAuthor, canManageKb, dto.Title);
 
         article.CategoryId = dto.CategoryId;
         article.Title = dto.Title;
         article.Content = dto.Content;
         article.Visibility = dto.Visibility;
         await _context.SaveChangesAsync();
+    }
+
+    private async Task ApplyArticleStatusTransitionAsync(KnowledgeArticle article, ArticleStatus targetStatus, bool isAuthor, bool canManageKb, string title)
+    {
+        var previousStatus = article.Status;
+
+        if (isAuthor)
+        {
+            if (targetStatus == ArticleStatus.Draft)
+            {
+                article.Status = ArticleStatus.Draft;
+            }
+            else if (targetStatus == ArticleStatus.PendingReview || (previousStatus != ArticleStatus.Published && targetStatus != ArticleStatus.Draft))
+            {
+                article.Status = ArticleStatus.PendingReview;
+                if (previousStatus != ArticleStatus.PendingReview)
+                {
+                    await NotifyManagersOfSuggestionAsync(article.Id, title);
+                }
+            }
+            else if (previousStatus == ArticleStatus.Published && canManageKb)
+            {
+                article.Status = targetStatus;
+            }
+        }
+        else if (canManageKb)
+        {
+            article.Status = targetStatus;
+        }
     }
 
     public async Task ReviewArticleAsync(int id, ReviewKbArticleDto dto, int reviewerId)

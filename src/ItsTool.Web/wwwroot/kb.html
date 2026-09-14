@@ -496,7 +496,7 @@
                 title: document.getElementById('articleTitle').value,
                 content: document.getElementById('articleContent').value,
                 visibility: Number.parseInt(document.getElementById('articleVisibility').value, 10),
-                status: isNaN(statusVal) ? 2 : statusVal
+                status: Number.isNaN(statusVal) ? 2 : statusVal
             };
             
             try {

@@ -32,6 +32,11 @@ public static class TransitionConstants
 
 public class DataSeeder
 {
+    private const string RoleSuperAdmin = "SuperAdmin";
+    private const string RoleManager = "Manager";
+    private const string RoleAgent = "Agent";
+    private const string RoleEndUser = "EndUser";
+
     private const string TicketView = PermissionConstants.TicketView;
     private static readonly string[] ManagerPermissions = new[] { "report.view", "audit.view", TicketView, "ticket.assign", "ticket.transfer", "kb.manage" };
     private static readonly string[] AgentPermissions = new[] { TicketView, PermissionConstants.TicketEdit, PermissionConstants.TicketResolve, "ticket.comment", "ticket.assign", "ticket.transfer", "kb.view" };
@@ -179,10 +184,10 @@ public class DataSeeder
 
         var rolesToSeed = new Dictionary<string, string[]>
         {
-            { "SuperAdmin", allPermissions.ToArray() },
-            { "Manager", ManagerPermissions },
-            { "Agent", AgentPermissions },
-            { "EndUser", EndUserPermissions }
+            { RoleSuperAdmin, allPermissions.ToArray() },
+            { RoleManager, ManagerPermissions },
+            { RoleAgent, AgentPermissions },
+            { RoleEndUser, EndUserPermissions }
         };
 
         var existingRoles = await _context.Roles.Include(r => r.RolePermissions).ToListAsync();
@@ -218,11 +223,11 @@ public class DataSeeder
         // Users
         var usersToSeed = new List<(string Username, string Password, string Role, string FirstName, string LastName)>
         {
-            ("admin", "Admin123!", "SuperAdmin", "System", "Admin"),
-            ("manager", "Manager123!", "Manager", "IT", "Manager"),
-            ("agent1", "Agent123!", "Agent", "Helpdesk", "Agent 1"),
-            ("agent2", "Agent123!", "Agent", "Helpdesk", "Agent 2"),
-            ("user1", "User123!", "EndUser", "End", "User")
+            ("admin", "Admin123!", RoleSuperAdmin, "System", "Admin"),
+            ("manager", "Manager123!", RoleManager, "IT", "Manager"),
+            ("agent1", "Agent123!", RoleAgent, "Helpdesk", "Agent 1"),
+            ("agent2", "Agent123!", RoleAgent, "Helpdesk", "Agent 2"),
+            ("user1", "User123!", RoleEndUser, "End", "User")
         };
 
         var existingUsers = await _context.Users.Include(u => u.UserRoles).Include(u => u.PermissionOverrides).ToListAsync();
@@ -233,23 +238,21 @@ public class DataSeeder
         }
 
         // Auto-assign roles for any users in the DB that currently have no role
-        var endUserRole = existingRoles.FirstOrDefault(r => r.Name == "EndUser");
-        var superAdminRole = existingRoles.FirstOrDefault(r => r.Name == "SuperAdmin");
-        var agentRole = existingRoles.FirstOrDefault(r => r.Name == "Agent");
+        var endUserRole = existingRoles.FirstOrDefault(r => r.Name == RoleEndUser);
+        var superAdminRole = existingRoles.FirstOrDefault(r => r.Name == RoleSuperAdmin);
+        var agentRole = existingRoles.FirstOrDefault(r => r.Name == RoleAgent);
 
         var allUsersInDb = await _context.Users.Include(u => u.UserRoles).Where(u => !u.IsDeleted).ToListAsync();
-        foreach (var user in allUsersInDb)
+        var unassignedUsers = allUsersInDb.Where(u => !u.UserRoles.Any(ur => !ur.IsDeleted && ur.IsActive)).ToList();
+        foreach (var user in unassignedUsers)
         {
-            if (!user.UserRoles.Any(ur => !ur.IsDeleted && ur.IsActive))
+            var roleToAssign = (user.Username.Contains("admin", StringComparison.OrdinalIgnoreCase) || 
+                                user.Username.Contains("engineer", StringComparison.OrdinalIgnoreCase) || 
+                                user.Email.Contains("berkay", StringComparison.OrdinalIgnoreCase)) 
+                                ? superAdminRole : endUserRole;
+            if (roleToAssign != null)
             {
-                var roleToAssign = (user.Username.Contains("admin", StringComparison.OrdinalIgnoreCase) || 
-                                    user.Username.Contains("engineer", StringComparison.OrdinalIgnoreCase) || 
-                                    user.Email.Contains("berkay", StringComparison.OrdinalIgnoreCase)) 
-                                    ? superAdminRole : endUserRole;
-                if (roleToAssign != null)
-                {
-                    _context.UserRoles.Add(new ItsTool.Domain.Entities.Auth.UserRole { UserId = user.Id, RoleId = roleToAssign.Id });
-                }
+                _context.UserRoles.Add(new ItsTool.Domain.Entities.Auth.UserRole { UserId = user.Id, RoleId = roleToAssign.Id });
             }
         }
 

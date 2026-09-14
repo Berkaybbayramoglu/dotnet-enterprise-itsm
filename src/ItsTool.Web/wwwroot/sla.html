@@ -466,7 +466,6 @@
         import { injectShell } from './js/layout.js?v=999';
         import './js/api.js';
         import { bindShellActions, showToast, showUndoToast, openModal, closeModal } from './js/ui.js';
-        import { t } from './js/i18n.js';
 
         injectShell();
         if (!window.api.token) window.location.href = '/login.html';
@@ -538,6 +537,20 @@
                 return { value: minutes / 60, unit: 'hours' };
             }
             return { value: minutes, unit: 'minutes' };
+        }
+
+        function getDefaultResponseMinutes(severityLevel) {
+            if (severityLevel === 1) return 30;
+            if (severityLevel === 2) return 120;
+            if (severityLevel === 3) return 480;
+            return 1440;
+        }
+
+        function getDefaultResolutionMinutes(severityLevel) {
+            if (severityLevel === 1) return 240;
+            if (severityLevel === 2) return 1440;
+            if (severityLevel === 3) return 4320;
+            return 7200;
         }
 
         async function initPage() {
@@ -801,8 +814,8 @@
             allPriorities.forEach(prio => {
                 const target = targets.find(t => t.priorityId === prio.id);
                 const targetId = target ? target.id : 0;
-                const respMins = target ? target.firstResponseMinutes : (prio.severityLevel === 1 ? 30 : prio.severityLevel === 2 ? 120 : 480);
-                const resMins = target ? target.resolutionMinutes : (prio.severityLevel === 1 ? 240 : prio.severityLevel === 2 ? 1440 : 4320);
+                const respMins = target ? target.firstResponseMinutes : getDefaultResponseMinutes(prio.severityLevel);
+                const resMins = target ? target.resolutionMinutes : getDefaultResolutionMinutes(prio.severityLevel);
 
                 const respDec = decomposeMinutes(respMins);
                 const resDec = decomposeMinutes(resMins);
@@ -914,8 +927,8 @@
             container.innerHTML = '';
 
             allPriorities.forEach(prio => {
-                const respMins = prio.severityLevel === 1 ? 30 : prio.severityLevel === 2 ? 120 : prio.severityLevel === 3 ? 480 : 1440;
-                const resMins = prio.severityLevel === 1 ? 240 : prio.severityLevel === 2 ? 1440 : prio.severityLevel === 3 ? 4320 : 7200;
+                const respMins = getDefaultResponseMinutes(prio.severityLevel);
+                const resMins = getDefaultResolutionMinutes(prio.severityLevel);
 
                 const respDec = decomposeMinutes(respMins);
                 const resDec = decomposeMinutes(resMins);
@@ -1125,11 +1138,7 @@
             }
         });
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initPage);
-        } else {
-            initPage();
-        }
+        await initPage();
     </script>
 </body>
 </html>

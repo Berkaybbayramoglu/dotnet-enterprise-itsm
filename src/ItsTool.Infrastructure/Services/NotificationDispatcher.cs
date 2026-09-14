@@ -305,8 +305,19 @@ public class NotificationDispatcher : INotificationDispatcher
                 badgeBg = "#fffbeb";
             }
 
-            var priority = ticket.Priority?.Name ?? (_context.Priorities.Find(ticket.PriorityId)?.Name ?? "Normal");
-            var status = ticket.Status?.Name ?? (_context.Statuses.Find(ticket.StatusId)?.Name ?? "Açık");
+            var priority = ticket.Priority?.Name;
+            if (priority == null)
+            {
+                var p = await _context.Priorities.FindAsync(ticket.PriorityId);
+                priority = p?.Name ?? "Normal";
+            }
+
+            var status = ticket.Status?.Name;
+            if (status == null)
+            {
+                var s = await _context.Statuses.FindAsync(ticket.StatusId);
+                status = s?.Name ?? "Açık";
+            }
 
             var templateData = new Dictionary<string, string>
             {

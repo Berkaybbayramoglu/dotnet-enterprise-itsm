@@ -385,7 +385,7 @@
             const m = document.getElementById('forgotPasswordModal');
             if (m) {
                 m.style.display = 'flex';
-                m.offsetHeight; // force reflow for smooth transition
+                m.getBoundingClientRect(); // force reflow for smooth transition
                 m.classList.add('active');
             }
         };

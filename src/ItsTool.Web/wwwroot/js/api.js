@@ -6,9 +6,13 @@ class ApiClient {
     constructor() {
         this.token = localStorage.getItem('jwt_token');
         this.parseToken();
+    }
+
+    init() {
         if (this.token && this.decodedToken && (!this.decodedToken.roles || this.decodedToken.roles.length === 0 || !this.decodedToken.permissions || this.decodedToken.permissions.length === 0)) {
             this.refreshToken().catch(() => {});
         }
+        return this;
     }
 
     async refreshToken() {
@@ -295,4 +299,4 @@ class ApiClient {
     async batchUpdateSlaTargets(policyId, data) { return this.request(`/sla/policies/${policyId}/targets/batch`, { method: 'PUT', body: JSON.stringify(data) }); }
 }
 
-window.api = new ApiClient();
+window.api = new ApiClient().init();

@@ -40,6 +40,21 @@ public class AiController : ControllerBase
         var config = _llmService.GetCurrentConfig() ?? new LlmConfigDto();
         var endpoint = config.Endpoint ?? _llmService.GetEndpoint();
         var model = config.Model ?? _llmService.GetModelName();
+
+        string mode;
+        if (isAvailable)
+        {
+            mode = $"Live LLM ({model})";
+        }
+        else if (config.FallbackToHeuristic)
+        {
+            mode = "Smart Heuristic Engine";
+        }
+        else
+        {
+            mode = "LLM Offline";
+        }
+
         return Ok(new
         {
             configured = !string.IsNullOrEmpty(endpoint),
@@ -50,17 +65,20 @@ public class AiController : ControllerBase
             fallbackToHeuristic = config.FallbackToHeuristic,
             isAvailable = isAvailable,
             isEndpointReachable = isAvailable,
-            mode = isAvailable ? $"Live LLM ({model})" : (config.FallbackToHeuristic ? "Smart Heuristic Engine" : "LLM Offline")
+            mode = mode
         });
     }
 
     [HttpGet("config")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public IActionResult GetConfig()
     {
         return Ok(new { success = true, config = _llmService.GetCurrentConfig() });
     }
 
     [HttpPost("config")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     public IActionResult UpdateConfig([FromBody] LlmConfigDto dto)
     {
         if (dto == null) return BadRequest(new { success = false, message = "Geçersiz yapılandırma verisi." });
@@ -194,8 +212,17 @@ public class AiTicketCopilotController : ControllerBase
 
         try
         {
-            var lang = !string.IsNullOrWhiteSpace(dto?.Language) ? dto.Language : (!string.IsNullOrWhiteSpace(language) ? language : "tr");
-            var (answer, source, isLlm) = await _copilotAgent.AskQuestionWithSourceAsync(id, dto!.Question, lang);
+            string lang = "tr";
+            if (!string.IsNullOrWhiteSpace(dto.Language))
+            {
+                lang = dto.Language;
+            }
+            else if (!string.IsNullOrWhiteSpace(language))
+            {
+                lang = language;
+            }
+
+            var (answer, source, isLlm) = await _copilotAgent.AskQuestionWithSourceAsync(id, dto.Question, lang);
             return Ok(new { success = true, answer, source, isLlm });
         }
         catch (Exception ex)

@@ -214,7 +214,7 @@
         
         function renderUserTooltipContent(user) {
             const dept = window.globalLookup?.departments?.find(d => d.id == user.departmentId)?.name || 'None';
-            const userGroups = user.groupIds && window.globalGroups ? user.groupIds.map(gid => window.globalGroups.find(g => g.id == gid)?.name).filter(n => n).join(', ') : 'None';
+            const userGroups = user.groupIds && window.globalGroups ? user.groupIds.map(gid => window.globalGroups.find(g => g.id == gid)?.name).filter(Boolean).join(', ') : 'None';
             const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
             const avatar = '<div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">' + (user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U') + '</div>';
 
@@ -258,7 +258,7 @@
             if (target) userTooltip.style.display = 'none';
         });
 
-        init();
+        await init();
 
     </script>
 

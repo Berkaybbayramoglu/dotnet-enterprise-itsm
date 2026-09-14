@@ -607,11 +607,13 @@
             const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
             const numbers = '23456789';
             let pass = '';
+            const randomValues = new Uint32Array(8);
+            window.crypto.getRandomValues(randomValues);
             for (let i = 0; i < 6; i++) {
-                pass += letters.charAt(Math.floor(Math.random() * letters.length));
+                pass += letters.charAt(randomValues[i] % letters.length);
             }
             for (let i = 0; i < 2; i++) {
-                pass += numbers.charAt(Math.floor(Math.random() * numbers.length));
+                pass += numbers.charAt(randomValues[6 + i] % numbers.length);
             }
             return pass + '!';
         }

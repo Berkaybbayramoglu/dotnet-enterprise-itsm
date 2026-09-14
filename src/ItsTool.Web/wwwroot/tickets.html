@@ -301,11 +301,11 @@
 
                     const encodedAssignees = encodeURIComponent(JSON.stringify(assigneeDetails));
                     
-                    const userRoles = (window.api.decodedToken?.roles || []).map(r => String(r).toLowerCase());
-                    const userPerms = (window.api.decodedToken?.permissions || []).map(p => String(p).toLowerCase());
-                    const isManagerOrAdmin = userRoles.includes('manager') || userRoles.includes('superadmin') || userRoles.includes('admin');
-                    const canEdit = isManagerOrAdmin || userPerms.includes('ticket.edit') || userPerms.includes('ticket.manage') || userPerms.includes('ticket.assign');
-                    const canDelete = isManagerOrAdmin || userPerms.includes('ticket.delete') || userPerms.includes('ticket.manage') || userPerms.includes('ticket.assign');
+                    const userRoles = new Set((window.api.decodedToken?.roles || []).map(r => String(r).toLowerCase()));
+                    const userPerms = new Set((window.api.decodedToken?.permissions || []).map(p => String(p).toLowerCase()));
+                    const isManagerOrAdmin = userRoles.has('manager') || userRoles.has('superadmin') || userRoles.has('admin');
+                    const canEdit = isManagerOrAdmin || userPerms.has('ticket.edit') || userPerms.has('ticket.manage') || userPerms.has('ticket.assign');
+                    const canDelete = isManagerOrAdmin || userPerms.has('ticket.delete') || userPerms.has('ticket.manage') || userPerms.has('ticket.assign');
                     
                     const editBtnHtml = canEdit ? `<a href="/ticket-detail.html?id=${ticketItem.id}" class="btn btn-ghost" style="color: var(--primary);">${t('ticket_btn_edit', 'Düzenle')}</a>` : '';
                     const deleteBtnHtml = canDelete ? `<button type="button" onclick="window.deleteTicket(${ticketItem.id}, '${escapeHtml(ticketItem.ticketNumber)}')" class="btn btn-ghost" style="color: var(--danger); font-weight: 500;">${t('ticket_btn_delete', 'Sil')}</button>` : '';

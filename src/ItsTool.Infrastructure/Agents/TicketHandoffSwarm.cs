@@ -27,6 +27,76 @@ public class TicketHandoffSwarm
         _logger = logger;
     }
 
+    private const string DefaultPriorityNormal = "Normal";
+
+    private static string GetCommentTypeLabel(bool isInternal, bool isEn)
+    {
+        if (isInternal)
+        {
+            return isEn ? "Internal Note" : "Dahili Not";
+        }
+        return isEn ? "User Comment" : "Kullanıcı Yorumu";
+    }
+
+    private static (string CommentsText, List<string> RecentCommentSnippets) FormatComments(
+        List<(string? Author, bool IsInternal, string Content, string Date)> comments, bool isEn)
+    {
+        var recentCommentSnippets = new List<string>();
+        if (comments.Count == 0)
+        {
+            var noCommentsText = isEn
+                ? "There are currently no comments or additional action records on this ticket."
+                : "Bu bilet üzerinde henüz herhangi bir yorum veya ek işlem kaydı bulunmamaktadır.";
+            return (noCommentsText, recentCommentSnippets);
+        }
+
+        var sb = new StringBuilder();
+        int idx = 1;
+        foreach (var c in comments)
+        {
+            var typeStr = GetCommentTypeLabel(c.IsInternal, isEn);
+            var author = c.Author ?? "Kullanıcı";
+            var line = $"[{c.Date}] {author} ({typeStr}): {c.Content}";
+            sb.AppendLine($"{idx++}. {line}");
+            recentCommentSnippets.Add(line);
+        }
+
+        return (sb.ToString().TrimEnd(), recentCommentSnippets);
+    }
+
+    private static string GetTicketDescriptionText(string? description, bool isEn)
+    {
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            return description;
+        }
+        return isEn ? "No description entered by user." : "Kullanıcı tarafından açıklama girilmemiş.";
+    }
+
+    private (string Summary, string Actions, string Source, bool IsLlm) ResolveHandoffOutcome(
+        string? summary,
+        string? extractedActions,
+        Ticket ticket,
+        int commentsCount,
+        List<string> recentCommentSnippets,
+        bool isEn)
+    {
+        bool summaryValid = !string.IsNullOrEmpty(summary) && !summary.StartsWith("[AI İsteği Başarısız") && !summary.StartsWith("[AI Modülü");
+        bool actionsValid = !string.IsNullOrEmpty(extractedActions) && !extractedActions.StartsWith("[AI İsteği Başarısız") && !extractedActions.StartsWith("[AI Modülü");
+
+        if (summaryValid && actionsValid)
+        {
+            return (CleanPlainText(summary!), CleanPlainText(extractedActions!), $"Canlı LLM Swarm ({_llmService.GetModelName()})", true);
+        }
+
+        _logger.LogInformation("Using smart heuristic handoff summary for ticket {TicketId}", ticket.Id);
+        var (hSummary, hActions) = isEn
+            ? BuildSmartHeuristicHandoffEn(ticket, commentsCount, recentCommentSnippets)
+            : BuildSmartHeuristicHandoff(ticket, commentsCount, recentCommentSnippets);
+
+        return (CleanPlainText(hSummary), CleanPlainText(hActions), "Akıllı Yerel Asistan", false);
+    }
+
     public async Task<AiHandoffResult> GenerateHandoffSummaryAsync(int ticketId, bool postAsComment = false, string language = "tr")
     {
         _logger.LogInformation("TicketHandoffSwarm generating summary for ticket {TicketId} (lang: {Language})", ticketId, language);
@@ -44,7 +114,7 @@ public class TicketHandoffSwarm
 
         var isEn = string.Equals(language, "en", StringComparison.OrdinalIgnoreCase);
 
-        var comments = await _context.TicketComments
+        var rawComments = await _context.TicketComments
             .Where(c => c.TicketId == ticket.Id && !c.IsDeleted)
             .OrderBy(c => c.CreatedAt)
             .Select(c => new { 
@@ -55,33 +125,9 @@ public class TicketHandoffSwarm
             })
             .ToListAsync();
 
-        string commentsText;
-        var recentCommentSnippets = new List<string>();
-        if (comments.Count > 0)
-        {
-            var sbComments = new StringBuilder();
-            int idx = 1;
-            foreach (var c in comments)
-            {
-                var typeStr = c.IsInternal 
-                    ? (isEn ? "Internal Note" : "Dahili Not") 
-                    : (isEn ? "User Comment" : "Kullanıcı Yorumu");
-                var line = $"[{c.Date}] {c.Author} ({typeStr}): {c.Content}";
-                sbComments.AppendLine($"{idx++}. {line}");
-                recentCommentSnippets.Add(line);
-            }
-            commentsText = sbComments.ToString().TrimEnd();
-        }
-        else
-        {
-            commentsText = isEn 
-                ? "There are currently no comments or additional action records on this ticket."
-                : "Bu bilet üzerinde henüz herhangi bir yorum veya ek işlem kaydı bulunmamaktadır.";
-        }
-
-        var ticketDesc = string.IsNullOrWhiteSpace(ticket.Description) 
-            ? (isEn ? "No description entered by user." : "Kullanıcı tarafından açıklama girilmemiş.") 
-            : ticket.Description;
+        var comments = rawComments.Select(c => (c.Author, c.IsInternal, c.Content, c.Date)).ToList();
+        var (commentsText, recentCommentSnippets) = FormatComments(comments, isEn);
+        var ticketDesc = GetTicketDescriptionText(ticket.Description, isEn);
 
         // Agent 1: Summarizer
         var summarizerPrompt = isEn
@@ -101,8 +147,8 @@ KURALLAR:
 3. Tamamen sade, temiz ve akıcı düz Türkçe metin olarak yaz.";
 
         var summarizerMsg = isEn
-            ? $"Ticket No: {ticket.TicketNumber}\nTitle: {ticket.Title}\nPriority: {ticket.Priority?.Name ?? "Normal"}\nCategory: {ticket.Category?.Name ?? "General"}\nDescription: {ticketDesc}\n\nComment and Action History:\n{commentsText}\n\nPlease generate a technical summary covering the description and developments in comments. Provide plain text without emojis or markdown in English."
-            : $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nÖncelik: {ticket.Priority?.Name ?? "Normal"}\nKategori: {ticket.Category?.Name ?? "Genel"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsText}\n\nLütfen biletin açıklamasını ve yorum geçmişinde yaşanan gelişmeleri kapsayan teknik özeti çıkar. Emojisiz ve markdownsız düz metin olarak ver.";
+            ? $"Ticket No: {ticket.TicketNumber}\nTitle: {ticket.Title}\nPriority: {ticket.Priority?.Name ?? DefaultPriorityNormal}\nCategory: {ticket.Category?.Name ?? "General"}\nDescription: {ticketDesc}\n\nComment and Action History:\n{commentsText}\n\nPlease generate a technical summary covering the description and developments in comments. Provide plain text without emojis or markdown in English."
+            : $"Bilet No: {ticket.TicketNumber}\nBaşlık: {ticket.Title}\nÖncelik: {ticket.Priority?.Name ?? DefaultPriorityNormal}\nKategori: {ticket.Category?.Name ?? "Genel"}\nAçıklama: {ticketDesc}\n\nYorum ve İşlem Geçmişi:\n{commentsText}\n\nLütfen biletin açıklamasını ve yorum geçmişinde yaşanan gelişmeleri kapsayan teknik özeti çıkar. Emojisiz ve markdownsız düz metin olarak ver.";
         
         var summaryTask = _llmService.GetCompletionAsync(summarizerPrompt, summarizerMsg);
 
@@ -135,33 +181,13 @@ KURALLAR:
 
         await Task.WhenAll(summaryTask, extractorTask);
 
-        var summary = summaryTask.Result;
-        var extractedActions = extractorTask.Result;
-
-        string finalSummary;
-        string finalActions;
-        string source;
-        bool isLlm = false;
-
-        if (!string.IsNullOrEmpty(summary) && !summary.StartsWith("[AI İsteği Başarısız") && !summary.StartsWith("[AI Modülü") &&
-            !string.IsNullOrEmpty(extractedActions) && !extractedActions.StartsWith("[AI İsteği Başarısız") && !extractedActions.StartsWith("[AI Modülü"))
-        {
-            finalSummary = CleanPlainText(summary);
-            finalActions = CleanPlainText(extractedActions);
-            source = $"Canlı LLM Swarm ({_llmService.GetModelName()})";
-            isLlm = true;
-        }
-        else
-        {
-            _logger.LogInformation("Using smart heuristic handoff summary for ticket {TicketId}", ticketId);
-            var (hSummary, hActions) = isEn 
-                ? BuildSmartHeuristicHandoffEn(ticket, comments.Count, recentCommentSnippets)
-                : BuildSmartHeuristicHandoff(ticket, comments.Count, recentCommentSnippets);
-            finalSummary = hSummary;
-            finalActions = hActions;
-            source = "Akıllı Yerel Asistan";
-            isLlm = false;
-        }
+        var (finalSummary, finalActions, source, isLlm) = ResolveHandoffOutcome(
+            summaryTask.Result,
+            extractorTask.Result,
+            ticket,
+            comments.Count,
+            recentCommentSnippets,
+            isEn);
 
         finalSummary = CleanPlainText(finalSummary);
         finalActions = CleanPlainText(finalActions);
@@ -208,13 +234,13 @@ KURALLAR:
             {
                 actions.AppendLine($"   {rc}");
             }
-            actions.AppendLine($"2. Priority Level: Being handled at {ticket.Priority?.Name ?? "Normal"} priority.");
+            actions.AppendLine($"2. Priority Level: Being handled at {ticket.Priority?.Name ?? DefaultPriorityNormal} priority.");
             actions.AppendLine("3. Next Pending Action: The assigned specialist is expected to continue investigation and update the user.");
         }
         else
         {
             actions.AppendLine("1. Current Status: Ticket is currently in review and handoff process.");
-            actions.AppendLine($"2. Priority Level: Being handled at {ticket.Priority?.Name ?? "Normal"} priority.");
+            actions.AppendLine($"2. Priority Level: Being handled at {ticket.Priority?.Name ?? DefaultPriorityNormal} priority.");
             actions.AppendLine("3. Next Pending Action: Newly assigned team should review logs and provide initial technical update.");
         }
 
@@ -239,13 +265,13 @@ KURALLAR:
             {
                 actions.AppendLine($"   {rc}");
             }
-            actions.AppendLine($"2. Öncelik Seviyesi: {ticket.Priority?.Name ?? "Normal"} seviyesinde ele alınmaktadır.");
+            actions.AppendLine($"2. Öncelik Seviyesi: {ticket.Priority?.Name ?? DefaultPriorityNormal} seviyesinde ele alınmaktadır.");
             actions.AppendLine("3. Sıradaki Bekleyen Aksiyon: İlgili teknik uzmanın incelemeyi sürdürmesi ve kullanıcıya geri bildirim sağlaması beklenmektedir.");
         }
         else
         {
             actions.AppendLine("1. Mevcut Durum: Bilet halihazırda inceleme ve devir sürecindedir.");
-            actions.AppendLine($"2. Öncelik Seviyesi: {ticket.Priority?.Name ?? "Normal"} seviyesinde ele alınmaktadır.");
+            actions.AppendLine($"2. Öncelik Seviyesi: {ticket.Priority?.Name ?? DefaultPriorityNormal} seviyesinde ele alınmaktadır.");
             actions.AppendLine("3. Sıradaki Bekleyen Aksiyon: Yeni atanan teknik ekibin logları kontrol ederek ilk teknik geri bildirimi sağlaması veya kullanıcıdan bilgi talep etmesi gerekmektedir.");
         }
 

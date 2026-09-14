@@ -116,49 +116,44 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         return name.Contains("History") || name.Contains("Comment") || name.Contains("Notification") || name.Contains("Preference");
     }
 
-    private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DbContext? context, List<SystemAuditLog> logs, string entityType, string entityName, string entityId, string userId, DateTime now)
+    private static bool TryProcessSoftDeleteOrRestore(
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry,
+        List<SystemAuditLog> logs,
+        List<Microsoft.EntityFrameworkCore.ChangeTracking.PropertyEntry> modifiedProperties,
+        AuditEntityContext ctx)
+    {
+        var isDeletedProp = modifiedProperties.FirstOrDefault(p => p.Metadata.Name == "IsDeleted");
+        if (isDeletedProp == null) return false;
+
+        var isNowDeleted = entry.Entity.IsDeleted;
+        var wasDeleted = (bool)(isDeletedProp.OriginalValue ?? false);
+        var fieldLabel = ctx.EntityType == "SlaPolicy" ? "SLA Politikası" : "Kayıt Durumu";
+
+        if (isNowDeleted && !wasDeleted)
+        {
+            var summary = GetEntitySummary(entry, ctx.Context);
+            logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
+                ctx.EntityType, ctx.EntityName, ctx.EntityId, "Deleted", fieldLabel, summary, "Silindi (Soft Deleted)", ctx.UserId, ctx.Now)));
+            return true;
+        }
+
+        if (!isNowDeleted && wasDeleted)
+        {
+            var summary = GetEntitySummary(entry, ctx.Context);
+            logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
+                ctx.EntityType, ctx.EntityName, ctx.EntityId, "Restored", fieldLabel, "Silindi (Soft Deleted)", $"Aktif / Geri Alındı ({summary})", ctx.UserId, ctx.Now)));
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void ProcessModifiedEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, List<SystemAuditLog> logs, AuditEntityContext ctx)
     {
         var modifiedProperties = entry.Properties.Where(p => p.IsModified).ToList();
-        var isDeletedProp = modifiedProperties.FirstOrDefault(p => p.Metadata.Name == "IsDeleted");
-        if (isDeletedProp != null)
+        if (TryProcessSoftDeleteOrRestore(entry, logs, modifiedProperties, ctx))
         {
-            var isNowDeleted = entry.Entity.IsDeleted;
-            var wasDeleted = (bool)(isDeletedProp.OriginalValue ?? false);
-
-            if (isNowDeleted && !wasDeleted)
-            {
-                // Soft Deleted
-                var summary = GetEntitySummary(entry, context);
-                var fieldLabel = entityType == "SlaPolicy" ? "SLA Politikası" : "Kayıt Durumu";
-                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
-                    entityType, 
-                    entityName, 
-                    entityId, 
-                    "Deleted", 
-                    fieldLabel, 
-                    summary, 
-                    "Silindi (Soft Deleted)", 
-                    userId, 
-                    now)));
-                return;
-            }
-            else if (!isNowDeleted && wasDeleted)
-            {
-                // Restored (Undo)
-                var summary = GetEntitySummary(entry, context);
-                var fieldLabel = entityType == "SlaPolicy" ? "SLA Politikası" : "Kayıt Durumu";
-                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(
-                    entityType, 
-                    entityName, 
-                    entityId, 
-                    "Restored", 
-                    fieldLabel, 
-                    "Silindi (Soft Deleted)", 
-                    $"Aktif / Geri Alındı ({summary})", 
-                    userId, 
-                    now)));
-                return;
-            }
+            return;
         }
 
         foreach (var prop in modifiedProperties)
@@ -172,11 +167,12 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
 
             if (original != current)
             {
-                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(entityType, entityName, entityId, "Updated", propName, original ?? "none", current ?? "none", userId, now)));
+                logs.Add(SystemAuditInterceptor.CreateAuditLog(new AuditLogEntry(ctx.EntityType, ctx.EntityName, ctx.EntityId, "Updated", propName, original ?? "none", current ?? "none", ctx.UserId, ctx.Now)));
             }
         }
     }
 
+    public sealed record AuditEntityContext(DbContext? Context, string EntityType, string EntityName, string EntityId, string UserId, DateTime Now);
     public sealed record AuditLogEntry(string EntityType, string EntityName, string EntityId, string Action, string? FieldName, string? OldValue, string? NewValue, string UserId, DateTime Now);
 
     private static SystemAuditLog CreateAuditLog(AuditLogEntry entry)
@@ -259,7 +255,7 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
         }
         else if (entry.State == EntityState.Modified)
         {
-            SystemAuditInterceptor.ProcessModifiedEntity(entry, context, logsToAdd, entityType, entityName, entityId, userId, now);
+            SystemAuditInterceptor.ProcessModifiedEntity(entry, logsToAdd, new AuditEntityContext(context, entityType, entityName, entityId, userId, now));
         }
     }
 
@@ -267,113 +263,102 @@ public class SystemAuditInterceptor : SaveChangesInterceptor
     {
         try
         {
-            if (entry.Entity is SlaPolicy sla)
-            {
-                string projectName = "Genel Sistem";
-                if (sla.ProjectId.HasValue && context != null)
-                {
-                    var proj = context.Set<Project>().Local.FirstOrDefault(p => p.Id == sla.ProjectId.Value)
-                               ?? context.Set<Project>().FirstOrDefault(p => p.Id == sla.ProjectId.Value);
-                    if (proj != null) projectName = proj.Name;
-                    else projectName = $"Proje #{sla.ProjectId.Value}";
-                }
-
-                string targetsSummary = "";
-                if (context != null)
-                {
-                    var targets = context.Set<SlaTarget>()
-                        .Where(t => t.SlaPolicyId == sla.Id)
-                        .ToList();
-                    if (targets.Count > 0)
-                    {
-                        var priorities = context.Set<Priority>().ToList();
-                        var targetDescriptions = targets.Select(t =>
-                        {
-                            var prioName = priorities.FirstOrDefault(pr => pr.Id == t.PriorityId)?.Name ?? $"Öncelik {t.PriorityId}";
-                            return $"{prioName}: Yanıt {t.FirstResponseMinutes}dk / Çözüm {t.ResolutionMinutes}dk";
-                        });
-                        targetsSummary = " | Hedefler: [" + string.Join(", ", targetDescriptions) + "]";
-                    }
-                }
-
-                var desc = string.IsNullOrWhiteSpace(sla.Description) ? "" : $" | Açıklama: {sla.Description}";
-                var esc = sla.EscalateOnBreach ? " | Eskalasyon: Açık" : " | Eskalasyon: Kapalı";
-                return $"Politika: {sla.Name} | Kapsam: {projectName}{esc}{desc}{targetsSummary}";
-            }
-
-            if (entry.Entity is User u)
-            {
-                var fullName = string.IsNullOrWhiteSpace($"{u.FirstName} {u.LastName}".Trim()) ? u.Username : $"{u.FirstName} {u.LastName}".Trim();
-                return $"Kullanıcı: {fullName} (@{u.Username}, {u.Email}) | Departman ID: {(u.DepartmentId.HasValue ? u.DepartmentId.Value.ToString() : "Yok")}";
-            }
-
-            if (entry.Entity is Project p)
-            {
-                return $"Proje: {p.Name} (Anahtar: {p.ProjectKey}) | Durum: {p.Status}{(string.IsNullOrWhiteSpace(p.Description) ? "" : $" | Açıklama: {p.Description}")}";
-            }
-
-            if (entry.Entity is Category c)
-            {
-                return $"Kategori: {c.Name}{(string.IsNullOrWhiteSpace(c.Description) ? "" : $" | Açıklama: {c.Description}")}";
-            }
-
-            if (entry.Entity is Department d)
-            {
-                return $"Departman: {d.Name}{(string.IsNullOrWhiteSpace(d.Description) ? "" : $" | Açıklama: {d.Description}")}{(d.ManagerUserId.HasValue ? $" | Yönetici ID: {d.ManagerUserId}" : "")}";
-            }
-
-            if (entry.Entity is Group g)
-            {
-                return $"Grup: {g.Name}{(g.DepartmentId.HasValue ? $" | Departman ID: {g.DepartmentId}" : "")}";
-            }
-
-            if (entry.Entity is Role r)
-            {
-                return $"Rol: {r.Name}{(string.IsNullOrWhiteSpace(r.Description) ? "" : $" | Açıklama: {r.Description}")}";
-            }
-
-            if (entry.Entity is KnowledgeArticle ka)
-            {
-                return $"Makale: {ka.Title} | Kategori #{ka.CategoryId} | Durum: {ka.Status}";
-            }
-
-            if (entry.Entity is AssignmentRule ar)
-            {
-                return $"Atama Kuralı: {ar.Name} | Sıra: {ar.SortOrder}";
-            }
-
-            if (entry.Entity is WebhookSubscription ws)
-            {
-                return $"Webhook: {ws.Url} | Olaylar: {ws.EventsCsv}";
-            }
-
             if (entry.Entity.GetType().Name == "GroupMember")
             {
                 return GetGroupMemberName(entry, context);
             }
 
-            // General entity summary
-            var props = entry.Properties
-                .Where(p => p.Metadata.Name != "Id" && 
-                            p.Metadata.Name != "CreatedAt" && 
-                            p.Metadata.Name != "UpdatedAt" && 
-                            p.Metadata.Name != "DeletedAt" && 
-                            p.Metadata.Name != "IsDeleted" && 
-                            p.Metadata.Name != "PasswordHash" &&
-                            p.Metadata.Name != "SecurityStamp" &&
-                            p.Metadata.Name != "ConcurrencyStamp" &&
-                            p.Metadata.Name != "Secret")
-                .Select(p => $"{p.Metadata.Name}: {p.OriginalValue ?? p.CurrentValue}")
-                .Where(s => !s.EndsWith(": ") && !s.EndsWith(": null"))
-                .Take(6);
-            
-            var joined = string.Join(" | ", props);
-            return string.IsNullOrWhiteSpace(joined) ? entry.Entity.GetType().Name : joined;
+            return GetSpecificEntitySummary(entry.Entity, context) ?? GetGeneralPropertiesSummary(entry);
         }
         catch
         {
             return entry.Entity.GetType().Name;
         }
+    }
+
+    private static string? GetSpecificEntitySummary(object entity, DbContext? context)
+    {
+        return entity switch
+        {
+            SlaPolicy sla => GetSlaSummary(sla, context),
+            User u => GetUserSummary(u),
+            Project p => GetProjectSummary(p),
+            Category c => $"Kategori: {c.Name}" + (string.IsNullOrWhiteSpace(c.Description) ? "" : $" | Açıklama: {c.Description}"),
+            Department d => $"Departman: {d.Name}" + (string.IsNullOrWhiteSpace(d.Description) ? "" : $" | Açıklama: {d.Description}") + (d.ManagerUserId.HasValue ? $" | Yönetici ID: {d.ManagerUserId}" : ""),
+            Group g => $"Grup: {g.Name}" + (g.DepartmentId.HasValue ? $" | Departman ID: {g.DepartmentId}" : ""),
+            Role r => $"Rol: {r.Name}" + (string.IsNullOrWhiteSpace(r.Description) ? "" : $" | Açıklama: {r.Description}"),
+            KnowledgeArticle ka => $"Makale: {ka.Title} | Kategori #{ka.CategoryId} | Durum: {ka.Status}",
+            AssignmentRule ar => $"Atama Kuralı: {ar.Name} | Sıra: {ar.SortOrder}",
+            WebhookSubscription ws => $"Webhook: {ws.Url} | Olaylar: {ws.EventsCsv}",
+            _ => null
+        };
+    }
+
+    private static string GetUserSummary(User u)
+    {
+        var fullName = $"{u.FirstName} {u.LastName}".Trim();
+        var displayName = string.IsNullOrWhiteSpace(fullName) ? u.Username : fullName;
+        var dept = u.DepartmentId.HasValue ? u.DepartmentId.Value.ToString() : "Yok";
+        return $"Kullanıcı: {displayName} (@{u.Username}, {u.Email}) | Departman ID: {dept}";
+    }
+
+    private static string GetProjectSummary(Project p)
+    {
+        var desc = string.IsNullOrWhiteSpace(p.Description) ? "" : $" | Açıklama: {p.Description}";
+        return $"Proje: {p.Name} (Anahtar: {p.ProjectKey}) | Durum: {p.Status}{desc}";
+    }
+
+    private static string GetSlaSummary(SlaPolicy sla, DbContext? context)
+    {
+        string projectName = "Genel Sistem";
+        if (sla.ProjectId.HasValue && context != null)
+        {
+            var proj = context.Set<Project>().Local.FirstOrDefault(p => p.Id == sla.ProjectId.Value)
+                       ?? context.Set<Project>().FirstOrDefault(p => p.Id == sla.ProjectId.Value);
+            projectName = proj != null ? proj.Name : $"Proje #{sla.ProjectId.Value}";
+        }
+
+        string targetsSummary = "";
+        if (context != null)
+        {
+            var targets = context.Set<SlaTarget>()
+                .Where(t => t.SlaPolicyId == sla.Id)
+                .ToList();
+            if (targets.Count > 0)
+            {
+                var priorities = context.Set<Priority>().ToList();
+                var targetDescriptions = targets.Select(t =>
+                {
+                    var prioName = priorities.FirstOrDefault(pr => pr.Id == t.PriorityId)?.Name ?? $"Öncelik {t.PriorityId}";
+                    return $"{prioName}: Yanıt {t.FirstResponseMinutes}dk / Çözüm {t.ResolutionMinutes}dk";
+                });
+                targetsSummary = " | Hedefler: [" + string.Join(", ", targetDescriptions) + "]";
+            }
+        }
+
+        var desc = string.IsNullOrWhiteSpace(sla.Description) ? "" : $" | Açıklama: {sla.Description}";
+        var esc = sla.EscalateOnBreach ? " | Eskalasyon: Açık" : " | Eskalasyon: Kapalı";
+        return $"Politika: {sla.Name} | Kapsam: {projectName}{esc}{desc}{targetsSummary}";
+    }
+
+    private static string GetGeneralPropertiesSummary(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    {
+        var props = entry.Properties
+            .Where(p => p.Metadata.Name != "Id" && 
+                        p.Metadata.Name != "CreatedAt" && 
+                        p.Metadata.Name != "UpdatedAt" && 
+                        p.Metadata.Name != "DeletedAt" && 
+                        p.Metadata.Name != "IsDeleted" && 
+                        p.Metadata.Name != "PasswordHash" &&
+                        p.Metadata.Name != "SecurityStamp" &&
+                        p.Metadata.Name != "ConcurrencyStamp" &&
+                        p.Metadata.Name != "Secret")
+            .Select(p => $"{p.Metadata.Name}: {p.OriginalValue ?? p.CurrentValue}")
+            .Where(s => !s.EndsWith(": ") && !s.EndsWith(": null"))
+            .Take(6);
+        
+        var joined = string.Join(" | ", props);
+        return string.IsNullOrWhiteSpace(joined) ? entry.Entity.GetType().Name : joined;
     }
 
     private static string GetEntityName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, DbContext? context)
