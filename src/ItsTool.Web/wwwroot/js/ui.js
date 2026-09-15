@@ -855,7 +855,13 @@ export function initGlobalKeyboardShortcuts() {
     });
 }
 
-export function openTicketPreview(ticketData, lookupData) {
+export async function openTicketPreview(ticketData, lookupData) {
+    if ((!window.globalUsers || window.globalUsers.length === 0) && window.api && window.api.getUsers) {
+        try {
+            const uRes = await window.api.getUsers();
+            window.globalUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
+        } catch(e) {}
+    }
     let modalOverlay = document.getElementById('previewModal');
     if (!modalOverlay) {
         modalOverlay = document.createElement('div');
@@ -888,12 +894,13 @@ export function openTicketPreview(ticketData, lookupData) {
     const prioColor = prioColors[prioName] || 'default';
     const statusName = lookupData.statuses?.find(x => x.id === ticketData.statusId)?.name || 'Unknown';
     const getFullName = (id) => {
-        const u = window.globalUsers?.find(x => x.id === id);
+        const u = (window.globalUsers || window.allUsers)?.find(x => x.id === id);
         if (u && (u.firstName || u.lastName)) return `${u.firstName || ''} ${u.lastName || ''}`.trim();
         if (u?.username) return u.username;
         return `User ${id}`;
     };
-    const assigneeName = ticketData.assignedUserId ? getFullName(ticketData.assignedUserId) : t('t_unassigned') || 'Unassigned';
+    const assignedId = ticketData.assignedUserId || (ticketData.assignments && ticketData.assignments.length > 0 ? (ticketData.assignments[0].userId || ticketData.assignments[0].assignedUserId) : null);
+    const assigneeName = (ticketData.assignments && ticketData.assignments.length > 0 && ticketData.assignments[0].assigneeName) ? ticketData.assignments[0].assigneeName : (assignedId ? getFullName(assignedId) : (t('t_unassigned') || 'Unassigned'));
     const reqName = ticketData.requesterUserId ? getFullName(ticketData.requesterUserId) : 'Unknown';
     
     const formatDate = (d) => {
@@ -911,7 +918,7 @@ export function openTicketPreview(ticketData, lookupData) {
     }
 
     const reqBtnHtml = ticketData.requesterUserId ? `<button type="button" class="btn btn-ghost p-0 m-0 d-flex align-items-center gap-sm" style="border:none;" onclick="window.ui.showUserDetails(${ticketData.requesterUserId})">${getAvatar(ticketData.requesterUserId, reqName)} ${escapeHtml(reqName)}</button>` : `<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${escapeHtml(reqName)}</div>`;
-    const assignBtnHtml = ticketData.assignedUserId ? `<button type="button" class="btn btn-ghost p-0 m-0 d-flex align-items-center gap-sm" style="border:none;" onclick="window.ui.showUserDetails(${ticketData.assignedUserId})">${getAvatar(ticketData.assignedUserId, assigneeName)} ${escapeHtml(assigneeName)}</button>` : `<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${escapeHtml(assigneeName)}</div>`;
+    const assignBtnHtml = assignedId ? `<button type="button" class="btn btn-ghost p-0 m-0 d-flex align-items-center gap-sm" style="border:none;" onclick="window.ui.showUserDetails(${assignedId})">${getAvatar(assignedId, assigneeName)} ${escapeHtml(assigneeName)}</button>` : `<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">${escapeHtml(assigneeName)}</div>`;
 
     content.innerHTML = `
         <div style="font-size: 16px; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text);">${escapeHtml(ticketData.title)}</div>

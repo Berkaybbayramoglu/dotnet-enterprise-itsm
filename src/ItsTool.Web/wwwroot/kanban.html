@@ -181,6 +181,7 @@
                     tickets = res.items || [];
                     const uRes = await window.api.getUsers();
                     allUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
+                    window.globalUsers = allUsers;
                 } catch (err) { console.error(err); 
                     console.warn("Tickets fetching failed.", err);
                     tickets = [];

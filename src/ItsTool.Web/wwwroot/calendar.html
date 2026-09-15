@@ -152,6 +152,8 @@
                     priorities: lookup.priorities || [],
                     statuses: lookup.statuses || []
                 };
+                const uRes = await window.api.getUsers();
+                window.globalUsers = Array.isArray(uRes) ? uRes : (uRes.items || []);
             } catch(err) {
                 console.warn('Lookup data failed', err);
             }
