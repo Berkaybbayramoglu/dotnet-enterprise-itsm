@@ -229,7 +229,7 @@ function showMandatoryPasswordModal() {
                 </div>
             </div>
             <div style="padding: 20px 24px;">
-                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); padding: 10px 12px; border-radius: 6px; margin-bottom: 16px; font-size: 12.5px; color: #1E40AF; line-height: 1.45;">
+                <div style="background: var(--primary-light, #EFF6FF); border: 1px solid var(--border, #BFDBFE); border-left: 4px solid var(--primary); padding: 10px 12px; border-radius: 6px; margin-bottom: 16px; font-size: 12.5px; color: var(--text-main, #1E40AF); line-height: 1.45;">
                     Güvenliğiniz için lütfen yeni ve kalıcı bir şifre belirleyiniz. Bu işlem tamamlanmadan sisteme devam edilemez.
                 </div>
                 <form id="modalForcePasswordForm">

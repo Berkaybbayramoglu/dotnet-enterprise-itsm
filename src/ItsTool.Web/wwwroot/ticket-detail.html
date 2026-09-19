@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITSM Tool - Ticket Detail</title>
-    <link rel="stylesheet" href="css/design-system.css?v=1008">
+    <link rel="stylesheet" href="css/design-system.css?v=1010">
+    <script>
+        try {
+            const savedTheme = localStorage.getItem('itsm_theme') || 'light';
+            document.documentElement.dataset.theme = savedTheme;
+        } catch(e) {}
+    </script>
     <style>
         .detail-container { display: grid; grid-template-columns: minmax(0, 2fr) 300px; gap: var(--spacing-lg); }
         .ticket-header { margin-bottom: var(--spacing-md); }
@@ -16,6 +22,26 @@
         .comment-thread { display: flex; flex-direction: column; gap: var(--spacing-md); }
         .comment { padding: var(--spacing-md); background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
         .comment.internal { background: #FFFAE6; border-color: #FFE380; } /* Yellowish for internal */
+        [data-theme="dark"] .comment.internal,
+        [data-theme="dracula"] .comment.internal,
+        [data-theme="monokai"] .comment.internal,
+        [data-theme="github-dark"] .comment.internal {
+            background: rgba(245, 158, 11, 0.12) !important;
+            border-color: rgba(245, 158, 11, 0.35) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .comment.internal .comment-body,
+        [data-theme="dracula"] .comment.internal .comment-body,
+        [data-theme="monokai"] .comment.internal .comment-body,
+        [data-theme="github-dark"] .comment.internal .comment-body {
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .comment.internal strong,
+        [data-theme="dracula"] .comment.internal strong,
+        [data-theme="monokai"] .comment.internal strong,
+        [data-theme="github-dark"] .comment.internal strong {
+            color: var(--text-main) !important;
+        }
         .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); font-size: 12px; color: var(--text-muted); }
         .comment-reply-connector { position: absolute; left: -24px; top: 16px; width: 16px; border-top: 2px solid var(--border); z-index: 1; }
         .reply-container { position: relative; margin-left: 40px; margin-top: 16px; }
@@ -42,12 +68,65 @@
         #aiCopilotPanel {
             background: linear-gradient(180deg, #F0F7FF 0%, var(--bg-surface) 100%);
             border: 1px solid #BFDBFE;
-            border-top: 3.5px solid #0052CC;
+            border-top: 3.5px solid var(--primary);
             border-radius: var(--radius-md);
             box-shadow: 0 4px 14px rgba(0, 82, 204, 0.08);
             position: relative;
             padding: var(--spacing-md);
             margin-bottom: var(--spacing-md);
+        }
+
+        /* AI Copilot Panel Dark Mode Overrides */
+        [data-theme="dark"] #aiCopilotPanel,
+        [data-theme="dracula"] #aiCopilotPanel,
+        [data-theme="monokai"] #aiCopilotPanel,
+        [data-theme="github-dark"] #aiCopilotPanel {
+            background: linear-gradient(180deg, rgba(76, 154, 255, 0.08) 0%, var(--bg-surface) 100%) !important;
+            border-color: var(--border) !important;
+            border-top: 3.5px solid var(--primary) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+        }
+        [data-theme="dark"] .ai-panel-header-icon,
+        [data-theme="dracula"] .ai-panel-header-icon,
+        [data-theme="monokai"] .ai-panel-header-icon,
+        [data-theme="github-dark"] .ai-panel-header-icon {
+            background: var(--primary-light) !important;
+            color: var(--primary) !important;
+        }
+        [data-theme="dark"] .ai-panel-title,
+        [data-theme="dracula"] .ai-panel-title,
+        [data-theme="monokai"] .ai-panel-title,
+        [data-theme="github-dark"] .ai-panel-title {
+            color: var(--primary) !important;
+        }
+        [data-theme="dark"] .ai-panel-settings-btn,
+        [data-theme="dracula"] .ai-panel-settings-btn,
+        [data-theme="monokai"] .ai-panel-settings-btn,
+        [data-theme="github-dark"] .ai-panel-settings-btn {
+            background: var(--bg-surface) !important;
+            border-color: var(--border) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .ai-panel-status-row,
+        [data-theme="dracula"] .ai-panel-status-row,
+        [data-theme="monokai"] .ai-panel-status-row,
+        [data-theme="github-dark"] .ai-panel-status-row {
+            background: var(--bg-hover) !important;
+            border-color: var(--border) !important;
+        }
+        [data-theme="dark"] .ai-panel-lang-select,
+        [data-theme="dracula"] .ai-panel-lang-select,
+        [data-theme="monokai"] .ai-panel-lang-select,
+        [data-theme="github-dark"] .ai-panel-lang-select {
+            background: var(--bg-surface) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border) !important;
+        }
+        [data-theme="dark"] .ai-panel-desc,
+        [data-theme="dracula"] .ai-panel-desc,
+        [data-theme="monokai"] .ai-panel-desc,
+        [data-theme="github-dark"] .ai-panel-desc {
+            color: var(--text-muted) !important;
         }
         
         .ai-action-btn {
@@ -79,6 +158,22 @@
             border-color: #1D4ED8;
             box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
         }
+        [data-theme="dark"] .ai-btn-suggest,
+        [data-theme="dracula"] .ai-btn-suggest,
+        [data-theme="monokai"] .ai-btn-suggest,
+        [data-theme="github-dark"] .ai-btn-suggest {
+            background: rgba(29, 78, 216, 0.18) !important;
+            color: #93c5fd !important;
+            border-color: rgba(147, 197, 253, 0.3) !important;
+        }
+        [data-theme="dark"] .ai-btn-suggest:hover:not(:disabled),
+        [data-theme="dracula"] .ai-btn-suggest:hover:not(:disabled),
+        [data-theme="monokai"] .ai-btn-suggest:hover:not(:disabled),
+        [data-theme="github-dark"] .ai-btn-suggest:hover:not(:disabled) {
+            background: #1D4ED8 !important;
+            color: #FFFFFF !important;
+            border-color: #1D4ED8 !important;
+        }
         
         /* 2. Bileti Özetle (Emerald Green) */
         .ai-btn-summarize {
@@ -91,6 +186,22 @@
             color: #FFFFFF;
             border-color: #047857;
             box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+        }
+        [data-theme="dark"] .ai-btn-summarize,
+        [data-theme="dracula"] .ai-btn-summarize,
+        [data-theme="monokai"] .ai-btn-summarize,
+        [data-theme="github-dark"] .ai-btn-summarize {
+            background: rgba(4, 120, 87, 0.18) !important;
+            color: #6ee7b7 !important;
+            border-color: rgba(110, 231, 183, 0.3) !important;
+        }
+        [data-theme="dark"] .ai-btn-summarize:hover:not(:disabled),
+        [data-theme="dracula"] .ai-btn-summarize:hover:not(:disabled),
+        [data-theme="monokai"] .ai-btn-summarize:hover:not(:disabled),
+        [data-theme="github-dark"] .ai-btn-summarize:hover:not(:disabled) {
+            background: #047857 !important;
+            color: #FFFFFF !important;
+            border-color: #047857 !important;
         }
         
         /* 3. Yanıt Taslağı (Warm Amber) */
@@ -105,6 +216,22 @@
             border-color: #B45309;
             box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
         }
+        [data-theme="dark"] .ai-btn-draft,
+        [data-theme="dracula"] .ai-btn-draft,
+        [data-theme="monokai"] .ai-btn-draft,
+        [data-theme="github-dark"] .ai-btn-draft {
+            background: rgba(180, 83, 9, 0.18) !important;
+            color: #fcd34d !important;
+            border-color: rgba(252, 211, 77, 0.3) !important;
+        }
+        [data-theme="dark"] .ai-btn-draft:hover:not(:disabled),
+        [data-theme="dracula"] .ai-btn-draft:hover:not(:disabled),
+        [data-theme="monokai"] .ai-btn-draft:hover:not(:disabled),
+        [data-theme="github-dark"] .ai-btn-draft:hover:not(:disabled) {
+            background: #B45309 !important;
+            color: #FFFFFF !important;
+            border-color: #B45309 !important;
+        }
         
         /* 4. Soru Sor (Cyan / Teal) */
         .ai-btn-ask {
@@ -117,6 +244,22 @@
             color: #FFFFFF;
             border-color: #0E7490;
             box-shadow: 0 2px 8px rgba(14, 116, 144, 0.25);
+        }
+        [data-theme="dark"] .ai-btn-ask,
+        [data-theme="dracula"] .ai-btn-ask,
+        [data-theme="monokai"] .ai-btn-ask,
+        [data-theme="github-dark"] .ai-btn-ask {
+            background: rgba(14, 116, 144, 0.18) !important;
+            color: #67e8f9 !important;
+            border-color: rgba(103, 232, 249, 0.3) !important;
+        }
+        [data-theme="dark"] .ai-btn-ask:hover:not(:disabled),
+        [data-theme="dracula"] .ai-btn-ask:hover:not(:disabled),
+        [data-theme="monokai"] .ai-btn-ask:hover:not(:disabled),
+        [data-theme="github-dark"] .ai-btn-ask:hover:not(:disabled) {
+            background: #0E7490 !important;
+            color: #FFFFFF !important;
+            border-color: #0E7490 !important;
         }
 
         @keyframes pulse-dot {
@@ -252,16 +395,16 @@
                             <!-- Row 1: Title & Settings Button -->
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
                                 <div style="display: flex; align-items: center; gap: 7px; min-width: 0;">
-                                    <div style="width: 26px; height: 26px; min-width: 26px; border-radius: 6px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #0052CC; flex-shrink: 0;">
+                                    <div class="ai-panel-header-icon" style="width: 26px; height: 26px; min-width: 26px; border-radius: 6px; background: var(--primary-light, #DBEAFE); display: flex; align-items: center; justify-content: center; color: var(--primary, #0052CC); flex-shrink: 0;">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
                                         </svg>
                                     </div>
-                                    <h3 style="margin: 0; font-size: 13.5px; font-weight: 700; color: #0052CC; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-i18n="ai_copilot_title">
+                                    <h3 class="ai-panel-title" style="margin: 0; font-size: 13.5px; font-weight: 700; color: var(--primary, #0052CC); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-i18n="ai_copilot_title">
                                         AI Asistan & Copilot
                                     </h3>
                                 </div>
-                                <button type="button" class="btn btn-ghost btn-sm" onclick="window.openLlmSettingsModal()" style="padding: 3px 7px; color: #475569; border: 1px solid #CBD5E1; background: #FFFFFF; border-radius: 5px; line-height: 1; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); flex-shrink: 0;" title="Yapay Zeka ve Model Ayarları">
+                                <button type="button" class="btn btn-ghost btn-sm ai-panel-settings-btn" onclick="window.openLlmSettingsModal()" style="padding: 3px 7px; color: var(--text-main, #475569); border: 1px solid var(--border, #CBD5E1); background: var(--bg-surface, #FFFFFF); border-radius: 5px; line-height: 1; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); flex-shrink: 0;" title="Yapay Zeka ve Model Ayarları">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="3"></circle>
                                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -271,21 +414,21 @@
                             </div>
 
                             <!-- Row 2: Status Indicator & Output Language Selector -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; padding: 4px 6px; background: rgba(255,255,255,0.75); border: 1px solid #E2E8F0; border-radius: 6px;">
-                                <button type="button" id="aiStatusBadge" class="badge" onclick="window.openLlmSettingsModal()" style="font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; max-width: 175px; overflow: hidden; text-overflow: ellipsis; outline: none;" title="LLM Durumu (Ayarlar için tıklayın)">
+                            <div class="ai-panel-status-row" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; padding: 4px 6px; background: var(--bg-hover, rgba(255,255,255,0.75)); border: 1px solid var(--border, #E2E8F0); border-radius: 6px;">
+                                <button type="button" id="aiStatusBadge" class="badge ai-status-fallback" onclick="window.openLlmSettingsModal()" style="font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; max-width: 175px; overflow: hidden; text-overflow: ellipsis; outline: none;" title="LLM Durumu (Ayarlar için tıklayın)">
                                     <span id="aiStatusDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; flex-shrink: 0;"></span>
                                     <span id="aiStatusText" style="overflow: hidden; text-overflow: ellipsis;">LLM Bağlı Değil (Kural Motoru)</span>
                                 </button>
                                 <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                                    <label for="aiResponseLang" style="font-size: 10px; font-weight: 600; color: #64748B; margin: 0;" data-i18n="ai_lang_label">Dil:</label>
-                                    <select id="aiResponseLang" onchange="window.onAiLanguageChanged(this.value)" style="font-size: 10px; font-weight: 600; padding: 2px 4px; border: 1px solid #CBD5E1; border-radius: 4px; background: #FFFFFF; color: #0F172A; cursor: pointer;" aria-label="Yapay zeka yanıt dili">
+                                    <label for="aiResponseLang" style="font-size: 10px; font-weight: 600; color: var(--text-muted, #64748B); margin: 0;" data-i18n="ai_lang_label">Dil:</label>
+                                    <select id="aiResponseLang" onchange="window.onAiLanguageChanged(this.value)" class="ai-panel-lang-select" style="font-size: 10px; font-weight: 600; padding: 2px 4px; border: 1px solid var(--border, #CBD5E1); border-radius: 4px; background: var(--bg-surface, #FFFFFF); color: var(--text-main, #0F172A); cursor: pointer;" aria-label="Yapay zeka yanıt dili">
                                         <option value="tr">🇹🇷 TR</option>
                                         <option value="en">🇬🇧 EN</option>
                                     </select>
                                 </div>
                             </div>
                             
-                            <p style="font-size: 11px; color: #475569; margin: 4px 0 10px 0; line-height: 1.35;" data-i18n="ai_copilot_desc">
+                            <p class="ai-panel-desc" style="font-size: 11px; color: var(--text-muted, #475569); margin: 4px 0 10px 0; line-height: 1.35;" data-i18n="ai_copilot_desc">
                                 Bilet çözüm önerisi, özet ve yanıt taslağı alın.
                             </p>
 
@@ -322,37 +465,37 @@
                             <!-- Loading indicator -->
                             <div id="aiLoadingIndicator" style="display: none; text-align: center; padding: 14px 0;">
                                 <output class="spinner-border spinner-border-sm text-primary" style="width: 18px; height: 18px; margin-right: 6px;"></output>
-                                <span style="font-size: 12px; font-weight: 500; color: #0052CC;" data-i18n="ai_thinking">Yapay zeka analiz ediyor...</span>
+                                <span style="font-size: 12px; font-weight: 500; color: var(--primary, #0052CC);" data-i18n="ai_thinking">Yapay zeka analiz ediyor...</span>
                             </div>
 
                             <!-- Result / Output Area -->
-                            <div id="aiResultArea" style="display: none; background: #FFFFFF; border: 1px solid #CBD5E1; border-left: 4px solid #0052CC; border-radius: 6px; padding: 10px; margin-top: 8px; box-shadow: 0 2px 8px rgba(0, 82, 204, 0.06);">
-                                <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
-                                    <strong id="aiResultTitle" style="font-size: 12px; color: #0052CC; font-weight: 700;">AI Çıktısı</strong>
+                            <div id="aiResultArea" style="display: none; background: var(--bg-surface, #FFFFFF); border: 1px solid var(--border, #CBD5E1); border-left: 4px solid var(--primary, #0052CC); border-radius: 6px; padding: 10px; margin-top: 8px; box-shadow: var(--shadow-md);">
+                                <div class="d-flex justify-content-between align-items-center mb-xs" style="border-bottom: 1px solid var(--border, #E2E8F0); padding-bottom: 6px;">
+                                    <strong id="aiResultTitle" style="font-size: 12px; color: var(--primary, #0052CC); font-weight: 700;">AI Çıktısı</strong>
                                     <span id="aiResultSource" style="font-size: 9.5px; font-weight: 600; padding: 2px 6px; border-radius: 4px;"></span>
                                 </div>
 
                                 <!-- Prominent notice if LLM is disconnected and fallback rule engine was used -->
-                                <div id="aiFallbackNotice" style="display: none; align-items: flex-start; gap: 6px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; font-size: 10.5px; color: #92400E; line-height: 1.35;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top: 1px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <div id="aiFallbackNotice" style="display: none; align-items: flex-start; gap: 6px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; font-size: 10.5px; color: var(--warning, #92400E); line-height: 1.35;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top: 1px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                                     <div>
                                         <strong id="aiFallbackNoticeTitle">LLM Bağlantısı Yok:</strong>
                                         <span id="aiFallbackNoticeDesc">Bu içerik bilet verilerine dayalı akıllı kural motoru tarafından üretilmiştir. Gerçek yapay zeka çıktısı için </span>
-                                        <button type="button" onclick="window.openLlmSettingsModal()" style="background:none; border:none; padding:0; margin:0; font:inherit; color: #0052CC; text-decoration: underline; font-weight: 600; cursor: pointer; display: inline;">Model Ayarları</button>'ndan LLM bağlayabilirsiniz.
+                                        <button type="button" onclick="window.openLlmSettingsModal()" style="background:none; border:none; padding:0; margin:0; font:inherit; color: var(--primary, #0052CC); text-decoration: underline; font-weight: 600; cursor: pointer; display: inline;">Model Ayarları</button>'ndan LLM bağlayabilirsiniz.
                                     </div>
                                 </div>
 
-                                <div id="aiResultContent" style="font-size: 11.5px; line-height: 1.55; color: #1E293B; max-height: 240px; overflow-y: auto; white-space: pre-wrap; padding: 6px 0;"></div>
+                                <div id="aiResultContent" style="font-size: 11.5px; line-height: 1.55; color: var(--text-main, #1E293B); max-height: 240px; overflow-y: auto; white-space: pre-wrap; padding: 6px 0;"></div>
                                 
-                                <div class="d-flex justify-content-between align-items-center mt-xs" style="border-top: 1px solid #E2E8F0; padding-top: 8px;">
-                                    <button type="button" class="btn btn-ghost btn-sm" id="btnCopyAiResult" onclick="window.copyAiResult()" style="font-size: 10px; padding: 3px 8px; color: #475569;">
+                                <div class="d-flex justify-content-between align-items-center mt-xs" style="border-top: 1px solid var(--border, #E2E8F0); padding-top: 8px;">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnCopyAiResult" onclick="window.copyAiResult()" style="font-size: 10px; padding: 3px 8px; color: var(--text-muted, #475569);">
                                         <span data-i18n="ai_btn_copy">Kopyala</span>
                                     </button>
                                     <div class="d-flex gap-xs">
-                                        <button type="button" class="btn btn-sm" onclick="window.insertAiIntoComment(false)" style="font-size: 10px; padding: 3px 8px; background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; font-weight: 600; border-radius: 4px;" title="Yorum alanına aktar">
+                                        <button type="button" class="btn btn-sm" onclick="window.insertAiIntoComment(false)" style="font-size: 10px; padding: 3px 8px; background: var(--primary-light, #EFF6FF); color: var(--primary, #1D4ED8); border: 1px solid var(--border, #BFDBFE); font-weight: 600; border-radius: 4px;" title="Yorum alanına aktar">
                                             <span data-i18n="ai_btn_add_comment">Yoruma Ekle</span>
                                         </button>
-                                        <button type="button" class="btn btn-primary btn-sm" id="btnAiMakeInternal" onclick="window.saveAiAsInternalNote()" style="font-size: 10px; padding: 3px 8px; background: #0052CC; color: white; font-weight: 600; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,82,204,0.3);" title="Doğrudan dahili not olarak bilete kaydet">
+                                        <button type="button" class="btn btn-primary btn-sm" id="btnAiMakeInternal" onclick="window.saveAiAsInternalNote()" style="font-size: 10px; padding: 3px 8px; background: var(--primary, #0052CC); color: var(--text-inverse, white); font-weight: 600; border-radius: 4px; box-shadow: var(--shadow-sm);" title="Doğrudan dahili not olarak bilete kaydet">
                                             <span data-i18n="ai_btn_make_internal">Dahili Not Yap</span>
                                         </button>
                                     </div>
@@ -567,19 +710,19 @@
     <!-- LLM Model & API Settings Modal -->
     <div id="llmSettingsModal" class="modal-overlay">
         <div class="modal" style="width: min(560px, 92%); max-height: 90vh; display: flex; flex-direction: column; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
+            <div class="modal-header" style="background: var(--bg-surface, #F8FAFC); border-bottom: 1px solid var(--border, #E2E8F0); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 32px; height: 32px; border-radius: 8px; background: #EFF6FF; border: 1px solid #DBEAFE; display: flex; align-items: center; justify-content: center; color: #0052CC; flex-shrink: 0;">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--primary-light, #EFF6FF); border: 1px solid var(--border, #DBEAFE); display: flex; align-items: center; justify-content: center; color: var(--primary, #0052CC); flex-shrink: 0;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
                         </svg>
                     </div>
                     <div>
-                        <h2 style="margin:0; font-size:15px; font-weight: 700; color: #0F172A;">Yapay Zeka (LLM) & Model Ayarları</h2>
-                        <small style="color: #64748B; font-size: 11px;">Çözüm önerisi, bilet özeti ve yanıt taslağı için model seçin</small>
+                        <h2 style="margin:0; font-size:15px; font-weight: 700; color: var(--text-main, #0F172A);">Yapay Zeka (LLM) & Model Ayarları</h2>
+                        <small style="color: var(--text-muted, #64748B); font-size: 11px;">Çözüm önerisi, bilet özeti ve yanıt taslağı için model seçin</small>
                     </div>
                 </div>
-                <button type="button" class="close-btn" onclick="window.closeLlmSettingsModal()" aria-label="Kapat" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.15s ease;" title="Kapat">
+                <button type="button" class="close-btn" onclick="window.closeLlmSettingsModal()" aria-label="Kapat" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border, #E2E8F0); background: var(--bg-hover, #FFFFFF); cursor: pointer; color: var(--text-main, #475569); display: flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.15s ease;" title="Kapat">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -589,7 +732,7 @@
             <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 18px;">
                 <!-- Preset Quick Buttons -->
                 <div class="mb-md">
-                    <div class="form-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; color: #334155;">Hızlı Sağlayıcı Seçimi (Hazır Şablonlar):</div>
+                    <div class="form-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block; color: var(--text-main, #334155);">Hızlı Sağlayıcı Seçimi (Hazır Şablonlar):</div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('ollama')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">Ollama (Yerel)</button>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="window.applyLlmPreset('lmstudio')" style="font-size: 11.5px; padding: 5px 10px; font-weight: 500; border-radius: 6px;">LM Studio (Yerel)</button>
@@ -615,7 +758,7 @@
                 <div class="form-group mb-sm">
                     <div class="d-flex justify-content-between align-items-center mb-xs">
                         <label class="form-label" for="llmEndpoint" style="margin:0; font-weight: 600; font-size: 12px;">API Endpoint URL:</label>
-                        <small style="color: #64748B; font-size: 11px;">Docker içi: host.docker.internal</small>
+                        <small style="color: var(--text-muted, #64748B); font-size: 11px;">Docker içi: host.docker.internal</small>
                     </div>
                     <input type="text" id="llmEndpoint" class="form-control" placeholder="http://host.docker.internal:11434/v1/chat/completions" style="font-size: 12px; font-family: monospace;">
                 </div>
@@ -625,7 +768,7 @@
                     <label class="form-label" for="llmApiKey" style="font-weight: 600; font-size: 12px;">API Anahtarı (API Key):</label>
                     <div style="position: relative; display: flex; align-items: center;">
                         <input type="password" id="llmApiKey" class="form-control" placeholder="Yerel LLM için boş bırakabilirsiniz veya sk-..." style="font-size: 12px; padding-right: 36px; font-family: monospace;">
-                        <button type="button" id="btnToggleApiKey" onclick="window.toggleApiKeyVisibility()" style="position: absolute; right: 6px; background: none; border: none; cursor: pointer; color: #64748B; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s;" title="API Anahtarını Göster/Gizle" aria-label="API Anahtarını Göster veya Gizle">
+                        <button type="button" id="btnToggleApiKey" onclick="window.toggleApiKeyVisibility()" style="position: absolute; right: 6px; background: none; border: none; cursor: pointer; color: var(--text-muted, #64748B); padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s;" title="API Anahtarını Göster/Gizle" aria-label="API Anahtarını Göster veya Gizle">
                             <svg id="iconEyeShow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
@@ -636,7 +779,7 @@
                             </svg>
                         </button>
                     </div>
-                    <small style="color: #64748B; font-size: 11px; display:block; margin-top:2px;">Bulut sağlayıcılar için zorunludur (OpenAI, Claude, Groq vb.). Göz simgesine basarak anahtarı görebilirsiniz.</small>
+                    <small style="color: var(--text-muted, #64748B); font-size: 11px; display:block; margin-top:2px;">Bulut sağlayıcılar için zorunludur (OpenAI, Claude, Groq vb.). Göz simgesine basarak anahtarı görebilirsiniz.</small>
                 </div>
 
                 <!-- Default Language -->
@@ -652,7 +795,7 @@
                 <div class="form-group mb-sm">
                     <div class="d-flex justify-content-between align-items-center mb-xs">
                         <label class="form-label" for="llmModel" style="margin:0; font-weight: 600; font-size: 12px;">Model Adı:</label>
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="window.fetchAvailableLlmModels()" style="font-size: 11.5px; padding: 2px 8px; color: #0052CC; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="window.fetchAvailableLlmModels()" style="font-size: 11.5px; padding: 2px 8px; color: var(--primary, #0052CC); font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
                             <span>Modelleri Getir</span>
                         </button>
@@ -666,26 +809,26 @@
                 </div>
 
                 <!-- Fallback to heuristic -->
-                <div class="form-group mb-md" style="margin-top: 12px; background: #F8FAFC; padding: 10px; border-radius: 6px; border: 1px solid #E2E8F0;">
-                    <label class="d-flex align-items-center gap-xs" style="font-size: 12px; cursor: pointer; font-weight: 600; color: #1E293B; margin: 0;">
-                        <input type="checkbox" id="llmFallback" checked style="width:16px; height:16px; accent-color: #0052CC;">
+                <div class="form-group mb-md" style="margin-top: 12px; background: var(--bg-hover, #F8FAFC); padding: 10px; border-radius: 6px; border: 1px solid var(--border, #E2E8F0);">
+                    <label class="d-flex align-items-center gap-xs" style="font-size: 12px; cursor: pointer; font-weight: 600; color: var(--text-main, #1E293B); margin: 0;">
+                        <input type="checkbox" id="llmFallback" checked style="width:16px; height:16px; accent-color: var(--primary, #0052CC);">
                         <span>LLM ulaşılamazsa Akıllı Kural Motoru yedek olarak çalışsın</span>
                     </label>
-                    <small style="color: #64748B; font-size: 11px; margin-left: 24px; display: block; margin-top: 3px;">İşaret kaldırılırsa, LLM bağlantısı koptuğunda arayüzde doğrudan net hata uyarısı verilir.</small>
+                    <small style="color: var(--text-muted, #64748B); font-size: 11px; margin-left: 24px; display: block; margin-top: 3px;">İşaret kaldırılırsa, LLM bağlantısı koptuğunda arayüzde doğrudan net hata uyarısı verilir.</small>
                 </div>
 
                 <!-- Test Connection Status Box -->
                 <div id="llmTestStatusBox" style="display: none; border-radius: 6px; padding: 10px 12px; margin-top: 10px; font-size: 12px; line-height: 1.45;">
                 </div>
             </div>
-            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: #F8FAFC; border-top: 1px solid #E2E8F0;">
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: var(--bg-surface, #F8FAFC); border-top: 1px solid var(--border, #E2E8F0);">
                 <button type="button" id="btnTestLlm" class="btn btn-secondary btn-sm" onclick="window.testLlmConnection()" style="font-size: 12px; padding: 6px 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     <span id="btnTestLlmText">Bağlantıyı Test Et</span>
                 </button>
                 <div class="d-flex gap-xs">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="window.closeLlmSettingsModal()" style="font-size: 12px;">İptal</button>
-                    <button type="button" id="btnSaveLlm" class="btn btn-primary btn-sm" onclick="window.saveLlmConfig()" style="font-size: 12px; padding: 6px 16px; font-weight: 600; background: #0052CC;">Kaydet</button>
+                    <button type="button" id="btnSaveLlm" class="btn btn-primary btn-sm" onclick="window.saveLlmConfig()" style="font-size: 12px; padding: 6px 16px; font-weight: 600; background: var(--primary, #0052CC); color: var(--text-inverse, white);">Kaydet</button>
                 </div>
             </div>
         </div>
@@ -1406,18 +1549,18 @@
             let overallBadge = '';
             if (isClosed) {
                 if (isResBreached || isFirstRespBreached) {
-                    overallBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:10px; font-weight:600;">İhlal Edildi</span>';
+                    overallBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:600;">İhlal Edildi</span>';
                 } else {
-                    overallBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; font-size:10px; font-weight:600;">Karşılandı</span>';
+                    overallBadge = '<span class="badge badge-success" style="font-size:10px; font-weight:600;">Karşılandı</span>';
                 }
             } else if (sla.pausedAt) {
-                overallBadge = '<span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; font-size:10px; font-weight:600;">Duraklatıldı</span>';
+                overallBadge = '<span class="badge badge-default" style="font-size:10px; font-weight:600;">Duraklatıldı</span>';
             } else if (isResBreached) {
-                overallBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; font-size:10px; font-weight:700;">Çözüm Aşıldı</span>';
+                overallBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:700;">Çözüm Aşıldı</span>';
             } else if (isFirstRespBreached) {
-                overallBadge = '<span class="badge" style="background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; font-size:10px; font-weight:700;">İlk Yanıt Aşıldı</span>';
+                overallBadge = '<span class="badge badge-warning" style="font-size:10px; font-weight:700;">İlk Yanıt Aşıldı</span>';
             } else {
-                overallBadge = '<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:10px; font-weight:600;">Süresinde</span>';
+                overallBadge = '<span class="badge badge-info" style="font-size:10px; font-weight:600;">Süresinde</span>';
             }
             document.getElementById('tSlaOverallBadge').innerHTML = overallBadge;
 
@@ -1427,12 +1570,12 @@
             if (firstRespDate) {
                 firstRespDateText = firstRespDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 if (isFirstRespMet) {
-                    firstRespBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; font-size:10px;">Karşılandı</span>';
+                    firstRespBadge = '<span class="badge badge-success" style="font-size:10px;">Karşılandı</span>';
                 } else if (isFirstRespBreached) {
-                    firstRespBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; font-size:10px; font-weight:700;">Aşıldı</span>';
+                    firstRespBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:700;">Aşıldı</span>';
                 } else {
                     const diffMs = firstRespDate - now;
-                    firstRespBadge = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
+                    firstRespBadge = `<span class="badge badge-info" style="font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
                 }
             }
             document.getElementById('tSlaFirstResponseBadge').innerHTML = firstRespBadge;
@@ -1444,12 +1587,12 @@
             if (resDate) {
                 resDateText = resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 if (isResMet) {
-                    resBadge = '<span class="badge" style="background:#DCFCE7; color:#15803D; font-size:10px;">Karşılandı</span>';
+                    resBadge = '<span class="badge badge-success" style="font-size:10px;">Karşılandı</span>';
                 } else if (isResBreached) {
-                    resBadge = '<span class="badge" style="background:#FEE2E2; color:#B91C1C; font-size:10px; font-weight:700;">Aşıldı</span>';
+                    resBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:700;">Aşıldı</span>';
                 } else {
                     const diffMs = resDate - now;
-                    resBadge = `<span class="badge" style="background:#EFF6FF; color:#1D4ED8; font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
+                    resBadge = `<span class="badge badge-info" style="font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
                 }
             }
             document.getElementById('tSlaResolutionBadge').innerHTML = resBadge;
@@ -3244,17 +3387,17 @@
 
             if (resultContent) {
                 resultContent.innerHTML = `
-                    <div style="background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #EF4444; border-radius: 6px; padding: 12px; margin: 4px 0;">
-                        <div style="color: #991B1B; font-weight: 700; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div style="background: var(--danger-light, #FEF2F2); border: 1px solid var(--border-danger-light, #FECACA); border-left: 4px solid var(--danger, #EF4444); border-radius: 6px; padding: 12px; margin: 4px 0;">
+                        <div style="color: var(--danger, #991B1B); font-weight: 700; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                             <span>LLM Bağlantısı Kurulamadı</span>
                         </div>
-                        <p style="margin: 0 0 10px 0; font-size: 11.5px; color: #7F1D1D; line-height: 1.5;">
+                        <p style="margin: 0 0 10px 0; font-size: 11.5px; color: var(--text-main, #7F1D1D); line-height: 1.5;">
                             ${cleanErr}
                         </p>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-sm btn-primary" onclick="window.openLlmSettingsModal()" style="font-size: 11.5px; padding: 5px 12px; background: #0052CC; color: white; border: none; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="window.openLlmSettingsModal()" style="font-size: 11.5px; padding: 5px 12px; background: var(--primary, #0052CC); color: var(--text-inverse, white); border: none; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                                 <span>Model & API Ayarlarını Aç</span>
                             </button>
                         </div>
@@ -3298,35 +3441,29 @@
             try {
                 const res = await window.api.request('/ai/status', { silent: true });
                 if (res) {
+                    badge.style.background = '';
+                    badge.style.color = '';
+                    badge.style.border = '';
                     if (res.isAvailable || res.isEndpointReachable) {
-                        badge.className = 'badge';
-                        badge.style.background = '#ECFDF5';
-                        badge.style.color = '#047857';
-                        badge.style.border = '1px solid #A7F3D0';
+                        badge.className = 'badge ai-status-active';
                         badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10B981; animation: pulse-dot 2s infinite; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">LLM: ${res.model || 'Aktif'}</span>`;
                         badge.title = `Sağlayıcı: ${res.provider || 'LLM'} | Model: ${res.model} | Endpoint: ${res.endpoint}\n(Ayarları değiştirmek için tıklayın)`;
                     } else if (res.fallbackToHeuristic) {
-                        badge.className = 'badge';
-                        badge.style.background = '#FFFBEB';
-                        badge.style.color = '#B45309';
-                        badge.style.border = '1px solid #FDE68A';
+                        badge.className = 'badge ai-status-fallback';
                         badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">${isEn ? 'No LLM (Rule Engine)' : 'LLM Bağlı Değil (Kural Motoru)'}</span>`;
                         badge.title = `LLM sunucusuna ulaşılamadı (${res.endpoint}). Akıllı yerel kurallar aktif.\n(Model ayarlarını açmak için tıklayın)`;
                     } else {
-                        badge.className = 'badge';
-                        badge.style.background = '#FEF2F2';
-                        badge.style.color = '#B91C1C';
-                        badge.style.border = '1px solid #FECACA';
+                        badge.className = 'badge ai-status-disconnected';
                         badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">${isEn ? 'No LLM Connection' : 'LLM Bağlantısı Yok'}</span>`;
                         badge.title = `LLM bağlantısı kapalı (${res.endpoint}).\n(Ayarları düzenlemek için tıklayın)`;
                     }
                 }
             } catch (err) {
                 console.warn('AI status check failed:', err);
-                badge.className = 'badge';
-                badge.style.background = '#FEF2F2';
-                badge.style.color = '#B91C1C';
-                badge.style.border = '1px solid #FECACA';
+                badge.className = 'badge ai-status-disconnected';
+                badge.style.background = '';
+                badge.style.color = '';
+                badge.style.border = '';
                 badge.innerHTML = `<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#EF4444; margin-right: 4px; vertical-align: middle; flex-shrink:0;"></span><span style="overflow:hidden; text-overflow:ellipsis;">${isEn ? 'No LLM Connection' : 'LLM Bağlantısı Yok'}</span>`;
             }
         };

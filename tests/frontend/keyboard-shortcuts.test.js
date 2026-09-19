@@ -118,9 +118,14 @@ global.t = (k) => k;
 // Dynamic import of ui.js
 const { initGlobalKeyboardShortcuts } = await import('../../src/ItsTool.Web/wwwroot/js/ui.js');
 
-test('Global Keyboard Shortcuts - ? or Shift+/ opens shortcuts modal', () => {
+function resetKeyboardShortcuts() {
     window._kbdShortcutsInitialized = false;
+    doc._listeners['keydown'] = [];
     initGlobalKeyboardShortcuts();
+}
+
+test('Global Keyboard Shortcuts - ? or Shift+/ opens shortcuts modal', () => {
+    resetKeyboardShortcuts();
 
     let defaultPrevented = false;
     document.dispatchEvent({
@@ -139,8 +144,7 @@ test('Global Keyboard Shortcuts - / focuses search input', () => {
     const searchInput = new MockElement('INPUT', 'searchInput');
     document.register('searchInput', searchInput);
 
-    window._kbdShortcutsInitialized = false;
-    initGlobalKeyboardShortcuts();
+    resetKeyboardShortcuts();
 
     let defaultPrevented = false;
     document.dispatchEvent({
@@ -159,13 +163,36 @@ test('Global Keyboard Shortcuts - / focuses search input', () => {
     assert.ok(defaultPrevented, 'preventDefault should be called for /');
 });
 
+test('Global Keyboard Shortcuts - Ctrl+K focuses search input', () => {
+    const searchInput = new MockElement('INPUT', 'searchInput');
+    document.register('searchInput', searchInput);
+    document.activeElement = document.body;
+
+    resetKeyboardShortcuts();
+
+    let defaultPrevented = false;
+    document.dispatchEvent({
+        type: 'keydown',
+        key: 'k',
+        code: 'KeyK',
+        shiftKey: false,
+        ctrlKey: true,
+        altKey: false,
+        metaKey: false,
+        preventDefault: () => { defaultPrevented = true; }
+    });
+
+    assert.equal(document.activeElement, searchInput, 'searchInput should be focused on Ctrl+K');
+    assert.ok(searchInput._selected, 'searchInput.select() should be called on Ctrl+K');
+    assert.ok(defaultPrevented, 'preventDefault should be called for Ctrl+K');
+});
+
 test('Global Keyboard Shortcuts - Shift+Slash does NOT focus search, it opens help modal', () => {
     const searchInput = new MockElement('INPUT', 'searchInput');
     document.register('searchInput', searchInput);
     document.activeElement = document.body;
 
-    window._kbdShortcutsInitialized = false;
-    initGlobalKeyboardShortcuts();
+    resetKeyboardShortcuts();
 
     const existingModal = document.getElementById('shortcutsHelpModal');
     if (existingModal) existingModal.classList.remove('active');
@@ -212,8 +239,7 @@ test('Global Keyboard Shortcuts - Escape closes active modals and dropdowns', ()
     profilePanel.style.display = 'block';
     document.register('myProfilePanel', profilePanel);
 
-    window._kbdShortcutsInitialized = false;
-    initGlobalKeyboardShortcuts();
+    resetKeyboardShortcuts();
 
     document.dispatchEvent({
         type: 'keydown',
@@ -226,12 +252,16 @@ test('Global Keyboard Shortcuts - Escape closes active modals and dropdowns', ()
     assert.equal(profilePanel.style.display, 'none', 'Profile panel should be hidden');
 });
 
-test('Global Keyboard Shortcuts - n, t, d trigger fast page navigation', () => {
-    window._kbdShortcutsInitialized = false;
-    initGlobalKeyboardShortcuts();
+test('Global Keyboard Shortcuts - n, c, t, d trigger fast page navigation', () => {
+    resetKeyboardShortcuts();
 
+    window.location.href = '/';
     document.dispatchEvent({ type: 'keydown', key: 'n', shiftKey: false, ctrlKey: false, altKey: false, metaKey: false });
     assert.equal(window.location.href, '/ticket-create.html', 'n should navigate to /ticket-create.html');
+
+    window.location.href = '/';
+    document.dispatchEvent({ type: 'keydown', key: 'c', shiftKey: false, ctrlKey: false, altKey: false, metaKey: false });
+    assert.equal(window.location.href, '/ticket-create.html', 'c should navigate to /ticket-create.html (Jira compatibility)');
 
     document.dispatchEvent({ type: 'keydown', key: 't', shiftKey: false, ctrlKey: false, altKey: false, metaKey: false });
     assert.equal(window.location.href, '/tickets.html', 't should navigate to /tickets.html');
@@ -244,8 +274,7 @@ test('Global Keyboard Shortcuts - typing in input/textarea/contenteditable does 
     const input = new MockElement('INPUT');
     document.activeElement = input;
 
-    window._kbdShortcutsInitialized = false;
-    initGlobalKeyboardShortcuts();
+    resetKeyboardShortcuts();
 
     window.location.href = '/current.html';
     document.dispatchEvent({ type: 'keydown', key: 'n', shiftKey: false, ctrlKey: false, altKey: false, metaKey: false });
@@ -266,8 +295,7 @@ test('Global Keyboard Shortcuts - typing in input/textarea/contenteditable does 
 
 test('Global Keyboard Shortcuts - browser native shortcuts with Ctrl/Alt/Meta are ignored', () => {
     document.activeElement = document.body;
-    window._kbdShortcutsInitialized = false;
-    initGlobalKeyboardShortcuts();
+    resetKeyboardShortcuts();
 
     window.location.href = '/stay.html';
     document.dispatchEvent({ type: 'keydown', key: 't', ctrlKey: true, altKey: false, metaKey: false });

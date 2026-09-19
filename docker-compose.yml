@@ -45,6 +45,8 @@ services:
       - Jwt__Audience=ItsToolClient
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./src/ItsTool.Web/wwwroot:/app/wwwroot
     networks:
       - itstool-network
 

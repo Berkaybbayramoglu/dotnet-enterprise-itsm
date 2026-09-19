@@ -768,7 +768,7 @@ export function openShortcutsModal() {
                         <tbody>
                             <tr style="border-bottom: 1px solid var(--border-light);">
                                 <td style="padding: 8px 12px; color: var(--text-muted);">${t('kbd_search') || 'Arama kutusuna odaklan'}</td>
-                                <td style="padding: 8px 12px; text-align: right;"><kbd style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px; font-weight: 600;">/</kbd></td>
+                                <td style="padding: 8px 12px; text-align: right;"><kbd style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px; font-weight: 600;">/</kbd> <span style="font-size:11px;color:var(--text-muted);">${t('kbd_or') || 'veya'}</span> <kbd style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px; font-weight: 600;">Ctrl+K</kbd></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border-light);">
                                 <td style="padding: 8px 12px; color: var(--text-muted);">${t('kbd_close') || 'Açık modalları / menüleri kapat'}</td>
@@ -776,7 +776,7 @@ export function openShortcutsModal() {
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border-light);">
                                 <td style="padding: 8px 12px; color: var(--text-muted);">${t('kbd_new_ticket') || 'Yeni bilet oluştur'}</td>
-                                <td style="padding: 8px 12px; text-align: right;"><kbd style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px; font-weight: 600;">N</kbd></td>
+                                <td style="padding: 8px 12px; text-align: right;"><kbd style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px; font-weight: 600;">N</kbd> <span style="font-size:11px;color:var(--text-muted);">${t('kbd_or') || 'veya'}</span> <kbd style="background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px; font-weight: 600;">C</kbd></td>
                             </tr>
                             <tr style="border-bottom: 1px solid var(--border-light);">
                                 <td style="padding: 8px 12px; color: var(--text-muted);">${t('kbd_tickets') || 'Biletler listesine git'}</td>
@@ -834,8 +834,9 @@ export function initGlobalKeyboardShortcuts() {
             e.preventDefault();
             openShortcutsModal();
         }
-        // Search focus shortcut: / (without shift or modifier keys)
-        else if (!e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && (e.key === '/' || e.code === 'Slash')) {
+        // Search focus shortcut: / (without shift or modifier keys) or Ctrl+K / Cmd+K
+        else if ((!e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && (e.key === '/' || e.code === 'Slash')) ||
+                 ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key.toLowerCase() === 'k' || e.code === 'KeyK'))) {
             const searchInput = document.getElementById('searchInput') || document.querySelector('input[type="search"]') || document.getElementById('filterTicket');
             if (searchInput) {
                 e.preventDefault();
@@ -844,7 +845,7 @@ export function initGlobalKeyboardShortcuts() {
             }
         } else if (!e.ctrlKey && !e.altKey && !e.metaKey) {
             const k = e.key.toLowerCase();
-            if (k === 'n') {
+            if (k === 'n' || k === 'c') {
                 window.location.href = '/ticket-create.html';
             } else if (k === 't') {
                 window.location.href = '/tickets.html';
@@ -1045,7 +1046,7 @@ export async function showUserDetails(userId) {
             modalOverlay.innerHTML = `
                 <div class="modal" style="max-width: 450px;">
                     <div class="modal-header">
-                        <h2>User Details</h2>
+                        <h2 id="guModalTitle">${t('users_modal_details') || t('td_modal_user_details') || 'User Details'}</h2>
                         <button type="button" class="close-btn" onclick="closeModal('globalUserModal')" aria-label="Close">
                             <svg viewBox="0 0 24 24" width="24" height="24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                         </button>
@@ -1057,19 +1058,19 @@ export async function showUserDetails(userId) {
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left; background: var(--bg-hover); padding: 16px; border-radius: 8px;">
                             <div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Email</div>
+                                <div id="guLblEmail" style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('users_lbl_email') || 'Email'}</div>
                                 <div id="guEmail" style="font-weight: 500; font-size: 14px; word-break: break-all;"></div>
                             </div>
                             <div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Department</div>
+                                <div id="guLblDept" style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('users_lbl_dept') || 'Department'}</div>
                                 <div id="guDept" style="font-weight: 500; font-size: 14px;"></div>
                             </div>
                             <div>
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Status</div>
+                                <div id="guLblStatus" style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_status') || 'Status'}</div>
                                 <div id="guStatus"></div>
                             </div>
                             <div style="grid-column: span 2; margin-top: 8px;">
-                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Groups</div>
+                                <div id="guLblGroups" style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('users_lbl_groups') || 'Groups'}</div>
                                 <div id="guGroups" style="font-weight: 500; font-size: 14px; word-break: break-word;"></div>
                             </div>
                         </div>
@@ -1079,18 +1080,31 @@ export async function showUserDetails(userId) {
             document.body.appendChild(modalOverlay);
         }
         
+        const titleEl = document.getElementById('guModalTitle');
+        if (titleEl) titleEl.textContent = t('users_modal_details') || t('td_modal_user_details') || 'User Details';
+        const lblEmail = document.getElementById('guLblEmail');
+        if (lblEmail) lblEmail.textContent = t('users_lbl_email') || 'Email';
+        const lblDept = document.getElementById('guLblDept');
+        if (lblDept) lblDept.textContent = t('users_lbl_dept') || 'Department';
+        const lblStatus = document.getElementById('guLblStatus');
+        if (lblStatus) lblStatus.textContent = t('ticket_prop_status') || 'Status';
+        const lblGroups = document.getElementById('guLblGroups');
+        if (lblGroups) lblGroups.textContent = t('users_lbl_groups') || 'Groups';
+
         document.getElementById('guAvatar').innerHTML = getAvatar(user.id, user.firstName, user.profilePhoto, 80);
         document.getElementById('guName').textContent = user.firstName + ' ' + user.lastName;
         document.getElementById('guUsername').textContent = '@' + user.username;
         document.getElementById('guEmail').textContent = user.email || '-';
         
         document.getElementById('guDept').textContent = await resolveUserDepartmentName(user.departmentId);
-        document.getElementById('guStatus').innerHTML = user.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-default">Inactive</span>';
+        const activeText = t('users_status_active') || 'Active';
+        const inactiveText = t('users_status_inactive') || 'Inactive';
+        document.getElementById('guStatus').innerHTML = user.isActive ? `<span class="badge badge-success">${activeText}</span>` : `<span class="badge badge-default">${inactiveText}</span>`;
         document.getElementById('guGroups').textContent = await resolveUserGroups(user.groupIds);
         
         openModal('globalUserModal');
     } catch(e) {
         console.error(e);
-        showToast('Failed to load user details', 'error');
+        showToast(t('users_load_failed') || 'Failed to load user details', 'error');
     }
 }

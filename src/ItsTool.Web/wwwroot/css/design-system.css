@@ -282,6 +282,344 @@
     border-color: var(--border) !important;
 }
 
+/* Internal Comments Theming for Dark Modes */
+[data-theme="dark"] .comment.internal,
+[data-theme="dracula"] .comment.internal,
+[data-theme="monokai"] .comment.internal,
+[data-theme="github-dark"] .comment.internal {
+    background: rgba(255, 171, 0, 0.12) !important;
+    border-color: rgba(255, 171, 0, 0.35) !important;
+    color: var(--text-main) !important;
+}
+
+/* AI Copilot Panel Theming for Dark Modes */
+[data-theme="dark"] #aiCopilotPanel,
+[data-theme="dracula"] #aiCopilotPanel,
+[data-theme="monokai"] #aiCopilotPanel,
+[data-theme="github-dark"] #aiCopilotPanel {
+    background: linear-gradient(180deg, rgba(76, 154, 255, 0.08) 0%, var(--bg-surface) 100%) !important;
+    border-color: var(--border) !important;
+    border-top: 3.5px solid var(--primary) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .ai-panel-header-icon,
+[data-theme="dracula"] .ai-panel-header-icon,
+[data-theme="monokai"] .ai-panel-header-icon,
+[data-theme="github-dark"] .ai-panel-header-icon {
+    background: var(--primary-light) !important;
+    color: var(--primary) !important;
+}
+
+[data-theme="dark"] .ai-panel-title,
+[data-theme="dracula"] .ai-panel-title,
+[data-theme="monokai"] .ai-panel-title,
+[data-theme="github-dark"] .ai-panel-title {
+    color: var(--primary) !important;
+}
+
+[data-theme="dark"] .ai-panel-settings-btn,
+[data-theme="dracula"] .ai-panel-settings-btn,
+[data-theme="monokai"] .ai-panel-settings-btn,
+[data-theme="github-dark"] .ai-panel-settings-btn {
+    background: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .ai-panel-status-row,
+[data-theme="dracula"] .ai-panel-status-row,
+[data-theme="monokai"] .ai-panel-status-row,
+[data-theme="github-dark"] .ai-panel-status-row {
+    background: var(--bg-hover) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .ai-panel-lang-select,
+[data-theme="dracula"] .ai-panel-lang-select,
+[data-theme="monokai"] .ai-panel-lang-select,
+[data-theme="github-dark"] .ai-panel-lang-select {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .ai-panel-desc,
+[data-theme="dracula"] .ai-panel-desc,
+[data-theme="monokai"] .ai-panel-desc,
+[data-theme="github-dark"] .ai-panel-desc {
+    color: var(--text-muted) !important;
+}
+
+/* AI Quick Action Buttons in Dark Mode */
+[data-theme="dark"] .ai-btn-suggest,
+[data-theme="dracula"] .ai-btn-suggest,
+[data-theme="monokai"] .ai-btn-suggest,
+[data-theme="github-dark"] .ai-btn-suggest {
+    background: rgba(29, 78, 216, 0.18) !important;
+    color: #93c5fd !important;
+    border-color: rgba(147, 197, 253, 0.3) !important;
+}
+[data-theme="dark"] .ai-btn-suggest:hover:not(:disabled),
+[data-theme="dracula"] .ai-btn-suggest:hover:not(:disabled),
+[data-theme="monokai"] .ai-btn-suggest:hover:not(:disabled),
+[data-theme="github-dark"] .ai-btn-suggest:hover:not(:disabled) {
+    background: #1D4ED8 !important;
+    color: #FFFFFF !important;
+    border-color: #1D4ED8 !important;
+}
+
+[data-theme="dark"] .ai-btn-summarize,
+[data-theme="dracula"] .ai-btn-summarize,
+[data-theme="monokai"] .ai-btn-summarize,
+[data-theme="github-dark"] .ai-btn-summarize {
+    background: rgba(4, 120, 87, 0.18) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(110, 231, 183, 0.3) !important;
+}
+[data-theme="dark"] .ai-btn-summarize:hover:not(:disabled),
+[data-theme="dracula"] .ai-btn-summarize:hover:not(:disabled),
+[data-theme="monokai"] .ai-btn-summarize:hover:not(:disabled),
+[data-theme="github-dark"] .ai-btn-summarize:hover:not(:disabled) {
+    background: #047857 !important;
+    color: #FFFFFF !important;
+    border-color: #047857 !important;
+}
+
+[data-theme="dark"] .ai-btn-draft,
+[data-theme="dracula"] .ai-btn-draft,
+[data-theme="monokai"] .ai-btn-draft,
+[data-theme="github-dark"] .ai-btn-draft {
+    background: rgba(180, 83, 9, 0.18) !important;
+    color: #fcd34d !important;
+    border-color: rgba(252, 211, 77, 0.3) !important;
+}
+[data-theme="dark"] .ai-btn-draft:hover:not(:disabled),
+[data-theme="dracula"] .ai-btn-draft:hover:not(:disabled),
+[data-theme="monokai"] .ai-btn-draft:hover:not(:disabled),
+[data-theme="github-dark"] .ai-btn-draft:hover:not(:disabled) {
+    background: #B45309 !important;
+    color: #FFFFFF !important;
+    border-color: #B45309 !important;
+}
+
+[data-theme="dark"] .ai-btn-ask,
+[data-theme="dracula"] .ai-btn-ask,
+[data-theme="monokai"] .ai-btn-ask,
+[data-theme="github-dark"] .ai-btn-ask {
+    background: rgba(14, 116, 144, 0.18) !important;
+    color: #67e8f9 !important;
+    border-color: rgba(103, 232, 249, 0.3) !important;
+}
+[data-theme="dark"] .ai-btn-ask:hover:not(:disabled),
+[data-theme="dracula"] .ai-btn-ask:hover:not(:disabled),
+[data-theme="monokai"] .ai-btn-ask:hover:not(:disabled),
+[data-theme="github-dark"] .ai-btn-ask:hover:not(:disabled) {
+    background: #0E7490 !important;
+    color: #FFFFFF !important;
+    border-color: #0E7490 !important;
+}
+
+/* AI Result Area in Dark Mode */
+[data-theme="dark"] #aiResultArea,
+[data-theme="dracula"] #aiResultArea,
+[data-theme="monokai"] #aiResultArea,
+[data-theme="github-dark"] #aiResultArea {
+    background: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+    border-left: 4px solid var(--primary) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] #aiResultArea > div:first-child,
+[data-theme="dracula"] #aiResultArea > div:first-child,
+[data-theme="monokai"] #aiResultArea > div:first-child,
+[data-theme="github-dark"] #aiResultArea > div:first-child {
+    border-bottom-color: var(--border) !important;
+}
+
+[data-theme="dark"] #aiResultArea > div:last-child,
+[data-theme="dracula"] #aiResultArea > div:last-child,
+[data-theme="monokai"] #aiResultArea > div:last-child,
+[data-theme="github-dark"] #aiResultArea > div:last-child {
+    border-top-color: var(--border) !important;
+}
+
+[data-theme="dark"] #aiResultTitle,
+[data-theme="dracula"] #aiResultTitle,
+[data-theme="monokai"] #aiResultTitle,
+[data-theme="github-dark"] #aiResultTitle {
+    color: var(--primary) !important;
+}
+
+[data-theme="dark"] #aiResultContent,
+[data-theme="dracula"] #aiResultContent,
+[data-theme="monokai"] #aiResultContent,
+[data-theme="github-dark"] #aiResultContent {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] #aiFallbackNotice,
+[data-theme="dracula"] #aiFallbackNotice,
+[data-theme="monokai"] #aiFallbackNotice,
+[data-theme="github-dark"] #aiFallbackNotice {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: var(--warning, #fbbf24) !important;
+}
+
+/* AI Status Badges */
+.ai-status-active {
+    background: #ECFDF5;
+    color: #047857;
+    border: 1px solid #A7F3D0;
+}
+.ai-status-fallback {
+    background: #FFFBEB;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+}
+.ai-status-disconnected {
+    background: #FEF2F2;
+    color: #B91C1C;
+    border: 1px solid #FECACA;
+}
+
+[data-theme="dark"] .ai-status-active,
+[data-theme="dracula"] .ai-status-active,
+[data-theme="monokai"] .ai-status-active,
+[data-theme="github-dark"] .ai-status-active {
+    background: rgba(16, 185, 129, 0.18) !important;
+    color: #34d399 !important;
+    border-color: rgba(52, 211, 153, 0.35) !important;
+}
+[data-theme="dark"] .ai-status-fallback,
+[data-theme="dracula"] .ai-status-fallback,
+[data-theme="monokai"] .ai-status-fallback,
+[data-theme="github-dark"] .ai-status-fallback {
+    background: rgba(245, 158, 11, 0.18) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(251, 191, 36, 0.35) !important;
+}
+[data-theme="dark"] .ai-status-disconnected,
+[data-theme="dracula"] .ai-status-disconnected,
+[data-theme="monokai"] .ai-status-disconnected,
+[data-theme="github-dark"] .ai-status-disconnected {
+    background: rgba(239, 68, 68, 0.18) !important;
+    color: #f87171 !important;
+    border-color: rgba(248, 113, 113, 0.35) !important;
+}
+
+/* LLM Modal Overrides in Dark Mode */
+[data-theme="dark"] #llmSettingsModal .modal-header,
+[data-theme="dracula"] #llmSettingsModal .modal-header,
+[data-theme="monokai"] #llmSettingsModal .modal-header,
+[data-theme="github-dark"] #llmSettingsModal .modal-header,
+[data-theme="dark"] #llmSettingsModal .modal-footer,
+[data-theme="dracula"] #llmSettingsModal .modal-footer,
+[data-theme="monokai"] #llmSettingsModal .modal-footer,
+[data-theme="github-dark"] #llmSettingsModal .modal-footer {
+    background: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #llmSettingsModal .modal-header h2,
+[data-theme="dracula"] #llmSettingsModal .modal-header h2,
+[data-theme="monokai"] #llmSettingsModal .modal-header h2,
+[data-theme="github-dark"] #llmSettingsModal .modal-header h2 {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] #llmSettingsModal .close-btn,
+[data-theme="dracula"] #llmSettingsModal .close-btn,
+[data-theme="monokai"] #llmSettingsModal .close-btn,
+[data-theme="github-dark"] #llmSettingsModal .close-btn {
+    background: var(--bg-hover) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] #llmSettingsModal .form-label,
+[data-theme="dracula"] #llmSettingsModal .form-label,
+[data-theme="monokai"] #llmSettingsModal .form-label,
+[data-theme="github-dark"] #llmSettingsModal .form-label {
+    color: var(--text-main) !important;
+}
+
+/* Badge Warning Text Contrast in Dark Mode */
+[data-theme="dark"] .badge-warning,
+[data-theme="dracula"] .badge-warning,
+[data-theme="monokai"] .badge-warning,
+[data-theme="github-dark"] .badge-warning {
+    color: var(--warning) !important;
+}
+
+/* Chip Theming in Dark Mode */
+[data-theme="dark"] .chip,
+[data-theme="dracula"] .chip,
+[data-theme="monokai"] .chip,
+[data-theme="github-dark"] .chip {
+    background: var(--bg-hover) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border) !important;
+}
+[data-theme="dark"] .chip:hover,
+[data-theme="dracula"] .chip:hover,
+[data-theme="monokai"] .chip:hover,
+[data-theme="github-dark"] .chip:hover {
+    background: var(--border) !important;
+}
+
+/* Quill Editor Dark Theme Support */
+[data-theme="dark"] .ql-toolbar,
+[data-theme="dracula"] .ql-toolbar,
+[data-theme="monokai"] .ql-toolbar,
+[data-theme="github-dark"] .ql-toolbar {
+    background: var(--bg-hover) !important;
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .ql-container,
+[data-theme="dracula"] .ql-container,
+[data-theme="monokai"] .ql-container,
+[data-theme="github-dark"] .ql-container {
+    border-color: var(--border) !important;
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .ql-editor,
+[data-theme="dracula"] .ql-editor,
+[data-theme="monokai"] .ql-editor,
+[data-theme="github-dark"] .ql-editor {
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .ql-snow .ql-stroke,
+[data-theme="dracula"] .ql-snow .ql-stroke,
+[data-theme="monokai"] .ql-snow .ql-stroke,
+[data-theme="github-dark"] .ql-snow .ql-stroke {
+    stroke: var(--text-main) !important;
+}
+[data-theme="dark"] .ql-snow .ql-fill,
+[data-theme="dracula"] .ql-snow .ql-fill,
+[data-theme="monokai"] .ql-snow .ql-fill,
+[data-theme="github-dark"] .ql-snow .ql-fill {
+    fill: var(--text-main) !important;
+}
+[data-theme="dark"] .ql-snow .ql-picker,
+[data-theme="dracula"] .ql-snow .ql-picker,
+[data-theme="monokai"] .ql-snow .ql-picker,
+[data-theme="github-dark"] .ql-snow .ql-picker {
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .ql-snow .ql-picker-options,
+[data-theme="dracula"] .ql-snow .ql-picker-options,
+[data-theme="monokai"] .ql-snow .ql-picker-options,
+[data-theme="github-dark"] .ql-snow .ql-picker-options {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+}
+
 /* Scrollbar Theming for Dark Modes */
 [data-theme="dark"] ::-webkit-scrollbar, [data-theme="dracula"] ::-webkit-scrollbar, [data-theme="monokai"] ::-webkit-scrollbar, [data-theme="github-dark"] ::-webkit-scrollbar {
     width: 8px;

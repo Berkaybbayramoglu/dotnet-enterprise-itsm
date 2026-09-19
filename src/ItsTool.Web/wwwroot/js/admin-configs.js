@@ -26,7 +26,7 @@ export const adminConfigs = {
                     const groupUsers = window._usersCache.filter(u => u.groupIds?.includes(g.id));
                     
                     html += `
-                        <div class="card" style="padding: 12px; margin: 0; background: white; border: 1px solid var(--border);">
+                        <div class="card" style="padding: 12px; margin: 0; background: var(--bg-surface); border: 1px solid var(--border);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <div style="font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: #f59e0b;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -169,7 +169,7 @@ export const adminConfigs = {
                 groupUsers.forEach(u => {
                     const initial = (u.firstName + ' ' + u.lastName).charAt(0).toUpperCase();
                     html += `
-                        <div class="user-hover-link draggable-user" draggable="true" data-user-id="${u.id}" data-group-id="${item.id}" ondragstart="window.onUserDragStart && window.onUserDragStart(event, ${u.id}, ${item.id})" style="display: flex; align-items: center; gap: 12px; padding: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px; cursor: grab;">
+                        <div class="user-hover-link draggable-user" draggable="true" data-user-id="${u.id}" data-group-id="${item.id}" ondragstart="window.onUserDragStart && window.onUserDragStart(event, ${u.id}, ${item.id})" style="display: flex; align-items: center; gap: 12px; padding: 8px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 400px; cursor: grab;">
                             <div class="avatar" style="width: 32px; height: 32px; font-size: 14px; background: rgba(var(--primary-rgb), 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 50%;">${initial}</div>
                             <div>
                                 <div style="font-size: 14px; font-weight: 500; color: var(--text-main);">${window.ui?.escapeHtml(u.firstName + ' ' + u.lastName)}</div>

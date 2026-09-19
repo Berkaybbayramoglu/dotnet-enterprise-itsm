@@ -255,7 +255,7 @@
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <button type="button" class="btn btn-outline" id="btnShowDeletedPolicies" style="font-size: 13px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 6px; vertical-align: middle;"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12z"/></svg> <span>Silinen Politikalar</span>
+                            <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 6px; vertical-align: middle;"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12z"/></svg> <span data-i18n="sla_deleted_policies">Silinen Politikalar</span>
                         </button>
                         <button type="button" class="btn btn-primary" id="btnCreatePolicyModal">
                             <svg viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; margin-right: 6px; vertical-align: middle;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> <span data-i18n="sla_new_policy">Yeni SLA Politikası</span>
@@ -271,7 +271,7 @@
                         </div>
                         <div>
                             <div class="stat-value" id="statGlobalStatus">Aktif</div>
-                            <div class="stat-label">Genel Sistem Politikası</div>
+                            <div class="stat-label" data-i18n="sla_stat_global_policy">Genel Sistem Politikası</div>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -280,7 +280,7 @@
                         </div>
                         <div>
                             <div class="stat-value" id="statProjectPoliciesCount">0</div>
-                            <div class="stat-label">Uygulama Özel Politikaları</div>
+                            <div class="stat-label" data-i18n="sla_stat_app_policies">Uygulama Özel Politikaları</div>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -289,7 +289,7 @@
                         </div>
                         <div>
                             <div class="stat-value" id="statEscalationCount">0</div>
-                            <div class="stat-label">Otomatik Eskalasyon Aktif</div>
+                            <div class="stat-label" data-i18n="sla_stat_auto_escalation">Otomatik Eskalasyon Aktif</div>
                         </div>
                     </div>
                 </div>
@@ -319,7 +319,7 @@
     <div class="modal-overlay" id="editPolicyModal" aria-labelledby="editModalTitle">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 id="editModalTitle" style="margin:0; font-size: 16px;">SLA Politikasını Düzenle</h4>
+                <h4 id="editModalTitle" style="margin:0; font-size: 16px;" data-i18n="sla_edit_policy">SLA Politikasını Düzenle</h4>
                 <button type="button" class="btn btn-ghost" onclick="closeModal('editPolicyModal')" aria-label="Kapat">&times;</button>
             </div>
             <form id="editPolicyForm">
@@ -328,32 +328,32 @@
                     <input type="hidden" id="editPolicyProjectId">
                     
                     <div class="form-group" style="margin-bottom: 14px;">
-                        <label for="editPolicyName" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;">Politika Adı *</label>
+                        <label for="editPolicyName" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;" data-i18n="sla_policy_name_star">Politika Adı *</label>
                         <input type="text" id="editPolicyName" class="form-control" required style="width: 100%;">
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 14px;">
-                        <label for="editPolicyDesc" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;">Açıklama</label>
+                        <label for="editPolicyDesc" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;" data-i18n="sla_desc_label">Açıklama</label>
                         <input type="text" id="editPolicyDesc" class="form-control" style="width: 100%;">
                     </div>
 
                     <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: center; padding: 10px 14px; background: var(--bg-surface-secondary); border-radius: var(--radius-sm);">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; margin: 0;">
                             <input type="checkbox" id="editEscalateOnBreach">
-                            <span style="font-weight: 500;">Süre aşımında önceliği otomatik yükselt (Auto-Escalate)</span>
+                            <span style="font-weight: 500;" data-i18n="sla_auto_escalate">Süre aşımında önceliği otomatik yükselt (Auto-Escalate)</span>
                         </label>
                         <label id="editIsActiveWrapper" style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; margin: 0;">
                             <input type="checkbox" id="editIsActive" checked>
-                            <span style="font-weight: 500;">Aktif</span>
+                            <span style="font-weight: 500;" data-i18n="sla_active">Aktif</span>
                         </label>
                     </div>
 
                     <div style="margin-top: 16px;">
-                        <h5 style="font-size: 14px; font-weight: 600; margin: 0 0 10px 0; color: var(--text-main);">Öncelik Bazlı Yanıt ve Çözüm Süreleri</h5>
+                        <h5 style="font-size: 14px; font-weight: 600; margin: 0 0 10px 0; color: var(--text-main);" data-i18n="sla_priority_targets">Öncelik Bazlı Yanıt ve Çözüm Süreleri</h5>
                         <div style="background: var(--bg-surface-secondary); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; color: var(--text-muted); display: grid; grid-template-columns: 140px 1fr 1fr; gap: 12px; text-transform: uppercase;">
-                            <div>Öncelik Seviyesi</div>
-                            <div>İlk Yanıt (Geri Dönme)</div>
-                            <div>Çözüm Süresi</div>
+                            <div data-i18n="sla_priority">Öncelik Seviyesi</div>
+                            <div data-i18n="sla_first_response">İlk Yanıt (Geri Dönme)</div>
+                            <div data-i18n="sla_resolution">Çözüm Süresi</div>
                         </div>
                         <div id="editTargetsContainer">
                             <!-- Populated dynamically -->
@@ -361,8 +361,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal('editPolicyModal')">İptal</button>
-                    <button type="submit" class="btn btn-primary" id="btnSavePolicy">Değişiklikleri Kaydet</button>
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('editPolicyModal')" data-i18n="sla_cancel">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="btnSavePolicy" data-i18n="sla_save">Değişiklikleri Kaydet</button>
                 </div>
             </form>
         </div>
@@ -372,42 +372,42 @@
     <div class="modal-overlay" id="createPolicyModal" aria-labelledby="createModalTitle">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 id="createModalTitle" style="margin:0; font-size: 16px;">Yeni Uygulama SLA Politikası</h4>
+                <h4 id="createModalTitle" style="margin:0; font-size: 16px;" data-i18n="sla_new_policy_modal">Yeni Uygulama SLA Politikası</h4>
                 <button type="button" class="btn btn-ghost" onclick="closeModal('createPolicyModal')" aria-label="Kapat">&times;</button>
             </div>
             <form id="createPolicyForm">
                 <div class="modal-body">
                     <div class="form-group" style="margin-bottom: 14px;">
-                        <label for="createPolicyProject" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;">Uygulama / Proje *</label>
+                        <label for="createPolicyProject" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;" data-i18n="sla_app_proj_star">Uygulama / Proje *</label>
                         <select id="createPolicyProject" class="form-control" required style="width: 100%;">
-                            <option value="">-- Uygulama / Proje Seçin --</option>
+                            <option value="" data-i18n="sla_select_app_default">-- Uygulama / Proje Seçin --</option>
                         </select>
-                        <span class="text-muted" style="font-size: 11px; display: block; margin-top: 3px;">Seçilen uygulamaya ait açılan tüm biletlerde bu SLA politikası uygulanır.</span>
+                        <span class="text-muted" style="font-size: 11px; display: block; margin-top: 3px;" data-i18n="sla_app_proj_help">Seçilen uygulamaya ait açılan tüm biletlerde bu SLA politikası uygulanır.</span>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 14px;">
-                        <label for="createPolicyName" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;">Politika Adı *</label>
-                        <input type="text" id="createPolicyName" class="form-control" placeholder="Örn: Mobil Bankacılık SLA Politikası" required style="width: 100%;">
+                        <label for="createPolicyName" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;" data-i18n="sla_policy_name_star">Politika Adı *</label>
+                        <input type="text" id="createPolicyName" class="form-control" placeholder="Örn: Mobil Bankacılık SLA Politikası" data-i18n="sla_policy_name_ph" data-i18n-target="placeholder" required style="width: 100%;">
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 14px;">
-                        <label for="createPolicyDesc" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;">Açıklama</label>
-                        <input type="text" id="createPolicyDesc" class="form-control" placeholder="Örn: Kritik ödeme ve mobil işlemler için özel süreler" style="width: 100%;">
+                        <label for="createPolicyDesc" style="font-weight: 500; font-size: 13px; display: block; margin-bottom: 4px;" data-i18n="sla_desc_label">Açıklama</label>
+                        <input type="text" id="createPolicyDesc" class="form-control" placeholder="Örn: Kritik ödeme ve mobil işlemler için özel süreler" data-i18n="sla_desc_ph" data-i18n-target="placeholder" style="width: 100%;">
                     </div>
 
                     <div style="margin-bottom: 20px; padding: 10px 14px; background: var(--bg-surface-secondary); border-radius: var(--radius-sm);">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; margin: 0;">
                             <input type="checkbox" id="createEscalateOnBreach" checked>
-                            <span style="font-weight: 500;">Süre aşımında önceliği otomatik yükselt (Auto-Escalate)</span>
+                            <span style="font-weight: 500;" data-i18n="sla_auto_escalate">Süre aşımında önceliği otomatik yükselt (Auto-Escalate)</span>
                         </label>
                     </div>
 
                     <div style="margin-top: 16px;">
-                        <h5 style="font-size: 14px; font-weight: 600; margin: 0 0 10px 0; color: var(--text-main);">Öncelik Bazlı Başlangıç Hedefleri</h5>
+                        <h5 style="font-size: 14px; font-weight: 600; margin: 0 0 10px 0; color: var(--text-main);" data-i18n="sla_initial_targets">Öncelik Bazlı Başlangıç Hedefleri</h5>
                         <div style="background: var(--bg-surface-secondary); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; color: var(--text-muted); display: grid; grid-template-columns: 140px 1fr 1fr; gap: 12px; text-transform: uppercase;">
-                            <div>Öncelik Seviyesi</div>
-                            <div>İlk Yanıt (Geri Dönme)</div>
-                            <div>Çözüm Süresi</div>
+                            <div data-i18n="sla_priority">Öncelik Seviyesi</div>
+                            <div data-i18n="sla_first_response">İlk Yanıt (Geri Dönme)</div>
+                            <div data-i18n="sla_resolution">Çözüm Süresi</div>
                         </div>
                         <div id="createTargetsContainer">
                             <!-- Populated dynamically -->
@@ -415,8 +415,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" onclick="closeModal('createPolicyModal')">İptal</button>
-                    <button type="submit" class="btn btn-primary" id="btnSubmitCreatePolicy">Politikayı Oluştur</button>
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('createPolicyModal')" data-i18n="sla_cancel">İptal</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitCreatePolicy" data-i18n="sla_create_policy_btn">Politikayı Oluştur</button>
                 </div>
             </form>
         </div>
@@ -426,16 +426,16 @@
     <div class="modal-overlay" id="deleteConfirmModal" aria-labelledby="deleteModalTitle">
         <div class="modal-content" style="max-width: 440px;">
             <div class="modal-header">
-                <h4 id="deleteModalTitle" style="margin:0; font-size: 16px; color: var(--danger);">SLA Politikasını Sil</h4>
+                <h4 id="deleteModalTitle" style="margin:0; font-size: 16px; color: var(--danger);" data-i18n="sla_delete_modal_title">SLA Politikasını Sil</h4>
                 <button type="button" class="btn btn-ghost" onclick="closeModal('deleteConfirmModal')" aria-label="Kapat">&times;</button>
             </div>
             <div class="modal-body">
                 <p id="deleteConfirmText">Bu SLA politikasını silmek istediğinize emin misiniz?</p>
-                <p class="text-muted" style="font-size: 12px; margin: 0;">Silme işleminden sonra bu uygulamaya ait yeni biletler Genel Sistem SLA Politikasını kullanacaktır. Dilediğiniz zaman "Geri Al" butonu veya Silinen Politikalar menüsünden geri alabilirsiniz.</p>
+                <p class="text-muted" style="font-size: 12px; margin: 0;" data-i18n="sla_delete_info">Silme işleminden sonra bu uygulamaya ait yeni biletler Genel Sistem SLA Politikasını kullanacaktır. Dilediğiniz zaman 'Geri Al' butonu veya Silinen Politikalar menüsünden geri alabilirsiniz.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('deleteConfirmModal')">İptal</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmDelete">Evet, Sil</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('deleteConfirmModal')" data-i18n="sla_cancel">İptal</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete" data-i18n="sla_confirm_delete">Evet, Sil</button>
             </div>
         </div>
     </div>
@@ -446,18 +446,18 @@
             <div class="modal-header">
                 <h4 id="deletedModalTitle" style="margin:0; font-size: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
                     <svg viewBox="0 0 24 24" width="20" height="20" style="fill: var(--text-muted);"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
-                    Silinen SLA Politikaları (Geri Al)
+                    <span data-i18n="sla_deleted_policies_title">Silinen SLA Politikaları (Geri Al)</span>
                 </h4>
                 <button type="button" class="btn btn-ghost" onclick="closeModal('deletedPoliciesModal')" aria-label="Kapat">&times;</button>
             </div>
             <div class="modal-body" style="max-height: 450px; overflow-y: auto;">
-                <p class="text-muted" style="font-size: 13px; margin: 0 0 14px 0;">Silinen politikalar kalıcı olarak yok edilmez. Yanındaki "Geri Al" butonuna basarak anında tekrar aktif edebilirsiniz.</p>
+                <p class="text-muted" style="font-size: 13px; margin: 0 0 14px 0;" data-i18n="sla_deleted_policies_desc">Silinen politikalar kalıcı olarak yok edilmez. Yanındaki "Geri Al" butonuna basarak anında tekrar aktif edebilirsiniz.</p>
                 <div id="deletedPoliciesList">
                     <!-- Populated dynamically -->
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" onclick="closeModal('deletedPoliciesModal')">Kapat</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('deletedPoliciesModal')" data-i18n="btn_close">Kapat</button>
             </div>
         </div>
     </div>
@@ -466,6 +466,7 @@
         import { injectShell } from './js/layout.js?v=999';
         import './js/api.js';
         import { bindShellActions, showToast, showUndoToast, openModal, closeModal } from './js/ui.js';
+        import { t, getCurrentLanguage } from './js/i18n.js';
 
         injectShell();
         if (!window.api.token) window.location.href = '/login.html';
@@ -481,6 +482,16 @@
         let policyNameToDelete = null;
         let isGlobalPolicyExpanded = true;
 
+        function getTranslatedPriority(name) {
+            if (!name) return '';
+            const lower = name.toLowerCase().trim();
+            if (lower === 'düşük' || lower === 'low') return t('db_düşük') || name;
+            if (lower === 'orta' || lower === 'medium') return t('db_orta') || name;
+            if (lower === 'yüksek' || lower === 'high') return t('db_yüksek') || name;
+            if (lower === 'kritik' || lower === 'critical') return t('db_kritik') || name;
+            return t('db_' + lower) || name;
+        }
+
         function toggleGlobalPolicy() {
             isGlobalPolicyExpanded = !isGlobalPolicyExpanded;
             const content = document.getElementById('globalPolicyContent');
@@ -493,7 +504,7 @@
                 chevron.style.transform = isGlobalPolicyExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
             }
             if (label) {
-                label.textContent = isGlobalPolicyExpanded ? 'Daralt' : 'Genişlet';
+                label.textContent = isGlobalPolicyExpanded ? (t('sla_collapse') || 'Daralt') : (t('sla_expand') || 'Genişlet');
             }
         }
         window.toggleGlobalPolicy = toggleGlobalPolicy;
@@ -510,15 +521,19 @@
 
         function formatDuration(minutes) {
             if (!minutes && minutes !== 0) return '—';
+            const isEn = getCurrentLanguage() === 'en';
             if (minutes < 60) {
-                return `${minutes} dk`;
+                return `${minutes} ${isEn ? 'min' : 'dk'}`;
             }
             const hours = minutes / 60;
             if (hours < 24) {
-                return Number.isInteger(hours) ? `${hours} saat` : `${hours.toFixed(1)} saat`;
+                const hStr = Number.isInteger(hours) ? `${hours}` : `${hours.toFixed(1)}`;
+                return `${hStr} ${isEn ? (hours === 1 ? 'hour' : 'hours') : 'saat'}`;
             }
             const days = minutes / 1440;
-            return Number.isInteger(days) ? `${days} gün (${hours} saat)` : `${days.toFixed(1)} gün (${hours} saat)`;
+            const dStr = Number.isInteger(days) ? `${days}` : `${days.toFixed(1)}`;
+            const hStr = Number.isInteger(hours) ? `${hours}` : `${hours.toFixed(1)}`;
+            return `${dStr} ${isEn ? (days === 1 ? 'day' : 'days') : 'gün'} (${hStr} ${isEn ? (hours === 1 ? 'hour' : 'hours') : 'saat'})`;
         }
 
         function convertToMinutes(value, unit) {
@@ -562,7 +577,7 @@
 
                 // Populate projects in Create Modal
                 const projSelect = document.getElementById('createPolicyProject');
-                projSelect.innerHTML = '<option value="">-- Uygulama / Proje Seçin --</option>';
+                projSelect.innerHTML = `<option value="">${t('sla_select_app_default') || '-- Uygulama / Proje Seçin --'}</option>`;
                 allProjects.forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.id;
@@ -573,7 +588,7 @@
                 await loadPolicies();
             } catch (err) {
                 console.error("Error initializing SLA page:", err);
-                showToast("Sayfa yüklenirken hata oluştu.", "error");
+                showToast(t('common_err_load') || "Sayfa yüklenirken hata oluştu.", "error");
             }
         }
 
@@ -586,15 +601,15 @@
             } catch (err) {
                 console.error("Failed to load SLA policies:", err);
                 document.getElementById('globalPolicyContainer').innerHTML = 
-                    `<div style="padding: 24px; text-align: center; color: var(--danger);">SLA politikaları yüklenemedi.</div>`;
+                    `<div style="padding: 24px; text-align: center; color: var(--danger);">${t('sla_no_global_policy') || 'SLA politikaları yüklenemedi.'}</div>`;
                 document.getElementById('projectPoliciesContainer').innerHTML = 
-                    `<div style="padding: 24px; text-align: center; color: var(--danger);">SLA politikaları yüklenemedi.</div>`;
+                    `<div style="padding: 24px; text-align: center; color: var(--danger);">${t('sla_no_global_policy') || 'SLA politikaları yüklenemedi.'}</div>`;
             }
         }
 
         function updateStats() {
             const globalPolicy = allPolicies.find(p => p.projectId === null);
-            document.getElementById('statGlobalStatus').textContent = globalPolicy && globalPolicy.isActive ? 'Aktif' : 'Pasif';
+            document.getElementById('statGlobalStatus').textContent = globalPolicy && globalPolicy.isActive ? (t('sla_active') || 'Aktif') : (t('sla_inactive') || 'Pasif');
             
             const projectPolicies = allPolicies.filter(p => p.projectId !== null);
             document.getElementById('statProjectPoliciesCount').textContent = projectPolicies.length;
@@ -605,34 +620,34 @@
 
         function renderTargetRows(targets) {
             if (!targets || targets.length === 0) {
-                return `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 16px;">Tanımlı hedef bulunamadı.</td></tr>`;
+                return `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 16px;">${t('sla_no_targets') || 'Tanımlı hedef bulunamadı.'}</td></tr>`;
             }
 
-            return targets.map(t => {
-                const color = t.priorityColor || '#8c8c8c';
+            return targets.map(tItem => {
+                const color = tItem.priorityColor || '#8c8c8c';
                 return `
                     <tr>
                         <td>
                             <span class="prio-badge" style="background-color: ${escapeHtml(color)};">
-                                ${escapeHtml(t.priorityName)}
+                                ${escapeHtml(getTranslatedPriority(tItem.priorityName))}
                             </span>
                         </td>
                         <td>
                             <div class="time-pill">
                                 <svg viewBox="0 0 24 24" width="16" height="16"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                                <span>${formatDuration(t.firstResponseMinutes)}</span>
+                                <span>${formatDuration(tItem.firstResponseMinutes)}</span>
                             </div>
                         </td>
                         <td>
                             <div class="time-pill">
                                 <svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                                <span>${formatDuration(t.resolutionMinutes)}</span>
+                                <span>${formatDuration(tItem.resolutionMinutes)}</span>
                             </div>
                         </td>
                         <td>
-                            ${t.isActive 
-                                ? '<span class="badge badge-success" style="font-size: 11px;">Aktif</span>' 
-                                : '<span class="badge badge-secondary" style="font-size: 11px;">Pasif</span>'}
+                            ${tItem.isActive 
+                                ? `<span class="badge badge-success" style="font-size: 11px;">${t('sla_active') || 'Aktif'}</span>` 
+                                : `<span class="badge badge-secondary" style="font-size: 11px;">${t('sla_inactive') || 'Pasif'}</span>`}
                         </td>
                     </tr>
                 `;
@@ -653,20 +668,20 @@
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <h4 class="policy-name">${escapeHtml(globalPolicy.name)}</h4>
-                                        <span class="badge" style="background: var(--primary-light, #e6f7ff); color: var(--primary); border: 1px solid var(--primary); font-size: 11px;">Varsayılan (Tüm Uygulamalar)</span>
+                                        <span class="badge badge-info" style="font-size: 11px;">${t('sla_default_badge') || 'Varsayılan (Tüm Uygulamalar)'}</span>
                                         ${globalPolicy.escalateOnBreach 
-                                            ? '<span class="badge" style="background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; font-size: 11px;">Otomatik Eskalasyon</span>' 
+                                            ? `<span class="badge badge-warning" style="font-size: 11px;">${t('sla_auto_escalation_badge') || 'Otomatik Eskalasyon'}</span>` 
                                             : ''}
                                     </div>
-                                    <p class="policy-desc">${escapeHtml(globalPolicy.description || 'Özel bir SLA politikası tanımlanmamış tüm uygulamalar ve biletler için geçerlidir.')}</p>
+                                    <p class="policy-desc">${escapeHtml(globalPolicy.description || t('sla_global_policy_desc') || 'Özel bir SLA politikası tanımlanmamış tüm uygulamalar ve biletler için geçerlidir.')}</p>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <button type="button" class="btn btn-outline btn-edit-policy" data-id="${globalPolicy.id}" style="font-size: 13px;" onclick="event.stopPropagation(); window.openEditPolicyModal(${globalPolicy.id});">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Düzenle
+                                    <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> ${t('ticket_btn_edit') || 'Düzenle'}
                                 </button>
                                 <button type="button" class="btn btn-ghost" id="btnToggleGlobal" style="font-size: 13px; display: flex; align-items: center; gap: 4px; padding: 6px 10px;" title="Aç / Kapat">
-                                    <span id="globalToggleLabel">${isGlobalPolicyExpanded ? 'Daralt' : 'Genişlet'}</span>
+                                    <span id="globalToggleLabel">${isGlobalPolicyExpanded ? (t('sla_collapse') || 'Daralt') : (t('sla_expand') || 'Genişlet')}</span>
                                     <svg id="globalPolicyChevron" viewBox="0 0 24 24" width="18" height="18" style="fill: currentColor; transition: transform 0.2s ease; transform: ${isGlobalPolicyExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};">
                                         <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
                                     </svg>
@@ -677,10 +692,10 @@
                             <table class="target-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 25%;">Öncelik Seviyesi</th>
-                                        <th style="width: 35%;">İlk Yanıt (Geri Dönme) Hedefi</th>
-                                        <th style="width: 30%;">Çözüm Süresi Hedefi</th>
-                                        <th style="width: 10%;">Durum</th>
+                                        <th style="width: 25%;">${t('sla_priority') || 'Öncelik Seviyesi'}</th>
+                                        <th style="width: 35%;">${t('sla_first_response') || 'İlk Yanıt (Geri Dönme) Hedefi'}</th>
+                                        <th style="width: 30%;">${t('sla_resolution') || 'Çözüm Süresi Hedefi'}</th>
+                                        <th style="width: 10%;">${t('sla_status') || 'Durum'}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -691,7 +706,7 @@
                     </div>
                 `;
             } else {
-                globalContainer.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">Genel sistem SLA politikası bulunamadı.</div>`;
+                globalContainer.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted);">${t('sla_no_global_policy') || 'Genel sistem SLA politikası bulunamadı.'}</div>`;
             }
 
             // 2. Render Project Policies
@@ -700,15 +715,15 @@
                 projectContainer.innerHTML = `
                     <div class="policy-card" style="padding: 36px 20px; text-align: center; color: var(--text-muted);">
                         <svg viewBox="0 0 24 24" width="36" height="36" fill="var(--text-muted)" style="opacity: 0.5; margin-bottom: 8px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
-                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main); margin-bottom: 4px;">Henüz Uygulama Özel Politikası Yok</div>
-                        <p style="font-size: 13px; max-width: 480px; margin: 0 auto 16px auto;">Her uygulamanın isterleri farklı olabilir. "Yeni SLA Politikası" butonuna tıklayarak belirli bir projeye özel ilk yanıt ve çözüm süreleri tanımlayabilirsiniz.</p>
+                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main); margin-bottom: 4px;">${t('sla_no_project_policy') || 'Henüz Uygulama Özel Politikası Yok'}</div>
+                        <p style="font-size: 13px; max-width: 480px; margin: 0 auto 16px auto;">${t('sla_no_project_policy_desc') || "Her uygulamanın isterleri farklı olabilir. 'Yeni SLA Politikası' butonuna tıklayarak belirli bir projeye özel ilk yanıt ve çözüm süreleri tanımlayabilirsiniz."}</p>
                     </div>
                 `;
             } else {
                 projectContainer.innerHTML = projectPolicies.map(p => {
                     const projBadge = p.projectName 
-                        ? `<span class="badge badge-info" style="font-size: 11px;">Uygulama: ${escapeHtml(p.projectName)}</span>` 
-                        : `<span class="badge badge-secondary" style="font-size: 11px;">Proje #${p.projectId}</span>`;
+                        ? `<span class="badge badge-info" style="font-size: 11px;">${t('sla_app_prefix') || 'Uygulama:'} ${escapeHtml(p.projectName)}</span>` 
+                        : `<span class="badge badge-secondary" style="font-size: 11px;">${t('sla_project_prefix') || 'Proje #'} ${p.projectId}</span>`;
 
                     return `
                         <div class="policy-card" data-id="${p.id}">
@@ -719,18 +734,18 @@
                                             <h4 class="policy-name">${escapeHtml(p.name)}</h4>
                                             ${projBadge}
                                             ${p.escalateOnBreach 
-                                                ? '<span class="badge" style="background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; font-size: 11px;">Otomatik Eskalasyon</span>' 
+                                                ? `<span class="badge badge-warning" style="font-size: 11px;">${t('sla_auto_escalation_badge') || 'Otomatik Eskalasyon'}</span>` 
                                                 : ''}
                                             ${!p.isActive 
-                                                ? '<span class="badge badge-secondary" style="font-size: 11px;">Pasif</span>' 
+                                                ? `<span class="badge badge-secondary" style="font-size: 11px;">${t('sla_inactive') || 'Pasif'}</span>` 
                                                 : ''}
                                         </div>
-                                        <p class="policy-desc">${escapeHtml(p.description || 'Bu uygulamaya ait biletler için özel tanımlanmış SLA kuralıdır.')}</p>
+                                        <p class="policy-desc">${escapeHtml(p.description || t('sla_project_policy_desc') || 'Bu uygulamaya ait biletler için özel tanımlanmış SLA kuralıdır.')}</p>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <button type="button" class="btn btn-outline btn-edit-policy" data-id="${p.id}" onclick="window.openEditPolicyModal(${p.id});" style="font-size: 13px;">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Düzenle
+                                        <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> ${t('ticket_btn_edit') || 'Düzenle'}
                                     </button>
                                     <button type="button" class="btn btn-ghost btn-delete-policy" data-id="${p.id}" data-name="${escapeHtml(p.name)}" style="color: var(--danger); font-size: 13px;">
                                         <svg viewBox="0 0 24 24" width="16" height="16" style="fill: currentColor; vertical-align: middle;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
@@ -740,10 +755,10 @@
                             <table class="target-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 25%;">Öncelik Seviyesi</th>
-                                        <th style="width: 35%;">İlk Yanıt (Geri Dönme) Hedefi</th>
-                                        <th style="width: 30%;">Çözüm Süresi Hedefi</th>
-                                        <th style="width: 10%;">Durum</th>
+                                        <th style="width: 25%;">${t('sla_priority') || 'Öncelik Seviyesi'}</th>
+                                        <th style="width: 35%;">${t('sla_first_response') || 'İlk Yanıt (Geri Dönme) Hedefi'}</th>
+                                        <th style="width: 30%;">${t('sla_resolution') || 'Çözüm Süresi Hedefi'}</th>
+                                        <th style="width: 10%;">${t('sla_status') || 'Durum'}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -771,7 +786,7 @@
                 const name = deleteBtn.dataset.name;
                 policyToDelete = id;
                 policyNameToDelete = name;
-                document.getElementById('deleteConfirmText').innerHTML = `<strong>"${escapeHtml(name)}"</strong> SLA politikasını silmek istediğinize emin misiniz?`;
+                document.getElementById('deleteConfirmText').innerHTML = `<strong>"${escapeHtml(name)}"</strong> ${t('sla_delete_confirm_text') || 'SLA politikasını silmek istediğinize emin misiniz?'}`;
                 openModal('deleteConfirmModal');
                 return;
             }
@@ -802,8 +817,8 @@
             const isGlobal = policy.projectId === null;
             document.getElementById('editIsActiveWrapper').style.display = isGlobal ? 'none' : 'flex';
             document.getElementById('editModalTitle').textContent = isGlobal 
-                ? 'Genel Sistem SLA Politikasını Düzenle' 
-                : 'Uygulama SLA Politikasını Düzenle';
+                ? (t('sla_edit_global_policy') || 'Genel Sistem SLA Politikasını Düzenle')
+                : (t('sla_edit_app_policy') || 'Uygulama SLA Politikasını Düzenle');
 
             // Populate target inputs
             const container = document.getElementById('editTargetsContainer');
@@ -828,22 +843,22 @@
                 row.innerHTML = `
                     <div>
                         <span class="prio-badge" style="background-color: ${escapeHtml(prio.colorHex || '#8c8c8c')};">
-                            ${escapeHtml(prio.name)}
+                            ${escapeHtml(getTranslatedPriority(prio.name))}
                         </span>
                     </div>
                     <div class="duration-input-group">
-                        <input type="number" class="form-control target-resp-val" min="1" max="10000" value="${respDec.value}" required aria-label="${escapeHtml(prio.name)} İlk Yanıt Süresi">
-                        <select class="form-control target-resp-unit" aria-label="${escapeHtml(prio.name)} İlk Yanıt Birimi">
-                            <option value="minutes" ${respDec.unit === 'minutes' ? 'selected' : ''}>dk</option>
-                            <option value="hours" ${respDec.unit === 'hours' ? 'selected' : ''}>saat</option>
+                        <input type="number" class="form-control target-resp-val" min="1" max="10000" value="${respDec.value}" required aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_first_response') || 'İlk Yanıt Süresi'}">
+                        <select class="form-control target-resp-unit" aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_first_response') || 'İlk Yanıt Birimi'}">
+                            <option value="minutes" ${respDec.unit === 'minutes' ? 'selected' : ''}>${t('sla_minutes') || 'dk'}</option>
+                            <option value="hours" ${respDec.unit === 'hours' ? 'selected' : ''}>${t('sla_hours') || 'saat'}</option>
                         </select>
                     </div>
                     <div class="duration-input-group">
-                        <input type="number" class="form-control target-res-val" min="1" max="10000" value="${resDec.value}" required aria-label="${escapeHtml(prio.name)} Çözüm Süresi">
-                        <select class="form-control target-res-unit" aria-label="${escapeHtml(prio.name)} Çözüm Birimi">
-                            <option value="minutes" ${resDec.unit === 'minutes' ? 'selected' : ''}>dk</option>
-                            <option value="hours" ${resDec.unit === 'hours' ? 'selected' : ''}>saat</option>
-                            <option value="days" ${resDec.unit === 'days' ? 'selected' : ''}>gün</option>
+                        <input type="number" class="form-control target-res-val" min="1" max="10000" value="${resDec.value}" required aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_resolution') || 'Çözüm Süresi'}">
+                        <select class="form-control target-res-unit" aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_resolution') || 'Çözüm Birimi'}">
+                            <option value="minutes" ${resDec.unit === 'minutes' ? 'selected' : ''}>${t('sla_minutes') || 'dk'}</option>
+                            <option value="hours" ${resDec.unit === 'hours' ? 'selected' : ''}>${t('sla_hours') || 'saat'}</option>
+                            <option value="days" ${resDec.unit === 'days' ? 'selected' : ''}>${t('sla_days') || 'gün'}</option>
                         </select>
                     </div>
                 `;
@@ -867,7 +882,7 @@
 
             const saveBtn = document.getElementById('btnSavePolicy');
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Kaydediliyor...';
+            saveBtn.textContent = t('sla_saving') || 'Kaydediliyor...';
 
             try {
                 // 1. Update policy
@@ -907,14 +922,14 @@
                 await window.api.batchUpdateSlaTargets(policyId, { targets: targetsList });
 
                 closeModal('editPolicyModal');
-                showToast('SLA politikası ve süreleri başarıyla güncellendi.');
+                showToast(t('sla_updated_success') || 'SLA politikası ve süreleri başarıyla güncellendi.');
                 await loadPolicies();
             } catch (err) {
                 console.error("Error updating policy:", err);
                 showToast(err.message || 'Politika güncellenirken hata oluştu.', 'error');
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Değişiklikleri Kaydet';
+                saveBtn.textContent = t('sla_save') || 'Değişiklikleri Kaydet';
             }
         });
 
@@ -940,22 +955,22 @@
                 row.innerHTML = `
                     <div>
                         <span class="prio-badge" style="background-color: ${escapeHtml(prio.colorHex || '#8c8c8c')};">
-                            ${escapeHtml(prio.name)}
+                            ${escapeHtml(getTranslatedPriority(prio.name))}
                         </span>
                     </div>
                     <div class="duration-input-group">
-                        <input type="number" class="form-control create-resp-val" min="1" max="10000" value="${respDec.value}" required aria-label="${escapeHtml(prio.name)} İlk Yanıt Süresi">
-                        <select class="form-control create-resp-unit" aria-label="${escapeHtml(prio.name)} İlk Yanıt Birimi">
-                            <option value="minutes" ${respDec.unit === 'minutes' ? 'selected' : ''}>dk</option>
-                            <option value="hours" ${respDec.unit === 'hours' ? 'selected' : ''}>saat</option>
+                        <input type="number" class="form-control create-resp-val" min="1" max="10000" value="${respDec.value}" required aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_first_response') || 'İlk Yanıt Süresi'}">
+                        <select class="form-control create-resp-unit" aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_first_response') || 'İlk Yanıt Birimi'}">
+                            <option value="minutes" ${respDec.unit === 'minutes' ? 'selected' : ''}>${t('sla_minutes') || 'dk'}</option>
+                            <option value="hours" ${respDec.unit === 'hours' ? 'selected' : ''}>${t('sla_hours') || 'saat'}</option>
                         </select>
                     </div>
                     <div class="duration-input-group">
-                        <input type="number" class="form-control create-res-val" min="1" max="10000" value="${resDec.value}" required aria-label="${escapeHtml(prio.name)} Çözüm Süresi">
-                        <select class="form-control create-res-unit" aria-label="${escapeHtml(prio.name)} Çözüm Birimi">
-                            <option value="minutes" ${resDec.unit === 'minutes' ? 'selected' : ''}>dk</option>
-                            <option value="hours" ${resDec.unit === 'hours' ? 'selected' : ''}>saat</option>
-                            <option value="days" ${resDec.unit === 'days' ? 'selected' : ''}>gün</option>
+                        <input type="number" class="form-control create-res-val" min="1" max="10000" value="${resDec.value}" required aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_resolution') || 'Çözüm Süresi'}">
+                        <select class="form-control create-res-unit" aria-label="${escapeHtml(getTranslatedPriority(prio.name))} ${t('sla_resolution') || 'Çözüm Birimi'}">
+                            <option value="minutes" ${resDec.unit === 'minutes' ? 'selected' : ''}>${t('sla_minutes') || 'dk'}</option>
+                            <option value="hours" ${resDec.unit === 'hours' ? 'selected' : ''}>${t('sla_hours') || 'saat'}</option>
+                            <option value="days" ${resDec.unit === 'days' ? 'selected' : ''}>${t('sla_days') || 'gün'}</option>
                         </select>
                     </div>
                 `;
@@ -975,13 +990,13 @@
             const escalateOnBreach = document.getElementById('createEscalateOnBreach').checked;
 
             if (!projectId) {
-                showToast('Lütfen geçerli bir uygulama / proje seçin.', 'error');
+                showToast(t('sla_select_project_err') || 'Lütfen geçerli bir uygulama / proje seçin.', 'error');
                 return;
             }
 
             const submitBtn = document.getElementById('btnSubmitCreatePolicy');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Oluşturuluyor...';
+            submitBtn.textContent = t('sla_creating') || 'Oluşturuluyor...';
 
             try {
                 // Collect targets
@@ -1016,14 +1031,14 @@
                 });
 
                 closeModal('createPolicyModal');
-                showToast('Yeni uygulama SLA politikası başarıyla oluşturuldu.');
+                showToast(t('sla_created_success') || 'Yeni uygulama SLA politikası başarıyla oluşturuldu.');
                 await loadPolicies();
             } catch (err) {
                 console.error("Error creating policy:", err);
                 showToast(err.message || 'Politika oluşturulurken hata oluştu.', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Politikayı Oluştur';
+                submitBtn.textContent = t('sla_create_policy_btn') || 'Politikayı Oluştur';
             }
         });
 
@@ -1042,23 +1057,23 @@
 
                 // Show Undo Toast with 10-second active window
                 showUndoToast(
-                    `"${escapeHtml(targetName)}" silindi.`,
+                    `"${escapeHtml(targetName)}" ${t('sla_deleted_toast') || 'silindi.'}`,
                     async () => {
                         try {
                             await window.api.restoreSlaPolicy(targetId);
-                            showToast(`"${escapeHtml(targetName)}" başarıyla geri alındı (Undo).`, 'success');
+                            showToast(`"${escapeHtml(targetName)}" ${t('sla_restored_toast') || 'başarıyla geri alındı (Undo).'}`, 'success');
                             await loadPolicies();
                         } catch (err) {
                             console.error("Undo error:", err);
-                            showToast('Geri alma başarısız: ' + (err.message || ''), 'error');
+                            showToast((t('sla_undo_failed') || 'Geri alma başarısız: ') + (err.message || ''), 'error');
                         }
                     },
                     10000,
-                    '↩️ Geri Al (Undo)'
+                    t('sla_undo_btn') || '↩️ Geri Al (Undo)'
                 );
             } catch (err) {
                 console.error("Error deleting policy:", err);
-                showToast(err.message || 'Politika silinemedi.', 'error');
+                showToast(err.message || t('sla_delete_failed') || 'Politika silinemedi.', 'error');
             } finally {
                 btn.disabled = false;
                 policyToDelete = null;
@@ -1078,7 +1093,7 @@
                     listEl.innerHTML = `
                         <div style="padding: 30px; text-align: center; color: var(--text-muted); background: var(--bg-surface-secondary); border-radius: var(--radius-md);">
                             <svg viewBox="0 0 24 24" width="32" height="32" style="fill: var(--text-muted); opacity: 0.5; margin-bottom: 8px;"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4zM6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/></svg>
-                            <div>Silinmiş herhangi bir SLA politikası bulunmuyor.</div>
+                            <div>${t('sla_no_deleted_policies') || 'Silinmiş herhangi bir SLA politikası bulunmuyor.'}</div>
                         </div>`;
                     return;
                 }
@@ -1088,18 +1103,18 @@
                         <div>
                             <div style="font-weight: 600; font-size: 14px; color: var(--text-main);">${escapeHtml(p.name)}</div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-                                ${p.projectName ? `<span class="badge" style="font-size: 10px; margin-right: 6px;">${escapeHtml(p.projectName)}</span>` : '<span class="badge" style="font-size: 10px; margin-right: 6px;">Genel</span>'}
-                                ${escapeHtml(p.description || 'Açıklama yok')}
+                                ${p.projectName ? `<span class="badge" style="font-size: 10px; margin-right: 6px;">${escapeHtml(p.projectName)}</span>` : `<span class="badge" style="font-size: 10px; margin-right: 6px;">${t('sla_all_projects') || 'Genel'}</span>`}
+                                ${escapeHtml(p.description || '')}
                             </div>
                         </div>
                         <button type="button" class="btn btn-outline btn-restore-policy" data-id="${p.id}" data-name="${escapeHtml(p.name)}" style="font-size: 12px; color: var(--success); border-color: var(--success);">
-                            <svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C23.79 11.22 19.98 8 12.5 8z"/></svg> Geri Al (Kurtar)
+                            <svg viewBox="0 0 24 24" width="14" height="14" style="fill: currentColor; margin-right: 4px; vertical-align: middle;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C23.79 11.22 19.98 8 12.5 8z"/></svg> ${t('sla_restore_btn') || 'Geri Al (Kurtar)'}
                         </button>
                     </div>
                 `).join('');
             } catch (err) {
                 console.error("Failed to load deleted policies", err);
-                listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Silinen politikalar yüklenemedi.</div>';
+                listEl.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--danger);">${t('sla_load_deleted_failed') || 'Silinen politikalar yüklenemedi.'}</div>`;
             }
         }
 
@@ -1117,15 +1132,15 @@
                 const id = Number.parseInt(restoreBtn.dataset.id, 10);
                 const name = restoreBtn.dataset.name;
                 restoreBtn.disabled = true;
-                restoreBtn.textContent = 'Geri alınıyor...';
+                restoreBtn.textContent = t('sla_restoring') || 'Geri alınıyor...';
                 try {
                     await window.api.restoreSlaPolicy(id);
-                    showToast(`"${escapeHtml(name)}" başarıyla geri yüklendi.`, 'success');
+                    showToast(`"${escapeHtml(name)}" ${t('sla_restored_toast') || 'başarıyla geri yüklendi.'}`, 'success');
                     await loadDeletedPolicies();
                     await loadPolicies();
                 } catch (err) {
                     console.error("Restore failed", err);
-                    showToast(err.message || 'Geri yükleme başarısız', 'error');
+                    showToast(err.message || t('sla_restore_failed') || 'Geri yükleme başarısız', 'error');
                     restoreBtn.disabled = false;
                 }
             }
