@@ -53,37 +53,37 @@ Platform; harici kütüphane bağımlılığı olmadan saf JavaScript (Vanilla J
 
 ### 1. Yönetici Operasyonel Dashboard ve Karar Destek Metrikleri
 Anlık KPI özet kartları, SLA uyum grafikleri, Chart.js tabanlı haftalık açılan/çözülen bilet trendleri ve metrik kartlarına tıklandığında açılan detay pop-up pencereleri.
-![Yönetim Paneli](docs/screenshots/dashboard.png)
+![Yönetim Paneli](screenshots/dashboard.png)
 
 ### 2. İnteraktif Kanban Panosu ve Hızlı Bilet Önizleme Modalı
 Sürükle-bırak uyumlu durum sütunları (Açık, Devam Ediyor, Beklemede, Çözüldü) ve kartlara tıklandığında uzman hızını maksimize eden bilet detay önizleme modalı.
-![İnteraktif Kanban Panosu](docs/screenshots/kanban.png)
+![İnteraktif Kanban Panosu](screenshots/kanban.png)
 
 ### 3. Takvim Görünümü ve SLA Teslim Hedefleri Planlama Modalı
 FullCalendar entegrasyonuyla biletlerin tahmini başlangıç-bitiş tarihlerini ve SLA teslim vadelerini takvim matrisinde görselleştiren, etkinlik özet modalı içeren planlama görünümü.
-![Takvim Görünümü](docs/screenshots/calendar.png)
+![Takvim Görünümü](screenshots/calendar.png)
 
 ### 4. Bilet Yaşam Döngüsü, Zengin Metin Editörü ve Canlı SLA Sayaçları
 Kronolojik olay çizelgesi (Audit Timeline), Quill.js zengin metin editörü, `@etiketleme` bildirimleri ve renk kodlu canlı dinamik SLA geri sayım sayaçları.
-![Bilet Detay Ekranı](docs/screenshots/ticket-detail.png)
-![Quill.js Zengin Editör ve Canlı SLA Sayaçları](docs/screenshots/ticket-mention-sla.png)
+![Bilet Detay Ekranı](screenshots/ticket-detail.png)
+![Quill.js Zengin Editör ve Canlı SLA Sayaçları](screenshots/ticket-mention-sla.png)
 
 ### 5. Yapay Zekâ Çözüm Asistanı (AI Copilot) ve Nöbet Devir Paneli
 Çok Kaynaklı Hibrit RAG motoruyla geçmiş vakalardan ve bilgi bankasından beslenen adım adım çözüm adımları, dinamik prompt sentezi ve nöbet devirlerinde otomatik bilet özetleme ajanı.
-![Yapay Zekâ Çözüm Asistanı](docs/screenshots/ai-copilot.png)
+![Yapay Zekâ Çözüm Asistanı](screenshots/ai-copilot.png)
 
 ### 6. Kurumsal Bilgi Bankası ve Dört Göz Onay Mekanizması
 Kategori bazlı zengin içerikli makale dokümantasyon portalı ve makalelerin yayınlanmadan önce bağımsız bir yönetici tarafından denetlenmesini zorunlu kılan Dört Göz Onay Modalı.
-![Bilgi Bankası Kataloğu](docs/screenshots/kb-catalog.png)
-![Dört Göz Onay Modalı](docs/screenshots/kb-approval-modal.png)
+![Bilgi Bankası Kataloğu](screenshots/kb-catalog.png)
+![Dört Göz Onay Modalı](screenshots/kb-approval-modal.png)
 
 ### 7. Kurumsal Sistem Denetim Günlüğü (Audit Log) ve İşlem Detay Modalı
 Sistemdeki tüm veritabanı hareketlerini, kullanıcı işlemlerini ve JSON öncesi/sonrası alan değişikliklerini kaydeden ve detay modalı üzerinden denetleyen güvenlik merkezi.
-![Denetim Günlüğü](docs/screenshots/audit-log.png)
+![Denetim Günlüğü](screenshots/audit-log.png)
 
 ### 8. Dinamik SLA Politikaları ve Öncelik Matrisi Yönetimi
 Kritik, Yüksek, Orta ve Düşük öncelik seviyelerine göre ilk yanıt ve çözüm süresi hedeflerinin, mesai takvimlerinin ve otomatik eskalasyon kurallarının yönetildiği konfigürasyon paneli.
-![Dinamik SLA Yönetim Paneli](docs/screenshots/sla-management.png)
+![Dinamik SLA Yönetim Paneli](screenshots/sla-management.png)
 
 ---
 
@@ -198,7 +198,7 @@ itsm-tool/
 │   └── ItsTool.Web/             # Vanilla JS, responsive HTML5 sayfaları ve statik varlıklar (wwwroot)
 ├── tests/
 │   └── ItsTool.UnitTests/       # 534 birim ve entegrasyon testi, InMemory SQLite altyapısı
-└── docs/                        # Mimari tasarım, ERD, gereksinim ve geliştirme notları
+└── screenshots/                 # Uygulama ekran görüntüleri ve mimari şemalar
 ```
 
 ---
@@ -372,7 +372,7 @@ Proje, kurumsal kodlama standartlarına ve statik kod analizi kurallarına sık�
 
 Test paketi; etki alanı kurallarını, durum makinesini, SLA hesaplama motorunu ve API kontrolcülerini tüm mimari katmanlar genelinde doğrular:
 
-![Çok Katmanlı Test Mimarisi](docs/screenshots/test-architecture.png)
+![Çok Katmanlı Test Mimarisi](screenshots/test-architecture.png)
 
 ### Sürekli Entegrasyon (CI/CD Pipeline)
 

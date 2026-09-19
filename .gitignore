@@ -26,3 +26,4 @@ coverage/
 *.opencover.xml
 coverage.opencover.xml
 node_modules/
+docs/
