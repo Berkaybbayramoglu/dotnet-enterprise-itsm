@@ -136,7 +136,7 @@
         import './js/api.js?v=999';
         import { injectShell } from './js/layout.js?v=999';
         import { bindShellActions, showToast } from './js/ui.js?v=999';
-        import { t } from './js/i18n.js';
+        import { t, getCurrentLanguage } from './js/i18n.js';
         injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
@@ -248,6 +248,53 @@
 
         function formatAuditFieldName(name) {
             if (!name || name === '-') return '-';
+            const isEn = getCurrentLanguage() === 'en';
+            if (isEn) {
+                const enDict = {
+                    'Ticket': 'New Ticket',
+                    'Title': 'Title',
+                    'Description': 'Description',
+                    'StatusId': 'Status',
+                    'PriorityId': 'Priority',
+                    'CategoryId': 'Category',
+                    'ProjectId': 'Project',
+                    'TypeId': 'Ticket Type',
+                    'AssignedUserId': 'Assignee',
+                    'AssignedGroupId': 'Assigned Group',
+                    'Transfer': 'Department/Group Transfer',
+                    'CommentAdded': 'Comment Added',
+                    'InternalNoteAdded': 'Internal Note Added',
+                    'CommentEdited': 'Comment Edited',
+                    'CommentDeleted': 'Comment Deleted',
+                    'AttachmentAdded': 'Attachment Added',
+                    'AttachmentDeleted': 'Attachment Deleted',
+                    'UserMentioned': 'User Mentioned',
+                    'IsDeleted': 'Deletion Status',
+                    'IsActive': 'Active Status',
+                    'Email': 'Email',
+                    'FullName': 'Full Name',
+                    'DepartmentId': 'Department',
+                    'RoleId': 'Role',
+                    'ColorHex': 'Color Code',
+                    'EstimatedStartDate': 'Estimated Start Date',
+                    'EstimatedEndDate': 'Estimated End Date',
+                    'Tahmini Başlangıç': 'Estimated Start Date',
+                    'Tahmini Bitiş': 'Estimated End Date',
+                    'Departman/Grup Aktarımı': 'Department/Group Transfer',
+                    'SLA Politikası': 'SLA Policy',
+                    'Yeni Kayıt': 'New Record',
+                    'Atanan Kullanıcı': 'Assignee',
+                    'Atanan Grup': 'Assigned Group',
+                    'Yorum Eklendi': 'Comment Added',
+                    'İç Not Eklendi': 'Internal Note Added',
+                    'Ek Dosya Eklendi': 'Attachment Added',
+                    'Ek Dosya Silindi': 'Attachment Deleted',
+                    'Silinme Durumu': 'Deletion Status',
+                    'Aktiflik Durumu': 'Active Status',
+                    'Renk Kodu': 'Color Code'
+                };
+                return enDict[name] || name;
+            }
             const dict = {
                 'Ticket': 'Yeni Bilet',
                 'Title': 'Başlık',
@@ -284,22 +331,31 @@
             let mappedOld = a.oldValue;
             let mappedNew = a.newValue;
             
+            const isEn = getCurrentLanguage() === 'en';
             if (a.fieldName === 'StatusId') {
-                mappedOld = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                mappedNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                const sName = lookup.statuses?.find(s => String(s.id) === a.oldValue)?.name;
+                mappedOld = sName ? (t('db_' + sName.toLowerCase().replaceAll(' ', '_')) || sName) : a.oldValue;
+                const sNew = lookup.statuses?.find(s => String(s.id) === a.newValue)?.name;
+                mappedNew = sNew ? (t('db_' + sNew.toLowerCase().replaceAll(' ', '_')) || sNew) : a.newValue;
             } else if (a.fieldName === 'Status' && a.entityType === 'KnowledgeArticle') {
                 const sMap = { '0': t('kb_opt_draft') || 'Draft', '1': t('kb_opt_published') || 'Published', '2': t('kb_badge_pending') || 'Pending Review' };
                 mappedOld = sMap[a.oldValue] || a.oldValue;
                 mappedNew = sMap[a.newValue] || a.newValue;
             } else if (a.fieldName === 'PriorityId') {
-                mappedOld = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                mappedNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                const pName = lookup.priorities?.find(s => String(s.id) === a.oldValue)?.name;
+                mappedOld = pName ? (t('db_' + pName.toLowerCase().replaceAll(' ', '_')) || pName) : a.oldValue;
+                const pNew = lookup.priorities?.find(s => String(s.id) === a.newValue)?.name;
+                mappedNew = pNew ? (t('db_' + pNew.toLowerCase().replaceAll(' ', '_')) || pNew) : a.newValue;
             } else if (a.fieldName === 'CategoryId') {
-                mappedOld = lookup.categories?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                mappedNew = lookup.categories?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                const cName = lookup.categories?.find(s => String(s.id) === a.oldValue)?.name;
+                mappedOld = cName ? (t('db_' + cName.toLowerCase().replaceAll(' ', '_')) || cName) : a.oldValue;
+                const cNew = lookup.categories?.find(s => String(s.id) === a.newValue)?.name;
+                mappedNew = cNew ? (t('db_' + cNew.toLowerCase().replaceAll(' ', '_')) || cNew) : a.newValue;
             } else if (a.fieldName === 'ProjectId') {
-                mappedOld = lookup.projects?.find(s => String(s.id) === a.oldValue)?.name || a.oldValue;
-                mappedNew = lookup.projects?.find(s => String(s.id) === a.newValue)?.name || a.newValue;
+                const prName = lookup.projects?.find(s => String(s.id) === a.oldValue)?.name;
+                mappedOld = prName ? (t('db_' + prName.toLowerCase().replaceAll(' ', '_')) || prName) : a.oldValue;
+                const prNew = lookup.projects?.find(s => String(s.id) === a.newValue)?.name;
+                mappedNew = prNew ? (t('db_' + prNew.toLowerCase().replaceAll(' ', '_')) || prNew) : a.newValue;
             } else if (a.fieldName === 'AssignedUserId') {
                 mappedOld = users?.find(s => String(s.id) === a.oldValue)?.firstName ? (users.find(s => String(s.id) === a.oldValue).firstName + ' ' + users.find(s => String(s.id) === a.oldValue).lastName) : a.oldValue;
                 mappedNew = users?.find(s => String(s.id) === a.newValue)?.firstName ? (users.find(s => String(s.id) === a.newValue).firstName + ' ' + users.find(s => String(s.id) === a.newValue).lastName) : a.newValue;
@@ -313,12 +369,28 @@
                     const mGrp = val.match(/Grp:(-?\d*)/);
                     const pId = mProj && mProj[1] ? mProj[1] : null;
                     const gId = mGrp && mGrp[1] ? mGrp[1] : null;
-                    const pName = pId && pId !== '-1' ? (lookup.projects?.find(x => String(x.id) === pId)?.name || `Project ${pId}`) : 'No Project';
-                    const gName = gId && gId !== '-1' ? (lookup.groups?.find(x => String(x.id) === gId)?.name || `Group ${gId}`) : 'No Group';
+                    const prObj = pId && pId !== '-1' ? lookup.projects?.find(x => String(x.id) === pId) : null;
+                    const grObj = gId && gId !== '-1' ? lookup.groups?.find(x => String(x.id) === gId) : null;
+                    const pName = prObj ? (t('db_' + prObj.name.toLowerCase().replaceAll(' ', '_')) || prObj.name) : (pId && pId !== '-1' ? `Project ${pId}` : (isEn ? 'No Project' : 'Proje Yok'));
+                    const gName = grObj ? grObj.name : (gId && gId !== '-1' ? `Group ${gId}` : (isEn ? 'No Group' : 'Grup Yok'));
                     return `Proj:${pId || 'none'},Grp:${gId || 'none'} (${pName}, ${gName})`;
                 };
                 mappedOld = parseTransfer(a.oldValue);
                 mappedNew = parseTransfer(a.newValue);
+            }
+            if (isEn) {
+                if (typeof mappedNew === 'string') {
+                    mappedNew = mappedNew
+                        .replace('Silindi (Soft Deleted)', 'Deleted (Soft Deleted)')
+                        .replace('Kalıcı Silindi', 'Permanently Deleted')
+                        .replace('Aktif / Geri Alındı', 'Active / Restored');
+                }
+                if (typeof mappedOld === 'string') {
+                    mappedOld = mappedOld
+                        .replace('Silindi (Soft Deleted)', 'Deleted (Soft Deleted)')
+                        .replace('Kalıcı Silindi', 'Permanently Deleted')
+                        .replace('Aktif / Geri Alındı', 'Active / Restored');
+                }
             }
             return { mappedOld, mappedNew };
         }
@@ -358,22 +430,45 @@
 
         function buildAuditDetailSentence(a, creatorName, entityNameText, entityType, mappedOld, mappedNew) {
             const act = (a.action || '').toUpperCase();
+            const isEn = getCurrentLanguage() === 'en';
+
             if (act === 'DELETED') {
+                if (isEn) {
+                    const info = mappedOld && mappedOld !== '-' ? `Deleted Record Summary: ${escapeHtml(mappedOld)}` : 'Record deleted.';
+                    return `${escapeHtml(creatorName)} deleted ${escapeHtml(entityType)} '${escapeHtml(entityNameText)}'. ${info}`;
+                }
                 const info = mappedOld && mappedOld !== '-' ? `Silinen Kayıt Özeti: ${escapeHtml(mappedOld)}` : 'Kayıt silindi.';
                 return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydını sildi. ${info}`;
             }
             if (act === 'RESTORED') {
+                if (isEn) {
+                    const info = mappedNew && mappedNew !== '-' ? `Status: ${escapeHtml(mappedNew)}` : '';
+                    return `${escapeHtml(creatorName)} restored ${escapeHtml(entityType)} '${escapeHtml(entityNameText)}' (Undo / Restore). ${info}`;
+                }
                 const info = mappedNew && mappedNew !== '-' ? `Durum: ${escapeHtml(mappedNew)}` : '';
                 return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydını geri aldı (Undo / Restore). ${info}`;
             }
             if (act === 'CREATED') {
+                if (isEn) {
+                    const info = mappedNew && mappedNew !== '-' ? `Details: ${escapeHtml(mappedNew)}` : '';
+                    return `${escapeHtml(creatorName)} created a new ${escapeHtml(entityType)} ('${escapeHtml(entityNameText)}'). ${info}`.trim();
+                }
                 const info = mappedNew && mappedNew !== '-' ? `Detaylar: ${escapeHtml(mappedNew)}` : '';
                 return `${escapeHtml(creatorName)}, yeni bir ${escapeHtml(entityType)} kaydı oluşturdu ('${escapeHtml(entityNameText)}'). ${info}`.trim();
             }
             if (act === 'COMMENTADDED' || act === 'INTERNALNOTEADDED') {
+                if (isEn) {
+                    return `${escapeHtml(creatorName)} added a new ${act === 'INTERNALNOTEADDED' ? 'internal note' : 'comment'} to ticket '${escapeHtml(entityNameText)}'.`;
+                }
                 return `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' biletine yeni bir ${act === 'INTERNALNOTEADDED' ? 'iç not' : 'yorum'} ekledi.`;
             }
             const fieldPretty = formatAuditFieldName(a.fieldName);
+            if (isEn) {
+                if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
+                    return `${escapeHtml(creatorName)} moved group '${escapeHtml(entityNameText)}' from '${escapeHtml(mappedOld)}' to '${escapeHtml(mappedNew)}'.`;
+                }
+                return `${escapeHtml(creatorName)} updated field '${escapeHtml(fieldPretty || '-')}' of ${escapeHtml(entityType)} '${escapeHtml(entityNameText)}' from '${escapeHtml(mappedOld || '-')}' to '${escapeHtml(mappedNew || '-')}'. Action: ${escapeHtml(a.action)}`;
+            }
             let sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' adlı ${escapeHtml(entityType)} kaydının '${escapeHtml(fieldPretty || '-')}' alanını '${escapeHtml(mappedOld || '-')}' değerinden '${escapeHtml(mappedNew || '-')}' değerine güncelledi. İşlem: ${escapeHtml(a.action)}`;
             if (entityType.toLowerCase() === 'group' && a.action === 'Moved') {
                 sentence = `${escapeHtml(creatorName)}, '${escapeHtml(entityNameText)}' grubunu '${escapeHtml(mappedOld)}' -> '${escapeHtml(mappedNew)}' taşıdı.`;

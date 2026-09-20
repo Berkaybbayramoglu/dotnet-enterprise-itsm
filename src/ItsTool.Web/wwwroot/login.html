@@ -231,7 +231,7 @@
             document.getElementById('btnSubmitForcePassword').textContent = t.forceBtn;
         };
 
-        const currentLang = localStorage.getItem('itsm_lang') || 'tr';
+        const currentLang = localStorage.getItem('itsm_lang') || 'en';
         const langText = document.getElementById('currentLangText');
         langText.textContent = currentLang.toUpperCase();
         updateLoginLang(currentLang);

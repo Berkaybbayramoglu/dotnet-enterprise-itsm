@@ -145,46 +145,7 @@ Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçları
 
 Proje, **Clean Architecture (Onion Architecture)** prensiplerine tam sadık kalınarak katmanlar arası gevşek bağlılık (loose coupling) ve yüksek test edilebilirlik hedefiyle inşa edilmiştir:
 
-```mermaid
-graph TD
-    subgraph UI ["Client Layer (Vanilla SPA)"]
-        HTML["Responsive HTML5 / CSS3"]
-        JS["Modular Vanilla JS (API Client, UI, SignalR)"]
-    end
-
-    subgraph API ["Presentation Layer (ItsTool.API)"]
-        Controllers["RESTful Controllers & Auth Filters"]
-        Hubs["SignalR Notification Hub"]
-        Swagger["OpenAPI / Swagger Docs"]
-    end
-
-    subgraph Core ["Application Core (ItsTool.Application & Domain)"]
-        DTOs["DTOs, ViewModels & Validators"]
-        Interfaces["Service & Repository Abstractions"]
-        Entities["Domain POCO Entities (Auditable, SoftDelete)"]
-        EAV["EAV Dynamic Field Engine"]
-    end
-
-    subgraph Infra ["Infrastructure Layer (ItsTool.Infrastructure)"]
-        EF["Entity Framework Core (DbContext)"]
-        Audit["SystemAuditInterceptor (Change Tracker)"]
-        SlaEngine["SlaEngine (Background SLA Worker)"]
-        AiCopilot["AI Çözüm Asistanı (LLM Konnektörü)"]
-        SignalR["NotificationDispatcher (Realtime Hub)"]
-    end
-
-    subgraph Data ["Data Storage & External"]
-        PG[("PostgreSQL Database")]
-        LLM["AI / LLM Service"]
-    end
-
-    UI --> API
-    API --> Core
-    API --> Infra
-    Infra --> Core
-    Infra --> PG
-    Infra --> LLM
-```
+![Sistem Mimarisi](screenshots/diagrams/system_architecture_tr.png)
 
 ### Dizin ve Katman Yapısı
 
@@ -209,67 +170,7 @@ ITSM Tool, destek temsilcilerinin operasyonel yükünü hafifletmek, bilet çöz
 
 ### AI Copilot Akış Şeması
 
-```mermaid
-flowchart TD
-    subgraph Client ["İstemci Katmanı - Web UI"]
-        Widget["AI Copilot Paneli"]
-        LangSel["Dil Seçici (TR / EN)"]
-        ModalSettings["Model Ayarları ve API Key"]
-    end
-
-    subgraph API ["Sunum Katmanı - ItsTool.API"]
-        AiCtrl["AiController"]
-        Endpoints["AI Uç Noktaları (Suggest / Draft / Summarize / Ask)"]
-    end
-
-    subgraph CoreAgents ["Ajan ve İş Mantığı - ItsTool.Infrastructure"]
-        Copilot["Çözüm ve Yanıt Asistanı"]
-        HandoffSwarm["Bilet Devir ve Özetleme Ajanı"]
-        ContextAggregator["Bağlam Toplayıcı - RAG Lite"]
-    end
-
-    subgraph DataContext ["Veri Tabanı ve Bağlam"]
-        DB_Tickets[("Bilet Detayları ve Yorumlar")]
-        DB_KB[("Bilgi Bankası Makaleleri")]
-        DB_Custom[("EAV Dinamik Alanlar")]
-    end
-
-    subgraph ExecutionBridge ["Çalıştırma ve Karar Katmanı"]
-        HealthCheck{"LLM Bağlantısı Aktif mi?"}
-        LiveLLM["Canlı LLM Konnektörü - OpenAI Uyumlu"]
-        HeuristicFallback["Akıllı Kural Motoru - Yerel Fallback"]
-    end
-
-    subgraph Providers ["LLM Sağlayıcıları - Yerel ve Bulut"]
-        Ollama["Ollama - Llama 3 / Mistral / Qwen"]
-        LMStudio["LM Studio / vLLM / Localhost"]
-        OpenAI["OpenAI - GPT-4o / GPT-4o-mini"]
-    end
-
-    Widget -->|1. Kullanıcı Aksiyonu| AiCtrl
-    LangSel -.->|Dil Tercihi: TR / EN| AiCtrl
-    ModalSettings -.->|Model ve API Key Yapılandırması| AiCtrl
-    AiCtrl --> Endpoints
-    Endpoints --> Copilot
-    Endpoints --> HandoffSwarm
-
-    Copilot --> ContextAggregator
-    HandoffSwarm --> ContextAggregator
-    ContextAggregator <--> DB_Tickets
-    ContextAggregator <--> DB_KB
-    ContextAggregator <--> DB_Custom
-
-    ContextAggregator --> HealthCheck
-    HealthCheck -->|Evet - Canlı Bağlantı| LiveLLM
-    HealthCheck -->|Hayır - Çevrimdışı veya Hata| HeuristicFallback
-
-    LiveLLM --> Ollama
-    LiveLLM --> LMStudio
-    LiveLLM --> OpenAI
-
-    LiveLLM -->|Sonuç: isLlm = true| Widget
-    HeuristicFallback -->|Sonuç: isLlm = false / Uyarı Rozeti| Widget
-```
+![Yapay Zekâ ve Çok Ajanlı Karar Destek Mimarisi](screenshots/diagrams/ai_architecture_tr.png)
 
 ---
 

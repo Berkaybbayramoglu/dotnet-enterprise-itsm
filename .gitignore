@@ -27,3 +27,6 @@ coverage/
 coverage.opencover.xml
 node_modules/
 docs/
+extracted_media/
+*.pptx
+scripts/generate_presentation.py

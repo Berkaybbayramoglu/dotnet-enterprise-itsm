@@ -106,6 +106,8 @@ export const translations = {
 
         // Dashboard
         "dash_team_workload": "Team Workload",
+        "dash_agent_workload": "Agent Workload",
+        "dash_view_all": "View All",
         "dash_recent_requests": "Recent Requests",
         "dash_no_data": "No data yet",
         "dash_no_tickets": "No tickets yet",
@@ -147,6 +149,24 @@ export const translations = {
         "db_orta": "Medium",
         "db_yüksek": "High",
         "db_kritik": "Critical",
+        "ticket_color_auto": "(Automatic)",
+        "ticket_color_edit_title": "Click to edit color",
+        "ticket_save_color_success": "Ticket color saved successfully!",
+        "ticket_save_color_error": "Error updating color",
+        "db_yazılım_talebi": "Software Request",
+        "db_donanım_arızası": "Hardware Failure",
+        "db_ağ_&_internet": "Network & Internet",
+        "db_ağ_ve_güvenlik_talepleri": "Network & Security Requests",
+        "db_bulut_sunucu_talepleri": "Cloud Server Requests",
+        "db_yazılım_geliştirme": "Software Development",
+        "db_devops_&_altyapı": "DevOps & Infrastructure",
+        "db_it_destek": "IT Support",
+        "db_güvenlik_operasyonları": "Security Operations",
+        "db_insan_kaynakları": "Human Resources",
+        "db_bilgi_teknolojileri_&_altyapı": "Information Technology & Infrastructure",
+        "db_yazılım_ve_ürün_geliştirme": "Software & Product Development",
+        "db_devops_&_bulut_mimarisi": "DevOps & Cloud Architecture",
+        "db_siber_güvenlik_&_secops": "Cyber Security & SecOps",
 
         // Kanban & Misc
         "kanban_info": "Closed tickets are archived in CLOSED. You can drag and drop column headers to reorder.",
@@ -616,7 +636,9 @@ export const translations = {
         "sla_expired": "Expired",
         "sla_on_track": "On Track",
         "sla_on_hold": "On Hold",
-        "ticket_btn_delete": "Delete"
+        "ticket_btn_delete": "Delete",
+        "ticket_color": "Ticket Color",
+        "ticket_save_color": "Save Color"
     },
     "tr": {
         // Sidebar Navigation
@@ -723,6 +745,8 @@ export const translations = {
 
         // Dashboard
         "dash_team_workload": "Takım Yükü",
+        "dash_agent_workload": "Kişi Bazlı Yük",
+        "dash_view_all": "Tümünü Gör",
         "dash_recent_requests": "Son Talepler",
         "dash_no_data": "Henüz veri yok",
         "dash_no_tickets": "Henüz bilet yok",
@@ -765,6 +789,24 @@ export const translations = {
         "db_orta": "Orta",
         "db_yüksek": "Yüksek",
         "db_kritik": "Kritik",
+        "ticket_color_auto": "(Otomatik)",
+        "ticket_color_edit_title": "Rengi düzenlemek için tıklayın",
+        "ticket_save_color_success": "Bilet rengi başarıyla kaydedildi!",
+        "ticket_save_color_error": "Renk güncellenirken hata oluştu",
+        "db_yazılım_talebi": "Yazılım Talebi",
+        "db_donanım_arızası": "Donanım Arızası",
+        "db_ağ_&_internet": "Ağ & İnternet",
+        "db_ağ_ve_güvenlik_talepleri": "Ağ ve Güvenlik Talepleri",
+        "db_bulut_sunucu_talepleri": "Bulut Sunucu Talepleri",
+        "db_yazılım_geliştirme": "Yazılım Geliştirme",
+        "db_devops_&_altyapı": "DevOps & Altyapı",
+        "db_it_destek": "IT Destek",
+        "db_güvenlik_operasyonları": "Güvenlik Operasyonları",
+        "db_insan_kaynakları": "İnsan Kaynakları",
+        "db_bilgi_teknolojileri_&_altyapı": "Bilgi Teknolojileri & Altyapı",
+        "db_yazılım_ve_ürün_geliştirme": "Yazılım ve Ürün Geliştirme",
+        "db_devops_&_bulut_mimarisi": "DevOps & Bulut Mimarisi",
+        "db_siber_güvenlik_&_secops": "Siber Güvenlik & SecOps",
 
         // Kanban & Misc
         "kanban_info": "Kapalı talepler KAPATILDI kolonunda arşivlenir; buradan reopen edilebilir. Kolon başlıklarını sürükleyerek sıralayabilirsiniz.",
@@ -1236,7 +1278,9 @@ export const translations = {
         "sla_expired": "Süre doldu",
         "sla_on_track": "Süresinde",
         "sla_on_hold": "Beklemede",
-        "ticket_btn_delete": "Sil"
+        "ticket_btn_delete": "Sil",
+        "ticket_color": "Bilet Rengi",
+        "ticket_save_color": "Rengi Kaydet"
     }
 };
 
@@ -1244,7 +1288,7 @@ export const translations = {
  * Gets the currently selected language from localStorage, defaults to 'tr'.
  */
 export function getCurrentLanguage() {
-    return localStorage.getItem('itsm_lang') || 'tr';
+    return localStorage.getItem('itsm_lang') || 'en';
 }
 
 /**

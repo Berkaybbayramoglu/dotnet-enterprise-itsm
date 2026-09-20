@@ -13,6 +13,7 @@
     </script>
     <style>
         .detail-container { display: grid; grid-template-columns: minmax(0, 2fr) 300px; gap: var(--spacing-lg); }
+        .side-column { position: sticky; top: 16px; align-self: start; }
         .ticket-header { margin-bottom: var(--spacing-md); }
         .ticket-number { color: var(--text-muted); font-size: 14px; font-weight: 500; }
         .ticket-title { font-size: 24px; color: var(--text-main); margin: var(--spacing-xs) 0 var(--spacing-md) 0; }
@@ -417,13 +418,13 @@
                             <div class="ai-panel-status-row" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; padding: 4px 6px; background: var(--bg-hover, rgba(255,255,255,0.75)); border: 1px solid var(--border, #E2E8F0); border-radius: 6px;">
                                 <button type="button" id="aiStatusBadge" class="badge ai-status-fallback" onclick="window.openLlmSettingsModal()" style="font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; max-width: 175px; overflow: hidden; text-overflow: ellipsis; outline: none;" title="LLM Durumu (Ayarlar için tıklayın)">
                                     <span id="aiStatusDot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#F59E0B; flex-shrink: 0;"></span>
-                                    <span id="aiStatusText" style="overflow: hidden; text-overflow: ellipsis;">LLM Bağlı Değil (Kural Motoru)</span>
+                                    <span id="aiStatusText" data-i18n="ai_status_offline" style="overflow: hidden; text-overflow: ellipsis;">LLM Bağlı Değil (Kural Motoru)</span>
                                 </button>
                                 <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
                                     <label for="aiResponseLang" style="font-size: 10px; font-weight: 600; color: var(--text-muted, #64748B); margin: 0;" data-i18n="ai_lang_label">Dil:</label>
                                     <select id="aiResponseLang" onchange="window.onAiLanguageChanged(this.value)" class="ai-panel-lang-select" style="font-size: 10px; font-weight: 600; padding: 2px 4px; border: 1px solid var(--border, #CBD5E1); border-radius: 4px; background: var(--bg-surface, #FFFFFF); color: var(--text-main, #0F172A); cursor: pointer;" aria-label="Yapay zeka yanıt dili">
-                                        <option value="tr">🇹🇷 TR</option>
                                         <option value="en">🇬🇧 EN</option>
+                                        <option value="tr">🇹🇷 TR</option>
                                     </select>
                                 </div>
                             </div>
@@ -573,14 +574,14 @@
                                 <div class="property-value" id="tSlaContainer" style="background: var(--bg-surface); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">
                                     <div>
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                                            <span style="color: var(--text-muted); font-size: 11px;">İlk Yanıt Hedefi:</span>
+                                            <span style="color: var(--text-muted); font-size: 11px;" data-i18n="sla_first_response">First Response Target:</span>
                                             <span id="tSlaFirstResponseBadge"></span>
                                         </div>
                                         <div id="tSlaFirstResponseDate" style="font-weight: 600; font-size: 12px;"></div>
                                     </div>
                                     <div style="border-top: 1px dashed var(--border); padding-top: 6px;">
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                                            <span style="color: var(--text-muted); font-size: 11px;">Çözüm Hedefi:</span>
+                                            <span style="color: var(--text-muted); font-size: 11px;" data-i18n="sla_resolution">Resolution Target:</span>
                                             <span id="tSlaResolutionBadge"></span>
                                         </div>
                                         <div id="tSlaResolutionDate" style="font-weight: 600; font-size: 12px;"></div>
@@ -839,12 +840,16 @@
         import { injectShell } from './js/layout.js?v=1008';
         import { bindShellActions, showToast, openModal, closeModal, showConfirmModal, showUndoToast } from './js/ui.js?v=1008';
         import { initMentions } from './js/mentions.js?v=1008';
-        import { t } from './js/i18n.js?v=1008';
+        import { t, getCurrentLanguage } from './js/i18n.js?v=1008';
         injectShell();
 
         if (!window.api.token) window.location.href = '/login.html';
         bindShellActions();
         
+        const initialAiLang = localStorage.getItem('itsm_ai_lang') || getCurrentLanguage() || 'en';
+        const aiLangSelect = document.getElementById('aiResponseLang');
+        if (aiLangSelect) aiLangSelect.value = initialAiLang;
+
         const canEditTicket = window.api.decodedToken?.roles?.includes('SuperAdmin') || window.api.decodedToken?.permissions?.includes('ticket.edit') || window.api.decodedToken?.permissions?.includes('ticket.manage') || window.api.decodedToken?.permissions?.includes('ticket.assign');
         if (!canEditTicket) {
             const btnEditInline = document.getElementById('btnEditInline');
@@ -1017,10 +1022,11 @@
             document.getElementById('tPriority').innerHTML = `<span class="badge badge-info">${escapeHtml(t('db_' + prioName.toLowerCase().replaceAll(' ', '_')) || prioName)}</span>`;
             const defaultTicketColor = getTicketDefaultColor(currentTicket.id);
             const activeColor = (currentTicket.colorHex && currentTicket.colorHex.trim() !== '') ? currentTicket.colorHex : defaultTicketColor;
+            const autoColorLabel = t('ticket_color_auto') || '(Automatic)';
             document.getElementById('tColorHex').innerHTML = `
                 <div style="display:flex;align-items:center;gap:8px;">
-                    <input type="color" id="instantColorPicker" value="${activeColor}" title="Rengi anında düzenlemek için tıklayın" style="width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:transparent;">
-                    <span id="tColorLabel" style="font-size:13px; font-weight:500;">${currentTicket.colorHex ? currentTicket.colorHex : (activeColor + ' (Otomatik)')}</span>
+                    <input type="color" id="instantColorPicker" value="${activeColor}" title="${t('ticket_color_edit_title') || 'Click to edit color'}" style="width:24px; height:24px; padding:0; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:transparent;">
+                    <span id="tColorLabel" style="font-size:13px; font-weight:500;">${currentTicket.colorHex ? currentTicket.colorHex : (activeColor + ' ' + autoColorLabel)}</span>
                 </div>
             `;
             const instantPicker = document.getElementById('instantColorPicker');
@@ -1044,10 +1050,10 @@
                         currentTicket.colorHex = newColor;
                         const lbl = document.getElementById('tColorLabel');
                         if (lbl) lbl.textContent = newColor;
-                        showToast('Bilet rengi başarıyla kaydedildi!', 'success');
+                        showToast(t('ticket_save_color_success') || 'Ticket color saved successfully!', 'success');
                     } catch (err) {
                         console.error('Failed to update color', err);
-                        showToast('Renk güncellenirken hata oluştu', 'error');
+                        showToast(t('ticket_save_color_error') || 'Error updating color', 'error');
                     }
                 });
             }
@@ -1354,7 +1360,7 @@
                 allowedStatuses.forEach(s => {
                     const opt = document.createElement("option");
                     opt.value = s.id;
-                    opt.textContent = s.name;
+                    opt.textContent = t('db_' + s.name.toLowerCase().replaceAll(' ', '_')) || s.name;
                     select.appendChild(opt);
                 });
                 select.value = currentStatusId;
@@ -1385,8 +1391,8 @@
                 window.globalUsers = window.globalUsers || [];
                 window.globalGroups = window.globalGroups || [];
 
-                const t = await window.api.request(`/Ticket/${ticketId}`);
-                currentTicket = t;
+                const ticketData = await window.api.request(`/Ticket/${ticketId}`);
+                currentTicket = ticketData;
 
                 // Fetch attachments first, then render ticket data which needs them
                 try {
@@ -1408,21 +1414,25 @@
                     console.error("Failed to render ticket data", e);
                 }
                 
-                const projName = window.globalLookup?.projects?.find(x => x.id === t.projectId)?.name || '-';
+                const projName = window.globalLookup?.projects?.find(x => x.id === ticketData.projectId)?.name || '-';
                 const projEl = document.getElementById('tProject');
-                if (projEl) projEl.textContent = projName;
+                if (projEl) projEl.textContent = t('db_' + projName.toLowerCase().replaceAll(' ', '_'), projName);
+
+                const catName = window.globalLookup?.categories?.find(x => x.id === ticketData.categoryId)?.name || '-';
+                const catEl = document.getElementById('tCategory');
+                if (catEl) catEl.textContent = t('db_' + catName.toLowerCase().replaceAll(' ', '_'), catName);
                 
-                const reqUser = (window.globalUsers || []).find(u => u.id === t.requesterUserId);
-                const getReqName = reqUser ? (reqUser.firstName ? `${reqUser.firstName} ${reqUser.lastName}` : reqUser.username) : (t.requesterName || `User ${t.requesterUserId}`);
+                const reqUser = (window.globalUsers || []).find(u => u.id === ticketData.requesterUserId);
+                const getReqName = reqUser ? (reqUser.firstName ? `${reqUser.firstName} ${reqUser.lastName}` : reqUser.username) : (ticketData.requesterName || `User ${ticketData.requesterUserId}`);
                 const reqEl = document.getElementById('tReq');
                 if (reqEl) {
-                    reqEl.innerHTML = `<button type="button" class="btn btn-ghost d-flex align-items-center gap-sm p-0 m-0 user-hover-link" data-user-id="${t.requesterUserId}" style="border:none; text-align:left;" onclick="openUserDetails(${t.requesterUserId})">${getAvatar(t.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</button>`;
+                    reqEl.innerHTML = `<button type="button" class="btn btn-ghost d-flex align-items-center gap-sm p-0 m-0 user-hover-link" data-user-id="${ticketData.requesterUserId}" style="border:none; text-align:left;" onclick="openUserDetails(${ticketData.requesterUserId})">${getAvatar(ticketData.requesterUserId, getReqName, reqUser?.profilePhoto)} ${escapeHtml(getReqName)}</button>`;
                 }
 
                 let assignHTML = '';
-                if (t.assignments && t.assignments.length > 0) {
+                if (ticketData.assignments && ticketData.assignments.length > 0) {
                     const deptsLookup = window.globalLookup && window.globalLookup.departments ? window.globalLookup.departments : [];
-                    assignHTML = buildAssignmentsHtml(t.assignments, window.globalGroups, window.globalUsers, deptsLookup);
+                    assignHTML = buildAssignmentsHtml(ticketData.assignments, window.globalGroups, window.globalUsers, deptsLookup);
                 } else {
                     assignHTML = '<span class="text-muted">Unassigned</span>';
                 }
@@ -1437,17 +1447,18 @@
                         allowedStatuses.forEach(s => {
                             const opt = document.createElement('option');
                             opt.value = s.id;
-                            opt.textContent = s.name;
+                            opt.textContent = t('db_' + s.name.toLowerCase().replaceAll(' ', '_'), s.name);
                             select.appendChild(opt);
                         });
-                        if (!allowedStatuses.some(s => s.id === t.statusId)) {
-                            const curStatus = (window.globalLookup?.statuses || []).find(s => s.id === t.statusId);
+                        if (!allowedStatuses.some(s => s.id === ticketData.statusId)) {
+                            const curStatus = (window.globalLookup?.statuses || []).find(s => s.id === ticketData.statusId);
                             const opt = document.createElement('option');
-                            opt.value = t.statusId;
-                            opt.textContent = curStatus ? curStatus.name : `Status #${t.statusId}`;
+                            opt.value = ticketData.statusId;
+                            const sName = curStatus ? curStatus.name : `Status #${ticketData.statusId}`;
+                            opt.textContent = t('db_' + sName.toLowerCase().replaceAll(' ', '_'), sName);
                             select.prepend(opt);
                         }
-                        select.value = t.statusId;
+                        select.value = ticketData.statusId;
                     }
                 } catch(e) {
                     console.error("Failed to load allowed transitions", e);
@@ -1456,21 +1467,21 @@
                 const csatLink = document.getElementById('csatLink');
                 const surveyBtn = document.getElementById('surveyBtn');
                 if (csatLink && surveyBtn) {
-                    if (t.statusId === 5) {
+                    if (ticketData.statusId === 5) {
                         csatLink.style.display = 'block';
-                        surveyBtn.href = `/survey.html?id=${t.id}`;
+                        surveyBtn.href = `/survey.html?id=${ticketData.id}`;
                     } else {
                         csatLink.style.display = 'none';
                     }
                 }
 
-                renderDetailSla(t.sla, t.statusId);
+                renderDetailSla(ticketData.sla, ticketData.statusId);
 
                 const contentEl = document.getElementById('content');
                 if (contentEl) contentEl.style.display = 'grid';
                 
                 const canManage = isSuperAdmin || currentUserPermissions.includes('ticket.manage') || currentUserPermissions.includes('ticket.assign');
-                const canEdit = canManage || (t.requesterUserId === currentUserId);
+                const canEdit = canManage || (ticketData.requesterUserId === currentUserId);
                 
                 const btnEditInline = document.getElementById('btnEditInline');
                 if (btnEditInline) btnEditInline.style.display = canEdit ? 'inline-block' : 'none';
@@ -1524,9 +1535,11 @@
             const slaGroup = document.getElementById('tSlaGroup');
             if (!slaGroup) return;
 
+            const isEn = getCurrentLanguage() === 'en';
+
             if (!sla) {
-                document.getElementById('tSlaOverallBadge').innerHTML = '<span class="badge" style="background:var(--bg-hover); color:var(--text-muted); font-size:10px;">Tanımsız</span>';
-                document.getElementById('tSlaContainer').innerHTML = '<div style="color:var(--text-muted); font-size:12px;">Bu bilet için aktif bir SLA politikası atanmamış.</div>';
+                document.getElementById('tSlaOverallBadge').innerHTML = `<span class="badge" style="background:var(--bg-hover); color:var(--text-muted); font-size:10px;">${isEn ? 'Undefined' : 'Tanımsız'}</span>`;
+                document.getElementById('tSlaContainer').innerHTML = `<div style="color:var(--text-muted); font-size:12px;">${isEn ? 'No active SLA policy assigned to this ticket.' : 'Bu bilet için aktif bir SLA politikası atanmamış.'}</div>`;
                 return;
             }
 
@@ -1549,18 +1562,18 @@
             let overallBadge = '';
             if (isClosed) {
                 if (isResBreached || isFirstRespBreached) {
-                    overallBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:600;">İhlal Edildi</span>';
+                    overallBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:600;">${isEn ? 'Breached' : 'İhlal Edildi'}</span>`;
                 } else {
-                    overallBadge = '<span class="badge badge-success" style="font-size:10px; font-weight:600;">Karşılandı</span>';
+                    overallBadge = `<span class="badge badge-success" style="font-size:10px; font-weight:600;">${isEn ? 'Met' : 'Karşılandı'}</span>`;
                 }
             } else if (sla.pausedAt) {
-                overallBadge = '<span class="badge badge-default" style="font-size:10px; font-weight:600;">Duraklatıldı</span>';
+                overallBadge = `<span class="badge badge-default" style="font-size:10px; font-weight:600;">${isEn ? 'Paused' : 'Duraklatıldı'}</span>`;
             } else if (isResBreached) {
-                overallBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:700;">Çözüm Aşıldı</span>';
+                overallBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:700;">${isEn ? 'Resolution Breached' : 'Çözüm Aşıldı'}</span>`;
             } else if (isFirstRespBreached) {
-                overallBadge = '<span class="badge badge-warning" style="font-size:10px; font-weight:700;">İlk Yanıt Aşıldı</span>';
+                overallBadge = `<span class="badge badge-warning" style="font-size:10px; font-weight:700;">${isEn ? 'First Response Breached' : 'İlk Yanıt Aşıldı'}</span>`;
             } else {
-                overallBadge = '<span class="badge badge-info" style="font-size:10px; font-weight:600;">Süresinde</span>';
+                overallBadge = `<span class="badge badge-info" style="font-size:10px; font-weight:600;">${isEn ? 'On Track' : 'Süresinde'}</span>`;
             }
             document.getElementById('tSlaOverallBadge').innerHTML = overallBadge;
 
@@ -1568,11 +1581,11 @@
             let firstRespBadge = '';
             let firstRespDateText = '—';
             if (firstRespDate) {
-                firstRespDateText = firstRespDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                firstRespDateText = firstRespDate.toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 if (isFirstRespMet) {
-                    firstRespBadge = '<span class="badge badge-success" style="font-size:10px;">Karşılandı</span>';
+                    firstRespBadge = `<span class="badge badge-success" style="font-size:10px;">${isEn ? 'Met' : 'Karşılandı'}</span>`;
                 } else if (isFirstRespBreached) {
-                    firstRespBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:700;">Aşıldı</span>';
+                    firstRespBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:700;">${isEn ? 'Breached' : 'Aşıldı'}</span>`;
                 } else {
                     const diffMs = firstRespDate - now;
                     firstRespBadge = `<span class="badge badge-info" style="font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
@@ -1585,11 +1598,11 @@
             let resBadge = '';
             let resDateText = '—';
             if (resDate) {
-                resDateText = resDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                resDateText = resDate.toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 if (isResMet) {
-                    resBadge = '<span class="badge badge-success" style="font-size:10px;">Karşılandı</span>';
+                    resBadge = `<span class="badge badge-success" style="font-size:10px;">${isEn ? 'Met' : 'Karşılandı'}</span>`;
                 } else if (isResBreached) {
-                    resBadge = '<span class="badge badge-danger" style="font-size:10px; font-weight:700;">Aşıldı</span>';
+                    resBadge = `<span class="badge badge-danger" style="font-size:10px; font-weight:700;">${isEn ? 'Breached' : 'Aşıldı'}</span>`;
                 } else {
                     const diffMs = resDate - now;
                     resBadge = `<span class="badge badge-info" style="font-size:10px;">${formatRemainingTime(diffMs)}</span>`;
@@ -1600,16 +1613,17 @@
         }
 
         function formatRemainingTime(diffMs) {
-            if (diffMs <= 0) return 'Süre doldu';
+            const isEn = getCurrentLanguage() === 'en';
+            if (diffMs <= 0) return isEn ? 'Expired' : 'Süre doldu';
             const mins = Math.floor(diffMs / 60000);
-            if (mins <= 60) return `${Math.max(1, mins)} dk kaldı`;
+            if (mins <= 60) return isEn ? `${Math.max(1, mins)} min left` : `${Math.max(1, mins)} dk kaldı`;
             if (mins <= 1440) {
                 const hrs = Math.floor(mins / 60);
                 const rm = mins % 60;
-                return `${hrs} sa ${rm} dk`;
+                return isEn ? `${hrs}h ${rm}m` : `${hrs} sa ${rm} dk`;
             }
             const days = Math.ceil(mins / 1440);
-            return `${days} gün kaldı`;
+            return isEn ? `${days} days left` : `${days} gün kaldı`;
         }
 
 
@@ -2320,7 +2334,7 @@
                 }
                 const editorName = window.resolveTimelineUser(h.createdBy);
                 const editedAt = new Date(e.timestamp).toLocaleString();
-                detailsHtml = `<button class="btn btn-ghost" style="font-size:11px; padding:4px 8px; margin-top:4px; color:var(--primary); font-weight:600; background:rgba(10, 107, 234, 0.05); border:1px solid rgba(10, 107, 234, 0.1);" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">Detay Gör</button>`;
+                detailsHtml = `<button class="btn btn-ghost" style="font-size:11px; padding:4px 8px; margin-top:4px; color:var(--primary); font-weight:600; background:rgba(10, 107, 234, 0.05); border:1px solid rgba(10, 107, 234, 0.1);" onclick="showEditDetails('${oldEnc}', '${newEnc}', '${escapeHtml(origAuthor)}', '${escapeHtml(editorName)}', '${origCreatedAt}', '${editedAt}')">${t('audit_btn_detail') || 'View Details'}</button>`;
             } else if (h.action === 'CommentDeleted' && h.oldValue) {
                 detailsHtml = `<div style="background:var(--bg-danger-light); padding: 4px 8px; margin-top:4px; border-radius:4px; border:1px solid var(--border-danger-light); font-size:11px; color:var(--text-danger-strong);"><del>${escapeHtml(h.oldValue)}</del></div>`;
             }
@@ -3435,7 +3449,7 @@
         window.checkAiStatus = async function() {
             const badge = document.getElementById('aiStatusBadge');
             if (!badge) return;
-            const curLang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'tr';
+            const curLang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'en';
             const isEn = curLang === 'en';
 
             try {
@@ -3477,7 +3491,7 @@
             if (statusBox) statusBox.style.display = 'none';
 
             // Sync default language in modal
-            const savedLang = localStorage.getItem('itsm_ai_lang') || 'tr';
+            const savedLang = localStorage.getItem('itsm_ai_lang') || 'en';
             const modalLang = document.getElementById('llmDefaultLang');
             if (modalLang) modalLang.value = savedLang;
 
@@ -3759,7 +3773,7 @@
                 return;
             }
 
-            const lang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'tr';
+            const lang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'en';
             const isEn = lang === 'en';
 
             let btnId = '';
@@ -3822,7 +3836,8 @@
                             resultSource.style.background = '#ECFDF5';
                             resultSource.style.color = '#047857';
                             resultSource.style.border = '1px solid #A7F3D0';
-                            resultSource.innerHTML = `⚡ ${stripMarkdownAndEmojis(res.source || (isEn ? 'Live LLM' : 'Canlı LLM'))}`;
+                            const srcText = stripMarkdownAndEmojis((res.source || '').replace('Canlı LLM', isEn ? 'Live LLM' : 'Canlı LLM')) || (isEn ? 'Live LLM' : 'Canlı LLM');
+                            resultSource.innerHTML = `⚡ ${srcText}`;
                         } else {
                             resultSource.style.background = '#FEF3C7';
                             resultSource.style.color = '#92400E';
@@ -3879,7 +3894,7 @@
                 return;
             }
 
-            const lang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'tr';
+            const lang = document.getElementById('aiResponseLang')?.value || localStorage.getItem('itsm_ai_lang') || 'en';
             const isEn = lang === 'en';
 
             setAiBusyState(true, 'btnAiSubmitAsk', isEn ? 'Asking...' : 'Soruluyor...');
@@ -3918,7 +3933,8 @@
                             resultSource.style.background = '#ECFDF5';
                             resultSource.style.color = '#047857';
                             resultSource.style.border = '1px solid #A7F3D0';
-                            resultSource.innerHTML = `⚡ ${stripMarkdownAndEmojis(res.source || (isEn ? 'Live LLM' : 'Canlı LLM'))}`;
+                            const srcText = stripMarkdownAndEmojis((res.source || '').replace('Canlı LLM', isEn ? 'Live LLM' : 'Canlı LLM')) || (isEn ? 'Live LLM' : 'Canlı LLM');
+                            resultSource.innerHTML = `⚡ ${srcText}`;
                         } else {
                             resultSource.style.background = '#FEF3C7';
                             resultSource.style.color = '#92400E';

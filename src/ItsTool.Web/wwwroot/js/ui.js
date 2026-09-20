@@ -888,8 +888,10 @@ export async function openTicketPreview(ticketData, lookupData) {
     }
 
     const content = document.getElementById('previewContent');
-    const projName = lookupData.projects?.find(x => x.id === ticketData.projectId)?.name || '-';
-    const catName = lookupData.categories?.find(x => x.id === ticketData.categoryId)?.name || '-';
+    const rawProjName = lookupData.projects?.find(x => x.id === ticketData.projectId)?.name || '-';
+    const projName = t('db_' + rawProjName.toLowerCase().replaceAll(' ', '_'), rawProjName);
+    const rawCatName = lookupData.categories?.find(x => x.id === ticketData.categoryId)?.name || '-';
+    const catName = t('db_' + rawCatName.toLowerCase().replaceAll(' ', '_'), rawCatName);
     const prioName = lookupData.priorities?.find(x => x.id === ticketData.priorityId)?.name || 'Normal';
     const prioColors = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
     const prioColor = prioColors[prioName] || 'default';
@@ -907,14 +909,15 @@ export async function openTicketPreview(ticketData, lookupData) {
     const formatDate = (d) => {
         if(!d) return '-';
         const date = new Date(d);
-        return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' });
+        const lang = getCurrentLanguage();
+        return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString(lang === 'en' ? 'en-US' : 'tr-TR', { dateStyle: 'short', timeStyle: 'short' });
     };
 
     const escapeHtml = (unsafe) => (unsafe || '').toString().replaceAll('&', "&amp;").replaceAll('<', "&lt;").replaceAll('>', "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
     const headerEl = modalOverlay.querySelector('.modal-header h2');
     if (headerEl) {
-        const translatedStatus = t('db_' + statusName.toLowerCase().replaceAll(' ', '_')) || statusName;
+        const translatedStatus = t('db_' + statusName.toLowerCase().replaceAll(' ', '_'), statusName);
         headerEl.innerHTML = `${escapeHtml(ticketData.ticketNumber)} <span class="badge badge-primary" style="font-size: 12px; margin-left: 8px; text-transform: uppercase;">${escapeHtml(translatedStatus)}</span>`;
     }
 
@@ -927,7 +930,7 @@ export async function openTicketPreview(ticketData, lookupData) {
             ${escapeHtml(ticketData.description || '')}
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); background: var(--bg-hover); padding: var(--spacing-md); border-radius: var(--radius-md);">
-            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_priority') || 'Priority'}</div><span class="badge badge-${prioColor}">${escapeHtml(t('db_' + prioName.toLowerCase().replaceAll(' ', '_')) || prioName)}</span></div>
+            <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_priority') || 'Priority'}</div><span class="badge badge-${prioColor}">${escapeHtml(t('db_' + prioName.toLowerCase().replaceAll(' ', '_'), prioName))}</span></div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_project') || 'Project'} / ${t('ticket_prop_category') || 'Category'}</div><div style="font-size: 14px; font-weight: 500;">${escapeHtml(projName)} <span style="color:var(--text-muted);">/</span> ${escapeHtml(catName)}</div></div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_requester') || 'Requester'}</div>${reqBtnHtml}</div>
             <div><div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${t('ticket_prop_assignee') || 'Assignee'}</div>${assignBtnHtml}</div>
@@ -937,11 +940,11 @@ export async function openTicketPreview(ticketData, lookupData) {
         <div style="margin-top: var(--spacing-md); padding: 10px 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div id="previewColorDot" style="width: 20px; height: 20px; border-radius: 50%; background-color: ${((ticketData.colorHex && ticketData.colorHex.trim() !== '') ? ticketData.colorHex : ['#2563eb','#059669','#d97706','#7c3aed','#dc2626','#0891b2','#ea580c','#db2777','#4f46e5','#16a34a','#9333ea','#0284c7','#b45309','#e11d48','#0d9488','#475569'][((ticketData.id || 1) * 7) % 16])}; border: 1px solid rgba(0,0,0,0.2);"></div>
-                <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">Bilet Rengi</span>
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">${t('ticket_color') || 'Ticket Color'}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <input type="color" id="previewColorPicker" value="${((ticketData.colorHex && ticketData.colorHex.trim() !== '') ? ticketData.colorHex : ['#2563eb','#059669','#d97706','#7c3aed','#dc2626','#0891b2','#ea580c','#db2777','#4f46e5','#16a34a','#9333ea','#0284c7','#b45309','#e11d48','#0d9488','#475569'][((ticketData.id || 1) * 7) % 16])}" style="width: 44px; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
-                <button type="button" id="previewSaveColorBtn" class="btn btn-secondary btn-sm" style="font-size: 12px; padding: 6px 12px;">Rengi Kaydet</button>
+                <button type="button" id="previewSaveColorBtn" class="btn btn-secondary btn-sm" style="font-size: 12px; padding: 6px 12px;">${t('ticket_save_color') || 'Save Color'}</button>
             </div>
         </div>
     `;

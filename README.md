@@ -55,37 +55,37 @@ The platform features an ultra-responsive, zero-dependency Vanilla JS interface 
 
 ### 1. Executive Operational Dashboard & KPI Analytics
 Real-time KPI metric cards, SLA compliance trends, weekly open/resolved ticket statistics via Chart.js, and modal pop-ups for granular data breakdown.
-![Executive Dashboard](screenshots/dashboard.png)
+![Executive Dashboard](screenshots/en/dashboard.png)
 
 ### 2. Interactive Kanban Board & Quick Preview Modal
 Drag-and-drop ticket state management with responsive columns (Open, In Progress, Pending, Resolved) and instant click-to-preview pop-up modals for technician velocity.
-![Interactive Kanban Board](screenshots/kanban.png)
+![Interactive Kanban Board](screenshots/en/kanban.png)
 
 ### 3. Interactive Calendar & SLA Delivery Planning
 FullCalendar-powered monthly and weekly scheduling matrix displaying estimated start/finish windows and critical SLA delivery deadlines with event summary pop-ups.
-![Calendar View](screenshots/calendar.png)
+![Calendar View](screenshots/en/calendar.png)
 
 ### 4. Ticket Lifecycle, Rich Text Editor & Live SLA Timers
 Granular ticket timeline audit, Quill.js rich text editor with `@mention` notifications, and real-time color-coded dynamic SLA countdown clocks.
-![Ticket Detail](screenshots/ticket-detail.png)
-![Quill.js Rich Editor & Live SLA Countdown](screenshots/ticket-mention-sla.png)
+![Ticket Detail](screenshots/en/ticket-detail.png)
+![Quill.js Rich Editor & Live SLA Countdown](screenshots/en/ticket-mention-sla.png)
 
 ### 5. AI Resolution Copilot & Shift Handover Assistant
 Multi-Source Hybrid RAG engine providing grounded step-by-step resolution suggestions, dynamic prompt synthesis, and automatic ticket handover summaries for seamless shift transitions.
-![AI Copilot & Resolution Assistant](screenshots/ai-copilot.png)
+![AI Copilot & Resolution Assistant](screenshots/en/ai-copilot.png)
 
 ### 6. Enterprise Knowledge Base & Four-Eyes Governance
 Curated corporate knowledge catalog paired with a mandatory Four-Eyes approval segregation workflow to ensure article quality before publication.
-![Knowledge Base Catalog](screenshots/kb-catalog.png)
-![Four-Eyes Approval Modal](screenshots/kb-approval-modal.png)
+![Knowledge Base Catalog](screenshots/en/kb-catalog.png)
+![Four-Eyes Approval Modal](screenshots/en/kb-approval-modal.png)
 
 ### 7. Deep Audit Trail & System Log Inspection
 Complete database-level audit log recording user actions, timestamps, and JSON-based before/after field mutations accessible via the log detail pop-up modal.
-![System Audit Log](screenshots/audit-log.png)
+![System Audit Log](screenshots/en/audit-log.png)
 
 ### 8. Dynamic SLA Policies & Priority Matrix Configuration
 Administrative interface for configuring Critical, High, Medium, and Low response/resolution target thresholds, business calendar schedules, and automated escalation timers.
-![SLA Configuration Matrix](screenshots/sla-management.png)
+![SLA Configuration Matrix](screenshots/en/sla-management.png)
 
 ---
 
@@ -147,46 +147,7 @@ While the open-source helpdesk ecosystem is heavily dominated by legacy **PHP** 
 
 The project strictly follows **Clean Architecture (Onion Architecture)** principles, targeting loose coupling and high testability across all system layers:
 
-```mermaid
-graph TD
-    subgraph UI ["Client Layer (Vanilla SPA)"]
-        HTML["Responsive HTML5 / CSS3"]
-        JS["Modular Vanilla JS (API Client, UI, SignalR)"]
-    end
-
-    subgraph API ["Presentation Layer (ItsTool.API)"]
-        Controllers["RESTful Controllers & Auth Filters"]
-        Hubs["SignalR Notification Hub"]
-        Swagger["OpenAPI / Swagger Docs"]
-    end
-
-    subgraph Core ["Application Core (ItsTool.Application & Domain)"]
-        DTOs["DTOs, ViewModels & Validators"]
-        Interfaces["Service & Repository Abstractions"]
-        Entities["Domain POCO Entities (Auditable, SoftDelete)"]
-        EAV["EAV Dynamic Field Engine"]
-    end
-
-    subgraph Infra ["Infrastructure Layer (ItsTool.Infrastructure)"]
-        EF["Entity Framework Core (DbContext)"]
-        Audit["SystemAuditInterceptor (Change Tracker)"]
-        SlaEngine["SlaEngine (Background SLA Worker)"]
-        AiCopilot["AI Resolution Copilot (LLM Connector)"]
-        SignalR["NotificationDispatcher (Realtime Hub)"]
-    end
-
-    subgraph Data ["Data Storage & External"]
-        PG[("PostgreSQL Database")]
-        LLM["AI / LLM Service"]
-    end
-
-    UI --> API
-    API --> Core
-    API --> Infra
-    Infra --> Core
-    Infra --> PG
-    Infra --> LLM
-```
+![System Architecture](screenshots/diagrams/system_architecture_en.png)
 
 ### Directory Structure
 
@@ -211,67 +172,7 @@ ITSM Tool features a **hybrid, multi-layered artificial intelligence architectur
 
 ### AI Copilot Flowchart
 
-```mermaid
-flowchart TD
-    subgraph Client ["Client Layer - Web UI"]
-        Widget["AI Copilot Panel"]
-        LangSel["Language Selector (TR / EN)"]
-        ModalSettings["Model Settings & API Key"]
-    end
-
-    subgraph API ["Presentation Layer - ItsTool.API"]
-        AiCtrl["AiController"]
-        Endpoints["AI Endpoints (Suggest / Draft / Summarize / Ask)"]
-    end
-
-    subgraph CoreAgents ["Agents & Business Logic - ItsTool.Infrastructure"]
-        Copilot["Resolution Copilot Agent"]
-        HandoffSwarm["Ticket Handoff Swarm Agent"]
-        ContextAggregator["Context Aggregator - Structured RAG"]
-    end
-
-    subgraph DataContext ["Database & Context Store"]
-        DB_Tickets[("Ticket Details & Discussions")]
-        DB_KB[("Knowledge Base Articles")]
-        DB_Custom[("EAV Dynamic Fields")]
-    end
-
-    subgraph ExecutionBridge ["Execution & Decision Layer"]
-        HealthCheck{"Is LLM Active & Reachable?"}
-        LiveLLM["Live LLM Connector - OpenAI Compatible"]
-        HeuristicFallback["Smart Heuristic Fallback Engine"]
-    end
-
-    subgraph Providers ["LLM Providers - Local & Cloud"]
-        Ollama["Ollama - Llama 3 / Mistral / Qwen"]
-        LMStudio["LM Studio / vLLM / Localhost"]
-        OpenAI["OpenAI - GPT-4o / GPT-4o-mini"]
-    end
-
-    Widget -->|1. User Action| AiCtrl
-    LangSel -.->|Language Choice: TR / EN| AiCtrl
-    ModalSettings -.->|Model & API Key Config| AiCtrl
-    AiCtrl --> Endpoints
-    Endpoints --> Copilot
-    Endpoints --> HandoffSwarm
-
-    Copilot --> ContextAggregator
-    HandoffSwarm --> ContextAggregator
-    ContextAggregator <--> DB_Tickets
-    ContextAggregator <--> DB_KB
-    ContextAggregator <--> DB_Custom
-
-    ContextAggregator --> HealthCheck
-    HealthCheck -->|Yes - Live Connection| LiveLLM
-    HealthCheck -->|No - Offline or Error| HeuristicFallback
-
-    LiveLLM --> Ollama
-    LiveLLM --> LMStudio
-    LiveLLM --> OpenAI
-
-    LiveLLM -->|Result: isLlm = true| Widget
-    HeuristicFallback -->|Result: isLlm = false / Heuristic Badge| Widget
-```
+![AI & Multi-Agent Decision Support Architecture](screenshots/diagrams/ai_architecture_en.png)
 
 ---
 
@@ -697,46 +598,7 @@ Açık kaynak yardım masası (Helpdesk / ITSM) dünyasında popüler araçları
 
 Proje, **Clean Architecture (Onion Architecture)** prensiplerine tam sadık kalınarak katmanlar arası gevşek bağlılık (loose coupling) ve yüksek test edilebilirlik hedefiyle inşa edilmiştir:
 
-```mermaid
-graph TD
-    subgraph UI ["Client Layer (Vanilla SPA)"]
-        HTML["Responsive HTML5 / CSS3"]
-        JS["Modular Vanilla JS (API Client, UI, SignalR)"]
-    end
-
-    subgraph API ["Presentation Layer (ItsTool.API)"]
-        Controllers["RESTful Controllers & Auth Filters"]
-        Hubs["SignalR Notification Hub"]
-        Swagger["OpenAPI / Swagger Docs"]
-    end
-
-    subgraph Core ["Application Core (ItsTool.Application & Domain)"]
-        DTOs["DTOs, ViewModels & Validators"]
-        Interfaces["Service & Repository Abstractions"]
-        Entities["Domain POCO Entities (Auditable, SoftDelete)"]
-        EAV["EAV Dynamic Field Engine"]
-    end
-
-    subgraph Infra ["Infrastructure Layer (ItsTool.Infrastructure)"]
-        EF["Entity Framework Core (DbContext)"]
-        Audit["SystemAuditInterceptor (Change Tracker)"]
-        SlaEngine["SlaEngine (Background SLA Worker)"]
-        AiCopilot["AI Çözüm Asistanı (LLM Konnektörü)"]
-        SignalR["NotificationDispatcher (Realtime Hub)"]
-    end
-
-    subgraph Data ["Data Storage & External"]
-        PG[("PostgreSQL Database")]
-        LLM["AI / LLM Service"]
-    end
-
-    UI --> API
-    API --> Core
-    API --> Infra
-    Infra --> Core
-    Infra --> PG
-    Infra --> LLM
-```
+![Sistem Mimarisi](screenshots/diagrams/system_architecture_tr.png)
 
 ### Dizin ve Katman Yapısı
 
@@ -761,67 +623,7 @@ ITSM Tool, destek temsilcilerinin operasyonel yükünü hafifletmek, bilet çöz
 
 ### AI Copilot Akış Şeması
 
-```mermaid
-flowchart TD
-    subgraph Client ["İstemci Katmanı - Web UI"]
-        Widget["AI Copilot Paneli"]
-        LangSel["Dil Seçici (TR / EN)"]
-        ModalSettings["Model Ayarları ve API Key"]
-    end
-
-    subgraph API ["Sunum Katmanı - ItsTool.API"]
-        AiCtrl["AiController"]
-        Endpoints["AI Uç Noktaları (Suggest / Draft / Summarize / Ask)"]
-    end
-
-    subgraph CoreAgents ["Ajan ve İş Mantığı - ItsTool.Infrastructure"]
-        Copilot["Çözüm ve Yanıt Asistanı"]
-        HandoffSwarm["Bilet Devir ve Özetleme Ajanı"]
-        ContextAggregator["Bağlam Toplayıcı - RAG Lite"]
-    end
-
-    subgraph DataContext ["Veri Tabanı ve Bağlam"]
-        DB_Tickets[("Bilet Detayları ve Yorumlar")]
-        DB_KB[("Bilgi Bankası Makaleleri")]
-        DB_Custom[("EAV Dinamik Alanlar")]
-    end
-
-    subgraph ExecutionBridge ["Çalıştırma ve Karar Katmanı"]
-        HealthCheck{"LLM Bağlantısı Aktif mi?"}
-        LiveLLM["Canlı LLM Konnektörü - OpenAI Uyumlu"]
-        HeuristicFallback["Akıllı Kural Motoru - Yerel Fallback"]
-    end
-
-    subgraph Providers ["LLM Sağlayıcıları - Yerel ve Bulut"]
-        Ollama["Ollama - Llama 3 / Mistral / Qwen"]
-        LMStudio["LM Studio / vLLM / Localhost"]
-        OpenAI["OpenAI - GPT-4o / GPT-4o-mini"]
-    end
-
-    Widget -->|1. Kullanıcı Aksiyonu| AiCtrl
-    LangSel -.->|Dil Tercihi: TR / EN| AiCtrl
-    ModalSettings -.->|Model ve API Key Yapılandırması| AiCtrl
-    AiCtrl --> Endpoints
-    Endpoints --> Copilot
-    Endpoints --> HandoffSwarm
-
-    Copilot --> ContextAggregator
-    HandoffSwarm --> ContextAggregator
-    ContextAggregator <--> DB_Tickets
-    ContextAggregator <--> DB_KB
-    ContextAggregator <--> DB_Custom
-
-    ContextAggregator --> HealthCheck
-    HealthCheck -->|Evet - Canlı Bağlantı| LiveLLM
-    HealthCheck -->|Hayır - Çevrimdışı veya Hata| HeuristicFallback
-
-    LiveLLM --> Ollama
-    LiveLLM --> LMStudio
-    LiveLLM --> OpenAI
-
-    LiveLLM -->|Sonuç: isLlm = true| Widget
-    HeuristicFallback -->|Sonuç: isLlm = false / Uyarı Rozeti| Widget
-```
+![Yapay Zekâ ve Çok Ajanlı Karar Destek Mimarisi](screenshots/diagrams/ai_architecture_tr.png)
 
 ---
 
