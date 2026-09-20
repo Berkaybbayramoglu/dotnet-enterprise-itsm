@@ -275,7 +275,7 @@ The codebase adheres strictly to enterprise software engineering principles and 
 
 The test suite validates domain invariants, state machines, SLA breach calculations, and API controllers across all Clean Architecture layers:
 
-![Multi-Layer Test Architecture](screenshots/test-architecture.png)
+![Multi-Layer Test Architecture](screenshots/en/test-architecture.png)
 
 ### Continuous Integration (CI/CD Pipeline)
 
